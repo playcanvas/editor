@@ -4,8 +4,8 @@ import { TooltipHandle } from '@/common/tooltips';
 
 import type { Attribute } from '../attribute.type.d';
 
-import { BaseSettingsPanel  } from './base';
-import type {BaseSettingsPanelArgs} from './base';
+import { BaseSettingsPanel } from './base';
+import type { BaseSettingsPanelArgs } from './base';
 
 const ATTRIBUTES: Attribute[] = [
     {

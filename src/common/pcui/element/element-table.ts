@@ -382,7 +382,6 @@ class Table extends Container {
             this._activeRow = null;
         }
         const children = this._containerBody.dom.childNodes;
-        // eslint-disable-next-line @typescript-eslint/prefer-for-of -- NodeListOf<ChildNode> not iterable under project tsconfig
         for (let i = 0; i < children.length; i++) {
             const row = (children[i] as any).ui;
             if (row instanceof TableRow && !row.header && !row.hidden) {
@@ -492,7 +491,6 @@ class Table extends Container {
         container.forEachChild((row: any) => {
             if (row instanceof TableRow) {
                 let index = columnIndex + 1;
-                // eslint-disable-next-line @typescript-eslint/prefer-for-of -- NodeListOf<ChildNode> not iterable under project tsconfig
                 for (let i = 0; i < row.dom.childNodes.length; i++) {
                     const rowCell = row.dom.childNodes[i] as HTMLElement & { ui?: TableCell };
                     if (rowCell.ui && rowCell.ui instanceof TableCell) {

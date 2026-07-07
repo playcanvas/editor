@@ -1,4 +1,4 @@
-import type { ElementArgs} from '@playcanvas/pcui';
+import type { ElementArgs } from '@playcanvas/pcui';
 import { Element, Canvas } from '@playcanvas/pcui';
 import { Curve } from 'playcanvas';
 
@@ -27,7 +27,7 @@ type CurveInputArgs = {
     renderChanges?: boolean;
     /** The curves configuration */
     curves?: any;
-} & ElementArgs
+} & ElementArgs;
 
 /**
  * Shows a curve or curveset.

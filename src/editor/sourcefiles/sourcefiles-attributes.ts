@@ -98,7 +98,6 @@ editor.once('load', () => {
                 pc.string.format('Value must be an array with {0} elements of type {1}', correctLength, typeofElements)
             );
         } else {
-            // eslint-disable-next-line @typescript-eslint/prefer-for-of -- attribute.defaultValue is typed as unknown under project tsconfig
             for (let i = 0; i < attribute.defaultValue.length; i++) {
                 if (typeof attribute.defaultValue[i] !== typeofElements) {
                     throw attributeErrorMsg(
@@ -436,7 +435,6 @@ editor.once('load', () => {
                 if (attribute.options.type.length === 1) {
                     attribute.defaultValue.keys = [0, 0];
                 } else {
-                    // eslint-disable-next-line @typescript-eslint/prefer-for-of -- attribute.options.type is typed as unknown under project tsconfig
                     for (let i = 0; i < attribute.options.type.length; i++) {
                         attribute.defaultValue.keys.push([0, 0]);
                     }

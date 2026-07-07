@@ -43,7 +43,6 @@ editor.once('load', () => {
         }
 
         const children = entity.get('children');
-        // eslint-disable-next-line @typescript-eslint/prefer-for-of -- `entity.get('children')` is typed unknown; index access matches the original behavior
         for (let i = 0; i < children.length; i++) {
             const child = editor.call('entities:get', children[i]);
             if (!child) {

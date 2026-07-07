@@ -22,19 +22,6 @@ const coreConfig = {
             pcx: 'readonly',
             pcBootstrap: 'readonly'
         }
-    },
-    rules: {
-        '@typescript-eslint/typedef': [
-            'error',
-            {
-                parameter: true,
-                arrowParameter: false
-            }
-        ],
-        'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
-        curly: ['error', 'all'],
-        'no-use-before-define': 'off',
-        'no-var': 'off'
     }
 };
 
@@ -45,19 +32,6 @@ const workersConfig = {
             ...globals.worker,
             pc: 'readonly'
         }
-    },
-    rules: {
-        '@typescript-eslint/typedef': [
-            'error',
-            {
-                parameter: true,
-                arrowParameter: false
-            }
-        ],
-        'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
-        curly: ['error', 'all'],
-        'no-use-before-define': 'off',
-        'no-var': 'off'
     }
 };
 
@@ -67,19 +41,6 @@ const serviceWorkersConfig = {
         globals: {
             ...globals.serviceworker
         }
-    },
-    rules: {
-        '@typescript-eslint/typedef': [
-            'error',
-            {
-                parameter: true,
-                arrowParameter: false
-            }
-        ],
-        'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
-        curly: ['error', 'all'],
-        'no-use-before-define': 'off',
-        'no-var': 'off'
     }
 };
 
@@ -89,19 +50,6 @@ const modulesConfig = {
         globals: {
             ...globals.browser
         }
-    },
-    rules: {
-        '@typescript-eslint/typedef': [
-            'error',
-            {
-                parameter: true,
-                arrowParameter: false
-            }
-        ],
-        'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
-        curly: ['error', 'all'],
-        'no-use-before-define': 'off',
-        'no-var': 'off'
     }
 };
 
@@ -113,19 +61,8 @@ const testConfig = {
         }
     },
     rules: {
-        '@typescript-eslint/typedef': [
-            'error',
-            {
-                parameter: true,
-                arrowParameter: false
-            }
-        ],
-        'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
-        curly: ['error', 'all'],
         'no-unused-expressions': 'off',
-        '@typescript-eslint/no-unused-expressions': 'off',
-        'no-use-before-define': 'off',
-        'no-var': 'off'
+        '@typescript-eslint/no-unused-expressions': 'off'
     }
 };
 
@@ -137,7 +74,6 @@ const esmJsConfig = {
         }
     },
     rules: {
-        curly: ['error', 'all'],
         'import-x/no-named-as-default': 'off',
         'import-x/default': 'off'
     }

@@ -145,7 +145,6 @@ class DropManager extends Container {
         // go through our child drop targets and show the ones
         // that are valid based on our current dropData
         const children = this.domContent.childNodes;
-        // eslint-disable-next-line @typescript-eslint/prefer-for-of -- NodeListOf<ChildNode> not iterable under project tsconfig
         for (let i = 0; i < children.length; i++) {
             const dropTarget = children[i].ui;
             if (!(dropTarget instanceof DropTarget)) {
@@ -204,7 +203,6 @@ class DropManager extends Container {
         window.removeEventListener('mouseup', this._domEventMouseUp);
 
         const children = this.domContent.childNodes;
-        // eslint-disable-next-line @typescript-eslint/prefer-for-of -- NodeListOf<ChildNode> not iterable under project tsconfig
         for (let i = 0; i < children.length; i++) {
             const dropTarget = children[i].ui;
             if (!(dropTarget instanceof DropTarget)) {

@@ -239,7 +239,6 @@ const convertTypes = new Map<string, (n: unknown, o: unknown) => unknown>([
         'array:string-tags',
         (n: unknown, _o: unknown) => {
             const set = new Set();
-            // eslint-disable-next-line @typescript-eslint/prefer-for-of -- n is typed as unknown under project tsconfig
             for (let i = 0; i < n.length; i++) {
                 if (!n[i]) {
                     continue;

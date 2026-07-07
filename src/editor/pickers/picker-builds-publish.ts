@@ -820,8 +820,7 @@ editor.once('load', () => {
     updateFilterButtons();
 
     // GitHub-style copy button; swaps to a check while the copy is fresh
-    // eslint-disable-next-line @typescript-eslint/no-inferrable-types -- typedef requires a parameter annotation here, which no-inferrable-types then flags as redundant on the literal default
-    const createCopyButton = function (text: string, label: string = 'Copy') {
+    const createCopyButton = function (text: string, label = 'Copy') {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.classList.add('copy-button');
@@ -1530,8 +1529,7 @@ editor.once('load', () => {
         return `${config.project.primaryApp}|${rows.join(',')}`;
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-inferrable-types -- typedef requires a parameter annotation here, which no-inferrable-types then flags as redundant on the literal default
-    const loadApps = function (showProgress: boolean = true) {
+    const loadApps = function (showProgress = true) {
         skip = 0;
         hasMore = true;
         loadingMore = false;

@@ -468,8 +468,7 @@ class ScriptInspector extends Panel {
             }
         >,
         state: Record<string, unknown>,
-        // eslint-disable-next-line @typescript-eslint/no-inferrable-types -- typedef requires a parameter annotation here, which no-inferrable-types then flags as redundant on the literal default
-        path: string = `components.script.scripts.${this._scriptName}.attributes`,
+        path = `components.script.scripts.${this._scriptName}.attributes`,
         inspector: AttributesInspector | null = this._attributesInspector,
         unusedKeys: Set<string> | null = null
     ) {

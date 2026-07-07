@@ -131,7 +131,6 @@ editor.once('load', () => {
         for (let i = 0, len = ops.length; i < len; i++) {
             const data = ops[i];
             if (data.length) {
-                // eslint-disable-next-line @typescript-eslint/prefer-for-of -- data is a union with a non-array member; a for-of would break the non-iterable branch
                 for (let j = 0; j < data.length; j++) {
                     data[j].op = transform(data[j].op, remoteOp, 'right', entry);
                 }

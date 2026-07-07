@@ -163,8 +163,7 @@ class BatchGroupsSettingsPanel extends BaseSettingsPanel {
         this._items = [];
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-inferrable-types -- typedef requires a parameter annotation here, which no-inferrable-types then flags as redundant on the literal default
-    _loadItems(initialLoad: boolean = false) {
+    _loadItems(initialLoad = false) {
         const batchGroups = this._projectSettings.get('batchGroups') || {};
         // remove batch group panel items that are no longer in project settings
         const keepItems = [];

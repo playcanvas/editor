@@ -578,7 +578,6 @@ class AssetList extends Element {
         // this is a lossy concept as it doesn't capture whether an asset id is only
         // in some observers
         const result = [];
-        // eslint-disable-next-line @typescript-eslint/prefer-for-of -- HTMLCollection not iterable under project tsconfig
         for (let i = 0; i < this._containerAssets.dom.children.length; i++) {
             const node = this._containerAssets.dom.children[i];
             const assetId = parseInt(node.getAttribute('data-asset-id'), 10);

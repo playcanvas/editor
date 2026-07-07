@@ -121,7 +121,7 @@ editor.once('load', () => {
         panel.append(btnAddScript);
 
         btnAddScript.on('click', () => {
-            var evtPick = editor.once('picker:asset', (asset) => {
+            let evtPick = editor.once('picker:asset', (asset) => {
                 addScript(asset.get('filename'));
                 evtPick = null;
             });
@@ -143,7 +143,7 @@ editor.once('load', () => {
         panelScripts.class.add('components-scripts');
         panel.append(panelScripts);
 
-        var addScript = function (url: string) {
+        const addScript = function (url: string) {
             let scriptAdded = false;
             const records = [];
             let requestScript = false;
@@ -265,7 +265,7 @@ editor.once('load', () => {
             return scriptAdded;
         };
 
-        var refreshScriptAttributes = function (url: string) {
+        const refreshScriptAttributes = function (url: string) {
             if (!editor.call('permissions:write')) {
                 return;
             }
@@ -375,7 +375,6 @@ editor.once('load', () => {
             const index = {};
             const toDestroy = [];
 
-            // eslint-disable-next-line @typescript-eslint/prefer-for-of -- childNodes NodeList not iterable under project tsconfig (no dom.iterable lib)
             for (let i = 0; i < children.length; i++) {
                 const attribute = children[i].ui.attribute;
                 const attributeUiType = children[i].ui.attributeUiType;
@@ -435,7 +434,7 @@ editor.once('load', () => {
             }
         };
 
-        var createAttributeField = function (script: Observer, attributeName: string, parent: any) {
+        const createAttributeField = function (script: Observer, attributeName: string, parent: any) {
             let choices: any = null;
             const attribute: any = script.get(`attributes.${attributeName}`);
 
@@ -595,7 +594,7 @@ editor.once('load', () => {
                     events.push(evtOptionsChanged);
 
                     // if we change the attribute type then don't listen to options changes
-                    var evtTypeChanged = scripts[0].on(`attributes.${attribute.name}.type:set`, (value) => {
+                    const evtTypeChanged = scripts[0].on(`attributes.${attribute.name}.type:set`, (value) => {
                         if (value !== curveType) {
                             evtOptionsChanged.unbind();
                             evtTypeChanged.unbind();
@@ -971,7 +970,7 @@ editor.once('load', () => {
         };
 
         // Converts URL to script name
-        var getFilenameFromUrl = function (url: string) {
+        const getFilenameFromUrl = function (url: string) {
             let filename = url;
 
             if (jsRegex.test(filename)) {

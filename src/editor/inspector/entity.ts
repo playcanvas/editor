@@ -335,8 +335,7 @@ class EntityInspector extends Container {
         component: string,
         title: string,
         logos: Record<string, string>,
-        // eslint-disable-next-line @typescript-eslint/no-inferrable-types -- typedef requires a parameter annotation here, which no-inferrable-types then flags as redundant on the literal default
-        logoName: string = '',
+        logoName = '',
         dataComponent: Record<string, unknown> = {}
     ) {
         const data = {

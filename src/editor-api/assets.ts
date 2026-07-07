@@ -269,7 +269,6 @@ class Assets extends Events {
     }
 
     private _onMessengerDeleteAssets(data: { assets: string | any[] }) {
-        // eslint-disable-next-line @typescript-eslint/prefer-for-of -- data.assets is a `string | any[]` union, not a genuine array type
         for (let i = 0; i < data.assets.length; i++) {
             const asset = this.getUnique(parseInt(data.assets[i], 10));
             if (asset) {

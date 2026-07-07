@@ -4,8 +4,7 @@ editor.once('load', () => {
         return hex.length === 1 ? `0${hex}` : hex;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-inferrable-types -- required by typedef (parameter: true), conflicts with this rule for defaulted primitive params
-    function rgbaToHex(r: number, g: number, b: number, a: number = 1) {
+    function rgbaToHex(r: number, g: number, b: number, a = 1) {
         // Check if alpha is necessary to include
         const alphaHex = a < 1 ? componentToHex(a) : '';
         return `#${componentToHex(r)}${componentToHex(g)}${componentToHex(b)}${alphaHex}`;

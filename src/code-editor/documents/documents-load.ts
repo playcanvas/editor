@@ -48,8 +48,7 @@ editor.once('load', () => {
     let lastFocusedId = null;
 
     // Loads the editable document that corresponds to the specified asset id
-    // eslint-disable-next-line @typescript-eslint/no-inferrable-types -- required by typedef (parameter: true), conflicts with this rule for defaulted primitive params
-    const loadDocument = function (asset: Observer, importSubModules: boolean = true) {
+    const loadDocument = function (asset: Observer, importSubModules = true) {
         const id = asset.get('id').toString();
         const uniqueId = asset.get('uniqueId').toString();
         const connection = editor.call('realtime:connection');

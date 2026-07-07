@@ -189,7 +189,6 @@ editor.once('load', () => {
 
                     entities.length = 0;
 
-                    // eslint-disable-next-line @typescript-eslint/prefer-for-of -- `data` is a union type; for-of loses the array narrowing (data is an array here at runtime)
                     for (let i = 0; i < data.length; i++) {
                         const entity = editor.api.globals.entities.create(data[i], { history: false });
                         entities.push(entity);

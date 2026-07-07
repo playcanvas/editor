@@ -1,9 +1,8 @@
-import { Observer   } from '@playcanvas/observer';
-import type {ObserverList, EventHandle} from '@playcanvas/observer';
+import { Observer } from '@playcanvas/observer';
+import type { ObserverList, EventHandle } from '@playcanvas/observer';
 import {
     Element,
     GridViewItem,
-    
     Container,
     Progress,
     Panel,
@@ -16,13 +15,12 @@ import {
     Spinner,
     Label,
     BindingObserversToElement
-    
 } from '@playcanvas/pcui';
-import type {GridViewItemArgs, PanelArgs} from '@playcanvas/pcui';
+import type { GridViewItemArgs, PanelArgs } from '@playcanvas/pcui';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
 import { AssetThumbnail } from '@/common/pcui/element/element-asset-thumbnail';
-import type {DropManager} from '@/common/pcui/element/element-drop-manager';
+import type { DropManager } from '@/common/pcui/element/element-drop-manager';
 import { DropTarget } from '@/common/pcui/element/element-drop-target';
 import { Table } from '@/common/pcui/element/element-table';
 import { TableCell } from '@/common/pcui/element/element-table-cell';
@@ -30,7 +28,7 @@ import { TableRow } from '@/common/pcui/element/element-table-row';
 import { TooltipHandle } from '@/common/tooltips';
 import { bytesToHuman, naturalCompare } from '@/common/utils';
 import { config } from '@/editor/config';
-import type {AssetObserver} from '@/editor-api';
+import type { AssetObserver } from '@/editor-api';
 
 const CLASS_ROOT = 'pcui-asset-panel';
 const CLASS_LEFT = `${CLASS_ROOT}-left`;
@@ -1118,8 +1116,8 @@ class AssetPanel extends Panel {
             }
         } else {
             const children = this._gridView.dom.childNodes;
-            for (let i = 0; i < children.length; i++) {
-                const el = children[i] as any;
+            for (const child of children) {
+                const el = child as any;
                 if (el.ui instanceof AssetGridViewItem && !el.ui.hidden) {
                     el.ui.selected = true;
                     el.ui.focus();
@@ -1283,14 +1281,14 @@ class AssetPanel extends Panel {
 
             if (selectorItems.indexOf(asset) !== -1) {
                 const ids = [];
-                for (let i = 0; i < selectorItems.length; i++) {
+                for (const item of selectorItems) {
                     // don't allow multi-path dragging
-                    const curPath = selectorItems[i].get('path');
+                    const curPath = item.get('path');
                     if (path.length !== curPath.length || path[path.length - 1] !== curPath[path.length - 1]) {
                         return;
                     }
 
-                    ids.push(parseInt(selectorItems[i].get('id'), 10));
+                    ids.push(parseInt(item.get('id'), 10));
                 }
 
                 type = 'assets';
@@ -1395,8 +1393,8 @@ class AssetPanel extends Panel {
         // do not allow dragging a folder into one of its child folders
         const hoveredPath = asset.get('path');
         if (dropData.ids) {
-            for (let i = 0; i < dropData.ids.length; i++) {
-                if (hoveredPath.indexOf(dropData.ids[i]) !== -1) {
+            for (const id of dropData.ids) {
+                if (hoveredPath.indexOf(id) !== -1) {
                     return;
                 }
             }
@@ -2305,9 +2303,9 @@ class AssetPanel extends Panel {
     }
 
     // Perform AND operation between tags
-    _tagsAND(tagGroup: (string | string[])[], assetTags: string[]) {
-        for (let i = 0; i < tagGroup.length; i++) {
-            if (assetTags.indexOf(tagGroup[i]) === -1) {
+    _tagsAND(tagGroup: string[], assetTags: string[]) {
+        for (const tag of tagGroup) {
+            if (assetTags.indexOf(tag) === -1) {
                 return false;
             }
         }
@@ -2317,12 +2315,12 @@ class AssetPanel extends Panel {
 
     // Perform OR operation between tags or groups of subtags
     _tagsOR(tagGroup: (string | string[])[], assetTags: string[]) {
-        for (let i = 0; i < tagGroup.length; i++) {
-            if (Array.isArray(tagGroup[i])) {
-                if (this._tagsAND(tagGroup[i], assetTags)) {
+        for (const tag of tagGroup) {
+            if (Array.isArray(tag)) {
+                if (this._tagsAND(tag, assetTags)) {
                     return true;
                 }
-            } else if (assetTags.indexOf(tagGroup[i]) !== -1) {
+            } else if (assetTags.indexOf(tag) !== -1) {
                 return true;
             }
         }
@@ -2380,7 +2378,9 @@ class AssetPanel extends Panel {
                     if (new RegExp(searchQuery.slice(1), 'i').test(name)) {
                         return true;
                     }
-                } catch (ex) {} // swallow exception and continue
+                } catch {
+                    // ignore invalid regex and continue with plain text search
+                }
             }
 
             // check if name includes search query

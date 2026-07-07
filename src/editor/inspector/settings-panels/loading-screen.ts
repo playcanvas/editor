@@ -5,8 +5,8 @@ import type { Asset } from '@/editor-api';
 
 import type { Attribute } from '../attribute.type.d';
 
-import { BaseSettingsPanel  } from './base';
-import type {BaseSettingsPanelArgs} from './base';
+import { BaseSettingsPanel } from './base';
+import type { BaseSettingsPanelArgs } from './base';
 
 const ATTRIBUTES: Attribute[] = [
     {

@@ -85,7 +85,6 @@ class TextResolver extends Events {
         this._panelTop.append(info);
 
         // find textual merge conflict
-        // eslint-disable-next-line @typescript-eslint/prefer-for-of -- conflict.data is `unknown` (conflict: Record<string, unknown>), not a genuine array type
         for (let i = 0; i < conflict.data.length; i++) {
             if (conflict.data[i].isTextualMerge) {
                 this._textualMergeConflict = conflict.data[i];
@@ -292,8 +291,7 @@ class TextResolver extends Events {
         this._syncMarkResolved();
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-inferrable-types -- typedef requires a parameter annotation here, which no-inferrable-types then flags as redundant on the literal default
-    _syncMarkResolved(toggle: boolean = true) {
+    _syncMarkResolved(toggle = true) {
         if (!toggle || this._saving) {
             this._btnMarkResolved.enabled = false;
             return;

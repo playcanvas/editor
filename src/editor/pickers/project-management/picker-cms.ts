@@ -41,8 +41,7 @@ editor.once('load', () => {
     // UI
 
     // displays or hides the loading bar in the CMS main panel based on parameter
-    // eslint-disable-next-line @typescript-eslint/no-inferrable-types -- typedef requires a parameter annotation here, which no-inferrable-types then flags as redundant on the literal default
-    const toggleProgress = function (toggle: boolean, progress: number = 100, label: string = '') {
+    const toggleProgress = function (toggle: boolean, progress = 100, label = '') {
         progressBar.value = progress;
         progressBar.hidden = !toggle;
         if (label !== '') {

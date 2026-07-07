@@ -1,8 +1,8 @@
 import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
-import type { ElementArgs} from '@playcanvas/pcui';
+import type { ElementArgs } from '@playcanvas/pcui';
 import { Element, Label, Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
 
-import type {AssetObserver} from '@/editor-api';
+import type { AssetObserver } from '@/editor-api';
 
 import { acceptsAssetDropType } from '../compat-utils';
 import { CLASS_MULTIPLE_VALUES } from '../constants';
@@ -43,7 +43,7 @@ type AssetInputArgs = {
     dragLeaveFn?: (...args: any[]) => void;
     /** If true then the Element will flash when its value changes */
     renderChanges?: boolean;
-} & ElementArgs
+} & ElementArgs;
 
 /**
  * Represents an asset input field. It shows a thumbnail of the asset and allows picking of an

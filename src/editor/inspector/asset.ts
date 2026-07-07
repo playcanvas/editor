@@ -689,8 +689,7 @@ class AssetInspector extends Container {
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-inferrable-types -- typedef requires a parameter annotation here, which no-inferrable-types then flags as redundant on the literal default
-    _setRenameError(text: string = '') {
+    _setRenameError(text = '') {
         const field = this._attributesInspector.getField('name');
         field.error = !!text;
         if (this._renameError) {

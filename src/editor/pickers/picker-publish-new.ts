@@ -548,7 +548,6 @@ editor.once('load', () => {
         const result = [];
 
         const listItems = sceneList.innerElement.childNodes as any;
-        // eslint-disable-next-line @typescript-eslint/prefer-for-of -- listItems is a NodeList cast to `any`, not a genuine array type
         for (let i = 0; i < listItems.length; i++) {
             if (listItems[i].ui.isSelected()) {
                 result.push(listItems[i].ui.sceneId);
