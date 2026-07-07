@@ -17,9 +17,9 @@ editor.once('load', () => {
     let loadingScreen = false;
     let scriptList = [];
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
-    var canvas;
-    var app;
-    var scriptPrefix;
+    let canvas;
+    let app;
+    let scriptPrefix;
 
     const layerIndex: Record<string, pc.Layer> = {};
 

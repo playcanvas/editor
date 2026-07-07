@@ -71,7 +71,7 @@ editor.once('load', () => {
         return row;
     };
 
-    var panelApp;
+    let panelApp;
 
     editor.method('tools:frame:field:add', (name: string, title: string, value: string) => {
         const field = addField({
@@ -548,8 +548,8 @@ editor.once('load', () => {
     title.style.fontSize = '11px';
     row.appendChild(title);
 
-    var cameraSkipFrames;
-    var rowCameraSkip;
+    let cameraSkipFrames;
+    let rowCameraSkip;
 
     const cameras = document.createElement('select');
     cameras.classList.add('cameras');

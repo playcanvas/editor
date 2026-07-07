@@ -75,7 +75,7 @@ editor.once('load', () => {
         }
     };
 
-    var resize;
+    let resize;
 
     editor.method('tools:enabled', () => {
         return enabled;

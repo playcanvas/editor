@@ -7,7 +7,7 @@ import { createButton, createLabel } from './attributes-pcui';
 editor.once('load', () => {
     const projectSettings = editor.call('settings:project');
 
-    var entityInspector;
+    let entityInspector;
 
     // legacy
     editor.method('attributes:entity.panelComponents', () => {

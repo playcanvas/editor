@@ -80,7 +80,7 @@ editor.once('load', () => {
     };
 
     editor.method('attributes:linkField', (args) => {
-        var update, changeField, changeFieldQueue;
+        let update, changeField, changeFieldQueue;
         args.field._changing = false;
         const events = [];
 

@@ -27,7 +27,7 @@ editor.once('viewport:load', (app) => {
     container.__editor = true;
     app.root.addChild(container);
 
-    var material = createColorMaterial();
+    const material = createColorMaterial();
     material.color = new Color(1.0, 1.0, 1.0);
     material.cull = CULLFACE_NONE;
     material.update();

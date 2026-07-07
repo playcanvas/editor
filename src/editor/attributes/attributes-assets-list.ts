@@ -150,7 +150,7 @@ editor.once('load', () => {
         panelWidget.append(fieldFilter);
 
         // assets
-        var fieldAssets;
+        let fieldAssets;
         const fieldAssetsList = createList();
         fieldAssetsList.class.add('empty');
         fieldAssetsList.flexGrow = 1;
