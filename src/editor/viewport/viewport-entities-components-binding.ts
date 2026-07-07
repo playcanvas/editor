@@ -6,7 +6,7 @@ editor.once('load', () => {
     const runtimeComponentData = function (component: string, data: Record<string, unknown>): Record<string, unknown> {
         const result = {};
         for (const key in data) {
-            if (Object.hasOwn(data, key)) {
+            if (Object.prototype.hasOwnProperty.call(data, key)) {
                 result[key] = editor.call('components:convertValue', component, key, data[key]);
             }
         }

@@ -31,7 +31,7 @@ editor.once('load', () => {
                             fallbackUrl: urlPrefix + m.fallbackUrl
                         });
 
-                        if (!Object.hasOwn(m, 'preload') || m.preload) {
+                        if (!Object.prototype.hasOwnProperty.call(m, 'preload') || m.preload) {
                             if (m.moduleName === 'BASIS') {
                                 // preload basis transcoder
                                 pc.basisInitialize();

@@ -266,7 +266,7 @@ class MaterialThumbnailRenderer extends ThumbnailRenderer {
 
         // first handle texture assets
         for (const name of StandardMaterial.TEXTURE_PARAMETERS) {
-            if (!Object.hasOwn(migrated, name) || !migrated[name]) {
+            if (!Object.prototype.hasOwnProperty.call(migrated, name) || !migrated[name]) {
                 continue;
             }
 
@@ -284,7 +284,7 @@ class MaterialThumbnailRenderer extends ThumbnailRenderer {
         // then handle cubemap assets
         for (let i = 0; i < StandardMaterial.CUBEMAP_PARAMETERS.length; i++) {
             const name = StandardMaterial.CUBEMAP_PARAMETERS[i];
-            if (!Object.hasOwn(migrated, name) || !migrated[name]) {
+            if (!Object.prototype.hasOwnProperty.call(migrated, name) || !migrated[name]) {
                 continue;
             }
 

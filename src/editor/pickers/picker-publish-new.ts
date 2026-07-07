@@ -299,7 +299,7 @@ editor.once('load', () => {
             ? 'releaseCandidate'
             : editor.call('settings:session').get('engineVersion'),
         options: ['previous', 'current', 'releaseCandidate']
-            .filter((type) => Object.hasOwn(config.engineVersions, type))
+            .filter((type) => Object.prototype.hasOwnProperty.call(config.engineVersions, type))
             .map((type) => {
                 const t = config.engineVersions[type];
                 return {

@@ -69,7 +69,7 @@ const convertStringToVec = (string: string, valueOld: number[]) => {
                 if (i >= valueOld.length) {
                     return;
                 }
-                if (Object.hasOwn(value, c) && typeof value[c] === 'number') {
+                if (Object.prototype.hasOwnProperty.call(value, c) && typeof value[c] === 'number') {
                     valueNew[i] = value[c];
                 }
             });
@@ -117,7 +117,7 @@ const convertStringToColor = (string: string, valueOld: number[]) => {
                     if (i >= valueOld.length) {
                         return;
                     }
-                    if (Object.hasOwn(value, c) && typeof value[c] === 'number') {
+                    if (Object.prototype.hasOwnProperty.call(value, c) && typeof value[c] === 'number') {
                         valueNew[i] = value[c];
                     }
                 });
@@ -699,8 +699,8 @@ editor.once('load', () => {
             value &&
             typeof value === 'object' &&
             !Array.isArray(value) &&
-            Object.hasOwn(value, 'type') &&
-            Object.hasOwn(value, 'value') &&
+            Object.prototype.hasOwnProperty.call(value, 'type') &&
+            Object.prototype.hasOwnProperty.call(value, 'value') &&
             value.type
         );
     };

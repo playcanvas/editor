@@ -359,7 +359,7 @@ class FontThumbnailRenderer extends ThumbnailRenderer {
                     }
 
                     // skip characters which doesn't exists in character set
-                    if (!Object.hasOwn(engineAsset.resource.data.chars, chars[i])) {
+                    if (!Object.prototype.hasOwnProperty.call(engineAsset.resource.data.chars, chars[i])) {
                         continue;
                     }
 

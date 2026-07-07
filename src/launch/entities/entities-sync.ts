@@ -36,14 +36,14 @@ editor.once('load', () => {
         }
 
         if (op.p.length === 2) {
-            if (Object.hasOwn(op, 'od')) {
+            if (Object.prototype.hasOwnProperty.call(op, 'od')) {
                 // delete entity
                 if (entity) {
                     editor.call('entities:remove', entity);
                 } else {
                     console.log('delete operation entity not found', op);
                 }
-            } else if (Object.hasOwn(op, 'oi')) {
+            } else if (Object.prototype.hasOwnProperty.call(op, 'oi')) {
                 // new entity
                 editor.call('entities:add', new Observer(op.oi as object));
             } else {

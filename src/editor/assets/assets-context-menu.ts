@@ -305,7 +305,7 @@ editor.once('load', () => {
         }
     }
     for (const key of keys) {
-        if (!Object.hasOwn(assets, key)) {
+        if (!Object.prototype.hasOwnProperty.call(assets, key)) {
             continue;
         }
 

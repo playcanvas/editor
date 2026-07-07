@@ -106,7 +106,7 @@ const createActiveJobs = () => {
 
     // status job
     editor.method('status:job', (id, value) => {
-        if (Object.hasOwn(jobs, id) && value === undefined) {
+        if (Object.prototype.hasOwnProperty.call(jobs, id) && value === undefined) {
             delete jobs[id];
         } else {
             jobs[id] = value;

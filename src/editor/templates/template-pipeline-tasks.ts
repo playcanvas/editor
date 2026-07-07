@@ -13,7 +13,7 @@ editor.once('load', () => {
     }
 
     function removeJob(jobId: string, result?: unknown) {
-        if (Object.hasOwn(jobsInProgress, jobId)) {
+        if (Object.prototype.hasOwnProperty.call(jobsInProgress, jobId)) {
             editor.call('status:job', jobId);
 
             const callback = jobsInProgress[jobId];

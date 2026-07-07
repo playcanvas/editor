@@ -296,7 +296,7 @@ editor.once('load', () => {
         if (assetData.type === 'script' && assetData.data && assetData.data.loadingType > 0) {
             // disable load on script before/after engine scripts
             engineAsset.loaded = true;
-        } else if (Object.hasOwn(wasmAssetIds, assetData.id)) {
+        } else if (Object.prototype.hasOwnProperty.call(wasmAssetIds, assetData.id)) {
             // disable load on module assets
             engineAsset.loaded = true;
         }

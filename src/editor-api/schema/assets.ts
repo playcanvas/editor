@@ -39,7 +39,7 @@ class AssetsSchema {
                 continue;
             }
             const block = schema[key];
-            if (Object.hasOwn(block, '$default')) {
+            if (Object.prototype.hasOwnProperty.call(block, '$default')) {
                 result[key] = utils.deepCopy(block.$default);
             }
         }

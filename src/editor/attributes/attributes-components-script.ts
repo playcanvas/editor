@@ -293,7 +293,7 @@ editor.once('load', () => {
 
                         const oldAttributes = scriptInstance.get('attributes') || {};
                         for (const attributeName in data.attributes) {
-                            if (!Object.hasOwn(data.attributes, attributeName)) {
+                            if (!Object.prototype.hasOwnProperty.call(data.attributes, attributeName)) {
                                 continue;
                             }
 

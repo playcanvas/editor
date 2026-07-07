@@ -1046,7 +1046,7 @@ class Unwrap {
                 if (attrib === 'position') {
                     continue;
                 } // already patched
-                if (Object.hasOwn(attribs, attrib)) {
+                if (Object.prototype.hasOwnProperty.call(attribs, attrib)) {
                     const arr = attribs[attrib].data;
                     const components = attribs[attrib].components;
                     for (k = 0; k < append.length; k++) {

@@ -11,7 +11,7 @@ editor.once('load', () => {
 
         if (cameras) {
             for (const name in cameras) {
-                if (!Object.hasOwn(cameras, name)) {
+                if (!Object.prototype.hasOwnProperty.call(cameras, name)) {
                     continue;
                 }
 

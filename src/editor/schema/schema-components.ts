@@ -217,7 +217,7 @@ editor.once('load', () => {
                 continue;
             }
             const field = schema[component][fieldName];
-            if (Object.hasOwn(field, '$default')) {
+            if (Object.prototype.hasOwnProperty.call(field, '$default')) {
                 result[fieldName] = deepCopy(field.$default);
             }
         }

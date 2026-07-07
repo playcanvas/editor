@@ -23,7 +23,7 @@ editor.once('load', () => {
             .on('load', (_status: number, data: Record<string, unknown>) => {
                 const response = data;
                 for (const key in response) {
-                    if (Object.hasOwn(response, key)) {
+                    if (Object.prototype.hasOwnProperty.call(response, key)) {
                         repositories.set(key, response[key]);
                     }
                 }

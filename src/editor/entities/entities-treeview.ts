@@ -125,7 +125,7 @@ class EntitiesTreeView extends TreeView {
             const templateRoot = editor.call('templates:isTemplateChild', item.entity, this._entities);
             if (templateRoot) {
                 const newParentId = newParent.entity.get('resource_id');
-                if (!Object.hasOwn(newParentTemplates, newParentId)) {
+                if (!Object.prototype.hasOwnProperty.call(newParentTemplates, newParentId)) {
                     if (newParent.entity.get('template_id')) {
                         newParentTemplates[newParentId] = newParent.entity;
                     } else {

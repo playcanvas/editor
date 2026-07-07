@@ -168,21 +168,21 @@ class ObserverSync extends Events {
             this.item.history.enabled = false;
         }
 
-        if (Object.hasOwn(op, 'oi')) {
+        if (Object.prototype.hasOwnProperty.call(op, 'oi')) {
             // set key value
             const path = op.p.slice(this._prefix.length).join('.');
 
             this._enabled = false;
             this.item.set(path, op.oi, false, true);
             this._enabled = true;
-        } else if (Object.hasOwn(op, 'ld') && Object.hasOwn(op, 'li')) {
+        } else if (Object.prototype.hasOwnProperty.call(op, 'ld') && Object.prototype.hasOwnProperty.call(op, 'li')) {
             // set array value
             const path = op.p.slice(this._prefix.length).join('.');
 
             this._enabled = false;
             this.item.set(path, op.li, false, true);
             this._enabled = true;
-        } else if (Object.hasOwn(op, 'ld')) {
+        } else if (Object.prototype.hasOwnProperty.call(op, 'ld')) {
             // delete item
             const path = op.p.slice(this._prefix.length, -1).join('.');
             const ind = op.p[op.p.length - 1];
@@ -190,7 +190,7 @@ class ObserverSync extends Events {
             this._enabled = false;
             this.item.remove(path, ind, false, true);
             this._enabled = true;
-        } else if (Object.hasOwn(op, 'li')) {
+        } else if (Object.prototype.hasOwnProperty.call(op, 'li')) {
             // add item
             const path = op.p.slice(this._prefix.length, -1).join('.');
             const ind = op.p[op.p.length - 1];
@@ -198,7 +198,7 @@ class ObserverSync extends Events {
             this._enabled = false;
             this.item.insert(path, op.li, ind, false, true);
             this._enabled = true;
-        } else if (Object.hasOwn(op, 'lm')) {
+        } else if (Object.prototype.hasOwnProperty.call(op, 'lm')) {
             // item moved
             const path = op.p.slice(this._prefix.length, -1).join('.');
             const indOld = op.p[op.p.length - 1];
@@ -207,7 +207,7 @@ class ObserverSync extends Events {
             this._enabled = false;
             this.item.move(path, indOld, ind, false, true);
             this._enabled = true;
-        } else if (Object.hasOwn(op, 'od')) {
+        } else if (Object.prototype.hasOwnProperty.call(op, 'od')) {
             // unset key value
             const path = op.p.slice(this._prefix.length).join('.');
             this._enabled = false;

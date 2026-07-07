@@ -50,7 +50,7 @@ class ComponentSchema {
                 continue;
             }
             const field = this._schema[component][fieldName];
-            if (Object.hasOwn(field, '$default')) {
+            if (Object.prototype.hasOwnProperty.call(field, '$default')) {
                 result[fieldName] = utils.deepCopy(field.$default);
             }
         }

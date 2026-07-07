@@ -216,7 +216,7 @@ class AssetElementToObserversBinding extends BindingElementToObservers {
 
                 latest.set(path, prevEntry.value);
 
-                if (Object.hasOwn(prevEntry, 'mapping')) {
+                if (Object.prototype.hasOwnProperty.call(prevEntry, 'mapping')) {
                     latest.set('components.model.mapping', prevEntry.mapping);
                 }
 
@@ -474,7 +474,7 @@ class ModelComponentInspector extends ComponentInspector {
                     }
 
                     const mapping = e.entity.model.mapping;
-                    if (!mapping || !Object.hasOwn(mapping, key)) {
+                    if (!mapping || !Object.prototype.hasOwnProperty.call(mapping, key)) {
                         return;
                     }
 
@@ -492,7 +492,7 @@ class ModelComponentInspector extends ComponentInspector {
                     }
 
                     const mapping = e.entity.model.mapping;
-                    if (!mapping || !Object.hasOwn(mapping, key)) {
+                    if (!mapping || !Object.prototype.hasOwnProperty.call(mapping, key)) {
                         return;
                     }
 

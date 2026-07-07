@@ -379,7 +379,7 @@ const startChecker = () => {
 
                 // listen for changes to the srgb flag
                 asset.on('*:set', (path: string) => {
-                    if (!Object.hasOwn(SRGB_PATH_MAP.texture, path)) {
+                    if (!Object.prototype.hasOwnProperty.call(SRGB_PATH_MAP.texture, path)) {
                         return;
                     }
 
@@ -409,7 +409,7 @@ const startChecker = () => {
             case 'material': {
                 // listen for changes to material assets
                 asset.on('*:set', (path, value, oldValue) => {
-                    if (Object.hasOwn(SRGB_PATH_MAP.material, path)) {
+                    if (Object.prototype.hasOwnProperty.call(SRGB_PATH_MAP.material, path)) {
                         const textureAsset = editor.call('assets:get', value || oldValue);
                         if (!textureAsset) {
                             return;
@@ -478,7 +478,7 @@ const startChecker = () => {
     const checkEntity = (entity: Observer) => {
         // listen for changes to entities
         entity.on('*:set', (path, value, oldValue) => {
-            if (!Object.hasOwn(SRGB_PATH_MAP.entity, path)) {
+            if (!Object.prototype.hasOwnProperty.call(SRGB_PATH_MAP.entity, path)) {
                 return;
             }
 

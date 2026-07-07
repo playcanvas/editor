@@ -25,7 +25,7 @@ const utils = {
 
         const obj: Record<string, any> = {};
         for (const key in data) {
-            if (Object.hasOwn(data, key)) {
+            if (Object.prototype.hasOwnProperty.call(data, key)) {
                 obj[key] = utils.deepCopy(data[key]);
             }
         }
@@ -55,7 +55,7 @@ const utils = {
                     }
 
                     // keep getting deeper into the object as long as each path part exists
-                    if (!Object.hasOwn(current, pathParts[i])) {
+                    if (!Object.prototype.hasOwnProperty.call(current, pathParts[i])) {
                         return;
                     }
 

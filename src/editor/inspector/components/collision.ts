@@ -201,7 +201,7 @@ class CollisionComponentInspector extends ComponentInspector {
             this._importAmmoPanel.hidden = editor.call('project:settings:hasPhysics');
         });
 
-        if (!Object.hasOwn(CollisionComponent.prototype, 'convexHull')) {
+        if (!Object.prototype.hasOwnProperty.call(CollisionComponent.prototype, 'convexHull')) {
             this._field('convexHull').hidden = true;
         } else {
             this._field('type').on('change', (value) => {

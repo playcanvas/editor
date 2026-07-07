@@ -45,7 +45,7 @@ editor.once('load', () => {
 
                         for (const script in realtimeAsset.data.scripts) {
                             const scriptType = app.scripts.get(script);
-                            if (scriptType && Object.hasOwn(scriptType.prototype, 'swap')) {
+                            if (scriptType && Object.prototype.hasOwnProperty.call(scriptType.prototype, 'swap')) {
                                 swappable = true;
                                 break;
                             }

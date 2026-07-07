@@ -19,7 +19,7 @@ editor.once('load', () => {
                 result[key] = existingData[key];
             } else {
                 const field = schema[key];
-                if (Object.hasOwn(field, '$default')) {
+                if (Object.prototype.hasOwnProperty.call(field, '$default')) {
                     result[key] = deepCopy(field.$default);
                 }
             }
@@ -37,7 +37,7 @@ editor.once('load', () => {
     editor.method('schema:material:getDefaultValueForField', (fieldName: string): unknown => {
         const field = config.schema.materialData[fieldName];
 
-        if (field && Object.hasOwn(field, '$default')) {
+        if (field && Object.prototype.hasOwnProperty.call(field, '$default')) {
             return deepCopy(field.$default);
         }
 

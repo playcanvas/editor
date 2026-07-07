@@ -533,7 +533,7 @@ class ImageAssetElementToObserversBinding extends BindingElementToObservers {
 
                 latest.set(path, prevEntry.value);
 
-                if (Object.hasOwn(prevEntry, 'width')) {
+                if (Object.prototype.hasOwnProperty.call(prevEntry, 'width')) {
                     latest.set('components.element.width', prevEntry.width);
                     latest.set('components.element.height', prevEntry.height);
                     latest.set('components.element.margin', prevEntry.margin);
@@ -663,7 +663,7 @@ class SpriteFrameElementToObserversBinding extends ImageAssetElementToObserversB
 
                 latest.set(path, prevEntry.value);
 
-                if (Object.hasOwn(prevEntry, 'width')) {
+                if (Object.prototype.hasOwnProperty.call(prevEntry, 'width')) {
                     latest.set('components.element.width', prevEntry.width);
                     latest.set('components.element.height', prevEntry.height);
                 }

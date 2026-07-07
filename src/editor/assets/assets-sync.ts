@@ -29,7 +29,7 @@ editor.once('load', () => {
         const assets = connection.collections.assets;
 
         for (const item of data) {
-            if (!Object.hasOwn(assets, item.uniqueId)) {
+            if (!Object.prototype.hasOwnProperty.call(assets, item.uniqueId)) {
                 continue;
             }
 

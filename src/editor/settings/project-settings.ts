@@ -53,11 +53,11 @@ editor.once('load', () => {
         settings.history.enabled = false;
         settings.sync.enabled = editor.call('permissions:write');
 
-        if (!Object.hasOwn(config.project.settings, 'engineV2')) {
+        if (!Object.prototype.hasOwnProperty.call(config.project.settings, 'engineV2')) {
             settings.set('engineV2', false, undefined, undefined, true);
         }
 
-        if (Object.hasOwn(config.project.settings, 'useLegacyScripts')) {
+        if (Object.prototype.hasOwnProperty.call(config.project.settings, 'useLegacyScripts')) {
             if (settings.get('useLegacyScripts')) {
                 settings.set('useLegacyScripts', false);
                 const msg = `The ${f.path('useLegacyScripts')} project setting has been removed`;

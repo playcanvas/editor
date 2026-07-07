@@ -48,7 +48,7 @@ export const deepCopy = <T>(data: T): T => {
     }
     const obj: any = {};
     for (const key in data) {
-        if (Object.hasOwn(data, key)) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
             obj[key] = deepCopy(data[key]);
         }
     }
@@ -77,7 +77,7 @@ export const deepEqual = (a: any, b: any): boolean => {
         return false;
     }
     for (const key of keysA) {
-        if (!Object.hasOwn(b, key)) {
+        if (!Object.prototype.hasOwnProperty.call(b, key)) {
             return false;
         }
         if (!deepEqual(a[key], b[key])) {
@@ -128,7 +128,7 @@ export const set = (obj: any, path: string, value: any): boolean => {
     const parts = path.split('.');
     let ref = obj;
     for (let i = 0; i < parts.length - 1; i++) {
-        if (!Object.hasOwn(ref, parts[i])) {
+        if (!Object.prototype.hasOwnProperty.call(ref, parts[i])) {
             ref[parts[i]] = {};
         }
         ref = ref[parts[i]];

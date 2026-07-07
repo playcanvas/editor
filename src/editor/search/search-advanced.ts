@@ -289,7 +289,7 @@ export const searchItems = function (items: [string, any][], search: string, arg
     }
 
     // limit number of results
-    if (Object.hasOwn(args, 'limitResults') && records.length > args.limitResults) {
+    if (Object.prototype.hasOwnProperty.call(args, 'limitResults') && records.length > args.limitResults) {
         records = records.slice(0, args.limitResults);
     }
 

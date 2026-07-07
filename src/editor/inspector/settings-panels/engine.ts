@@ -19,7 +19,7 @@ const ATTRIBUTES: Attribute[] = [
         args: {
             type: 'string',
             options: ['previous', 'current', 'releaseCandidate']
-                .filter((type) => Object.hasOwn(config.engineVersions, type))
+                .filter((type) => Object.prototype.hasOwnProperty.call(config.engineVersions, type))
                 .map((type) => {
                     const t = config.engineVersions[type];
                     return {

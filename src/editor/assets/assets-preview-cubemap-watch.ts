@@ -278,7 +278,7 @@ editor.once('load', () => {
             return;
         }
 
-        if (!Object.hasOwn(watch.callbacks, handle)) {
+        if (!Object.prototype.hasOwnProperty.call(watch.callbacks, handle)) {
             return;
         }
 

@@ -39,7 +39,10 @@ editor.once('load', () => {
 
         compareMapsRecursively(keys1: string[]): boolean {
             return keys1.every((k1) => {
-                return Object.hasOwn(this.node2, k1) && new DeepEqual(this.node1[k1], this.node2[k1]).run();
+                return (
+                    Object.prototype.hasOwnProperty.call(this.node2, k1) &&
+                    new DeepEqual(this.node1[k1], this.node2[k1]).run()
+                );
             });
         }
 

@@ -30,7 +30,7 @@ class SceneSchema {
                 continue;
             }
 
-            if (Object.hasOwn(obj[key], '$default')) {
+            if (Object.prototype.hasOwnProperty.call(obj[key], '$default')) {
                 result[key] = utils.deepCopy(obj[key].$default);
                 continue;
             } else {

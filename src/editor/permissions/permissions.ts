@@ -18,7 +18,7 @@ editor.once('load', () => {
         if (!userId) {
             userId = config.self.id;
         }
-        return Object.hasOwn(permissions, userId);
+        return Object.prototype.hasOwnProperty.call(permissions, userId);
     });
 
     editor.method('permissions:write', (userId?: string) => {

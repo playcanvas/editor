@@ -173,7 +173,7 @@ onmessage = (evt: MessageEvent) => {
                     return;
                 }
 
-                if (!Object.hasOwn(args, 'type')) {
+                if (!Object.prototype.hasOwnProperty.call(args, 'type')) {
                     script.attributesInvalid.push(`attribute \`${attr}\` args.type must be defined`);
                     return;
                 }
@@ -244,7 +244,7 @@ onmessage = (evt: MessageEvent) => {
                             return;
                         }
 
-                        if (!Object.hasOwn(field, 'type')) {
+                        if (!Object.prototype.hasOwnProperty.call(field, 'type')) {
                             script.attributesInvalid.push(
                                 `attribute \`${attr}\` invalid schema: field type must be defined`
                             );
@@ -273,7 +273,7 @@ onmessage = (evt: MessageEvent) => {
                         }
 
                         // validate enum
-                        if (Object.hasOwn(field, 'enum')) {
+                        if (Object.prototype.hasOwnProperty.call(field, 'enum')) {
                             const err = validateEnum(field);
                             if (err) {
                                 script.attributesInvalid.push(
@@ -284,7 +284,7 @@ onmessage = (evt: MessageEvent) => {
                         }
 
                         // validate default value
-                        if (Object.hasOwn(field, 'default')) {
+                        if (Object.prototype.hasOwnProperty.call(field, 'default')) {
                             const err = validateDefaultValue(field);
                             if (err) {
                                 script.attributesInvalid.push(
@@ -296,7 +296,7 @@ onmessage = (evt: MessageEvent) => {
                     }
                 }
 
-                if (Object.hasOwn(args, 'enum')) {
+                if (Object.prototype.hasOwnProperty.call(args, 'enum')) {
                     const err = validateEnum(args);
                     if (err) {
                         script.attributesInvalid.push(`attribute \`${attr}\` args.enum ${err}`);
@@ -305,7 +305,7 @@ onmessage = (evt: MessageEvent) => {
                 }
 
                 // validate default value
-                if (Object.hasOwn(args, 'default')) {
+                if (Object.prototype.hasOwnProperty.call(args, 'default')) {
                     const err = validateDefaultValue(args);
                     if (err) {
                         script.attributesInvalid.push(`attribute \`${attr}\`: ${err}`);
@@ -382,7 +382,7 @@ onmessage = (evt: MessageEvent) => {
                     schemaIndex[field.name] = field;
 
                     // make sure all fields in the schema are in the value
-                    if (!Object.hasOwn(value, field.name)) {
+                    if (!Object.prototype.hasOwnProperty.call(value, field.name)) {
                         return `missing field \`${field.name}\` as defined in schema`;
                     }
                 }
@@ -410,7 +410,7 @@ onmessage = (evt: MessageEvent) => {
         // extend
         obj[name].extend = function (methods: Record<string, unknown>) {
             for (const key in methods) {
-                if (!Object.hasOwn(methods, key)) {
+                if (!Object.prototype.hasOwnProperty.call(methods, key)) {
                     continue;
                 }
 

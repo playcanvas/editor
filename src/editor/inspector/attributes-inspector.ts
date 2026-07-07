@@ -652,7 +652,7 @@ class AttributesInspector extends Container {
         for (const key in this._fields) {
             const parts = key.split('.');
             const valuePath = parts[parts.length - 1];
-            if (Object.hasOwn(value, valuePath)) {
+            if (Object.prototype.hasOwnProperty.call(value, valuePath)) {
                 this._fields[key].value = value[valuePath];
             }
         }

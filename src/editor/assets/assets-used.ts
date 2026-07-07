@@ -619,7 +619,7 @@ editor.once('load', () => {
         const mappings = entity.get('components.model.mapping');
         if (mappings) {
             for (const ind in mappings) {
-                if (!Object.hasOwn(mappings, ind) || !mappings[ind]) {
+                if (!Object.prototype.hasOwnProperty.call(mappings, ind) || !mappings[ind]) {
                     continue;
                 }
 
@@ -641,7 +641,7 @@ editor.once('load', () => {
         const slots = entity.get('components.sound.slots');
         if (slots) {
             for (const i in slots) {
-                if (!Object.hasOwn(slots, i) || !slots[i].asset) {
+                if (!Object.prototype.hasOwnProperty.call(slots, i) || !slots[i].asset) {
                     continue;
                 }
 
@@ -652,7 +652,7 @@ editor.once('load', () => {
         const clips = entity.get('components.sprite.clips');
         if (clips) {
             for (const key in clips) {
-                if (!Object.hasOwn(clips, key) || !clips[key].spriteAsset) {
+                if (!Object.prototype.hasOwnProperty.call(clips, key) || !clips[key].spriteAsset) {
                     continue;
                 }
 
@@ -664,7 +664,7 @@ editor.once('load', () => {
 
         if (scripts) {
             for (const script in scripts) {
-                if (!Object.hasOwn(scripts, script)) {
+                if (!Object.prototype.hasOwnProperty.call(scripts, script)) {
                     continue;
                 }
 
@@ -674,7 +674,7 @@ editor.once('load', () => {
 
                     const attributes = scripts[script].attributes;
                     for (const attr in attributes) {
-                        if (!Object.hasOwn(attributes, attr)) {
+                        if (!Object.prototype.hasOwnProperty.call(attributes, attr)) {
                             continue;
                         }
 

@@ -666,7 +666,7 @@ editor.once('load', () => {
                         return;
                     }
 
-                    if (!Object.hasOwn(tagIndex, tag)) {
+                    if (!Object.prototype.hasOwnProperty.call(tagIndex, tag)) {
                         return;
                     }
 
@@ -783,7 +783,7 @@ editor.once('load', () => {
                 };
 
                 const onInsert = function (tag: string | number) {
-                    if (!Object.hasOwn(tagIndex, tag)) {
+                    if (!Object.prototype.hasOwnProperty.call(tagIndex, tag)) {
                         tagIndex[tag] = 0;
                         tagList.push(tag);
                     }
@@ -923,7 +923,7 @@ editor.once('load', () => {
                                     continue;
                                 }
 
-                                if (!Object.hasOwn(tagIndex, tags[t])) {
+                                if (!Object.prototype.hasOwnProperty.call(tagIndex, tags[t])) {
                                     tagIndex[tags[t]] = 0;
                                     tagList.push(tags[t]);
                                 }

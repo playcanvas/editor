@@ -23,7 +23,7 @@ import { Tooltip } from './element/element-tooltip';
 
 // Core elements
 for (const name in constants.DEFAULTS) {
-    if (!Object.hasOwn(coreElements.ArrayInput.DEFAULTS, name)) {
+    if (!Object.prototype.hasOwnProperty.call(coreElements.ArrayInput.DEFAULTS, name)) {
         coreElements.Element.register(`array:${name}`, coreElements.ArrayInput, { type: name, renderChanges: true });
     }
     coreElements.ArrayInput.DEFAULTS[name] = deepCopy(constants.DEFAULTS[name]);

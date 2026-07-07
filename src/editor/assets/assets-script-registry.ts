@@ -40,7 +40,7 @@ editor.once('load', () => {
 
         if (collisionScripts[script]) {
             for (const key in collisionScripts[script]) {
-                if (!Object.hasOwn(collisionScripts[script], key)) {
+                if (!Object.prototype.hasOwnProperty.call(collisionScripts[script], key)) {
                     continue;
                 }
 
@@ -74,7 +74,7 @@ editor.once('load', () => {
             // no collision
             if (collisionStates[script]) {
                 for (const key in collisionStates[script]) {
-                    if (!Object.hasOwn(collisionStates[script], key)) {
+                    if (!Object.prototype.hasOwnProperty.call(collisionStates[script], key)) {
                         continue;
                     }
 
@@ -134,7 +134,7 @@ editor.once('load', () => {
 
             if (!collisionScripts[script][assetId]) {
                 for (const key in scripts[script]) {
-                    if (!Object.hasOwn(scripts[script], key) || collisionScripts[script][key]) {
+                    if (!Object.prototype.hasOwnProperty.call(scripts[script], key) || collisionScripts[script][key]) {
                         continue;
                     }
 
@@ -193,7 +193,7 @@ editor.once('load', () => {
         // index scripts
         const scripts = asset.get('data.scripts');
         for (const key in scripts) {
-            if (!Object.hasOwn(scripts, key)) {
+            if (!Object.prototype.hasOwnProperty.call(scripts, key)) {
                 continue;
             }
 
@@ -307,7 +307,7 @@ editor.once('load', () => {
         asset.once('destroy', () => {
             const scripts = asset.get('data.scripts');
             for (const key in scripts) {
-                if (!Object.hasOwn(scripts, key)) {
+                if (!Object.prototype.hasOwnProperty.call(scripts, key)) {
                     continue;
                 }
 

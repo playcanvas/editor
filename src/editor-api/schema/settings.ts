@@ -30,7 +30,7 @@ class SettingsSchema {
                 continue;
             }
 
-            if (Object.hasOwn(obj[key], '$default')) {
+            if (Object.prototype.hasOwnProperty.call(obj[key], '$default')) {
                 if (obj[key].$scope === scope) {
                     result[key] = utils.deepCopy(obj[key].$default);
                 }

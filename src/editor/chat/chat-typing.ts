@@ -5,7 +5,7 @@ editor.once('load', () => {
     const notifyTypers = function () {
         const typers = [];
         for (const id in users) {
-            if (!Object.hasOwn(users, id) || !users[id].typing) {
+            if (!Object.prototype.hasOwnProperty.call(users, id) || !users[id].typing) {
                 continue;
             }
 

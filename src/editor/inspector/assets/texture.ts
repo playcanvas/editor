@@ -23,7 +23,7 @@ import { AttributesInspector } from '../attributes-inspector';
 const makeRefAssigner =
     (prefix = '') =>
     (attr) => {
-        if (Object.hasOwn(attr, 'reference')) {
+        if (Object.prototype.hasOwnProperty.call(attr, 'reference')) {
             return;
         }
 

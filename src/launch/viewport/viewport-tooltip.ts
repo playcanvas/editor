@@ -55,7 +55,7 @@ editor.once('load', () => {
 
         // migrate old device properties
         // FIXME: Remove at some point as old not official supported
-        if (Object.hasOwn(device, 'webgl2')) {
+        if (Object.prototype.hasOwnProperty.call(device, 'webgl2')) {
             device.isWebGL2 = device.webgl2;
             device.isWebGL1 = !device.webgl2;
         }

@@ -54,7 +54,7 @@ function wait(entityIds: string[], timeoutMs: number, callback: (entities: Entit
 
     const onAdd = (entity: Entity) => {
         const id = entity.get('resource_id');
-        if (!Object.hasOwn(index, id)) {
+        if (!Object.prototype.hasOwnProperty.call(index, id)) {
             return;
         }
 

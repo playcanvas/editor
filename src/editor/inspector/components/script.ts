@@ -661,7 +661,7 @@ class ScriptInspector extends Panel {
             if (
                 stored.types[name] &&
                 stored.types[name] === targetDefs[name].type &&
-                Object.hasOwn(stored.values, name)
+                Object.prototype.hasOwnProperty.call(stored.values, name)
             ) {
                 matchingValues[name] = deepCopy(stored.values[name]);
             }
@@ -792,7 +792,7 @@ class ScriptInspector extends Panel {
 
                     if (attributeData.schema) {
                         attributeData.schema.forEach((field) => {
-                            if (Object.hasOwn(field, 'default')) {
+                            if (Object.prototype.hasOwnProperty.call(field, 'default')) {
                                 result[field.name] = deepCopy(field.default);
                             } else {
                                 if (field.array) {
@@ -876,7 +876,7 @@ class ScriptInspector extends Panel {
 
         // add additional properties
         ['precision', 'step', 'min', 'max', 'placeholder'].forEach((field) => {
-            if (Object.hasOwn(attributeData, field)) {
+            if (Object.prototype.hasOwnProperty.call(attributeData, field)) {
                 data.args[field] = attributeData[field];
             }
         });
