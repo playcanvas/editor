@@ -1312,14 +1312,69 @@ strong {
             > .picker-curve-header {
                 padding: 5px 10px;
 
-                > .content {
-                    > .ui-button.picker-curve-toggle {
+                &.pcui-container {
+                    align-items: center;
+                    background-color: $bcg-primary;
+                }
+
+                > .content,
+                &.pcui-container {
+                    > .ui-label {
+                        flex: none;
+                        line-height: 22px;
+                        vertical-align: bottom;
+                    }
+
+                    > .ui-select-field.pcui-select-input {
+                        flex: none;
+                        height: 24px;
+                        min-height: 0;
+                        padding: 0;
+                        border-radius: 0;
+                        vertical-align: bottom;
+
+                        > .pcui-select-input-container-value {
+                            height: 100%;
+                            background-color: transparent;
+                        }
+
+                        .pcui-select-input-value {
+                            height: 22px;
+                            line-height: 22px;
+                            padding: 0 22px 0 8px;
+                        }
+
+                        .pcui-select-input-icon {
+                            right: 0;
+                            width: 22px;
+                            height: 22px;
+                            line-height: 22px;
+                        }
+                    }
+
+                    > .ui-button.picker-curve-toggle,
+                    > .pcui-button.picker-curve-toggle {
+                        border-radius: 0;
                         float: right;
                         text-align: center;
                         height: 24px;
                         line-height: 24px;
                         min-width: 24px;
                         margin: 3px 0;
+
+                        &:not(.active) {
+                            border-color: $bcg-darker;
+                            background-color: $bcg-primary;
+                            box-shadow: none;
+
+                            &:hover,
+                            &:focus,
+                            &:active {
+                                border-color: $bcg-darker;
+                                background-color: $bcg-primary;
+                                box-shadow: none;
+                            }
+                        }
 
                         &.active.first {
                             color: rgb(255 0 0);
@@ -1339,14 +1394,32 @@ strong {
             > .picker-curve-footer {
                 padding: 5px 10px;
 
-                > .content {
-                    > .ui-number-field {
+                &.pcui-container {
+                    align-items: center;
+                    padding-top: 0;
+                    padding-bottom: 0;
+                    background-color: $bcg-primary;
+                }
+
+                > .content,
+                &.pcui-container {
+                    > .ui-number-field,
+                    > .pcui-numeric-input {
+                        flex: none;
                         width: 143px;
+                        border-radius: 0;
+
+                        > input.field {
+                            line-height: 22px;
+                        }
                     }
 
-                    > .ui-button {
+                    > .ui-button,
+                    > .pcui-button {
                         @extend .font-icon;
 
+                        flex: none;
+                        border-radius: 0;
                         font-size: 14px;
                         width: 32px;
                         height: 24px;
@@ -1373,14 +1446,14 @@ strong {
             font-size: 11px;
 
             > .picker-gradient-gradient {
-                width: 346px;
+                width: 344px;
                 height: 28px;
                 display: block;
                 padding: 10px 10px 0;
             }
 
             > .picker-gradient-anchors {
-                width: 346px;
+                width: 344px;
                 height: 28px;
                 display: block;
                 padding: 0 10px;
@@ -1389,8 +1462,50 @@ strong {
             > .picker-gradient-footer {
                 padding: 5px;
 
-                > .content {
-                    > .ui-number-field {
+                &.pcui-container {
+                    align-items: center;
+                    background-color: $bcg-primary;
+                }
+
+                > .content,
+                &.pcui-container {
+                    > .ui-label {
+                        flex: none;
+                        line-height: 22px;
+                        vertical-align: bottom;
+                    }
+
+                    > .ui-select-field.pcui-select-input {
+                        flex: none;
+                        height: 24px;
+                        min-height: 0;
+                        padding: 0;
+                        border-radius: 0;
+                        vertical-align: bottom;
+
+                        > .pcui-select-input-container-value {
+                            height: 100%;
+                            background-color: transparent;
+                        }
+
+                        .pcui-select-input-value {
+                            height: 22px;
+                            line-height: 22px;
+                            padding: 0 22px 0 8px;
+                        }
+
+                        .pcui-select-input-icon {
+                            right: 0;
+                            width: 22px;
+                            height: 22px;
+                            line-height: 22px;
+                        }
+                    }
+
+                    > .ui-number-field,
+                    > .pcui-numeric-input {
+                        flex: none;
+                        border-radius: 0;
                         vertical-align: bottom;
                     }
 
@@ -1398,9 +1513,12 @@ strong {
                         vertical-align: bottom;
                     }
 
-                    > .ui-button {
+                    > .ui-button,
+                    > .pcui-button {
                         @extend .font-icon;
 
+                        flex: none;
+                        border-radius: 0;
                         vertical-align: bottom;
                     }
                 }
@@ -1409,7 +1527,12 @@ strong {
             > .color-panel {
                 height: 156px;
 
-                > .content {
+                &.pcui-container {
+                    background-color: $bcg-primary;
+                }
+
+                > .content,
+                &.pcui-container {
                     > .color-rect {
                         margin: 5px 10px 10px;
                         width: 140px;
@@ -1453,14 +1576,26 @@ strong {
                         height: 145px;
                         vertical-align: top;
 
-                        > .ui-number-field {
+                        > .ui-number-field,
+                        > .pcui-numeric-input {
                             margin: 2px 0;
                             width: 162px;
+                            border-radius: 0;
+
+                            > input.field {
+                                line-height: 22px;
+                            }
                         }
 
-                        > .ui-text-field {
+                        > .ui-text-field,
+                        > .pcui-text-input {
                             margin: 2px 0;
                             width: 162px;
+                            border-radius: 0;
+
+                            > input.field {
+                                line-height: 22px;
+                            }
                         }
                     }
                 }
@@ -7375,6 +7510,6 @@ strong {
     }
 }
 
-@import '../common/ui-common';
+@import '../common/shared-overlays';
 @import '../common/version-control';
 @import 'playcanvas-theme';

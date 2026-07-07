@@ -1,12 +1,15 @@
-import { LegacyOverlay } from '@/common/ui/overlay';
+import { Overlay } from '@playcanvas/pcui';
+
+import { addSidePanelOverlayClose } from './side-panel-overlay';
 
 const CLASS_ENTITY_PICKER_MODE = 'entity-picker-mode';
 
 editor.once('load', () => {
-    const overlay = new LegacyOverlay();
-    overlay.class.add('picker-entity');
-    overlay.center = false;
-    overlay.hidden = true;
+    const overlay = new Overlay({
+        class: 'picker-entity',
+        hidden: true
+    });
+    addSidePanelOverlayClose(overlay);
 
     const root = editor.call('layout.root');
     root.append(overlay);

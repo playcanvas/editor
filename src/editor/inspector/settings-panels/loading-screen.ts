@@ -1,6 +1,6 @@
 import { Container, Button } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 import type { Asset } from '@/editor-api';
 
 import { BaseSettingsPanel, type BaseSettingsPanelArgs } from './base';
@@ -52,9 +52,9 @@ class LoadingScreenSettingsPanel extends BaseSettingsPanel {
 
     _buttonContainer: Container;
 
-    _selectExistingTooltip: LegacyTooltip;
+    _selectExistingTooltip: TooltipHandle;
 
-    _createDefaultTooltip: LegacyTooltip;
+    _createDefaultTooltip: TooltipHandle;
 
     constructor(args: BaseSettingsPanelArgs) {
         args = Object.assign({}, args);
@@ -75,14 +75,14 @@ class LoadingScreenSettingsPanel extends BaseSettingsPanel {
         });
 
 
-        this._selectExistingTooltip = LegacyTooltip.attach({
+        this._selectExistingTooltip = TooltipHandle.attach({
             target: this._selectExistingButton.dom,
             text: 'Select an existing loading screen script',
             align: 'bottom',
             root: editor.call('layout.root')
         });
 
-        this._createDefaultTooltip = LegacyTooltip.attach({
+        this._createDefaultTooltip = TooltipHandle.attach({
             target: this._createDefaultButton.dom,
             text: 'Create a default loading script',
             align: 'bottom',

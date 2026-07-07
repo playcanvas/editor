@@ -3,8 +3,7 @@ import { Panel, Container, Button, BooleanInput, LabelGroup, Label, Menu, Select
 
 import { CLASS_ERROR, DEFAULTS } from '@/common/pcui/constants';
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
-import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { tooltip, tooltipSimpleItem, TooltipHandle } from '@/common/tooltips';
 import { deepCopy } from '@/common/utils';
 import type { AssetObserver, EntityObserver, History, LocalStorage } from '@/editor-api';
 
@@ -195,7 +194,7 @@ class ScriptInspector extends Panel {
         this.header.append(this._btnEdit);
         this._btnEdit.on('click', this._onClickEdit.bind(this));
 
-        const tooltipEdit = LegacyTooltip.attach({
+        const tooltipEdit = TooltipHandle.attach({
             target: this._btnEdit.dom,
             text: editor.call('permissions:write') ? 'Edit' : 'View',
             align: 'bottom',
@@ -215,7 +214,7 @@ class ScriptInspector extends Panel {
         this.header.append(this._btnParse);
         this._btnParse.on('click', this._onClickParse.bind(this));
 
-        const tooltipParse = LegacyTooltip.attach({
+        const tooltipParse = TooltipHandle.attach({
             target: this._btnParse.dom,
             text: 'Parse',
             align: 'bottom',

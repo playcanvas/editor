@@ -1,17 +1,21 @@
 import { Events } from '@playcanvas/observer';
+import { Button, Canvas, Container, Label, NumericInput, Overlay, SelectInput, TextInput } from '@playcanvas/pcui';
 import { Curve, CURVE_LINEAR, CURVE_SPLINE, CURVE_STEP, math } from 'playcanvas';
 
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyCanvas } from '@/common/ui/canvas';
-import { LegacyLabel } from '@/common/ui/label';
-import { LegacyNumberField } from '@/common/ui/number-field';
-import { LegacyOverlay } from '@/common/ui/overlay';
-import { LegacyPanel } from '@/common/ui/panel';
-import { LegacySelectField } from '@/common/ui/select-field';
-import { LegacyTextField } from '@/common/ui/text-field';
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 import { assignEvents } from '@/common/utils';
 import { hexStr, hsv2rgb, normalizedCoord, rgb2hsv, rgbaStr, toHsva, toRgba } from '@/core/color';
+
+const COLOR_RECT_SIZE = 140;
+const HUE_RECT_WIDTH = 20;
+const GRADIENT_WIDTH = 344;
+const GRADIENT_HEIGHT = 28;
+
+const legacyInput = (field: NumericInput | TextInput, cls: string) => {
+    field.class.add(cls);
+    field.input.classList.add('field');
+    return field;
+};
 
 class ColorPicker extends Events {
     panel: any;
@@ -69,35 +73,33 @@ class ColorPicker extends Events {
             };
         }
 
-        this.panel = new LegacyPanel();
+        this.panel = new Container();
         this.panel.class.add('color-panel');
-        parent.appendChild(this.panel.element);
+        this.panel.domContent.classList.add('content');
+        parent.appendChild(this.panel.dom);
 
-        this.colorRect = new LegacyCanvas({ useDevicePixelRatio: true });
+        this.colorRect = new Canvas({ useDevicePixelRatio: true });
         this.colorRect.class.add('color-rect');
-        this.panel.append(this.colorRect.element);
-        this.colorRect.resize(this.colorRect.element.clientWidth,
-            this.colorRect.element.clientHeight);
+        this.panel.append(this.colorRect);
+        this.colorRect.resize(COLOR_RECT_SIZE, COLOR_RECT_SIZE);
 
         this.colorHandle = document.createElement('div');
         this.colorHandle.classList.add('color-handle');
         this.panel.append(this.colorHandle);
 
-        this.hueRect = new LegacyCanvas({ useDevicePixelRatio: true });
+        this.hueRect = new Canvas({ useDevicePixelRatio: true });
         this.hueRect.class.add('hue-rect');
-        this.panel.append(this.hueRect.element);
-        this.hueRect.resize(this.hueRect.element.clientWidth,
-            this.hueRect.element.clientHeight);
+        this.panel.append(this.hueRect);
+        this.hueRect.resize(HUE_RECT_WIDTH, COLOR_RECT_SIZE);
 
         this.hueHandle = document.createElement('div');
         this.hueHandle.classList.add('hue-handle');
         this.panel.append(this.hueHandle);
 
-        this.alphaRect = new LegacyCanvas({ useDevicePixelRatio: true });
+        this.alphaRect = new Canvas({ useDevicePixelRatio: true });
         this.alphaRect.class.add('alpha-rect');
-        this.panel.append(this.alphaRect.element);
-        this.alphaRect.resize(this.alphaRect.element.clientWidth,
-            this.alphaRect.element.clientHeight);
+        this.panel.append(this.alphaRect);
+        this.alphaRect.resize(HUE_RECT_WIDTH, COLOR_RECT_SIZE);
 
         this.alphaHandle = document.createElement('div');
         this.alphaHandle.classList.add('alpha-handle');
@@ -114,16 +116,17 @@ class ColorPicker extends Events {
         this.upHandler = genEvtHandler(this, this._onMouseUp);
 
         function numberField(label: string) {
-            const field = new LegacyNumberField({
+            const field = legacyInput(new NumericInput({
                 precision: 1,
                 step: 1,
                 min: 0,
-                max: 255
-            });
-            field.renderChanges = false;
-            field.placeholder = label;
+                max: 255,
+                hideSlider: true,
+                renderChanges: false,
+                placeholder: label
+            }), 'ui-number-field');
             field.on('change', this.fieldChangeHandler);
-            this.fields.appendChild(field.element);
+            this.fields.appendChild(field.dom);
             return field;
         }
 
@@ -132,23 +135,35 @@ class ColorPicker extends Events {
         this.bField = numberField.call(this, 'b');
         this.aField = numberField.call(this, 'a');
 
-        this.hexField = new LegacyTextField({});
-        this.hexField.renderChanges = false;
-        this.hexField.placeholder = '#';
+        this.hexField = legacyInput(new TextInput({
+            renderChanges: false,
+            placeholder: '#'
+        }), 'ui-text-field');
         this.hexField.on('change', this.hexChangeHandler);
-        this.fields.appendChild(this.hexField.element);
+        this.fields.appendChild(this.hexField.dom);
 
         // hook up mouse handlers
-        this.colorRect.element.addEventListener('mousedown', this.downHandler);
-        this.hueRect.element.addEventListener('mousedown', this.downHandler);
-        this.alphaRect.element.addEventListener('mousedown', this.downHandler);
+        this.colorRect.dom.addEventListener('mousedown', this.downHandler);
+        this.hueRect.dom.addEventListener('mousedown', this.downHandler);
+        this.alphaRect.dom.addEventListener('mousedown', this.downHandler);
 
         this._generateHue(this.hueRect);
         this._generateAlpha(this.alphaRect);
     }
 
-    _generateHue(canvas: LegacyCanvas) {
-        const ctx = canvas.element.getContext('2d');
+    resize() {
+        this.colorRect.resize(COLOR_RECT_SIZE, COLOR_RECT_SIZE);
+        this.hueRect.resize(HUE_RECT_WIDTH, COLOR_RECT_SIZE);
+        this.alphaRect.resize(HUE_RECT_WIDTH, COLOR_RECT_SIZE);
+
+        this._generateHue(this.hueRect);
+        this._generateAlpha(this.alphaRect);
+        this._generateGradient(this.colorRect, hsv2rgb([this._hsva[0], 1, 1]));
+        this.hsva = this._hsva.slice();
+    }
+
+    _generateHue(canvas: Canvas) {
+        const ctx = (canvas.dom as HTMLCanvasElement).getContext('2d');
         const w = canvas.pixelWidth;
         const h = canvas.pixelHeight;
         const gradient = ctx.createLinearGradient(0, 0, 0, h);
@@ -159,8 +174,8 @@ class ColorPicker extends Events {
         ctx.fillRect(0, 0, w, h);
     }
 
-    _generateAlpha(canvas: LegacyCanvas) {
-        const ctx = canvas.element.getContext('2d');
+    _generateAlpha(canvas: Canvas) {
+        const ctx = (canvas.dom as HTMLCanvasElement).getContext('2d');
         const w = canvas.pixelWidth;
         const h = canvas.pixelHeight;
         const gradient = ctx.createLinearGradient(0, 0, 0, h);
@@ -170,8 +185,8 @@ class ColorPicker extends Events {
         ctx.fillRect(0, 0, w, h);
     }
 
-    _generateGradient(canvas: LegacyCanvas, clr: number[]) {
-        const ctx = canvas.element.getContext('2d');
+    _generateGradient(canvas: Canvas, clr: number[]) {
+        const ctx = (canvas.dom as HTMLCanvasElement).getContext('2d');
         const w = canvas.pixelWidth;
         const h = canvas.pixelHeight;
 
@@ -217,9 +232,9 @@ class ColorPicker extends Events {
     }
 
     _onMouseDown(evt: MouseEvent) {
-        if (evt.currentTarget === this.colorRect.element) {
+        if (evt.currentTarget === this.colorRect.dom) {
             this._dragMode = 1;     // drag color
-        } else if (evt.currentTarget === this.hueRect.element) {
+        } else if (evt.currentTarget === this.hueRect.dom) {
             this._dragMode = 2;     // drag hue
         } else {
             this._dragMode = 3;     // drag alpha
@@ -279,7 +294,7 @@ class ColorPicker extends Events {
             this._generateGradient(this.colorRect, hueRgb);
         }
 
-        const e = this.colorRect.element;
+        const e = this.colorRect.dom;
         const r = e.getBoundingClientRect();
         const w = r.width - 2;
         const h = r.height - 2;
@@ -327,13 +342,13 @@ class ColorPicker extends Events {
 
     set editAlpha(editAlpha: boolean) {
         if (editAlpha) {
-            this.alphaRect.element.style.display = 'inline';
+            this.alphaRect.dom.style.display = 'inline';
             this.alphaHandle.style.display = 'block';
-            this.aField.element.style.display = 'inline-block';
+            this.aField.dom.style.display = 'inline-block';
         } else {
-            this.alphaRect.element.style.display = 'none';
+            this.alphaRect.dom.style.display = 'none';
             this.alphaHandle.style.display = 'none';
-            this.aField.element.style.display = 'none';
+            this.aField.dom.style.display = 'none';
         }
     }
 }
@@ -349,26 +364,44 @@ editor.once('load', () => {
     };
 
     // ui widgets
-    const UI = {
+    const UI: any = {
         root: editor.call('layout.root'),
-        overlay: new LegacyOverlay(),
+        overlay: new Overlay({
+            class: 'picker-gradient',
+            clickable: true,
+            hidden: true,
+            transparent: true
+        }),
         panel: document.createElement('div'),
-        gradient: new LegacyCanvas({ useDevicePixelRatio: true }),
+        gradient: new Canvas({ useDevicePixelRatio: true }),
         checkerPattern: createCheckerPattern(),
-        anchors: new LegacyCanvas({ useDevicePixelRatio: true }),
-        footer: new LegacyPanel(),
-        typeLabel: new LegacyLabel({ text: 'Type' }),
-        typeCombo: new LegacySelectField({
-            options: { 0: 'placeholder' },
+        anchors: new Canvas({ useDevicePixelRatio: true }),
+        footer: new Container({
+            flex: true,
+            flexDirection: 'row'
+        }),
+        typeLabel: new Label({ text: 'Type' }),
+        typeCombo: new SelectInput({
+            options: [{ v: 0, t: 'placeholder' }],
             type: 'number'
         }),
-        positionLabel: new LegacyLabel({ text: 'Position' }),
-        positionEdit: new LegacyNumberField({ min: 0, max: 100, step: 1 }),
-        resetButton: new LegacyButton({ text: '&#57680' }),
-        copyButton: new LegacyButton({ text: '&#58193' }),
-        pasteButton: new LegacyButton({ text: '&#58184' }),
-        colorPicker: null
+        positionLabel: new Label({ text: 'Position' }),
+        positionEdit: new NumericInput({ min: 0, max: 100, step: 1, hideSlider: true, allowNull: true }),
+        resetButton: new Button({ text: '&#57680', unsafe: true }),
+        copyButton: new Button({ text: '&#58193', unsafe: true }),
+        pasteButton: new Button({ text: '&#58184', unsafe: true }),
+        colorPicker: null,
+        draggingAnchor: false
     };
+    UI.overlay.domContent.classList.add('content');
+    UI.footer.domContent.classList.add('content');
+    UI.typeLabel.class.add('ui-label');
+    UI.typeCombo.class.add('ui-select-field', 'noSelect');
+    UI.positionLabel.class.add('ui-label');
+    legacyInput(UI.positionEdit, 'ui-number-field');
+    UI.resetButton.class.add('ui-button');
+    UI.copyButton.class.add('ui-button');
+    UI.pasteButton.class.add('ui-button');
 
     // current state
     const STATE = {
@@ -397,7 +430,7 @@ editor.once('load', () => {
     function onOpen() {
         window.addEventListener('mousemove', anchorsOnMouseMove);
         window.addEventListener('mouseup', anchorsOnMouseUp);
-        UI.anchors.element.addEventListener('mousedown', anchorsOnMouseDown);
+        UI.anchors.dom.addEventListener('mousedown', anchorsOnMouseDown);
         editor.emit('picker:gradient:open');
         editor.emit('picker:open', 'gradient');
     }
@@ -407,7 +440,7 @@ editor.once('load', () => {
         STATE.hoveredAnchor = -1;
         window.removeEventListener('mousemove', anchorsOnMouseMove);
         window.removeEventListener('mouseup', anchorsOnMouseUp);
-        UI.anchors.element.removeEventListener('mousedown', anchorsOnMouseDown);
+        UI.anchors.dom.removeEventListener('mousedown', anchorsOnMouseDown);
         editor.emit('picker:gradient:close');
         editor.emit('picker:close', 'gradient');
     }
@@ -438,8 +471,14 @@ editor.once('load', () => {
         renderAnchors();
     }
 
+    function resizeCanvases() {
+        UI.gradient.resize(GRADIENT_WIDTH, GRADIENT_HEIGHT);
+        UI.anchors.resize(GRADIENT_WIDTH, GRADIENT_HEIGHT);
+        UI.colorPicker.resize();
+    }
+
     function renderGradient() {
-        const ctx = UI.gradient.element.getContext('2d');
+        const ctx = UI.gradient.dom.getContext('2d');
         const w = UI.gradient.width;
         const h = UI.gradient.height;
         const r = UI.gradient.pixelRatio;
@@ -484,7 +523,7 @@ editor.once('load', () => {
     }
 
     function renderAnchors() {
-        const ctx = UI.anchors.element.getContext('2d');
+        const ctx = UI.anchors.dom.getContext('2d');
         const w = UI.anchors.width;
         const h = UI.anchors.height;
         const r = UI.anchors.pixelRatio;
@@ -621,7 +660,7 @@ editor.once('load', () => {
             // user clicked in empty space, create new anchor and select it
             const coord = calcNormalizedCoord(e.clientX,
                 e.clientY,
-                getClientRect(UI.anchors.element));
+                getClientRect(UI.anchors.dom));
             insertAnchor(coord[0], evaluateGradient(coord[0]));
             selectAnchor(STATE.anchors.indexOf(coord[0]));
         } else if (STATE.hoveredAnchor !== STATE.selectedAnchor) {
@@ -637,7 +676,7 @@ editor.once('load', () => {
     function anchorsOnMouseMove(e: MouseEvent) {
         const coord = calcNormalizedCoord(e.clientX,
             e.clientY,
-            getClientRect(UI.anchors.element));
+            getClientRect(UI.anchors.dom));
 
         if (UI.draggingAnchor) {
             dragUpdate(math.clamp(coord[0], 0, 1));
@@ -675,7 +714,7 @@ editor.once('load', () => {
 
     function selectHovered(index: number) {
         STATE.hoveredAnchor = index;
-        UI.anchors.element.style.cursor = (index === -1 ? '' : 'pointer');
+        UI.anchors.dom.style.cursor = (index === -1 ? '' : 'pointer');
     }
 
     function selectAnchor(index: number) {
@@ -873,17 +912,17 @@ editor.once('load', () => {
     }
 
     function createCheckerPattern() {
-        const canvas = new LegacyCanvas();
+        const canvas = new Canvas();
         canvas.width = 16;
         canvas.height = 16;
-        const ctx = canvas.element.getContext('2d');
+        const ctx = (canvas.dom as HTMLCanvasElement).getContext('2d');
         ctx.fillStyle = '#949a9c';
         ctx.fillRect(0, 0, 8, 8);
         ctx.fillRect(8, 8, 8, 8);
         ctx.fillStyle = '#657375';
         ctx.fillRect(8, 0, 8, 8);
         ctx.fillRect(0, 8, 8, 8);
-        return ctx.createPattern(canvas.element, 'repeat');
+        return ctx.createPattern(canvas.dom as HTMLCanvasElement, 'repeat');
     }
 
     function setValue(value: Array<{ keys?: number[][]; type?: number }>, args?: unknown) {
@@ -913,7 +952,9 @@ editor.once('load', () => {
             comboItems[3] = 'Legacy';
             STATE.typeMap[3] = value[0].type;
         }
-        UI.typeCombo._updateOptions(comboItems);
+        UI.typeCombo.options = Object.entries(comboItems).map(([v, t]) => {
+            return { v: Number(v), t };
+        });
         UI.typeCombo.value = { 0: 1, 1: 3, 2: 3, 3: 3, 4: 2, 5: 0 }[value[0].type];
 
         // store the curves
@@ -939,11 +980,6 @@ editor.once('load', () => {
 
     // initialize overlay
     UI.root.append(UI.overlay);
-    UI.overlay.class.add('picker-gradient');
-    UI.overlay.center = false;
-    UI.overlay.transparent = true;
-    UI.overlay.hidden = true;
-
     UI.overlay.on('show', () => {
         onOpen();
     });
@@ -957,19 +993,17 @@ editor.once('load', () => {
     UI.overlay.append(UI.panel);
 
     // gradient
-    UI.panel.appendChild(UI.gradient.element);
+    UI.panel.appendChild(UI.gradient.dom);
     UI.gradient.class.add('picker-gradient-gradient');
-    let r = getClientRect(UI.gradient.element);
-    UI.gradient.resize(r.width, r.height);
+    UI.gradient.resize(GRADIENT_WIDTH, GRADIENT_HEIGHT);
 
     // anchors
-    UI.panel.appendChild(UI.anchors.element);
+    UI.panel.appendChild(UI.anchors.dom);
     UI.anchors.class.add('picker-gradient-anchors');
-    r = getClientRect(UI.anchors.element);
-    UI.anchors.resize(r.width, r.height);
+    UI.anchors.resize(GRADIENT_WIDTH, GRADIENT_HEIGHT);
 
     // footer
-    UI.panel.appendChild(UI.footer.element);
+    UI.panel.appendChild(UI.footer.dom);
     UI.footer.append(UI.typeLabel);
     UI.footer.class.add('picker-gradient-footer');
 
@@ -990,8 +1024,8 @@ editor.once('load', () => {
 
     UI.resetButton.on('click', doReset);
     UI.footer.append(UI.resetButton);
-    LegacyTooltip.attach({
-        target: UI.resetButton.element,
+    TooltipHandle.attach({
+        target: UI.resetButton.dom,
         text: 'Reset',
         align: 'bottom',
         root: UI.root
@@ -999,8 +1033,8 @@ editor.once('load', () => {
 
     UI.copyButton.on('click', doCopy);
     UI.footer.append(UI.copyButton);
-    LegacyTooltip.attach({
-        target: UI.copyButton.element,
+    TooltipHandle.attach({
+        target: UI.copyButton.dom,
         text: 'Copy',
         align: 'bottom',
         root: UI.root
@@ -1008,8 +1042,8 @@ editor.once('load', () => {
 
     UI.pasteButton.on('click', doPaste);
     UI.footer.append(UI.pasteButton);
-    LegacyTooltip.attach({
-        target: UI.pasteButton.element,
+    TooltipHandle.attach({
+        target: UI.pasteButton.dom,
         text: 'Paste',
         align: 'bottom',
         root: UI.root
@@ -1043,6 +1077,15 @@ editor.once('load', () => {
     editor.method('picker:gradient', (value, args) => {
         setValue(value, args);
         open();
+        resizeCanvases();
+        render();
+        requestAnimationFrame(() => {
+            if (UI.overlay.hidden) {
+                return;
+            }
+            resizeCanvases();
+            render();
+        });
     });
 
     editor.method('picker:gradient:set', (value, args) => {
@@ -1050,7 +1093,7 @@ editor.once('load', () => {
     });
 
     editor.method('picker:gradient:rect', () => {
-        return UI.overlay.rect;
+        return UI.overlay.domContent.getBoundingClientRect();
     });
 
     editor.method('picker:gradient:position', (x, y) => {
@@ -1058,5 +1101,7 @@ editor.once('load', () => {
             y = window.innerHeight - UI.panel.clientHeight;
         }
         UI.overlay.position(x, y);
+        resizeCanvases();
+        render();
     });
 });
