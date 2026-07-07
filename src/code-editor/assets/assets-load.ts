@@ -3,11 +3,7 @@ import { Observer } from '@playcanvas/observer';
 import { ObserverSync } from '@/common/observer-sync';
 
 editor.once('load', () => {
-    const syncPaths = [
-        'name',
-        'file',
-        'data'
-    ];
+    const syncPaths = ['name', 'file', 'data'];
 
     // Paths that should not be synced to the server
     // (file.url and file.variants contain client-computed URLs that don't exist in the server document schema)
@@ -72,23 +68,24 @@ editor.once('load', () => {
             });
 
             // server -> client
-            assetDoc.on('op', (ops: Array<{ p: string[]; oi?: unknown; od?: unknown }>, local: boolean) => {
+            assetDoc.on('op', (ops: { p: string[]; oi?: unknown; od?: unknown }[], local: boolean) => {
                 if (local) {
                     return;
                 }
 
                 for (let i = 0; i < ops.length; i++) {
+                    const op = ops[i];
                     let dirty = true;
 
                     // When the file changes this means that the
                     // save operation has finished
-                    if (ops[i].p.length === 1 && ops[i].p[0] === 'file') {
-                        if (ops[i].oi && ops[i].oi.hash !== asset.get('file.hash')) {
+                    if (op.p.length === 1 && op.p[0] === 'file') {
+                        if (op.oi && op.oi.hash !== asset.get('file.hash')) {
                             dirty = false;
                         }
                     }
 
-                    asset.sync.write(ops[i]);
+                    asset.sync.write(op);
 
                     if (!dirty) {
                         editor.emit('documents:dirty', data.id, false);
@@ -106,26 +103,26 @@ editor.once('load', () => {
         assetDoc.subscribe();
     });
 
-
     // Handle asset path changes
-    editor.method('assets:fs:paths:patch', (data: Array<{ uniqueId: string; id: string; path: string[] }>) => {
+    editor.method('assets:fs:paths:patch', (data: { uniqueId: string; id: string; path: string[] }[]) => {
         const connection = editor.call('realtime:connection');
         const assets = connection.collections.assets;
 
         for (let i = 0; i < data.length; i++) {
-            if (!assets.hasOwnProperty(data[i].uniqueId)) {
+            const item = data[i];
+            if (!Object.prototype.hasOwnProperty.call(assets, item.uniqueId)) {
                 continue;
             }
 
             // force snapshot path data
-            assets[data[i].uniqueId].data.path = data[i].path;
+            assets[item.uniqueId].data.path = item.path;
 
             // sync observer
-            const observer = editor.call('assets:get', data[i].id);
+            const observer = editor.call('assets:get', item.id);
             if (observer) {
                 observer.sync.write({
                     p: ['path'],
-                    oi: data[i].path,
+                    oi: item.path,
                     od: null
                 });
             }
@@ -145,51 +142,52 @@ editor.once('load', () => {
     const loadEditableAssets = function () {
         editor.call('assets:load:progress', 0);
 
-        editor.api.globals.rest.projects.projectAssets('codeeditor')
-        .on('load', (_status: unknown, res: Array<{ uniqueId: string }>) => {
-            if (!res.length) {
-                editor.emit('assets:load:progress', 1);
-                editor.emit('assets:load');
-                editor.call('status:clear');
-                return;
-            }
-
-            totalAssets = res.length;
-            loadedAssets = 0;
-
-            // do bulk subscribe in batches of 'batchSize' assets
-            const batchSize = 256;
-            let startBatch = 0;
-            const connection = editor.call('realtime:connection');
-
-            const onLoad = function () {
-                loadedAssets++;
-                editor.emit('assets:load:progress', loadedAssets / totalAssets);
-                if (totalAssets === loadedAssets) {
+        editor.api.globals.rest.projects
+            .projectAssets('codeeditor')
+            .on('load', (_status: unknown, res: { uniqueId: string }[]) => {
+                if (!res.length) {
+                    editor.emit('assets:load:progress', 1);
                     editor.emit('assets:load');
                     editor.call('status:clear');
+                    return;
                 }
-            };
 
-            while (startBatch < totalAssets) {
-                // start bulk subscribe
-                connection.startBulk();
-                for (let i = startBatch; i < startBatch + batchSize && i < totalAssets; i++) {
-                    editor.call('assets:loadOne', res[i].uniqueId, onLoad);
+                totalAssets = res.length;
+                loadedAssets = 0;
+
+                // do bulk subscribe in batches of 'batchSize' assets
+                const batchSize = 256;
+                let startBatch = 0;
+                const connection = editor.call('realtime:connection');
+
+                const onLoad = function () {
+                    loadedAssets++;
+                    editor.emit('assets:load:progress', loadedAssets / totalAssets);
+                    if (totalAssets === loadedAssets) {
+                        editor.emit('assets:load');
+                        editor.call('status:clear');
+                    }
+                };
+
+                while (startBatch < totalAssets) {
+                    // start bulk subscribe
+                    connection.startBulk();
+                    for (let i = startBatch; i < startBatch + batchSize && i < totalAssets; i++) {
+                        editor.call('assets:loadOne', res[i].uniqueId, onLoad);
+                    }
+                    // end bulk subscribe and send message to server
+                    connection.endBulk();
+
+                    startBatch += batchSize;
                 }
-                // end bulk subscribe and send message to server
-                connection.endBulk();
-
-                startBatch += batchSize;
-            }
-        })
-        .on('error', (status: number, error?: string) => {
-            if (error) {
-                editor.call('status:error', `Error: ${error}(Status: ${status})`);
-            } else {
-                editor.call('status:error', `Error - Status ${status}`);
-            }
-        });
+            })
+            .on('error', (status: number, error?: string) => {
+                if (error) {
+                    editor.call('status:error', `Error: ${error}(Status: ${status})`);
+                } else {
+                    editor.call('status:error', `Error - Status ${status}`);
+                }
+            });
     };
 
     // this is for reconnections

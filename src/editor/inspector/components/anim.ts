@@ -1,14 +1,25 @@
 import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
-import { InfoBox, Container, TreeView, TreeViewItem, BooleanInput, Menu, Button, Panel, BindingTwoWay } from '@playcanvas/pcui';
+import {
+    InfoBox,
+    Container,
+    TreeView,
+    TreeViewItem,
+    BooleanInput,
+    Menu,
+    Button,
+    Panel,
+    BindingTwoWay
+} from '@playcanvas/pcui';
 import type { Entity } from 'playcanvas';
 
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import type { EntityObserver } from '@/editor-api';
 
-import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+import { ComponentInspector } from './component';
+import type { ComponentInspectorArgs } from './component';
 
 const ATTRIBUTES: (Attribute | Divider)[] = [
     {
@@ -108,13 +119,16 @@ class AnimComponentInspector extends ComponentInspector {
         this._normalizeWeightsMessage = new InfoBox({
             icon: 'E400',
             title: 'Normalize Weights Migration',
-            text: 'This anim component was created before the normalize weights option was introduced. To maintain the component\'s previous behaviour, normalize weights has been turned on. For more info click '
+            text: "This anim component was created before the normalize weights option was introduced. To maintain the component's previous behaviour, normalize weights has been turned on. For more info click "
         });
         this._normalizeWeightsMessage.hidden = true;
         const normalizeWeightsField = this._attributesInspector.getField('components.anim.normalizeWeights');
         normalizeWeightsField.parent.parent.appendAfter(this._normalizeWeightsMessage, normalizeWeightsField.parent);
         const normalizeWeightsLink = document.createElement('a');
-        normalizeWeightsLink.setAttribute('href', 'https://forum.playcanvas.com/t/anim-component-layer-blending-update/24557');
+        normalizeWeightsLink.setAttribute(
+            'href',
+            'https://forum.playcanvas.com/t/anim-component-layer-blending-update/24557'
+        );
         normalizeWeightsLink.setAttribute('target', '_blank');
         normalizeWeightsLink.innerText = 'here.';
         this._normalizeWeightsMessage.dom.children[1].appendChild(normalizeWeightsLink);
@@ -158,14 +172,18 @@ class AnimComponentInspector extends ComponentInspector {
             masks = {};
         }
         if (!masks[layerId]) {
-
             let rootEntity = entityObserver.entity;
 
             if (rootEntity.anim.rootBone) {
                 rootEntity = rootEntity.anim.rootBone;
             }
 
-            if (rootEntity.model && rootEntity.model.enabled && rootEntity.model.model && rootEntity.model.type === 'asset') {
+            if (
+                rootEntity.model &&
+                rootEntity.model.enabled &&
+                rootEntity.model.model &&
+                rootEntity.model.type === 'asset'
+            ) {
                 rootEntity = rootEntity.model.model.graph;
             }
 
@@ -179,10 +197,15 @@ class AnimComponentInspector extends ComponentInspector {
         const mask = masks[layerId].mask;
 
         const createBooleanTreeViewItem = (name, path, args = {}) => {
-            const item = new TreeViewItem(Object.assign({
-                text: name,
-                class: CLASS_BOOLEAN_INPUT_ITEM
-            }, args));
+            const item = new TreeViewItem(
+                Object.assign(
+                    {
+                        text: name,
+                        class: CLASS_BOOLEAN_INPUT_ITEM
+                    },
+                    args
+                )
+            );
             item.path = path;
             const booleanInput = new BooleanInput({
                 value: entityObserver.get(`components.anim.masks.${layerId}.mask.${path}.value`)
@@ -226,11 +249,13 @@ class AnimComponentInspector extends ComponentInspector {
                 redo();
             });
 
-            this._maskEvts.push(entityObserver.on(`components.anim.masks.${layerId}.mask.${item.path}.value:set`, (value) => {
-                suppressChanges = true;
-                booleanInput.value = value;
-                suppressChanges = false;
-            }));
+            this._maskEvts.push(
+                entityObserver.on(`components.anim.masks.${layerId}.mask.${item.path}.value:set`, (value) => {
+                    suppressChanges = true;
+                    booleanInput.value = value;
+                    suppressChanges = false;
+                })
+            );
 
             item.content.prepend(booleanInput);
             const contextMenuDom = new Container();
@@ -419,7 +444,6 @@ class AnimComponentInspector extends ComponentInspector {
             addAllPathsButton.text = 'ADD ALL';
             removeAllPathsButton.text = 'REMOVE ALL';
             selectedItem = null;
-
         });
 
         const closeButton = new Button({
@@ -433,7 +457,6 @@ class AnimComponentInspector extends ComponentInspector {
 
         this._maskInspector.append(maskTreeView);
     }
-
 
     _clearMaskInspector() {
         if (this._maskInspector) {
@@ -449,7 +472,7 @@ class AnimComponentInspector extends ComponentInspector {
         this._contextMenus.length = 0;
 
         editor.call('layout.attributes').headerText = 'ENTITY';
-        this._maskEvts.forEach(e => e.unbind());
+        this._maskEvts.forEach((e) => e.unbind());
         this._maskEvts.length = 0;
     }
 
@@ -493,12 +516,16 @@ class AnimComponentInspector extends ComponentInspector {
             deleteLayerMaskButton.hidden = !this._entities[0].get(`components.anim.masks.${layerId}.mask`);
             maskButtonsContainer.append(deleteLayerMaskButton);
 
-            this._entityEvents.push(this._entities[0].on('*:set', (path) => {
-                if (path.indexOf('components.anim.masks') === 0) {
-                    layerMaskButton.text = this._entities[0].get(`components.anim.masks.${layerId}.mask`) ? 'EDIT MASK' : 'CREATE MASK';
-                    deleteLayerMaskButton.hidden = !this._entities[0].get(`components.anim.masks.${layerId}.mask`);
-                }
-            }));
+            this._entityEvents.push(
+                this._entities[0].on('*:set', (path) => {
+                    if (path.indexOf('components.anim.masks') === 0) {
+                        layerMaskButton.text = this._entities[0].get(`components.anim.masks.${layerId}.mask`)
+                            ? 'EDIT MASK'
+                            : 'CREATE MASK';
+                        deleteLayerMaskButton.hidden = !this._entities[0].get(`components.anim.masks.${layerId}.mask`);
+                    }
+                })
+            );
 
             layer.states.forEach((stateId) => {
                 const state = stateGraph.get(`data.states.${stateId}`);
@@ -538,7 +565,10 @@ class AnimComponentInspector extends ComponentInspector {
                         headerText: state.name
                     });
                     statePanel.content.append(stateAsset);
-                    stateAsset.link(this._entities, `components.anim.animationAssets.${layer.name}:${state.name}.asset`);
+                    stateAsset.link(
+                        this._entities,
+                        `components.anim.animationAssets.${layer.name}:${state.name}.asset`
+                    );
                     layerPanel.append(statePanel);
                 }
             });
@@ -569,64 +599,68 @@ class AnimComponentInspector extends ComponentInspector {
 
         // update state graph asset id and animationAssets when state graph asset is changed by the user
         let suppressStateGraphAssetFieldChanges = false;
-        this._entityEvents.push(stateGraphAssetField.on('change', (value) => {
-            if (suppressStateGraphAssetFieldChanges) {
-                return;
-            }
-            const prevStateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
-            const prevAnimAssets = this._entities[0].get('components.anim.animationAssets');
-            const undo = () => {
-                suppressStateGraphAssetFieldChanges = true;
-                stateGraphAssetField.value = prevStateGraphAssetId;
-                suppressStateGraphAssetFieldChanges = false;
-                const prevHistoryEnabled = this._entities[0].history.enabled;
-                this._entities[0].history.enabled = false;
-                this._entities[0].set('components.anim.stateGraphAsset', prevStateGraphAssetId);
-                // when undoing a clear of the state graph, restore the previous animation assets
-                if (!value) {
-                    this._entities[0].set('components.anim.animationAssets', prevAnimAssets);
+        this._entityEvents.push(
+            stateGraphAssetField.on('change', (value) => {
+                if (suppressStateGraphAssetFieldChanges) {
+                    return;
                 }
-                this._entities[0].history.enabled = prevHistoryEnabled;
-                this._addAnimationAssetSlots();
-            };
-            const redo = () => {
-                suppressStateGraphAssetFieldChanges = true;
-                stateGraphAssetField.value = value;
-                suppressStateGraphAssetFieldChanges = false;
-                const prevHistoryEnabled = this._entities[0].history.enabled;
-                this._entities[0].history.enabled = false;
-                this._entities[0].set('components.anim.stateGraphAsset', value);
-                // when clearing the state graph, remove all animation assets
-                if (!value) {
-                    this._entities[0].set('components.anim.animationAssets', {});
-                }
-                this._entities[0].history.enabled = prevHistoryEnabled;
-                this._addAnimationAssetSlots();
-            };
-            this._history.add({
-                name: 'change stateGraphAsset',
-                undo: undo,
-                redo: redo
-            });
-            redo();
-        }));
+                const prevStateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
+                const prevAnimAssets = this._entities[0].get('components.anim.animationAssets');
+                const undo = () => {
+                    suppressStateGraphAssetFieldChanges = true;
+                    stateGraphAssetField.value = prevStateGraphAssetId;
+                    suppressStateGraphAssetFieldChanges = false;
+                    const prevHistoryEnabled = this._entities[0].history.enabled;
+                    this._entities[0].history.enabled = false;
+                    this._entities[0].set('components.anim.stateGraphAsset', prevStateGraphAssetId);
+                    // when undoing a clear of the state graph, restore the previous animation assets
+                    if (!value) {
+                        this._entities[0].set('components.anim.animationAssets', prevAnimAssets);
+                    }
+                    this._entities[0].history.enabled = prevHistoryEnabled;
+                    this._addAnimationAssetSlots();
+                };
+                const redo = () => {
+                    suppressStateGraphAssetFieldChanges = true;
+                    stateGraphAssetField.value = value;
+                    suppressStateGraphAssetFieldChanges = false;
+                    const prevHistoryEnabled = this._entities[0].history.enabled;
+                    this._entities[0].history.enabled = false;
+                    this._entities[0].set('components.anim.stateGraphAsset', value);
+                    // when clearing the state graph, remove all animation assets
+                    if (!value) {
+                        this._entities[0].set('components.anim.animationAssets', {});
+                    }
+                    this._entities[0].history.enabled = prevHistoryEnabled;
+                    this._addAnimationAssetSlots();
+                };
+                this._history.add({
+                    name: 'change stateGraphAsset',
+                    undo: undo,
+                    redo: redo
+                });
+                redo();
+            })
+        );
 
         if (this._stateGraphAssetId) {
             this._addAnimationAssetSlots();
         }
 
         // update the state graph asset input and display / hide the animation slots when an incoming change to the state graph asset is detected
-        this._entityEvents.push(this._entities[0].on('components.anim.stateGraphAsset:set', (value) => {
-            suppressStateGraphAssetFieldChanges = true;
-            stateGraphAssetField.value = value;
-            suppressStateGraphAssetFieldChanges = false;
-            this._stateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
-            if (this._stateGraphAssetId) {
-                this._addAnimationAssetSlots();
-            } else {
-                this._clearAnimationSlots();
-            }
-        }));
+        this._entityEvents.push(
+            this._entities[0].on('components.anim.stateGraphAsset:set', (value) => {
+                suppressStateGraphAssetFieldChanges = true;
+                stateGraphAssetField.value = value;
+                suppressStateGraphAssetFieldChanges = false;
+                this._stateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
+                if (this._stateGraphAssetId) {
+                    this._addAnimationAssetSlots();
+                } else {
+                    this._clearAnimationSlots();
+                }
+            })
+        );
 
         // normalize weights migration message
         if (window.sessionStorage.getItem(`${this._entities[0].get('resource_id')}:animNormalizeWeightsMessage`)) {

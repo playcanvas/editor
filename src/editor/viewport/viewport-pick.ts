@@ -1,4 +1,5 @@
-import { Entity, GraphNode, Picker, Vec2 } from 'playcanvas';
+import type { GraphNode } from 'playcanvas';
+import { Entity, Picker, Vec2 } from 'playcanvas';
 
 import { frameLimiter } from '@/common/utils';
 import { FORCE_PICK_TAG } from '@/core/constants';
@@ -33,7 +34,7 @@ editor.once('load', () => {
         while (node && !(node instanceof Entity) && node.parent) {
             node = node.parent;
         }
-        return (node instanceof Entity) ? node : null;
+        return node instanceof Entity ? node : null;
     };
 
     editor.on('gizmo:transform:hover', (state: boolean) => {
@@ -64,18 +65,23 @@ editor.once('load', () => {
         }
 
         // pick
-        editor.call('viewport:pick', mouseCoords.x, mouseCoords.y, (node: Entity | null, picked: { node: GraphNode } | null) => {
-            if (gizmoHover && !node?.tags.has(FORCE_PICK_TAG)) {
-                node = null;
-                picked = null;
-            }
-            if (pickedData.node !== node || pickedData.picked !== picked) {
-                pickedData.node = node;
-                pickedData.picked = picked;
+        editor.call(
+            'viewport:pick',
+            mouseCoords.x,
+            mouseCoords.y,
+            (node: Entity | null, picked: { node: GraphNode } | null) => {
+                if (gizmoHover && !node?.tags.has(FORCE_PICK_TAG)) {
+                    node = null;
+                    picked = null;
+                }
+                if (pickedData.node !== node || pickedData.picked !== picked) {
+                    pickedData.node = node;
+                    pickedData.picked = picked;
 
-                editor.emit('viewport:pick:hover', pickedData.node, pickedData.picked);
+                    editor.emit('viewport:pick:hover', pickedData.node, pickedData.picked);
+                }
             }
-        });
+        );
     };
 
     // run hover-picking on pointer movement, coalesced to once per frame; the picker
@@ -93,66 +99,73 @@ editor.once('load', () => {
         picker.resize(width, height);
     });
 
-    editor.method('viewport:pick', (x: number, y: number, fn: (node: Entity | null, picked: { node: GraphNode } | null) => void) => {
-        const scene = app.scene;
+    editor.method(
+        'viewport:pick',
+        (x: number, y: number, fn: (node: Entity | null, picked: { node: GraphNode } | null) => void) => {
+            const scene = app.scene;
 
-        // if (filter) {
-        //     scene = {
-        //         drawCalls: app.scene.drawCalls.filter(filter)
-        //     };
-        // }
+            // if (filter) {
+            //     scene = {
+            //         drawCalls: app.scene.drawCalls.filter(filter)
+            //     };
+            // }
 
-        // prepare picker
-        picker.prepare(editor.call('camera:current').camera, scene);
+            // prepare picker
+            picker.prepare(editor.call('camera:current').camera, scene);
 
-        // pick node
-        const picked = picker.getSelection(x, y);
+            // pick node
+            const picked = picker.getSelection(x, y);
 
-        if (!picked.length || !picked[0]) {
-            fn(null, null);
-        } else {
-            const entity = findParentEntity(picked[0].node);
-            if (!entity) {
-                return;
+            if (!picked.length || !picked[0]) {
+                fn(null, null);
+            } else {
+                const entity = findParentEntity(picked[0].node);
+                if (!entity) {
+                    return;
+                }
+
+                fn(entity, picked[0]);
             }
-
-            fn(entity, picked[0]);
         }
-    });
+    );
 
     // Rectangle pick method - returns array of unique entities in the rectangle
-    editor.method('viewport:pick:rect', (x: number, y: number, width: number, height: number, fn: (entities: Entity[]) => void) => {
-        const scene = app.scene;
+    editor.method(
+        'viewport:pick:rect',
+        (x: number, y: number, width: number, height: number, fn: (entities: Entity[]) => void) => {
+            const scene = app.scene;
 
-        // prepare picker
-        picker.prepare(editor.call('camera:current').camera, scene);
+            // prepare picker
+            picker.prepare(editor.call('camera:current').camera, scene);
 
-        // pick all mesh instances in the rectangle
-        const picked = picker.getSelection(x, y, width, height);
+            // pick all mesh instances in the rectangle
+            const picked = picker.getSelection(x, y, width, height);
 
-        // Convert mesh instances to unique entities
-        const entities: Entity[] = [];
-        const seenGuids = new Set<string>();
+            // Convert mesh instances to unique entities
+            const entities: Entity[] = [];
+            const seenGuids = new Set<string>();
 
-        for (const meshInstance of picked) {
-            if (!meshInstance || !(meshInstance as { node?: GraphNode }).node) {
-                continue;
+            for (let i = 0; i < picked.length; i++) {
+                const meshInstance = picked[i];
+                if (!meshInstance || !(meshInstance as { node?: GraphNode }).node) {
+                    continue;
+                }
+
+                const entity = findParentEntity((meshInstance as { node: GraphNode }).node);
+                if (!entity) {
+                    continue;
+                }
+
+                const guid = entity.getGuid();
+                if (!seenGuids.has(guid)) {
+                    seenGuids.add(guid);
+                    entities.push(entity);
+                }
             }
 
-            const entity = findParentEntity((meshInstance as { node: GraphNode }).node);
-            if (!entity) {
-                continue;
-            }
-
-            const guid = entity.getGuid();
-            if (!seenGuids.has(guid)) {
-                seenGuids.add(guid);
-                entities.push(entity);
-            }
+            fn(entities);
         }
-
-        fn(entities);
-    });
+    );
 
     editor.on('viewport:tap:start', (tap: ViewportTap, evt: MouseEvent) => {
         if (!tap.mouse) {

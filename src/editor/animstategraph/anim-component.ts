@@ -2,9 +2,9 @@ import type { Observer, ObserverList, EventHandle } from '@playcanvas/observer';
 
 import type { AnimStateGraphView } from './view';
 
-interface AnimStateGraphAnimComponentArgs {
+type AnimStateGraphAnimComponentArgs = {
     entities?: ObserverList;
-}
+};
 
 class AnimStateGraphAnimComponent {
     _view: AnimStateGraphView;
@@ -27,7 +27,11 @@ class AnimStateGraphAnimComponent {
             if (path.includes('data.states.') && path.includes('.name')) {
                 const layerName = this._asset.get(`data.layers.${this._view._selectedLayer}.name`);
                 this._entities?.forEach((entity) => {
-                    if (entity.entity.anim && entity.entity.anim.stateGraphAsset && entity.entity.anim.stateGraphAsset === this._asset.get('id')) {
+                    if (
+                        entity.entity.anim &&
+                        entity.entity.anim.stateGraphAsset &&
+                        entity.entity.anim.stateGraphAsset === this._asset.get('id')
+                    ) {
                         const entityHistoryEnabled = entity.history.enabled;
                         entity.history.enabled = false;
                         const animationAssets = entity.get('components.anim.animationAssets');

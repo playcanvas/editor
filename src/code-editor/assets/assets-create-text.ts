@@ -4,7 +4,7 @@ editor.once('load', () => {
             return;
         }
         args = args || {};
-        const parent = (args.parent !== undefined) ? args.parent : editor.call('assets:selected:folder');
+        const parent = args.parent !== undefined ? args.parent : editor.call('assets:selected:folder');
         const folder = parent?.apiAsset ?? parent ?? undefined;
 
         editor.api.globals.assets.createText({ folder }).catch((err: unknown) => {

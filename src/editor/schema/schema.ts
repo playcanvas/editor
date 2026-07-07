@@ -23,7 +23,7 @@ editor.once('load', () => {
                 result = result.$of;
             } else if (result[p] || (result.$type && result.$type[p])) {
                 result = result[p] || result.$type[p];
-            } else if (!isNaN(parseInt(p, 10)) && Array.isArray(result) || Array.isArray(result.$type)) {
+            } else if ((!isNaN(parseInt(p, 10)) && Array.isArray(result)) || Array.isArray(result.$type)) {
                 result = Array.isArray(result) ? result[0] : result.$type[0];
             } else {
                 return null;

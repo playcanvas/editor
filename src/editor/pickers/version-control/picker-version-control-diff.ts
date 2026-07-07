@@ -59,7 +59,9 @@ editor.once('load', () => {
         const id = diffId(current);
         if (typeof id === 'string' && !isRetainedDiff(id)) {
             editor.emit('picker:diffManager:closed', id);
-            handleCallback(editor.api.globals.rest.merge.mergeDelete({ mergeId: id }), () => {});
+            handleCallback(editor.api.globals.rest.merge.mergeDelete({ mergeId: id }), () => {
+                // intentionally empty
+            });
         }
         if (!closingViaBack && !editor.call('picker:isOpen', 'project')) {
             editor.call('picker:versioncontrol');
@@ -101,18 +103,20 @@ editor.once('load', () => {
                     view.main.insertBefore(hint, view.main.firstChild);
                 }
             }, DIFF_SLOW_HINT_MS);
-            input.then((diff: any) => {
-                clearTimeout(slowHint);
-                if (token === loadToken) {
-                    setDiff(diff);
-                }
-            }).catch((err: any) => {
-                clearTimeout(slowHint);
-                if (token === loadToken) {
-                    view.clearSidebar();
-                    view.renderNotice(`Could not load diff: ${err instanceof Error ? err.message : err}`);
-                }
-            });
+            input
+                .then((diff: any) => {
+                    clearTimeout(slowHint);
+                    if (token === loadToken) {
+                        setDiff(diff);
+                    }
+                })
+                .catch((err: any) => {
+                    clearTimeout(slowHint);
+                    if (token === loadToken) {
+                        view.clearSidebar();
+                        view.renderNotice(`Could not load diff: ${err instanceof Error ? err.message : err}`);
+                    }
+                });
         } else {
             setDiff(input);
         }

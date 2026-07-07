@@ -1,9 +1,9 @@
-interface TrieNode {
+type TrieNode = {
     name?: string;
     children: Map<string, TrieNode>;
     isEndOfPath: boolean;
     parent: TrieNode | null;
-}
+};
 
 /**
  * A Trie is an ordered tree-like data structure that is used for locating specific keys
@@ -25,7 +25,12 @@ class Trie {
 
         for (const pathSegment of pathSegments) {
             if (!node.children.has(pathSegment)) {
-                node.children.set(pathSegment, { name: pathSegment, children: new Map(), isEndOfPath: false, parent: node });
+                node.children.set(pathSegment, {
+                    name: pathSegment,
+                    children: new Map(),
+                    isEndOfPath: false,
+                    parent: node
+                });
             }
             node = node.children.get(pathSegment);
         }
@@ -38,7 +43,7 @@ class Trie {
      * @param matchPartialPaths - Whether to return the node if the path is not found
      * @returns The node that matches the path
      */
-    find(path: string, matchPartialPaths: boolean = false): TrieNode | null {
+    find(path: string, matchPartialPaths?: boolean): TrieNode | null {
         const pathSegments = path.split('/').filter(Boolean);
         let node: TrieNode = this.root;
 
@@ -77,7 +82,6 @@ class Trie {
      * @returns A list of nodes that match the search path
      */
     search(path: string): TrieNode[] {
-
         const hasTrailingSlash = path.endsWith('/');
         const lastPathSegment = path.split('/').filter(Boolean).pop();
         const node = this.find(path, true);
@@ -85,14 +89,12 @@ class Trie {
 
         // if the search path exactly matches the requested path then we have an exact match
         if (node.name === lastPathSegment) {
-
             // If we have a trailing slash then return the children otherwise return the node itself
             return hasTrailingSlash ? paths : [node];
         }
 
         // If we don't have a trailing slash then return a list of children that start with the last path segment
         return paths.filter(({ name }: TrieNode) => name.startsWith(lastPathSegment));
-
     }
 }
 

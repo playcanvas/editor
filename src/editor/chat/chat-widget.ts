@@ -31,9 +31,13 @@ editor.once('load', () => {
         return chatPanel;
     });
 
-    chatPanel.dom.addEventListener('mouseover', () => {
-        editor.emit('viewport:hover', false);
-    }, false);
+    chatPanel.dom.addEventListener(
+        'mouseover',
+        () => {
+            editor.emit('viewport:hover', false);
+        },
+        false
+    );
 
     // notification icon
     const notify = new Button({
@@ -130,7 +134,6 @@ editor.once('load', () => {
 
     typersMultiple.appendChild(document.createTextNode(' users are typing...'));
 
-
     editor.on('chat:typing', (count: number, ids: string[]) => {
         let color;
         if (count === 0) {
@@ -147,7 +150,7 @@ editor.once('load', () => {
             // user
             const user = editor.call('users:get', ids[0]);
             color = editor.call('users:color', user && user.id, 'hex');
-            typersSingleUser.textContent = user && user.username || 'user';
+            typersSingleUser.textContent = (user && user.username) || 'user';
             typersSingleUser.style.color = color;
         } else if (count === 2) {
             if (typersLast) {
@@ -158,12 +161,12 @@ editor.once('load', () => {
             // userA
             const userA = editor.call('users:get', ids[0]);
             color = editor.call('users:color', userA && userA.id, 'hex');
-            typersDoubleUserA.textContent = userA && userA.username || 'user';
+            typersDoubleUserA.textContent = (userA && userA.username) || 'user';
             typersDoubleUserA.style.color = color;
             // userB
             const userB = editor.call('users:get', ids[1]);
             color = editor.call('users:color', userB && userB.id, 'hex');
-            typersDoubleUserB.textContent = userB && userB.username || 'userB';
+            typersDoubleUserB.textContent = (userB && userB.username) || 'userB';
             typersDoubleUserB.style.color = color;
         } else {
             if (typersLast) {
@@ -306,10 +309,14 @@ editor.once('load', () => {
         editor.call('chat:typing', false);
     };
 
-    clear.addEventListener('click', () => {
-        input.value = '';
-        onTypingEnd();
-    }, false);
+    clear.addEventListener(
+        'click',
+        () => {
+            input.value = '';
+            onTypingEnd();
+        },
+        false
+    );
 
     input.on('change', (value: string) => {
         value = value.trim();

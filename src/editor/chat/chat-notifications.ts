@@ -41,7 +41,7 @@ editor.once('load', () => {
             title = 'System Message';
         } else if (typeof type === 'number') {
             const user = editor.call('users:get', type);
-            title = `Message from ${user && (`@${user.username}`) || 'a user'}`;
+            title = `Message from ${(user && `@${user.username}`) || 'a user'}`;
             icon = `/api/users/${user.id}/thumbnail?size=128`;
         }
 

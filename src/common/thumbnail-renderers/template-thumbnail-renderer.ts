@@ -1,7 +1,16 @@
 import { Observer } from '@playcanvas/observer';
-import { Application, Asset, type AppBase, BoundingBox, Color, Entity, type Layer, type MeshInstance, type RenderComponent, StandardMaterial, type Template, type WebglGraphicsDevice, type AssetReference } from 'playcanvas';
+import { Application, Asset, BoundingBox, Color, Entity, StandardMaterial } from 'playcanvas';
+import type {
+    AppBase,
+    Layer,
+    MeshInstance,
+    RenderComponent,
+    Template,
+    WebglGraphicsDevice,
+    AssetReference
+} from 'playcanvas';
 
-import { Asset as EditorAsset } from '@/editor-api';
+import type { Asset as EditorAsset } from '@/editor-api';
 
 import { ThumbnailRenderer } from './thumbnail-renderer';
 
@@ -25,7 +34,7 @@ function calculateBoundingBoxOfMeshInstances(meshInstances: MeshInstance[]): Bou
 }
 
 const DEFAULT_FOV = 45.0;
-const INV_TAN_HALF_FOV = 1 / Math.tan((DEFAULT_FOV / 2.0) * Math.PI / 180);
+const INV_TAN_HALF_FOV = 1 / Math.tan(((DEFAULT_FOV / 2.0) * Math.PI) / 180);
 function calculateCameraDistance(boundingRadius: number) {
     // Assuming default (vertical) FOV = 45 Degrees.
     // Radius/Distance = tan(FOV/2)
@@ -66,9 +75,9 @@ class TemplatePreviewScene extends Observer {
 
     enableScene() {
         this.sceneRoot.enabled = true;
-        // @ts-ignore
         // this.sceneRoot._enabledInHierarchy is false because it has no parent. We need to manually set it to be true
         // with the following line.
+        // @ts-expect-error accessing internal engine API not exposed in the public playcanvas types
         this.sceneRoot._notifyHierarchyStateChanged(this.sceneRoot, true);
     }
 
@@ -129,12 +138,12 @@ class TemplatePreviewScene extends Observer {
         this.templateInstance = template.instantiate();
         this.templateOrigin.addChild(this.templateInstance);
 
-        this._renderComponents = (this.templateInstance.findComponents('render') as RenderComponent[]);
+        this._renderComponents = this.templateInstance.findComponents('render') as RenderComponent[];
 
         // Filtering out Render components that are disabled in the hierarchy
         // We need the .enabled() to be correct, this can only be true, if "fake" set the root's _enabledInHierarchy to true.
         this.enableScene();
-        this._renderComponents = this._renderComponents.filter(rc => rc.entity.enabled);
+        this._renderComponents = this._renderComponents.filter((rc) => rc.entity.enabled);
         this.disableScene();
 
         // TODO: Start a timer and probably just abandon if it's taking too long to load.
@@ -190,7 +199,7 @@ class TemplatePreviewScene extends Observer {
         this.assetLoadedCount++;
 
         if (asset.type === 'render') {
-            // @ts-ignore
+            // @ts-expect-error `data` is typed generically; render assets have a `containerAsset` field
             const containerAssetId = asset.data.containerAsset;
             if (containerAssetId) {
                 this.queueAssetLoad(containerAssetId);
@@ -231,7 +240,6 @@ class TemplatePreviewScene extends Observer {
     }
 }
 
-
 export class TemplateThumbnailRenderer extends ThumbnailRenderer {
     private scene: TemplatePreviewScene;
 
@@ -241,11 +249,11 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
 
     private requestFrameId: number | null = null;
 
-    private rotationX: number = -20;
+    private rotationX = -20;
 
-    private rotationY: number = 25;
+    private rotationY = 25;
 
-    private materialWatches: Map<number, number> = new Map();
+    private materialWatches = new Map<number, number>();
 
     private readonly handleQueueRender: () => void;
 
@@ -253,8 +261,10 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
 
     private readonly handleTemplateAssetChange: (asset: Asset) => void;
 
-    constructor(editorAsset: Observer,
-                private canvas: HTMLCanvasElement) {
+    constructor(
+        editorAsset: Observer,
+        private canvas: HTMLCanvasElement
+    ) {
         super();
         this.app = Application.getApplication();
 
@@ -304,7 +314,7 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
         this.unwatchDependencies();
 
         const materialAssetIds = this.scene.materialAssetIds;
-        materialAssetIds.forEach(id => this._watchMaterial(id));
+        materialAssetIds.forEach((id) => this._watchMaterial(id));
     }
 
     private unwatchDependencies() {
@@ -322,15 +332,21 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
         if (!asset) {
             return;
         }
-        this.materialWatches.set(id, editor.call('assets:material:watch', {
-            asset: asset,
-            loadMaterial: true,
-            autoLoad: true,
-            callback: this.handleQueueRender
-        }));
+        this.materialWatches.set(
+            id,
+            editor.call('assets:material:watch', {
+                asset: asset,
+                loadMaterial: true,
+                autoLoad: true,
+                callback: this.handleQueueRender
+            })
+        );
     }
 
-    render(rotationX: number = 0, rotationY: number = 0) {
+    render(rotationX?: number, rotationY?: number) {
+        rotationX = rotationX === undefined ? 0 : rotationX;
+        rotationY = rotationY === undefined ? 0 : rotationY;
+
         this.requestFrameId = null;
 
         // Save the rotation settings in case we need to queue it again
@@ -395,7 +411,11 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
 
         // Read the rendered data and write into the Canvas DOM element
         const ctx = this.canvas.getContext('2d');
-        ctx.putImageData(new ImageData(renderTarget.pixelsClamped, width, height), (this.canvas.width - width) / 2, (this.canvas.height - height) / 2);
+        ctx.putImageData(
+            new ImageData(renderTarget.pixelsClamped, width, height),
+            (this.canvas.width - width) / 2,
+            (this.canvas.height - height) / 2
+        );
 
         // Cleanup after rendering into this Singleton layer shared across all ThumbnailRenderers
         layer.removeLight(this.scene.lightEntity.light);

@@ -30,23 +30,27 @@ editor.once('load', () => {
                 asset.set('data.area', area);
 
                 // upload blob as dds
-                editor.call('assets:uploadFile', {
-                    file: new Blob([JSON.stringify(data)], { type: 'application/json' }),
-                    name: filename,
-                    asset: asset,
-                    type: 'model'
-                }, (err) => {
-                    // remove from unwrapping list
-                    workerClient.stop();
-                    activeWorkers.delete(assetId);
+                editor.call(
+                    'assets:uploadFile',
+                    {
+                        file: new Blob([JSON.stringify(data)], { type: 'application/json' }),
+                        name: filename,
+                        asset: asset,
+                        type: 'model'
+                    },
+                    (err) => {
+                        // remove from unwrapping list
+                        workerClient.stop();
+                        activeWorkers.delete(assetId);
 
-                    // render
-                    editor.call('viewport:render');
-                    // callback
-                    callback?.(err, asset);
-                    // emit global event
-                    editor.emit('assets:model:unwrap', asset);
-                });
+                        // render
+                        editor.call('viewport:render');
+                        // callback
+                        callback?.(err, asset);
+                        // emit global event
+                        editor.emit('assets:model:unwrap', asset);
+                    }
+                );
             });
 
             workerClient.on('progress', (val) => {
@@ -65,7 +69,6 @@ editor.once('load', () => {
 
         workerClient.start();
     });
-
 
     editor.method('assets:model:unwrap:cancel', (asset) => {
         const assetId = asset.get('id');

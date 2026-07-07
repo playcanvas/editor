@@ -1,5 +1,6 @@
 import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
-import { Button, Container, type ContainerArgs } from '@playcanvas/pcui';
+import { Button, Container } from '@playcanvas/pcui';
+import type { ContainerArgs } from '@playcanvas/pcui';
 import type { Application } from 'playcanvas';
 
 import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
@@ -18,7 +19,7 @@ const CLASS_ANIMSTATEGRAPH_OPEN_BUTTON = `${CLASS_ANIMSTATEGRAPH}-open-button`;
 const CLASS_ANIMSTATEGRAPH_CLOSE_BUTTON = `${CLASS_ANIMSTATEGRAPH}-close-button`;
 const CLASS_ANIMSTATEGRAPH_CLOSE_BUTTON_TOOLTIP = `${CLASS_ANIMSTATEGRAPH_CLOSE_BUTTON}-tooltip`;
 
-const DOM = parent => [
+const DOM = (parent) => [
     {
         layersPanel: new AnimStateGraphLayers(parent, {
             headerText: 'LAYERS',
@@ -41,12 +42,12 @@ const DOM = parent => [
     }
 ];
 
-interface AnimStateGraphAssetInspectorArgs extends ContainerArgs {
+type AnimStateGraphAssetInspectorArgs = {
     assets?: ObserverList;
     history?: History;
     entities?: ObserverList;
     inspectorPanelSecondary?: Container;
-}
+} & ContainerArgs;
 
 class AnimStateGraphAssetInspector extends Container {
     _args: AnimStateGraphAssetInspectorArgs;
@@ -86,9 +87,12 @@ class AnimStateGraphAssetInspector extends Container {
     _inspectorPanelSecondary: Container;
 
     constructor(args: AnimStateGraphAssetInspectorArgs) {
-        args = Object.assign({
-            class: CLASS_ANIMSTATEGRAPH
-        }, args);
+        args = Object.assign(
+            {
+                class: CLASS_ANIMSTATEGRAPH
+            },
+            args
+        );
         super(args);
         this._args = args;
         this._assets = null;
@@ -231,7 +235,6 @@ class AnimStateGraphAssetInspector extends Container {
         });
         document.getElementById('layout-viewport').prepend(this._closeButton.dom);
     }
-
 
     closeFullscreenMode() {
         if (!this._closeButton) {

@@ -96,12 +96,27 @@ describe('valueKind', () => {
 
     it('classifies curves and gradients', () => {
         const curve = { keys: [0, 1, 0.5, 2] };
-        const colorSet = { keys: [[0, 0], [0, 0.5], [0, 1]] };
+        const colorSet = {
+            keys: [
+                [0, 0],
+                [0, 0.5],
+                [0, 1]
+            ]
+        };
         expect(valueKind('curve', 'scaleGraph', curve)).to.equal('curve');
-        expect(valueKind('curveset', 'scaleGraph2', { keys: [[0, 1], [0, 2]] })).to.equal('curve');
+        expect(
+            valueKind('curveset', 'scaleGraph2', {
+                keys: [
+                    [0, 1],
+                    [0, 2]
+                ]
+            })
+        ).to.equal('curve');
         expect(valueKind('curveset', 'colorGraph', colorSet)).to.equal('gradient');
         // array-of-curves shape
-        expect(valueKind('curveset', 'colorGraph', [{ keys: [0, 0] }, { keys: [0, 0] }, { keys: [0, 1] }])).to.equal('gradient');
+        expect(valueKind('curveset', 'colorGraph', [{ keys: [0, 0] }, { keys: [0, 0] }, { keys: [0, 1] }])).to.equal(
+            'gradient'
+        );
     });
 
     it('falls back to json for objects and object kind for unrenderable type', () => {

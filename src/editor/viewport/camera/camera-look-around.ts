@@ -28,7 +28,7 @@ editor.once('viewport:load', (app) => {
             // pitch
             const x = Math.cos(Math.asin(camera.forward.y));
             vecA.set(x, camera.forward.y).normalize();
-            pitch =  Math.max(-89.99, Math.min(89.99, Math.atan2(vecA.y, vecA.x) / (Math.PI / 180)));
+            pitch = Math.max(-89.99, Math.min(89.99, Math.atan2(vecA.y, vecA.x) / (Math.PI / 180)));
 
             // yaw
             vecA.set(camera.forward.x, -camera.forward.z).normalize();

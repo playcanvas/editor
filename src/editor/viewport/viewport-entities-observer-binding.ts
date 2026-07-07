@@ -1,12 +1,14 @@
 import { Entity } from 'playcanvas';
 
+import type { EntityObserver } from '@/editor-api';
+
 editor.once('load', () => {
     const app = editor.call('viewport:app');
     if (!app) {
         return;
     } // webgl not available
 
-    editor.on('entities:add', (obj: import('@/editor-api').EntityObserver) => {
+    editor.on('entities:add', (obj: EntityObserver) => {
         // subscribe to changes
         obj.on('*:set', (path: string, value: unknown) => {
             const entity = obj.entity;
@@ -16,20 +18,15 @@ editor.once('load', () => {
 
             if (path === 'name') {
                 entity.name = obj.get('name');
-
             } else if (path.startsWith('position')) {
                 entity.setLocalPosition(obj.get('position.0'), obj.get('position.1'), obj.get('position.2'));
-
             } else if (path.startsWith('rotation')) {
                 entity.setLocalEulerAngles(obj.get('rotation.0'), obj.get('rotation.1'), obj.get('rotation.2'));
-
             } else if (path.startsWith('scale')) {
                 entity.setLocalScale(obj.get('scale.0'), obj.get('scale.1'), obj.get('scale.2'));
-
             } else if (path.startsWith('enabled')) {
                 const hidden = editor.call('entities:visibility:isHidden', obj.get('resource_id'));
                 entity.enabled = obj.get('enabled') && !hidden;
-
             } else if (path.startsWith('parent')) {
                 const parent = editor.call('entities:get', obj.get('parent'));
                 if (parent && parent.entity && entity.parent !== parent.entity) {
@@ -95,7 +92,7 @@ editor.once('load', () => {
         });
     });
 
-    editor.on('entities:remove', (obj: import('@/editor-api').EntityObserver) => {
+    editor.on('entities:remove', (obj: EntityObserver) => {
         const entity = obj.entity;
         if (!entity) {
             return;

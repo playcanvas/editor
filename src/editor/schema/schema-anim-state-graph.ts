@@ -19,7 +19,7 @@ editor.once('load', () => {
                 result[key] = existingData[key];
             } else {
                 const field = schema[key];
-                if (field.hasOwnProperty('$default')) {
+                if (Object.prototype.hasOwnProperty.call(field, '$default')) {
                     result[key] = deepCopy(field.$default);
                 }
             }

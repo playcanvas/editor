@@ -59,13 +59,18 @@ editor.once('load', () => {
                 return;
             }
 
-            editor.call('picker:confirm', 'This project contains textures which must be recompressed due to a non-backwards compatible engine change. These textures will appear upside down if they aren\'t recompressed.', () => {
-                recompress(toRecompress);
-            }, {
-                yesText: 'Recompress now',
-                noText: 'Recompress later',
-                noDismiss: true
-            });
+            editor.call(
+                'picker:confirm',
+                "This project contains textures which must be recompressed due to a non-backwards compatible engine change. These textures will appear upside down if they aren't recompressed.",
+                () => {
+                    recompress(toRecompress);
+                },
+                {
+                    yesText: 'Recompress now',
+                    noText: 'Recompress later',
+                    noDismiss: true
+                }
+            );
         }
 
         setTimeout(checkForRecompress, 1000);

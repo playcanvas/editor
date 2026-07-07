@@ -1,5 +1,4 @@
 import { Element, Label, Button, Container, LabelGroup, Progress } from '@playcanvas/pcui';
-// @ts-ignore
 import filenamify from 'filenamify/browser';
 import hljs from 'highlight.js/lib/core';
 import javascript from 'highlight.js/lib/languages/javascript';
@@ -41,56 +40,70 @@ editor.once('load', () => {
 
     const isScriptAsset = (asset) => {
         const type = asset.type;
-        return type  === 'script';
+        return type === 'script';
     };
 
     const displayStats = (itemStats) => {
         if (storeItem.size !== undefined) {
-            itemStats.append(new LabelGroup({
-                text: 'Size: ',
-                field: new Label({ class: 'data-label', text: bytesToHuman(storeItem.size) })
-            }).dom);
+            itemStats.append(
+                new LabelGroup({
+                    text: 'Size: ',
+                    field: new Label({ class: 'data-label', text: bytesToHuman(storeItem.size) })
+                }).dom
+            );
         }
 
         if (storeItem.vertexCount !== undefined) {
-            itemStats.append(new LabelGroup({
-                text: 'Vertex count: ',
-                field: new Label({ class: 'data-label', text: storeItem.vertexCount })
-            }).dom);
+            itemStats.append(
+                new LabelGroup({
+                    text: 'Vertex count: ',
+                    field: new Label({ class: 'data-label', text: storeItem.vertexCount })
+                }).dom
+            );
         }
 
         if (storeItem.textureCount !== undefined) {
-            itemStats.append(new LabelGroup({
-                text: 'Texture count: ',
-                field: new Label({ class: 'data-label', text: storeItem.textureCount })
-            }).dom);
+            itemStats.append(
+                new LabelGroup({
+                    text: 'Texture count: ',
+                    field: new Label({ class: 'data-label', text: storeItem.textureCount })
+                }).dom
+            );
         }
 
         if (storeItem.animationCount !== undefined) {
-            itemStats.append(new LabelGroup({
-                text: 'Animation count: ',
-                field: new Label({ class: 'data-label', text: storeItem.animationCount })
-            }).dom);
+            itemStats.append(
+                new LabelGroup({
+                    text: 'Animation count: ',
+                    field: new Label({ class: 'data-label', text: storeItem.animationCount })
+                }).dom
+            );
         }
 
         const date = new Date(storeItem?.modified || null);
-        itemStats.append(new LabelGroup({
-            text: 'Last updated: ',
-            field: new Label({ class: 'data-label', text: date.toLocaleDateString() })
-        }).dom);
+        itemStats.append(
+            new LabelGroup({
+                text: 'Last updated: ',
+                field: new Label({ class: 'data-label', text: date.toLocaleDateString() })
+            }).dom
+        );
 
         if (storeItem.views !== undefined) {
-            itemStats.append(new LabelGroup({
-                text: 'Views: ',
-                field: new Label({ class: 'data-label', text: storeItem.views })
-            }).dom);
+            itemStats.append(
+                new LabelGroup({
+                    text: 'Views: ',
+                    field: new Label({ class: 'data-label', text: storeItem.views })
+                }).dom
+            );
         }
 
         if (storeItem.downloads !== undefined) {
-            itemStats.append(new LabelGroup({
-                text: 'Downloads: ',
-                field: new Label({ class: 'data-label', text: storeItem.downloads })
-            }).dom);
+            itemStats.append(
+                new LabelGroup({
+                    text: 'Downloads: ',
+                    field: new Label({ class: 'data-label', text: storeItem.downloads })
+                }).dom
+            );
         }
     };
 
@@ -100,18 +113,22 @@ editor.once('load', () => {
     }
 
     function escapeString(str: string) {
-        const escaped = str.replace(/[&<>'"]/g, tag => ({
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '\'': '&#39;',
-            '"': '&quot;'
-        }[tag]));
+        const escaped = str.replace(
+            /[&<>'"]/g,
+            (tag) =>
+                ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                })[tag]
+        );
         return escaped;
     }
 
     const buildLicenseHtml = (license) => {
-        const licenseData = licenses.find(el => el.id === license.id);
+        const licenseData = licenses.find((el) => el.id === license.id);
         if (!licenseData) {
             return '<Error>';
         }
@@ -144,7 +161,6 @@ editor.once('load', () => {
 
     // UI
     const displayDescription = (containerTabContent) => {
-
         const elementDescription = new Element({
             class: 'item-description'
         });
@@ -153,7 +169,6 @@ editor.once('load', () => {
     };
 
     const displayContent = (containerTabContent) => {
-
         if (!storeItem.assets || storeItem.assets.length === 0) {
             return;
         }
@@ -197,7 +212,6 @@ editor.once('load', () => {
     };
 
     const displayTags = (containerTabContent) => {
-
         if (!storeItem.tags || storeItem.tags.length === 0) {
             return;
         }
@@ -265,7 +279,6 @@ editor.once('load', () => {
             text: 'Content'
         });
         labelContent.on('click', () => {
-
             // display content
             labelDescription.class.toggle('clicked', false);
             labelContent.class.toggle('clicked', true);
@@ -284,7 +297,6 @@ editor.once('load', () => {
             text: 'Tags'
         });
         labelTags.on('click', () => {
-
             // display content
             labelDescription.class.toggle('clicked', false);
             labelContent.class.toggle('clicked', false);
@@ -318,7 +330,13 @@ editor.once('load', () => {
     };
 
     const displayError = () => {
-        editor.call('picker:messageBox', 'Clone error', 'Cloning item failed. Please check the console logs and report the issue.', 'Close', null);
+        editor.call(
+            'picker:messageBox',
+            'Clone error',
+            'Cloning item failed. Please check the console logs and report the issue.',
+            'Close',
+            null
+        );
     };
 
     let progressBar = null;
@@ -343,9 +361,7 @@ editor.once('load', () => {
         }
     };
 
-
     const cloneItem = async () => {
-
         toggleProgress(true);
         importButton.enabled = false;
         returnButton.enabled = false;
@@ -364,7 +380,6 @@ editor.once('load', () => {
             }
 
             importButton.enabled = editor.call('permissions:write');
-
         } finally {
             toggleProgress(false);
             returnButton.enabled = true;
@@ -385,9 +400,7 @@ editor.once('load', () => {
 
     // helper method to refresh storeitem-specific UI components depending on current view
     const refreshUI = async () => {
-
         if (storeItem) {
-
             importButton.enabled = editor.call('permissions:write');
 
             if (viewerButton) {
@@ -430,7 +443,6 @@ editor.once('load', () => {
     const root = editor.call('layout.root');
 
     const createPanel = () => {
-
         // main panel
         const panel = new Container({
             class: 'storeitem-root-panel',
@@ -484,10 +496,10 @@ editor.once('load', () => {
         topPanel.append(importButton);
 
         importButton.on('click', () => {
-
             // show popup if we think there already exists in the scene
             if (itemClonedAlready(storeItem.name)) {
-                editor.call('picker:confirm',
+                editor.call(
+                    'picker:confirm',
                     'It appears your assets panel already contains this item. Continuing may result in duplicates. Do you want to continue?',
                     () => {
                         cloneItem();
@@ -495,7 +507,8 @@ editor.once('load', () => {
                     {
                         yesText: 'Yes',
                         noText: 'Cancel'
-                    });
+                    }
+                );
             } else {
                 cloneItem();
             }
@@ -525,7 +538,7 @@ editor.once('load', () => {
         bottomPanel.append(containerPreview);
 
         storeItemThumb = new Image();
-        containerPreview.dom.loading = 'lazy';  // lazy loading of images
+        containerPreview.dom.loading = 'lazy'; // lazy loading of images
 
         // storeitem data
         itemData = new Container({
@@ -579,7 +592,6 @@ editor.once('load', () => {
 
     // open popup
     editor.method('picker:storeitem:open', async (storePanel, option, item) => {
-
         toggleProgress(false);
 
         if (!storeItemPanel) {

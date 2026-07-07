@@ -1,7 +1,8 @@
 import { Overlay } from '@playcanvas/pcui';
 
-import { addSidePanelOverlayClose } from './side-panel-overlay';
 import { ModelAssetInspectorMeshInstances } from '../inspector/assets/model-mesh-instances';
+
+import { addSidePanelOverlayClose } from './side-panel-overlay';
 
 editor.once('load', () => {
     const overlay = new Overlay({
@@ -53,7 +54,6 @@ editor.once('load', () => {
         const actions = [];
 
         for (let i = 0, len = currentEntities.length; i < len; i++) {
-
             const history = currentEntities[i].history.enabled;
             currentEntities[i].history.enabled = false;
 
@@ -141,7 +141,6 @@ editor.once('load', () => {
         return overrideCount && overrideCount === len;
     };
 
-
     // open asset picker
     editor.method('picker:node', (entities) => {
         // show overlay
@@ -190,9 +189,7 @@ editor.once('load', () => {
                 evtModelEntityPermissions.unbind();
             });
         });
-
     });
-
 
     // close asset picker
     editor.method('picker:node:close', () => {

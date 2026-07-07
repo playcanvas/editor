@@ -40,7 +40,6 @@ editor.once('load', () => {
         }, 100);
     });
 
-
     const addField = (name, field, path, tooltipText) => {
         const labelGroup = new LabelGroup({
             field: field,
@@ -99,13 +98,28 @@ editor.once('load', () => {
     addField('Word Wrap:', fieldWordWrap, 'ide.wordWrap', 'If enabled, long code lines will wrap to the next line.');
 
     const fieldAutoCloseBrackets = new BooleanInput();
-    addField('Auto Close Brackets:', fieldAutoCloseBrackets, 'ide.autoCloseBrackets', 'If enabled the editor will auto-close brackets and quotes when typed.');
+    addField(
+        'Auto Close Brackets:',
+        fieldAutoCloseBrackets,
+        'ide.autoCloseBrackets',
+        'If enabled the editor will auto-close brackets and quotes when typed.'
+    );
 
     const fieldHighlightBrackets = new BooleanInput();
-    addField('Highlight Brackets:', fieldHighlightBrackets, 'ide.highlightBrackets', 'If enabled causes matching brackets to be highlighted whenever the cursor is next to them.');
+    addField(
+        'Highlight Brackets:',
+        fieldHighlightBrackets,
+        'ide.highlightBrackets',
+        'If enabled causes matching brackets to be highlighted whenever the cursor is next to them.'
+    );
 
     const fieldBracketPairColorization = new BooleanInput();
-    addField('Bracket Pair Colorization:', fieldBracketPairColorization, 'ide.bracketPairColorization', 'If enabled, paired brackets will be unique colors.');
+    addField(
+        'Bracket Pair Colorization:',
+        fieldBracketPairColorization,
+        'ide.bracketPairColorization',
+        'If enabled, paired brackets will be unique colors.'
+    );
 
     const fieldMinimap = new SelectInput({
         options: [
@@ -115,10 +129,20 @@ editor.once('load', () => {
         ],
         type: 'string'
     });
-    addField('Code Minimap:', fieldMinimap, 'ide.minimapMode', 'Display a high-level code outline minimap - useful for quick navigation and code understanding.');
+    addField(
+        'Code Minimap:',
+        fieldMinimap,
+        'ide.minimapMode',
+        'Display a high-level code outline minimap - useful for quick navigation and code understanding.'
+    );
 
     const fieldFormatOnSave = new BooleanInput();
-    addField('Format On Save:', fieldFormatOnSave, 'ide.formatOnSave', 'If enabled the document will be auto-formatted on save');
+    addField(
+        'Format On Save:',
+        fieldFormatOnSave,
+        'ide.formatOnSave',
+        'If enabled the document will be auto-formatted on save'
+    );
 
     settingsPanel.on('show', () => {
         editor.emit('picker:settings:open');

@@ -57,7 +57,7 @@ type ProjectRequestArgs = {
      * The tags for the project
      */
     tags?: string[];
-}
+};
 
 // requests
 export type ProjectCreateArgs = Omit<ProjectRequestArgs, 'name'> & {
@@ -65,13 +65,12 @@ export type ProjectCreateArgs = Omit<ProjectRequestArgs, 'name'> & {
      * The name of the project
      */
     name: string;
-}
+};
 export type ProjectUpdateArgs = ProjectRequestArgs & {
     /**
      * The ID of the project to update
      */
     projectId: number;
-
 };
 export type ProjectGetArgs = {
     /**

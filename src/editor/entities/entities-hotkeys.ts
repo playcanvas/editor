@@ -29,7 +29,6 @@ editor.once('load', () => {
         }
     });
 
-
     // duplicate
     editor.call('hotkey:register', 'entity:duplicate', {
         key: 'd',
@@ -143,7 +142,7 @@ editor.once('load', () => {
             }
 
             const items = editor.call('selector:items');
-            if (items.length === 0 || items.length === 1 && editor.call('selector:type') === 'entity') {
+            if (items.length === 0 || (items.length === 1 && editor.call('selector:type') === 'entity')) {
                 editor.call('entities:paste', items[0]);
             }
         }

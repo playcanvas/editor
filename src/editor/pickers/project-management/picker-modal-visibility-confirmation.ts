@@ -1,7 +1,6 @@
 import { Button, Label, Overlay, Panel } from '@playcanvas/pcui';
 
 editor.once('load', () => {
-
     // UI
 
     // overlay
@@ -61,7 +60,6 @@ editor.once('load', () => {
         returnToCMS();
     });
 
-
     // CONTROLLERS
 
     // helper method to close current panel and return to CMS
@@ -99,5 +97,4 @@ editor.once('load', () => {
         overlay.hidden = false;
         confirmationMessage.text = `Are you sure you want to make your project ${setting}`;
     });
-
 });

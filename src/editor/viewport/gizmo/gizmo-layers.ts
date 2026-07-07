@@ -1,4 +1,5 @@
-import { Layer, type LayerComposition, SORTMODE_BACK2FRONT, SORTMODE_NONE } from 'playcanvas';
+import { Layer, SORTMODE_BACK2FRONT, SORTMODE_NONE } from 'playcanvas';
+import type { LayerComposition } from 'playcanvas';
 
 editor.once('load', () => {
     // holds all layers that are to be added in the beginning of the composition
@@ -13,37 +14,40 @@ editor.once('load', () => {
 
     let id = 1000000000;
 
-    editor.method('gizmo:layers:register', (name: string, insertToBeginning: boolean, data: Record<string, unknown> | null, renderable = true) => {
-        if (nameIndex[name]) {
-            console.warn(`Layer with name ${name} already exists.`);
+    editor.method(
+        'gizmo:layers:register',
+        (name: string, insertToBeginning: boolean, data: Record<string, unknown> | null, renderable = true) => {
+            if (nameIndex[name]) {
+                console.warn(`Layer with name ${name} already exists.`);
+            }
+
+            if (!data) {
+                data = {};
+            }
+
+            data.id = id++;
+            data.enabled = true;
+            data.name = `Editor Layer ${name}`;
+
+            if (data.opaqueSortMode === undefined) {
+                data.opaqueSortMode = SORTMODE_NONE;
+            }
+            if (data.transparentSortMode === undefined) {
+                data.transparentSortMode = SORTMODE_BACK2FRONT;
+            }
+
+            const index = insertToBeginning ? layerIndexBefore : layerIndexAfter;
+            const layerId = data.id as number;
+            const layer = new Layer(data as ConstructorParameters<typeof Layer>[0]);
+
+            (index as Record<number, Layer>)[layerId] = layer;
+            nameIndex[name] = layer;
+
+            layerRenderable.set(name, renderable);
+
+            return layer;
         }
-
-        if (!data) {
-            data = {};
-        }
-
-        data.id = id++;
-        data.enabled = true;
-        data.name = `Editor Layer ${name}`;
-
-        if (data.opaqueSortMode === undefined) {
-            data.opaqueSortMode = SORTMODE_NONE;
-        }
-        if (data.transparentSortMode === undefined) {
-            data.transparentSortMode = SORTMODE_BACK2FRONT;
-        }
-
-        const index = insertToBeginning ? layerIndexBefore : layerIndexAfter;
-        const layerId = data.id as number;
-        const layer = new Layer(data as ConstructorParameters<typeof Layer>[0]);
-
-        (index as Record<number, Layer>)[layerId] = layer;
-        nameIndex[name] = layer;
-
-        layerRenderable.set(name, renderable);
-
-        return layer;
-    });
+    );
 
     editor.method('gizmo:layers', (name: string) => {
         return nameIndex[name];
@@ -86,7 +90,6 @@ editor.once('load', () => {
             }
 
             composition = app.scene.layers;
-
         }
 
         let key;
@@ -98,7 +101,6 @@ editor.once('load', () => {
         for (key in layerIndexAfter) {
             composition.push(layerIndexAfter[key]);
         }
-
     });
 
     // Grid layer
@@ -112,14 +114,13 @@ editor.once('load', () => {
         overrideClear: true,
         clearDepthBuffer: true,
         onPreRender: function () {
-
+            // intentionally empty
         }
     });
 
     // special layer which needs to be added to the composition, but not used by the Editor cameras,
     // only the outline camera uses it
-    editor.call('gizmo:layers:register', 'Viewport Outline', false, {
-    }, false);
+    editor.call('gizmo:layers:register', 'Viewport Outline', false, {}, false);
 
     editor.call('gizmo:layers:register', 'Axis Gizmo Immediate', false, {
         passThrough: true,
@@ -137,8 +138,7 @@ editor.once('load', () => {
         transparentSortMode: SORTMODE_NONE
     });
 
-    editor.call('gizmo:layers:register', 'Axis Gizmo', false, {
-    });
+    editor.call('gizmo:layers:register', 'Axis Gizmo', false, {});
 
     editor.once('viewport:load', (app) => {
         editor.call('gizmo:layers:addToComposition');

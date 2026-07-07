@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Color, Curve, CurveSet, Quat, Vec2, Vec3, Vec4 } from 'playcanvas';
 
 import { deepCopy } from '@/common/utils';
@@ -15,7 +16,7 @@ editor.once('load', () => {
             continue;
         }
 
-        var title;
+        let title;
         switch (componentName) {
             case 'audiosource':
                 title = 'Audio Source';
@@ -54,16 +55,10 @@ editor.once('load', () => {
     if (schema.screen) {
         // default resolution to project resolution for screen components
         schema.screen.resolution.$default = function () {
-            return [
-                projectSettings.get('width'),
-                projectSettings.get('height')
-            ];
+            return [projectSettings.get('width'), projectSettings.get('height')];
         };
         schema.screen.referenceResolution.$default = function () {
-            return [
-                projectSettings.get('width'),
-                projectSettings.get('height')
-            ];
+            return [projectSettings.get('width'), projectSettings.get('height')];
         };
     }
 
@@ -71,14 +66,15 @@ editor.once('load', () => {
         schema.element.fontAsset.$default = function () {
             // Reuse the last selected font, if it still exists in the library
             const lastSelectedFontId = editor.call('settings:projectUser').get('editor.lastSelectedFontId');
-            const lastSelectedFontStillExists = lastSelectedFontId !== -1 && !!editor.call('assets:get', lastSelectedFontId);
+            const lastSelectedFontStillExists =
+                lastSelectedFontId !== -1 && !!editor.call('assets:get', lastSelectedFontId);
 
             if (lastSelectedFontStillExists) {
                 return lastSelectedFontId;
             }
 
             // Otherwise, select the first available font in the library
-            const firstAvailableFont = editor.call('assets:findOne', (asset: import('@playcanvas/observer').Observer) => {
+            const firstAvailableFont = editor.call('assets:findOne', (asset: Observer) => {
                 return !asset.get('source') && asset.get('type') === 'font';
             });
 
@@ -137,7 +133,7 @@ editor.once('load', () => {
         return 0;
     });
 
-    list = list.filter(item => !item.startsWith('$'));
+    list = list.filter((item) => !item.startsWith('$'));
 
     editor.method('components:convertValue', (component: string, property: string, value: unknown) => {
         let result = value;
@@ -177,7 +173,12 @@ editor.once('load', () => {
             }
 
             // Collision component's angularOffset is stored as euler angles but runtime needs Quat
-            if (component === 'collision' && property === 'angularOffset' && Array.isArray(value) && value.length === 3) {
+            if (
+                component === 'collision' &&
+                property === 'angularOffset' &&
+                Array.isArray(value) &&
+                value.length === 3
+            ) {
                 result = new Quat().setFromEulerAngles(value[0], value[1], value[2]);
             }
         }
@@ -216,7 +217,7 @@ editor.once('load', () => {
                 continue;
             }
             const field = schema[component][fieldName];
-            if (field.hasOwnProperty('$default')) {
+            if (Object.prototype.hasOwnProperty.call(field, '$default')) {
                 result[fieldName] = deepCopy(field.$default);
             }
         }

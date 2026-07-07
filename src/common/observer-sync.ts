@@ -43,14 +43,15 @@ class ObserverSync extends Events {
 
             // if this happens it's a bug
             if (this.item.sync !== this) {
-                log.error`garbage observer sync still pointing to item: ${this.item}`;
+                void log.error`garbage observer sync still pointing to item: ${this.item}`;
             }
 
             // check if path is allowed
             if (this._paths) {
                 let allowedPath = false;
                 for (let i = 0; i < this._paths.length; i++) {
-                    if (path.indexOf(this._paths[i]) !== -1) {
+                    const allowed = this._paths[i];
+                    if (path.indexOf(allowed) !== -1) {
                         allowedPath = true;
                         break;
                     }
@@ -72,7 +73,7 @@ class ObserverSync extends Events {
 
             // can be array value
             const ind = path.lastIndexOf('.');
-            if (ind !== -1 && (this.item.get(path.slice(0, ind)) instanceof Array)) {
+            if (ind !== -1 && this.item.get(path.slice(0, ind)) instanceof Array) {
                 // array index should be int
                 p[p.length - 1] = parseInt(p[p.length - 1], 10);
 
@@ -168,25 +169,21 @@ class ObserverSync extends Events {
             this.item.history.enabled = false;
         }
 
-        if (op.hasOwnProperty('oi')) {
+        if (Object.prototype.hasOwnProperty.call(op, 'oi')) {
             // set key value
             const path = op.p.slice(this._prefix.length).join('.');
 
             this._enabled = false;
             this.item.set(path, op.oi, false, true);
             this._enabled = true;
-
-
-        } else if (op.hasOwnProperty('ld') && op.hasOwnProperty('li')) {
+        } else if (Object.prototype.hasOwnProperty.call(op, 'ld') && Object.prototype.hasOwnProperty.call(op, 'li')) {
             // set array value
             const path = op.p.slice(this._prefix.length).join('.');
 
             this._enabled = false;
             this.item.set(path, op.li, false, true);
             this._enabled = true;
-
-
-        } else if (op.hasOwnProperty('ld')) {
+        } else if (Object.prototype.hasOwnProperty.call(op, 'ld')) {
             // delete item
             const path = op.p.slice(this._prefix.length, -1).join('.');
             const ind = op.p[op.p.length - 1];
@@ -194,9 +191,7 @@ class ObserverSync extends Events {
             this._enabled = false;
             this.item.remove(path, ind, false, true);
             this._enabled = true;
-
-
-        } else if (op.hasOwnProperty('li')) {
+        } else if (Object.prototype.hasOwnProperty.call(op, 'li')) {
             // add item
             const path = op.p.slice(this._prefix.length, -1).join('.');
             const ind = op.p[op.p.length - 1];
@@ -204,9 +199,7 @@ class ObserverSync extends Events {
             this._enabled = false;
             this.item.insert(path, op.li, ind, false, true);
             this._enabled = true;
-
-
-        } else if (op.hasOwnProperty('lm')) {
+        } else if (Object.prototype.hasOwnProperty.call(op, 'lm')) {
             // item moved
             const path = op.p.slice(this._prefix.length, -1).join('.');
             const indOld = op.p[op.p.length - 1];
@@ -215,16 +208,12 @@ class ObserverSync extends Events {
             this._enabled = false;
             this.item.move(path, indOld, ind, false, true);
             this._enabled = true;
-
-
-        } else if (op.hasOwnProperty('od')) {
+        } else if (Object.prototype.hasOwnProperty.call(op, 'od')) {
             // unset key value
             const path = op.p.slice(this._prefix.length).join('.');
             this._enabled = false;
             this.item.unset(path, false, true);
             this._enabled = true;
-
-
         } else {
             console.log('unknown operation', op);
         }

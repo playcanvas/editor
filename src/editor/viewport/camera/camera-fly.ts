@@ -1,7 +1,7 @@
-import { type Application, PROJECTION_ORTHOGRAPHIC, Vec3 } from 'playcanvas';
+import { PROJECTION_ORTHOGRAPHIC, Vec3 } from 'playcanvas';
+import type { Application } from 'playcanvas';
 
 editor.once('viewport:load', (app: Application) => {
-
     // Variables
     let flying = false;
     const flySpeed = 7;
@@ -72,43 +72,51 @@ editor.once('viewport:load', (app: Application) => {
     };
 
     // Event handlers
-    window.addEventListener('keydown', (evt: KeyboardEvent) => {
-        if (isInputOrTextarea(evt.target) || evt.ctrlKey || evt.metaKey || evt.altKey) {
-            return;
-        }
+    window.addEventListener(
+        'keydown',
+        (evt: KeyboardEvent) => {
+            if (isInputOrTextarea(evt.target) || evt.ctrlKey || evt.metaKey || evt.altKey) {
+                return;
+            }
 
-        // Check if the pressed key corresponds to a flying action
-        if (!keyMappings.has(evt.code)) {
-            return;
-        }
+            // Check if the pressed key corresponds to a flying action
+            if (!keyMappings.has(evt.code)) {
+                return;
+            }
 
-        setKeyState(evt.code, true);
-        updateDirection();
+            setKeyState(evt.code, true);
+            updateDirection();
 
-        if (!flying) {
-            flyCamera = editor.call('camera:current');
-            editor.call('camera:history:start', flyCamera);
-        }
+            if (!flying) {
+                flyCamera = editor.call('camera:current');
+                editor.call('camera:history:start', flyCamera);
+            }
 
-        flying = true;
-        firstUpdate = true;
-        editor.call('camera:focus:stop');
-        editor.call('camera:viewcube:stop');
-        editor.call('viewport:render');
-    }, false);
+            flying = true;
+            firstUpdate = true;
+            editor.call('camera:focus:stop');
+            editor.call('camera:viewcube:stop');
+            editor.call('viewport:render');
+        },
+        false
+    );
 
-    window.addEventListener('keyup', (evt: KeyboardEvent) => {
-        if (!flying || isInputOrTextarea(evt.target) || evt.ctrlKey || evt.metaKey || evt.altKey) {
-            return;
-        }
+    window.addEventListener(
+        'keyup',
+        (evt: KeyboardEvent) => {
+            if (!flying || isInputOrTextarea(evt.target) || evt.ctrlKey || evt.metaKey || evt.altKey) {
+                return;
+            }
 
-        setKeyState(evt.code, false);
-        updateDirection();
+            setKeyState(evt.code, false);
+            updateDirection();
 
-        if (Object.values(keys).every(state => !state)) {
-            endFly();
-        }
-    }, false);
+            if (Object.values(keys).every((state) => !state)) {
+                endFly();
+            }
+        },
+        false
+    );
 
     window.addEventListener('blur', endFly);
     document.addEventListener('visibilitychange', endFly);
@@ -119,7 +127,7 @@ editor.once('viewport:load', (app: Application) => {
 
         if (flying) {
             speed = shiftKey ? flySpeedFast : flySpeed;
-            speed *= firstUpdate ? (1 / 60) : dt;
+            speed *= firstUpdate ? 1 / 60 : dt;
 
             camera = editor.call('camera:current');
 
@@ -142,7 +150,11 @@ editor.once('viewport:load', (app: Application) => {
 
         if (flyVec.length() > 0.01) {
             if (speed === 0) {
-                flyVec.lerp(flyVec, vecA.set(0, 0, 0), Math.min(1.0, flyEasing * ((firstUpdate ? 1 / 60 : dt) / (1 / 60))));
+                flyVec.lerp(
+                    flyVec,
+                    vecA.set(0, 0, 0),
+                    Math.min(1.0, flyEasing * ((firstUpdate ? 1 / 60 : dt) / (1 / 60)))
+                );
             }
 
             if (flyVec.length()) {
@@ -160,5 +172,4 @@ editor.once('viewport:load', (app: Application) => {
     editor.on('hotkey:shift', (state: boolean) => {
         shiftKey = state;
     });
-
 });

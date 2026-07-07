@@ -53,7 +53,8 @@ editor.once('load', () => {
 
         if (evt.key === 'Escape') {
             btnCancel.emit('click');
-        } else if (evt.key === 'Enter') { // click focused button
+        } else if (evt.key === 'Enter') {
+            // click focused button
             if (document.activeElement === btnCancel.dom) {
                 if (btnCancel.enabled) {
                     btnCancel.emit('click');
@@ -61,15 +62,18 @@ editor.once('load', () => {
             } else if (btnAction.enabled) {
                 btnAction.emit('click');
             }
-        } else if (evt.key === 'Tab') { // focus yes / no buttons
+        } else if (evt.key === 'Tab') {
+            // focus yes / no buttons
             if (document.activeElement === btnCancel.dom) {
                 btnAction.focus();
             } else {
                 btnCancel.focus();
             }
-        } else if (evt.key === 'ArrowRight') { // focus right button (Yes)
+        } else if (evt.key === 'ArrowRight') {
+            // focus right button (Yes)
             btnAction.focus();
-        } else if (evt.key === 'ArrowLeft') { // focus left button (No)
+        } else if (evt.key === 'ArrowLeft') {
+            // focus left button (No)
             btnCancel.focus();
         }
     };
@@ -165,24 +169,31 @@ editor.once('load', () => {
         root.appendChild(document.createElement('br'));
 
         const headerInfo = document.createElement('div');
-        headerInfo.textContent = 'The switch will likely necessitate script modifications to ensure compatibility with the selected engine version. For more details, refer to the provided links.';
+        headerInfo.textContent =
+            'The switch will likely necessitate script modifications to ensure compatibility with the selected engine version. For more details, refer to the provided links.';
         root.appendChild(headerInfo);
 
         const links = document.createElement('div');
         links.classList.add('links');
         root.appendChild(links);
-        links.appendChild(createLink({
-            name: 'Engine Compatibility',
-            url: 'https://developer.playcanvas.com/user-manual/editor/engine-compatibility/'
-        }));
-        links.appendChild(createLink({
-            name: 'Engine Migrations',
-            url: 'https://developer.playcanvas.com/user-manual/engine/migrations/'
-        }));
-        links.appendChild(createLink({
-            name: 'Editor Migrations',
-            url: 'https://developer.playcanvas.com/user-manual/editor/editor-migrations/'
-        }));
+        links.appendChild(
+            createLink({
+                name: 'Engine Compatibility',
+                url: 'https://developer.playcanvas.com/user-manual/editor/engine-compatibility/'
+            })
+        );
+        links.appendChild(
+            createLink({
+                name: 'Engine Migrations',
+                url: 'https://developer.playcanvas.com/user-manual/engine/migrations/'
+            })
+        );
+        links.appendChild(
+            createLink({
+                name: 'Editor Migrations',
+                url: 'https://developer.playcanvas.com/user-manual/editor/editor-migrations/'
+            })
+        );
 
         root.appendChild(document.createElement('br'));
 

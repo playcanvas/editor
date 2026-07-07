@@ -107,7 +107,7 @@ editor.once('load', () => {
     searchField.dom.appendChild(error.dom);
 
     const btnFindInFiles = new Button({
-        'text': 'Find',
+        text: 'Find',
         tabIndex: -1
     });
     panel.append(btnFindInFiles);
@@ -199,7 +199,9 @@ editor.once('load', () => {
 
     // Updates our regular expression.
     // Optionally pass override options for the regexp
-    const updateQuery = function (overrides: { isRegex?: boolean; matchWholeWords?: boolean; caseSensitive?: boolean } = {}) {
+    const updateQuery = function (
+        overrides: { isRegex?: boolean; matchWholeWords?: boolean; caseSensitive?: boolean } = {}
+    ) {
         queryDirty = true;
 
         let pattern = searchField.value;
@@ -223,8 +225,7 @@ editor.once('load', () => {
         try {
             regexp = new RegExp(
                 pattern,
-                (overrides.caseSensitive !== undefined ? overrides.caseSensitive : caseSensitive) ?
-                    'g' : 'gi'
+                (overrides.caseSensitive !== undefined ? overrides.caseSensitive : caseSensitive) ? 'g' : 'gi'
             );
             error.hidden = true;
         } catch (e) {
@@ -235,7 +236,14 @@ editor.once('load', () => {
         }
     };
 
-    const updateFilterRegex = function (filter: { pattern: string; textField: { value: string }; regexp: RegExp | null; doFilter: boolean; filterButton: { class: { remove: (s: string) => void; add: (s: string) => void } }; storageKey: string }) {
+    const updateFilterRegex = function (filter: {
+        pattern: string;
+        textField: { value: string };
+        regexp: RegExp | null;
+        doFilter: boolean;
+        filterButton: { class: { remove: (s: string) => void; add: (s: string) => void } };
+        storageKey: string;
+    }) {
         queryDirty = true;
 
         filter.pattern = filter.textField.value.trim();
@@ -251,9 +259,13 @@ editor.once('load', () => {
         try {
             const regs = `^(.*${
                 // replace `*` -> `.*` (so users can use only `*` as wildcard), and escape all other regex characters
-                filter.pattern.replace(/[|\\{}()[\]^$+?.]/g, '\\$&').replace(/\*+/g, '.*')
-                // use commas as OR separator, trim blank spaces around them, and sets trailing forward-slash with wildcard
-                .split(',').map(s => s.trim().replace(/\/$/g, '/.*')).join('|.*')
+                filter.pattern
+                    .replace(/[|\\{}()[\]^$+?.]/g, '\\$&')
+                    .replace(/\*+/g, '.*')
+                    // use commas as OR separator, trim blank spaces around them, and sets trailing forward-slash with wildcard
+                    .split(',')
+                    .map((s) => s.trim().replace(/\/$/g, '/.*'))
+                    .join('|.*')
             })$`;
             filter.regexp = new RegExp(regs);
             editor.call('localStorage:set', filter.storageKey, filter.pattern);

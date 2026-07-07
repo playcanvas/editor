@@ -6,7 +6,7 @@ editor.once('load', () => {
     // global variables
     let initialLoad = true;
     let projectSettingsChanged = false;
-    let events = [];  // holds events that need to be destroyed
+    let events = []; // holds events that need to be destroyed
     const IS_EMPTY_STATE = !config.project.id;
     let currentProject = IS_EMPTY_STATE ? null : config.project;
     let projectSettings = {
@@ -81,15 +81,20 @@ editor.once('load', () => {
         text: 'Unlock'
     });
     lockedContainer.append(unlockButton);
-    lockedContainer.style.display = 'none';  // hide by default
+    lockedContainer.style.display = 'none'; // hide by default
 
     unlockButton.on('click', () => {
-        editor.call('projects:unlockOne', currentProject.id, () => {
-            editor.call('picker:project:cms:refreshProjects');
-            editor.call('picker:project:close');
-        }, (err) => {
-            editor.call('picker:project:buildAlert', panel, err);
-        });
+        editor.call(
+            'projects:unlockOne',
+            currentProject.id,
+            () => {
+                editor.call('picker:project:cms:refreshProjects');
+                editor.call('picker:project:close');
+            },
+            (err) => {
+                editor.call('picker:project:buildAlert', panel, err);
+            }
+        );
     });
 
     // project settings container
@@ -123,7 +128,7 @@ editor.once('load', () => {
         const newValue = projectNameInput.value;
         if (projectNameInput.value.length > 32) {
             projectNameInput.value = newValue.slice(0, -2);
-        }  // do not allow more than 32 character names
+        } // do not allow more than 32 character names
     });
 
     projectNameInput.on('blur', () => {
@@ -207,10 +212,15 @@ editor.once('load', () => {
     projectURLSettings.dom.appendChild(projectURLButton.dom);
 
     projectURLButton.on('click', () => {
-        navigator.clipboard.writeText(`${config.url.home}/editor/project/${currentProject.id}`).then(() => {
-            projectURLButton.class.add('copied');
-            setTimeout(() => projectURLButton.class.remove('copied'), 1500);
-        }, () => {});
+        navigator.clipboard.writeText(`${config.url.home}/editor/project/${currentProject.id}`).then(
+            () => {
+                projectURLButton.class.add('copied');
+                setTimeout(() => projectURLButton.class.remove('copied'), 1500);
+            },
+            () => {
+                // intentionally empty
+            }
+        );
     });
 
     // action buttons container
@@ -296,39 +306,45 @@ editor.once('load', () => {
         const hasVersionControl = isCurrentProject && !config.project.settings.useLegacyScripts;
         const branchId = hasVersionControl ? config.self.branch.id : undefined;
 
-        editor.call('projects:export', currentProject.id, branchId, (job) => {
-            jobId = job.id;
+        editor.call(
+            'projects:export',
+            currentProject.id,
+            branchId,
+            (job) => {
+                jobId = job.id;
 
-            // when job is updated get the job
-            var evt = editor.on('messenger:job.update', (msg) => {
-                if (msg.job.id === jobId) {
-                    evt.unbind();
+                // when job is updated get the job
+                const evt = editor.on('messenger:job.update', (msg) => {
+                    if (msg.job.id === jobId) {
+                        evt.unbind();
 
-                    // get job
-                    editor.api.globals.rest.jobs.jobGet({ jobId: job.id })
-                    .on('load', (status, job) => {
-                        if (job.status === 'complete') {
-                            downloadURL = job.data.url;
-                            window.open(downloadURL, '_blank');
-                        } else if (job.status === 'error') {
-                            exportError = job.messages[0] || 'There was an error while importing';
-                            editor.call('picker:project:buildAlert', panel, exportError);
-                        }
+                        // get job
+                        editor.api.globals.rest.jobs
+                            .jobGet({ jobId: job.id })
+                            .on('load', (status, job) => {
+                                if (job.status === 'complete') {
+                                    downloadURL = job.data.url;
+                                    window.open(downloadURL, '_blank');
+                                } else if (job.status === 'error') {
+                                    exportError = job.messages[0] || 'There was an error while importing';
+                                    editor.call('picker:project:buildAlert', panel, exportError);
+                                }
 
-                        toggleLoader(false);
-                    })
-                    .on('error', (error) => {
-                        editor.call('picker:project:buildAlert', panel, error);
-                    });
-                }
-            });
-            events.push(evt);
-
-        }, (error) => {
-            exportError = `Error: ${error}`;
-            editor.call('picker:project:buildAlert', panel, exportError);
-            toggleLoader(false);
-        });
+                                toggleLoader(false);
+                            })
+                            .on('error', (error) => {
+                                editor.call('picker:project:buildAlert', panel, error);
+                            });
+                    }
+                });
+                events.push(evt);
+            },
+            (error) => {
+                exportError = `Error: ${error}`;
+                editor.call('picker:project:buildAlert', panel, exportError);
+                toggleLoader(false);
+            }
+        );
     };
 
     // LOCAL UTILS
@@ -427,7 +443,9 @@ editor.once('load', () => {
     // hook to reload all main elements of the screen
     editor.method('picker:project:main:refreshUI', () => {
         currentProject = editor.call('picker:project:getCurrent');
-        unlockButton.enabled = currentProject.owner_id === config.self.id || editor.call('project:management:isOrgAdmin', currentProject.owner_id, config.self);
+        unlockButton.enabled =
+            currentProject.owner_id === config.self.id ||
+            editor.call('project:management:isOrgAdmin', currentProject.owner_id, config.self);
 
         projectSettings = {
             id: currentProject.id,
@@ -464,7 +482,7 @@ editor.once('load', () => {
         exportProjectButton.enabled = !exportDisabled();
         exportProjectButton.text = getExportButtonText();
 
-        initialLoad = false;  // once initial load happens, reset flag
+        initialLoad = false; // once initial load happens, reset flag
     });
 
     // hook to get current private settings
@@ -481,5 +499,4 @@ editor.once('load', () => {
     editor.method('picker:project:resetVisibilityToggle', () => {
         privateToggle.value = projectSettings.private;
     });
-
 });

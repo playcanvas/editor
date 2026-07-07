@@ -313,7 +313,6 @@ import './alerts/alert-usage';
 import './alerts/alert-scene-limits';
 import './alerts/alert-maintenance';
 
-
 // pickers
 import './pickers/picker';
 import './pickers/picker-confirm';
@@ -372,7 +371,6 @@ import './pickers/picker-team-management';
 
 // conflict manager picker
 import './pickers/conflict-manager/picker-conflict-manager';
-
 
 // sprites
 import './pickers/sprite-editor/sprite-editor-atlas-panel';

@@ -10,40 +10,40 @@ editor.once('load', () => {
     }
 
     const scriptAttributeTypes = {
-        'number': 'number',
-        'string': 'string',
-        'boolean': 'checkbox',
-        'asset': 'assets', // TEMP
-        'rgb': 'rgb',
-        'rgba': 'rgb', // TEMP
-        'vector': 'vec3',
-        'vec2': 'vec2',
-        'vec3': 'vec3',
-        'vec4': 'vec4',
-        'enumeration': 'number',
-        'entity': 'entity',
-        'curve': 'curveset',
-        'colorcurve': 'curveset'
+        number: 'number',
+        string: 'string',
+        boolean: 'checkbox',
+        asset: 'assets', // TEMP
+        rgb: 'rgb',
+        rgba: 'rgb', // TEMP
+        vector: 'vec3',
+        vec2: 'vec2',
+        vec3: 'vec3',
+        vec4: 'vec4',
+        enumeration: 'number',
+        entity: 'entity',
+        curve: 'curveset',
+        colorcurve: 'curveset'
     };
 
     const scriptAttributeRuntimeTypes = {
-        'number': '{Number}',
-        'string': '{String}',
-        'boolean': '{Boolean}',
-        'rgb': '{pc.Color}',
-        'rgba': '{pc.Color}',
-        'vector': '{pc.Vec3}',
-        'vec2': '{pc.Vec2}',
-        'vec3': '{pc.Vec3}',
-        'vec4': '{pc.Vec4}',
-        'enumeration': '{Number}',
-        'entity': '{pc.Entity}'
+        number: '{Number}',
+        string: '{String}',
+        boolean: '{Boolean}',
+        rgb: '{pc.Color}',
+        rgba: '{pc.Color}',
+        vector: '{pc.Vec3}',
+        vec2: '{pc.Vec2}',
+        vec3: '{pc.Vec3}',
+        vec4: '{pc.Vec4}',
+        enumeration: '{Number}',
+        entity: '{pc.Entity}'
     };
 
     // index entities with script components
     // so we can easily find them when we need
     // to refresh script attributes
-    const entitiesWithScripts = { };
+    const entitiesWithScripts = {};
 
     editor.on('entities:add', (entity) => {
         if (entity.get('components.script')) {
@@ -81,29 +81,34 @@ editor.once('load', () => {
 
         // holds each script panel
         let events = [];
-        const scriptsIndex = { };
+        const scriptsIndex = {};
 
         for (let i = 0; i < entities.length; i++) {
-            events.push(entities[i].on('components.script:unset', (valueOld) => {
-                if (!valueOld) {
-                    return;
-                }
-
-                for (let i = 0; i < valueOld.scripts.length; i++) {
-                    const scriptPanel = scriptsIndex[valueOld.scripts[i].url];
-                    if (!scriptPanel) {
-                        continue;
+            const entity = entities[i];
+            events.push(
+                entity.on('components.script:unset', (valueOld) => {
+                    if (!valueOld) {
+                        return;
                     }
 
-                    scriptPanel.count--;
-                    scriptPanel._link.textContent = (scriptPanel.count === entities.length ? '' : '* ') + scriptPanel._originalTitle;
+                    for (let i = 0; i < valueOld.scripts.length; i++) {
+                        const script = valueOld.scripts[i];
+                        const scriptPanel = scriptsIndex[script.url];
+                        if (!scriptPanel) {
+                            continue;
+                        }
 
-                    if (scriptPanel.count === 0) {
-                        scriptPanel.destroy();
-                        delete scriptsIndex[valueOld.scripts[i].url];
+                        scriptPanel.count--;
+                        scriptPanel._link.textContent =
+                            (scriptPanel.count === entities.length ? '' : '* ') + scriptPanel._originalTitle;
+
+                        if (scriptPanel.count === 0) {
+                            scriptPanel.destroy();
+                            delete scriptsIndex[script.url];
+                        }
                     }
-                }
-            }));
+                })
+            );
         }
 
         const urlRegex = /^https?:/;
@@ -118,7 +123,7 @@ editor.once('load', () => {
         panel.append(btnAddScript);
 
         btnAddScript.on('click', () => {
-            var evtPick = editor.once('picker:asset', (asset) => {
+            let evtPick = editor.once('picker:asset', (asset) => {
                 addScript(asset.get('filename'));
                 evtPick = null;
             });
@@ -140,7 +145,7 @@ editor.once('load', () => {
         panelScripts.class.add('components-scripts');
         panel.append(panelScripts);
 
-        var addScript = function (url: string) {
+        const addScript = function (url: string) {
             let scriptAdded = false;
             const records = [];
             let requestScript = false;
@@ -158,10 +163,12 @@ editor.once('load', () => {
             }
 
             for (let i = 0; i < entities.length; i++) {
+                const entity = entities[i];
                 let addScript = true;
-                const scripts = entities[i].getRaw('components.script.scripts');
-                for (let s = 0; s < scripts.length; s++) {
-                    if (scripts[s].get('url') === url) {
+                const scripts = entity.getRaw('components.script.scripts');
+                for (let i = 0; i < scripts.length; i++) {
+                    const s = scripts[i];
+                    if (s.get('url') === url) {
                         addScript = false;
                         break;
                     }
@@ -173,12 +180,12 @@ editor.once('load', () => {
                     });
 
                     records.push({
-                        item: entities[i]
+                        item: entity
                     });
 
-                    entities[i].history.enabled = false;
-                    entities[i].insert('components.script.scripts', script);
-                    entities[i].history.enabled = true;
+                    entity.history.enabled = false;
+                    entity.insert('components.script.scripts', script);
+                    entity.history.enabled = true;
 
                     scriptAdded = true;
                 }
@@ -203,7 +210,8 @@ editor.once('load', () => {
                 combine: false,
                 undo: function () {
                     for (let i = 0; i < records.length; i++) {
-                        const item = records[i].item.latest();
+                        const record = records[i];
+                        const item = record.item.latest();
                         if (!item) {
                             continue;
                         }
@@ -213,13 +221,14 @@ editor.once('load', () => {
                             continue;
                         }
 
-                        for (let s = 0; s < scripts.length; s++) {
-                            if (scripts[s].get('url') !== url) {
+                        for (let i = 0; i < scripts.length; i++) {
+                            const script = scripts[i];
+                            if (script.get('url') !== url) {
                                 continue;
                             }
 
                             item.history.enabled = false;
-                            item.removeValue('components.script.scripts', scripts[s]);
+                            item.removeValue('components.script.scripts', script);
                             item.history.enabled = true;
                             break;
                         }
@@ -227,15 +236,17 @@ editor.once('load', () => {
                 },
                 redo: function () {
                     for (let i = 0; i < records.length; i++) {
-                        const item = records[i].item.latest();
+                        const record = records[i];
+                        const item = record.item.latest();
                         if (!item) {
                             continue;
                         }
 
                         let addScript = true;
                         const scripts = item.getRaw('components.script.scripts');
-                        for (let s = 0; s < scripts.length; s++) {
-                            if (scripts[s].get('url') !== url) {
+                        for (let i = 0; i < scripts.length; i++) {
+                            const script = scripts[i];
+                            if (script.get('url') !== url) {
                                 continue;
                             }
                             addScript = false;
@@ -262,12 +273,14 @@ editor.once('load', () => {
             return scriptAdded;
         };
 
-        var refreshScriptAttributes = function (url: string) {
+        const refreshScriptAttributes = function (url: string) {
             if (!editor.call('permissions:write')) {
                 return;
             }
 
-            const fullUrl = urlRegex.test(url) ? url : `${editor.call('sourcefiles:url', url)}?access_token=${config.accessToken}`;
+            const fullUrl = urlRegex.test(url)
+                ? url
+                : `${editor.call('sourcefiles:url', url)}?access_token=${config.accessToken}`;
 
             editor.call('sourcefiles:scan', fullUrl, (data) => {
                 data.url = url;
@@ -286,9 +299,9 @@ editor.once('load', () => {
                             continue;
                         }
 
-                        const oldAttributes = scriptInstance.get('attributes') || { };
+                        const oldAttributes = scriptInstance.get('attributes') || {};
                         for (const attributeName in data.attributes) {
-                            if (!data.attributes.hasOwnProperty(attributeName)) {
+                            if (!Object.prototype.hasOwnProperty.call(data.attributes, attributeName)) {
                                 continue;
                             }
 
@@ -324,7 +337,12 @@ editor.once('load', () => {
                                         }
                                     } else if (attributeOld.options.max !== 1 && attributeNew.options.max === 1) {
                                         // now single asset
-                                        if ((attributeOld.value instanceof Array) && attributeOld.value.length && attributeOld.value[0] && typeof attributeOld.value[0] === 'number') {
+                                        if (
+                                            attributeOld.value instanceof Array &&
+                                            attributeOld.value.length &&
+                                            attributeOld.value[0] &&
+                                            typeof attributeOld.value[0] === 'number'
+                                        ) {
                                             value = attributeOld.value[0];
                                         } else if (typeof attributeNew.defaultValue === 'number') {
                                             value = attributeNew.defaultValue;
@@ -333,11 +351,15 @@ editor.once('load', () => {
                                         }
                                     } else {
                                         // old value
-                                        value = attributeOld.value !== attributeOld.defaultValue ? attributeOld.value : value;
+                                        value =
+                                            attributeOld.value !== attributeOld.defaultValue
+                                                ? attributeOld.value
+                                                : value;
                                     }
                                 } else if (attributeOld.type === data.attributes[attributeName].type) {
                                     // old value
-                                    value = attributeOld.value !== attributeOld.defaultValue ? attributeOld.value : value;
+                                    value =
+                                        attributeOld.value !== attributeOld.defaultValue ? attributeOld.value : value;
                                 }
                             }
 
@@ -358,14 +380,17 @@ editor.once('load', () => {
             const attributes = script.get('attributesOrder');
             const children = parent.innerElement.childNodes;
             const list = [];
-            const index = { };
+            const index = {};
             const toDestroy = [];
 
             for (let i = 0; i < children.length; i++) {
                 const attribute = children[i].ui.attribute;
                 const attributeUiType = children[i].ui.attributeUiType;
 
-                if (attributes.indexOf(attribute) === -1 || attributeUiType !== script.get(`attributes.${attribute}.type`)) {
+                if (
+                    attributes.indexOf(attribute) === -1 ||
+                    attributeUiType !== script.get(`attributes.${attribute}.type`)
+                ) {
                     toDestroy.push(children[i].ui);
                 } else {
                     list.push(attribute);
@@ -417,7 +442,7 @@ editor.once('load', () => {
             }
         };
 
-        var createAttributeField = function (script: Observer, attributeName: string, parent: any) {
+        const createAttributeField = function (script: Observer, attributeName: string, parent: any) {
             let choices: any = null;
             const attribute: any = script.get(`attributes.${attributeName}`);
 
@@ -425,10 +450,11 @@ editor.once('load', () => {
                 choices = [{ v: '', t: '...' }];
 
                 try {
-                    for (let e = 0; e < attribute.options.enumerations.length; e++) {
+                    for (let i = 0; i < attribute.options.enumerations.length; i++) {
+                        const enumeration = attribute.options.enumerations[i];
                         choices.push({
-                            v: attribute.options.enumerations[e].value,
-                            t: attribute.options.enumerations[e].name
+                            v: enumeration.value,
+                            t: enumeration.name
                         });
                     }
                 } catch (ex) {
@@ -440,14 +466,16 @@ editor.once('load', () => {
             const url = script.get('url');
             const scripts = [];
             for (let i = 0; i < entities.length; i++) {
-                const items = entities[i].getRaw('components.script.scripts');
+                const entity = entities[i];
+                const items = entity.getRaw('components.script.scripts');
                 if (!items) {
                     continue;
                 }
 
-                for (let s = 0; s < items.length; s++) {
-                    if (items[s].get('url') === url) {
-                        scripts.push(items[s]);
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
+                    if (item.get('url') === url) {
+                        scripts.push(item);
                         break;
                     }
                 }
@@ -520,7 +548,12 @@ editor.once('load', () => {
 
                     const scriptIndex = firstEntity.getRaw('components.script.scripts').indexOf(scripts[0]);
 
-                    const setCurvePickerArgs = function (options: { curves?: string[]; min?: number; max?: number; type?: string }) {
+                    const setCurvePickerArgs = function (options: {
+                        curves?: string[];
+                        min?: number;
+                        max?: number;
+                        type?: string;
+                    }) {
                         if (attribute.type === 'curve') {
                             args.curves = options.curves;
                             args.min = options.min;
@@ -544,32 +577,35 @@ editor.once('load', () => {
                     const curveType = attribute.type;
 
                     // when argument options change make sure we refresh the curve pickers
-                    const evtOptionsChanged = scripts[0].on(`attributes.${attribute.name}.options:set`, (value, oldValue) => {
-                        // do this in a timeout to make sure it's done after all of the
-                        // attribute fields have been updated like the 'defaultValue' field
-                        setTimeout(() => {
-                            // argument options changed so get new options and set args
-                            const options = value;
+                    const evtOptionsChanged = scripts[0].on(
+                        `attributes.${attribute.name}.options:set`,
+                        (value, oldValue) => {
+                            // do this in a timeout to make sure it's done after all of the
+                            // attribute fields have been updated like the 'defaultValue' field
+                            setTimeout(() => {
+                                // argument options changed so get new options and set args
+                                const options = value;
 
-                            const prevNumCurves = args.curves.length;
+                                const prevNumCurves = args.curves.length;
 
-                            setCurvePickerArgs(options);
+                                setCurvePickerArgs(options);
 
-                            // reset field value which will trigger a refresh of the curve picker as well
-                            let attributeValue = scripts[0].get(`attributes.${attribute.name}.value`);
-                            if (prevNumCurves !== args.curves.length) {
-                                attributeValue = scripts[0].get(`attributes.${attribute.name}.defaultValue`);
-                                scripts[0].set(`attributes.${attribute.name}.value`, attributeValue);
-                            }
+                                // reset field value which will trigger a refresh of the curve picker as well
+                                let attributeValue = scripts[0].get(`attributes.${attribute.name}.value`);
+                                if (prevNumCurves !== args.curves.length) {
+                                    attributeValue = scripts[0].get(`attributes.${attribute.name}.defaultValue`);
+                                    scripts[0].set(`attributes.${attribute.name}.value`, attributeValue);
+                                }
 
-                            field.curveNames = args.curves;
-                            field.value = [attributeValue];
-                        });
-                    });
+                                field.curveNames = args.curves;
+                                field.value = [attributeValue];
+                            });
+                        }
+                    );
                     events.push(evtOptionsChanged);
 
                     // if we change the attribute type then don't listen to options changes
-                    var evtTypeChanged = scripts[0].on(`attributes.${attribute.name}.type:set`, (value) => {
+                    const evtTypeChanged = scripts[0].on(`attributes.${attribute.name}.type:set`, (value) => {
                         if (value !== curveType) {
                             evtOptionsChanged.unbind();
                             evtTypeChanged.unbind();
@@ -633,12 +669,14 @@ editor.once('load', () => {
                 });
                 events.push(evtMaxUnset);
 
-                events.push(field.once('destroy', () => {
-                    evtMin.unbind();
-                    evtMax.unbind();
-                    evtMinUnset.unbind();
-                    evtMaxUnset.unbind();
-                }));
+                events.push(
+                    field.once('destroy', () => {
+                        evtMin.unbind();
+                        evtMax.unbind();
+                        evtMinUnset.unbind();
+                        evtMaxUnset.unbind();
+                    })
+                );
             } else if (scriptAttributeTypes[attribute.type] === 'assets') {
                 let options;
 
@@ -707,9 +745,11 @@ editor.once('load', () => {
             });
             events.push(evtType);
 
-            events.push(fieldParent.once('destroy', () => {
-                evtType.unbind();
-            }));
+            events.push(
+                fieldParent.once('destroy', () => {
+                    evtType.unbind();
+                })
+            );
 
             fieldParent.attribute = attribute.name;
             fieldParent.attributeUiType = scriptAttributeTypes[attribute.type];
@@ -722,7 +762,8 @@ editor.once('load', () => {
             let panelScript = scriptsIndex[script.get('url')];
             if (panelScript) {
                 panelScript.count++;
-                panelScript._link.textContent = (panelScript.count === entities.length ? '' : '* ') + panelScript._originalTitle;
+                panelScript._link.textContent =
+                    (panelScript.count === entities.length ? '' : '* ') + panelScript._originalTitle;
                 return;
             }
 
@@ -744,19 +785,24 @@ editor.once('load', () => {
             panelScript._link = href;
             href.textContent = (panelScript.count === entities.length ? '' : '* ') + panelScript._originalTitle;
             href.addEventListener('click', () => {
-                editor.call('assets:edit', new Observer({
-                    filename: script.get('url'),
-                    type: 'script'
-                }));
+                editor.call(
+                    'assets:edit',
+                    new Observer({
+                        filename: script.get('url'),
+                        type: 'script'
+                    })
+                );
             });
             panelScript.headerElementTitle.textContent = '';
             panelScript.headerElementTitle.appendChild(href);
 
             // name change
-            events.push(script.on('name:set', (value) => {
-                panelScript._originalTitle = value;
-                href.textContent = (panelScript.count === entities.length ? '' : '* ') + panelScript._originalTitle;
-            }));
+            events.push(
+                script.on('name:set', (value) => {
+                    panelScript._originalTitle = value;
+                    href.textContent = (panelScript.count === entities.length ? '' : '* ') + panelScript._originalTitle;
+                })
+            );
 
             // remove
             const fieldRemoveScript = createButton();
@@ -766,23 +812,24 @@ editor.once('load', () => {
                 const records = [];
 
                 for (let i = 0; i < entities.length; i++) {
-                    entities[i].history.enabled = false;
-                    const scripts = entities[i].getRaw('components.script.scripts');
+                    const entity = entities[i];
+                    entity.history.enabled = false;
+                    const scripts = entity.getRaw('components.script.scripts');
                     for (let s = 0; s < scripts.length; s++) {
                         if (scripts[s].get('url') === script.get('url')) {
                             const data = scripts[s].json();
 
                             records.push({
-                                item: entities[i],
+                                item: entity,
                                 value: data,
                                 ind: s
                             });
 
-                            entities[i].remove('components.script.scripts', s);
+                            entity.remove('components.script.scripts', s);
                             break;
                         }
                     }
-                    entities[i].history.enabled = true;
+                    entity.history.enabled = true;
                 }
 
                 delete scriptsIndex[script.get('url')];
@@ -796,7 +843,8 @@ editor.once('load', () => {
                     combine: false,
                     undo: function () {
                         for (let i = 0; i < records.length; i++) {
-                            const item = records[i].item.latest();
+                            const record = records[i];
+                            const item = record.item.latest();
                             if (!item) {
                                 continue;
                             }
@@ -808,8 +856,9 @@ editor.once('load', () => {
 
                             let addScript = true;
 
-                            for (let s = 0; s < scripts.length; s++) {
-                                if (scripts[s].get('url') === records[i].value.url) {
+                            for (let i = 0; i < scripts.length; i++) {
+                                const s = scripts[i];
+                                if (s.get('url') === record.value.url) {
                                     addScript = false;
                                     break;
                                 }
@@ -819,10 +868,10 @@ editor.once('load', () => {
                                 continue;
                             }
 
-                            const script = new Observer(records[i].value);
+                            const script = new Observer(record.value);
 
                             item.history.enabled = false;
-                            item.insert('components.script.scripts', script, records[i].ind);
+                            item.insert('components.script.scripts', script, record.ind);
                             item.history.enabled = true;
                         }
 
@@ -830,20 +879,22 @@ editor.once('load', () => {
                     },
                     redo: function () {
                         for (let i = 0; i < records.length; i++) {
-                            const item = records[i].item.latest();
+                            const record = records[i];
+                            const item = record.item.latest();
                             if (!item) {
                                 continue;
                             }
 
                             const scripts = item.getRaw('components.script.scripts');
 
-                            for (let s = 0; s < scripts.length; s++) {
-                                if (scripts[s].get('url') !== records[i].value.url) {
+                            for (let i = 0; i < scripts.length; i++) {
+                                const s = scripts[i];
+                                if (s.get('url') !== record.value.url) {
                                     continue;
                                 }
 
                                 item.history.enabled = false;
-                                item.removeValue('components.script.scripts', scripts[s]);
+                                item.removeValue('components.script.scripts', s);
                                 item.history.enabled = true;
                                 break;
                             }
@@ -911,29 +962,32 @@ editor.once('load', () => {
                 const order = script.get('attributesOrder');
                 if (order) {
                     for (let i = 0; i < order.length; i++) {
-                        createAttributeField(script, order[i], attributes);
+                        const attributeName = order[i];
+                        createAttributeField(script, attributeName, attributes);
                     }
                 }
             }
 
             let timerUpdateAttributes = null;
             // when attributes order changed, schedule update
-            events.push(script.on('attributesOrder:set', () => {
-                if (timerUpdateAttributes) {
-                    return;
-                }
+            events.push(
+                script.on('attributesOrder:set', () => {
+                    if (timerUpdateAttributes) {
+                        return;
+                    }
 
-                timerUpdateAttributes = setTimeout(() => {
-                    timerUpdateAttributes = null;
-                    updateAttributeFields(script, attributes);
-                }, 0);
-            }));
+                    timerUpdateAttributes = setTimeout(() => {
+                        timerUpdateAttributes = null;
+                        updateAttributeFields(script, attributes);
+                    }, 0);
+                })
+            );
 
             return panelScript;
         };
 
         // Converts URL to script name
-        var getFilenameFromUrl = function (url: string) {
+        const getFilenameFromUrl = function (url: string) {
             let filename = url;
 
             if (jsRegex.test(filename)) {
@@ -969,59 +1023,71 @@ editor.once('load', () => {
 
         // add existing scripts and subscribe to scripts Observer list
         for (let i = 0; i < entities.length; i++) {
-            const scripts = entities[i].getRaw('components.script.scripts');
+            const entity = entities[i];
+            const scripts = entity.getRaw('components.script.scripts');
 
             if (scripts) {
-                for (let s = 0; s < scripts.length; s++) {
-                    addScriptPanel(scripts[s]);
+                for (let i = 0; i < scripts.length; i++) {
+                    const script = scripts[i];
+                    addScriptPanel(script);
                 }
             }
 
             // subscribe to scripts:set
-            events.push(entities[i].on('components.script.scripts:set', (value, valueOld) => {
-                for (let i = 0; i < value.length; i++) {
-                    addScriptPanel(value[i]);
-                }
-            }));
+            events.push(
+                entity.on('components.script.scripts:set', (value, valueOld) => {
+                    for (let i = 0; i < value.length; i++) {
+                        const item = value[i];
+                        addScriptPanel(item);
+                    }
+                })
+            );
 
             // subscribe to scripts:insert
-            events.push(entities[i].on('components.script.scripts:insert', (script, ind) => {
-                addScriptPanel(script, ind);
-            }));
+            events.push(
+                entity.on('components.script.scripts:insert', (script, ind) => {
+                    addScriptPanel(script, ind);
+                })
+            );
 
-            events.push(entities[i].on('components.script.scripts:move', function (value: Observer, indNew: number, indOld: number) {
-                const elementOld = scriptsIndex[this.get(`components.script.scripts.${indOld}.url`)];
-                const elementNew = scriptsIndex[value.get('url')];
+            events.push(
+                entity.on('components.script.scripts:move', function (value: Observer, indNew: number, indOld: number) {
+                    const elementOld = scriptsIndex[this.get(`components.script.scripts.${indOld}.url`)];
+                    const elementNew = scriptsIndex[value.get('url')];
 
-                panelScripts.innerElement.removeChild(elementNew.element);
+                    panelScripts.innerElement.removeChild(elementNew.element);
 
-                if (indNew > indOld) {
-                    if (elementOld.element.nextSibling) {
-                        panelScripts.innerElement.insertBefore(elementNew.element, elementOld.element.nextSibling);
+                    if (indNew > indOld) {
+                        if (elementOld.element.nextSibling) {
+                            panelScripts.innerElement.insertBefore(elementNew.element, elementOld.element.nextSibling);
+                        } else {
+                            panelScripts.innerElement.appendChild(elementNew.element);
+                        }
                     } else {
-                        panelScripts.innerElement.appendChild(elementNew.element);
+                        panelScripts.innerElement.insertBefore(elementNew.element, elementOld.element);
                     }
-                } else {
-                    panelScripts.innerElement.insertBefore(elementNew.element, elementOld.element);
-                }
-            }));
+                })
+            );
 
             // subscribe to scripts:remove
-            events.push(entities[i].on('components.script.scripts:remove', (script, ind) => {
-                const scriptPanel = scriptsIndex[script.get('url')];
-                if (!scriptPanel) {
-                    return;
-                }
+            events.push(
+                entity.on('components.script.scripts:remove', (script, ind) => {
+                    const scriptPanel = scriptsIndex[script.get('url')];
+                    if (!scriptPanel) {
+                        return;
+                    }
 
-                scriptPanel.count--;
-                scriptPanel._link.textContent = (scriptPanel.count === entities.length ? '' : '* ') + scriptPanel._originalTitle;
+                    scriptPanel.count--;
+                    scriptPanel._link.textContent =
+                        (scriptPanel.count === entities.length ? '' : '* ') + scriptPanel._originalTitle;
 
-                if (scriptPanel.count === 0) {
-                    scriptsIndex[script.get('url')].destroy();
-                    script.destroy();
-                    delete scriptsIndex[script.get('url')];
-                }
-            }));
+                    if (scriptPanel.count === 0) {
+                        scriptsIndex[script.get('url')].destroy();
+                        script.destroy();
+                        delete scriptsIndex[script.get('url')];
+                    }
+                })
+            );
         }
 
         // drag drop
@@ -1037,9 +1103,11 @@ editor.once('load', () => {
                 const rectB = panel.element.getBoundingClientRect();
                 if (rectB.top > rectA.top && rectB.bottom < rectA.bottom) {
                     for (let i = 0; i < entities.length; i++) {
-                        const scripts = entities[i].getRaw('components.script.scripts');
-                        for (let s = 0; s < scripts.length; s++) {
-                            if (scripts[s].get('url') === data.filename) {
+                        const entity = entities[i];
+                        const scripts = entity.getRaw('components.script.scripts');
+                        for (let i = 0; i < scripts.length; i++) {
+                            const s = scripts[i];
+                            if (s.get('url') === data.filename) {
                                 return false;
                             }
                         }
@@ -1049,7 +1117,6 @@ editor.once('load', () => {
                 }
 
                 return false;
-
             },
             drop: function (type: string, data: { filename?: string }) {
                 if (type !== 'asset.script') {
@@ -1063,7 +1130,8 @@ editor.once('load', () => {
         // clean up events
         panel.once('destroy', () => {
             for (let i = 0; i < events.length; i++) {
-                events[i].unbind();
+                const event = events[i];
+                event.unbind();
             }
 
             events = null;

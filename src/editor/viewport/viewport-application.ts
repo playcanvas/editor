@@ -8,7 +8,10 @@ class ViewportApplication extends Application {
 
     redraw = false;
 
-    constructor(canvas: HTMLCanvasElement, options: ConstructorParameters<typeof Application>[1] & { editorSettings?: Record<string, unknown> }) {
+    constructor(
+        canvas: HTMLCanvasElement,
+        options: ConstructorParameters<typeof Application>[1] & { editorSettings?: Record<string, unknown> }
+    ) {
         super(canvas, options);
 
         this._inTools = true;
@@ -55,7 +58,7 @@ class ViewportApplication extends Application {
     }
 
     getDt() {
-        const now = (window.performance && window.performance.now) ? performance.now() : Date.now();
+        const now = window.performance && window.performance.now ? performance.now() : Date.now();
         let dt = (now - (time || now)) / 1000.0;
         dt = math.clamp(dt, 0, 0.1); // Maximum delta is 0.1s or 10 fps.
         time = now;
@@ -63,27 +66,26 @@ class ViewportApplication extends Application {
     }
 
     makeTick() {
-        const app = this;
-        return function () {
-            requestAnimationFrame(app.tick);
+        return () => {
+            requestAnimationFrame(this.tick);
 
-            const dt = app.getDt();
+            const dt = this.getDt();
 
-            if (app.redraw) {
-                app.redraw = editor.call('viewport:keepRendering');
+            if (this.redraw) {
+                this.redraw = editor.call('viewport:keepRendering');
 
-                app.graphicsDevice.updateClientRect();
+                this.graphicsDevice.updateClientRect();
 
                 // Perform ComponentSystem update
                 editor.emit('viewport:preUpdate', dt);
                 editor.emit('viewport:update', dt);
-                app.systems.fire('toolsUpdate', dt);
+                this.systems.fire('toolsUpdate', dt);
                 editor.emit('viewport:postUpdate', dt);
 
                 editor.emit('viewport:gizmoUpdate', dt);
 
                 editor.emit('viewport:preRender');
-                app.render();
+                this.render();
                 editor.emit('viewport:postRender');
             }
         };

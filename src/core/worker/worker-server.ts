@@ -1,7 +1,7 @@
 class WorkerServer {
     _transfer: (ArrayBuffer | MessagePort | ImageBitmap)[] = [];
 
-    _callbacks: Map<string, Function[]> = new Map();
+    _callbacks = new Map<string, ((...args: any[]) => void)[]>();
 
     worker: globalThis.DedicatedWorkerGlobalScope;
 
@@ -12,7 +12,6 @@ class WorkerServer {
 
         this.send('ready');
     }
-
 
     /**
      * @param type - The type of the message.
@@ -88,7 +87,7 @@ class WorkerServer {
      * @param type - The type of the message.
      * @param callback - The callback function.
      */
-    on(type: string, callback: Function) {
+    on(type: string, callback: (...args: any[]) => void) {
         if (!this._callbacks.has(type)) {
             this._callbacks.set(type, []);
         }
@@ -101,7 +100,7 @@ class WorkerServer {
      * @param type - The type of the message.
      * @param callback - The callback function.
      */
-    once(type: string, callback: Function) {
+    once(type: string, callback: (...args: any[]) => void) {
         const onceCallback = (...args: unknown[]) => {
             this.off(type, onceCallback);
             callback(...args);
@@ -115,7 +114,7 @@ class WorkerServer {
      * @param type - The type of the message.
      * @param callback - The callback function.
      */
-    off(type: string, callback: Function) {
+    off(type: string, callback: (...args: any[]) => void) {
         if (!this._callbacks.has(type)) {
             return;
         }

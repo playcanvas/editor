@@ -13,17 +13,17 @@ const MENU_LABELS = new Map([
 
 editor.once('load', () => {
     // GLOBAL VARIABLES
-    let projectSettingsListMenu;  // used to enable hot reload of sidebar menu text upon project name change
-    let currentProject;  // used to display project stats
+    let projectSettingsListMenu; // used to enable hot reload of sidebar menu text upon project name change
+    let currentProject; // used to display project stats
     let currentUser;
-    let cmsView;  // general CMS view
-    let reducedView;  // alternative CMS view
-    let noAdminView;  // alternative 'none' access level view
-    let lockedView;  // alternative locked view
-    let alerts = [];  // list of alerts
+    let cmsView; // general CMS view
+    let reducedView; // alternative CMS view
+    let noAdminView; // alternative 'none' access level view
+    let lockedView; // alternative locked view
+    let alerts = []; // list of alerts
 
     const IS_EMPTY_STATE = !config.project.id;
-    const EMPTY_THUMBNAIL_IMAGE = 'url(\'/static/platform/images/home/blank_project.png\')';
+    const EMPTY_THUMBNAIL_IMAGE = "url('/static/platform/images/home/blank_project.png')";
     const FULLSCREEN_KEY = 'editor:picker:project:fullscreen';
 
     // UI
@@ -63,17 +63,22 @@ editor.once('load', () => {
                 if (funcParameters.currentUser) {
                     // upgrade number of seats and add collaborator
                     const currentUser = funcParameters.currentUser;
-                    editor.call('users:updateSubscription', config.owner, { seats: currentUser.limits.seats + 1 }, () => {
-                        currentUser.limits.seats++;
-                        editor.call('picker:team:management:createCollaborator');
-                    }, (status, error) => {
-                        if (callback) {
-                            callback(status, error);
+                    editor.call(
+                        'users:updateSubscription',
+                        config.owner,
+                        { seats: currentUser.limits.seats + 1 },
+                        () => {
+                            currentUser.limits.seats++;
+                            editor.call('picker:team:management:createCollaborator');
+                        },
+                        (status, error) => {
+                            if (callback) {
+                                callback(status, error);
+                            }
                         }
-                    });
-
+                    );
                 } else if (funcParameters.url) {
-                    window.open(funcParameters.url, '_self');  // open upgrade screen
+                    window.open(funcParameters.url, '_self'); // open upgrade screen
                 }
             });
         }
@@ -104,13 +109,19 @@ editor.once('load', () => {
         }
 
         if (reducedView) {
-            btnClose.hidden = false;  // show close button for modal
+            btnClose.hidden = false; // show close button for modal
 
             overlay.class.add('reduced-view');
 
             // if not admin, don't display thumbnail controls
-            thumbnailButtons.enabled = (currentProject.access_level === 'admin' && currentProject.owner_id === config.self.id) || currentProject.id === config.project.id;
-            thumbnailButtons.style.opacity = (currentProject.access_level === 'admin' && currentProject.owner_id === config.self.id) || currentProject.id === config.project.id ? '1' : '0';
+            thumbnailButtons.enabled =
+                (currentProject.access_level === 'admin' && currentProject.owner_id === config.self.id) ||
+                currentProject.id === config.project.id;
+            thumbnailButtons.style.opacity =
+                (currentProject.access_level === 'admin' && currentProject.owner_id === config.self.id) ||
+                currentProject.id === config.project.id
+                    ? '1'
+                    : '0';
 
             menuOptions.scenes.item.hidden = true;
             if (!IS_EMPTY_STATE) {
@@ -160,7 +171,6 @@ editor.once('load', () => {
 
             playBtn.hidden = true;
             playBtn.enabled = false;
-
         } else if (lockedView) {
             btnClose.hidden = false;
 
@@ -190,7 +200,9 @@ editor.once('load', () => {
             overlay.class.remove('reduced-view');
 
             // if admin, enable thumbnail controls
-            thumbnailButtons.enabled = (currentProject.access_level === 'admin' && currentProject.owner_id === config.self.id) || currentProject.id === config.project.id;
+            thumbnailButtons.enabled =
+                (currentProject.access_level === 'admin' && currentProject.owner_id === config.self.id) ||
+                currentProject.id === config.project.id;
 
             projectCMSButton.enabled = true;
             projectCMSButton.hidden = false;
@@ -269,7 +281,9 @@ editor.once('load', () => {
     const projectImg = document.createElement('div');
     projectImg.classList.add('image');
     if (!IS_EMPTY_STATE) {
-        projectImg.style.backgroundImage = config.project.thumbnails.m ? `url("${config.project.thumbnails.m}")` : EMPTY_THUMBNAIL_IMAGE;
+        projectImg.style.backgroundImage = config.project.thumbnails.m
+            ? `url("${config.project.thumbnails.m}")`
+            : EMPTY_THUMBNAIL_IMAGE;
     }
     projectSummary.dom.appendChild(projectImg);
 
@@ -317,7 +331,11 @@ editor.once('load', () => {
     let uploadingImage = false;
 
     const uploadProjectImage = function (file: File) {
-        if ((!IS_EMPTY_STATE && !editor.call('permissions:write')) || uploadingImage || currentProject.access_level !== 'admin') {
+        if (
+            (!IS_EMPTY_STATE && !editor.call('permissions:write')) ||
+            uploadingImage ||
+            currentProject.access_level !== 'admin'
+        ) {
             return;
         }
 
@@ -327,32 +345,41 @@ editor.once('load', () => {
 
         uploadingImage = true;
 
-        editor.call('images:upload', file, currentProject, (data) => {
-            editor.call('projects:save', currentProject, { image_url: data.url }, () => {
-                uploadingImage = false;
-            }, (err) => {
+        editor.call(
+            'images:upload',
+            file,
+            currentProject,
+            (data) => {
+                editor.call(
+                    'projects:save',
+                    currentProject,
+                    { image_url: data.url },
+                    () => {
+                        uploadingImage = false;
+                    },
+                    (err) => {
+                        // error
+                        uploadingImage = false;
+                        buildAlert(rightPanel, err);
+                        projectImg.style.backgroundImage = previousBackgroundImage;
+                        projectImg.classList.remove('progress');
+                    }
+                );
+            },
+            (status, data) => {
                 // error
                 uploadingImage = false;
-                buildAlert(rightPanel, err);
+                buildAlert(rightPanel, data);
                 projectImg.style.backgroundImage = previousBackgroundImage;
                 projectImg.classList.remove('progress');
-            });
-        }, (status, data) => {
-            // error
-            uploadingImage = false;
-            buildAlert(rightPanel, data);
-            projectImg.style.backgroundImage = previousBackgroundImage;
-            projectImg.classList.remove('progress');
-        });
+            }
+        );
     };
 
     const dropRef = editor.call('drop:target', {
         ref: projectImg,
         filter: function (type: string, data: File[]) {
-            return editor.call('permissions:write') &&
-                   leftPanel.enabled &&
-                   !uploadingImage &&
-                   type === 'files';
+            return editor.call('permissions:write') && leftPanel.enabled && !uploadingImage && type === 'files';
         },
         drop: function (type: string, data: File[]) {
             if (type !== 'files') {
@@ -382,7 +409,12 @@ editor.once('load', () => {
     let currentSelection = null;
 
     projectImg.addEventListener('click', () => {
-        if (!editor.call('permissions:write') || !leftPanel.enabled || currentProject.access_level !== 'admin' || currentProject.owner_id !== config.self.id) {
+        if (
+            !editor.call('permissions:write') ||
+            !leftPanel.enabled ||
+            currentProject.access_level !== 'admin' ||
+            currentProject.owner_id !== config.self.id
+        ) {
             return;
         }
 
@@ -409,7 +441,7 @@ editor.once('load', () => {
         class: 'thumbnail-buttons'
     });
     projectSummary.append(thumbnailButtons);
-    thumbnailButtons.style.opacity = '0';  // thumbnail buttons start hidden
+    thumbnailButtons.style.opacity = '0'; // thumbnail buttons start hidden
 
     const replaceButton = new Button({
         class: 'thumbnail-replace',
@@ -421,7 +453,7 @@ editor.once('load', () => {
     thumbnailButtons.append(replaceButton);
 
     replaceButton.on('click', () => {
-        fileInput.click();  // open file picker
+        fileInput.click(); // open file picker
     });
 
     const deleteButton = new Button({
@@ -482,7 +514,7 @@ editor.once('load', () => {
         let target = '_self';
         if (e.which === 2 || e.button === 4 || e.metaKey || e.ctrlKey) {
             target = '_blank';
-        }  // If middle click, open in new tab
+        } // If middle click, open in new tab
 
         let url = `${config.url.home}/editor/project/${currentProject.id}`;
         const params = new URLSearchParams(location.search);
@@ -616,7 +648,9 @@ editor.once('load', () => {
 
         projectImg.classList.remove('progress');
         if (!IS_EMPTY_STATE) {
-            projectImg.style.backgroundImage = config.project.thumbnails.m ? `url("${config.project.thumbnails.m}")` : EMPTY_THUMBNAIL_IMAGE;
+            projectImg.style.backgroundImage = config.project.thumbnails.m
+                ? `url("${config.project.thumbnails.m}")`
+                : EMPTY_THUMBNAIL_IMAGE;
         }
 
         if (editor.call('permissions:write')) {
@@ -717,7 +751,7 @@ editor.once('load', () => {
             refreshUI();
 
             if (cmsView) {
-                btnClose.hidden = false;  // display close button
+                btnClose.hidden = false; // display close button
                 overlay.class.add('cmsView');
                 projectCMSButton.text = 'Return to Project';
             } else {
@@ -746,13 +780,13 @@ editor.once('load', () => {
             reducedView = true;
 
             editor.call('users:loadOne', config.self.id, (user) => {
-                currentUser = user;  // change this variable name
+                currentUser = user; // change this variable name
                 overlay.hidden = false;
             });
 
             refreshUI();
 
-            select('project-main');  // select project settings panel
+            select('project-main'); // select project settings panel
         });
     });
 
@@ -764,14 +798,14 @@ editor.once('load', () => {
             noAdminView = true;
 
             editor.call('users:loadOne', config.self.id, (user) => {
-                currentUser = user;  // change this variable name
+                currentUser = user; // change this variable name
                 overlay.hidden = false;
             });
 
             refreshUI();
             btnClose.hidden = false;
 
-            select('team');  // select project settings panel
+            select('team'); // select project settings panel
         });
     });
 
@@ -790,7 +824,7 @@ editor.once('load', () => {
             refreshUI();
             btnClose.hidden = false;
 
-            select('project-main');  // select main project panel
+            select('project-main'); // select main project panel
             thumbnailButtons.style.opacity = '0';
         });
     });
@@ -803,10 +837,12 @@ editor.once('load', () => {
                 userIsCollaborator = true;
             }
         });
-        return editor.call('project:management:isOrgAdmin', project.owner_id, currentUser) &&
+        return (
+            editor.call('project:management:isOrgAdmin', project.owner_id, currentUser) &&
             !project.locked &&
             collaborators.length >= 0 &&
-            !userIsCollaborator;
+            !userIsCollaborator
+        );
     });
 
     // close popup

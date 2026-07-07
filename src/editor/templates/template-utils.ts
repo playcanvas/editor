@@ -9,11 +9,7 @@ editor.once('load', () => {
         name: 1
     };
 
-    const IGNORE_ROOT_PATHS_FOR_REVERT = [
-        'position',
-        'rotation',
-        'name'
-    ];
+    const IGNORE_ROOT_PATHS_FOR_REVERT = ['position', 'rotation', 'name'];
 
     const TemplateUtils = {
         STOP_TEMPL_ATTR_TYPES: {
@@ -39,7 +35,10 @@ editor.once('load', () => {
             return IGNORE_ROOT_PATHS_FOR_REVERT;
         },
 
-        makeInstanceData: function (ents: Record<string, Record<string, unknown>>, idToTemplEntId: Record<string, string>): Record<string, unknown> {
+        makeInstanceData: function (
+            ents: Record<string, Record<string, unknown>>,
+            idToTemplEntId: Record<string, string>
+        ): Record<string, unknown> {
             const h = {
                 entIdToEntity: ents,
 
@@ -50,12 +49,16 @@ editor.once('load', () => {
                 templIdToEntId: {}
             };
 
-            h.entities.forEach(ent => TemplateUtils.updateIdMaps(h, ent, idToTemplEntId));
+            h.entities.forEach((ent) => TemplateUtils.updateIdMaps(h, ent, idToTemplEntId));
 
             return h;
         },
 
-        updateIdMaps: function (h: Record<string, unknown>, instEnt: Record<string, unknown>, idToTemplEntId: Record<string, string>): void {
+        updateIdMaps: function (
+            h: Record<string, unknown>,
+            instEnt: Record<string, unknown>,
+            idToTemplEntId: Record<string, string>
+        ): void {
             const instId = instEnt.resource_id;
 
             const templId = idToTemplEntId[instId] || instId;
@@ -83,8 +86,7 @@ editor.once('load', () => {
 
         getNodeAtPath(node: unknown, path: string[]): unknown {
             path.forEach((k) => {
-                const useKey = TemplateUtils.isMapObj(node) ||
-                    TemplateUtils.isArIndex(node, k);
+                const useKey = TemplateUtils.isMapObj(node) || TemplateUtils.isArIndex(node, k);
 
                 if (useKey) {
                     node = node[k];
@@ -107,7 +109,8 @@ editor.once('load', () => {
 
             const lastKey = path[lastIndex];
 
-            for (let i = 0; i < lastIndex; i++) { // exclude last key
+            for (let i = 0; i < lastIndex; i++) {
+                // exclude last key
                 const key = path[i];
 
                 node[key] = node[key] || {};
@@ -119,8 +122,7 @@ editor.once('load', () => {
         },
 
         isArIndex: function (node: unknown, k: string): boolean {
-            return Array.isArray(node) &&
-                TemplateUtils.ALL_DIGITS_REG.test(k);
+            return Array.isArray(node) && TemplateUtils.ALL_DIGITS_REG.test(k);
         },
 
         isMapObj: function (obj: unknown): boolean {
@@ -139,21 +141,21 @@ editor.once('load', () => {
             return s.split('.');
         },
 
-        setEntReferenceIfNeeded: function (conflict: Record<string, unknown>, scriptAttrs: Record<string, unknown>): void {
+        setEntReferenceIfNeeded: function (
+            conflict: Record<string, unknown>,
+            scriptAttrs: Record<string, unknown>
+        ): void {
             const entity = TemplateUtils.makeTmpEntity(conflict, 'src_value');
 
-            const entPaths = editor.call(
-                'template:allEntityPaths',
-                entity,
-                scriptAttrs
-            );
+            const entPaths = editor.call('template:allEntityPaths', entity, scriptAttrs);
 
             conflict.entity_ref_paths = entPaths.length && entPaths;
         },
 
         isValidEntRef: function (v: unknown): boolean {
-            return TemplateUtils.isSimpleValidEntRef(v) ||
-                (Array.isArray(v) && v.every(TemplateUtils.isSimpleValidEntRef));
+            return (
+                TemplateUtils.isSimpleValidEntRef(v) || (Array.isArray(v) && v.every(TemplateUtils.isSimpleValidEntRef))
+            );
         },
 
         isSimpleValidEntRef: function (v: unknown): boolean {
@@ -172,12 +174,15 @@ editor.once('load', () => {
             return entity;
         },
 
-        getAllEntitiesInSubtree: function (entity: { get: (key: string) => unknown }, result: { get: (key: string) => unknown }[]): void {
+        getAllEntitiesInSubtree: function (
+            entity: { get: (key: string) => unknown },
+            result: { get: (key: string) => unknown }[]
+        ): void {
             result.push(entity);
 
             const children = TemplateUtils.getChildEntities(entity);
 
-            children.forEach(ch => TemplateUtils.getAllEntitiesInSubtree(ch, result));
+            children.forEach((ch) => TemplateUtils.getAllEntitiesInSubtree(ch, result));
 
             return result;
         },
@@ -201,20 +206,21 @@ editor.once('load', () => {
         },
 
         remapEntVal: function (v: unknown, srcToDst: Record<string, string>): unknown {
-            return Array.isArray(v) ?
-                TemplateUtils.remapEntArray(v, srcToDst) :
-                TemplateUtils.remapEntStr(v, srcToDst);
+            return Array.isArray(v) ? TemplateUtils.remapEntArray(v, srcToDst) : TemplateUtils.remapEntStr(v, srcToDst);
         },
 
         remapEntArray: function (a: unknown[], srcToDst: Record<string, string>): unknown[] {
-            return a.map(v => TemplateUtils.remapEntStr(v, srcToDst));
+            return a.map((v) => TemplateUtils.remapEntStr(v, srcToDst));
         },
 
         remapEntStr: function (v: string, srcToDst: Record<string, string>): string | null {
             return srcToDst[v] || null;
         },
 
-        remapOrAssignKeys: function (h1: Record<string, unknown>, srcToDst: Record<string, string>): Record<string, unknown> {
+        remapOrAssignKeys: function (
+            h1: Record<string, unknown>,
+            srcToDst: Record<string, string>
+        ): Record<string, unknown> {
             const h2 = {};
 
             const a = Object.keys(h1);
@@ -283,13 +289,13 @@ editor.once('load', () => {
         },
 
         rmFalsey: function (a: unknown[]): unknown[] {
-            return a.filter(v => v);
+            return a.filter((v) => v);
         },
 
         selectPresentInSecond: function (a1: string[], a2: string[]): string[] {
             const h = TemplateUtils.strArrayToMap(a2);
 
-            return a1.filter(s => h[s]);
+            return a1.filter((s) => h[s]);
         },
 
         matchFromRegex: function (s: string, r: RegExp): string | null {
@@ -301,12 +307,11 @@ editor.once('load', () => {
         markAddRmScriptConflicts: function (overrides: Record<string, unknown>): void {
             overrides.conflicts.forEach(TemplateUtils.setScriptName);
 
-            const a = overrides.conflicts.filter(h => h.script_name);
+            const a = overrides.conflicts.filter((h) => h.script_name);
 
             a.forEach((h) => {
                 if (h.missing_in_dst) {
                     h.override_type = 'override_add_script';
-
                 } else if (h.missing_in_src) {
                     h.override_type = 'override_delete_script';
 
@@ -337,7 +342,8 @@ editor.once('load', () => {
     };
 
     const AttrUtils = {
-        INDEXES_IN_PATH: { // path here is shorter by 2
+        INDEXES_IN_PATH: {
+            // path here is shorter by 2
             ENTITY_SCRIPT_NAME: 3,
             ENTITY_SCRIPT_ATTR_NAME: 5,
             JSON_NON_ARRAY_ATTR_PROPERTY: 6,
@@ -355,11 +361,13 @@ editor.once('load', () => {
         checkScriptAttr: function (data: Record<string, unknown>, opts: { needArrays?: boolean; needMaps?: boolean }) {
             const h = AttrUtils.findAttrObj(data);
 
-            return h &&
+            return (
+                h &&
                 AttrUtils.isJsonScriptAttr(h) &&
                 !AttrUtils.jsonAttrPropertyData(h, data.path) && // not inside json attr
                 (!opts.needArrays || (AttrUtils.areBothNodesArs(data) && AttrUtils.isArrayAttr(h))) &&
-                (!opts.needMaps || AttrUtils.areBothNodesMapObjs(data));
+                (!opts.needMaps || AttrUtils.areBothNodesMapObjs(data))
+            );
         },
 
         findAttrObj: function (data: Record<string, unknown>) {
@@ -373,26 +381,23 @@ editor.once('load', () => {
         },
 
         jsonAttrPropertyData: function (attrObj: Record<string, unknown>, path: string[]) {
-            const ind = AttrUtils.isArrayAttr(attrObj) ?
-                AttrUtils.INDEXES_IN_PATH.JSON_ARRAY_ATTR_PROPERTY :
-                AttrUtils.INDEXES_IN_PATH.JSON_NON_ARRAY_ATTR_PROPERTY;
+            const ind = AttrUtils.isArrayAttr(attrObj)
+                ? AttrUtils.INDEXES_IN_PATH.JSON_ARRAY_ATTR_PROPERTY
+                : AttrUtils.INDEXES_IN_PATH.JSON_NON_ARRAY_ATTR_PROPERTY;
 
             const name = path[ind];
 
-            return AttrUtils.isJsonScriptAttr(attrObj) &&
-                name &&
-                AttrUtils.findInAttrSchema(attrObj, name);
+            return AttrUtils.isJsonScriptAttr(attrObj) && name && AttrUtils.findInAttrSchema(attrObj, name);
         },
 
         findInAttrSchema: function (attrObj: Record<string, unknown>, name: string) {
             const a = attrObj.schema || [];
 
-            return a.find(h => h.name === name);
+            return a.find((h) => h.name === name);
         },
 
         isJsonScriptAttr: function (attrObj: Record<string, unknown>) {
-            return attrObj.type === 'json' &&
-                attrObj.schema;
+            return attrObj.type === 'json' && attrObj.schema;
         },
 
         isArrayAttr: function (h: Record<string, unknown>): boolean {
@@ -406,12 +411,17 @@ editor.once('load', () => {
         objIntKeys: function (h: Record<string, unknown> | unknown): string[] | false {
             const a = TemplateUtils.isMapObj(h) && Object.keys(h);
 
-            const allDigits = a && a.every(s => TemplateUtils.ALL_DIGITS_REG.test(s));
+            const allDigits = a && a.every((s) => TemplateUtils.ALL_DIGITS_REG.test(s));
 
             return allDigits && a;
         },
 
-        addAllJsonEntPaths: function (dst: string[][], attrObj: Record<string, unknown>, pref: string[], attrInEnt: unknown): void {
+        addAllJsonEntPaths: function (
+            dst: string[][],
+            attrObj: Record<string, unknown>,
+            pref: string[],
+            attrInEnt: unknown
+        ): void {
             const names = AttrUtils.allJsonEntNames(attrObj.schema);
 
             const inds = AttrUtils.arrayIndsFromAttr(attrInEnt);
@@ -424,8 +434,9 @@ editor.once('load', () => {
         },
 
         arrayIndsFromAttr: function (attrInEnt: unknown): string[] | undefined {
-            return (Array.isArray(attrInEnt) && AttrUtils.arrayToIndexStrs(attrInEnt)) ||
-                AttrUtils.objIntKeys(attrInEnt);
+            return (
+                (Array.isArray(attrInEnt) && AttrUtils.arrayToIndexStrs(attrInEnt)) || AttrUtils.objIntKeys(attrInEnt)
+            );
         },
 
         addPathsForJsonAr: function (dst: string[][], names: string[], pref: string[], inds: string[]): void {
@@ -445,29 +456,29 @@ editor.once('load', () => {
         },
 
         allJsonEntNames: function (schema: Record<string, unknown>[]): string[] {
-            const a = schema.filter(h => h.type === 'entity');
+            const a = schema.filter((h) => h.type === 'entity');
 
-            return a.map(h => h.name);
+            return a.map((h) => h.name);
         },
 
-        valsEqualAfterRemap: function (h: Record<string, unknown>, srcToDst: Record<string, string>, scriptAttrs: Record<string, unknown>): boolean {
+        valsEqualAfterRemap: function (
+            h: Record<string, unknown>,
+            srcToDst: Record<string, string>,
+            scriptAttrs: Record<string, unknown>
+        ): boolean {
             let srcEnt = TemplateUtils.makeTmpEntity(h, 'src_value');
 
             srcEnt = TemplateUtils.deepClone(srcEnt);
 
-            editor.call(
-                'template:remapEntityIds',
-                srcEnt,
-                scriptAttrs,
-                srcToDst
-            );
+            editor.call('template:remapEntityIds', srcEnt, scriptAttrs, srcToDst);
 
             const dstEnt = TemplateUtils.makeTmpEntity(h, 'dst_value');
 
             return editor.call('assets:isDeepEqual', srcEnt, dstEnt);
         },
 
-        remapDstForRevert: function (h: Record<string, unknown>): unknown { // conflict
+        remapDstForRevert: function (h: Record<string, unknown>): unknown {
+            // conflict
             const dstToSrc = TemplateUtils.invertMap(h.srcToDst);
 
             let dstEnt = TemplateUtils.makeTmpEntity(h, 'dst_value');
@@ -496,9 +507,7 @@ editor.once('load', () => {
 
             const i = AttrUtils.lastArrayElt(data.path);
 
-            return Array.isArray(p1) &&
-                Array.isArray(p2) &&
-                AttrUtils.indexOutOfBounds(i, p1.length, p2.length);
+            return Array.isArray(p1) && Array.isArray(p2) && AttrUtils.indexOutOfBounds(i, p1.length, p2.length);
         },
 
         lastArrayElt: function (a: string[]): string {
@@ -538,13 +547,11 @@ editor.once('load', () => {
         },
 
         areBothNodesMapObjs: function (data: Record<string, unknown>): boolean {
-            return TemplateUtils.isMapObj(data.node1) &&
-                TemplateUtils.isMapObj(data.node2);
+            return TemplateUtils.isMapObj(data.node1) && TemplateUtils.isMapObj(data.node2);
         },
 
         areBothNodesArs: function (data: Record<string, unknown>): boolean {
-            return Array.isArray(data.node1) &&
-                Array.isArray(data.node2);
+            return Array.isArray(data.node1) && Array.isArray(data.node2);
         }
     };
 
@@ -556,15 +563,11 @@ editor.once('load', () => {
         return klass[method].apply(null, rest);
     });
 
-    editor.method('template:utils', function () {
-        const a = Array.from(arguments);
-
-        return editor.call('utils:callMethod', TemplateUtils, a);
+    editor.method('template:utils', function (...args: unknown[]) {
+        return editor.call('utils:callMethod', TemplateUtils, args);
     });
 
-    editor.method('template:attrUtils', function () {
-        const a = Array.from(arguments);
-
-        return editor.call('utils:callMethod', AttrUtils, a);
+    editor.method('template:attrUtils', function (...args: unknown[]) {
+        return editor.call('utils:callMethod', AttrUtils, args);
     });
 });

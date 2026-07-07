@@ -115,7 +115,11 @@ class Cubemap3dThumbnailRenderer extends ThumbnailRenderer {
         });
     }
 
-    render(rotationX: number = 0, rotationY: number = 0, mipLevel: number = 0) {
+    render(rotationX?: number, rotationY?: number, mipLevel?: number) {
+        rotationX = rotationX === undefined ? 0 : rotationX;
+        rotationY = rotationY === undefined ? 0 : rotationY;
+        mipLevel = mipLevel === undefined ? 0 : mipLevel;
+
         this._queuedRender = false;
 
         if (!this._asset) {
@@ -164,17 +168,21 @@ class Cubemap3dThumbnailRenderer extends ThumbnailRenderer {
                     scene.scene.skyboxMip = 0;
                 }
             }
-
         } else {
             scene.scene.setSkybox(null);
         }
 
         const settings = this._sceneSettings.json();
-        scene.scene.ambientLight.set(settings.render.global_ambient[0], settings.render.global_ambient[1], settings.render.global_ambient[2]);
+        scene.scene.ambientLight.set(
+            settings.render.global_ambient[0],
+            settings.render.global_ambient[1],
+            settings.render.global_ambient[2]
+        );
         scene.cameraEntity.gammaCorrection = settings.render.gamma_correction;
         scene.cameraEntity.toneMapping = settings.render.tonemapping;
         scene.scene.exposure = settings.render.exposure;
-        scene.scene.skyboxIntensity = settings.render.skyboxIntensity === undefined ? 1 : settings.render.skyboxIntensity;
+        scene.scene.skyboxIntensity =
+            settings.render.skyboxIntensity === undefined ? 1 : settings.render.skyboxIntensity;
 
         scene.scene._updateSkyMesh();
 
@@ -198,7 +206,11 @@ class Cubemap3dThumbnailRenderer extends ThumbnailRenderer {
 
         // render to canvas
         const ctx = this._canvas.getContext('2d');
-        ctx.putImageData(new ImageData(rt.pixelsClamped, width, height), (this._canvas.width - width) / 2, (this._canvas.height - height) / 2);
+        ctx.putImageData(
+            new ImageData(rt.pixelsClamped, width, height),
+            (this._canvas.width - width) / 2,
+            (this._canvas.height - height) / 2
+        );
 
         scene.layer.removeLight(scene.lightEntity.light);
         scene.layer.removeCamera(scene.cameraEntity.camera);

@@ -1,9 +1,11 @@
-import { type CameraComponent, Entity, type Layer, PROJECTION_ORTHOGRAPHIC, PROJECTION_PERSPECTIVE, SHADOWUPDATE_THISFRAME, Vec3 } from 'playcanvas';
+import type { Observer } from '@playcanvas/observer';
+import { Entity, PROJECTION_ORTHOGRAPHIC, PROJECTION_PERSPECTIVE, SHADOWUPDATE_THISFRAME, Vec3 } from 'playcanvas';
+import type { CameraComponent, Layer } from 'playcanvas';
 
 editor.once('load', () => {
     editor.once('viewport:load', (app) => {
-        const camerasIndex = { };
-        const editorCameras = { };
+        const camerasIndex = {};
+        const editorCameras = {};
         let currentCamera = null;
         let defaultCamera = null;
 
@@ -121,7 +123,6 @@ editor.once('load', () => {
 
             // if this is a user's camera, make sure it clears depth and color buffers
             if (!entity.__editorCamera) {
-
                 const setClearing = () => {
                     entity.camera.clearColorBuffer = true;
                     entity.camera.clearDepthBuffer = true;
@@ -186,60 +187,74 @@ editor.once('load', () => {
             editor.call('camera:set', editorCameras.perspective);
         });
 
+        const list = [
+            {
+                name: 'perspective',
+                title: 'Perspective',
+                className: 'viewport-camera-perspective',
+                position: new Vec3(9.2, 6, 9),
+                rotation: new Vec3(-25, 45, 0),
+                default: true
+            },
+            {
+                name: 'top',
+                title: 'Top',
+                className: 'viewport-camera-top',
+                position: new Vec3(0, 1000, 0),
+                rotation: new Vec3(-90, 0, 0),
+                ortho: true
+            },
+            {
+                name: 'bottom',
+                title: 'Bottom',
+                className: 'viewport-camera-bottom',
+                position: new Vec3(0, -1000, 0),
+                rotation: new Vec3(90, 0, 0),
+                ortho: true
+            },
+            {
+                name: 'front',
+                title: 'Front',
+                className: 'viewport-camera-front',
+                position: new Vec3(0, 0, 1000),
+                rotation: new Vec3(0, 0, 0),
+                ortho: true
+            },
+            {
+                name: 'back',
+                title: 'Back',
+                className: 'viewport-camera-back',
+                position: new Vec3(0, 0, -1000),
+                rotation: new Vec3(0, 180, 0),
+                ortho: true
+            },
+            {
+                name: 'left',
+                title: 'Left',
+                className: 'viewport-camera-left',
+                position: new Vec3(-1000, 0, 0),
+                rotation: new Vec3(0, -90, 0),
+                ortho: true
+            },
+            {
+                name: 'right',
+                title: 'Right',
+                className: 'viewport-camera-right',
+                position: new Vec3(1000, 0, 0),
+                rotation: new Vec3(0, 90, 0),
+                ortho: true
+            }
+        ];
 
-        const list = [{
-            name: 'perspective',
-            title: 'Perspective',
-            className: 'viewport-camera-perspective',
-            position: new Vec3(9.2, 6, 9),
-            rotation: new Vec3(-25, 45, 0),
-            default: true
-        }, {
-            name: 'top',
-            title: 'Top',
-            className: 'viewport-camera-top',
-            position: new Vec3(0, 1000, 0),
-            rotation: new Vec3(-90, 0, 0),
-            ortho: true
-        }, {
-            name: 'bottom',
-            title: 'Bottom',
-            className: 'viewport-camera-bottom',
-            position: new Vec3(0, -1000, 0),
-            rotation: new Vec3(90, 0, 0),
-            ortho: true
-        }, {
-            name: 'front',
-            title: 'Front',
-            className: 'viewport-camera-front',
-            position: new Vec3(0, 0, 1000),
-            rotation: new Vec3(0, 0, 0),
-            ortho: true
-        }, {
-            name: 'back',
-            title: 'Back',
-            className: 'viewport-camera-back',
-            position: new Vec3(0, 0, -1000),
-            rotation: new Vec3(0, 180, 0),
-            ortho: true
-        }, {
-            name: 'left',
-            title: 'Left',
-            className: 'viewport-camera-left',
-            position: new Vec3(-1000, 0, 0),
-            rotation: new Vec3(0, -90, 0),
-            ortho: true
-        }, {
-            name: 'right',
-            title: 'Right',
-            className: 'viewport-camera-right',
-            position: new Vec3(1000, 0, 0),
-            rotation: new Vec3(0, 90, 0),
-            ortho: true
-        }];
-
-
-        const createCamera = function (args: { name: string; title: string; className: string; position: Vec3; rotation: Vec3; default?: boolean; ortho?: boolean }) {
+        const createCamera = function (args: {
+            name: string;
+            title: string;
+            className: string;
+            position: Vec3;
+            rotation: Vec3;
+            default?: boolean;
+            ortho?: boolean;
+        }) {
             const entity = new Entity();
             entity.__editorCamera = true;
             entity.__editorName = args.name;
@@ -285,18 +300,19 @@ editor.once('load', () => {
 
         // add default cameras
         for (let i = 0; i < list.length; i++) {
-            const entity = createCamera(list[i]);
+            const item = list[i];
+            const entity = createCamera(item);
 
             editor.call('camera:add', entity);
 
-            if (list[i].default && !defaultCamera) {
+            if (item.default && !defaultCamera) {
                 defaultCamera = entity;
                 editor.call('camera:set', entity);
             }
         }
 
         // when layers change make sure that our Editor cameras have them
-        projectSettings.on('layerOrder:insert', (value: import('@playcanvas/observer').Observer) => {
+        projectSettings.on('layerOrder:insert', (value: Observer) => {
             const id = parseInt(value.get('layer'), 10);
             for (const key in editorCameras) {
                 const entity = editorCameras[key];
@@ -311,7 +327,7 @@ editor.once('load', () => {
             editor.call('viewport:render');
         });
 
-        projectSettings.on('layerOrder:remove', (value: import('@playcanvas/observer').Observer) => {
+        projectSettings.on('layerOrder:remove', (value: Observer) => {
             const id = parseInt(value.get('layer'), 10);
             for (const key in editorCameras) {
                 const entity = editorCameras[key];

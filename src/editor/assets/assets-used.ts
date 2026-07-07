@@ -2,17 +2,20 @@ import type { EventHandle } from '@playcanvas/observer';
 
 type UsedType = 'asset' | 'entity' | 'editorSettings';
 type UsedId = string | number;
-type UsedIndex = Record<UsedId, {
-    count: number;
-    parent: number;
-    ref: Record<string, [EventHandle, EventHandle?] & { type: UsedType }>;
-}>;
+type UsedIndex = Record<
+    UsedId,
+    {
+        count: number;
+        parent: number;
+        ref: Record<string, [EventHandle, EventHandle?] & { type: UsedType }>;
+    }
+>;
 
 editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     const index: UsedIndex = {};
     const keys = {
-        'cubemap': {
+        cubemap: {
             'data.textures.0': true,
             'data.textures.1': true,
             'data.textures.2': true,
@@ -20,7 +23,7 @@ editor.once('load', () => {
             'data.textures.4': true,
             'data.textures.5': true
         },
-        'material': {
+        material: {
             'data.aoMap': true,
             'data.diffuseMap': true,
             'data.anisotropyMap': true,
@@ -43,15 +46,15 @@ editor.once('load', () => {
             'data.iridescenceMap': true,
             'data.iridescenceThicknessMap': true
         },
-        'sprite': {
+        sprite: {
             'data.textureAtlasAsset': true
         },
-        'render': {
+        render: {
             'data.containerAsset': true
         },
-        'model': {},
-        'entity': {
-            'template_id': true,
+        model: {},
+        entity: {
+            template_id: true,
             'components.model.materialAsset': true,
             'components.model.asset': true,
             'components.collision.asset': true,
@@ -173,21 +176,21 @@ editor.once('load', () => {
     };
 
     const onSetMethods = {
-        'cubemap': function (path: string, value: unknown, valueOld: unknown) {
+        cubemap: function (path: string, value: unknown, valueOld: unknown) {
             if (!keys.cubemap[path]) {
                 return;
             }
 
             updateAsset(this.get('id'), 'asset', valueOld, value);
         },
-        'material': function (path: string, value: unknown, valueOld: unknown) {
+        material: function (path: string, value: unknown, valueOld: unknown) {
             if (!keys.material[path]) {
                 return;
             }
 
             updateAsset(this.get('id'), 'asset', valueOld, value);
         },
-        'model': function (path: string, value: unknown, valueOld: unknown) {
+        model: function (path: string, value: unknown, valueOld: unknown) {
             if (path.startsWith('data.mapping.') && path.slice(-8) === 'material') {
                 updateAsset(this.get('id'), 'asset', valueOld, value);
             }
@@ -212,21 +215,21 @@ editor.once('load', () => {
 
             updateAsset(this.get('id'), 'asset', value);
         },
-        'sprite': function (path: string, value: unknown, valueOld: unknown) {
+        sprite: function (path: string, value: unknown, valueOld: unknown) {
             if (!keys.sprite[path]) {
                 return;
             }
 
             updateAsset(this.get('id'), 'asset', valueOld, value);
         },
-        'render': function (path: string, value: unknown, valueOld: unknown) {
+        render: function (path: string, value: unknown, valueOld: unknown) {
             if (!path.startsWith('data.containerAsset')) {
                 return;
             }
 
             updateAsset(this.get('id'), 'asset', valueOld, value);
         },
-        'font': function (path: string, value: unknown, valueOld: unknown) {
+        font: function (path: string, value: unknown, valueOld: unknown) {
             if (!path.startsWith('i18n')) {
                 return;
             }
@@ -235,7 +238,7 @@ editor.once('load', () => {
                 updateAsset(this.get('id'), 'asset', valueOld, value);
             }
         },
-        'entity': function (path: string, value: unknown, valueOld: unknown) {
+        entity: function (path: string, value: unknown, valueOld: unknown) {
             if (path.startsWith('components.animation.assets.')) {
                 const parts = splitPath(path);
                 if (parts.length !== 4) {
@@ -281,7 +284,6 @@ editor.once('load', () => {
                         return;
                     }
                     return;
-
                 } else {
                     return;
                 }
@@ -303,13 +305,13 @@ editor.once('load', () => {
                 } else if (parts.length === 5) {
                     updateAsset(this.get('resource_id'), 'entity', valueOld, value);
                 }
-            }  else if (!keys.entity[path]) {
+            } else if (!keys.entity[path]) {
                 return;
             }
 
             if (value instanceof Array) {
                 for (let i = 0; i < value.length; i++) {
-                    updateAsset(this.get('resource_id'), 'entity', valueOld && valueOld[i] || null, value[i]);
+                    updateAsset(this.get('resource_id'), 'entity', (valueOld && valueOld[i]) || null, value[i]);
                 }
             } else {
                 updateAsset(this.get('resource_id'), 'entity', valueOld, value);
@@ -350,7 +352,8 @@ editor.once('load', () => {
                         if (type === 'asset') {
                             if (value.attributes[parts[5]] instanceof Array) {
                                 for (let i = 0; i < value.attributes[parts[5]].length; i++) {
-                                    updateAsset(this.get('resource_id'), 'entity', value.attributes[parts[5]][i], null);
+                                    const attrValue = value.attributes[parts[5]][i];
+                                    updateAsset(this.get('resource_id'), 'entity', attrValue, null);
                                 }
                             } else {
                                 updateAsset(this.get('resource_id'), 'entity', value.attributes[parts[5]], null);
@@ -369,7 +372,8 @@ editor.once('load', () => {
                             if (type === 'asset') {
                                 if (value.attributes[attrName] instanceof Array) {
                                     for (let i = 0; i < value.attributes[attrName].length; i++) {
-                                        updateAsset(this.get('resource_id'), 'entity', value.attributes[attrName][i], null);
+                                        const attrValue = value.attributes[attrName][i];
+                                        updateAsset(this.get('resource_id'), 'entity', attrValue, null);
                                     }
                                 } else {
                                     updateAsset(this.get('resource_id'), 'entity', value.attributes[attrName], null);
@@ -392,7 +396,8 @@ editor.once('load', () => {
 
             if (value instanceof Array) {
                 for (let i = 0; i < value.length; i++) {
-                    updateAsset(this.get('resource_id'), 'entity', value[i], null);
+                    const v = value[i];
+                    updateAsset(this.get('resource_id'), 'entity', v, null);
                 }
             } else {
                 updateAsset(this.get('resource_id'), 'entity', value, null);
@@ -401,7 +406,12 @@ editor.once('load', () => {
         'entity-insert': function (path: string, value: unknown) {
             if (legacyScripts && path.startsWith('components.script.scripts.')) {
                 const parts = splitPath(path);
-                if (parts.length !== 7 || parts[4] !== 'attributes' || parts[6] !== 'value' || this.get(`${parts.slice(0, 6).join('.')}.type`) !== 'asset') {
+                if (
+                    parts.length !== 7 ||
+                    parts[4] !== 'attributes' ||
+                    parts[6] !== 'value' ||
+                    this.get(`${parts.slice(0, 6).join('.')}.type`) !== 'asset'
+                ) {
                     return;
                 }
             } else if (!legacyScripts && path.startsWith('components.script.scripts')) {
@@ -425,7 +435,8 @@ editor.once('load', () => {
 
             if (value instanceof Array) {
                 for (let i = 0; i < value.length; i++) {
-                    updateAsset(this.get('resource_id'), 'entity', null, value[i]);
+                    const v = value[i];
+                    updateAsset(this.get('resource_id'), 'entity', null, v);
                 }
             } else {
                 updateAsset(this.get('resource_id'), 'entity', null, value);
@@ -434,7 +445,12 @@ editor.once('load', () => {
         'entity-remove': function (path: string, value: unknown) {
             if (legacyScripts && path.startsWith('components.script.scripts.')) {
                 const parts = splitPath(path);
-                if (parts.length !== 7 || parts[4] !== 'attributes' || parts[6] !== 'value' || this.get(`${parts.slice(0, 6).join('.')}.type`) !== 'asset') {
+                if (
+                    parts.length !== 7 ||
+                    parts[4] !== 'attributes' ||
+                    parts[6] !== 'value' ||
+                    this.get(`${parts.slice(0, 6).join('.')}.type`) !== 'asset'
+                ) {
                     return;
                 }
             } else if (!legacyScripts && path.startsWith('components.script.scripts')) {
@@ -471,8 +487,9 @@ editor.once('load', () => {
         const items = asset.get(`data.scripts.${script}.attributes`);
         const attributes = [];
         for (let i = 0; i < itemsOrder.length; i++) {
-            if (items[itemsOrder[i]].type === 'asset') {
-                attributes.push(itemsOrder[i]);
+            const item = itemsOrder[i];
+            if (items[item].type === 'asset') {
+                attributes.push(item);
             }
         }
 
@@ -481,16 +498,18 @@ editor.once('load', () => {
 
             updateAsset(entity.get('resource_id'), 'entity', null, asset.get('id'));
 
-            for (let a = 0; a < attributes.length; a++) {
-                const value = entity.get(`components.script.scripts.${script}.attributes.${attributes[a]}`);
+            for (let i = 0; i < attributes.length; i++) {
+                const attribute = attributes[i];
+                const value = entity.get(`components.script.scripts.${script}.attributes.${attribute}`);
                 if (!value) {
                     continue;
                 }
 
                 if (value instanceof Array) {
-                    for (let v = 0; v < value.length; v++) {
-                        if (typeof value[v] === 'number') {
-                            updateAsset(entity.get('resource_id'), 'entity', null, value[v]);
+                    for (let i = 0; i < value.length; i++) {
+                        const v = value[i];
+                        if (typeof v === 'number') {
+                            updateAsset(entity.get('resource_id'), 'entity', null, v);
                         }
                     }
                 } else if (typeof value === 'number') {
@@ -515,8 +534,9 @@ editor.once('load', () => {
             const items = data.attributes;
 
             for (let i = 0; i < itemsOrder.length; i++) {
-                if (items[itemsOrder[i]].type === 'asset') {
-                    attributes.push(itemsOrder[i]);
+                const item = itemsOrder[i];
+                if (items[item].type === 'asset') {
+                    attributes.push(item);
                 }
             }
         }
@@ -526,16 +546,18 @@ editor.once('load', () => {
 
             updateAsset(entity.get('resource_id'), 'entity', asset.get('id'), null);
 
-            for (let a = 0; a < attributes.length; a++) {
-                const value = entity.get(`components.script.scripts.${script}.attributes.${attributes[a]}`);
+            for (let i = 0; i < attributes.length; i++) {
+                const attribute = attributes[i];
+                const value = entity.get(`components.script.scripts.${script}.attributes.${attribute}`);
                 if (!value) {
                     continue;
                 }
 
                 if (value instanceof Array) {
-                    for (let v = 0; v < value.length; v++) {
-                        if (typeof value[v] === 'number') {
-                            updateAsset(entity.get('resource_id'), 'entity', value[v], null);
+                    for (let i = 0; i < value.length; i++) {
+                        const v = value[i];
+                        if (typeof v === 'number') {
+                            updateAsset(entity.get('resource_id'), 'entity', v, null);
                         }
                     }
                 } else if (typeof value === 'number') {
@@ -581,7 +603,8 @@ editor.once('load', () => {
                 const mapping = asset.get('data.mapping');
                 if (mapping) {
                     for (let i = 0; i < mapping.length; i++) {
-                        updateAsset(asset.get('id'), 'asset', null, mapping[i].material);
+                        const map = mapping[i];
+                        updateAsset(asset.get('id'), 'asset', null, map.material);
                     }
                 }
             } else if (type === 'font') {
@@ -607,7 +630,7 @@ editor.once('load', () => {
         const mappings = entity.get('components.model.mapping');
         if (mappings) {
             for (const ind in mappings) {
-                if (!mappings.hasOwnProperty(ind) || !mappings[ind]) {
+                if (!Object.prototype.hasOwnProperty.call(mappings, ind) || !mappings[ind]) {
                     continue;
                 }
 
@@ -622,14 +645,15 @@ editor.once('load', () => {
             }
 
             for (let i = 0; i < items.length; i++) {
-                updateAsset(entity.get('resource_id'), 'entity', null, items[i]);
+                const item = items[i];
+                updateAsset(entity.get('resource_id'), 'entity', null, item);
             }
         }
 
         const slots = entity.get('components.sound.slots');
         if (slots) {
             for (const i in slots) {
-                if (!slots.hasOwnProperty(i) || !slots[i].asset) {
+                if (!Object.prototype.hasOwnProperty.call(slots, i) || !slots[i].asset) {
                     continue;
                 }
 
@@ -640,7 +664,7 @@ editor.once('load', () => {
         const clips = entity.get('components.sprite.clips');
         if (clips) {
             for (const key in clips) {
-                if (!clips.hasOwnProperty(key) || !clips[key].spriteAsset) {
+                if (!Object.prototype.hasOwnProperty.call(clips, key) || !clips[key].spriteAsset) {
                     continue;
                 }
 
@@ -652,7 +676,7 @@ editor.once('load', () => {
 
         if (scripts) {
             for (const script in scripts) {
-                if (!scripts.hasOwnProperty(script)) {
+                if (!Object.prototype.hasOwnProperty.call(scripts, script)) {
                     continue;
                 }
 
@@ -662,7 +686,7 @@ editor.once('load', () => {
 
                     const attributes = scripts[script].attributes;
                     for (const attr in attributes) {
-                        if (!attributes.hasOwnProperty(attr)) {
+                        if (!Object.prototype.hasOwnProperty.call(attributes, attr)) {
                             continue;
                         }
 
@@ -671,8 +695,9 @@ editor.once('load', () => {
                             const value = attributes[attr];
 
                             if (value instanceof Array) {
-                                for (let v = 0; v < value.length; v++) {
-                                    updateAsset(entity.get('resource_id'), 'entity', null, value[v]);
+                                for (let i = 0; i < value.length; i++) {
+                                    const v = value[i];
+                                    updateAsset(entity.get('resource_id'), 'entity', null, v);
                                 }
                             } else if (value) {
                                 updateAsset(entity.get('resource_id'), 'entity', null, value);
@@ -704,7 +729,12 @@ editor.once('load', () => {
         updateAsset('projectSettings', 'editorSettings', null, parseInt(loadingScreenScript, 10));
     }
     projectSettings.on('loadingScreenScript:set', (value, valueOld) => {
-        updateAsset('projectSettings', 'editorSettings', valueOld ? parseInt(valueOld, 10) : null, value ? parseInt(value, 10) : null);
+        updateAsset(
+            'projectSettings',
+            'editorSettings',
+            valueOld ? parseInt(valueOld, 10) : null,
+            value ? parseInt(value, 10) : null
+        );
     });
 
     editor.method('assets:used:index', () => {

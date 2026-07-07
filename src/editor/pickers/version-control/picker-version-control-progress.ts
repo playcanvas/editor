@@ -32,10 +32,12 @@ editor.once('load', () => {
         const header = new Container({ class: 'vc-progress-header' });
         panel.append(header);
 
-        header.append(new Label({
-            class: 'vc-heading',
-            text: 'Resolve conflicts'
-        }));
+        header.append(
+            new Label({
+                class: 'vc-heading',
+                text: 'Resolve conflicts'
+            })
+        );
 
         const card = new Container({ class: 'status-card' });
         panel.append(card);

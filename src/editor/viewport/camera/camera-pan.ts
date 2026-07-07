@@ -1,4 +1,5 @@
-import { type Application, PROJECTION_PERSPECTIVE, Vec2, Vec3 } from 'playcanvas';
+import { PROJECTION_PERSPECTIVE, Vec2, Vec3 } from 'playcanvas';
+import type { Application } from 'playcanvas';
 
 import type { ViewportTap } from '../viewport-tap';
 
@@ -99,7 +100,10 @@ editor.once('viewport:load', (app: Application) => {
                 aabb = editor.call('entities:aabb', editor.call('entities:root'));
 
                 if (editor.call('entities:root')) {
-                    const dist = Math.max(aabb.halfExtents.length(), aabb.center.clone().sub(camera.getPosition()).length());
+                    const dist = Math.max(
+                        aabb.halfExtents.length(),
+                        aabb.center.clone().sub(camera.getPosition()).length()
+                    );
                     panPoint.copy(camera.camera.screenToWorld(vecA.x, vecA.y, dist));
                     grabbed = true;
                 } else {

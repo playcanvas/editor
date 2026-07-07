@@ -2,12 +2,12 @@ import { AssetInspector } from '../inspector/asset';
 
 editor.once('load', () => {
     const editableTypes = {
-        'script': 1,
-        'css': 1,
-        'html': 1,
-        'shader': 1,
-        'text': 1,
-        'json': 1
+        script: 1,
+        css: 1,
+        html: 1,
+        shader: 1,
+        text: 1,
+        json: 1
     };
 
     let assetsPanel = null;
@@ -24,7 +24,7 @@ editor.once('load', () => {
         inspectorPanelSecondary: editor.call('layout.attributes.secondary')
     });
     assetInspector.once('destroy', () => {
-        assetInspectorEvents.forEach(evt => evt.unbind());
+        assetInspectorEvents.forEach((evt) => evt.unbind());
         assetInspectorEvents = [];
     });
     assetInspector.on('fullscreenMode:on', () => {
@@ -65,16 +65,20 @@ editor.once('load', () => {
     });
 
     editor.on('attributes:inspect[asset]', (assets) => {
-
         // Set panel title
         const multi = assets.length > 1;
-        let type = ((assets[0].get('source') && assets[0].get('type') !== 'folder') ? 'source ' : '') + assets[0].get('type');
+        let type =
+            (assets[0].get('source') && assets[0].get('type') !== 'folder' ? 'source ' : '') + assets[0].get('type');
 
         if (multi) {
             editor.call('attributes:header', `${assets.length} assets`);
 
             for (let i = 0; i < assets.length; i++) {
-                if (type !== ((assets[0].get('source') && assets[0].get('type') !== 'folder') ? 'source ' : '') + assets[i].get('type')) {
+                const asset = assets[i];
+                if (
+                    type !==
+                    (assets[0].get('source') && assets[0].get('type') !== 'folder' ? 'source ' : '') + asset.get('type')
+                ) {
                     type = null;
                     break;
                 }
@@ -98,7 +102,8 @@ editor.once('load', () => {
             assetsPanel = null;
 
             for (let i = 0; i < events.length; i++) {
-                events[i].unbind();
+                const event = events[i];
+                event.unbind();
             }
 
             events = null;

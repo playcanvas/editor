@@ -1,9 +1,6 @@
 import { ADDRESS_CLAMP_TO_EDGE, ADDRESS_REPEAT, reprojectTexture, Texture } from 'playcanvas';
 
-import {
-    readGPUPixels,
-    pixelsToPngBlob
-} from './assets-utils';
+import { readGPUPixels, pixelsToPngBlob } from './assets-utils';
 
 const removeExtension = (name) => {
     const parts = name.split('.');
@@ -71,20 +68,26 @@ editor.method('assets:textureToCubemap', (textureAsset, callback) => {
 
         const faceNames = ['px', 'nx', 'py', 'ny', 'pz', 'nz'];
         faceBlobs.forEach((faceBlob, index) => {
-            promises.push(new Promise((resolve, reject) => {
-                editor.call('assets:uploadFile', {
-                    name: `${nameBase}_${faceNames[index]}.png`,
-                    type: 'texture',
-                    filename: `${filenameBase}_${faceNames[index]}.png`,
-                    file: faceBlob,
-                    data: {
-                        rgbm: textureAsset.get('data.rgbm')
-                    },
-                    parent: folder
-                }, (err, data) => {
-                    resolve(data.id);
-                });
-            }));
+            promises.push(
+                new Promise((resolve, reject) => {
+                    editor.call(
+                        'assets:uploadFile',
+                        {
+                            name: `${nameBase}_${faceNames[index]}.png`,
+                            type: 'texture',
+                            filename: `${filenameBase}_${faceNames[index]}.png`,
+                            file: faceBlob,
+                            data: {
+                                rgbm: textureAsset.get('data.rgbm')
+                            },
+                            parent: folder
+                        },
+                        (err, data) => {
+                            resolve(data.id);
+                        }
+                    );
+                })
+            );
         });
 
         return Promise.all(promises);
@@ -93,7 +96,7 @@ editor.method('assets:textureToCubemap', (textureAsset, callback) => {
     const onLoaded = async (sourceTexture) => {
         const faceBlobs = await createFaceBlobs(sourceTexture);
         const faceIds = await createFaceAssets(faceBlobs);
-        const faceAssets = faceIds.map(id => editor.call('assets:get', id));
+        const faceAssets = faceIds.map((id) => editor.call('assets:get', id));
 
         // create the cubemap asset
         editor.api.globals.assets.createCubemap({

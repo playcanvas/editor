@@ -1,7 +1,7 @@
 import { Events } from '@playcanvas/observer';
 
-import { Asset } from './asset';
-import { Entity } from './entity';
+import type { Asset } from './asset';
+import type { Entity } from './entity';
 import { globals as api } from './globals';
 
 /**
@@ -60,15 +60,21 @@ class SelectionHistory {
             combine: false,
             undo: () => {
                 // set previous selection making sure every item still exists
-                this._selection.set(previousSelection.map((item: any) => item.latest()).filter((item: any) => !!item), {
-                    history: false
-                });
+                this._selection.set(
+                    previousSelection.map((item: any) => item.latest()).filter((item: any) => !!item),
+                    {
+                        history: false
+                    }
+                );
             },
             redo: () => {
                 // set new selection making sure every item still exists
-                this._selection.set(newSelection.map((item: any) => item.latest()).filter((item: any) => !!item), {
-                    history: false
-                });
+                this._selection.set(
+                    newSelection.map((item: any) => item.latest()).filter((item: any) => !!item),
+                    {
+                        history: false
+                    }
+                );
             }
         });
     }
@@ -170,7 +176,6 @@ class Selection extends Events {
 
         const index = this._items.indexOf(item);
         if (index !== -1) {
-
             const history = this._history.enabled;
             if (!options.history) {
                 this._history.enabled = false;
@@ -261,7 +266,7 @@ class Selection extends Events {
         }
         this._history.wrapAction('deselect', () => {
             let i = length;
-            const changed = (i > 0);
+            const changed = i > 0;
             while (i--) {
                 const item = this._items[i];
                 this._items.splice(i, 1);

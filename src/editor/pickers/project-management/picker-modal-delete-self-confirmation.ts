@@ -1,7 +1,6 @@
 import { Button, Label, Overlay, Panel } from '@playcanvas/pcui';
 
 editor.once('load', () => {
-
     // UI
 
     // overlay
@@ -59,7 +58,6 @@ editor.once('load', () => {
         returnToCMS();
     });
 
-
     // CONTROLLERS
 
     // helper method to close current panel and return to CMS
@@ -96,5 +94,4 @@ editor.once('load', () => {
     editor.method('picker:project:deleteSelfConfirmation', () => {
         overlay.hidden = false;
     });
-
 });

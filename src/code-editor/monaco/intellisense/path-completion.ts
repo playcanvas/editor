@@ -4,7 +4,8 @@ import { Trie } from '@/core/trie';
 
 editor.on('assets:load', () => {
     // A regexp to check if this is a module path
-    const MODULE_PATH_REGEXP = /(?<=import(?:\s*[\n\r\u2028\u2029]|[\t\v\f \xa0\u1680\u2000-\u200a\u202f\u205f\u3000\ufeff]).*?["'])([./]*[a-z]*['"]*)*/g;
+    const MODULE_PATH_REGEXP =
+        /(?<=import(?:\s*[\n\r\u2028\u2029]|[\t\v\f \xa0\u1680\u2000-\u200a\u202f\u205f\u3000\ufeff]).*?["'])([./]*[a-z]*['"]*)*/g;
 
     // This is used to lookup module paths
     const moduleTrie = new Trie();
@@ -15,7 +16,6 @@ editor.on('assets:load', () => {
     // Handle
     const onAssetAdded = (asset: Observer) => {
         if (editor.call('assets:isModule', asset)) {
-
             // If this asset has already been added, then remove it's old path
             if (assetPathMap.has(asset)) {
                 moduleTrie.remove(assetPathMap.get(asset));
@@ -32,9 +32,7 @@ editor.on('assets:load', () => {
 
             // Listen for a change to the filename
             asset.once('file.filename:set', () => onAssetAdded(asset));
-
         } else if (editor.call('assets:isScript', asset)) {
-
             // If the asset is a script, but not an esm script, then the filename, may not have been set yet.
             // Listen for the first time the filename is set, then add the asset
             // asset.once('file.filename:set', name => onAssetAdded(asset));
@@ -61,11 +59,9 @@ editor.on('assets:load', () => {
 
     // Implement a completion provider for file paths
     monaco.languages.registerCompletionItemProvider('javascript', {
-
         triggerCharacters: ['/', '.', '-', '_'],
 
         provideCompletionItems: (model: monaco.editor.ITextModel, position: monaco.Position) => {
-
             // Get the text until the current position
             const textUntilPosition = model.getValueInRange({
                 startLineNumber: position.lineNumber,
@@ -89,10 +85,11 @@ editor.on('assets:load', () => {
             // Find all matching paths in the trie, exclude the current file name
             const matchingPaths = moduleTrie.search(absolutePath).filter(({ name }) => name !== currentFileName);
 
-            const suggestions =  matchingPaths.map(({ isEndOfPath, name }) => {
-
+            const suggestions = matchingPaths.map(({ isEndOfPath, name }) => {
                 // If the node is the end of the path, then it is a file, otherwise it is a folder
-                const kind = isEndOfPath ? monaco.languages.CompletionItemKind.File : monaco.languages.CompletionItemKind.Folder;
+                const kind = isEndOfPath
+                    ? monaco.languages.CompletionItemKind.File
+                    : monaco.languages.CompletionItemKind.Folder;
 
                 // Calculate the offset to insert the suggestion
                 const insertOffset = relativePath[0].length - relativePath[0].lastIndexOf('/') - 1;
@@ -111,11 +108,9 @@ editor.on('assets:load', () => {
                 };
 
                 return suggestion;
-
             });
 
             return { suggestions, incomplete: true };
-
         }
     });
 });

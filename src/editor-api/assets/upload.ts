@@ -83,7 +83,11 @@ function appendCreateFields(form: FormData, data: any) {
  * @param onProgress - Progress function
  * @returns The JSON response from the server
  */
-async function uploadFile(data: Record<string, any>, settings: object = null, onProgress: Function = null) {
+async function uploadFile(
+    data: Record<string, any>,
+    settings: object = null,
+    onProgress: (progress: number) => void = null
+) {
     let method;
     let url;
 

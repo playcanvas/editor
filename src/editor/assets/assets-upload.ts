@@ -6,60 +6,62 @@ editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
     const targetExtensions = {
-        'jpg': true,
-        'jpeg': true,
-        'png': true,
-        'gif': true,
-        'webp': true,
-        'avif': true,
-        'css': true,
-        'html': true,
-        'json': true,
-        'xml': true,
-        'txt': true,
-        'vert': true,
-        'frag': true,
-        'glsl': true,
-        'mp3': true,
-        'ogg': true,
-        'opus': true,
-        'wav': true,
-        'mp4': true,
-        'm4a': true,
-        'js': true,
-        'mjs': true,
-        'atlas': true,
-        'ply': true,
-        'wasm': true,
-        'sog': true
+        jpg: true,
+        jpeg: true,
+        png: true,
+        gif: true,
+        webp: true,
+        avif: true,
+        css: true,
+        html: true,
+        json: true,
+        xml: true,
+        txt: true,
+        vert: true,
+        frag: true,
+        glsl: true,
+        mp3: true,
+        ogg: true,
+        opus: true,
+        wav: true,
+        mp4: true,
+        m4a: true,
+        js: true,
+        mjs: true,
+        atlas: true,
+        ply: true,
+        wasm: true,
+        sog: true
     };
 
     const typeToExt = {
-        'scene': ['fbx', 'dae', 'obj', '3ds', 'glb'],
-        'text': ['txt', 'xml', 'atlas'],
-        'html': ['html'],
-        'css': ['css'],
-        'json': ['json'],
-        'texture': ['tif', 'tga', 'png', 'jpg', 'jpeg', 'gif', 'bmp', 'dds', 'hdr', 'exr', 'webp', 'avif'],
-        'audio': ['m4a', 'mp3', 'mp4', 'ogg', 'opus', 'wav'],
-        'shader': ['glsl', 'frag', 'vert'],
-        'script': ['js', 'mjs'],
-        'font': ['ttf', 'ttc', 'otf', 'dfont'],
-        'gsplat': ['ply', 'sog'],
-        'wasm': ['wasm']
+        scene: ['fbx', 'dae', 'obj', '3ds', 'glb'],
+        text: ['txt', 'xml', 'atlas'],
+        html: ['html'],
+        css: ['css'],
+        json: ['json'],
+        texture: ['tif', 'tga', 'png', 'jpg', 'jpeg', 'gif', 'bmp', 'dds', 'hdr', 'exr', 'webp', 'avif'],
+        audio: ['m4a', 'mp3', 'mp4', 'ogg', 'opus', 'wav'],
+        shader: ['glsl', 'frag', 'vert'],
+        script: ['js', 'mjs'],
+        font: ['ttf', 'ttc', 'otf', 'dfont'],
+        gsplat: ['ply', 'sog'],
+        wasm: ['wasm']
     };
 
     const extToType = {};
     for (const type in typeToExt) {
         for (let i = 0; i < typeToExt[type].length; i++) {
-            extToType[typeToExt[type][i]] = type;
+            const ext = typeToExt[type][i];
+            extToType[ext] = type;
         }
     }
 
     // returns true if the filename is recognized as a scene file and false otherwise
     editor.method('assets:isSceneFilename', (filename) => {
-        for (let i = 0; i < typeToExt.scene.length; ++i) {
-            if (filename.match(new RegExp(`.${typeToExt.scene[i]}$`, 'i'))) {
+        for (let i = 0; i < typeToExt.scene.length; i++) {
+            const ext = typeToExt.scene[i];
+            if (filename.match(new RegExp(`.${ext}$`, 'i'))) {
                 return true;
             }
         }
@@ -70,7 +72,8 @@ editor.once('load', () => {
         // check usage first
         let totalSize = 0;
         for (let i = 0; i < files.length; i++) {
-            totalSize += files[i].size;
+            const file = files[i];
+            totalSize += file.size;
         }
 
         return config.owner.size + totalSize <= config.owner.diskAllowance;
@@ -107,7 +110,8 @@ editor.once('load', () => {
             request = editor.api.globals.rest.assets.assetUpdate(assetId, args, pipelineOptions());
         } else {
             // default preload scripts to true
-            args.preloadDefault = args.type === 'script' ? true : projectUserSettings.get('editor.pipeline.defaultAssetPreload');
+            args.preloadDefault =
+                args.type === 'script' ? true : projectUserSettings.get('editor.pipeline.defaultAssetPreload');
             request = editor.api.globals.rest.assets.assetCreate(args, pipelineOptions());
         }
 
@@ -115,26 +119,26 @@ editor.once('load', () => {
         editor.call('status:job', `asset-upload:${job}`, 0);
 
         request
-        .on('load', (status, data) => {
-            editor.call('status:job', `asset-upload:${job}`);
-            if (fn) {
-                fn(null, data);
-            }
-        })
-        .on('progress', (progress) => {
-            editor.call('status:job', `asset-upload:${job}`, progress);
-        })
-        .on('error', (status, data) => {
-            if (/Disk allowance/.test(data)) {
-                data += '. <a href="/upgrade" target="_blank">UPGRADE</a> to get more disk space.';
-            }
+            .on('load', (status, data) => {
+                editor.call('status:job', `asset-upload:${job}`);
+                if (fn) {
+                    fn(null, data);
+                }
+            })
+            .on('progress', (progress) => {
+                editor.call('status:job', `asset-upload:${job}`, progress);
+            })
+            .on('error', (status, data) => {
+                if (/Disk allowance/.test(data)) {
+                    data += '. <a href="/upgrade" target="_blank">UPGRADE</a> to get more disk space.';
+                }
 
-            editor.call('status:error', data);
-            editor.call('status:job', `asset-upload:${job}`);
-            if (fn) {
-                fn(data);
-            }
-        });
+                editor.call('status:error', data);
+                editor.call('status:job', `asset-upload:${job}`);
+                if (fn) {
+                    fn(data);
+                }
+            });
     });
 
     function getPathFromFolder(folder: { get: (path: string) => number[] | string } | null) {
@@ -145,32 +149,40 @@ editor.once('load', () => {
         return path;
     }
 
-    function createFolder(currentFolder: { get: (path: string) => unknown } | null, name: string, callback: (folder: unknown) => void) {
-        editor.call('assets:create', {
-            name: name,
-            type: 'folder',
-            source: true,
-            preload: false,
-            data: null,
-            parent: currentFolder,
-            scope: {
-                type: 'project',
-                id: config.project.id
-            }
-        }, (err, assetId) => {
-            if (err) {
-                return;
-            }
-            let currentFolder;
-            var interval = setInterval(() => {
-                const asset = editor.api.globals.assets.get(assetId);
-                if (asset) {
-                    currentFolder = asset.observer;
-                    clearInterval(interval);
-                    callback(currentFolder);
+    function createFolder(
+        currentFolder: { get: (path: string) => unknown } | null,
+        name: string,
+        callback: (folder: unknown) => void
+    ) {
+        editor.call(
+            'assets:create',
+            {
+                name: name,
+                type: 'folder',
+                source: true,
+                preload: false,
+                data: null,
+                parent: currentFolder,
+                scope: {
+                    type: 'project',
+                    id: config.project.id
                 }
-            }, 200);
-        });
+            },
+            (err, assetId) => {
+                if (err) {
+                    return;
+                }
+                let currentFolder;
+                const interval = setInterval(() => {
+                    const asset = editor.api.globals.assets.get(assetId);
+                    if (asset) {
+                        currentFolder = asset.observer;
+                        clearInterval(interval);
+                        callback(currentFolder);
+                    }
+                }, 200);
+            }
+        );
     }
 
     function uploadFile(currentFolder: { get: (path: string) => unknown } | null, file: File, multipleFiles: boolean) {
@@ -184,7 +196,10 @@ editor.once('load', () => {
         ext = ext[ext.length - 1].toLowerCase();
 
         if (legacyScripts && typeToExt.script.includes(ext)) {
-            editor.call('status:error', 'Cannot upload scripts in this project because it uses a deprecated scripting system that is now read-only.');
+            editor.call(
+                'status:error',
+                'Cannot upload scripts in this project because it uses a deprecated scripting system that is now read-only.'
+            );
             return;
         }
 
@@ -207,13 +222,20 @@ editor.once('load', () => {
         const fileNameLowerCase = file.name.toLowerCase();
         const candidates = editor.call('assets:find', (item) => {
             // check to see if the file to upload is already in one of the folders in the current directory
-            if (item.get('type') === 'scene' && item.get('source') === source && item.get('name').toLowerCase() === fileNameLowerCase) {
+            if (
+                item.get('type') === 'scene' &&
+                item.get('source') === source &&
+                item.get('name').toLowerCase() === fileNameLowerCase
+            ) {
                 const itemPath = item.get('path');
                 const parentId = itemPath[itemPath.length - 1];
                 if (parentId) {
                     const itemParent = editor.api.globals.assets.get(parentId);
                     // the file's parent folder must be named the same as the uploaded file and be in the current directory
-                    if (JSON.stringify(itemParent.get('path')) === JSON.stringify(path) && itemParent.get('name').toLowerCase() === fileNameLowerCase) {
+                    if (
+                        JSON.stringify(itemParent.get('path')) === JSON.stringify(path) &&
+                        itemParent.get('name').toLowerCase() === fileNameLowerCase
+                    ) {
                         return true;
                     }
                 }
@@ -226,12 +248,15 @@ editor.once('load', () => {
             // try locate source when dropping on its targets
             if (source && !item.get('source') && item.get('source_asset_id')) {
                 const itemSource = editor.call('assets:get', item.get('source_asset_id'));
-                if (itemSource && itemSource.get('type') === type && itemSource.get('name').toLowerCase() === fileNameLowerCase) {
+                if (
+                    itemSource &&
+                    itemSource.get('type') === type &&
+                    itemSource.get('name').toLowerCase() === fileNameLowerCase
+                ) {
                     sourceAsset = itemSource;
                     return false;
                 }
             }
-
 
             if (item.get('source') === source && item.get('name').toLowerCase() === fileNameLowerCase) {
                 // we want the same type or try to replace a texture atlas with the same name if one exists
@@ -250,9 +275,10 @@ editor.once('load', () => {
         // if one exists then overwrite the textureatlas instead.
         let asset = candidates[0];
         if (type === 'texture') {
-            for (let j = 0; j < candidates.length; j++) {
-                if (candidates[j][1].get('type') === 'textureatlas') {
-                    asset = candidates[j];
+            for (let i = 0; i < candidates.length; i++) {
+                const candidate = candidates[i];
+                if (candidate[1].get('type') === 'textureatlas') {
+                    asset = candidate;
                     type = 'textureatlas';
                     break;
                 }
@@ -268,45 +294,56 @@ editor.once('load', () => {
         }
 
         const uploadToFolder = (folder) => {
-            editor.call('assets:uploadFile', {
-                asset: asset ? asset[1] : sourceAsset,
-                file: file,
-                type: type,
-                name: file.name,
-                parent: folder,
-                pipeline: true,
-                data: data,
-                meta: asset ? asset[1].get('meta') : null
-            }, (err, data) => {
-                const isJavascript = ext === 'js' || ext === 'mjs';
-                if (err || !isJavascript) {
-                    return;
-                }
-
-                const onceAssetLoad = function (asset: { get: (path: string) => string | undefined; once: (event: string, fn: () => void) => void }) {
-                    const url = asset.get('file.url');
-                    if (url) {
-                        editor.call('scripts:parse', asset);
-                    } else {
-                        asset.once('file.url:set', () => {
-                            editor.call('scripts:parse', asset);
-                        });
+            editor.call(
+                'assets:uploadFile',
+                {
+                    asset: asset ? asset[1] : sourceAsset,
+                    file: file,
+                    type: type,
+                    name: file.name,
+                    parent: folder,
+                    pipeline: true,
+                    data: data,
+                    meta: asset ? asset[1].get('meta') : null
+                },
+                (err, data) => {
+                    const isJavascript = ext === 'js' || ext === 'mjs';
+                    if (err || !isJavascript) {
+                        return;
                     }
-                };
 
-                const asset = editor.call('assets:get', data.id);
-                if (asset) {
-                    onceAssetLoad(asset);
-                } else {
-                    editor.once(`assets:add[${data.id}]`, onceAssetLoad);
+                    const onceAssetLoad = function (asset: {
+                        get: (path: string) => string | undefined;
+                        once: (event: string, fn: () => void) => void;
+                    }) {
+                        const url = asset.get('file.url');
+                        if (url) {
+                            editor.call('scripts:parse', asset);
+                        } else {
+                            asset.once('file.url:set', () => {
+                                editor.call('scripts:parse', asset);
+                            });
+                        }
+                    };
+
+                    const asset = editor.call('assets:get', data.id);
+                    if (asset) {
+                        onceAssetLoad(asset);
+                    } else {
+                        editor.once(`assets:add[${data.id}]`, onceAssetLoad);
+                    }
                 }
-            });
+            );
         };
 
         const settings = editor.call('settings:projectUser');
         // if we're not replacing a current file, the file is of type FBX and the user has the createFBXFolder option enabled,
         // we should create a folder for the contents of the FBX
-        if (!asset && editor.call('assets:isSceneFilename', file.name) && settings.get('editor.pipeline.createFBXFolder')) {
+        if (
+            !asset &&
+            editor.call('assets:isSceneFilename', file.name) &&
+            settings.get('editor.pipeline.createFBXFolder')
+        ) {
             createFolder(currentFolder, file.name, (folder) => {
                 if (!multipleFiles) {
                     currentFolder = editor.call('assets:panel:currentFolder', folder);
@@ -320,14 +357,16 @@ editor.once('load', () => {
 
     editor.method('assets:upload:files', (files) => {
         if (!editor.call('assets:canUploadFiles', files)) {
-            const msg = 'Disk allowance exceeded. <a href="/upgrade" target="_blank">UPGRADE</a> to get more disk space.';
+            const msg =
+                'Disk allowance exceeded. <a href="/upgrade" target="_blank">UPGRADE</a> to get more disk space.';
             editor.call('status:error', msg);
             return;
         }
 
         const currentFolder = editor.call('assets:panel:currentFolder');
         for (let i = 0; i < files.length; i++) {
-            uploadFile(currentFolder, files[i], files.length > 1);
+            const file = files[i];
+            uploadFile(currentFolder, file, files.length > 1);
         }
     });
 

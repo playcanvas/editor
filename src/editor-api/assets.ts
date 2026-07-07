@@ -1,12 +1,13 @@
 import { Events, ObserverList } from '@playcanvas/observer';
 
-import { Asset, AssetObserver } from './asset';
+import type { AssetObserver } from './asset';
+import { Asset } from './asset';
 import { createScript } from './assets/create-script';
 import { createTemplate } from './assets/create-template';
 import { instantiateTemplates } from './assets/instantiate-templates';
 import { getUniqueName, siblingNames } from './assets/unique-name';
 import { uploadFile } from './assets/upload';
-import { Entity } from './entity';
+import type { Entity } from './entity';
 import { globals as api } from './globals';
 
 // the script parse pipeline (engine fetch -> worker -> backend) can stall; bound
@@ -214,7 +215,17 @@ class Assets extends Events {
         }
     }
 
-    private _onMessengerAddAsset(data: { asset: { branchId: string; id: string; source: boolean; status: string; type: any; source_asset_id: string; createdAt: any; }; }) {
+    private _onMessengerAddAsset(data: {
+        asset: {
+            branchId: string;
+            id: string;
+            source: boolean;
+            status: string;
+            type: any;
+            source_asset_id: string;
+            createdAt: any;
+        };
+    }) {
         if (data.asset.branchId !== api.branchId) {
             return;
         }
@@ -250,14 +261,14 @@ class Assets extends Events {
         }
     }
 
-    private _onMessengerDeleteAsset(data: { asset: { id: any; }; }) {
+    private _onMessengerDeleteAsset(data: { asset: { id: any } }) {
         const asset = this.getUnique(data.asset.id);
         if (asset) {
             this.remove(asset);
         }
     }
 
-    private _onMessengerDeleteAssets(data: { assets: string | any[]; }) {
+    private _onMessengerDeleteAssets(data: { assets: string | any[] }) {
         for (let i = 0; i < data.assets.length; i++) {
             const asset = this.getUnique(parseInt(data.assets[i], 10));
             if (asset) {
@@ -308,21 +319,23 @@ class Assets extends Events {
         return this.filter((asset: Asset) => {
             const t = asset.get('tags');
             for (let i = 0; i < tags.length; i++) {
-                if (Array.isArray(tags[i])) {
+                const tag = tags[i];
+                if (Array.isArray(tag)) {
                     let countTags = 0;
-                    for (let j = 0; j < tags[i].length; j++) {
-                        if (t.includes(tags[i][j])) {
+                    for (let i = 0; i < tag.length; i++) {
+                        const value = tag[i];
+                        if (t.includes(value)) {
                             countTags++;
                         } else {
                             break;
                         }
                     }
 
-                    if (countTags === tags[i].length) {
+                    if (countTags === tag.length) {
                         return true;
                     }
                 } else {
-                    if (t.includes(tags[i])) {
+                    if (t.includes(tag)) {
                         return true;
                     }
                 }
@@ -367,14 +380,13 @@ class Assets extends Events {
                     return -1;
                 }
                 return 0;
-
             });
 
-            if (pos === -1 && (ind + 1) === this._assets.data.length) {
+            if (pos === -1 && ind + 1 === this._assets.data.length) {
                 return;
             }
 
-            if (ind !== -1 && (ind + 1 === pos) || (ind === pos)) {
+            if ((ind !== -1 && ind + 1 === pos) || ind === pos) {
                 return;
             }
 
@@ -441,10 +453,10 @@ class Assets extends Events {
      * @param fn - The function (takes an asset as an argument and returns boolean).
      * @returns The assets
      */
-    filter(fn: Function) {
+    filter(fn: (asset: any) => boolean) {
         return this._assets.data
-        .filter((observer: { apiAsset: any; }) => fn(observer.apiAsset))
-        .map((observer: { apiAsset: any; }) => observer.apiAsset);
+            .filter((observer: { apiAsset: any }) => fn(observer.apiAsset))
+            .map((observer: { apiAsset: any }) => observer.apiAsset);
     }
 
     /**
@@ -453,8 +465,8 @@ class Assets extends Events {
      * @param fn - A function that takes an asset as an argument and returns boolean.
      * @returns The asset
      */
-    findOne(fn: Function) {
-        const result = this._assets.data.find((observer: { apiAsset: any; }) => fn(observer.apiAsset));
+    findOne(fn: (asset: any) => boolean) {
+        const result = this._assets.data.find((observer: { apiAsset: any }) => fn(observer.apiAsset));
         return result ? result.apiAsset : null;
     }
 
@@ -471,7 +483,9 @@ class Assets extends Events {
 
         this.emit('load:progress', 0.1);
 
-        const response = await fetch(`/api/projects/${api.projectId}/assets?branchId=${api.branchId}&view=${options.view || 'designer'}`);
+        const response = await fetch(
+            `/api/projects/${api.projectId}/assets?branchId=${api.branchId}&view=${options.view || 'designer'}`
+        );
         if (!response.ok) {
             console.error(`Could not load assets: [${response.status}] - ${response.statusText}`);
             return;
@@ -501,12 +515,15 @@ class Assets extends Events {
 
         for (let i = 0; i < total; i++) {
             const asset = new Asset(assets[i]);
-            asset.load().then(() => {
-                this.add(asset);
-                onProgress();
-            }).catch((err: unknown) => {
-                onProgress();
-            });
+            asset
+                .load()
+                .then(() => {
+                    this.add(asset);
+                    onProgress();
+                })
+                .catch((err: unknown) => {
+                    onProgress();
+                });
         }
     }
 
@@ -523,7 +540,9 @@ class Assets extends Events {
 
         this.emit('load:progress', 0.1);
 
-        const response = await fetch(`/api/projects/${api.projectId}/assets?branchId=${api.branchId}&view=${options.view || 'designer'}`);
+        const response = await fetch(
+            `/api/projects/${api.projectId}/assets?branchId=${api.branchId}&view=${options.view || 'designer'}`
+        );
         if (!response.ok) {
             console.error(`Could not load assets: [${response.status}] - ${response.statusText}`);
             return;
@@ -557,12 +576,15 @@ class Assets extends Events {
             api.realtime.connection.startBulkSubscribe();
             for (let i = startBatch; i < startBatch + batchSize && i < total; i++) {
                 const asset = new Asset(assets[i]);
-                asset.loadAndSubscribe().then(() => {
-                    this.add(asset);
-                    onProgress();
-                }).catch((err: unknown) => {
-                    onProgress();
-                });
+                asset
+                    .loadAndSubscribe()
+                    .then(() => {
+                        this.add(asset);
+                        onProgress();
+                    })
+                    .catch((err: unknown) => {
+                        onProgress();
+                    });
             }
             api.realtime.connection.endBulkSubscribe();
 
@@ -578,8 +600,7 @@ class Assets extends Events {
      */
     getAssetForScript(script: string) {
         return this.findOne((asset: Asset) => {
-            return asset.get('type') === 'script' &&
-                   asset.has(`data.scripts.${script}`);
+            return asset.get('type') === 'script' && asset.has(`data.scripts.${script}`);
         });
     }
 
@@ -591,7 +612,11 @@ class Assets extends Events {
      * @param onProgress - Function to report progress
      * @returns The new asset
      */
-    async upload(data: AssetUploadArguments, settings: TextureImportSettings | SceneImportSettings = {}, onProgress: Function | null = null) {
+    async upload(
+        data: AssetUploadArguments,
+        settings: TextureImportSettings | SceneImportSettings = {},
+        onProgress: ((...args: any[]) => any) | null = null
+    ) {
         if (data.folder) {
             data.folderId = data.folder.get('id');
         }
@@ -638,14 +663,26 @@ class Assets extends Events {
      * @param options.onProgress - Function to report progress
      * @returns The new asset
      */
-    createAnimStateGraph(options: { name?: string; preload?: boolean; data?: object; folder?: Asset; onProgress?: Function; } = {}) {
-        return this.upload({
-            name: options.name || 'New Anim State Graph',
-            type: 'animstategraph',
-            data: options.data || api.schema.assets.getDefaultData('animstategraph'),
-            folder: options.folder,
-            preload: options.preload
-        }, null, options.onProgress);
+    createAnimStateGraph(
+        options: {
+            name?: string;
+            preload?: boolean;
+            data?: object;
+            folder?: Asset;
+            onProgress?: (...args: any[]) => any;
+        } = {}
+    ) {
+        return this.upload(
+            {
+                name: options.name || 'New Anim State Graph',
+                type: 'animstategraph',
+                data: options.data || api.schema.assets.getDefaultData('animstategraph'),
+                folder: options.folder,
+                preload: options.preload
+            },
+            null,
+            options.onProgress
+        );
     }
 
     /**
@@ -658,16 +695,28 @@ class Assets extends Events {
      * @param options.onProgress - Function to report progress
      * @returns The new asset
      */
-    createBundle(options: { name?: string; assets?: any[]; folder?: Asset; preload?: boolean; onProgress?: Function; } = {}) {
-        return this.upload({
-            name: options.name || 'New Bundle',
-            type: 'bundle',
-            folder: options.folder,
-            data: {
-                assets: (options.assets || []).map((a: any) => a.get('id'))
+    createBundle(
+        options: {
+            name?: string;
+            assets?: any[];
+            folder?: Asset;
+            preload?: boolean;
+            onProgress?: (...args: any[]) => any;
+        } = {}
+    ) {
+        return this.upload(
+            {
+                name: options.name || 'New Bundle',
+                type: 'bundle',
+                folder: options.folder,
+                data: {
+                    assets: (options.assets || []).map((a: any) => a.get('id'))
+                },
+                preload: options.preload
             },
-            preload: options.preload
-        }, null, options.onProgress);
+            null,
+            options.onProgress
+        );
     }
 
     /**
@@ -680,17 +729,29 @@ class Assets extends Events {
      * @param options.onProgress - Function to report progress
      * @returns The new asset
      */
-    createCss(options: { name?: string; text?: string; folder?: Asset; preload?: boolean; onProgress?: Function; } = {}) {
+    createCss(
+        options: {
+            name?: string;
+            text?: string;
+            folder?: Asset;
+            preload?: boolean;
+            onProgress?: (...args: any[]) => any;
+        } = {}
+    ) {
         const desired = options.name || 'new.css';
         const name = getUniqueName(desired, siblingNames(this.list(), options.folder ?? null));
-        return this.upload({
-            name,
-            type: 'css',
-            folder: options.folder,
-            filename: name,
-            file: new Blob([options.text || '\n'], { type: 'text/css' }),
-            preload: options.preload
-        }, null, options.onProgress);
+        return this.upload(
+            {
+                name,
+                type: 'css',
+                folder: options.folder,
+                filename: name,
+                file: new Blob([options.text || '\n'], { type: 'text/css' }),
+                preload: options.preload
+            },
+            null,
+            options.onProgress
+        );
     }
 
     /**
@@ -707,25 +768,40 @@ class Assets extends Events {
      * @param options.onProgress - Function to report progress
      * @returns The new asset
      */
-    createCubemap(options: { name?: string; textures?: any[]; minFilter?: number; magFilter?: number; anisotropy?: number; folder?: Asset; preload?: boolean; onProgress?: Function; } = {}) {
+    createCubemap(
+        options: {
+            name?: string;
+            textures?: any[];
+            minFilter?: number;
+            magFilter?: number;
+            anisotropy?: number;
+            folder?: Asset;
+            preload?: boolean;
+            onProgress?: (...args: any[]) => any;
+        } = {}
+    ) {
         const textures = (options.textures || new Array(6)).slice(0, 6);
         for (let i = 0; i < 6; i++) {
-            textures[i] = (textures[i] ? textures[i].get('id') : null);
+            textures[i] = textures[i] ? textures[i].get('id') : null;
         }
 
-        return this.upload({
-            name: options.name || 'New Cubemap',
-            type: 'cubemap',
-            folder: options.folder,
-            preload: options.preload,
-            data: {
+        return this.upload(
+            {
                 name: options.name || 'New Cubemap',
-                textures: textures,
-                minFilter: options.minFilter !== undefined ? options.minFilter : 5, // linear mipmap linear
-                magFilter: options.magFilter !== undefined ? options.magFilter : 1, // linear
-                anisotropy: options.anisotropy !== undefined ? options.anisotropy : 1
-            }
-        }, null, options.onProgress);
+                type: 'cubemap',
+                folder: options.folder,
+                preload: options.preload,
+                data: {
+                    name: options.name || 'New Cubemap',
+                    textures: textures,
+                    minFilter: options.minFilter !== undefined ? options.minFilter : 5, // linear mipmap linear
+                    magFilter: options.magFilter !== undefined ? options.magFilter : 1, // linear
+                    anisotropy: options.anisotropy !== undefined ? options.anisotropy : 1
+                }
+            },
+            null,
+            options.onProgress
+        );
     }
 
     /**
@@ -736,14 +812,18 @@ class Assets extends Events {
      * @param options.onProgress - Function to report progress
      * @returns The new asset
      */
-    createFolder(options: { name?: string; folder?: Asset; onProgress?: Function; }) {
+    createFolder(options: { name?: string; folder?: Asset; onProgress?: (...args: any[]) => any }) {
         const desired = options.name || 'folder';
         const name = getUniqueName(desired, siblingNames(this.list(), options.folder ?? null));
-        return this.upload({
-            name,
-            type: 'folder',
-            folder: options.folder
-        }, null, options.onProgress);
+        return this.upload(
+            {
+                name,
+                type: 'folder',
+                folder: options.folder
+            },
+            null,
+            options.onProgress
+        );
     }
 
     /**
@@ -756,17 +836,29 @@ class Assets extends Events {
      * @param options.onProgress - Function to report progress
      * @returns The new asset
      */
-    createHtml(options: { name?: string; text?: string; folder?: Asset; preload?: boolean; onProgress?: Function; } = {}) {
+    createHtml(
+        options: {
+            name?: string;
+            text?: string;
+            folder?: Asset;
+            preload?: boolean;
+            onProgress?: (...args: any[]) => any;
+        } = {}
+    ) {
         const desired = options.name || 'new.html';
         const name = getUniqueName(desired, siblingNames(this.list(), options.folder ?? null));
-        return this.upload({
-            name,
-            type: 'html',
-            folder: options.folder,
-            preload: options.preload,
-            filename: name,
-            file: new Blob([options.text || '\n'], { type: 'text/html' })
-        }, null, options.onProgress);
+        return this.upload(
+            {
+                name,
+                type: 'html',
+                folder: options.folder,
+                preload: options.preload,
+                filename: name,
+                file: new Blob([options.text || '\n'], { type: 'text/html' })
+            },
+            null,
+            options.onProgress
+        );
     }
 
     /**
@@ -781,20 +873,33 @@ class Assets extends Events {
      * @param options.onProgress - Function to report progress
      * @returns The new asset
      */
-    createJson(options: { name?: string; json?: object; spaces?: number; folder?: Asset; preload?: boolean; onProgress?: Function; } = {}) {
+    createJson(
+        options: {
+            name?: string;
+            json?: object;
+            spaces?: number;
+            folder?: Asset;
+            preload?: boolean;
+            onProgress?: (...args: any[]) => any;
+        } = {}
+    ) {
         const spaces = options.spaces ?? 0;
         const str = JSON.stringify(options.json || {}, null, spaces);
 
         const desired = options.name || 'new.json';
         const name = getUniqueName(desired, siblingNames(this.list(), options.folder ?? null));
-        return this.upload({
-            name,
-            type: 'json',
-            folder: options.folder,
-            preload: options.preload,
-            filename: name,
-            file: new Blob([str], { type: 'application/json' })
-        }, null, options.onProgress);
+        return this.upload(
+            {
+                name,
+                type: 'json',
+                folder: options.folder,
+                preload: options.preload,
+                filename: name,
+                file: new Blob([str], { type: 'application/json' })
+            },
+            null,
+            options.onProgress
+        );
     }
 
     /**
@@ -807,22 +912,32 @@ class Assets extends Events {
      * @param options.onProgress - Function to report progress
      * @returns The new asset
      */
-    createI18n(options: { name?: string; localizationData?: object; folder?: Asset; preload?: boolean; onProgress?: Function; } = {}) {
+    createI18n(
+        options: {
+            name?: string;
+            localizationData?: object;
+            folder?: Asset;
+            preload?: boolean;
+            onProgress?: (...args: any[]) => any;
+        } = {}
+    ) {
         return this.createJson({
             name: options.name,
             json: options.localizationData || {
-                'header': {
-                    'version': 1
+                header: {
+                    version: 1
                 },
-                'data': [{
-                    'info': {
-                        'locale': 'en-US'
-                    },
-                    'messages': {
-                        'key': 'Single key translation',
-                        'key plural': ['One key translation', 'Translation for {number} keys']
+                data: [
+                    {
+                        info: {
+                            locale: 'en-US'
+                        },
+                        messages: {
+                            key: 'Single key translation',
+                            'key plural': ['One key translation', 'Translation for {number} keys']
+                        }
                     }
-                }]
+                ]
             },
             folder: options.folder,
             preload: options.preload,
@@ -841,7 +956,15 @@ class Assets extends Events {
      * @param options.onProgress - Function to report progress
      * @returns The new asset
      */
-    createMaterial(options: { name?: string; data?: Record<string, any>; folder?: Asset; preload?: boolean; onProgress?: Function; } = {}) {
+    createMaterial(
+        options: {
+            name?: string;
+            data?: Record<string, any>;
+            folder?: Asset;
+            preload?: boolean;
+            onProgress?: (...args: any[]) => any;
+        } = {}
+    ) {
         const defaultData = api.schema.assets.getDefaultData('material') as any;
         if (options.data) {
             for (const key in defaultData) {
@@ -851,13 +974,17 @@ class Assets extends Events {
             }
         }
 
-        return this.upload({
-            name: options.name || 'New Material',
-            type: 'material',
-            folder: options.folder,
-            data: defaultData,
-            preload: options.preload
-        }, null, options.onProgress);
+        return this.upload(
+            {
+                name: options.name || 'New Material',
+                type: 'material',
+                folder: options.folder,
+                data: defaultData,
+                preload: options.preload
+            },
+            null,
+            options.onProgress
+        );
     }
 
     /**
@@ -872,26 +999,39 @@ class Assets extends Events {
      * @param options.onProgress - Function to report progress
      * @returns The new asset
      */
-    async createScript(options: { filename?: string; text?: string; data?: object; folder?: Asset; preload?: boolean; onProgress?: Function; } = {}) {
+    async createScript(
+        options: {
+            filename?: string;
+            text?: string;
+            data?: object;
+            folder?: Asset;
+            preload?: boolean;
+            onProgress?: (...args: any[]) => any;
+        } = {}
+    ) {
         if (!options.filename) {
             throw new Error('createScript: missing required filename');
         }
 
         const result = createScript(options.filename, options.text);
 
-        const asset = await this.upload({
-            name: result.filename,
-            type: 'script',
-            folder: options.folder,
-            filename: result.filename,
-            file: new Blob([result.content], { type: 'text/javascript' }),
-            preload: options.preload,
-            data: options.data || {
-                scripts: { },
-                loading: false,
-                loadingType: 0 // load script as asset
-            }
-        }, null, options.onProgress);
+        const asset = await this.upload(
+            {
+                name: result.filename,
+                type: 'script',
+                folder: options.folder,
+                filename: result.filename,
+                file: new Blob([result.content], { type: 'text/javascript' }),
+                preload: options.preload,
+                data: options.data || {
+                    scripts: {},
+                    loading: false,
+                    loadingType: 0 // load script as asset
+                }
+            },
+            null,
+            options.onProgress
+        );
 
         // wait for asset to have a file url
         if (this._parseScriptCallback) {
@@ -910,9 +1050,11 @@ class Assets extends Events {
                 const wait: Promise<any>[] = [];
                 scripts.forEach((script: string) => {
                     if (!asset.has(`data.scripts.${script}`)) {
-                        wait.push(new Promise((resolve) => {
-                            asset.once(`data.scripts.${script}:set`, resolve);
-                        }));
+                        wait.push(
+                            new Promise((resolve) => {
+                                asset.once(`data.scripts.${script}:set`, resolve);
+                            })
+                        );
                     }
                 });
 
@@ -923,12 +1065,18 @@ class Assets extends Events {
             // realtime event); time it out so the caller gets an error, not a hang
             let timer: ReturnType<typeof setTimeout>;
             const timeout = new Promise<never>((resolve, reject) => {
-                timer = setTimeout(() => reject(new Error('createScript: timed out parsing script')), SCRIPT_PARSE_TIMEOUT);
+                timer = setTimeout(
+                    () => reject(new Error('createScript: timed out parsing script')),
+                    SCRIPT_PARSE_TIMEOUT
+                );
             });
-            await Promise.race([parse, timeout]).then(() => clearTimeout(timer), (err) => {
-                clearTimeout(timer);
-                throw err;
-            });
+            await Promise.race([parse, timeout]).then(
+                () => clearTimeout(timer),
+                (err) => {
+                    clearTimeout(timer);
+                    throw err;
+                }
+            );
         }
 
         return asset;
@@ -944,17 +1092,29 @@ class Assets extends Events {
      * @param options.onProgress - Function to report progress
      * @returns The new asset
      */
-    createShader(options: { name?: string; text?: string; folder?: Asset; preload?: boolean; onProgress?: Function; } = {}) {
+    createShader(
+        options: {
+            name?: string;
+            text?: string;
+            folder?: Asset;
+            preload?: boolean;
+            onProgress?: (...args: any[]) => any;
+        } = {}
+    ) {
         const desired = options.name || 'new.glsl';
         const name = getUniqueName(desired, siblingNames(this.list(), options.folder ?? null));
-        return this.upload({
-            name,
-            type: 'shader',
-            folder: options.folder,
-            preload: options.preload,
-            filename: name,
-            file: new Blob([options.text || '\n'], { type: 'text/x-glsl' })
-        }, null, options.onProgress);
+        return this.upload(
+            {
+                name,
+                type: 'shader',
+                folder: options.folder,
+                preload: options.preload,
+                filename: name,
+                file: new Blob([options.text || '\n'], { type: 'text/x-glsl' })
+            },
+            null,
+            options.onProgress
+        );
     }
 
     /**
@@ -970,20 +1130,35 @@ class Assets extends Events {
      * @param options.onProgress - Function to report progress
      * @returns The new asset
      */
-    createSprite(options: { name?: string; pixelsPerUnit?: number; frameKeys?: any[]; textureAtlas?: Asset; renderMode?: number; folder?: Asset; preload?: boolean; onProgress?: Function; } = {}) {
+    createSprite(
+        options: {
+            name?: string;
+            pixelsPerUnit?: number;
+            frameKeys?: any[];
+            textureAtlas?: Asset;
+            renderMode?: number;
+            folder?: Asset;
+            preload?: boolean;
+            onProgress?: (...args: any[]) => any;
+        } = {}
+    ) {
         const data: any = {};
         data.pixelsPerUnit = options.pixelsPerUnit !== undefined ? options.pixelsPerUnit : 100;
         data.frameKeys = options.frameKeys ? options.frameKeys.map((val: any) => val.toString()) : [];
         data.textureAtlasAsset = options.textureAtlas ? options.textureAtlas.get('id') : null;
         data.renderMode = options.renderMode !== undefined ? options.renderMode : 0;
 
-        return this.upload({
-            name: options.name || 'New Sprite',
-            type: 'sprite',
-            folder: options.folder,
-            preload: options.preload,
-            data: data
-        }, null, options.onProgress);
+        return this.upload(
+            {
+                name: options.name || 'New Sprite',
+                type: 'sprite',
+                folder: options.folder,
+                preload: options.preload,
+                data: data
+            },
+            null,
+            options.onProgress
+        );
     }
 
     /**
@@ -996,17 +1171,29 @@ class Assets extends Events {
      * @param options.onProgress - Function to report progress
      * @returns The new asset
      */
-    createText(options: { name?: string; text?: string; folder?: Asset; preload?: boolean; onProgress?: Function; } = {}) {
+    createText(
+        options: {
+            name?: string;
+            text?: string;
+            folder?: Asset;
+            preload?: boolean;
+            onProgress?: (...args: any[]) => any;
+        } = {}
+    ) {
         const desired = options.name || 'new.txt';
         const name = getUniqueName(desired, siblingNames(this.list(), options.folder ?? null));
-        return this.upload({
-            name,
-            type: 'text',
-            folder: options.folder,
-            preload: options.preload,
-            filename: name,
-            file: new Blob([options.text || '\n'], { type: 'text/plain' })
-        }, null, options.onProgress);
+        return this.upload(
+            {
+                name,
+                type: 'text',
+                folder: options.folder,
+                preload: options.preload,
+                filename: name,
+                file: new Blob([options.text || '\n'], { type: 'text/plain' })
+            },
+            null,
+            options.onProgress
+        );
     }
 
     /**
@@ -1019,19 +1206,26 @@ class Assets extends Events {
      * @param options.onProgress - Function to report progress
      * @returns The new asset
      */
-    async createTemplate(options: { name?: string; entity: Entity; folder?: Asset; preload?: boolean; onProgress?: Function; }) {
-        const {
-            entities,
-            oldToNewIds
-        } = createTemplate(options.entity);
+    async createTemplate(options: {
+        name?: string;
+        entity: Entity;
+        folder?: Asset;
+        preload?: boolean;
+        onProgress?: (...args: any[]) => any;
+    }) {
+        const { entities, oldToNewIds } = createTemplate(options.entity);
 
-        const asset = await this.upload({
-            name: options.name || options.entity.get('name'),
-            type: 'template',
-            folder: options.folder,
-            preload: options.preload,
-            data: { entities }
-        }, null, options.onProgress);
+        const asset = await this.upload(
+            {
+                name: options.name || options.entity.get('name'),
+                type: 'template',
+                folder: options.folder,
+                preload: options.preload,
+                data: { entities }
+            },
+            null,
+            options.onProgress
+        );
 
         const history = options.entity.history.enabled;
         options.entity.history.enabled = false;
@@ -1076,7 +1270,11 @@ class Assets extends Events {
      * @param options.extraData - Extra data passed to the backend. Used by the Editor on specific cases.
      * @returns The new entities
      */
-    instantiateTemplates(assets: Asset[], parent: Entity, options: { index?: number; history?: boolean; select?: boolean; extraData?: object; } = {}) {
+    instantiateTemplates(
+        assets: Asset[],
+        parent: Entity,
+        options: { index?: number; history?: boolean; select?: boolean; extraData?: object } = {}
+    ) {
         return instantiateTemplates(assets, parent, options);
     }
 

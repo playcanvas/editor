@@ -1,17 +1,19 @@
 import { CLASS_ERROR } from '@/common/pcui/constants';
 import { TooltipHandle } from '@/common/tooltips';
 
-import { BaseSettingsPanel, type BaseSettingsPanelArgs } from './base';
 import type { Attribute } from '../attribute.type.d';
 
-interface LayerPanelArgs extends BaseSettingsPanelArgs {
+import { BaseSettingsPanel } from './base';
+import type { BaseSettingsPanelArgs } from './base';
+
+type LayerPanelArgs = {
     layerKey: string;
-}
+} & BaseSettingsPanelArgs;
 
 const CLASS_ROOT = 'layers-settings-panel';
 const CLASS_LAYER_PANEL = `${CLASS_ROOT}-layer-panel`;
 
-const htmlSymbols = ['\'', '\\', '/', '"', '<', '>', '&', '`', '='];
+const htmlSymbols = ["'", '\\', '/', '"', '<', '>', '&', '`', '='];
 
 /**
  * @param args - The attribute args
@@ -79,7 +81,7 @@ class LayersSettingsPanelLayerPanel extends BaseSettingsPanel {
         const fieldName = this._attributesInspector.getField(`layers.${this._args.layerKey}.name`);
         const nameChangeEvt = fieldName.on('change', (value) => {
             // do not allow html symbols
-            if (value === '' || htmlSymbols.some(symbol => value.includes(symbol))) {
+            if (value === '' || htmlSymbols.some((symbol) => value.includes(symbol))) {
                 fieldName.value = this.headerText;
                 fieldName.class.add(CLASS_ERROR);
             } else {
@@ -153,14 +155,19 @@ class LayersSettingsPanelLayerPanel extends BaseSettingsPanel {
             const layerOrder = projectSettings.getRaw('layerOrder');
 
             for (let i = 0; i < prevSublayers.length; i++) {
-                const idx = prevSublayers[i].index;
-                const transparent = prevSublayers[i].transparent;
-                const enabled = prevSublayers[i].enabled;
-                projectSettings.insert('layerOrder', {
-                    layer: parseInt(this._args.layerKey, 10),
-                    transparent: transparent,
-                    enabled: enabled
-                }, Math.min(idx, layerOrder.length));
+                const prevSublayer = prevSublayers[i];
+                const idx = prevSublayer.index;
+                const transparent = prevSublayer.transparent;
+                const enabled = prevSublayer.enabled;
+                projectSettings.insert(
+                    'layerOrder',
+                    {
+                        layer: parseInt(this._args.layerKey, 10),
+                        transparent: transparent,
+                        enabled: enabled
+                    },
+                    Math.min(idx, layerOrder.length)
+                );
             }
 
             prevSublayers = [];

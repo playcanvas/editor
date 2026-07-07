@@ -1,4 +1,5 @@
-import { ObserverList, type Observer } from '@playcanvas/observer';
+import { ObserverList } from '@playcanvas/observer';
+import type { Observer } from '@playcanvas/observer';
 
 import { Asset, Entity } from '@/editor-api';
 
@@ -17,8 +18,7 @@ editor.once('load', () => {
     const selector = new ObserverList() as SelectorList;
     selector.type = null;
 
-
-    const index = { };
+    const index = {};
 
     const keyByType = function (type: string) {
         switch (type) {
@@ -37,7 +37,7 @@ editor.once('load', () => {
         }
 
         if (!index[type]) {
-            index[type] = { };
+            index[type] = {};
         }
 
         index[type][item.get(key)] = item.once('destroy', () => {
@@ -101,7 +101,11 @@ editor.once('load', () => {
     });
 
     selection.on('change', (items: (Asset | Entity)[]) => {
-        editor.emit('selector:change', items[0] instanceof Entity ? 'entity' : 'asset', items.map(item => item.observer));
+        editor.emit(
+            'selector:change',
+            items[0] instanceof Entity ? 'entity' : 'asset',
+            items.map((item) => item.observer)
+        );
     });
 
     // removing
@@ -120,7 +124,6 @@ editor.once('load', () => {
             setTimeout(evtChangeFn, 0);
         }
     });
-
 
     // selecting item (toggle)
     editor.method('selector:toggle', (type: string, item: SelectableObserver) => {
@@ -150,15 +153,14 @@ editor.once('load', () => {
         }
     });
 
-
     // selecting list of items
     editor.method('selector:set', (type: string, items: SelectableObserver[]) => {
         if (type === 'entity') {
-            selection.set(items.map(item => item.apiEntity));
+            selection.set(items.map((item) => item.apiEntity));
             return;
         }
         if (type === 'asset') {
-            selection.set(items.map(item => item.apiAsset));
+            selection.set(items.map((item) => item.apiAsset));
             return;
         }
 
@@ -177,18 +179,20 @@ editor.once('load', () => {
         selector.type = type;
 
         // remove
-        selector.find((item) => {
-            return items.indexOf(item) === -1;
-        }).forEach((item) => {
-            selector.remove(item);
-        });
+        selector
+            .find((item) => {
+                return items.indexOf(item) === -1;
+            })
+            .forEach((item) => {
+                selector.remove(item);
+            });
 
         // add
         for (let i = 0; i < items.length; i++) {
-            selector.add(items[i]);
+            const item = items[i];
+            selector.add(item);
         }
     });
-
 
     // selecting item
     editor.method('selector:add', (type: string, item: SelectableObserver) => {
@@ -218,7 +222,6 @@ editor.once('load', () => {
         selector.add(item);
     });
 
-
     // deselecting item
     editor.method('selector:remove', (item: SelectableObserver) => {
         if (item.apiEntity) {
@@ -242,7 +245,6 @@ editor.once('load', () => {
         selector.remove(item);
     });
 
-
     // deselecting
     editor.method('selector:clear', () => {
         selection.clear();
@@ -253,7 +255,6 @@ editor.once('load', () => {
 
         selector.clear();
     });
-
 
     // return select type
     editor.method('selector:type', () => {
@@ -267,17 +268,15 @@ editor.once('load', () => {
         return selector.type;
     });
 
-
     // return selected count
     editor.method('selector:count', () => {
         return selection.count || selector.length;
     });
 
-
     // return selected items
     editor.method('selector:items', () => {
         if (selection.count) {
-            return selection.items.map(item => item.observer);
+            return selection.items.map((item) => item.observer);
         }
         return selector.array();
     });
@@ -286,7 +285,6 @@ editor.once('load', () => {
     editor.method('selector:has', (item: SelectableObserver) => {
         return selection.has(item.apiEntity) || selection.has(item.apiAsset) || selector.has(item);
     });
-
 
     editor.method('selector:enabled', (state: boolean) => {
         selection.enabled = state;

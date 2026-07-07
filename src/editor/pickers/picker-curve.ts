@@ -25,7 +25,12 @@ editor.once('load', () => {
         gridLines: '#20292b',
         anchors: ['rgb(255, 0, 0)', 'rgb(0, 255, 0)', 'rgb(133, 133, 252)', 'rgb(255, 255, 255)'],
         curves: ['rgb(255, 0, 0)', 'rgb(0, 255, 0)', 'rgb(133, 133, 252)', 'rgb(255, 255, 255)'],
-        curveFilling: ['rgba(255, 0, 0, 0.5)', 'rgba(0, 255, 0, 0.5)', 'rgba(133, 133, 252, 0.5)', 'rgba(255, 255, 255, 0.5)'],
+        curveFilling: [
+            'rgba(255, 0, 0, 0.5)',
+            'rgba(0, 255, 0, 0.5)',
+            'rgba(133, 133, 252, 0.5)',
+            'rgba(255, 255, 255, 0.5)'
+        ],
         text: 'white',
         highlightedLine: 'yellow'
     };
@@ -97,7 +102,6 @@ editor.once('load', () => {
     labelType.class.add('ui-label');
     header.append(labelType);
 
-
     // esc to close
     editor.call('hotkey:register', 'picker:curve:close', {
         key: 'Escape',
@@ -110,7 +114,6 @@ editor.once('load', () => {
         }
     });
 
-
     // type selector
     const fieldType = new SelectInput({
         options: [
@@ -118,7 +121,7 @@ editor.once('load', () => {
             { v: 1, t: 'Smooth Step' },
             { v: 2, t: 'Legacy Spline' }, // catmull, deprecated
             // { v: 3, t: 'Spline (Legacy)' }, // cardinal, deprecated
-            { v: 4, t: 'Spline' },  // spline
+            { v: 4, t: 'Spline' }, // spline
             { v: 5, t: 'Step' }
         ],
         type: 'number'
@@ -560,6 +563,10 @@ editor.once('load', () => {
 
     const context = canvasDom.getContext('2d');
     context.setTransform(canvas.pixelRatio, 0, 0, canvas.pixelRatio, 0, 0);
+    let getColorSwizzle = undefined;
+    let onMouseMove = undefined;
+    let onMouseUp = undefined;
+    let onMouseWheel = undefined;
 
     function cleanup() {
         selectedCurve = null;
@@ -605,7 +612,18 @@ editor.once('load', () => {
     }
 
     // Sets value for the picker and render it
-    function setValue(value: { keys: number[][]; betweenCurves?: boolean; type?: number }[], args: { gradient?: boolean; hideRandomize?: boolean; max?: number; min?: number; curves?: string[]; keepZoom?: boolean; verticalValue?: number }) {
+    function setValue(
+        value: { keys: number[][]; betweenCurves?: boolean; type?: number }[],
+        args: {
+            gradient?: boolean;
+            hideRandomize?: boolean;
+            max?: number;
+            min?: number;
+            curves?: string[];
+            keepZoom?: boolean;
+            verticalValue?: number;
+        }
+    ) {
         // sanity checks mostly for script 'curve' attributes
         if (!(value instanceof Array) || value.length === 0 || value[0].keys === undefined) {
             return;
@@ -726,12 +744,12 @@ editor.once('load', () => {
 
         // draw grid
         for (i = 0; i < 5; i++) {
-            const y = gridTop() + gridHeight() * i / 4;
+            const y = gridTop() + (gridHeight() * i) / 4;
             drawLine([gridLeft(), y], [gridRight(), y], colors.gridLines);
         }
 
         for (i = 0; i < 11; i++) {
-            const x = gridLeft() + gridWidth() * i / 10;
+            const x = gridLeft() + (gridWidth() * i) / 10;
             drawLine([x, gridTop()], [x, gridBottom()], colors.gridLines);
         }
     }
@@ -812,7 +830,6 @@ editor.once('load', () => {
             return curves[numCurves + ind];
         }
         return curves[ind - numCurves];
-
     }
 
     // Draws a pair of curves with their in-between filling. If the second
@@ -834,7 +851,7 @@ editor.once('load', () => {
         const width = canvas.width;
 
         for (x = precision; x <= Math.ceil(width / precision); x++) {
-            time = x * precision / width;
+            time = (x * precision) / width;
             value = curve1.value(time);
             coords = calculateAnchorCoords([time, value]);
             context.lineTo(coords[0], coords[1]);
@@ -842,7 +859,7 @@ editor.once('load', () => {
 
         if (curve2) {
             for (x = Math.ceil(width / precision); x >= 0; x--) {
-                time = x * precision / width;
+                time = (x * precision) / width;
                 value = curve2.value(time);
                 coords = calculateAnchorCoords([time, value]);
                 context.lineTo(coords[0], coords[1]);
@@ -864,7 +881,7 @@ editor.once('load', () => {
         coords[0] = gridLeft() + time * gridWidth();
 
         const top = gridTop();
-        coords[1] = top + gridHeight() * (value - verticalTopValue) / (verticalBottomValue - verticalTopValue);
+        coords[1] = top + (gridHeight() * (value - verticalTopValue)) / (verticalBottomValue - verticalTopValue);
 
         return coords;
     }
@@ -931,7 +948,11 @@ editor.once('load', () => {
         // draw vertical axis values
         const left = gridLeft() - textSize * 2;
         drawText(+verticalTopValue.toFixed(2), left, gridTop() + textSize * 0.5);
-        drawText(+((verticalTopValue + verticalBottomValue) * 0.5).toFixed(2), left, gridTop() + (gridHeight() + textSize) * 0.5);
+        drawText(
+            +((verticalTopValue + verticalBottomValue) * 0.5).toFixed(2),
+            left,
+            gridTop() + (gridHeight() + textSize) * 0.5
+        );
         drawText(+verticalBottomValue.toFixed(2), left, gridBottom() + textSize * 0.5);
 
         // draw horizontal axis values
@@ -942,7 +963,7 @@ editor.once('load', () => {
     // if we only have one curve then
     // use 'swizzle' - an array of indexes
     // that remaps other arrays to different colors
-    var getColorSwizzle = function () {
+    getColorSwizzle = function () {
         let result = [0, 1, 2, 3];
         if (gradient && curves.length === 1) {
             if (curveNames[0] === 'g') {
@@ -983,12 +1004,10 @@ editor.once('load', () => {
         const gradient = ctx.createLinearGradient(0, 0, gradientCanvas.width, gradientCanvas.height);
 
         for (t = 0; t <= gradientCanvas.width; t += precision) {
-
             curveset.value(t / gradientCanvas.width, rgb);
-            const rgba = `${Math.round((rgb[swizzle[0]] || 0) * 255)},${
-                Math.round((rgb[swizzle[1]] || 0) * 255)},${
-                Math.round((rgb[swizzle[2]] || 0) * 255)},${
-                isNaN(rgb[swizzle[3]]) ? 1 : rgb[swizzle[3]]}`;
+            const rgba = `${Math.round((rgb[swizzle[0]] || 0) * 255)},${Math.round(
+                (rgb[swizzle[1]] || 0) * 255
+            )},${Math.round((rgb[swizzle[2]] || 0) * 255)},${isNaN(rgb[swizzle[3]]) ? 1 : rgb[swizzle[3]]}`;
 
             gradient.addColorStop(t / gradientCanvas.width, `rgba(${rgba})`);
         }
@@ -1019,7 +1038,7 @@ editor.once('load', () => {
             delta = -maxDelta;
         }
 
-        const speed = delta * (verticalTopValue - verticalBottomValue) / 10;
+        const speed = (delta * (verticalTopValue - verticalBottomValue)) / 10;
 
         let verticalTop = verticalTopValue - speed;
         let verticalBottom = verticalBottomValue + speed;
@@ -1148,15 +1167,13 @@ editor.once('load', () => {
 
     // Returns true if the specified coordinates are within the grid bounds
     function areCoordsInGrid(coords: number[]) {
-        return coords[0] >= gridLeft() &&
-               coords[0] <= gridRight() &&
-               coords[1] >= gridTop() &&
-               coords[1] <= gridBottom();
+        return (
+            coords[0] >= gridLeft() && coords[0] <= gridRight() && coords[1] >= gridTop() && coords[1] <= gridBottom()
+        );
     }
 
     function areCoordsClose(coords1: number[], coords2: number[], range: number) {
-        return Math.abs(coords1[0] - coords2[0]) <= range &&
-               Math.abs(coords1[1] - coords2[1]) <= range;
+        return Math.abs(coords1[0] - coords2[0]) <= range && Math.abs(coords1[1] - coords2[1]) <= range;
     }
 
     // If there are any anchors with the same time, collapses them to one
@@ -1189,7 +1206,6 @@ editor.once('load', () => {
             }
         });
 
-
         if (!suspendEvents) {
             for (const index in changedCurves) {
                 const curve = curves[parseInt(index, 10)];
@@ -1213,7 +1229,6 @@ editor.once('load', () => {
                 editor.emit('picker:curve:change', paths, values);
             }
         }
-
     }
 
     // Creates and returns an anchor and fires change event
@@ -1267,7 +1282,6 @@ editor.once('load', () => {
             return curveIndex >= numCurves ? `1.keys.${curveIndex - numCurves}` : `0.keys.${curveIndex}`;
         }
         return curveIndex === 0 ? '0.keys' : '1.keys';
-
     }
 
     function serializeCurveKeys(curve: Curve) {
@@ -1341,7 +1355,6 @@ editor.once('load', () => {
                     sendCurveToFront(otherCurve);
                 }
             }
-
 
             sendCurveToFront(curve);
         } else {
@@ -1502,7 +1515,6 @@ editor.once('load', () => {
 
             // if we are clicking on an empty area
             if (!hoveredAnchor) {
-
                 if (!inGrid) {
                     return;
                 }
@@ -1511,7 +1523,6 @@ editor.once('load', () => {
 
                 // create a new anchor
                 if (curve) {
-
                     const time = calculateAnchorTime(point);
                     const value = calculateAnchorValue(point);
                     const anchor = createAnchor(curve, time, value);
@@ -1541,7 +1552,7 @@ editor.once('load', () => {
     });
 
     // Handles mouse move
-    var onMouseMove = function (e: MouseEvent) {
+    onMouseMove = function (e: MouseEvent) {
         const coords = getTargetCoords(e);
 
         // if we are dragging the selected anchor
@@ -1570,7 +1581,6 @@ editor.once('load', () => {
 
             render();
         } else {
-
             if (scrolling) {
                 scroll(e.y - mouseY);
                 mouseY = e.y;
@@ -1586,7 +1596,7 @@ editor.once('load', () => {
     };
 
     // Handles mouse up
-    var onMouseUp = function (e: MouseEvent) {
+    onMouseUp = function (e: MouseEvent) {
         toggleTextSelection(true);
 
         if (e.button === 0) {
@@ -1624,7 +1634,7 @@ editor.once('load', () => {
     };
 
     // Handle mouse wheel
-    var onMouseWheel = function (e: WheelEvent) {
+    onMouseWheel = function (e: WheelEvent) {
         e.stopPropagation();
         if (e.deltaY > 0) {
             adjustZoom(-0.3);

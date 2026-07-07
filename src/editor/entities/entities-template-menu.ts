@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 editor.once('load', () => {
     const templateItems = [];
 
@@ -20,7 +22,7 @@ editor.once('load', () => {
         return selection;
     }
 
-    function selectEntity(entity: import('@playcanvas/observer').Observer) { // eslint-disable-line no-unused-vars
+    function selectEntity(entity: Observer) {
         // timeout because there is a chance the selector will be disabled
         // when the entity picker is enabled
         setTimeout(() => {
@@ -42,20 +44,21 @@ editor.once('load', () => {
         onSelect: function () {
             const entity = getSelection()[0];
             const folder = editor.call('assets:panel:currentFolder');
-            editor.api.globals.assets.createTemplate({
-                folder: folder && folder.apiAsset,
-                entity: entity.apiEntity
-            }).catch((err) => {
-                const groups = /\d+: (.*)/.exec(err.message);
-                if (!groups) {
-                    editor.call('status:error', err.message);
-                }
-                const msg = `Failed to create template: ${groups[1]}`;
-                editor.call('console:error', msg, () => {
-                    editor.call('selector:set', 'entity', [entity]);
+            editor.api.globals.assets
+                .createTemplate({
+                    folder: folder && folder.apiAsset,
+                    entity: entity.apiEntity
+                })
+                .catch((err) => {
+                    const groups = /\d+: (.*)/.exec(err.message);
+                    if (!groups) {
+                        editor.call('status:error', err.message);
+                    }
+                    const msg = `Failed to create template: ${groups[1]}`;
+                    editor.call('console:error', msg, () => {
+                        editor.call('selector:set', 'entity', [entity]);
+                    });
                 });
-            });
-
         }
     });
 
@@ -76,7 +79,7 @@ editor.once('load', () => {
         icon: 'E358',
         onIsEnabled: function () {
             const selection = getSelection();
-            return selection.some(e => e.get('template_id'));
+            return selection.some((e) => e.get('template_id'));
         },
         onSelect: function () {
             editor.call('templates:unlink', getSelection());
@@ -104,13 +107,14 @@ editor.once('load', () => {
             }
 
             let evtPick = editor.once('picker:asset', (asset) => {
-                asset.apiAsset.instantiateTemplate(parent.apiEntity, {
-                    select: true,
-                    index: parent.get('children').length
-                })
-                .catch((err) => {
-                    editor.call('status:error', err);
-                });
+                asset.apiAsset
+                    .instantiateTemplate(parent.apiEntity, {
+                        select: true,
+                        index: parent.get('children').length
+                    })
+                    .catch((err) => {
+                        editor.call('status:error', err);
+                    });
             });
 
             editor.once('picker:asset:close', () => {

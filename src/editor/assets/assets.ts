@@ -100,8 +100,7 @@ editor.once('load', () => {
     });
 
     editor.method('assets:isModule', (asset: AssetObserver) => {
-        return editor.call('assets:isScript', asset) &&
-            asset.get('file.filename')?.endsWith('.mjs');
+        return editor.call('assets:isScript', asset) && asset.get('file.filename')?.endsWith('.mjs');
     });
 
     editor.method('assets:virtualPath', (asset: AssetObserver) => {

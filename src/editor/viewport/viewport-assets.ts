@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { StandardMaterial, Vec2, Vec4 } from 'playcanvas';
 
 editor.once('load', () => {
@@ -16,7 +17,7 @@ editor.once('load', () => {
     const regexI18n = /^i18n\.[^.]+$/;
 
     // add assets to asset registry
-    editor.on('assets:add', (asset: import('@playcanvas/observer').Observer) => {
+    editor.on('assets:add', (asset: Observer) => {
         // do only for target assets
         if (asset.get('source')) {
             return;
@@ -34,12 +35,10 @@ editor.once('load', () => {
 
         // when data is changed
         asset.on('*:set', (path: string, value: unknown) => {
-
             // handle i18n changes
             if (regexI18n.test(path)) {
                 const parts = path.split('.');
                 assetEngine.addLocalizedAssetId(parts[1], value);
-
             } else if (asset.get('type') === 'textureatlas') {
                 // handle frame changes for texture atlas
                 const match = path.match(regexFrameUpdate);
@@ -115,7 +114,7 @@ editor.once('load', () => {
     });
 
     // remove assets from asset registry
-    editor.on('assets:remove', (_asset: import('@playcanvas/observer').Observer) => {
+    editor.on('assets:remove', (_asset: Observer) => {
         // re-render
         editor.call('viewport:render');
     });

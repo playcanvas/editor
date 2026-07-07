@@ -5,20 +5,20 @@ const RELAY_PING_DELAY = 10000;
 const RELAY_PONG_DELAY = 5000;
 
 /** Disconnection arguments for closing the WebSocket connection */
-interface CloseArgs {
+type CloseArgs = {
     /** The disconnection code. Defaults to 1000. */
     code?: number;
     /** The reason for the disconnection. Defaults to 'unknown'. */
     reason?: string;
-}
+};
 
 /** Authentication options when joining a room */
-interface RoomAuthentication {
+type RoomAuthentication = {
     /** The authentication type. Currently only 'project' is supported. */
     type: string;
     /** If authentication.type is 'project' then this would be the project id. */
     id: number | string;
-}
+};
 
 /**
  * Relay server client library
@@ -91,7 +91,9 @@ class RelayServer extends Events {
         this.socket.onmessage = this._onmessage.bind(this);
         this.socket.onerror = () => {
             const state = this._connected ? 'connected' : this._connecting ? 'connecting' : 'disconnected';
-            this._onerror(new Error(`WebSocket error (state: ${state}, url: ${this._url}, attempts: ${this._connectAttempts})`));
+            this._onerror(
+                new Error(`WebSocket error (state: ${state}, url: ${this._url}, attempts: ${this._connectAttempts})`)
+            );
         };
         this.socket.onclose = this._onclose.bind(this);
     }
@@ -118,9 +120,12 @@ class RelayServer extends Events {
         }
 
         // start delay
-        this._reconnectDelay = setTimeout(() => {
-            this.connect(this._url);
-        }, RELAY_RECONNECT_DELAY * (this._connectAttempts + 1));
+        this._reconnectDelay = setTimeout(
+            () => {
+                this.connect(this._url);
+            },
+            RELAY_RECONNECT_DELAY * (this._connectAttempts + 1)
+        );
     }
 
     /**
@@ -184,7 +189,6 @@ class RelayServer extends Events {
         if (msg.error) {
             this.emit('error', msg.error);
         } else {
-
             // keep track of rooms and connected users
             if (msg.t === 'room:join') {
                 this._handleRoomJoin(msg);
@@ -360,7 +364,6 @@ class RelayServer extends Events {
             t: 'room:msg',
             msg: msg,
             name: roomName
-
         });
     }
 

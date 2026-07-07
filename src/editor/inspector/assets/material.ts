@@ -9,7 +9,6 @@ import type { History } from '@/editor-api';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
-
 const TextureTypes = {
     Normal: 'Normal',
     Color: 'Color',
@@ -29,15 +28,24 @@ const createTextureAttribute = (label: string, attributeName: string, type: stri
         type: 'select',
         args: {
             type: 'string',
-            options: [{
-                v: 'r', t: 'R'
-            }, {
-                v: 'g', t: 'G'
-            }, {
-                v: 'b', t: 'B'
-            }, {
-                v: 'a', t: 'A'
-            }]
+            options: [
+                {
+                    v: 'r',
+                    t: 'R'
+                },
+                {
+                    v: 'g',
+                    t: 'G'
+                },
+                {
+                    v: 'b',
+                    t: 'B'
+                },
+                {
+                    v: 'a',
+                    t: 'A'
+                }
+            ]
         },
         reference: `asset:material:${attributeName}MapChannel`
     };
@@ -48,65 +56,129 @@ const createTextureAttribute = (label: string, attributeName: string, type: stri
         type: 'select',
         args: {
             type: 'string',
-            options: [{
-                v: 'r', t: 'R'
-            }, {
-                v: 'g', t: 'G'
-            }, {
-                v: 'b', t: 'B'
-            }, {
-                v: 'a', t: 'A'
-            }, {
-                v: 'rgb', t: 'RGB'
-            }]
+            options: [
+                {
+                    v: 'r',
+                    t: 'R'
+                },
+                {
+                    v: 'g',
+                    t: 'G'
+                },
+                {
+                    v: 'b',
+                    t: 'B'
+                },
+                {
+                    v: 'a',
+                    t: 'A'
+                },
+                {
+                    v: 'rgb',
+                    t: 'RGB'
+                }
+            ]
         },
         reference: `asset:material:${attributeName}MapChannel`
     };
 
-    return [{
-        label: label,
-        type: 'asset',
-        path: `data.${attributeName}Map`,
-        args: {
-            assetType: 'texture'
+    return [
+        {
+            label: label,
+            type: 'asset',
+            path: `data.${attributeName}Map`,
+            args: {
+                assetType: 'texture'
+            },
+            reference: `asset:material:${attributeName}Map`
         },
-        reference: `asset:material:${attributeName}Map`
-    }, {
-        label: 'UV Channel',
-        path: `data.${attributeName}MapUv`,
-        type: 'select',
-        args: {
+        {
+            label: 'UV Channel',
+            path: `data.${attributeName}MapUv`,
+            type: 'select',
+            args: {
+                type: 'number',
+                options: [
+                    {
+                        v: 0,
+                        t: 'UV0'
+                    },
+                    {
+                        v: 1,
+                        t: 'UV1'
+                    }
+                ]
+            },
+            reference: `asset:material:${attributeName}MapUv`
+        },
+        ...(type === TextureTypes.Color ? [rgbColorChannel] : []),
+        ...(type === TextureTypes.Scalar ? [scalarColorChannel] : []),
+        {
+            label: 'Offset',
+            path: `data.${attributeName}MapOffset`,
+            type: 'vec2',
+            args: {
+                placeholder: ['U', 'V']
+            },
+            reference: `asset:material:${attributeName}MapOffset`
+        },
+        {
+            label: 'Tiling',
+            path: `data.${attributeName}MapTiling`,
+            type: 'vec2',
+            args: {
+                placeholder: ['U', 'V']
+            },
+            reference: `asset:material:${attributeName}MapTiling`
+        },
+        {
+            label: 'Rotation',
+            path: `data.${attributeName}MapRotation`,
             type: 'number',
-            options: [{
-                v: 0, t: 'UV0'
-            }, {
-                v: 1, t: 'UV1'
-            }]
-        },
-        reference: `asset:material:${attributeName}MapUv`
+            args: {
+                precision: 3,
+                step: 10,
+                min: 0,
+                max: 360,
+                placeholder: 'degrees'
+            },
+            reference: `asset:material:${attributeName}MapRotation`
+        }
+    ];
+};
+
+const CLASS_ROOT = 'asset-material-inspector';
+
+const MATERIAL_ATTRIBUTES: (Attribute | Divider)[] = [];
+
+const TEXTURE_TRANFORM_ATTRIBUTES: (Attribute | Divider)[] = [
+    {
+        label: 'Apply To All Maps',
+        type: 'boolean',
+        alias: 'applyToAllMaps'
     },
-    ...(type === TextureTypes.Color ? [rgbColorChannel] : []),
-    ...(type === TextureTypes.Scalar ? [scalarColorChannel] : []),
     {
         label: 'Offset',
-        path: `data.${attributeName}MapOffset`,
         type: 'vec2',
+        alias: 'offset',
         args: {
             placeholder: ['U', 'V']
         },
-        reference: `asset:material:${attributeName}MapOffset`
-    }, {
+        reference: 'asset:material:offset'
+    },
+    {
         label: 'Tiling',
-        path: `data.${attributeName}MapTiling`,
         type: 'vec2',
+        alias: 'tiling',
         args: {
             placeholder: ['U', 'V']
         },
-        reference: `asset:material:${attributeName}MapTiling`
-    }, {
+        reference: 'asset:material:tiling'
+    },
+    {
         label: 'Rotation',
-        path: `data.${attributeName}MapRotation`,
         type: 'number',
+        alias: 'rotation',
         args: {
             precision: 3,
             step: 10,
@@ -114,1161 +186,1411 @@ const createTextureAttribute = (label: string, attributeName: string, type: stri
             max: 360,
             placeholder: 'degrees'
         },
-        reference: `asset:material:${attributeName}MapRotation`
-    }];
-};
+        reference: 'asset:material:rotation'
+    }
+];
 
-const CLASS_ROOT = 'asset-material-inspector';
-
-const MATERIAL_ATTRIBUTES: (Attribute | Divider)[] = [];
-
-const TEXTURE_TRANFORM_ATTRIBUTES: (Attribute | Divider)[] = [{
-    label: 'Apply To All Maps',
-    type: 'boolean',
-    alias: 'applyToAllMaps'
-}, {
-    label: 'Offset',
-    type: 'vec2',
-    alias: 'offset',
-    args: {
-        placeholder: ['U', 'V']
+const AMBIENT_ATTRIBUTES: (Attribute | Divider)[] = [
+    ...createTextureAttribute('Ambient Occlusion', 'ao', TextureTypes.Scalar),
+    {
+        label: 'Occlude Specular',
+        type: 'select',
+        path: 'data.occludeSpecular',
+        args: {
+            type: 'number',
+            options: [
+                {
+                    v: 0,
+                    t: 'Off'
+                },
+                {
+                    v: 1,
+                    t: 'Multiply'
+                },
+                {
+                    v: 2,
+                    t: 'Gloss Based'
+                }
+            ]
+        },
+        reference: 'asset:material:occludeSpecular'
     },
-    reference: 'asset:material:offset'
-}, {
-    label: 'Tiling',
-    type: 'vec2',
-    alias: 'tiling',
-    args: {
-        placeholder: ['U', 'V']
+    {
+        label: 'Vertex Color',
+        type: 'boolean',
+        path: 'data.aoVertexColor',
+        reference: 'asset:material:aoVertexColor'
     },
-    reference: 'asset:material:tiling'
-}, {
-    label: 'Rotation',
-    type: 'number',
-    alias: 'rotation',
-    args: {
-        precision: 3,
-        step: 10,
-        min: 0,
-        max: 360,
-        placeholder: 'degrees'
+    {
+        label: 'Color',
+        type: 'rgb',
+        path: 'data.ambient',
+        reference: 'asset:material:ambient'
     },
-    reference: 'asset:material:rotation'
-}];
+    {
+        label: 'Intensity',
+        type: 'slider',
+        path: 'data.aoIntensity',
+        reference: 'asset:material:aoIntensity',
+        args: {
+            precision: 2,
+            step: 0.1,
+            min: 0,
+            max: 10
+        }
+    }
+];
 
-const AMBIENT_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Ambient Occlusion', 'ao', TextureTypes.Scalar), {
-    label: 'Occlude Specular',
-    type: 'select',
-    path: 'data.occludeSpecular',
-    args: {
+const DIFFUSE_ATTRIBUTES: (Attribute | Divider)[] = [
+    ...createTextureAttribute('Diffuse', 'diffuse', TextureTypes.Color),
+    {
+        label: 'Vertex Color',
+        type: 'boolean',
+        path: 'data.diffuseVertexColor',
+        reference: 'asset:material:diffuseVertexColor'
+    },
+    {
+        label: 'Color',
+        path: 'data.diffuse',
+        type: 'rgb',
+        reference: 'asset:material:diffuse'
+    }
+];
+
+const SPECULAR_ATTRIBUTES: (Attribute | Divider)[] = [
+    {
+        label: 'Enable GGX Specular',
+        path: 'data.enableGGXSpecular',
+        type: 'boolean',
+        reference: 'asset:material:enableGGXSpecular'
+    },
+    ...createTextureAttribute('Anisotropy', 'anisotropy', TextureTypes.Normal),
+    {
+        label: 'Anisotropy Intensity',
+        path: 'data.anisotropyIntensity',
+        type: 'slider',
+        args: {
+            precision: 3,
+            step: 0.05,
+            min: 0,
+            max: 1
+        },
+        reference: 'asset:material:anisotropyIntensity'
+    },
+    {
+        label: 'Anisotropy Rotation',
+        path: 'data.anisotropyRotation',
+        type: 'slider',
+        args: {
+            precision: 3,
+            step: 10,
+            min: 0,
+            max: 360
+        },
+        reference: 'asset:material:anisotropyRotation'
+    },
+    {
+        type: 'divider'
+    },
+    {
+        label: 'Use Metalness',
+        path: 'data.useMetalness',
+        type: 'boolean',
+        reference: 'asset:material:useMetalness'
+    }
+];
+
+const METALNESS_WORKFLOW_ATTRIBUTES: (Attribute | Divider)[] = [
+    ...createTextureAttribute('Metalness', 'metalness', TextureTypes.Scalar),
+    {
+        label: 'Vertex Color',
+        path: 'data.metalnessVertexColor',
+        type: 'boolean',
+        reference: 'asset:material:metalnessVertexColor'
+    },
+    {
+        label: 'Metalness',
+        path: 'data.metalness',
+        type: 'slider',
+        args: {
+            precision: 3,
+            step: 0.05,
+            min: 0,
+            max: 1
+        },
+        reference: 'asset:material:metalness'
+    },
+    {
+        label: 'Use Specular Color and Factor',
+        path: 'data.useMetalnessSpecularColor',
+        type: 'boolean',
+        reference: 'asset:material:useMetalnessSpecularColor'
+    },
+    ...createTextureAttribute('Specular', 'specular', TextureTypes.Color),
+    {
+        label: 'Vertex Color',
+        path: 'data.specularVertexColor',
+        type: 'boolean',
+        reference: 'asset:material:specularVertexColor'
+    },
+    {
+        label: 'Tint',
+        path: 'data.specularTint',
+        type: 'boolean',
+        reference: 'asset:material:specularTint'
+    },
+    {
+        label: 'Color',
+        path: 'data.specular',
+        type: 'rgb',
+        reference: 'asset:material:specular'
+    },
+    ...createTextureAttribute('Specularity Factor', 'specularityFactor', TextureTypes.Scalar),
+    {
+        label: 'Vertex Color',
+        path: 'data.specularityFactorVertexColor',
+        type: 'boolean',
+        reference: 'asset:material:specularityFactorVertexColor'
+    },
+    {
+        label: 'Tint',
+        path: 'data.specularityFactorTint',
+        type: 'boolean',
+        reference: 'asset:material:specularityFactorTint'
+    },
+    {
+        label: 'Specularity Factor',
+        path: 'data.specularityFactor',
+        type: 'slider',
+        args: {
+            precision: 3,
+            step: 0.05,
+            min: 0,
+            max: 1
+        },
+        reference: 'asset:material:specularityFactor'
+    }
+];
+
+const SPECULAR_WORKFLOW_ATTRIBUTES: (Attribute | Divider)[] = [
+    ...createTextureAttribute('Specular', 'specular', TextureTypes.Color),
+    {
+        label: 'Vertex Color',
+        path: 'data.specularVertexColor',
+        type: 'boolean',
+        reference: 'asset:material:specularVertexColor'
+    },
+    {
+        label: 'Tint',
+        path: 'data.specularTint',
+        type: 'boolean',
+        reference: 'asset:material:specularTint'
+    },
+    {
+        label: 'Color',
+        path: 'data.specular',
+        type: 'rgb',
+        reference: 'asset:material:specular'
+    }
+];
+
+const GLOSS_ATTRIBUTES: (Attribute | Divider)[] = [
+    {
+        type: 'divider'
+    },
+    ...createTextureAttribute('Glossiness', 'gloss', TextureTypes.Scalar),
+    {
+        label: 'Vertex Color',
+        path: 'data.glossVertexColor',
+        type: 'boolean',
+        reference: 'asset:material:glossVertexColor'
+    },
+    {
+        label: 'Glossiness',
+        path: 'data.shininess',
+        type: 'slider',
+        args: {
+            precision: 2,
+            step: 0.5,
+            min: 0,
+            max: 100
+        },
+        reference: 'asset:material:shininess'
+    },
+    {
+        label: 'Invert',
+        path: 'data.glossInvert',
+        type: 'boolean',
+        reference: 'asset:material:glossInvert'
+    }
+];
+
+const EMISSIVE_ATTRIBUTES: (Attribute | Divider)[] = [
+    ...createTextureAttribute('Emissive', 'emissive', TextureTypes.Color),
+    {
+        label: 'Vertex Color',
+        path: 'data.emissiveVertexColor',
+        type: 'boolean',
+        reference: 'asset:material:emissiveVertexColor'
+    },
+    {
+        label: 'Color',
+        path: 'data.emissive',
+        type: 'rgb',
+        reference: 'asset:material:emissive'
+    },
+    {
+        label: 'Intensity',
+        type: 'slider',
+        path: 'data.emissiveIntensity',
+        args: {
+            precision: 2,
+            step: 0.1,
+            min: 0,
+            max: 100
+        },
+        reference: 'asset:material:emissiveIntensity'
+    }
+];
+
+const OPACITY_ATTRIBUTES: (Attribute | Divider)[] = [
+    {
+        label: 'Blend Type',
+        path: 'data.blendType',
+        type: 'select',
+        args: {
+            type: 'number',
+            options: [
+                {
+                    v: 3,
+                    t: 'None'
+                },
+                {
+                    v: 2,
+                    t: 'Alpha'
+                },
+                {
+                    v: 1,
+                    t: 'Additive'
+                },
+                {
+                    v: 6,
+                    t: 'Additive Alpha'
+                },
+                {
+                    v: 8,
+                    t: 'Screen'
+                },
+                {
+                    v: 4,
+                    t: 'Premultiplied Alpha'
+                },
+                {
+                    v: 5,
+                    t: 'Multiply'
+                },
+                {
+                    v: 7,
+                    t: 'Modulate 2x'
+                },
+                {
+                    v: 9,
+                    t: 'Min (Partial Support)'
+                },
+                {
+                    v: 10,
+                    t: 'Max (Partial Support)'
+                }
+            ]
+        },
+        reference: 'asset:material:blendType'
+    },
+    ...createTextureAttribute('Opacity', 'opacity', TextureTypes.Scalar),
+    {
+        label: 'Vertex Color',
+        path: 'data.opacityVertexColor',
+        type: 'boolean',
+        reference: 'asset:material:opacityVertexColor'
+    },
+    {
+        label: 'Intensity',
+        path: 'data.opacity',
+        type: 'slider',
+        args: {
+            precision: 3,
+            step: 0.05,
+            min: 0,
+            max: 1
+        },
+        reference: 'asset:material:opacity'
+    },
+    {
+        label: 'Alpha Test',
+        path: 'data.alphaTest',
+        type: 'slider',
+        args: {
+            precision: 3,
+            step: 0.05,
+            min: 0,
+            max: 1
+        },
+        reference: 'asset:material:alphaTest'
+    },
+    {
+        label: 'Alpha To Coverage',
+        path: 'data.alphaToCoverage',
+        type: 'boolean',
+        reference: 'asset:material:alphaToCoverage'
+    },
+    {
+        label: 'Opacity Fades Specular',
+        path: 'data.opacityFadesSpecular',
+        type: 'boolean',
+        reference: 'asset:material:opacityFadesSpecular'
+    },
+    {
+        label: 'Opacity Dither',
+        path: 'data.opacityDither',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [
+                {
+                    v: 'none',
+                    t: 'None'
+                },
+                {
+                    v: 'bayer8',
+                    t: 'Bayer 8'
+                },
+                {
+                    v: 'bluenoise',
+                    t: 'Blue Noise'
+                }
+            ]
+        },
+        reference: 'asset:material:opacityDither'
+    },
+    {
+        label: 'Opacity Shadow Dither',
+        path: 'data.opacityShadowDither',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [
+                {
+                    v: 'none',
+                    t: 'None'
+                },
+                {
+                    v: 'bayer8',
+                    t: 'Bayer 8'
+                },
+                {
+                    v: 'bluenoise',
+                    t: 'Blue Noise'
+                }
+            ]
+        },
+        reference: 'asset:material:opacityShadowDither'
+    },
+    {
+        label: 'Dither Intensity',
+        path: 'data.alphaDither',
+        type: 'slider',
+        args: {
+            precision: 3,
+            step: 0.05,
+            min: 0,
+            max: 1
+        },
+        reference: 'asset:material:alphaDither'
+    },
+    {
+        label: 'Alpha Fade',
+        path: 'data.alphaFade',
+        type: 'slider',
+        args: {
+            precision: 3,
+            step: 0.05,
+            min: 0,
+            max: 1
+        },
+        reference: 'asset:material:alphaFade'
+    }
+];
+
+const NORMALS_ATTRIBUTES: (Attribute | Divider)[] = [
+    ...createTextureAttribute('Normals', 'normal', TextureTypes.Normal),
+    {
+        label: 'Bumpiness',
+        path: 'data.bumpMapFactor',
+        type: 'slider',
+        args: {
+            precision: 3,
+            step: 0.05,
+            min: 0,
+            max: 2
+        },
+        reference: 'asset:material:bumpiness'
+    }
+];
+
+const PARALLAX_ATTRIBUTES: (Attribute | Divider)[] = [
+    ...createTextureAttribute('Heightmap', 'height', TextureTypes.Scalar),
+    {
+        label: 'Strength',
+        path: 'data.heightMapFactor',
+        type: 'slider',
+        args: {
+            precision: 3,
+            step: 0.05,
+            min: 0,
+            max: 2
+        },
+        reference: 'asset:material:heightMapFactor'
+    }
+];
+
+const CLEARCOAT_FACTOR_ATTRIBUTES: (Attribute | Divider)[] = [
+    {
+        label: 'Clear Coat Factor',
+        path: 'data.clearCoat',
+        type: 'slider',
+        args: {
+            precision: 3,
+            step: 0.05,
+            min: 0,
+            max: 1
+        },
+        reference: 'asset:material:clearCoat'
+    }
+];
+
+const CLEARCOAT_ATTRIBUTES: (Attribute | Divider)[] = [
+    ...createTextureAttribute('Clear Coat', 'clearCoat', TextureTypes.Color),
+    {
+        label: 'Vertex Color',
+        path: 'data.clearCoatVertexColor',
+        type: 'boolean',
+        reference: 'asset:material:clearCoatVertexColor'
+    },
+    {
+        label: 'Vertex Color Channel',
+        path: 'data.clearCoatVertexColorChannel',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [
+                {
+                    v: 'r',
+                    t: 'R'
+                },
+                {
+                    v: 'g',
+                    t: 'G'
+                },
+                {
+                    v: 'b',
+                    t: 'B'
+                },
+                {
+                    v: 'a',
+                    t: 'A'
+                }
+            ]
+        },
+        reference: 'asset:material:clearCoatVertexColorChannel'
+    }
+];
+
+const CLEARCOAT_GLOSS_ATTRIBUTES: (Attribute | Divider)[] = [
+    {
+        type: 'divider'
+    },
+    ...createTextureAttribute('Clear Coat Gloss', 'clearCoatGloss', TextureTypes.Scalar),
+    {
+        label: 'Vertex Color',
+        path: 'data.clearCoatGlossVertexColor',
+        type: 'boolean',
+        reference: 'asset:material:clearCoatGlossVertexColor'
+    },
+    {
+        label: 'Vertex Color Channel',
+        path: 'data.clearCoatGlossVertexColorChannel',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [
+                {
+                    v: 'r',
+                    t: 'R'
+                },
+                {
+                    v: 'g',
+                    t: 'G'
+                },
+                {
+                    v: 'b',
+                    t: 'B'
+                },
+                {
+                    v: 'a',
+                    t: 'A'
+                }
+            ]
+        },
+        reference: 'asset:material:clearCoatGlossVertexColorChannel'
+    },
+    {
+        label: 'Glossiness',
+        path: 'data.clearCoatGloss',
+        type: 'slider',
+        args: {
+            precision: 3,
+            step: 0.05,
+            min: 0,
+            max: 1
+        },
+        reference: 'asset:material:clearCoatGloss'
+    },
+    {
+        label: 'Invert',
+        path: 'data.clearCoatGlossInvert',
+        type: 'boolean',
+        reference: 'asset:material:clearCoatGlossInvert'
+    }
+];
+
+const CLEARCOAT_NORMAL_ATTRIBUTES: (Attribute | Divider)[] = [
+    ...createTextureAttribute('Clear Coat Normals', 'clearCoatNormal', TextureTypes.Normal),
+    {
+        label: 'Bumpiness',
+        path: 'data.clearCoatBumpiness',
+        type: 'slider',
+        args: {
+            precision: 3,
+            step: 0.05,
+            min: 0,
+            max: 2
+        },
+        reference: 'asset:material:clearCoatBumpiness'
+    }
+];
+
+const SHEEN_ATTRIBUTES: (Attribute | Divider)[] = [
+    {
+        label: 'Use Sheen',
+        path: 'data.useSheen',
+        type: 'boolean',
+        reference: 'asset:material:useSheen'
+    },
+    ...createTextureAttribute('Sheen', 'sheen', TextureTypes.Color),
+    {
+        label: 'Vertex Color',
+        path: 'data.sheenVertexColor',
+        type: 'boolean',
+        reference: 'asset:material:sheenVertexColor'
+    },
+    {
+        label: 'Color',
+        path: 'data.sheen',
+        type: 'rgb',
+        reference: 'asset:material:sheen'
+    },
+    ...createTextureAttribute('Sheen Glossiness', 'sheenGloss', TextureTypes.Scalar),
+    {
+        label: 'Vertex Color',
+        path: 'data.sheenGlossVertexColor',
+        type: 'boolean',
+        reference: 'asset:material:sheenGlossVertexColor'
+    },
+    {
+        label: 'Vertex Color Channel',
+        path: 'data.sheenGlossVertexColorChannel',
+        type: 'select',
+        reference: 'asset:material:sheenGlossVertexColorChannel',
+        args: {
+            type: 'string',
+            options: [
+                {
+                    v: 'r',
+                    t: 'R'
+                },
+                {
+                    v: 'g',
+                    t: 'G'
+                },
+                {
+                    v: 'b',
+                    t: 'B'
+                },
+                {
+                    v: 'a',
+                    t: 'A'
+                }
+            ]
+        }
+    },
+    {
+        label: 'Glossiness',
+        path: 'data.sheenGloss',
+        type: 'slider',
+        reference: 'asset:material:sheenGloss'
+    },
+    {
+        label: 'Invert',
+        path: 'data.sheenGlossInvert',
+        type: 'boolean',
+        reference: 'asset:material:sheenGlossInvert'
+    }
+];
+
+const REFRACTION_ATTRIBUTES: (Attribute | Divider)[] = [
+    {
+        label: 'Dynamic Refractions',
+        path: 'data.useDynamicRefraction',
+        type: 'boolean',
+        reference: 'asset:material:useDynamicRefraction'
+    },
+    ...createTextureAttribute('Refraction', 'refraction', TextureTypes.Scalar),
+    {
+        label: 'Vertex Color',
+        path: 'data.refractionVertexColor',
+        type: 'boolean',
+        reference: 'asset:material:refractionVertexColor'
+    },
+    {
+        label: 'Vertex Color Channel',
+        path: 'data.refractionVertexColorChannel',
+        type: 'select',
+        reference: 'asset:material:refractionVertexColorChannel',
+        args: {
+            type: 'string',
+            options: [
+                {
+                    v: 'r',
+                    t: 'R'
+                },
+                {
+                    v: 'g',
+                    t: 'G'
+                },
+                {
+                    v: 'b',
+                    t: 'B'
+                },
+                {
+                    v: 'a',
+                    t: 'A'
+                }
+            ]
+        }
+    },
+    {
+        label: 'Refraction',
+        path: 'data.refraction',
+        type: 'slider',
+        reference: 'asset:material:refraction'
+    },
+    {
+        label: 'Index Of Refraction',
+        path: 'data.refractionIndex',
+        type: 'slider',
+        args: {
+            precision: 3,
+            step: 0.01,
+            min: 0,
+            max: 1
+        },
+        reference: 'asset:material:refractionIndex'
+    },
+    {
+        label: 'Dispersion',
+        path: 'data.dispersion',
+        type: 'slider',
+        args: {
+            precision: 2,
+            step: 0.1,
+            min: 0,
+            max: 10
+        },
+        reference: 'asset:material:dispersion'
+    },
+    ...createTextureAttribute('Thickness', 'thickness', TextureTypes.Scalar),
+    {
+        label: 'Vertex Color',
+        path: 'data.thicknessVertexColor',
+        type: 'boolean',
+        reference: 'asset:material:thicknessVertexColor'
+    },
+    {
+        label: 'Vertex Color Channel',
+        path: 'data.thicknessVertexColorChannel',
+        type: 'boolean',
+        reference: 'asset:material:thicknessVertexColorChannel',
+        args: {
+            type: 'string',
+            options: [
+                {
+                    v: 'r',
+                    t: 'R'
+                },
+                {
+                    v: 'g',
+                    t: 'G'
+                },
+                {
+                    v: 'b',
+                    t: 'B'
+                },
+                {
+                    v: 'a',
+                    t: 'A'
+                }
+            ]
+        }
+    },
+    {
+        label: 'Scale',
+        path: 'data.thickness',
         type: 'number',
-        options: [{
-            v: 0, t: 'Off'
-        }, {
-            v: 1, t: 'Multiply'
-        }, {
-            v: 2, t: 'Gloss Based'
-        }]
+        reference: 'asset:material:thickness',
+        args: {
+            precision: 3,
+            step: 10.0,
+            min: 0,
+            max: 1000
+        }
     },
-    reference: 'asset:material:occludeSpecular'
-}, {
-    label: 'Vertex Color',
-    type: 'boolean',
-    path: 'data.aoVertexColor',
-    reference: 'asset:material:aoVertexColor'
-}, {
-    label: 'Color',
-    type: 'rgb',
-    path: 'data.ambient',
-    reference: 'asset:material:ambient'
-}, {
-    label: 'Intensity',
-    type: 'slider',
-    path: 'data.aoIntensity',
-    reference: 'asset:material:aoIntensity',
-    args: {
-        precision: 2,
-        step: 0.1,
-        min: 0,
-        max: 10
-    }
-}];
-
-const DIFFUSE_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Diffuse', 'diffuse', TextureTypes.Color), {
-    label: 'Vertex Color',
-    type: 'boolean',
-    path: 'data.diffuseVertexColor',
-    reference: 'asset:material:diffuseVertexColor'
-}, {
-    label: 'Color',
-    path: 'data.diffuse',
-    type: 'rgb',
-    reference: 'asset:material:diffuse'
-}];
-
-const SPECULAR_ATTRIBUTES: (Attribute | Divider)[] = [{
-    label: 'Enable GGX Specular',
-    path: 'data.enableGGXSpecular',
-    type: 'boolean',
-    reference: 'asset:material:enableGGXSpecular'
-}, ...createTextureAttribute('Anisotropy', 'anisotropy', TextureTypes.Normal), {
-    label: 'Anisotropy Intensity',
-    path: 'data.anisotropyIntensity',
-    type: 'slider',
-    args: {
-        precision: 3,
-        step: 0.05,
-        min: 0,
-        max: 1
+    {
+        label: 'Attenuation',
+        path: 'data.attenuation',
+        type: 'rgb',
+        reference: 'asset:material:attenuation'
     },
-    reference: 'asset:material:anisotropyIntensity'
-}, {
-    label: 'Anisotropy Rotation',
-    path: 'data.anisotropyRotation',
-    type: 'slider',
-    args: {
-        precision: 3,
-        step: 10,
-        min: 0,
-        max: 360
-    },
-    reference: 'asset:material:anisotropyRotation'
-}, {
-    type: 'divider'
-}, {
-    label: 'Use Metalness',
-    path: 'data.useMetalness',
-    type: 'boolean',
-    reference: 'asset:material:useMetalness'
-}];
-
-const METALNESS_WORKFLOW_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Metalness', 'metalness', TextureTypes.Scalar), {
-    label: 'Vertex Color',
-    path: 'data.metalnessVertexColor',
-    type: 'boolean',
-    reference: 'asset:material:metalnessVertexColor'
-}, {
-    label: 'Metalness',
-    path: 'data.metalness',
-    type: 'slider',
-    args: {
-        precision: 3,
-        step: 0.05,
-        min: 0,
-        max: 1
-    },
-    reference: 'asset:material:metalness'
-}, {
-    label: 'Use Specular Color and Factor',
-    path: 'data.useMetalnessSpecularColor',
-    type: 'boolean',
-    reference: 'asset:material:useMetalnessSpecularColor'
-}, ...createTextureAttribute('Specular', 'specular', TextureTypes.Color), {
-    label: 'Vertex Color',
-    path: 'data.specularVertexColor',
-    type: 'boolean',
-    reference: 'asset:material:specularVertexColor'
-}, {
-    label: 'Tint',
-    path: 'data.specularTint',
-    type: 'boolean',
-    reference: 'asset:material:specularTint'
-}, {
-    label: 'Color',
-    path: 'data.specular',
-    type: 'rgb',
-    reference: 'asset:material:specular'
-}, ...createTextureAttribute('Specularity Factor', 'specularityFactor', TextureTypes.Scalar), {
-    label: 'Vertex Color',
-    path: 'data.specularityFactorVertexColor',
-    type: 'boolean',
-    reference: 'asset:material:specularityFactorVertexColor'
-}, {
-    label: 'Tint',
-    path: 'data.specularityFactorTint',
-    type: 'boolean',
-    reference: 'asset:material:specularityFactorTint'
-}, {
-    label: 'Specularity Factor',
-    path: 'data.specularityFactor',
-    type: 'slider',
-    args: {
-        precision: 3,
-        step: 0.05,
-        min: 0,
-        max: 1
-    },
-    reference: 'asset:material:specularityFactor'
-}];
-
-const SPECULAR_WORKFLOW_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Specular', 'specular', TextureTypes.Color), {
-    label: 'Vertex Color',
-    path: 'data.specularVertexColor',
-    type: 'boolean',
-    reference: 'asset:material:specularVertexColor'
-}, {
-    label: 'Tint',
-    path: 'data.specularTint',
-    type: 'boolean',
-    reference: 'asset:material:specularTint'
-}, {
-    label: 'Color',
-    path: 'data.specular',
-    type: 'rgb',
-    reference: 'asset:material:specular'
-}];
-
-const GLOSS_ATTRIBUTES: (Attribute | Divider)[] = [{
-    type: 'divider'
-}, ...createTextureAttribute('Glossiness', 'gloss', TextureTypes.Scalar), {
-    label: 'Vertex Color',
-    path: 'data.glossVertexColor',
-    type: 'boolean',
-    reference: 'asset:material:glossVertexColor'
-}, {
-    label: 'Glossiness',
-    path: 'data.shininess',
-    type: 'slider',
-    args: {
-        precision: 2,
-        step: 0.5,
-        min: 0,
-        max: 100
-    },
-    reference: 'asset:material:shininess'
-}, {
-    label: 'Invert',
-    path: 'data.glossInvert',
-    type: 'boolean',
-    reference: 'asset:material:glossInvert'
-}];
-
-const EMISSIVE_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Emissive', 'emissive', TextureTypes.Color), {
-    label: 'Vertex Color',
-    path: 'data.emissiveVertexColor',
-    type: 'boolean',
-    reference: 'asset:material:emissiveVertexColor'
-}, {
-    label: 'Color',
-    path: 'data.emissive',
-    type: 'rgb',
-    reference: 'asset:material:emissive'
-}, {
-    label: 'Intensity',
-    type: 'slider',
-    path: 'data.emissiveIntensity',
-    args: {
-        precision: 2,
-        step: 0.1,
-        min: 0,
-        max: 100
-    },
-    reference: 'asset:material:emissiveIntensity'
-}];
-
-const OPACITY_ATTRIBUTES: (Attribute | Divider)[] = [{
-    label: 'Blend Type',
-    path: 'data.blendType',
-    type: 'select',
-    args: {
+    {
+        label: 'Attenuation Distance',
+        path: 'data.attenuationDistance',
         type: 'number',
-        options: [{
-            v: 3, t: 'None'
-        }, {
-            v: 2, t: 'Alpha'
-        }, {
-            v: 1, t: 'Additive'
-        }, {
-            v: 6, t: 'Additive Alpha'
-        }, {
-            v: 8, t: 'Screen'
-        }, {
-            v: 4, t: 'Premultiplied Alpha'
-        }, {
-            v: 5, t: 'Multiply'
-        }, {
-            v: 7, t: 'Modulate 2x'
-        }, {
-            v: 9, t: 'Min (Partial Support)'
-        }, {
-            v: 10, t: 'Max (Partial Support)'
-        }]
-    },
-    reference: 'asset:material:blendType'
-}, ...createTextureAttribute('Opacity', 'opacity', TextureTypes.Scalar), {
-    label: 'Vertex Color',
-    path: 'data.opacityVertexColor',
-    type: 'boolean',
-    reference: 'asset:material:opacityVertexColor'
-}, {
-    label: 'Intensity',
-    path: 'data.opacity',
-    type: 'slider',
-    args: {
-        precision: 3,
-        step: 0.05,
-        min: 0,
-        max: 1
-    },
-    reference: 'asset:material:opacity'
-}, {
-    label: 'Alpha Test',
-    path: 'data.alphaTest',
-    type: 'slider',
-    args: {
-        precision: 3,
-        step: 0.05,
-        min: 0,
-        max: 1
-    },
-    reference: 'asset:material:alphaTest'
-}, {
-    label: 'Alpha To Coverage',
-    path: 'data.alphaToCoverage',
-    type: 'boolean',
-    reference: 'asset:material:alphaToCoverage'
-}, {
-    label: 'Opacity Fades Specular',
-    path: 'data.opacityFadesSpecular',
-    type: 'boolean',
-    reference: 'asset:material:opacityFadesSpecular'
-}, {
-    label: 'Opacity Dither',
-    path: 'data.opacityDither',
-    type: 'select',
-    args: {
-        type: 'string',
-        options: [{
-            v: 'none', t: 'None'
-        }, {
-            v: 'bayer8', t: 'Bayer 8'
-        }, {
-            v: 'bluenoise', t: 'Blue Noise'
-        }]
-    },
-    reference: 'asset:material:opacityDither'
-}, {
-    label: 'Opacity Shadow Dither',
-    path: 'data.opacityShadowDither',
-    type: 'select',
-    args: {
-        type: 'string',
-        options: [{
-            v: 'none', t: 'None'
-        }, {
-            v: 'bayer8', t: 'Bayer 8'
-        }, {
-            v: 'bluenoise', t: 'Blue Noise'
-        }]
-    },
-    reference: 'asset:material:opacityShadowDither'
-}, {
-    label: 'Dither Intensity',
-    path: 'data.alphaDither',
-    type: 'slider',
-    args: {
-        precision: 3,
-        step: 0.05,
-        min: 0,
-        max: 1
-    },
-    reference: 'asset:material:alphaDither'
-}, {
-    label: 'Alpha Fade',
-    path: 'data.alphaFade',
-    type: 'slider',
-    args: {
-        precision: 3,
-        step: 0.05,
-        min: 0,
-        max: 1
-    },
-    reference: 'asset:material:alphaFade'
-}];
-
-const NORMALS_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Normals', 'normal', TextureTypes.Normal), {
-    label: 'Bumpiness',
-    path: 'data.bumpMapFactor',
-    type: 'slider',
-    args: {
-        precision: 3,
-        step: 0.05,
-        min: 0,
-        max: 2
-    },
-    reference: 'asset:material:bumpiness'
-}];
-
-const PARALLAX_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Heightmap', 'height', TextureTypes.Scalar), {
-    label: 'Strength',
-    path: 'data.heightMapFactor',
-    type: 'slider',
-    args: {
-        precision: 3,
-        step: 0.05,
-        min: 0,
-        max: 2
-    },
-    reference: 'asset:material:heightMapFactor'
-}];
-
-const CLEARCOAT_FACTOR_ATTRIBUTES: (Attribute | Divider)[] = [{
-    label: 'Clear Coat Factor',
-    path: 'data.clearCoat',
-    type: 'slider',
-    args: {
-        precision: 3,
-        step: 0.05,
-        min: 0,
-        max: 1
-    },
-    reference: 'asset:material:clearCoat'
-}];
-
-const CLEARCOAT_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Clear Coat', 'clearCoat', TextureTypes.Color), {
-    label: 'Vertex Color',
-    path: 'data.clearCoatVertexColor',
-    type: 'boolean',
-    reference: 'asset:material:clearCoatVertexColor'
-}, {
-    label: 'Vertex Color Channel',
-    path: 'data.clearCoatVertexColorChannel',
-    type: 'select',
-    args: {
-        type: 'string',
-        options: [{
-            v: 'r', t: 'R'
-        }, {
-            v: 'g', t: 'G'
-        }, {
-            v: 'b', t: 'B'
-        }, {
-            v: 'a', t: 'A'
-        }]
-    },
-    reference: 'asset:material:clearCoatVertexColorChannel'
-}];
-
-const CLEARCOAT_GLOSS_ATTRIBUTES: (Attribute | Divider)[] = [{
-    type: 'divider'
-}, ...createTextureAttribute('Clear Coat Gloss', 'clearCoatGloss', TextureTypes.Scalar), {
-    label: 'Vertex Color',
-    path: 'data.clearCoatGlossVertexColor',
-    type: 'boolean',
-    reference: 'asset:material:clearCoatGlossVertexColor'
-}, {
-    label: 'Vertex Color Channel',
-    path: 'data.clearCoatGlossVertexColorChannel',
-    type: 'select',
-    args: {
-        type: 'string',
-        options: [{
-            v: 'r', t: 'R'
-        }, {
-            v: 'g', t: 'G'
-        }, {
-            v: 'b', t: 'B'
-        }, {
-            v: 'a', t: 'A'
-        }]
-    },
-    reference: 'asset:material:clearCoatGlossVertexColorChannel'
-}, {
-    label: 'Glossiness',
-    path: 'data.clearCoatGloss',
-    type: 'slider',
-    args: {
-        precision: 3,
-        step: 0.05,
-        min: 0,
-        max: 1
-    },
-    reference: 'asset:material:clearCoatGloss'
-}, {
-    label: 'Invert',
-    path: 'data.clearCoatGlossInvert',
-    type: 'boolean',
-    reference: 'asset:material:clearCoatGlossInvert'
-}];
-
-const CLEARCOAT_NORMAL_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Clear Coat Normals', 'clearCoatNormal', TextureTypes.Normal), {
-    label: 'Bumpiness',
-    path: 'data.clearCoatBumpiness',
-    type: 'slider',
-    args: {
-        precision: 3,
-        step: 0.05,
-        min: 0,
-        max: 2
-    },
-    reference: 'asset:material:clearCoatBumpiness'
-}];
-
-const SHEEN_ATTRIBUTES: (Attribute | Divider)[] = [{
-    label: 'Use Sheen',
-    path: 'data.useSheen',
-    type: 'boolean',
-    reference: 'asset:material:useSheen'
-}, ...createTextureAttribute('Sheen', 'sheen', TextureTypes.Color), {
-    label: 'Vertex Color',
-    path: 'data.sheenVertexColor',
-    type: 'boolean',
-    reference: 'asset:material:sheenVertexColor'
-}, {
-    label: 'Color',
-    path: 'data.sheen',
-    type: 'rgb',
-    reference: 'asset:material:sheen'
-}, ...createTextureAttribute('Sheen Glossiness', 'sheenGloss', TextureTypes.Scalar), {
-    label: 'Vertex Color',
-    path: 'data.sheenGlossVertexColor',
-    type: 'boolean',
-    reference: 'asset:material:sheenGlossVertexColor'
-}, {
-    label: 'Vertex Color Channel',
-    path: 'data.sheenGlossVertexColorChannel',
-    type: 'select',
-    reference: 'asset:material:sheenGlossVertexColorChannel',
-    args: {
-        type: 'string',
-        options: [{
-            v: 'r', t: 'R'
-        }, {
-            v: 'g', t: 'G'
-        }, {
-            v: 'b', t: 'B'
-        }, {
-            v: 'a', t: 'A'
-        }]
+        reference: 'asset:material:attenuationDistance',
+        args: {
+            precision: 3,
+            step: 10.0,
+            min: 0,
+            max: 1000
+        }
     }
-}, {
-    label: 'Glossiness',
-    path: 'data.sheenGloss',
-    type: 'slider',
-    reference: 'asset:material:sheenGloss'
-}, {
-    label: 'Invert',
-    path: 'data.sheenGlossInvert',
-    type: 'boolean',
-    reference: 'asset:material:sheenGlossInvert'
-}];
+];
 
-const REFRACTION_ATTRIBUTES: (Attribute | Divider)[] = [{
-    label: 'Dynamic Refractions',
-    path: 'data.useDynamicRefraction',
-    type: 'boolean',
-    reference: 'asset:material:useDynamicRefraction'
-}, ...createTextureAttribute('Refraction', 'refraction', TextureTypes.Scalar), {
-    label: 'Vertex Color',
-    path: 'data.refractionVertexColor',
-    type: 'boolean',
-    reference: 'asset:material:refractionVertexColor'
-}, {
-    label: 'Vertex Color Channel',
-    path: 'data.refractionVertexColorChannel',
-    type: 'select',
-    reference: 'asset:material:refractionVertexColorChannel',
-    args: {
-        type: 'string',
-        options: [{
-            v: 'r', t: 'R'
-        }, {
-            v: 'g', t: 'G'
-        }, {
-            v: 'b', t: 'B'
-        }, {
-            v: 'a', t: 'A'
-        }]
-    }
-}, {
-    label: 'Refraction',
-    path: 'data.refraction',
-    type: 'slider',
-    reference: 'asset:material:refraction'
-},  {
-    label: 'Index Of Refraction',
-    path: 'data.refractionIndex',
-    type: 'slider',
-    args: {
-        precision: 3,
-        step: 0.01,
-        min: 0,
-        max: 1
+const IRIDESCENCE_ATTRIBUTES: (Attribute | Divider)[] = [
+    {
+        label: 'Use Iridescence',
+        path: 'data.useIridescence',
+        type: 'boolean',
+        reference: 'asset:material:useIridescence'
     },
-    reference: 'asset:material:refractionIndex'
-},  {
-    label: 'Dispersion',
-    path: 'data.dispersion',
-    type: 'slider',
-    args: {
-        precision: 2,
-        step: 0.1,
-        min: 0,
-        max: 10
+    ...createTextureAttribute('Iridescence', 'iridescence', TextureTypes.Scalar),
+    {
+        label: 'Iridescence',
+        path: 'data.iridescence',
+        type: 'slider',
+        reference: 'asset:material:iridescence'
     },
-    reference: 'asset:material:dispersion'
-}, ...createTextureAttribute('Thickness', 'thickness', TextureTypes.Scalar), {
-    label: 'Vertex Color',
-    path: 'data.thicknessVertexColor',
-    type: 'boolean',
-    reference: 'asset:material:thicknessVertexColor'
-}, {
-    label: 'Vertex Color Channel',
-    path: 'data.thicknessVertexColorChannel',
-    type: 'boolean',
-    reference: 'asset:material:thicknessVertexColorChannel',
-    args: {
-        type: 'string',
-        options: [{
-            v: 'r', t: 'R'
-        }, {
-            v: 'g', t: 'G'
-        }, {
-            v: 'b', t: 'B'
-        }, {
-            v: 'a', t: 'A'
-        }]
-    }
-}, {
-    label: 'Scale',
-    path: 'data.thickness',
-    type: 'number',
-    reference: 'asset:material:thickness',
-    args: {
-        precision: 3,
-        step: 10.0,
-        min: 0,
-        max: 1000
-    }
-}, {
-    label: 'Attenuation',
-    path: 'data.attenuation',
-    type: 'rgb',
-    reference: 'asset:material:attenuation'
-}, {
-    label: 'Attenuation Distance',
-    path: 'data.attenuationDistance',
-    type: 'number',
-    reference: 'asset:material:attenuationDistance',
-    args: {
-        precision: 3,
-        step: 10.0,
-        min: 0,
-        max: 1000
-    }
-}];
-
-const IRIDESCENCE_ATTRIBUTES: (Attribute | Divider)[] = [{
-    label: 'Use Iridescence',
-    path: 'data.useIridescence',
-    type: 'boolean',
-    reference: 'asset:material:useIridescence'
-}, ...createTextureAttribute('Iridescence', 'iridescence', TextureTypes.Scalar), {
-    label: 'Iridescence',
-    path: 'data.iridescence',
-    type: 'slider',
-    reference: 'asset:material:iridescence'
-}, ...createTextureAttribute('Iridescence Thickness', 'iridescenceThickness', TextureTypes.Scalar), {
-    label: 'Thickness Minimum',
-    path: 'data.iridescenceThicknessMin',
-    type: 'number',
-    reference: 'asset:material:iridescenceThicknessMin',
-    args: {
-        precision: 3,
-        step: 10.0,
-        min: 0,
-        max: 1000
-    }
-}, {
-    label: 'Thickness Maximum',
-    path: 'data.iridescenceThicknessMax',
-    type: 'number',
-    reference: 'asset:material:iridescenceThicknessMax',
-    args: {
-        precision: 3,
-        step: 10.0,
-        min: 0,
-        max: 1000
-    }
-}, {
-    label: 'Index of Refraction',
-    path: 'data.iridescenceRefractionIndex',
-    type: 'slider',
-    reference: 'asset:material:iridescenceRefractionIndex',
-    args: {
-        precision: 3,
-        step: 0.1,
-        min: 0,
-        max: 7
-    }
-}];
-
-const ENVIRONMENT_ATTRIBUTES: (Attribute | Divider)[] = [{
-    label: 'Sphere Map',
-    path: 'data.sphereMap',
-    type: 'asset',
-    args: {
-        assetType: 'texture'
-    },
-    reference: 'asset:material:sphereMap'
-}, {
-    label: 'Cube Map',
-    path: 'data.cubeMap',
-    type: 'asset',
-    args: {
-        assetType: 'cubemap'
-    },
-    reference: 'asset:material:cubeMap'
-}, {
-    label: 'Reflectivity',
-    path: 'data.reflectivity',
-    type: 'slider',
-    args: {
-        precision: 3,
-        step: 0.01,
-        min: 0,
-        sliderMax: 8
-    },
-    reference: 'asset:material:reflectivity'
-}, {
-    type: 'divider'
-}, {
-    label: 'Projection',
-    path: 'data.cubeMapProjection',
-    type: 'select',
-    args: {
+    ...createTextureAttribute('Iridescence Thickness', 'iridescenceThickness', TextureTypes.Scalar),
+    {
+        label: 'Thickness Minimum',
+        path: 'data.iridescenceThicknessMin',
         type: 'number',
-        options: [{
-            v: 0, t: 'Normal'
-        }, {
-            v: 1, t: 'Box'
-        }]
+        reference: 'asset:material:iridescenceThicknessMin',
+        args: {
+            precision: 3,
+            step: 10.0,
+            min: 0,
+            max: 1000
+        }
     },
-    reference: 'asset:material:cubeMapProjection'
-}, {
-    label: 'Center',
-    path: 'data.cubeMapProjectionBox.center',
-    type: 'vec3',
-    args: {
-        placeholder: ['x', 'y', 'z']
-    },
-    reference: 'asset:material:cubeMapProjectionBoxCenter'
-}, {
-    label: 'Half Extents',
-    path: 'data.cubeMapProjectionBox.halfExtents',
-    type: 'vec3',
-    args: {
-        placeholder: ['w', 'h', 'd']
-    },
-    reference: 'asset:material:cubeMapProjectionBoxHalfExtents'
-}];
-
-const LIGHTMAP_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Lightmap', 'light', TextureTypes.Color), {
-    label: 'Vertex Color',
-    path: 'data.lightVertexColor',
-    type: 'boolean',
-    reference: 'asset:material:lightVertexColor'
-}];
-
-const OTHER_ATTRIBUTES: (Attribute | Divider)[] = [{
-    label: 'Depth Test',
-    path: 'data.depthTest',
-    type: 'boolean',
-    reference: 'asset:material:depthTest'
-}, {
-    label: 'Depth Write',
-    path: 'data.depthWrite',
-    type: 'boolean',
-    reference: 'asset:material:depthWrite'
-}, {
-    label: 'Cull Mode',
-    path: 'data.cull',
-    type: 'select',
-    args: {
+    {
+        label: 'Thickness Maximum',
+        path: 'data.iridescenceThicknessMax',
         type: 'number',
-        options: [{
-            v: 0, t: 'None'
-        }, {
-            v: 1, t: 'Back Faces'
-        }, {
-            v: 2, t: 'Front Faces'
-        }]
+        reference: 'asset:material:iridescenceThicknessMax',
+        args: {
+            precision: 3,
+            step: 10.0,
+            min: 0,
+            max: 1000
+        }
     },
-    reference: 'asset:material:cull'
-}, {
-    label: 'Two Sided Lighting',
-    path: 'data.twoSidedLighting',
-    type: 'boolean',
-    reference: 'asset:material:twoSidedLighting'
-}, {
-    label: 'Use Fog',
-    path: 'data.useFog',
-    type: 'boolean',
-    reference: 'asset:material:useFog'
-}, {
-    label: 'Use Lighting',
-    path: 'data.useLighting',
-    type: 'boolean',
-    reference: 'asset:material:useLighting'
-}, {
-    label: 'Use Skybox',
-    path: 'data.useSkybox',
-    type: 'boolean',
-    reference: 'asset:material:useSkybox'
-}, {
-    label: 'Use Tonemap',
-    path: 'data.useTonemap',
-    type: 'boolean',
-    reference: 'asset:material:useTonemap'
-}, {
-    label: 'Vertex Color Gamma',
-    path: 'data.vertexColorGamma',
-    type: 'boolean',
-    reference: 'asset:material:vertexColorGamma'
-}];
+    {
+        label: 'Index of Refraction',
+        path: 'data.iridescenceRefractionIndex',
+        type: 'slider',
+        reference: 'asset:material:iridescenceRefractionIndex',
+        args: {
+            precision: 3,
+            step: 0.1,
+            min: 0,
+            max: 7
+        }
+    }
+];
 
-const DOM = parent => [{
-    root: {
-        materialPanel: new Panel({
-            headerText: 'MATERIAL'
-        })
+const ENVIRONMENT_ATTRIBUTES: (Attribute | Divider)[] = [
+    {
+        label: 'Sphere Map',
+        path: 'data.sphereMap',
+        type: 'asset',
+        args: {
+            assetType: 'texture'
+        },
+        reference: 'asset:material:sphereMap'
     },
-    children: [{
-        materialInspector: new AttributesInspector({
-            assets: parent._args.assets,
-            history: parent._args.history,
-            attributes: MATERIAL_ATTRIBUTES
-        })
-    }]
-}, {
-    root: {
-        offsetTilingPanel: new Panel({
-            headerText: 'TEXTURE TRANSFORM',
-            collapsible: true,
-            collapsed: true
-        })
+    {
+        label: 'Cube Map',
+        path: 'data.cubeMap',
+        type: 'asset',
+        args: {
+            assetType: 'cubemap'
+        },
+        reference: 'asset:material:cubeMap'
     },
-    children: [{
-        offsetTilingInspector: new AttributesInspector({
-            assets: parent._args.assets,
-            history: parent._args.history,
-            attributes: TEXTURE_TRANFORM_ATTRIBUTES
-        })
-    }]
-}, {
-    root: {
-        ambientPanel: new Panel({
-            headerText: 'AMBIENT',
-            collapsible: true,
-            collapsed: true
-        })
+    {
+        label: 'Reflectivity',
+        path: 'data.reflectivity',
+        type: 'slider',
+        args: {
+            precision: 3,
+            step: 0.01,
+            min: 0,
+            sliderMax: 8
+        },
+        reference: 'asset:material:reflectivity'
     },
-    children: [{
-        ambientInspector: new AttributesInspector({
-            assets: parent._args.assets,
-            history: parent._args.history,
-            attributes: AMBIENT_ATTRIBUTES
-        })
-    }]
-}, {
-    root: {
-        diffusePanel: new Panel({
-            headerText: 'DIFFUSE',
-            collapsible: true,
-            collapsed: true
-        })
+    {
+        type: 'divider'
     },
-    children: [{
-        diffuseInspector: new AttributesInspector({
-            assets: parent._args.assets,
-            history: parent._args.history,
-            attributes: DIFFUSE_ATTRIBUTES
-        })
-    }]
-}, {
-    root: {
-        specularPanel: new Panel({
-            headerText: 'SPECULAR',
-            collapsible: true,
-            collapsed: true
-        })
+    {
+        label: 'Projection',
+        path: 'data.cubeMapProjection',
+        type: 'select',
+        args: {
+            type: 'number',
+            options: [
+                {
+                    v: 0,
+                    t: 'Normal'
+                },
+                {
+                    v: 1,
+                    t: 'Box'
+                }
+            ]
+        },
+        reference: 'asset:material:cubeMapProjection'
     },
-    children: [{
-        specularInspector: new AttributesInspector({
-            assets: parent._args.assets,
-            history: parent._args.history,
-            attributes: SPECULAR_ATTRIBUTES
-        })
-    }, {
-        metalnessWorkflowInspector: new AttributesInspector({
-            assets: parent._args.assets,
-            history: parent._args.history,
-            attributes: METALNESS_WORKFLOW_ATTRIBUTES
-        })
-    }, {
-        specularWorkflowInspector: new AttributesInspector({
-            assets: parent._args.assets,
-            history: parent._args.history,
-            attributes: SPECULAR_WORKFLOW_ATTRIBUTES
-        })
-    }, {
-        glossInspector: new AttributesInspector({
-            assets: parent._args.assets,
-            history: parent._args.history,
-            attributes: GLOSS_ATTRIBUTES
-        })
-    }]
-}, {
-    root: {
-        emissivePanel: new Panel({
-            headerText: 'EMISSIVE',
-            collapsible: true,
-            collapsed: true
-        })
+    {
+        label: 'Center',
+        path: 'data.cubeMapProjectionBox.center',
+        type: 'vec3',
+        args: {
+            placeholder: ['x', 'y', 'z']
+        },
+        reference: 'asset:material:cubeMapProjectionBoxCenter'
     },
-    children: [{
-        emissiveInspector: new AttributesInspector({
-            assets: parent._args.assets,
-            history: parent._args.history,
-            attributes: EMISSIVE_ATTRIBUTES
-        })
-    }]
-}, {
-    root: {
-        opacityPanel: new Panel({
-            headerText: 'OPACITY',
-            collapsible: true,
-            collapsed: true
-        })
+    {
+        label: 'Half Extents',
+        path: 'data.cubeMapProjectionBox.halfExtents',
+        type: 'vec3',
+        args: {
+            placeholder: ['w', 'h', 'd']
+        },
+        reference: 'asset:material:cubeMapProjectionBoxHalfExtents'
+    }
+];
+
+const LIGHTMAP_ATTRIBUTES: (Attribute | Divider)[] = [
+    ...createTextureAttribute('Lightmap', 'light', TextureTypes.Color),
+    {
+        label: 'Vertex Color',
+        path: 'data.lightVertexColor',
+        type: 'boolean',
+        reference: 'asset:material:lightVertexColor'
+    }
+];
+
+const OTHER_ATTRIBUTES: (Attribute | Divider)[] = [
+    {
+        label: 'Depth Test',
+        path: 'data.depthTest',
+        type: 'boolean',
+        reference: 'asset:material:depthTest'
     },
-    children: [{
-        opacityInspector: new AttributesInspector({
-            assets: parent._args.assets,
-            history: parent._args.history,
-            attributes: OPACITY_ATTRIBUTES
-        })
-    }]
-}, {
-    root: {
-        normalsPanel: new Panel({
-            headerText: 'NORMALS',
-            collapsible: true,
-            collapsed: true
-        })
+    {
+        label: 'Depth Write',
+        path: 'data.depthWrite',
+        type: 'boolean',
+        reference: 'asset:material:depthWrite'
     },
-    children: [{
-        normalsInspector: new AttributesInspector({
-            assets: parent._args.assets,
-            history: parent._args.history,
-            attributes: NORMALS_ATTRIBUTES
-        })
-    }]
-}, {
-    root: {
-        parallaxPanel: new Panel({
-            headerText: 'PARALLAX',
-            collapsible: true,
-            collapsed: true
-        })
+    {
+        label: 'Cull Mode',
+        path: 'data.cull',
+        type: 'select',
+        args: {
+            type: 'number',
+            options: [
+                {
+                    v: 0,
+                    t: 'None'
+                },
+                {
+                    v: 1,
+                    t: 'Back Faces'
+                },
+                {
+                    v: 2,
+                    t: 'Front Faces'
+                }
+            ]
+        },
+        reference: 'asset:material:cull'
     },
-    children: [{
-        parallaxInspector: new AttributesInspector({
-            assets: parent._args.assets,
-            history: parent._args.history,
-            attributes: PARALLAX_ATTRIBUTES
-        })
-    }]
-}, {
-    root: {
-        clearCoatPanel: new Panel({
-            headerText: 'CLEARCOAT',
-            collapsible: true,
-            collapsed: true
-        })
+    {
+        label: 'Two Sided Lighting',
+        path: 'data.twoSidedLighting',
+        type: 'boolean',
+        reference: 'asset:material:twoSidedLighting'
     },
-    children: [{
-        clearCoatFactorInspector: new AttributesInspector({
-            assets: parent._args.assets,
-            history: parent._args.history,
-            attributes: CLEARCOAT_FACTOR_ATTRIBUTES
-        })
-    }, {
-        clearCoatInspector: new AttributesInspector({
-            assets: parent._args.assets,
-            history: parent._args.history,
-            attributes: CLEARCOAT_ATTRIBUTES
-        })
-    }, {
-        clearCoatGlossInspector: new AttributesInspector({
-            assets: parent._args.assets,
-            history: parent._args.history,
-            attributes: CLEARCOAT_GLOSS_ATTRIBUTES
-        })
-    }, {
-        clearCoatNormalInspector: new AttributesInspector({
-            assets: parent._args.assets,
-            history: parent._args.history,
-            attributes: CLEARCOAT_NORMAL_ATTRIBUTES
-        })
-    }]
-}, {
-    root: {
-        sheenPanel: new Panel({
-            headerText: 'SHEEN',
-            collapsible: true,
-            collapsed: true
-        })
+    {
+        label: 'Use Fog',
+        path: 'data.useFog',
+        type: 'boolean',
+        reference: 'asset:material:useFog'
     },
-    children: [{
-        sheenInspector: new AttributesInspector({
-            assets: parent._args.assets,
-            history: parent._args.history,
-            attributes: SHEEN_ATTRIBUTES
-        })
-    }]
-}, {
-    root: {
-        refractionPanel: new Panel({
-            headerText: 'REFRACTION',
-            collapsible: true,
-            collapsed: true
-        })
+    {
+        label: 'Use Lighting',
+        path: 'data.useLighting',
+        type: 'boolean',
+        reference: 'asset:material:useLighting'
     },
-    children: [{
-        refractionInspector: new AttributesInspector({
-            assets: parent._args.assets,
-            history: parent._args.history,
-            attributes: REFRACTION_ATTRIBUTES
-        })
-    }]
-}, {
-    root: {
-        iridescencePanel: new Panel({
-            headerText: 'IRIDESCENCE',
-            collapsible: true,
-            collapsed: true
-        })
+    {
+        label: 'Use Skybox',
+        path: 'data.useSkybox',
+        type: 'boolean',
+        reference: 'asset:material:useSkybox'
     },
-    children: [{
-        iridescenceInspector: new AttributesInspector({
-            assets: parent._args.assets,
-            history: parent._args.history,
-            attributes: IRIDESCENCE_ATTRIBUTES
-        })
-    }]
-}, {
-    root: {
-        envPanel: new Panel({
-            headerText: 'ENVIRONMENT',
-            collapsible: true,
-            collapsed: true
-        })
+    {
+        label: 'Use Tonemap',
+        path: 'data.useTonemap',
+        type: 'boolean',
+        reference: 'asset:material:useTonemap'
     },
-    children: [{
-        envInspector: new AttributesInspector({
-            assets: parent._args.assets,
-            history: parent._args.history,
-            attributes: ENVIRONMENT_ATTRIBUTES
-        })
-    }]
-}, {
-    root: {
-        lightmapPanel: new Panel({
-            headerText: 'LIGHTMAP',
-            collapsible: true,
-            collapsed: true
-        })
+    {
+        label: 'Vertex Color Gamma',
+        path: 'data.vertexColorGamma',
+        type: 'boolean',
+        reference: 'asset:material:vertexColorGamma'
+    }
+];
+
+const DOM = (parent) => [
+    {
+        root: {
+            materialPanel: new Panel({
+                headerText: 'MATERIAL'
+            })
+        },
+        children: [
+            {
+                materialInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: MATERIAL_ATTRIBUTES
+                })
+            }
+        ]
     },
-    children: [{
-        lightmapInspector: new AttributesInspector({
-            assets: parent._args.assets,
-            history: parent._args.history,
-            attributes: LIGHTMAP_ATTRIBUTES
-        })
-    }]
-}, {
-    root: {
-        otherPanel: new Panel({
-            headerText: 'OTHER',
-            collapsible: true,
-            collapsed: true
-        })
+    {
+        root: {
+            offsetTilingPanel: new Panel({
+                headerText: 'TEXTURE TRANSFORM',
+                collapsible: true,
+                collapsed: true
+            })
+        },
+        children: [
+            {
+                offsetTilingInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: TEXTURE_TRANFORM_ATTRIBUTES
+                })
+            }
+        ]
     },
-    children: [{
-        otherInspector: new AttributesInspector({
-            assets: parent._args.assets,
-            history: parent._args.history,
-            attributes: OTHER_ATTRIBUTES
-        })
-    }]
-}];
+    {
+        root: {
+            ambientPanel: new Panel({
+                headerText: 'AMBIENT',
+                collapsible: true,
+                collapsed: true
+            })
+        },
+        children: [
+            {
+                ambientInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: AMBIENT_ATTRIBUTES
+                })
+            }
+        ]
+    },
+    {
+        root: {
+            diffusePanel: new Panel({
+                headerText: 'DIFFUSE',
+                collapsible: true,
+                collapsed: true
+            })
+        },
+        children: [
+            {
+                diffuseInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: DIFFUSE_ATTRIBUTES
+                })
+            }
+        ]
+    },
+    {
+        root: {
+            specularPanel: new Panel({
+                headerText: 'SPECULAR',
+                collapsible: true,
+                collapsed: true
+            })
+        },
+        children: [
+            {
+                specularInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: SPECULAR_ATTRIBUTES
+                })
+            },
+            {
+                metalnessWorkflowInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: METALNESS_WORKFLOW_ATTRIBUTES
+                })
+            },
+            {
+                specularWorkflowInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: SPECULAR_WORKFLOW_ATTRIBUTES
+                })
+            },
+            {
+                glossInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: GLOSS_ATTRIBUTES
+                })
+            }
+        ]
+    },
+    {
+        root: {
+            emissivePanel: new Panel({
+                headerText: 'EMISSIVE',
+                collapsible: true,
+                collapsed: true
+            })
+        },
+        children: [
+            {
+                emissiveInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: EMISSIVE_ATTRIBUTES
+                })
+            }
+        ]
+    },
+    {
+        root: {
+            opacityPanel: new Panel({
+                headerText: 'OPACITY',
+                collapsible: true,
+                collapsed: true
+            })
+        },
+        children: [
+            {
+                opacityInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: OPACITY_ATTRIBUTES
+                })
+            }
+        ]
+    },
+    {
+        root: {
+            normalsPanel: new Panel({
+                headerText: 'NORMALS',
+                collapsible: true,
+                collapsed: true
+            })
+        },
+        children: [
+            {
+                normalsInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: NORMALS_ATTRIBUTES
+                })
+            }
+        ]
+    },
+    {
+        root: {
+            parallaxPanel: new Panel({
+                headerText: 'PARALLAX',
+                collapsible: true,
+                collapsed: true
+            })
+        },
+        children: [
+            {
+                parallaxInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: PARALLAX_ATTRIBUTES
+                })
+            }
+        ]
+    },
+    {
+        root: {
+            clearCoatPanel: new Panel({
+                headerText: 'CLEARCOAT',
+                collapsible: true,
+                collapsed: true
+            })
+        },
+        children: [
+            {
+                clearCoatFactorInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: CLEARCOAT_FACTOR_ATTRIBUTES
+                })
+            },
+            {
+                clearCoatInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: CLEARCOAT_ATTRIBUTES
+                })
+            },
+            {
+                clearCoatGlossInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: CLEARCOAT_GLOSS_ATTRIBUTES
+                })
+            },
+            {
+                clearCoatNormalInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: CLEARCOAT_NORMAL_ATTRIBUTES
+                })
+            }
+        ]
+    },
+    {
+        root: {
+            sheenPanel: new Panel({
+                headerText: 'SHEEN',
+                collapsible: true,
+                collapsed: true
+            })
+        },
+        children: [
+            {
+                sheenInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: SHEEN_ATTRIBUTES
+                })
+            }
+        ]
+    },
+    {
+        root: {
+            refractionPanel: new Panel({
+                headerText: 'REFRACTION',
+                collapsible: true,
+                collapsed: true
+            })
+        },
+        children: [
+            {
+                refractionInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: REFRACTION_ATTRIBUTES
+                })
+            }
+        ]
+    },
+    {
+        root: {
+            iridescencePanel: new Panel({
+                headerText: 'IRIDESCENCE',
+                collapsible: true,
+                collapsed: true
+            })
+        },
+        children: [
+            {
+                iridescenceInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: IRIDESCENCE_ATTRIBUTES
+                })
+            }
+        ]
+    },
+    {
+        root: {
+            envPanel: new Panel({
+                headerText: 'ENVIRONMENT',
+                collapsible: true,
+                collapsed: true
+            })
+        },
+        children: [
+            {
+                envInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: ENVIRONMENT_ATTRIBUTES
+                })
+            }
+        ]
+    },
+    {
+        root: {
+            lightmapPanel: new Panel({
+                headerText: 'LIGHTMAP',
+                collapsible: true,
+                collapsed: true
+            })
+        },
+        children: [
+            {
+                lightmapInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: LIGHTMAP_ATTRIBUTES
+                })
+            }
+        ]
+    },
+    {
+        root: {
+            otherPanel: new Panel({
+                headerText: 'OTHER',
+                collapsible: true,
+                collapsed: true
+            })
+        },
+        children: [
+            {
+                otherInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: OTHER_ATTRIBUTES
+                })
+            }
+        ]
+    }
+];
 
 const MAPS = {
-    'ao': ['ambientInspector'],
-    'diffuse': ['diffuseInspector'],
-    'specular': ['specularWorkflowInspector', 'metalnessWorkflowInspector'],
-    'specularityFactor': ['metalnessWorkflowInspector'],
-    'emissive': ['emissiveInspector'],
-    'normal': ['normalsInspector'],
-    'opacity': ['opacityInspector'],
-    'height': ['parallaxInspector'],
-    'light': ['lightmapInspector'],
-    'metalness': ['metalnessWorkflowInspector'],
-    'gloss': ['glossInspector'],
-    'clearCoat': ['clearCoatInspector'],
-    'clearCoatGloss': ['clearCoatGlossInspector'],
-    'clearCoatNormal': ['clearCoatNormalInspector'],
-    'sheen': ['sheenInspector'],
-    'sheenGloss': ['sheenInspector'],
-    'refraction': ['refractionInspector'],
-    'thickness': ['refractionInspector'],
-    'iridescence': ['iridescenceInspector'],
-    'iridescenceThickness': ['iridescenceInspector']
+    ao: ['ambientInspector'],
+    diffuse: ['diffuseInspector'],
+    specular: ['specularWorkflowInspector', 'metalnessWorkflowInspector'],
+    specularityFactor: ['metalnessWorkflowInspector'],
+    emissive: ['emissiveInspector'],
+    normal: ['normalsInspector'],
+    opacity: ['opacityInspector'],
+    height: ['parallaxInspector'],
+    light: ['lightmapInspector'],
+    metalness: ['metalnessWorkflowInspector'],
+    gloss: ['glossInspector'],
+    clearCoat: ['clearCoatInspector'],
+    clearCoatGloss: ['clearCoatGlossInspector'],
+    clearCoatNormal: ['clearCoatNormalInspector'],
+    sheen: ['sheenInspector'],
+    sheenGloss: ['sheenInspector'],
+    refraction: ['refractionInspector'],
+    thickness: ['refractionInspector'],
+    iridescence: ['iridescenceInspector'],
+    iridescenceThickness: ['iridescenceInspector']
 };
 
 const COLLAPSED_PANEL_DEPENDENCIES = {
-    '_offsetTilingPanel': ['diffuseMapOffset', 'diffuseMapTiling', 'diffuseMapRotation'],
-    '_ambientPanel': ['aoMap'],
-    '_diffusePanel': ['diffuseMap'],
-    '_specularPanel': ['specularMap', 'metalnessMap', 'glossMap', 'specularityFactorMap'],
-    '_clearCoatPanel': ['clearCoatMap', 'clearCoatGlossMap', 'clearCoatNormalMap'],
-    '_sheenPanel': ['sheenMap', 'sheenGlossMap'],
-    '_emissivePanel': ['emissiveMap'],
-    '_opacityPanel': ['opacityMap'],
-    '_normalsPanel': ['normalMap'],
-    '_parallaxPanel': ['heightMap'],
-    '_envPanel': ['sphereMap', 'cubeMap'],
-    '_lightmapPanel': ['lightMap']
+    _offsetTilingPanel: ['diffuseMapOffset', 'diffuseMapTiling', 'diffuseMapRotation'],
+    _ambientPanel: ['aoMap'],
+    _diffusePanel: ['diffuseMap'],
+    _specularPanel: ['specularMap', 'metalnessMap', 'glossMap', 'specularityFactorMap'],
+    _clearCoatPanel: ['clearCoatMap', 'clearCoatGlossMap', 'clearCoatNormalMap'],
+    _sheenPanel: ['sheenMap', 'sheenGlossMap'],
+    _emissivePanel: ['emissiveMap'],
+    _opacityPanel: ['opacityMap'],
+    _normalsPanel: ['normalMap'],
+    _parallaxPanel: ['heightMap'],
+    _envPanel: ['sphereMap', 'cubeMap'],
+    _lightmapPanel: ['lightMap']
 };
 
 const BULK_SLOTS = {
-    'ao': ['a', 'ao', 'ambient', 'ambientocclusion', 'gma', 'gmat', 'gmao', 'gmaa', 'rma', 'rmat', 'rmao', 'rmaa'],
-    'diffuse': ['d', 'diff', 'diffuse', 'albedo', 'color', 'rgb', 'rgba'],
-    'specular': ['s', 'spec', 'specular'],
-    'specularityFactor': ['sf', 'specularityfactor'],
-    'sheen': ['sh', 'sheen'],
-    'sheenGloss': ['shg', 'sheenGloss'],
-    'refraction': ['rf', 'refraction'],
-    'thickness': ['th', 'thickness'],
-    'iridescence': ['ir', 'iridescence'],
-    'iridescenceThickness': ['irth', 'iridescenceThickness'],
-    'metalness': ['m', 'met', 'metal', 'metalness', 'gma', 'gmat', 'gmao', 'gmaa', 'rma', 'rmat', 'rmao', 'rmaa'],
-    'gloss': ['g', 'gloss', 'glossiness', 'gma', 'gmat', 'gmao', 'gmaa', 'rma', 'rmat', 'rmao', 'rmaa'],
-    'clearCoat': ['cc', 'clearcoat'],
-    'clearCoatGloss': ['ccg', 'clearcoatgloss'],
-    'clearCoatNormal': ['ccn', 'clearcoatnormal'],
-    'emissive': ['e', 'emissive'],
-    'opacity': ['o', 't', 'opacity', 'alpha', 'transparency', 'gmat', 'gmao', 'gmaa', 'rgba', 'rmat', 'rmao', 'rmaa'],
-    'normal': ['n', 'norm', 'normal', 'normals'],
-    'height': ['p', 'h', 'height', 'parallax', 'bump'],
-    'light': ['l', 'lm', 'light', 'lightmap']
+    ao: ['a', 'ao', 'ambient', 'ambientocclusion', 'gma', 'gmat', 'gmao', 'gmaa', 'rma', 'rmat', 'rmao', 'rmaa'],
+    diffuse: ['d', 'diff', 'diffuse', 'albedo', 'color', 'rgb', 'rgba'],
+    specular: ['s', 'spec', 'specular'],
+    specularityFactor: ['sf', 'specularityfactor'],
+    sheen: ['sh', 'sheen'],
+    sheenGloss: ['shg', 'sheenGloss'],
+    refraction: ['rf', 'refraction'],
+    thickness: ['th', 'thickness'],
+    iridescence: ['ir', 'iridescence'],
+    iridescenceThickness: ['irth', 'iridescenceThickness'],
+    metalness: ['m', 'met', 'metal', 'metalness', 'gma', 'gmat', 'gmao', 'gmaa', 'rma', 'rmat', 'rmao', 'rmaa'],
+    gloss: ['g', 'gloss', 'glossiness', 'gma', 'gmat', 'gmao', 'gmaa', 'rma', 'rmat', 'rmao', 'rmaa'],
+    clearCoat: ['cc', 'clearcoat'],
+    clearCoatGloss: ['ccg', 'clearcoatgloss'],
+    clearCoatNormal: ['ccn', 'clearcoatnormal'],
+    emissive: ['e', 'emissive'],
+    opacity: ['o', 't', 'opacity', 'alpha', 'transparency', 'gmat', 'gmao', 'gmaa', 'rgba', 'rmat', 'rmao', 'rmaa'],
+    normal: ['n', 'norm', 'normal', 'normals'],
+    height: ['p', 'h', 'height', 'parallax', 'bump'],
+    light: ['l', 'lm', 'light', 'lightmap']
 };
 
 const POSTFIX_TO_BULK_SLOT = {};
 for (const key in BULK_SLOTS) {
     for (let i = 0; i < BULK_SLOTS[key].length; i++) {
-        POSTFIX_TO_BULK_SLOT[BULK_SLOTS[key][i]] = POSTFIX_TO_BULK_SLOT[BULK_SLOTS[key][i]] || [];
-        POSTFIX_TO_BULK_SLOT[BULK_SLOTS[key][i]].push(key);
+        const postfix = BULK_SLOTS[key][i];
+        POSTFIX_TO_BULK_SLOT[postfix] = POSTFIX_TO_BULK_SLOT[postfix] || [];
+        POSTFIX_TO_BULK_SLOT[postfix].push(key);
     }
 }
 
@@ -1304,7 +1626,7 @@ class MaterialAssetInspector extends Container {
 
     _texturesBeforeHover: Record<number, Record<string, unknown>>;
 
-    _hoverEvents: Array<{ asset: any; fn: () => void }>;
+    _hoverEvents: { asset: any; fn: () => void }[];
 
     _assetEvents: EventHandle[];
 
@@ -1399,11 +1721,26 @@ class MaterialAssetInspector extends Container {
             this._opacityInspector.getField('data.opacityFadesSpecular').parent.hidden = true;
         }
 
-        this._opacityInspector.getField('data.opacityDither').parent.hidden = !pathExists(pc, 'StandardMaterial.prototype.opacityDither');
-        this._opacityInspector.getField('data.opacityShadowDither').parent.hidden = !pathExists(pc, 'StandardMaterial.prototype.opacityShadowDither');
-        this._opacityInspector.getField('data.alphaDither').parent.hidden = !pathExists(pc, 'StandardMaterial.prototype.alphaDither');
-        this._refractionInspector.getField('data.dispersion').parent.hidden = !pathExists(pc, 'StandardMaterial.prototype.dispersion');
-        this._ambientInspector.getField('data.aoIntensity').parent.hidden = !pathExists(pc, 'StandardMaterial.prototype.aoIntensity');
+        this._opacityInspector.getField('data.opacityDither').parent.hidden = !pathExists(
+            pc,
+            'StandardMaterial.prototype.opacityDither'
+        );
+        this._opacityInspector.getField('data.opacityShadowDither').parent.hidden = !pathExists(
+            pc,
+            'StandardMaterial.prototype.opacityShadowDither'
+        );
+        this._opacityInspector.getField('data.alphaDither').parent.hidden = !pathExists(
+            pc,
+            'StandardMaterial.prototype.alphaDither'
+        );
+        this._refractionInspector.getField('data.dispersion').parent.hidden = !pathExists(
+            pc,
+            'StandardMaterial.prototype.dispersion'
+        );
+        this._ambientInspector.getField('data.aoIntensity').parent.hidden = !pathExists(
+            pc,
+            'StandardMaterial.prototype.aoIntensity'
+        );
 
         this._assets = null;
         this._suppressToggleFields = false;
@@ -1448,7 +1785,7 @@ class MaterialAssetInspector extends Container {
             for (const inspectorName of inspectors) {
                 const inspector = this[`_${inspectorName}`];
                 const texField = inspector.getField(`data.${map}Map`);
-                texField.on('change', value => this._onTextureChange(map, value));
+                texField.on('change', (value) => this._onTextureChange(map, value));
                 texField.dragEnterFn = (type, data) => this._onTextureDragEnter(`${map}Map`, type, data);
                 texField.dragLeaveFn = () => this._onTextureDragLeave(`${map}Map`);
 
@@ -1474,7 +1811,9 @@ class MaterialAssetInspector extends Container {
         this._offsetTilingInspector.getField('tiling').parent.hidden = !applyToAllMaps;
         this._offsetTilingInspector.getField('rotation').parent.hidden = !applyToAllMaps;
 
-        const useMetalnessSpecularColor = this._metalnessWorkflowInspector.getField('data.useMetalnessSpecularColor').value;
+        const useMetalnessSpecularColor = this._metalnessWorkflowInspector.getField(
+            'data.useMetalnessSpecularColor'
+        ).value;
         this._metalnessWorkflowInspector.getField('data.specularMap').hidden = !useMetalnessSpecularColor;
         this._metalnessWorkflowInspector.getField('data.specularityFactorMap').hidden = !useMetalnessSpecularColor;
 
@@ -1494,7 +1833,16 @@ class MaterialAssetInspector extends Container {
         this._iridescenceInspector.getField('data.iridescenceThicknessMax').parent.hidden = !useIridescence;
         this._iridescenceInspector.getField('data.iridescenceRefractionIndex').parent.hidden = !useIridescence;
 
-        const mapAttributes = ['MapUv', 'MapChannel', 'MapOffset', 'MapTiling', 'MapRotation', 'VertexColor', 'Tint', ''];
+        const mapAttributes = [
+            'MapUv',
+            'MapChannel',
+            'MapOffset',
+            'MapTiling',
+            'MapRotation',
+            'VertexColor',
+            'Tint',
+            ''
+        ];
         mapAttributes.forEach((field) => {
             const spec = this._metalnessWorkflowInspector.getField(`data.specular${field}`);
             if (spec) {
@@ -1536,7 +1884,8 @@ class MaterialAssetInspector extends Container {
             const inspectors = MAPS[map];
             for (const inspectorName of inspectors) {
                 const inspector = this[`_${inspectorName}`];
-                const mapValue = inspector.getField(`data.${map}Map`).value && !inspector.getField(`data.${map}Map`).hidden;
+                const mapValue =
+                    inspector.getField(`data.${map}Map`).value && !inspector.getField(`data.${map}Map`).hidden;
                 inspector.getField(`data.${map}MapUv`).parent.hidden = !mapValue;
                 const channel = inspector.getField(`data.${map}MapChannel`);
                 if (channel) {
@@ -1558,7 +1907,8 @@ class MaterialAssetInspector extends Container {
             }
         }
 
-        this._ambientInspector.getField('data.occludeSpecular').parent.hidden = !this._ambientInspector.getField('data.aoMap').value;
+        this._ambientInspector.getField('data.occludeSpecular').parent.hidden =
+            !this._ambientInspector.getField('data.aoMap').value;
 
         const enableGGXSpecular = this._specularInspector.getField('data.enableGGXSpecular').value;
         this._specularInspector.getField('data.anisotropyMap').hidden = !enableGGXSpecular;
@@ -1583,13 +1933,16 @@ class MaterialAssetInspector extends Container {
         const opacityShadowDither = this._opacityInspector.getField('data.opacityShadowDither').value ?? 'none';
         const dithered = opacityDither !== 'none' || opacityShadowDither !== 'none';
         const alphaDitherSupported = pathExists(pc, 'StandardMaterial.prototype.alphaDither');
-        this._opacityInspector.getField('data.opacity').parent.hidden = ([2, 4, 6].indexOf(blendType) === -1) && (alphaDitherSupported || !dithered);
+        this._opacityInspector.getField('data.opacity').parent.hidden =
+            [2, 4, 6].indexOf(blendType) === -1 && (alphaDitherSupported || !dithered);
         this._opacityInspector.getField('data.alphaDither').parent.hidden = !dithered || !alphaDitherSupported;
 
         const opacityMapField = this._opacityInspector.getField('data.opacityMap');
         const opacityVertexColorField = this._opacityInspector.getField('data.opacityVertexColor');
 
-        this._opacityInspector.getField('data.alphaTest').parent.hidden = !(opacityMapField.class.contains(CLASS_MULTIPLE_VALUES) || opacityMapField.value) && !(opacityVertexColorField.value || opacityVertexColorField.class.contains(CLASS_MULTIPLE_VALUES));
+        this._opacityInspector.getField('data.alphaTest').parent.hidden =
+            !(opacityMapField.class.contains(CLASS_MULTIPLE_VALUES) || opacityMapField.value) &&
+            !(opacityVertexColorField.value || opacityVertexColorField.class.contains(CLASS_MULTIPLE_VALUES));
 
         const opacityFadesSpecular = this._opacityInspector.getField('data.opacityFadesSpecular').value;
         this._opacityInspector.getField('data.alphaFade').parent.hidden = opacityFadesSpecular;
@@ -1620,25 +1973,26 @@ class MaterialAssetInspector extends Container {
         let rotation = null;
 
         for (let i = 0; i < this._assets.length; i++) {
+            const asset = this._assets[i];
             for (const map in MAPS) {
-                const currentOffset = this._assets[i].get(`data.${map}MapOffset`);
+                const currentOffset = asset.get(`data.${map}MapOffset`);
                 if (!offset) {
                     offset = currentOffset;
-                }  else if (!offset.equals(currentOffset)) {
+                } else if (!offset.equals(currentOffset)) {
                     return false;
                 }
 
-                const currentTiling = this._assets[i].get(`data.${map}MapTiling`);
+                const currentTiling = asset.get(`data.${map}MapTiling`);
                 if (!tiling) {
                     tiling = currentTiling;
-                }  else if (!tiling.equals(currentTiling)) {
+                } else if (!tiling.equals(currentTiling)) {
                     return false;
                 }
 
-                const currentRotation = this._assets[i].get(`data.${map}MapRotation`);
+                const currentRotation = asset.get(`data.${map}MapRotation`);
                 if (!rotation) {
                     rotation = currentRotation;
-                }  else if (rotation !== currentRotation) {
+                } else if (rotation !== currentRotation) {
                     return false;
                 }
             }
@@ -1738,7 +2092,6 @@ class MaterialAssetInspector extends Container {
         this._toggleFields();
     }
 
-
     _updateAllOffsetsTilingsOrRotationUiState(renderChanges: boolean) {
         if (!this._assets) {
             return;
@@ -1786,7 +2139,6 @@ class MaterialAssetInspector extends Container {
             this._toggleFields();
         }
     }
-
 
     _updateAllOffsetsTilingsAndRotations(value: number | number[], transform: string) {
         if (value === null || !this._assets) {
@@ -1861,7 +2213,6 @@ class MaterialAssetInspector extends Container {
                 redo: redo
             });
         }
-
     }
 
     _onChangeOffset(value: number | number[]) {
@@ -1919,9 +2270,7 @@ class MaterialAssetInspector extends Container {
             const path = asset.get('path');
 
             const texturesInSamePath = (this._args.assets as any).find((asset: any) => {
-                return asset.get('type') === 'texture' &&
-                        !asset.get('source') &&
-                        path.equals(asset.get('path'));
+                return asset.get('type') === 'texture' && !asset.get('source') && path.equals(asset.get('path'));
             });
 
             const candidates = {};
@@ -1934,11 +2283,12 @@ class MaterialAssetInspector extends Container {
                 }
 
                 for (let i = 0; i < POSTFIX_TO_BULK_SLOT[t[1]].length; i++) {
-                    if (POSTFIX_TO_BULK_SLOT[t[1]][i] === name) {
+                    const slot = POSTFIX_TO_BULK_SLOT[t[1]][i];
+                    if (slot === name) {
                         continue;
                     }
 
-                    candidates[POSTFIX_TO_BULK_SLOT[t[1]][i]] = {
+                    candidates[slot] = {
                         texture: entry[1],
                         postfix: t[1]
                     };
@@ -2098,7 +2448,6 @@ class MaterialAssetInspector extends Container {
                         asset.history.enabled = false;
                         asset.set(record.key, record.old);
                         asset.history.enabled = history;
-
                     });
                 };
 
@@ -2154,11 +2503,12 @@ class MaterialAssetInspector extends Container {
         const tokens = [];
 
         for (let i = 0; i < parts.length; i++) {
-            if (parts[i] === '-' || parts[i] === '_' || parts[i] === '.') {
+            const part = parts[i];
+            if (part === '-' || part === '_' || part === '.') {
                 continue;
             }
 
-            tokens.push(parts[i]);
+            tokens.push(part);
         }
 
         if (!tokens.length) {
@@ -2229,7 +2579,6 @@ class MaterialAssetInspector extends Container {
                 this._hoverEvents.push(evt);
             }
         });
-
 
         editor.call('viewport:render');
     }
@@ -2313,7 +2662,10 @@ class MaterialAssetInspector extends Container {
         this._toggleFields();
 
         // set collapsed states for panels
-        const collapsedStatesId = this._assets.map(asset => asset.get('id')).sort((a, b) => a - b).join(',');
+        const collapsedStatesId = this._assets
+            .map((asset) => asset.get('id'))
+            .sort((a, b) => a - b)
+            .join(',');
         let previousState = this._collapsedStates[collapsedStatesId];
         if (!previousState) {
             previousState = {};
@@ -2324,22 +2676,23 @@ class MaterialAssetInspector extends Container {
 
                 for (let i = 0; i < COLLAPSED_PANEL_DEPENDENCIES[panelName].length; i++) {
                     const field = COLLAPSED_PANEL_DEPENDENCIES[panelName][i];
-                    for (let j = 0; j < this._assets.length; j++) {
+                    for (let i = 0; i < this._assets.length; i++) {
+                        const asset = this._assets[i];
                         const type = editor.call('schema:material:getType', field);
                         if (type === 'asset') {
-                            if (this._assets[j].get(`data.${field}`)) {
+                            if (asset.get(`data.${field}`)) {
                                 collapsed = false;
                                 break;
                             }
                         } else if (type === 'vec2') {
-                            const value = this._assets[j].get(`data.${field}`);
+                            const value = asset.get(`data.${field}`);
                             const defaultValue = editor.call('schema:material:getDefaultValueForField', field);
-                            if (value && value[0] !== defaultValue[0] || value && value[1] !== defaultValue[1]) {
+                            if ((value && value[0] !== defaultValue[0]) || (value && value[1] !== defaultValue[1])) {
                                 collapsed = false;
                                 break;
                             }
                         } else if (type === 'number') {
-                            const value = this._assets[j].get(`data.${field}`);
+                            const value = asset.get(`data.${field}`);
                             const defaultValue = editor.call('schema:material:getDefaultValueForField', field);
                             if (value !== defaultValue) {
                                 collapsed = false;
@@ -2361,30 +2714,36 @@ class MaterialAssetInspector extends Container {
             this[panelName].collapsed = previousState[panelName];
 
             // listen to collapse / expand events and update stored state
-            this._collapseEvents.push(this[panelName].on('collapse', () => {
-                previousState[panelName] = true;
-            }));
+            this._collapseEvents.push(
+                this[panelName].on('collapse', () => {
+                    previousState[panelName] = true;
+                })
+            );
 
-            this._collapseEvents.push(this[panelName].on('expand', () => {
-                previousState[panelName] = false;
-            }));
+            this._collapseEvents.push(
+                this[panelName].on('expand', () => {
+                    previousState[panelName] = false;
+                })
+            );
         }
 
         // subscribe to offset / tiling changes to update the state of
         // apply to all fields
         this._assets.forEach((asset) => {
-            this._assetEvents.push(asset.on('*:set', (path) => {
-                if (REGEX_MAP_OFFSET_TILING_OR_ROTATION.test(path)) {
-                    if (this._suppressUpdateAllOffsetAndTilingsTimeout) {
-                        return;
-                    }
+            this._assetEvents.push(
+                asset.on('*:set', (path) => {
+                    if (REGEX_MAP_OFFSET_TILING_OR_ROTATION.test(path)) {
+                        if (this._suppressUpdateAllOffsetAndTilingsTimeout) {
+                            return;
+                        }
 
-                    this._suppressUpdateAllOffsetAndTilingsTimeout = setTimeout(() => {
-                        this._suppressUpdateAllOffsetAndTilingsTimeout = null;
-                        this._updateAllOffsetsTilingsOrRotationUiState(true);
-                    });
-                }
-            }));
+                        this._suppressUpdateAllOffsetAndTilingsTimeout = setTimeout(() => {
+                            this._suppressUpdateAllOffsetAndTilingsTimeout = null;
+                            this._updateAllOffsetsTilingsOrRotationUiState(true);
+                        });
+                    }
+                })
+            );
         });
     }
 
@@ -2395,13 +2754,13 @@ class MaterialAssetInspector extends Container {
 
         this._assets = null;
 
-        this._assetEvents.forEach(e => e.unbind());
+        this._assetEvents.forEach((e) => e.unbind());
         this._assetEvents.length = 0;
 
-        this._collapseEvents.forEach(e => e.unbind());
+        this._collapseEvents.forEach((e) => e.unbind());
         this._collapseEvents.length = 0;
 
-        this._hoverEvents.forEach(evt => evt.asset.off('load', evt.fn));
+        this._hoverEvents.forEach((evt) => evt.asset.off('load', evt.fn));
         this._hoverEvents.length = 0;
         this._texturesBeforeHover = {};
 

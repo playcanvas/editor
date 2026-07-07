@@ -1,5 +1,6 @@
 import type { Observer, ObserverList, EventHandle } from '@playcanvas/observer';
-import { Element, TreeView, TreeViewItem, type TreeViewArgs, type ReparentedItem, Container } from '@playcanvas/pcui';
+import { Element, TreeView, TreeViewItem, Container } from '@playcanvas/pcui';
+import type { TreeViewArgs, ReparentedItem } from '@playcanvas/pcui';
 
 import type { DropManager } from '@/common/pcui/element/element-drop-manager';
 import type { DropTarget } from '@/common/pcui/element/element-drop-target';
@@ -18,20 +19,20 @@ const CLASS_FILTERING = 'pcui-treeview-filtering';
 const CLASS_FILTER_RESULT = `${CLASS_FILTERING}-result`;
 
 const DROPPABLE_ASSET_TYPES = new Set(['template', 'model', 'sprite']);
-const DROPPABLE_DROP_TYPES = new Set([...DROPPABLE_ASSET_TYPES].map(t => `asset.${t}`));
+const DROPPABLE_DROP_TYPES = new Set([...DROPPABLE_ASSET_TYPES].map((t) => `asset.${t}`));
 
-interface EntityTreeViewItem extends TreeViewItem {
+type EntityTreeViewItem = {
     entity: Observer;
     _containerUsers: Container;
-}
+} & TreeViewItem;
 
-interface EntitiesTreeViewArgs extends TreeViewArgs {
+type EntitiesTreeViewArgs = {
     entities?: ObserverList;
     assets: ObserverList;
     history?: History;
     dropManager?: DropManager;
     writePermissions?: boolean;
-}
+} & TreeViewArgs;
 
 /**
  * Represents the Entity TreeView that shows the Scene hierarchy.
@@ -119,16 +120,21 @@ class EntitiesTreeView extends TreeView {
         const newParentTemplates: Record<string, Observer> = {};
 
         for (let i = 0; i < reparentedItems.length; i++) {
-            const item = reparentedItems[i].item as EntityTreeViewItem;
-            const newParent = reparentedItems[i].newParent as EntityTreeViewItem;
+            const reparentedItem = reparentedItems[i];
+            const item = reparentedItem.item as EntityTreeViewItem;
+            const newParent = reparentedItem.newParent as EntityTreeViewItem;
             const templateRoot = editor.call('templates:isTemplateChild', item.entity, this._entities);
             if (templateRoot) {
                 const newParentId = newParent.entity.get('resource_id');
-                if (!newParentTemplates.hasOwnProperty(newParentId)) {
+                if (!Object.prototype.hasOwnProperty.call(newParentTemplates, newParentId)) {
                     if (newParent.entity.get('template_id')) {
                         newParentTemplates[newParentId] = newParent.entity;
                     } else {
-                        newParentTemplates[newParentId] = editor.call('templates:isTemplateChild', newParent.entity, this._entities);
+                        newParentTemplates[newParentId] = editor.call(
+                            'templates:isTemplateChild',
+                            newParent.entity,
+                            this._entities
+                        );
                     }
                 }
 
@@ -136,7 +142,9 @@ class EntitiesTreeView extends TreeView {
                     editor.call(
                         'picker:confirm',
                         'Entities that are part of a Template cannot be reparented outside the Template.',
-                        () => {},
+                        () => {
+                            // intentionally empty
+                        },
                         {
                             yesText: 'OK',
                             noText: ''
@@ -151,8 +159,7 @@ class EntitiesTreeView extends TreeView {
         // preserve transform if we are not pressing Ctrl
         const preserveTransform = !this._pressedCtrl;
 
-        const items = reparentedItems
-        .map((reparented) => {
+        const items = reparentedItems.map((reparented) => {
             return {
                 entity: (reparented.item as EntityTreeViewItem).entity,
                 parent: (reparented.newParent as EntityTreeViewItem).entity,
@@ -203,7 +210,7 @@ class EntitiesTreeView extends TreeView {
 
         this._suspendSelectionEvents = true;
 
-        const selectedIds = new Set(entities.map(e => e.get('resource_id')));
+        const selectedIds = new Set(entities.map((e) => e.get('resource_id')));
 
         // deselect entities no longer in the new selection
         const selected = this._selectedItems as EntityTreeViewItem[];
@@ -368,7 +375,7 @@ class EntitiesTreeView extends TreeView {
     };
 
     _selectEntitiesById(entityIds: string[]) {
-        const entities = entityIds.map(id => this._entities.get(id)).filter(entity => entity);
+        const entities = entityIds.map((id) => this._entities.get(id)).filter((entity) => entity);
         if (entities.length) {
             editor.call('selector:history', false);
             editor.call('selector:set', 'entity', entities);
@@ -384,7 +391,7 @@ class EntitiesTreeView extends TreeView {
 
     // Override PCUI function
     _searchItems(rawArray: TreeViewItem[], filter: string) {
-        const searchArr: [string, TreeViewItem][] = rawArray.map(item => [item.text, item]);
+        const searchArr: [string, TreeViewItem][] = rawArray.map((item) => [item.text, item]);
 
         let results: TreeViewItem[] = [];
 
@@ -392,7 +399,9 @@ class EntitiesTreeView extends TreeView {
             if (this._searchFilters.size === 1) {
                 results = searchItems(this._getSearchFilterMap(searchArr, key), filter, { fuzzy: this._fuzzy });
             } else {
-                results = results.concat(searchItems(this._getSearchFilterMap(searchArr, key), filter, { fuzzy: this._fuzzy }));
+                results = results.concat(
+                    searchItems(this._getSearchFilterMap(searchArr, key), filter, { fuzzy: this._fuzzy })
+                );
             }
         }
 
@@ -421,7 +430,12 @@ class EntitiesTreeView extends TreeView {
         return this._searchFilters.has(key);
     }
 
-    _instantiateDraggedAssets(dragOverItem: EntityTreeViewItem, dragArea: string, dropType: string, dropData: { id?: string; ids?: string[] }) {
+    _instantiateDraggedAssets(
+        dragOverItem: EntityTreeViewItem,
+        dragArea: string,
+        dropType: string,
+        dropData: { id?: string; ids?: string[] }
+    ) {
         let parent = dragOverItem.entity;
         let childIndex;
 
@@ -441,12 +455,11 @@ class EntitiesTreeView extends TreeView {
                 return;
             }
             assets = dropData.ids
-            .map(id => this._assets.get(id))
-            .filter((asset): asset is Observer => {
-                return asset ? DROPPABLE_ASSET_TYPES.has(asset.get('type')) : false;
-            });
+                .map((id) => this._assets.get(id))
+                .filter((asset): asset is Observer => {
+                    return asset ? DROPPABLE_ASSET_TYPES.has(asset.get('type')) : false;
+                });
         } else if (DROPPABLE_DROP_TYPES.has(dropType)) {
-
             const asset = this._assets.get(dropData.id);
             if (asset) {
                 assets.push(asset);
@@ -520,18 +533,28 @@ class EntitiesTreeView extends TreeView {
         redo();
     }
 
-    _instantiateDraggedTemplateAssets(assets: Observer[], parentEntity: Observer, childIndex: number | undefined, callback: (entityIds: string[]) => void) {
+    _instantiateDraggedTemplateAssets(
+        assets: Observer[],
+        parentEntity: Observer,
+        childIndex: number | undefined,
+        callback: (entityIds: string[]) => void
+    ) {
         if (childIndex === null || childIndex === undefined) {
             childIndex = parentEntity.get('children').length;
         }
 
-        editor.api.globals.assets.instantiateTemplates(assets.map(a => (a as any).apiAsset), (parentEntity as any).apiEntity, {
-            index: childIndex,
-            history: false
-        })
-        .then((newEntities) => {
-            callback(newEntities.map(e => e.get('resource_id')));
-        });
+        editor.api.globals.assets
+            .instantiateTemplates(
+                assets.map((a) => (a as any).apiAsset),
+                (parentEntity as any).apiEntity,
+                {
+                    index: childIndex,
+                    history: false
+                }
+            )
+            .then((newEntities) => {
+                callback(newEntities.map((e) => e.get('resource_id')));
+            });
     }
 
     _instantiateDraggedModelAsset(asset: Observer, parentEntity: Observer, childIndex: number) {
@@ -573,7 +596,7 @@ class EntitiesTreeView extends TreeView {
             };
             component.autoPlayClip = name;
         } else {
-            component.spriteAsset =  parseInt(asset.get('id'), 10);
+            component.spriteAsset = parseInt(asset.get('id'), 10);
         }
 
         const newEntity = editor.call('entities:new', {
@@ -651,7 +674,7 @@ class EntitiesTreeView extends TreeView {
      * If not provided, it will be calculated.
      * @param recurse - Whether to recursively update descendants.
      */
-    _updateTreeItemEnabledState(entity: Observer, parentDisabled?: boolean, recurse: boolean = false): void {
+    _updateTreeItemEnabledState(entity: Observer, parentDisabled?: boolean, recurse?: boolean): void {
         const item = this.getTreeItemForEntity(entity.get('resource_id'));
         if (!item) {
             return;
@@ -697,13 +720,17 @@ class EntitiesTreeView extends TreeView {
                 treeViewItem.iconLabel.class.add(`type-${component}`);
             }
 
-            events.push(entity.on(`components.${component}:set`, () => {
-                treeViewItem.iconLabel.class.add(`type-${component}`);
-            }));
+            events.push(
+                entity.on(`components.${component}:set`, () => {
+                    treeViewItem.iconLabel.class.add(`type-${component}`);
+                })
+            );
 
-            events.push(entity.on(`components.${component}:unset`, () => {
-                treeViewItem.iconLabel.class.remove(`type-${component}`);
-            }));
+            events.push(
+                entity.on(`components.${component}:unset`, () => {
+                    treeViewItem.iconLabel.class.remove(`type-${component}`);
+                })
+            );
         });
 
         if (entity.get('template_id')) {
@@ -720,75 +747,87 @@ class EntitiesTreeView extends TreeView {
         events.push(entity.on('template_ent_ids:unset', resetTemplateIcons));
         events.push(entity.on('parent:set', resetTemplateIcons));
 
-        events.push(entity.on('name:set', (name: string) => {
-            treeViewItem.text = name;
-        }));
+        events.push(
+            entity.on('name:set', (name: string) => {
+                treeViewItem.text = name;
+            })
+        );
 
-        events.push(entity.on('enabled:set', () => {
-            this._updateTreeItemEnabledState(entity, undefined, true);
-        }));
+        events.push(
+            entity.on('enabled:set', () => {
+                this._updateTreeItemEnabledState(entity, undefined, true);
+            })
+        );
 
-        events.push(entity.on('parent:set', () => {
-            this._updateTreeItemEnabledState(entity, undefined, true);
-        }));
+        events.push(
+            entity.on('parent:set', () => {
+                this._updateTreeItemEnabledState(entity, undefined, true);
+            })
+        );
 
-        events.push(entity.on('children:insert', (childId: string, index: number) => {
-            const item = this.getTreeItemForEntity(childId);
-            if (!item) {
-                return;
-            }
-
-            if (item.parent) {
-                (item.parent as Container).remove(item);
-            }
-
-            const next = this.getTreeItemForEntity(entity.get(`children.${index + 1}`));
-            if (next) {
-                treeViewItem.appendBefore(item, next);
-            } else {
-                treeViewItem.append(item);
-            }
-        }));
-
-        events.push(entity.on('children:remove', (childId: string) => {
-            const item = this.getTreeItemForEntity(childId);
-            if (!item) {
-                return;
-            }
-
-            treeViewItem.remove(item);
-        }));
-
-        events.push(entity.on('children:move', (childId: string, index: number) => {
-            const item = this.getTreeItemForEntity(childId);
-            if (!item) {
-                return;
-            }
-
-            treeViewItem.remove(item);
-
-            let next = this.getTreeItemForEntity(entity.get(`children.${index + 1}`));
-            let after: EntityTreeViewItem | null = null;
-            if (next === item) {
-                next = null;
-
-                if (index > 0) {
-                    after = this.getTreeItemForEntity(entity.get(`children.${index}`));
+        events.push(
+            entity.on('children:insert', (childId: string, index: number) => {
+                const item = this.getTreeItemForEntity(childId);
+                if (!item) {
+                    return;
                 }
-            }
 
-            if (item.parent) {
-                (item.parent as Container).remove(item);
-            }
+                if (item.parent) {
+                    (item.parent as Container).remove(item);
+                }
 
-            if (next) {
-                treeViewItem.appendBefore(item, next);
-            } else if (after) {
-                treeViewItem.appendAfter(item, after);
-            } else {
-                treeViewItem.append(item);
-            }
-        }));
+                const next = this.getTreeItemForEntity(entity.get(`children.${index + 1}`));
+                if (next) {
+                    treeViewItem.appendBefore(item, next);
+                } else {
+                    treeViewItem.append(item);
+                }
+            })
+        );
+
+        events.push(
+            entity.on('children:remove', (childId: string) => {
+                const item = this.getTreeItemForEntity(childId);
+                if (!item) {
+                    return;
+                }
+
+                treeViewItem.remove(item);
+            })
+        );
+
+        events.push(
+            entity.on('children:move', (childId: string, index: number) => {
+                const item = this.getTreeItemForEntity(childId);
+                if (!item) {
+                    return;
+                }
+
+                treeViewItem.remove(item);
+
+                let next = this.getTreeItemForEntity(entity.get(`children.${index + 1}`));
+                let after: EntityTreeViewItem | null = null;
+                if (next === item) {
+                    next = null;
+
+                    if (index > 0) {
+                        after = this.getTreeItemForEntity(entity.get(`children.${index}`));
+                    }
+                }
+
+                if (item.parent) {
+                    (item.parent as Container).remove(item);
+                }
+
+                if (next) {
+                    treeViewItem.appendBefore(item, next);
+                } else if (after) {
+                    treeViewItem.appendAfter(item, after);
+                } else {
+                    treeViewItem.append(item);
+                }
+            })
+        );
 
         this._eventsEntity.set(resourceId, events);
 
@@ -811,7 +850,10 @@ class EntitiesTreeView extends TreeView {
                     treeViewItem.append(this._onAddEntity(child));
                 } else {
                     console.warn(`cannot find child entity ${childId} of parent ${entity.get('name')} (${resourceId})`);
-                    editor.call('status:error', `Cannot find child entity ${childId} of parent "${entity.get('name')}" (${resourceId})`);
+                    editor.call(
+                        'status:error',
+                        `Cannot find child entity ${childId} of parent "${entity.get('name')}" (${resourceId})`
+                    );
                 }
             }
         });
@@ -846,7 +888,8 @@ class EntitiesTreeView extends TreeView {
 
         const children = entity.get('children');
         for (let i = 0; i < children.length; i++) {
-            const child = this._entities.get(children[i]);
+            const childId = children[i];
+            const child = this._entities.get(childId);
             if (child) {
                 this._resetTemplateIcons(child);
             }
@@ -857,7 +900,7 @@ class EntitiesTreeView extends TreeView {
         const resourceId = entity.get('resource_id');
         const events = this._eventsEntity.get(resourceId);
         if (events) {
-            events.forEach(e => e.unbind());
+            events.forEach((e) => e.unbind());
             this._eventsEntity.delete(resourceId);
         }
 
@@ -869,20 +912,20 @@ class EntitiesTreeView extends TreeView {
     }
 
     _unbindObserverListEvents() {
-        this._eventsObserverList.forEach(e => e.unbind());
+        this._eventsObserverList.forEach((e) => e.unbind());
         this._eventsObserverList.length = 0;
     }
 
     _unbindEntityEvents() {
         for (const events of this._eventsEntity.values()) {
-            events.forEach(e => e.unbind());
+            events.forEach((e) => e.unbind());
         }
 
         this._eventsEntity.clear();
     }
 
     _unbindEditorEvents() {
-        this._eventsEditor.forEach(e => e.unbind());
+        this._eventsEditor.forEach((e) => e.unbind());
         this._eventsEditor.length = 0;
     }
 
@@ -966,7 +1009,8 @@ class EntitiesTreeView extends TreeView {
 
             const children = entity.get('children');
             for (let i = 0; i < children.length; i++) {
-                recurse(this._entities.get(children[i]));
+                const childId = children[i];
+                recurse(this._entities.get(childId));
             }
         };
 
@@ -1023,7 +1067,7 @@ class EntitiesTreeView extends TreeView {
         if (this._entities) {
             this._eventsObserverList.push(this._entities.on('add', this._onAddEntity.bind(this)));
             this._eventsObserverList.push(this._entities.on('remove', this._onRemoveEntity.bind(this)));
-            this._entities.forEach(entity => this._onAddEntity(entity));
+            this._entities.forEach((entity) => this._onAddEntity(entity));
 
             if (this._rootItem) {
                 this.append(this._rootItem);
@@ -1044,7 +1088,6 @@ class EntitiesTreeView extends TreeView {
 
         this.allowDrag = value;
         this.allowRenaming = value;
-
     }
 
     get writePermissions() {

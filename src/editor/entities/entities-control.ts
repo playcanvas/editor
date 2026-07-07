@@ -108,31 +108,35 @@ editor.once('load', () => {
 
     const treeView = editor.call('entities:hierarchy');
     const menuMore = new Menu({
-        items: [{
-            text: 'Expand All',
-            icon: 'E386',
-            onSelect: () => {
-                treeView.expandAll();
-            }
-        }, {
-            text: 'Collapse All',
-            icon: 'E385',
-            onSelect: () => {
-                treeView.collapseAll();
-            }
-        }, {
-            text: 'Show All',
-            icon: 'E117',
-            onSelect: () => {
-                const hidden: string[] = editor.call('entities:visibility:getHidden');
-                if (hidden.length) {
-                    editor.call('entities:visibility:set', hidden, false);
+        items: [
+            {
+                text: 'Expand All',
+                icon: 'E386',
+                onSelect: () => {
+                    treeView.expandAll();
                 }
             },
-            onIsEnabled: () => {
-                return editor.call('entities:visibility:getHidden').length > 0;
+            {
+                text: 'Collapse All',
+                icon: 'E385',
+                onSelect: () => {
+                    treeView.collapseAll();
+                }
+            },
+            {
+                text: 'Show All',
+                icon: 'E117',
+                onSelect: () => {
+                    const hidden: string[] = editor.call('entities:visibility:getHidden');
+                    if (hidden.length) {
+                        editor.call('entities:visibility:set', hidden, false);
+                    }
+                },
+                onIsEnabled: () => {
+                    return editor.call('entities:visibility:getHidden').length > 0;
+                }
             }
-        }]
+        ]
     });
     root.append(menuMore);
 

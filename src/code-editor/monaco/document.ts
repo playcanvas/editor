@@ -55,12 +55,11 @@ editor.once('load', () => {
      */
     function createModuleDeclarations(importEntries: [string, unknown][]): string[] {
         const httpImports = importEntries
-        .filter(([_, path]) => path.startsWith('http://') || path.startsWith('https://'))
-        .map(([key]) => key);
+            .filter(([_, path]) => path.startsWith('http://') || path.startsWith('https://'))
+            .map(([key]) => key);
 
-        const httpImportToTypeDeclaration = (key: string) => (
-            `declare module '${key}' {\nconst Module: any;\nexport default Module;\nexport = Module;\n}`
-        );
+        const httpImportToTypeDeclaration = (key: string) =>
+            `declare module '${key}' {\nconst Module: any;\nexport default Module;\nexport = Module;\n}`;
 
         return httpImports.map(httpImportToTypeDeclaration);
     }
@@ -76,23 +75,27 @@ editor.once('load', () => {
     }
 
     // Utility method that returns the import map if available
-    editor.method('editor:importMap', () => new Promise((resolve, reject) => {
-        const importMapId = config.project.settings.importMap;
-        if (!importMapId) {
-            resolve({ imports: {} });
-        }
-        const asset = editor.call('assets:get', importMapId);
-        if (!asset) {
-            resolve({ imports: {} });
-        } else {
-            editor.call('assets:contents:get', asset, (err: unknown, content: string) => {
-                if (err) {
-                    reject(err);
+    editor.method(
+        'editor:importMap',
+        () =>
+            new Promise((resolve, reject) => {
+                const importMapId = config.project.settings.importMap;
+                if (!importMapId) {
+                    resolve({ imports: {} });
                 }
-                resolve(JSON.parse(content));
-            });
-        }
-    }));
+                const asset = editor.call('assets:get', importMapId);
+                if (!asset) {
+                    resolve({ imports: {} });
+                } else {
+                    editor.call('assets:contents:get', asset, (err: unknown, content: string) => {
+                        if (err) {
+                            reject(err);
+                        }
+                        resolve(JSON.parse(content));
+                    });
+                }
+            })
+    );
 
     // when we select an asset
     // if the asset is not loaded hide
@@ -137,7 +140,10 @@ editor.once('load', () => {
         const uri = monaco.Uri.parse(`${path}`);
         const isModule = editor.call('assets:isModule', asset);
         if (isModule && monaco.editor.getModel(uri)) {
-            editor.call('status:error', `Failed to open asset (${asset.get('id')}) from path ${path}. An asset with the same path is already open.`);
+            editor.call(
+                'status:error',
+                `Failed to open asset (${asset.get('id')}) from path ${path}. An asset with the same path is already open.`
+            );
             return;
         }
         const entry: ViewEntry = {
@@ -172,7 +178,10 @@ editor.once('load', () => {
         // We don't have type declarations for these, so we need to create pseudo ones for the editor for intellisense.
         // Note: Replace this when we actually resolve real type declarations
         const externalTypesDeclarations = createModuleDeclarations(importEntries);
-        monaco.languages.typescript.javascriptDefaults.addExtraLib(externalTypesDeclarations.join('\n'), 'external-imports.d.ts');
+        monaco.languages.typescript.javascriptDefaults.addExtraLib(
+            externalTypesDeclarations.join('\n'),
+            'external-imports.d.ts'
+        );
 
         monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
             allowJs: true,
@@ -182,7 +191,7 @@ editor.once('load', () => {
             target: monaco.languages.typescript.ScriptTarget.ES2020,
             lib: ['es2020', 'dom', 'dom.iterable'],
             paths: {
-                'playcanvas': ['playcanvas.d.ts'],
+                playcanvas: ['playcanvas.d.ts'],
                 ...monacoImportPaths
             }
         });
@@ -282,7 +291,7 @@ editor.once('load', () => {
     const getDependenciesFromString = (content: string, importer = './') => {
         const importRegex = /import\s[\w\s{},*]+\sfrom\s+['"]([^'"]+)['"]/g;
         let match;
-        const paths: Set<string> = new Set();
+        const paths = new Set<string>();
 
         while ((match = importRegex.exec(content)) !== null) {
             // Get the full path relative to the importer
@@ -334,17 +343,15 @@ editor.once('load', () => {
         const deps = await getDependenciesForAsset(asset);
 
         const openPaths = Object.values(viewIndex)
-        .map(({ view }) => view.uri.path) // ignore the schema
-        .filter(uri => uri.endsWith('.mjs')) // only esm files
-        .filter(uri => uri !== filePath); // exclude the current asset
+            .map(({ view }) => view.uri.path) // ignore the schema
+            .filter((uri) => uri.endsWith('.mjs')) // only esm files
+            .filter((uri) => uri !== filePath); // exclude the current asset
 
         // Create a set of the current files
         const currentFiles = new Set(openPaths);
 
         // Create a map of file paths to views. eg: { '/path/to/file.mjs': view }
-        const pathEntryMap = new Map(
-            Object.values(viewIndex).map(entry => [entry.view.uri.path, entry])
-        );
+        const pathEntryMap = new Map(Object.values(viewIndex).map((entry) => [entry.view.uri.path, entry]));
 
         // get set of files that are not loaded
         const newFiles = deps.difference(currentFiles);
@@ -352,7 +359,10 @@ editor.once('load', () => {
         // files to remove
         const filesToRemove = currentFiles.difference(deps);
 
-        const openTabs = editor.call('tabs:list').map(tab => editor.call('assets:virtualPath', tab.asset)).filter(Boolean);
+        const openTabs = editor
+            .call('tabs:list')
+            .map((tab) => editor.call('assets:virtualPath', tab.asset))
+            .filter(Boolean);
 
         // Remove the views for the files that are no longer dependencies
         filesToRemove.forEach((filePath: string) => {
@@ -414,10 +424,12 @@ editor.once('load', () => {
     });
 
     editor.method('editor:isReadOnly', () => {
-        return !focusedView ||
-               !editor.call('permissions:write') ||
-                 editor.call('errors:hasRealtime') ||
-                 editor.call('documents:hasError', focusedView.asset.get('id'));
+        return (
+            !focusedView ||
+            !editor.call('permissions:write') ||
+            editor.call('errors:hasRealtime') ||
+            editor.call('documents:hasError', focusedView.asset.get('id'))
+        );
     });
 
     // set code editor to readonly if necessary

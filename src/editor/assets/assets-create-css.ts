@@ -4,13 +4,15 @@ editor.once('load', () => {
             return;
         }
 
-        const parent = (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder');
+        const parent = args.parent !== undefined ? args.parent : editor.call('assets:panel:currentFolder');
         const folder = parent?.apiAsset ?? parent ?? undefined;
 
-        editor.api.globals.assets.createCss({
-            folder
-        }).catch((err) => {
-            editor.call('status:error', err);
-        });
+        editor.api.globals.assets
+            .createCss({
+                folder
+            })
+            .catch((err) => {
+                editor.call('status:error', err);
+            });
     });
 });

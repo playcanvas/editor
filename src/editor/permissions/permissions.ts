@@ -1,7 +1,7 @@
 import { config } from '@/editor/config';
 
 editor.once('load', () => {
-    const permissions = { };
+    const permissions = {};
 
     // cache permissions in a dictionary
     ['read', 'write', 'admin'].forEach((access: 'read' | 'write' | 'admin') => {
@@ -18,7 +18,7 @@ editor.once('load', () => {
         if (!userId) {
             userId = config.self.id;
         }
-        return permissions.hasOwnProperty(userId);
+        return Object.prototype.hasOwnProperty.call(permissions, userId);
     });
 
     editor.method('permissions:write', (userId?: string) => {
@@ -103,7 +103,10 @@ editor.once('load', () => {
 
     editor.on(`permissions:set:${config.self.id}`, (accessLevel: string | null) => {
         const connection = editor.call('realtime:connection');
-        editor.emit('permissions:writeState', connection && connection.state === 'connected' && (accessLevel === 'write' || accessLevel === 'admin'));
+        editor.emit(
+            'permissions:writeState',
+            connection && connection.state === 'connected' && (accessLevel === 'write' || accessLevel === 'admin')
+        );
     });
 
     // emit initial event

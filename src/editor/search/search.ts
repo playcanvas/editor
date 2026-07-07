@@ -30,14 +30,16 @@ editor.once('load', () => {
                 if (b.charAt(i - 1) === a.charAt(j - 1)) {
                     matrix[i][j] = matrix[i - 1][j - 1];
                 } else {
-                    matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1));
+                    matrix[i][j] = Math.min(
+                        matrix[i - 1][j - 1] + 1,
+                        Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1)
+                    );
                 }
             }
         }
 
         return matrix[b.length][a.length];
     });
-
 
     // calculate, how many characters string `b`
     // contains of a string `a`
@@ -47,7 +49,7 @@ editor.once('load', () => {
         }
 
         let contains = 0;
-        const ind = { };
+        const ind = {};
         let i;
 
         for (i = 0; i < b.length; i++) {
@@ -62,7 +64,6 @@ editor.once('load', () => {
 
         return contains;
     });
-
 
     // tokenize string into array of tokens
     editor.method('search:stringTokenize', (name: string) => {
@@ -88,13 +89,15 @@ editor.once('load', () => {
         return tokens;
     });
 
-
-    const searchItems = function (items: { subFull?: number; edits?: number; sub?: number; name?: string; item?: unknown }[], search: string, args: Record<string, unknown>) {
+    const searchItems = function (
+        items: { subFull?: number; edits?: number; sub?: number; name?: string; item?: unknown }[],
+        search: string,
+        args: Record<string, unknown>
+    ) {
         const results = [];
 
         for (let i = 0; i < items.length; i++) {
             const item = items[i];
-
             // direct hit
             if (item.subFull !== Infinity) {
                 results.push(item);
@@ -149,7 +152,7 @@ editor.once('load', () => {
                     continue;
                 } else if (subCandidate === Infinity && edits < editsCandidate) {
                     // new edits candidate, not a substring of a token
-                    if ((edits / Math.max(search.length, item.tokens[t].length)) <= args.editsDistanceTolerance) {
+                    if (edits / Math.max(search.length, item.tokens[t].length) <= args.editsDistanceTolerance) {
                         // check if edits tolerance is satisfied
                         editsCandidate = edits;
                     }
@@ -193,28 +196,30 @@ editor.once('load', () => {
             return [];
         }
 
-        args = args || { };
+        args = args || {};
         args.containsCharsTolerance = args.containsCharsTolerance || 0.5;
         args.editsDistanceTolerance = args.editsDistanceTolerance || 0.5;
 
         let records = [];
 
         for (let i = 0; i < items.length; i++) {
-            const subInd = items[i][0].toLowerCase().trim().indexOf(search);
+            const item = items[i];
+            const subInd = item[0].toLowerCase().trim().indexOf(search);
 
             records.push({
-                name: items[i][0],
-                item: items[i][1],
-                tokens: editor.call('search:stringTokenize', items[i][0]),
+                name: item[0],
+                item: item[1],
+                tokens: editor.call('search:stringTokenize', item[0]),
                 edits: Infinity,
-                subFull: (subInd !== -1) ? subInd : Infinity,
+                subFull: subInd !== -1 ? subInd : Infinity,
                 sub: Infinity
             });
         }
 
         // search each token
         for (let i = 0; i < searchTokens.length; i++) {
-            records = searchItems(records, searchTokens[i], args);
+            const searchToken = searchTokens[i];
+            records = searchItems(records, searchToken, args);
         }
 
         // sort result first by substring? then by edits number
@@ -229,7 +234,6 @@ editor.once('load', () => {
                 return a.edits - b.edits;
             }
             return a.name.length - b.name.length;
-
         });
 
         // return only items without match information
@@ -238,7 +242,7 @@ editor.once('load', () => {
         }
 
         // limit number of results
-        if (args.hasOwnProperty('limitResults') && records.length > args.limitResults) {
+        if (Object.prototype.hasOwnProperty.call(args, 'limitResults') && records.length > args.limitResults) {
             records = records.slice(0, args.limitResults);
         }
 

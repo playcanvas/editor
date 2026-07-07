@@ -12,7 +12,11 @@ editor.once('load', () => {
     const regexUrl = /[a-z]+:\/\/[-\w@:%.+~#=]{2,256}\.[a-z]{2,6}\b[-\w@:%+.~#?&/=]*/g;
     const regexEmail = /[-\w:%.+~]{1,256}@[-\w@:%.+~#=]{1,256}\.[a-z]{2,16}/g;
 
-    const stringToElements = function (args: { string: string; regex: RegExp; filter: (match: string) => HTMLAnchorElement }) {
+    const stringToElements = function (args: {
+        string: string;
+        regex: RegExp;
+        filter: (match: string) => HTMLAnchorElement;
+    }) {
         const items = [];
 
         const bits = args.string.match(args.regex);
@@ -95,7 +99,7 @@ editor.once('load', () => {
         const element = document.createElement('div');
         element.classList.add('selectable');
 
-        const text = element.text = document.createElement('span');
+        const text = (element.text = document.createElement('span'));
         text.classList.add('selectable');
         element.appendChild(text);
 
@@ -105,7 +109,7 @@ editor.once('load', () => {
             lastUser = null;
             lastMessage = 0;
             const date = new Date();
-            message = `${(`00${date.getHours()}`).slice(-2)}:${(`00${date.getMinutes()}`).slice(-2)} - ${string}`;
+            message = `${`00${date.getHours()}`.slice(-2)}:${`00${date.getMinutes()}`.slice(-2)} - ${string}`;
             element.classList.add('system');
         } else if (typeof type === 'number') {
             element.classList.add('message');
@@ -113,7 +117,7 @@ editor.once('load', () => {
 
             // if same user posts within 60 seconds,
             // don't add image and username
-            if (lastUser !== type || (Date.now() - lastMessage) > lastMessageDelay) {
+            if (lastUser !== type || Date.now() - lastMessage > lastMessageDelay) {
                 const img = document.createElement('img');
                 img.classList.add('selectable');
                 img.width = 14;
@@ -125,7 +129,7 @@ editor.once('load', () => {
 
                 element.tooltip = TooltipHandle.attach({
                     target: img,
-                    text: `${(`00${date.getHours()}`).slice(-2)}:${(`00${date.getMinutes()}`).slice(-2)}`,
+                    text: `${`00${date.getHours()}`.slice(-2)}:${`00${date.getMinutes()}`.slice(-2)}`,
                     align: 'right',
                     root: root
                 });
@@ -150,11 +154,18 @@ editor.once('load', () => {
         const elements = parseMessage(message);
         const fragment = document.createDocumentFragment();
         for (let i = 0; i < elements.length; i++) {
-            fragment.appendChild(elements[i]);
+            const element = elements[i];
+            fragment.appendChild(element);
         }
         text.appendChild(fragment);
 
-        const scrollDown = !widget.folded && Math.abs((messages.innerElement.scrollHeight - messages.innerElement.clientHeight) - messages.innerElement.scrollTop) < 4;
+        const scrollDown =
+            !widget.folded &&
+            Math.abs(
+                messages.innerElement.scrollHeight -
+                    messages.innerElement.clientHeight -
+                    messages.innerElement.scrollTop
+            ) < 4;
 
         messages.append(element);
 

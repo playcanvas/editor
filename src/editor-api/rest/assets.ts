@@ -373,7 +373,6 @@ export const assetGet = (assetId: string) => {
     });
 };
 
-
 /**
  * Fetches file data for the given asset
  *

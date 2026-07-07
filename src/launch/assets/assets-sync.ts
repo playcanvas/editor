@@ -11,17 +11,23 @@ editor.once('load', () => {
 
     const launchConfig = config as LaunchConfig;
     const settings = editor.call('settings:project');
-    const docs: Record<string, { unsubscribe: () => void; destroy: () => void }> = { };
+    const docs: Record<string, { unsubscribe: () => void; destroy: () => void }> = {};
 
-    const assetNames: Record<string, string> = { };
+    const assetNames: Record<string, string> = {};
     const pendingOps = new Map();
 
-    const queryParams = (new pc.URI(window.location.href)).getQuery() as Record<string, string>;
-    const concatenateScripts = (queryParams.concatenateScripts === 'true');
+    const queryParams = new pc.URI(window.location.href).getQuery() as Record<string, string>;
+    const concatenateScripts = queryParams.concatenateScripts === 'true';
     const concatenatedScriptsUrl = `projects/${(config.project as { id: string }).id}/concatenated-scripts/scripts.js?branchId=${(config.self as { branch: { id: string } }).branch.id}`;
-    const useBundles = (queryParams.useBundles !== 'false');
+    const useBundles = queryParams.useBundles !== 'false';
 
-    const getFileUrl = function (folders: string[], id: string | number, revision: string | number, filename: string, useBundles?: boolean) {
+    const getFileUrl = function (
+        folders: string[],
+        id: string | number,
+        revision: string | number,
+        filename: string,
+        useBundles?: boolean
+    ) {
         if (useBundles) {
             // if we are using bundles then this URL should be the URL
             // in the tar archive
@@ -30,11 +36,12 @@ editor.once('load', () => {
 
         let path = '';
         for (let i = 0; i < folders.length; i++) {
-            const folder = editor.call('assets:get', folders[i]);
+            const folderId = folders[i];
+            const folder = editor.call('assets:get', folderId);
             if (folder) {
                 path += `${encodeURIComponent(folder.get('name'))}/`;
             } else {
-                path += `${encodeURIComponent(assetNames[folders[i]] || 'unknown')}/`;
+                path += `${encodeURIComponent(assetNames[folderId] || 'unknown')}/`;
             }
         }
         return `assets/files/${path}${encodeURIComponent(filename)}?id=${id}&branchId=${(config.self as { branch: { id: string } }).branch.id}`;
@@ -63,6 +70,7 @@ editor.once('load', () => {
 
             const assetData = doc.data;
             if (!assetData) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- tagged template call sets sentry fingerprint for grouping
                 log.error`could not load asset: ${uniqueId}`;
                 doc.unsubscribe();
                 doc.destroy();
@@ -76,7 +84,8 @@ editor.once('load', () => {
                 }
 
                 for (let i = 0; i < ops.length; i++) {
-                    editor.emit('realtime:op:assets', ops[i], uniqueId);
+                    const op = ops[i];
+                    editor.emit('realtime:op:assets', op, uniqueId);
                 }
             });
 
@@ -95,13 +104,24 @@ editor.once('load', () => {
             }
 
             if (assetData.file) {
-                if (concatenateScripts && assetData.type === 'script' && assetData.file.filename.endsWith('.js') && assetData.preload && !assetData.data.loadingType) {
+                if (
+                    concatenateScripts &&
+                    assetData.type === 'script' &&
+                    assetData.file.filename.endsWith('.js') &&
+                    assetData.preload &&
+                    !assetData.data.loadingType
+                ) {
                     assetData.file.url = concatenatedScriptsUrl;
                 } else if (launchConfig.signedUrls && launchConfig.signedUrls[assetData.id]) {
                     assetData.file.url = launchConfig.signedUrls[assetData.id];
                     delete assetData.file.hash;
                 } else {
-                    assetData.file.url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.filename);
+                    assetData.file.url = getFileUrl(
+                        assetData.path,
+                        assetData.id,
+                        assetData.revision,
+                        assetData.file.filename
+                    );
                 }
 
                 if (assetData.file.variants) {
@@ -111,7 +131,12 @@ editor.once('load', () => {
                             assetData.file.variants[key].url = launchConfig.signedUrls[variantSignedKey];
                             delete assetData.file.variants[key].hash;
                         } else {
-                            assetData.file.variants[key].url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.variants[key].filename);
+                            assetData.file.variants[key].url = getFileUrl(
+                                assetData.path,
+                                assetData.id,
+                                assetData.revision,
+                                assetData.file.variants[key].filename
+                            );
                         }
                     }
                 }
@@ -134,7 +159,12 @@ editor.once('load', () => {
                 asset = new Observer(assetData, options);
                 editor.call('assets:add', asset);
 
-                const _asset = asset.asset = new pc.Asset(assetData.name, assetData.type, assetData.file, assetData.data);
+                const _asset = (asset.asset = new pc.Asset(
+                    assetData.name,
+                    assetData.type,
+                    assetData.file,
+                    assetData.data
+                ));
                 _asset.id = parseInt(assetData.id, 10);
                 _asset.preload = assetData.preload ? assetData.preload : false;
 
@@ -177,17 +207,23 @@ editor.once('load', () => {
 
             // get the assets in this bundle
             // that have a file
-            const assetsInBundle = asset.get('data.assets').map((id: number) => {
-                return editor.call('assets:get', id);
-            }).filter((a: Observer | undefined) => {
-                return a && a.has('file.filename');
-            });
+            const assetsInBundle = asset
+                .get('data.assets')
+                .map((id: number) => {
+                    return editor.call('assets:get', id);
+                })
+                .filter((a: Observer | undefined) => {
+                    return a && a.has('file.filename');
+                });
 
             if (assetsInBundle.length) {
                 // set the main filename and url for the bundle asset
                 asset.set('file', {});
                 asset.set('file.filename', `${asset.get('name')}.tar`);
-                asset.set('file.url', getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), asset.get('file.filename')));
+                asset.set(
+                    'file.url',
+                    getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), asset.get('file.filename'))
+                );
 
                 // find assets with variants
                 const assetsWithVariants = assetsInBundle.filter((a: Observer) => {
@@ -207,7 +243,6 @@ editor.once('load', () => {
                             asset.set(`file.variants.${variant}`, {
                                 filename: filename,
                                 url: getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), filename)
-
                             });
                             return;
                         }
@@ -226,10 +261,22 @@ editor.once('load', () => {
                     sync = asset.sync.enabled;
                     asset.sync.enabled = false;
 
-                    asset.set('file.url', getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), file.filename, true));
+                    asset.set(
+                        'file.url',
+                        getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), file.filename, true)
+                    );
                     if (file.variants) {
                         for (const key in file.variants) {
-                            asset.set(`file.variants.${key}.url`, getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), file.variants[key].filename, true));
+                            asset.set(
+                                `file.variants.${key}.url`,
+                                getFileUrl(
+                                    asset.get('path'),
+                                    asset.get('id'),
+                                    asset.get('revision'),
+                                    file.variants[key].filename,
+                                    true
+                                )
+                            );
                         }
                     }
 
@@ -240,15 +287,18 @@ editor.once('load', () => {
 
         // create the engine asset
         const assetData = asset.json();
-        const engineAsset = (asset as Observer & { asset?: pc.Asset }).asset = new pc.Asset(assetData.name, assetData.type, assetData.file, assetData.data);
+        const engineAsset = ((asset as Observer & { asset?: pc.Asset }).asset = new pc.Asset(
+            assetData.name,
+            assetData.type,
+            assetData.file,
+            assetData.data
+        ));
         engineAsset.id = parseInt(assetData.id, 10);
         engineAsset.preload = assetData.preload ? assetData.preload : false;
-        if (assetData.type === 'script' &&
-            assetData.data &&
-            assetData.data.loadingType > 0) {
+        if (assetData.type === 'script' && assetData.data && assetData.data.loadingType > 0) {
             // disable load on script before/after engine scripts
             engineAsset.loaded = true;
-        } else if (wasmAssetIds.hasOwnProperty(assetData.id)) {
+        } else if (Object.prototype.hasOwnProperty.call(wasmAssetIds, assetData.id)) {
             // disable load on module assets
             engineAsset.loaded = true;
         }
@@ -267,7 +317,7 @@ editor.once('load', () => {
         app.assets.add(engineAsset);
     };
 
-    const onLoad = function (data: Array<{ id: string; uniqueId: string; name?: string }>) {
+    const onLoad = function (data: { id: string; uniqueId: string; name?: string }[]) {
         editor.call('assets:progress', 0.5);
 
         const total = data.length;
@@ -277,7 +327,7 @@ editor.once('load', () => {
         }
 
         let count = 0;
-        const scripts = { };
+        const scripts = {};
 
         const legacyScripts = settings.get('useLegacyScripts');
 
@@ -285,9 +335,8 @@ editor.once('load', () => {
         // script ids. the list is used to suppress the asset system from the loading
         // the scripts again.
         const getWasmAssetIds = function (): Record<string, number> {
-            const result: Record<string, number> = { };
-            editor.call('assets:list')
-            .forEach((a: Observer) => {
+            const result: Record<string, number> = {};
+            editor.call('assets:list').forEach((a: Observer) => {
                 const asset = (a as Observer & { asset?: pc.Asset }).asset;
                 if (asset.type !== 'wasm' || !asset.data) {
                     return;
@@ -307,11 +356,12 @@ editor.once('load', () => {
             const order = settings.get('scripts');
 
             for (let i = 0; i < order.length; i++) {
-                if (!scripts[order[i]]) {
+                const scriptId = order[i];
+                if (!scripts[scriptId]) {
                     continue;
                 }
 
-                const asset = editor.call('assets:get', order[i]);
+                const asset = editor.call('assets:get', scriptId);
                 if (asset) {
                     createEngineAsset(asset, wasmAssetIds);
                 }
@@ -391,16 +441,17 @@ editor.once('load', () => {
     // load all assets
     editor.on('realtime:authenticated', () => {
         pendingOps.clear();
-        editor.api.globals.rest.projects.projectAssets('launcher', true)
-        .on('load', (_status: number, data: Array<{ id: string; uniqueId: string; name?: string }>) => {
-            onLoad(data);
-        })
-        .on('progress', (progress: number) => {
-            editor.call('assets:progress', 0.1 + progress * 0.4);
-        })
-        .on('error', (status: number, evt: unknown) => {
-            console.log(status, evt);
-        });
+        editor.api.globals.rest.projects
+            .projectAssets('launcher', true)
+            .on('load', (_status: number, data: { id: string; uniqueId: string; name?: string }[]) => {
+                onLoad(data);
+            })
+            .on('progress', (progress: number) => {
+                editor.call('assets:progress', 0.1 + progress * 0.4);
+            })
+            .on('error', (status: number, evt: unknown) => {
+                console.log(status, evt);
+            });
     });
 
     editor.call('assets:progress', 0.1);
@@ -449,10 +500,21 @@ editor.once('load', () => {
             // NOTE: if we have concatenated scripts then this will reset the file URL to the original URL and not the
             // concatenated URL which is what we want for hot reloading
             if ((parts.length === 1 || parts.length === 2) && parts[1] !== 'variants') {
-                asset.set('file.url', getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), asset.get('file.filename')));
+                asset.set(
+                    'file.url',
+                    getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), asset.get('file.filename'))
+                );
             } else if (parts.length >= 3 && parts[1] === 'variants') {
                 const format = parts[2];
-                asset.set(`file.variants.${format}.url`, getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), asset.get(`file.variants.${format}.filename`)));
+                asset.set(
+                    `file.variants.${format}.url`,
+                    getFileUrl(
+                        asset.get('path'),
+                        asset.get('id'),
+                        asset.get('revision'),
+                        asset.get(`file.variants.${format}.filename`)
+                    )
+                );
             }
 
             setting = false;

@@ -74,7 +74,6 @@ class Messenger extends Events {
         this.socket.onclose = this._onclose.bind(this);
     }
 
-
     reconnect() {
         if (this._connecting || !this._url) {
             return;
@@ -94,11 +93,13 @@ class Messenger extends Events {
         }
 
         // start delay
-        this._reconnectDelay = setTimeout(() => {
-            this.connect(this._url);
-        }, MESSENGER_RECONNECT_DELAY * (this._connectAttempts + 1));
+        this._reconnectDelay = setTimeout(
+            () => {
+                this.connect(this._url);
+            },
+            MESSENGER_RECONNECT_DELAY * (this._connectAttempts + 1)
+        );
     }
-
 
     _onopen() {
         console.log('messenger connected');
@@ -109,7 +110,6 @@ class Messenger extends Events {
 
         this.emit('connect');
     }
-
 
     _onclose() {
         this._connected = false;
@@ -123,13 +123,11 @@ class Messenger extends Events {
         this.reconnect();
     }
 
-
     _onerror(error: Event | Error) {
         this._connecting = false;
         console.error(error);
         this.emit('error', error);
     }
-
 
     _onmessage(raw: MessageEvent) {
         if (raw.data === 'pong') {
@@ -218,13 +216,12 @@ class Messenger extends Events {
         this.socket.send(JSON.stringify(msg));
     }
 
-
     close(args?: { code?: number; reason?: string }) {
         if (!this._connected) {
             return;
         }
 
-        args = args || { };
+        args = args || {};
         args.code = args.code || 1000; // 1000 - CLOSE_NORMAL
         args.reason = args.reason || 'unknown';
 
@@ -236,7 +233,6 @@ class Messenger extends Events {
             this._onclose();
         }
     }
-
 
     // start watching project
     projectWatch(id: string) {

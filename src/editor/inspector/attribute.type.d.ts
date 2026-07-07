@@ -21,14 +21,14 @@ export type Attribute = {
     reference?: string;
     /** Tooltip */
     tooltip?: {
-      /** Tooltip title */
-      title: string;
-      /** Tooltip subtitle */
-      subTitle?: string;
-      /** Tooltip description */
-      description: string;
+        /** Tooltip title */
+        title: string;
+        /** Tooltip subtitle */
+        subTitle?: string;
+        /** Tooltip description */
+        description: string;
     };
-  };
+};
 
 export type Divider = {
     type: 'divider';

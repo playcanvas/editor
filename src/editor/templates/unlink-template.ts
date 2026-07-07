@@ -11,7 +11,7 @@ editor.once('load', () => {
         if (!Array.isArray(entities)) {
             entities = [entities];
         }
-        return entities.filter(e => e.get('template_id')).map(e => e.get('resource_id'));
+        return entities.filter((e) => e.get('template_id')).map((e) => e.get('resource_id'));
     }
 
     editor.method('templates:unlink', (entities: EntityObserver | EntityObserver[]) => {

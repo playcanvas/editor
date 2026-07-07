@@ -3,8 +3,10 @@ import { Container, Button } from '@playcanvas/pcui';
 import { TooltipHandle } from '@/common/tooltips';
 import type { Asset } from '@/editor-api';
 
-import { BaseSettingsPanel, type BaseSettingsPanelArgs } from './base';
 import type { Attribute } from '../attribute.type.d';
+
+import { BaseSettingsPanel } from './base';
+import type { BaseSettingsPanelArgs } from './base';
 
 const ATTRIBUTES: Attribute[] = [
     {
@@ -73,7 +75,6 @@ class LoadingScreenSettingsPanel extends BaseSettingsPanel {
                 this._projectSettings.set('loadingScreenScript', value ? value.toString() : null);
             }
         });
-
 
         this._selectExistingTooltip = TooltipHandle.attach({
             target: this._selectExistingButton.dom,
@@ -145,15 +146,24 @@ class LoadingScreenSettingsPanel extends BaseSettingsPanel {
     _clickCreateDefault() {
         const folder = editor.call('sourcefiles:loadingScreen:skeleton');
         const validate = (name: string) => editor.call('assets:script:checkCollision', name, folder && folder.apiAsset);
-        editor.call('picker:script-create', (filename) => {
-            editor.call('assets:create:script', {
-                filename: filename,
-                parent: folder && folder.apiAsset,
-                text: editor.call('sourcefiles:loadingScreen:skeleton')
-            }, (asset: Asset) => {
-                this._setLoadingScreen(asset.observer);
-            });
-        }, undefined, validate);
+        editor.call(
+            'picker:script-create',
+            (filename) => {
+                editor.call(
+                    'assets:create:script',
+                    {
+                        filename: filename,
+                        parent: folder && folder.apiAsset,
+                        text: editor.call('sourcefiles:loadingScreen:skeleton')
+                    },
+                    (asset: Asset) => {
+                        this._setLoadingScreen(asset.observer);
+                    }
+                );
+            },
+            undefined,
+            validate
+        );
     }
 }
 

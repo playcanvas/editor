@@ -64,7 +64,6 @@ editor.once('load', () => {
         app.setEditorSettings(projectUserSettings.json().editor);
     });
 
-
     // add canvas
     editor.call('layout.viewport').prepend(canvas);
 

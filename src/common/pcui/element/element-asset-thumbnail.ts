@@ -1,7 +1,9 @@
-import { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
-import { Element, type ElementArgs } from '@playcanvas/pcui';
+import type { EventHandle, ObserverList } from '@playcanvas/observer';
+import { Observer } from '@playcanvas/observer';
+import { Element } from '@playcanvas/pcui';
+import type { ElementArgs } from '@playcanvas/pcui';
 
-import { type AssetObserver } from '@/editor-api';
+import type { AssetObserver } from '@/editor-api';
 
 import { CubemapThumbnailRenderer } from '../../thumbnail-renderers/cubemap-thumbnail-renderer';
 import { FontThumbnailRenderer } from '../../thumbnail-renderers/font-thumbnail-renderer';
@@ -13,7 +15,6 @@ import { TemplateThumbnailRenderer } from '../../thumbnail-renderers/template-th
 import { buildQueryUrl } from '../../utils';
 import { CLASS_MULTIPLE_VALUES } from '../constants';
 
-
 const CLASS_ASSET_THUMB = 'pcui-asset-thumb';
 const CLASS_ASSET_THUMB_EMPTY = 'pcui-asset-thumb-empty';
 const CLASS_ASSET_THUMB_MISSING = 'pcui-asset-thumb-missing';
@@ -21,13 +22,13 @@ const CLASS_ASSET_PREFIX = 'asset-icon-prefix';
 const CLASS_FLIP_Y = 'flip-y';
 
 const CANVAS_TYPES = {
-    'cubemap': true,
-    'font': true,
-    'material': true,
-    'model': true,
-    'sprite': true,
-    'render': true,
-    'template': false // TODO: Change to true after testing with optimizations (GH Issue #783)
+    cubemap: true,
+    font: true,
+    material: true,
+    model: true,
+    sprite: true,
+    render: true,
+    template: false // TODO: Change to true after testing with optimizations (GH Issue #783)
 };
 
 type AssetThumbnailArgs = {
@@ -43,7 +44,7 @@ type AssetThumbnailArgs = {
     renderChanges?: boolean;
 
     value?: number;
-}
+};
 
 /**
  * Shows an asset thumbnail. Depending on the asset type that can be an image or a canvas rendering.
@@ -113,7 +114,6 @@ class AssetThumbnail extends Element {
         this.value = args.value || null;
 
         this.renderChanges = args.renderChanges || false;
-
 
         this.on('change', () => {
             if (this.renderChanges) {
@@ -197,7 +197,7 @@ class AssetThumbnail extends Element {
             return;
         }
 
-        if (!this._canvasWidth && !this.width || !this._canvasHeight && !this.height) {
+        if ((!this._canvasWidth && !this.width) || (!this._canvasHeight && !this.height)) {
             this._renderCanvasTimeout = setTimeout(() => {
                 this._renderCanvasThumbnailWhenReady(asset);
             });
@@ -246,7 +246,6 @@ class AssetThumbnail extends Element {
                 this._canvasRenderer = new TemplateThumbnailRenderer(asset, this._domCanvas);
                 break;
         }
-
 
         this._canvasRenderer.queueRender();
 
@@ -378,7 +377,7 @@ class AssetThumbnail extends Element {
             this.class.add(CLASS_ASSET_THUMB_MISSING);
             this._showImageThumbnail(null);
 
-            const id = (value instanceof Observer ? value.get('id') : value);
+            const id = value instanceof Observer ? value.get('id') : value;
             this._evtAdd = this._assets.once(`add[${id}]`, (asset: Observer) => {
                 this._onChange(asset);
             });

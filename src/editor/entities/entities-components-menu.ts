@@ -5,7 +5,9 @@ editor.once('load', () => {
         if (['audiolistener', 'sound'].indexOf(key) >= 0) {
             return 'audio-sub-menu';
         }
-        if (['element', 'screen', 'layoutgroup', 'layoutchild', 'button', 'scrollview', 'scrollbar'].indexOf(key) >= 0) {
+        if (
+            ['element', 'screen', 'layoutgroup', 'layoutchild', 'button', 'scrollview', 'scrollbar'].indexOf(key) >= 0
+        ) {
             return 'ui-sub-menu';
         }
         if (['rigidbody', 'collision'].indexOf(key) >= 0) {
@@ -28,13 +30,15 @@ editor.once('load', () => {
                 return selection;
             }
             return [entity];
-
         }
         return selection;
-
     };
 
-    const makeAddComponentMenuItem = function (key: string, components: Record<string, { $title: string }>, logos: Record<string, string>) {
+    const makeAddComponentMenuItem = function (
+        key: string,
+        components: Record<string, { $title: string }>,
+        logos: Record<string, string>
+    ) {
         let title = components[key].$title;
         if (title === 'Model' || title === 'Animation') {
             title += ' (legacy)';
@@ -104,7 +108,8 @@ editor.once('load', () => {
         const orderedKeys = Object.keys(items).sort();
         const sorted = [];
         for (let i = 0; i < orderedKeys.length; i++) {
-            sorted.push(items[orderedKeys[i]]);
+            const key = orderedKeys[i];
+            sorted.push(items[key]);
         }
 
         return sorted;

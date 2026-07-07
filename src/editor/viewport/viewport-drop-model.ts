@@ -33,7 +33,8 @@ editor.once('load', () => {
 
             if (type === 'assets') {
                 for (let i = 0; i < data.ids.length; i++) {
-                    const asset = editor.call('assets:get', data.ids[i]);
+                    const id = data.ids[i];
+                    const asset = editor.call('assets:get', id);
                     if (!asset) {
                         return false;
                     }
@@ -44,7 +45,8 @@ editor.once('load', () => {
                 }
 
                 for (let i = 0; i < data.ids.length; i++) {
-                    const asset = app.assets.get(data.ids[i]);
+                    const id = data.ids[i];
+                    const asset = app.assets.get(id);
                     if (asset) {
                         app.assets.load(asset);
                     }
@@ -67,7 +69,8 @@ editor.once('load', () => {
                 }
             } else if (type === 'assets') {
                 for (let i = 0; i < data.ids.length; i++) {
-                    const asset = editor.call('assets:get', parseInt(data.ids[i], 10));
+                    const id = data.ids[i];
+                    const asset = editor.call('assets:get', parseInt(id, 10));
                     if (asset && asset.get('type') === 'model') {
                         assets.push(asset);
                     }
@@ -92,19 +95,21 @@ editor.once('load', () => {
             // calculate aabb
             let first = true;
             for (let i = 0; i < assets.length; i++) {
-                const assetEngine = app.assets.get(assets[i].get('id'));
+                const asset = assets[i];
+                const assetEngine = app.assets.get(asset.get('id'));
                 if (!assetEngine) {
                     continue;
                 }
 
                 if (assetEngine.resource) {
                     const meshes = assetEngine.resource.meshInstances;
-                    for (let m = 0; m < meshes.length; m++) {
+                    for (let i = 0; i < meshes.length; i++) {
+                        const mesh = meshes[i];
                         if (first) {
                             first = false;
-                            aabb.copy(meshes[m].aabb);
+                            aabb.copy(mesh.aabb);
                         } else {
-                            aabb.add(meshes[m].aabb);
+                            aabb.add(mesh.aabb);
                         }
                     }
                 }
@@ -141,11 +146,12 @@ editor.once('load', () => {
             }
 
             for (let i = 0; i < assets.length; i++) {
+                const asset = assets[i];
                 const component = editor.call('components:getDefault', 'model');
                 component.type = 'asset';
-                component.asset = parseInt(assets[i].get('id'), 10);
+                component.asset = parseInt(asset.get('id'), 10);
 
-                let name = assets[i].get('name');
+                let name = asset.get('name');
                 if (/\.json$/i.test(name)) {
                     name = name.slice(0, -5) || 'Untitled';
                 } else if (/\.glb$/i.test(name)) {
@@ -153,16 +159,19 @@ editor.once('load', () => {
                 }
 
                 // new entity
-                const entity = editor.api.globals.entities.create(({
-                    parent: parent,
-                    name: name,
-                    position: [vecC.x, vecC.y, vecC.z],
-                    components: {
-                        model: component
+                const entity = editor.api.globals.entities.create(
+                    {
+                        parent: parent,
+                        name: name,
+                        position: [vecC.x, vecC.y, vecC.z],
+                        components: {
+                            model: component
+                        }
+                    } as any,
+                    {
+                        history: false
                     }
-                } as any), {
-                    history: false
-                });
+                );
 
                 entities.push(entity);
                 data.push(entity.json());

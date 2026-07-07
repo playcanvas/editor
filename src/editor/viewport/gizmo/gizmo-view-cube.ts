@@ -1,4 +1,5 @@
-import { type Entity, PROJECTION_PERSPECTIVE, Quat, Vec3, Vec4, ViewCube } from 'playcanvas';
+import { PROJECTION_PERSPECTIVE, Quat, Vec3, Vec4, ViewCube } from 'playcanvas';
+import type { Entity } from 'playcanvas';
 
 // editor camera entity with dynamic properties added by camera.ts
 type EditorCamera = Entity & { focus?: Vec3; __editorCamera?: boolean };
@@ -23,7 +24,8 @@ editor.once('viewport:load', () => {
     let fullscreen = false;
 
     const setVisible = (camera: EditorCamera) => {
-        const show = enabled && !fullscreen && (!camera.__editorCamera || camera.camera.projection === PROJECTION_PERSPECTIVE);
+        const show =
+            enabled && !fullscreen && (!camera.__editorCamera || camera.camera.projection === PROJECTION_PERSPECTIVE);
         vc.dom.style.display = show ? '' : 'none';
     };
     editor.on('camera:change', (camera: EditorCamera) => setVisible(camera));

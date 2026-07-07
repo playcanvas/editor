@@ -38,7 +38,12 @@ editor.once('viewport:load', (app) => {
     renderContainer.append(renderOptions);
 
     // Option Fields UI
-    const createCheckbox = (name, callback = (state) => {}) => {
+    const createCheckbox = (
+        name,
+        callback = (state) => {
+            // no-op
+        }
+    ) => {
         // Create UI Panel
         const renderOption = new Container({
             flex: true
@@ -67,7 +72,13 @@ editor.once('viewport:load', (app) => {
     };
 
     const renderRadioOptions = [];
-    const createShaderOption = (name: string, state = false, callback: () => void = () => {}) => {
+    const createShaderOption = (
+        name: string,
+        state = false,
+        callback: () => void = () => {
+            // no-op
+        }
+    ) => {
         // Create UI Panel
         const renderOption = new Container({
             flex: true
@@ -88,7 +99,8 @@ editor.once('viewport:load', (app) => {
         renderOption.dom.addEventListener('click', () => {
             renderButton.text = name;
             for (let i = 0; i < renderRadioOptions.length; i++) {
-                renderRadioOptions[i].value = false;
+                const renderRadioOption = renderRadioOptions[i];
+                renderRadioOption.value = false;
             }
             renderOptionRadio.value = true;
             callback();
@@ -110,11 +122,11 @@ editor.once('viewport:load', (app) => {
         const gizmoLayers = editor.call('gizmo:layers:list');
         for (let i = 0; i < sceneLayers.length; i++) {
             const layer = sceneLayers[i];
-            if (gizmoLayers.some(gizmoLayer => gizmoLayer.id === layer.id)) {
+            if (gizmoLayers.some((gizmoLayer) => gizmoLayer.id === layer.id)) {
                 continue;
             }
-            for (let j = 0; j < layer.meshInstances.length; j++) {
-                const meshInstance = layer.meshInstances[j];
+            for (let i = 0; i < layer.meshInstances.length; i++) {
+                const meshInstance = layer.meshInstances[i];
                 meshInstance.renderStyle = renderStyle;
             }
         }
@@ -129,17 +141,17 @@ editor.once('viewport:load', (app) => {
 
     // Shader Passes
     const shaderPassMap = {
-        'Standard': SHADERPASS_FORWARD,
-        'Albedo': SHADERPASS_ALBEDO,
-        'Opacity': SHADERPASS_OPACITY,
+        Standard: SHADERPASS_FORWARD,
+        Albedo: SHADERPASS_ALBEDO,
+        Opacity: SHADERPASS_OPACITY,
         'World Normal': SHADERPASS_WORLDNORMAL,
-        'Specularity': SHADERPASS_SPECULARITY,
-        'Gloss': SHADERPASS_GLOSS,
-        'Metalness': SHADERPASS_METALNESS,
-        'AO': SHADERPASS_AO,
-        'Emission': SHADERPASS_EMISSION,
-        'Lighting': SHADERPASS_LIGHTING,
-        'UV0': SHADERPASS_UV0
+        Specularity: SHADERPASS_SPECULARITY,
+        Gloss: SHADERPASS_GLOSS,
+        Metalness: SHADERPASS_METALNESS,
+        AO: SHADERPASS_AO,
+        Emission: SHADERPASS_EMISSION,
+        Lighting: SHADERPASS_LIGHTING,
+        UV0: SHADERPASS_UV0
     };
     for (const name in shaderPassMap) {
         createShaderOption(name, name === 'Standard', () => {
@@ -172,28 +184,44 @@ editor.once('viewport:load', (app) => {
         }
     };
 
-    renderContainer.dom.addEventListener('mouseenter', () => {
-        inButton = true;
-        enable();
-    }, false);
+    renderContainer.dom.addEventListener(
+        'mouseenter',
+        () => {
+            inButton = true;
+            enable();
+        },
+        false
+    );
 
-    renderContainer.dom.addEventListener('mouseleave', () => {
-        inButton = false;
-        disable();
-    }, false);
+    renderContainer.dom.addEventListener(
+        'mouseleave',
+        () => {
+            inButton = false;
+            disable();
+        },
+        false
+    );
 
-    renderContainer.dom.addEventListener('mouseenter', () => {
-        inOptions = true;
+    renderContainer.dom.addEventListener(
+        'mouseenter',
+        () => {
+            inOptions = true;
 
-        if (timeout) {
-            clearTimeout(timeout);
-            timeout = null;
-        }
-    }, false);
+            if (timeout) {
+                clearTimeout(timeout);
+                timeout = null;
+            }
+        },
+        false
+    );
 
-    renderContainer.dom.addEventListener('mouseleave', () => {
-        inOptions = false;
+    renderContainer.dom.addEventListener(
+        'mouseleave',
+        () => {
+            inOptions = false;
 
-        disable();
-    }, false);
+            disable();
+        },
+        false
+    );
 });

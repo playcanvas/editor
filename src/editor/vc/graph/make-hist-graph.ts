@@ -77,22 +77,18 @@ editor.once('load', () => {
         makeLogic(h: Record<string, unknown>) {
             if (h.vcNoHistData) {
                 return {};
-
             }
             if (!h.vcAction) {
                 return {
                     dontInclude: true,
                     recursion: { sameBranch: true }
                 };
-
             }
             if (h.vcAction === 'removed') {
                 return { recursion: { sameBranch: true } };
-
             }
             if (h.vcAction === 'added') {
                 return { recursion: { otherBranch: true } };
-
             }
             return {
                 recursion: {
@@ -100,7 +96,6 @@ editor.once('load', () => {
                     otherBranch: true
                 }
             };
-
         }
 
         handleLogic(logic: Record<string, unknown>, h: Record<string, unknown>) {
@@ -115,7 +110,11 @@ editor.once('load', () => {
             this.recursCall('otherBranch', parents, logic);
         }
 
-        recursCall(type: string, parents: Record<string, Record<string, unknown> | undefined>, logic: Record<string, unknown>) {
+        recursCall(
+            type: string,
+            parents: Record<string, Record<string, unknown> | undefined>,
+            logic: Record<string, unknown>
+        ) {
             const h: Record<string, unknown> | undefined = logic.recursion && logic.recursion[type] && parents[type];
 
             const need = h && !this.visited[h.id];
@@ -192,7 +191,11 @@ editor.once('load', () => {
             return branchOk && h2;
         }
 
-        connectNodes(h1: Record<string, unknown> | undefined, h2: Record<string, unknown> | undefined, branchId: string) {
+        connectNodes(
+            h1: Record<string, unknown> | undefined,
+            h2: Record<string, unknown> | undefined,
+            branchId: string
+        ) {
             if (h1 && h2) {
                 this.addEdge(h1.child, h1.id, h2.id, branchId);
 
@@ -224,7 +227,12 @@ editor.once('load', () => {
             });
         }
 
-        addEdge(dst: Array<{ parent: string; child: string; branch_id: string }>, parent: string, child: string, branch_id: string) {
+        addEdge(
+            dst: { parent: string; child: string; branch_id: string }[],
+            parent: string,
+            child: string,
+            branch_id: string
+        ) {
             const edge = {
                 parent,
                 child,

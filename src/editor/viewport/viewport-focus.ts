@@ -1,5 +1,7 @@
 import { BoundingBox, Entity, Vec3 } from 'playcanvas';
 
+import type { EntityObserver } from '@/editor-api';
+
 editor.once('load', () => {
     const app = editor.call('viewport:app');
     if (!app) {
@@ -15,11 +17,12 @@ editor.once('load', () => {
 
         const children = entity.children;
         for (let i = 0; i < children.length; i++) {
-            if (!(children[i] instanceof Entity) || children[i].__editor) {
+            const child = children[i];
+            if (!(child instanceof Entity) || child.__editor) {
                 continue;
             }
 
-            calculateChildAABB(children[i]);
+            calculateChildAABB(child);
         }
     };
 
@@ -31,7 +34,7 @@ editor.once('load', () => {
         return editor.call('entities:aabb', editor.call('selector:items'));
     });
 
-    editor.method('entities:aabb', (items: import('@/editor-api').EntityObserver | import('@/editor-api').EntityObserver[] | null) => {
+    editor.method('entities:aabb', (items: EntityObserver | EntityObserver[] | null) => {
         if (!items) {
             return null;
         }
@@ -76,7 +79,7 @@ editor.once('load', () => {
         // aabb
         let distance = Math.max(aabb.halfExtents.x, Math.max(aabb.halfExtents.y, aabb.halfExtents.z));
         // fov
-        distance /= Math.tan(0.5 * camera.camera.fov * Math.PI / 180.0);
+        distance /= Math.tan((0.5 * camera.camera.fov * Math.PI) / 180.0);
         // extra space
         distance = distance * 1.1 + 1;
 

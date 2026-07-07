@@ -4,25 +4,26 @@ import { Panel, Button } from '@playcanvas/pcui';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
-
 const CLASS_ROOT = 'pcui-asset-animation-inspector';
 const CLASS_EVENT_PANEL = `${CLASS_ROOT}-event-panel`;
 
-const ATTRIBUTES: Attribute[] = [{
-    label: 'Duration',
-    path: 'meta.duration',
-    reference: 'asset:animation:duration',
-    type: 'label',
-    args: {
-        placeholder: 'Seconds'
+const ATTRIBUTES: Attribute[] = [
+    {
+        label: 'Duration',
+        path: 'meta.duration',
+        reference: 'asset:animation:duration',
+        type: 'label',
+        args: {
+            placeholder: 'Seconds'
+        }
+    },
+    {
+        label: 'Name',
+        path: 'meta.name',
+        reference: 'asset:animation:name',
+        type: 'label'
     }
-},
-{
-    label: 'Name',
-    path: 'meta.name',
-    reference: 'asset:animation:name',
-    type: 'label'
-}];
+];
 
 const DOM = () => [
     {
@@ -153,16 +154,18 @@ class AnimationAssetInspector extends Panel {
 
         if (this._assets.length === 1 && this._assets[0].get('file.filename').match(/\.glb$/)) {
             this._eventsPanel.hidden = false;
-            this._evts.push(assets[0].on('*:set', (path, value) => {
-                if (path.match(/^data\.events\.*.\.name$/)) {
-                    const eventKey = path.split('.')[2];
-                    if (this._eventPanels[eventKey]) {
-                        this._eventPanels[eventKey].headerText = value;
+            this._evts.push(
+                assets[0].on('*:set', (path, value) => {
+                    if (path.match(/^data\.events\.*.\.name$/)) {
+                        const eventKey = path.split('.')[2];
+                        if (this._eventPanels[eventKey]) {
+                            this._eventPanels[eventKey].headerText = value;
+                        }
+                    } else if (path.match(/^data\.events\.*.\.time$/) || path === 'data') {
+                        this.addEventPanels();
                     }
-                } else if (path.match(/^data\.events\.*.\.time$/) || path === 'data') {
-                    this.addEventPanels();
-                }
-            }));
+                })
+            );
             if (assets[0].get('data.events')) {
                 this.addEventPanels();
             }
@@ -176,7 +179,7 @@ class AnimationAssetInspector extends Panel {
         if (this._assets) {
             this._eventsPanel.content.clear();
             this._eventPanels = {};
-            this._evts.forEach(e => e.unbind());
+            this._evts.forEach((e) => e.unbind());
             this._evts = [];
         }
     }

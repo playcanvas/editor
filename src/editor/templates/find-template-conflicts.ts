@@ -56,7 +56,11 @@ editor.once('load', () => {
 
         conflicts: Record<string, unknown>[];
 
-        constructor(ent: Record<string, unknown>, typeToNode: Record<string, unknown>, scriptAttrs: Record<string, unknown>) {
+        constructor(
+            ent: Record<string, unknown>,
+            typeToNode: Record<string, unknown>,
+            scriptAttrs: Record<string, unknown>
+        ) {
             this.ent = ent;
 
             this.typeToNode = typeToNode;
@@ -66,7 +70,8 @@ editor.once('load', () => {
             this.conflicts = [];
         }
 
-        run(): Record<string, unknown>[] { // ent is always from src
+        run(): Record<string, unknown>[] {
+            // ent is always from src
             this.runTraversal();
 
             this.conflicts.forEach((h) => {
@@ -99,7 +104,11 @@ editor.once('load', () => {
 
         result: Record<string, unknown>;
 
-        constructor(typeToInstData: Record<string, unknown>, typeToIdToTempl: Record<string, unknown>, scriptAttrs: Record<string, unknown>) {
+        constructor(
+            typeToInstData: Record<string, unknown>,
+            typeToIdToTempl: Record<string, unknown>,
+            scriptAttrs: Record<string, unknown>
+        ) {
             this.typeToInstData = typeToInstData;
 
             this.typeToIdToTempl = typeToIdToTempl;
@@ -126,7 +135,7 @@ editor.once('load', () => {
         handleAllEnts(type: string): void {
             const a = this.typeToInstData[type].entities;
 
-            a.forEach(ent => this.handleEntity(type, ent));
+            a.forEach((ent) => this.handleEntity(type, ent));
         }
 
         handleEntity(type: string, ent: Record<string, unknown>): void {
@@ -144,10 +153,8 @@ editor.once('load', () => {
 
             if (typeToNode.dst && typeToNode.src) {
                 this.useTraversal(ent, typeToNode);
-
             } else if (typeToNode.dst) {
                 this.handleWholeEnt(ent, 'override_delete_entity', 'deletedEntities');
-
             } else if (typeToNode.src) {
                 this.handleWholeEnt(ent, 'override_add_entity', 'addedEntities');
             }
@@ -165,7 +172,11 @@ editor.once('load', () => {
             return h;
         }
 
-        findMatchingEnt(type1: string, type2: string, ent: Record<string, unknown>): Record<string, unknown> | undefined {
+        findMatchingEnt(
+            type1: string,
+            type2: string,
+            ent: Record<string, unknown>
+        ): Record<string, unknown> | undefined {
             const id = this.getTemplId(type1, ent);
 
             return this.typeToInstData[type2].templIdToEntity[id];
@@ -177,7 +188,8 @@ editor.once('load', () => {
             return this.typeToIdToTempl[type][id] || id;
         }
 
-        useTraversal(ent: Record<string, unknown>, typeToNode: Record<string, unknown>): void { // ent is always from src
+        useTraversal(ent: Record<string, unknown>, typeToNode: Record<string, unknown>): void {
+            // ent is always from src
             const conflicts = new TemplateTraversal(ent, typeToNode, this.scriptAttrs).run();
 
             Array.prototype.push.apply(this.result.conflicts, conflicts);
@@ -201,7 +213,14 @@ editor.once('load', () => {
      * @returns An object with fields 'conflicts',
      * 'addedEntities' and 'deletedEntities'
      */
-    editor.method('template:findConflicts', (typeToInstData: Record<string, unknown>, typeToIdToTempl: Record<string, unknown>, scriptAttrs: Record<string, unknown>): Record<string, unknown> => {
-        return new FindTemplateConflicts(typeToInstData, typeToIdToTempl, scriptAttrs).run();
-    });
+    editor.method(
+        'template:findConflicts',
+        (
+            typeToInstData: Record<string, unknown>,
+            typeToIdToTempl: Record<string, unknown>,
+            scriptAttrs: Record<string, unknown>
+        ): Record<string, unknown> => {
+            return new FindTemplateConflicts(typeToInstData, typeToIdToTempl, scriptAttrs).run();
+        }
+    );
 });

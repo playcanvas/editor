@@ -9,7 +9,10 @@ editor.once('load', () => {
     editor.on('realtime:error', (err: unknown) => {
         hasError = true;
         log.error(err);
-        editor.call('status:permanentError', 'There was a realtime error that the Code Editor could not recover from. Please refresh the Code Editor.');
+        editor.call(
+            'status:permanentError',
+            'There was a realtime error that the Code Editor could not recover from. Please refresh the Code Editor.'
+        );
         editor.emit('permissions:writeState', false);
     });
 

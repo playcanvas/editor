@@ -33,7 +33,8 @@ editor.once('load', () => {
 
             if (type === 'assets') {
                 for (let i = 0; i < data.ids.length; i++) {
-                    const asset = editor.call('assets:get', data.ids[i]);
+                    const id = data.ids[i];
+                    const asset = editor.call('assets:get', id);
                     if (!asset) {
                         return false;
                     }
@@ -44,7 +45,8 @@ editor.once('load', () => {
                 }
 
                 for (let i = 0; i < data.ids.length; i++) {
-                    const asset = app.assets.get(data.ids[i]);
+                    const id = data.ids[i];
+                    const asset = app.assets.get(id);
                     if (asset) {
                         app.assets.load(asset);
                     }
@@ -67,7 +69,8 @@ editor.once('load', () => {
                 }
             } else if (type === 'assets') {
                 for (let i = 0; i < data.ids.length; i++) {
-                    const asset = editor.call('assets:get', parseInt(data.ids[i], 10));
+                    const id = data.ids[i];
+                    const asset = editor.call('assets:get', parseInt(id, 10));
                     if (asset && asset.get('type') === 'sprite') {
                         assets.push(asset);
                     }
@@ -92,7 +95,8 @@ editor.once('load', () => {
             // calculate aabb
             let first = true;
             for (let i = 0; i < assets.length; i++) {
-                const assetEngine = app.assets.get(assets[i].get('id'));
+                const asset = assets[i];
+                const assetEngine = app.assets.get(asset.get('id'));
                 if (!assetEngine) {
                     continue;
                 }
@@ -143,11 +147,12 @@ editor.once('load', () => {
             }
 
             for (let i = 0; i < assets.length; i++) {
+                const asset = assets[i];
                 const component = editor.call('components:getDefault', 'sprite');
 
-                const name = assets[i].get('name') || 'Untitled';
+                const name = asset.get('name') || 'Untitled';
 
-                if (assets[i].get('data.frameKeys').length > 1) {
+                if (asset.get('data.frameKeys').length > 1) {
                     component.type = 'animated';
                     component.clips = {
                         '0': {
@@ -155,23 +160,26 @@ editor.once('load', () => {
                             fps: 10,
                             loop: true,
                             autoPlay: true,
-                            spriteAsset: parseInt(assets[i].get('id'), 10)
+                            spriteAsset: parseInt(asset.get('id'), 10)
                         }
                     };
                     component.autoPlayClip = name;
                 } else {
-                    component.spriteAsset =  parseInt(assets[i].get('id'), 10);
+                    component.spriteAsset = parseInt(asset.get('id'), 10);
                 }
 
                 // new entity
-                const entity = editor.api.globals.entities.create(({
-                    parent: parent,
-                    name: name,
-                    position: [vecC.x, vecC.y, vecC.z],
-                    components: {
-                        sprite: component
-                    }
-                } as any), { history: false });
+                const entity = editor.api.globals.entities.create(
+                    {
+                        parent: parent,
+                        name: name,
+                        position: [vecC.x, vecC.y, vecC.z],
+                        components: {
+                            sprite: component
+                        }
+                    } as any,
+                    { history: false }
+                );
 
                 entities.push(entity);
                 data.push(entity.json());

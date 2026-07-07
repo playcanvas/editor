@@ -1,32 +1,39 @@
 import { BrowserClient, defaultStackParser, getDefaultIntegrations, makeFetchTransport, Scope } from '@sentry/browser';
 import { getIntegrationsToSetup } from '@sentry/core';
 
-import type { FingerprintedError } from './error';
 import { version } from '../../package.json';
+
+import type { FingerprintedError } from './error';
 
 const SENTRY_DSN = 'https://0defef72baf64d99bf53b92a23d5bd14@sentry.sc-prod.net/87';
 const BREADCRUMBS_INTEGRATION = 'Breadcrumbs';
 
-const SANITIZE_KEYS = /password|token|secret|passwd|authorization|api_key|apikey|sentry_dsn|access_token|stripetoken|mysql_pwd|credentials/i;
+const SANITIZE_KEYS =
+    /password|token|secret|passwd|authorization|api_key|apikey|sentry_dsn|access_token|stripetoken|mysql_pwd|credentials/i;
 
-type SentryConfig = {
-    enabled: true;
-    env: string;
-    version: string;
-    send: boolean;
-    service: string;
-    page: string;
-    disable_breadcrumbs: boolean;
-} | {
-    enabled: false;
-};
+type SentryConfig =
+    | {
+          enabled: true;
+          env: string;
+          version: string;
+          send: boolean;
+          service: string;
+          page: string;
+          disable_breadcrumbs: boolean;
+      }
+    | {
+          enabled: false;
+      };
 
 let scope: Scope | null = null;
 
-const getSentryIntegrations = (disableBreadcrumbs: boolean) => getIntegrationsToSetup({
-    defaultIntegrations: getDefaultIntegrations({}).filter(i => !disableBreadcrumbs || i.name !== BREADCRUMBS_INTEGRATION),
-    integrations: []
-});
+const getSentryIntegrations = (disableBreadcrumbs: boolean) =>
+    getIntegrationsToSetup({
+        defaultIntegrations: getDefaultIntegrations({}).filter(
+            (i) => !disableBreadcrumbs || i.name !== BREADCRUMBS_INTEGRATION
+        ),
+        integrations: []
+    });
 
 const sanitize = (obj: unknown, memo = new WeakSet()): unknown => {
     if (Array.isArray(obj)) {
@@ -34,7 +41,7 @@ const sanitize = (obj: unknown, memo = new WeakSet()): unknown => {
             return '[Circular]';
         }
         memo.add(obj);
-        const result = obj.map(v => sanitize(v, memo));
+        const result = obj.map((v) => sanitize(v, memo));
         memo.delete(obj);
         return result;
     }
@@ -93,7 +100,7 @@ if (sentryConfig.enabled) {
                 event.fingerprint = [fe.fingerprint];
                 // stringify non-primitive context values so class instances don't
                 // bypass sanitize() and leak sensitive fields into event.extra
-                const context = (fe.context || []).map(v => (v !== null && typeof v === 'object' ? String(v) : v));
+                const context = (fe.context || []).map((v) => (v !== null && typeof v === 'object' ? String(v) : v));
                 event.extra = {
                     ...(event.extra || {}),
                     metadata: { message: fe.message, context }
@@ -116,7 +123,9 @@ if (sentryConfig.enabled) {
 
             // report error count to graphene metrics
             if (window.metrics) {
-                metrics.increment({ metricsName: `${sentryConfig.service}.frontend_errors.count.by_page.${sentryConfig.page}` });
+                metrics.increment({
+                    metricsName: `${sentryConfig.service}.frontend_errors.count.by_page.${sentryConfig.page}`
+                });
             }
 
             return sanitize(event) as typeof event;
@@ -146,7 +155,7 @@ if (sentryConfig.enabled) {
             return;
         }
         console.error(...args);
-        const err = args.find(a => a?.stack);
+        const err = args.find((a) => a?.stack);
         if (err) {
             captureException(err);
         } else {

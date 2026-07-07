@@ -1,14 +1,14 @@
 import { Entity } from 'playcanvas';
 
-import { type EntityObserver } from '@/editor-api';
+import type { EntityObserver } from '@/editor-api';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');
 
     // entities indexes for parenting
-    const childIndex = { };
-    const entitiesIndex = { };
-    const unknowns = { };
+    const childIndex = {};
+    const entitiesIndex = {};
+    const unknowns = {};
 
     // queue for hierarchy resync
     let awaitingResyncHierarchy = false;
@@ -70,7 +70,7 @@ editor.once('load', () => {
         } // webgl not available
 
         // create entity
-        const entity = obj.entity = createEntity(obj);
+        const entity = (obj.entity = createEntity(obj));
 
         const children = obj.get('children');
         for (let i = 0; i < children.length; i++) {
@@ -100,7 +100,6 @@ editor.once('load', () => {
     };
 
     const processEntityComponents = function (entity: Entity | null, obj: EntityObserver): void {
-
         if (!entity) {
             return;
         }
@@ -177,7 +176,8 @@ editor.once('load', () => {
             delete entitiesIndex[obj.get('resource_id')];
             const children = obj.get('children');
             for (let i = 0; i < children.length; i++) {
-                delete childIndex[children[i]];
+                const child = children[i];
+                delete childIndex[child];
             }
         });
 

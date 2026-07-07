@@ -57,16 +57,20 @@ editor.once('load', () => {
                 editor.call('picker:sprites:selectSprite', asset);
             });
 
-            assetEvents.push(asset.on('name:set', (value) => {
-                item.text = value;
-            }));
+            assetEvents.push(
+                asset.on('name:set', (value) => {
+                    item.text = value;
+                })
+            );
 
-            assetEvents.push(asset.once('destroy', () => {
-                item.destroy();
-            }));
+            assetEvents.push(
+                asset.once('destroy', () => {
+                    item.destroy();
+                })
+            );
 
             item.once('destroy', () => {
-                assetEvents.forEach(event => event.unbind());
+                assetEvents.forEach((event) => event.unbind());
                 assetEvents.length = 0;
             });
         };
@@ -74,12 +78,14 @@ editor.once('load', () => {
         assets.forEach(([, asset]) => createAssetPanel(asset));
 
         // clean up
-        events.push(rootPanel.on('clear', () => {
-            panel.destroy();
-        }));
+        events.push(
+            rootPanel.on('clear', () => {
+                panel.destroy();
+            })
+        );
 
         panel.once('destroy', () => {
-            events.forEach(event => event.unbind());
+            events.forEach((event) => event.unbind());
             events.length = 0;
         });
     });

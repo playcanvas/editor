@@ -6,38 +6,47 @@ import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
-
-const ATTRIBUTES: Attribute[] = [{
-    label: 'Pixels Per Unit',
-    path: 'data.pixelsPerUnit',
-    reference: 'asset:sprite:pixelsPerUnit',
-    type: 'number'
-},
-{
-    label: 'Render Mode',
-    path: 'data.renderMode',
-    reference: 'asset:sprite:renderMode',
-    type: 'select',
-    args: {
-        type: 'number',
-        options: [{
-            v: 0, t: 'Simple'
-        }, {
-            v: 1, t: 'Sliced'
-        }, {
-            v: 2, t: 'Tiled'
-        }]
+const ATTRIBUTES: Attribute[] = [
+    {
+        label: 'Pixels Per Unit',
+        path: 'data.pixelsPerUnit',
+        reference: 'asset:sprite:pixelsPerUnit',
+        type: 'number'
+    },
+    {
+        label: 'Render Mode',
+        path: 'data.renderMode',
+        reference: 'asset:sprite:renderMode',
+        type: 'select',
+        args: {
+            type: 'number',
+            options: [
+                {
+                    v: 0,
+                    t: 'Simple'
+                },
+                {
+                    v: 1,
+                    t: 'Sliced'
+                },
+                {
+                    v: 2,
+                    t: 'Tiled'
+                }
+            ]
+        }
     }
-}];
+];
 
-const DOM = parent => [
+const DOM = (parent) => [
     {
         attributesInspector: new AttributesInspector({
             assets: parent._args.assets,
             history: parent._args.history,
             attributes: ATTRIBUTES
         })
-    }, {
+    },
+    {
         assetInput: new AssetInput({
             assetType: 'textureatlas',
             assets: parent._args.assets,

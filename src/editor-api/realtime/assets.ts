@@ -1,8 +1,9 @@
 import { Events } from '@playcanvas/observer';
 
+import type { Realtime } from '../realtime';
+
 import { RealtimeAsset } from './asset';
-import { Realtime } from '../realtime';
-import { RealtimeConnection } from './connection';
+import type { RealtimeConnection } from './connection';
 
 /**
  * Provides methods to load assets from sharedb

@@ -101,7 +101,6 @@ editor.once('load', () => {
         }
     });
 
-
     // True if you can close selected files
     editor.method('editor:command:can:closeSelected', () => {
         return editor.call('assets:selected').length;

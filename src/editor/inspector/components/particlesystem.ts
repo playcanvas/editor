@@ -3,392 +3,468 @@ import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
 import type { EntityObserver } from '@/editor-api';
 
-import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+import { ComponentInspector } from './component';
+import type { ComponentInspectorArgs } from './component';
 
-const ATTRIBUTES: Attribute[] = [{
-    label: 'Auto Play',
-    path: 'components.particlesystem.autoPlay',
-    reference: 'particlesystem:autoPlay',
-    type: 'boolean'
-}, {
-    label: 'Particle Count',
-    path: 'components.particlesystem.numParticles',
-    reference: 'particlesystem:numParticles',
-    type: 'number'
-}, {
-    label: 'Lifetime',
-    path: 'components.particlesystem.lifetime',
-    reference: 'particlesystem:lifetime',
-    type: 'number',
-    args: {
-        placeholder: 'Seconds'
-    }
-}, {
-    label: 'Emission Rate',
-    path: 'components.particlesystem.rate',
-    reference: 'particlesystem:rate',
-    type: 'number',
-    args: {
-        placeholder: 'From'
-    }
-}, {
-    label: 'Emission Rate 2',
-    path: 'components.particlesystem.rate2',
-    reference: 'particlesystem:rate',
-    type: 'number',
-    args: {
-        placeholder: 'To'
-    }
-}, {
-    label: 'Start Angle',
-    path: 'components.particlesystem.startAngle',
-    reference: 'particlesystem:startAngle',
-    type: 'number',
-    args: {
-        placeholder: 'From'
-    }
-}, {
-    label: 'Start Angle 2',
-    path: 'components.particlesystem.startAngle2',
-    reference: 'particlesystem:startAngle',
-    type: 'number',
-    args: {
-        placeholder: 'To'
-    }
-}, {
-    label: 'Loop',
-    path: 'components.particlesystem.loop',
-    reference: 'particlesystem:loop',
-    type: 'boolean'
-}, {
-    label: 'Pre Warm',
-    path: 'components.particlesystem.preWarm',
-    reference: 'particlesystem:preWarm',
-    type: 'boolean'
-}, {
-    label: 'Lighting',
-    path: 'components.particlesystem.lighting',
-    reference: 'particlesystem:lighting',
-    type: 'boolean'
-}, {
-    label: 'Half Lambert',
-    path: 'components.particlesystem.halfLambert',
-    reference: 'particlesystem:halfLambert',
-    type: 'boolean'
-}, {
-    label: 'Intensity',
-    path: 'components.particlesystem.intensity',
-    reference: 'particlesystem:intensity',
-    type: 'number'
-}, {
-    label: 'Depth Write',
-    path: 'components.particlesystem.depthWrite',
-    reference: 'particlesystem:depthWrite',
-    type: 'boolean'
-}, {
-    label: 'Depth Softening',
-    path: 'components.particlesystem.depthSoftening',
-    reference: 'particlesystem:depthSoftening',
-    type: 'number'
-}, {
-    label: 'Sort',
-    path: 'components.particlesystem.sort',
-    reference: 'particlesystem:sort',
-    type: 'select',
-    args: {
+const ATTRIBUTES: Attribute[] = [
+    {
+        label: 'Auto Play',
+        path: 'components.particlesystem.autoPlay',
+        reference: 'particlesystem:autoPlay',
+        type: 'boolean'
+    },
+    {
+        label: 'Particle Count',
+        path: 'components.particlesystem.numParticles',
+        reference: 'particlesystem:numParticles',
+        type: 'number'
+    },
+    {
+        label: 'Lifetime',
+        path: 'components.particlesystem.lifetime',
+        reference: 'particlesystem:lifetime',
         type: 'number',
-        options: [{
-            v: 0, t: 'None'
-        }, {
-            v: 1, t: 'Camera Distance'
-        }, {
-            v: 2, t: 'Newest First'
-        }, {
-            v: 3, t: 'Oldest First'
-        }]
-    }
-}, {
-    label: 'Blend Type',
-    path: 'components.particlesystem.blendType',
-    reference: 'particlesystem:blend',
-    type: 'select',
-    args: {
+        args: {
+            placeholder: 'Seconds'
+        }
+    },
+    {
+        label: 'Emission Rate',
+        path: 'components.particlesystem.rate',
+        reference: 'particlesystem:rate',
         type: 'number',
-        options: [{
-            v: 2, t: 'Alpha'
-        }, {
-            v: 1, t: 'Additive'
-        }, {
-            v: 5, t: 'Multiply'
-        }]
-    }
-}, {
-    label: 'Stretch',
-    path: 'components.particlesystem.stretch',
-    reference: 'particlesystem:stretch',
-    type: 'number'
-}, {
-    label: 'Align To Motion',
-    path: 'components.particlesystem.alignToMotion',
-    reference: 'particlesystem:alignToMotion',
-    type: 'boolean'
-}, {
-    label: 'Emitter Shape',
-    path: 'components.particlesystem.emitterShape',
-    reference: 'particlesystem:emitterShape',
-    type: 'select',
-    args: {
+        args: {
+            placeholder: 'From'
+        }
+    },
+    {
+        label: 'Emission Rate 2',
+        path: 'components.particlesystem.rate2',
+        reference: 'particlesystem:rate',
         type: 'number',
-        options: [{
-            v: 0, t: 'Box'
-        }, {
-            v: 1, t: 'Sphere'
-        }]
-    }
-}, {
-    label: 'Emitter Extents',
-    path: 'components.particlesystem.emitterExtents',
-    reference: 'particlesystem:emitterExtents',
-    type: 'vec3',
-    args: {
-        placeholder: ['X', 'Y', 'Z']
-    }
-}, {
-    label: 'Inner Extents',
-    path: 'components.particlesystem.emitterExtentsInner',
-    reference: 'particlesystem:emitterExtentsInner',
-    type: 'vec3',
-    args: {
-        placeholder: ['X', 'Y', 'Z']
-    }
-}, {
-    label: 'Emitter Radius',
-    path: 'components.particlesystem.emitterRadius',
-    reference: 'particlesystem:emitterRadius',
-    type: 'number'
-}, {
-    label: 'Inner Radius',
-    path: 'components.particlesystem.emitterRadiusInner',
-    reference: 'particlesystem:emitterRadiusInner',
-    type: 'number'
-}, {
-    label: 'Wrap',
-    path: 'components.particlesystem.wrap',
-    reference: 'particlesystem:wrap',
-    type: 'boolean'
-}, {
-    label: 'Local Space',
-    path: 'components.particlesystem.localSpace',
-    reference: 'particlesystem:localSpace',
-    type: 'boolean'
-}, {
-    label: 'Screen Space',
-    path: 'components.particlesystem.screenSpace',
-    reference: 'particlesystem:screenSpace',
-    type: 'boolean'
-}, {
-    label: 'Layers',
-    path: 'components.particlesystem.layers',
-    reference: 'particlesystem:layers',
-    type: 'layers',
-    args: {
-        excludeLayers: [
-            LAYERID_DEPTH,
-            LAYERID_SKYBOX,
-            LAYERID_IMMEDIATE
-        ]
-    }
-}, {
-    label: 'Wrap Bounds',
-    path: 'components.particlesystem.wrapBounds',
-    reference: 'particlesystem:wrapBounds',
-    type: 'vec3',
-    args: {
-        placeholder: ['X', 'Y', 'Z']
-    }
-}, {
-    label: 'Orientation',
-    path: 'components.particlesystem.orientation',
-    reference: 'particlesystem:orientation',
-    type: 'select',
-    args: {
+        args: {
+            placeholder: 'To'
+        }
+    },
+    {
+        label: 'Start Angle',
+        path: 'components.particlesystem.startAngle',
+        reference: 'particlesystem:startAngle',
         type: 'number',
-        options: [{
-            v: 0, t: 'Screen'
-        }, {
-            v: 1, t: 'World Normal'
-        }, {
-            v: 2, t: 'Emitter Normal'
-        }]
+        args: {
+            placeholder: 'From'
+        }
+    },
+    {
+        label: 'Start Angle 2',
+        path: 'components.particlesystem.startAngle2',
+        reference: 'particlesystem:startAngle',
+        type: 'number',
+        args: {
+            placeholder: 'To'
+        }
+    },
+    {
+        label: 'Loop',
+        path: 'components.particlesystem.loop',
+        reference: 'particlesystem:loop',
+        type: 'boolean'
+    },
+    {
+        label: 'Pre Warm',
+        path: 'components.particlesystem.preWarm',
+        reference: 'particlesystem:preWarm',
+        type: 'boolean'
+    },
+    {
+        label: 'Lighting',
+        path: 'components.particlesystem.lighting',
+        reference: 'particlesystem:lighting',
+        type: 'boolean'
+    },
+    {
+        label: 'Half Lambert',
+        path: 'components.particlesystem.halfLambert',
+        reference: 'particlesystem:halfLambert',
+        type: 'boolean'
+    },
+    {
+        label: 'Intensity',
+        path: 'components.particlesystem.intensity',
+        reference: 'particlesystem:intensity',
+        type: 'number'
+    },
+    {
+        label: 'Depth Write',
+        path: 'components.particlesystem.depthWrite',
+        reference: 'particlesystem:depthWrite',
+        type: 'boolean'
+    },
+    {
+        label: 'Depth Softening',
+        path: 'components.particlesystem.depthSoftening',
+        reference: 'particlesystem:depthSoftening',
+        type: 'number'
+    },
+    {
+        label: 'Sort',
+        path: 'components.particlesystem.sort',
+        reference: 'particlesystem:sort',
+        type: 'select',
+        args: {
+            type: 'number',
+            options: [
+                {
+                    v: 0,
+                    t: 'None'
+                },
+                {
+                    v: 1,
+                    t: 'Camera Distance'
+                },
+                {
+                    v: 2,
+                    t: 'Newest First'
+                },
+                {
+                    v: 3,
+                    t: 'Oldest First'
+                }
+            ]
+        }
+    },
+    {
+        label: 'Blend Type',
+        path: 'components.particlesystem.blendType',
+        reference: 'particlesystem:blend',
+        type: 'select',
+        args: {
+            type: 'number',
+            options: [
+                {
+                    v: 2,
+                    t: 'Alpha'
+                },
+                {
+                    v: 1,
+                    t: 'Additive'
+                },
+                {
+                    v: 5,
+                    t: 'Multiply'
+                }
+            ]
+        }
+    },
+    {
+        label: 'Stretch',
+        path: 'components.particlesystem.stretch',
+        reference: 'particlesystem:stretch',
+        type: 'number'
+    },
+    {
+        label: 'Align To Motion',
+        path: 'components.particlesystem.alignToMotion',
+        reference: 'particlesystem:alignToMotion',
+        type: 'boolean'
+    },
+    {
+        label: 'Emitter Shape',
+        path: 'components.particlesystem.emitterShape',
+        reference: 'particlesystem:emitterShape',
+        type: 'select',
+        args: {
+            type: 'number',
+            options: [
+                {
+                    v: 0,
+                    t: 'Box'
+                },
+                {
+                    v: 1,
+                    t: 'Sphere'
+                }
+            ]
+        }
+    },
+    {
+        label: 'Emitter Extents',
+        path: 'components.particlesystem.emitterExtents',
+        reference: 'particlesystem:emitterExtents',
+        type: 'vec3',
+        args: {
+            placeholder: ['X', 'Y', 'Z']
+        }
+    },
+    {
+        label: 'Inner Extents',
+        path: 'components.particlesystem.emitterExtentsInner',
+        reference: 'particlesystem:emitterExtentsInner',
+        type: 'vec3',
+        args: {
+            placeholder: ['X', 'Y', 'Z']
+        }
+    },
+    {
+        label: 'Emitter Radius',
+        path: 'components.particlesystem.emitterRadius',
+        reference: 'particlesystem:emitterRadius',
+        type: 'number'
+    },
+    {
+        label: 'Inner Radius',
+        path: 'components.particlesystem.emitterRadiusInner',
+        reference: 'particlesystem:emitterRadiusInner',
+        type: 'number'
+    },
+    {
+        label: 'Wrap',
+        path: 'components.particlesystem.wrap',
+        reference: 'particlesystem:wrap',
+        type: 'boolean'
+    },
+    {
+        label: 'Local Space',
+        path: 'components.particlesystem.localSpace',
+        reference: 'particlesystem:localSpace',
+        type: 'boolean'
+    },
+    {
+        label: 'Screen Space',
+        path: 'components.particlesystem.screenSpace',
+        reference: 'particlesystem:screenSpace',
+        type: 'boolean'
+    },
+    {
+        label: 'Layers',
+        path: 'components.particlesystem.layers',
+        reference: 'particlesystem:layers',
+        type: 'layers',
+        args: {
+            excludeLayers: [LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE]
+        }
+    },
+    {
+        label: 'Wrap Bounds',
+        path: 'components.particlesystem.wrapBounds',
+        reference: 'particlesystem:wrapBounds',
+        type: 'vec3',
+        args: {
+            placeholder: ['X', 'Y', 'Z']
+        }
+    },
+    {
+        label: 'Orientation',
+        path: 'components.particlesystem.orientation',
+        reference: 'particlesystem:orientation',
+        type: 'select',
+        args: {
+            type: 'number',
+            options: [
+                {
+                    v: 0,
+                    t: 'Screen'
+                },
+                {
+                    v: 1,
+                    t: 'World Normal'
+                },
+                {
+                    v: 2,
+                    t: 'Emitter Normal'
+                }
+            ]
+        }
+    },
+    {
+        label: 'Particle Normal',
+        path: 'components.particlesystem.particleNormal',
+        reference: 'particlesystem:particleNormal',
+        type: 'vec3',
+        args: {
+            placeholder: ['X', 'Y', 'Z']
+        }
+    },
+    {
+        label: 'Color Map',
+        path: 'components.particlesystem.colorMapAsset',
+        reference: 'particlesystem:colorMap',
+        type: 'asset',
+        args: {
+            assetType: 'texture'
+        }
+    },
+    {
+        label: 'Normal Map',
+        path: 'components.particlesystem.normalMapAsset',
+        reference: 'particlesystem:normalMap',
+        type: 'asset',
+        args: {
+            assetType: 'texture'
+        }
+    },
+    {
+        label: 'Horizontal Tiles',
+        path: 'components.particlesystem.animTilesX',
+        reference: 'particlesystem:animTilesX',
+        type: 'number',
+        args: {
+            min: 1
+        }
+    },
+    {
+        label: 'Vertical Tiles',
+        path: 'components.particlesystem.animTilesY',
+        reference: 'particlesystem:animTilesY',
+        type: 'number',
+        args: {
+            min: 1
+        }
+    },
+    {
+        label: 'Animation Count',
+        path: 'components.particlesystem.animNumAnimations',
+        reference: 'particlesystem:animNumAnimations',
+        type: 'number',
+        args: {
+            min: 1
+        }
+    },
+    {
+        label: 'Animation Index',
+        path: 'components.particlesystem.animIndex',
+        reference: 'particlesystem:animIndex',
+        type: 'number',
+        args: {
+            min: 0
+        }
+    },
+    {
+        label: 'Randomize Index',
+        path: 'components.particlesystem.randomizeAnimIndex',
+        reference: 'particlesystem:randomizeAnimIndex',
+        type: 'boolean'
+    },
+    {
+        label: 'Frame Count',
+        path: 'components.particlesystem.animNumFrames',
+        reference: 'particlesystem:animNumFrames',
+        type: 'number',
+        args: {
+            min: 1
+        }
+    },
+    {
+        label: 'Start Frame',
+        path: 'components.particlesystem.animStartFrame',
+        reference: 'particlesystem:animStartFrame',
+        type: 'number',
+        args: {
+            min: 0
+        }
+    },
+    {
+        label: 'Animation Speed',
+        path: 'components.particlesystem.animSpeed',
+        reference: 'particlesystem:animSpeed',
+        type: 'number'
+    },
+    {
+        label: 'Animation Loop',
+        path: 'components.particlesystem.animLoop',
+        reference: 'particlesystem:animLoop',
+        type: 'boolean'
+    },
+    {
+        label: 'Model Asset',
+        path: 'components.particlesystem.mesh',
+        reference: 'particlesystem:mesh',
+        type: 'asset',
+        args: {
+            assetType: 'model'
+        }
+    },
+    {
+        label: 'Render Asset',
+        path: 'components.particlesystem.renderAsset',
+        reference: 'particlesystem:renderAsset',
+        type: 'asset',
+        args: {
+            assetType: 'render'
+        }
+    },
+    {
+        label: 'Local Velocity',
+        paths: ['components.particlesystem.localVelocityGraph', 'components.particlesystem.localVelocityGraph2'],
+        reference: 'particlesystem:localVelocityGraph',
+        type: 'curveset',
+        args: {
+            curves: ['X', 'Y', 'Z']
+        }
+    },
+    {
+        label: 'Velocity',
+        paths: ['components.particlesystem.velocityGraph', 'components.particlesystem.velocityGraph2'],
+        reference: 'particlesystem:velocityGraph',
+        type: 'curveset',
+        args: {
+            curves: ['X', 'Y', 'Z']
+        }
+    },
+    {
+        label: 'Radial Speed',
+        paths: ['components.particlesystem.radialSpeedGraph', 'components.particlesystem.radialSpeedGraph2'],
+        reference: 'particlesystem:radialSpeedGraph',
+        type: 'curveset',
+        args: {
+            curves: ['R']
+        }
+    },
+    {
+        label: 'Rotation Speed',
+        paths: ['components.particlesystem.rotationSpeedGraph', 'components.particlesystem.rotationSpeedGraph2'],
+        reference: 'particlesystem:rotationSpeedGraph',
+        type: 'curveset',
+        args: {
+            curves: ['Angle'],
+            verticalValue: 180
+        }
+    },
+    {
+        label: 'Scale',
+        paths: ['components.particlesystem.scaleGraph', 'components.particlesystem.scaleGraph2'],
+        reference: 'particlesystem:scaleGraph',
+        type: 'curveset',
+        args: {
+            curves: ['Scale'],
+            verticalValue: 1,
+            min: 0
+        }
+    },
+    {
+        label: 'Color',
+        path: 'components.particlesystem.colorGraph',
+        reference: 'particlesystem:colorGraph',
+        type: 'gradient',
+        args: {
+            channels: 3
+        }
+    },
+    {
+        label: 'Opacity',
+        paths: ['components.particlesystem.alphaGraph', 'components.particlesystem.alphaGraph2'],
+        reference: 'particlesystem:alphaGraph',
+        type: 'curveset',
+        args: {
+            curves: ['Opacity'],
+            min: 0,
+            max: 1
+        }
     }
-}, {
-    label: 'Particle Normal',
-    path: 'components.particlesystem.particleNormal',
-    reference: 'particlesystem:particleNormal',
-    type: 'vec3',
-    args: {
-        placeholder: ['X', 'Y', 'Z']
-    }
-}, {
-    label: 'Color Map',
-    path: 'components.particlesystem.colorMapAsset',
-    reference: 'particlesystem:colorMap',
-    type: 'asset',
-    args: {
-        assetType: 'texture'
-    }
-}, {
-    label: 'Normal Map',
-    path: 'components.particlesystem.normalMapAsset',
-    reference: 'particlesystem:normalMap',
-    type: 'asset',
-    args: {
-        assetType: 'texture'
-    }
-}, {
-    label: 'Horizontal Tiles',
-    path: 'components.particlesystem.animTilesX',
-    reference: 'particlesystem:animTilesX',
-    type: 'number',
-    args: {
-        min: 1
-    }
-}, {
-    label: 'Vertical Tiles',
-    path: 'components.particlesystem.animTilesY',
-    reference: 'particlesystem:animTilesY',
-    type: 'number',
-    args: {
-        min: 1
-    }
-}, {
-    label: 'Animation Count',
-    path: 'components.particlesystem.animNumAnimations',
-    reference: 'particlesystem:animNumAnimations',
-    type: 'number',
-    args: {
-        min: 1
-    }
-}, {
-    label: 'Animation Index',
-    path: 'components.particlesystem.animIndex',
-    reference: 'particlesystem:animIndex',
-    type: 'number',
-    args: {
-        min: 0
-    }
-}, {
-    label: 'Randomize Index',
-    path: 'components.particlesystem.randomizeAnimIndex',
-    reference: 'particlesystem:randomizeAnimIndex',
-    type: 'boolean'
-}, {
-    label: 'Frame Count',
-    path: 'components.particlesystem.animNumFrames',
-    reference: 'particlesystem:animNumFrames',
-    type: 'number',
-    args: {
-        min: 1
-    }
-}, {
-    label: 'Start Frame',
-    path: 'components.particlesystem.animStartFrame',
-    reference: 'particlesystem:animStartFrame',
-    type: 'number',
-    args: {
-        min: 0
-    }
-}, {
-    label: 'Animation Speed',
-    path: 'components.particlesystem.animSpeed',
-    reference: 'particlesystem:animSpeed',
-    type: 'number'
-}, {
-    label: 'Animation Loop',
-    path: 'components.particlesystem.animLoop',
-    reference: 'particlesystem:animLoop',
-    type: 'boolean'
-}, {
-    label: 'Model Asset',
-    path: 'components.particlesystem.mesh',
-    reference: 'particlesystem:mesh',
-    type: 'asset',
-    args: {
-        assetType: 'model'
-    }
-}, {
-    label: 'Render Asset',
-    path: 'components.particlesystem.renderAsset',
-    reference: 'particlesystem:renderAsset',
-    type: 'asset',
-    args: {
-        assetType: 'render'
-    }
-}, {
-    label: 'Local Velocity',
-    paths: ['components.particlesystem.localVelocityGraph', 'components.particlesystem.localVelocityGraph2'],
-    reference: 'particlesystem:localVelocityGraph',
-    type: 'curveset',
-    args: {
-        curves: ['X', 'Y', 'Z']
-    }
-}, {
-    label: 'Velocity',
-    paths: ['components.particlesystem.velocityGraph', 'components.particlesystem.velocityGraph2'],
-    reference: 'particlesystem:velocityGraph',
-    type: 'curveset',
-    args: {
-        curves: ['X', 'Y', 'Z']
-    }
-}, {
-    label: 'Radial Speed',
-    paths: ['components.particlesystem.radialSpeedGraph', 'components.particlesystem.radialSpeedGraph2'],
-    reference: 'particlesystem:radialSpeedGraph',
-    type: 'curveset',
-    args: {
-        curves: ['R']
-    }
-}, {
-    label: 'Rotation Speed',
-    paths: ['components.particlesystem.rotationSpeedGraph', 'components.particlesystem.rotationSpeedGraph2'],
-    reference: 'particlesystem:rotationSpeedGraph',
-    type: 'curveset',
-    args: {
-        curves: ['Angle'],
-        verticalValue: 180
-    }
-}, {
-    label: 'Scale',
-    paths: ['components.particlesystem.scaleGraph', 'components.particlesystem.scaleGraph2'],
-    reference: 'particlesystem:scaleGraph',
-    type: 'curveset',
-    args: {
-        curves: ['Scale'],
-        verticalValue: 1,
-        min: 0
-    }
-}, {
-    label: 'Color',
-    path: 'components.particlesystem.colorGraph',
-    reference: 'particlesystem:colorGraph',
-    type: 'gradient',
-    args: {
-        channels: 3
-    }
-}, {
-    label: 'Opacity',
-    paths: ['components.particlesystem.alphaGraph', 'components.particlesystem.alphaGraph2'],
-    reference: 'particlesystem:alphaGraph',
-    type: 'curveset',
-    args: {
-        curves: ['Opacity'],
-        min: 0,
-        max: 1
-    }
-}];
+];
 
 class ParticlesystemComponentInspector extends ComponentInspector {
     _suppressToggleFields = false;

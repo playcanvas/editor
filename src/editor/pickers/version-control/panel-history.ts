@@ -25,12 +25,16 @@ export const createHistoryPanel = () => {
     const cache: Record<string, { result: any[]; hasMore: boolean }> = {};
 
     const isSlotted = (checkpoint: any | null) => {
-        return compareSlots.some(s => (s.checkpoint ? s.checkpoint.id === checkpoint?.id : !checkpoint && s.branch.id === branch.id));
+        return compareSlots.some((s) =>
+            s.checkpoint ? s.checkpoint.id === checkpoint?.id : !checkpoint && s.branch.id === branch.id
+        );
     };
 
     const toggleSlot = (checkpoint: any | null) => {
         if (isSlotted(checkpoint)) {
-            compareSlots = compareSlots.filter(s => !(s.checkpoint ? s.checkpoint.id === checkpoint?.id : !checkpoint && s.branch.id === branch.id));
+            compareSlots = compareSlots.filter(
+                (s) => !(s.checkpoint ? s.checkpoint.id === checkpoint?.id : !checkpoint && s.branch.id === branch.id)
+            );
         } else if (compareSlots.length < MAX_COMPARE) {
             compareSlots.push({ branch, checkpoint });
         } else {
@@ -97,9 +101,9 @@ export const createHistoryPanel = () => {
         body.appendChild(desc);
         const sub = document.createElement('div');
         sub.classList.add('sub');
-        sub.textContent = checkpoint ?
-            `${checkpoint.user.fullName || 'Unknown'} · ${formatRelativeDate(checkpoint.createdAt)}` :
-            'uncheckpointed changes';
+        sub.textContent = checkpoint
+            ? `${checkpoint.user.fullName || 'Unknown'} · ${formatRelativeDate(checkpoint.createdAt)}`
+            : 'uncheckpointed changes';
         sub.title = sub.textContent;
         body.appendChild(sub);
         row.appendChild(body);
@@ -118,7 +122,7 @@ export const createHistoryPanel = () => {
             } else if (checkpoint && checkpoint.id !== selectedId) {
                 // move the highlight in place rather than rebuilding rows, so avatars don't reload/flicker (#2098)
                 selectedId = checkpoint.id;
-                panel.dom.querySelectorAll('.vc-row.selected').forEach(r => r.classList.remove('selected'));
+                panel.dom.querySelectorAll('.vc-row.selected').forEach((r) => r.classList.remove('selected'));
                 row.classList.add('selected');
                 panel.emit('select', checkpoint);
             }
@@ -180,28 +184,31 @@ export const createHistoryPanel = () => {
 
         // capture the current branch id so the callback can verify it against `branch`
         const branchId = branch.id;
-        const req = handleCallback(editor.api.globals.rest.branches.branchCheckpoints({
-            branchId,
-            limit: PAGE_SIZE,
-            skip: more ? skip as unknown as number : undefined
-        }), (err: any, data: any) => {
-            // discard stale response: either a newer branch-switch or a newer load replaced `request`
-            if (req !== request) {
-                return;
-            }
-            request = null;
-            loading = false;
-            if (err) {
-                log.error(err);
+        const req = handleCallback(
+            editor.api.globals.rest.branches.branchCheckpoints({
+                branchId,
+                limit: PAGE_SIZE,
+                skip: more ? (skip as unknown as number) : undefined
+            }),
+            (err: any, data: any) => {
+                // discard stale response: either a newer branch-switch or a newer load replaced `request`
+                if (req !== request) {
+                    return;
+                }
+                request = null;
+                loading = false;
+                if (err) {
+                    log.error(err);
+                    render();
+                    return;
+                }
+                checkpoints = more && checkpoints ? checkpoints.concat(data.result) : data.result;
+                hasMore = data.pagination.hasMore;
+                skip = checkpoints.length ? checkpoints[checkpoints.length - 1].id : null;
+                cache[branchId] = { result: checkpoints, hasMore };
                 render();
-                return;
             }
-            checkpoints = more && checkpoints ? checkpoints.concat(data.result) : data.result;
-            hasMore = data.pagination.hasMore;
-            skip = checkpoints.length ? checkpoints[checkpoints.length - 1].id : null;
-            cache[branchId] = { result: checkpoints, hasMore };
-            render();
-        });
+        );
         // assign after creation so the callback comparison is always consistent
         request = req;
     };

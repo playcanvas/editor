@@ -3,7 +3,6 @@ import type { Observer } from '@playcanvas/observer';
 import { deepEqual, formatter as f } from '@/common/utils';
 import { LOAD_SCRIPT_AS_ASSET } from '@/core/constants';
 
-
 const LEGACY_TINT_PROPERTIES = [
     ['data.diffuseMapTint', 'data.diffuseTint'],
     ['data.specularMapTint', 'data.specularTint'],
@@ -49,7 +48,6 @@ editor.once('load', () => {
 
         for (let i = 0; i < LEGACY_TINT_PROPERTIES.length; i++) {
             const [oldPath, newPath] = LEGACY_TINT_PROPERTIES[i];
-
             // check if the old tint path exists
             if (asset.has(oldPath)) {
                 const oldVal = asset.get(oldPath);
@@ -76,7 +74,6 @@ editor.once('load', () => {
 
         for (let i = 0; i < TINT_REMOVE_PATHS.length; i++) {
             const tintPath = TINT_REMOVE_PATHS[i];
-
             // skip migration if tints set to true
             if (asset.get(tintPath)) {
                 continue;
@@ -164,7 +161,9 @@ editor.once('load', () => {
         }
 
         if (!asset.has('data.alphaDither') || asset.get('data.alphaDither') === null) {
-            const dithered = (asset.get('data.opacityDither') ?? 'none') !== 'none' || (asset.get('data.opacityShadowDither') ?? 'none') !== 'none';
+            const dithered =
+                (asset.get('data.opacityDither') ?? 'none') !== 'none' ||
+                (asset.get('data.opacityShadowDither') ?? 'none') !== 'none';
             asset.set('data.alphaDither', dithered ? (asset.get('data.opacity') ?? 1.0) : 1.0);
         }
 
@@ -182,7 +181,7 @@ editor.once('load', () => {
 
         // FIXME: bind the anisotropyIntensity and anisotropyRotation to anisotropy
         const anisotropyLegacyConvert = (intensity: number, rotation: number): number => {
-            return intensity * Math.sign(Math.cos(rotation * 2 * Math.PI / 180));
+            return intensity * Math.sign(Math.cos((rotation * 2 * Math.PI) / 180));
         };
         asset.on('data.anisotropyIntensity:set', (intensity: number) => {
             const rotation = asset.get('data.anisotropyRotation') ?? 0;
@@ -326,7 +325,7 @@ editor.once('load', () => {
                 let alpha = asset.get('meta.alpha');
                 if (!alpha) {
                     const metaType = asset.get('meta.type');
-                    if ((metaType && metaType.toLowerCase() || '') === 'truecoloralpha') {
+                    if (((metaType && metaType.toLowerCase()) || '') === 'truecoloralpha') {
                         alpha = true;
                     }
                 }

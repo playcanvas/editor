@@ -2,8 +2,10 @@ import { Container, Button } from '@playcanvas/pcui';
 
 import { TooltipHandle } from '@/common/tooltips';
 
-import { BaseSettingsPanel, type BaseSettingsPanelArgs } from './base';
 import type { Attribute } from '../attribute.type.d';
+
+import { BaseSettingsPanel } from './base';
+import type { BaseSettingsPanelArgs } from './base';
 
 const ATTRIBUTES: Attribute[] = [
     {
@@ -72,7 +74,6 @@ class ImportMapSettingsPanel extends BaseSettingsPanel {
                 this._projectSettings.set('importMap', value ? value.toString() : null);
             }
         });
-
 
         this._selectExistingTooltip = TooltipHandle.attach({
             target: this._selectExistingButton.dom,

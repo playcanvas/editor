@@ -1,12 +1,15 @@
 editor.once('load', () => {
-    const getIds = function (assets: { get: (path: string) => string | number } | Array<{ get: (path: string) => string | number }>) {
+    const getIds = function (
+        assets: { get: (path: string) => string | number } | { get: (path: string) => string | number }[]
+    ) {
         if (!(assets instanceof Array)) {
             assets = [assets];
         }
 
         const ids = [];
         for (let i = 0; i < assets.length; i++) {
-            ids.push(parseInt(assets[i].get('uniqueId'), 10));
+            const asset = assets[i];
+            ids.push(parseInt(asset.get('uniqueId'), 10));
         }
 
         return ids;
@@ -20,7 +23,6 @@ editor.once('load', () => {
     });
 
     editor.method('assets:fs:move', (assets, assetTo) => {
-
         const target = assetTo && parseInt(assetTo.get('id'), 10);
 
         // Get a list of esm scripts at the target location as a Map<name, asset>
@@ -42,8 +44,11 @@ editor.once('load', () => {
 
         // If there are conflicting ES Module assets, show an error message and return early
         if (conflictingAssets.length > 0) {
-            const conflictingAssetNames = conflictingAssets.map(asset => asset.get('name')).join(', ');
-            editor.call('status:error', `The assets "${conflictingAssetNames}" already exist in this location. Move Aborted.`);
+            const conflictingAssetNames = conflictingAssets.map((asset) => asset.get('name')).join(', ');
+            editor.call(
+                'status:error',
+                `The assets "${conflictingAssetNames}" already exist in this location. Move Aborted.`
+            );
             return;
         }
 

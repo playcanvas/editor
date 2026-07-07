@@ -60,21 +60,22 @@ editor.once('load', () => {
                 childIndex = parentChildren.indexOf(deletedEntity.resource_id);
             }
 
-            asset.apiAsset.instantiateTemplate(parentEnt.apiEntity, {
-                index: childIndex,
-                history: false,
-                extraData: {
-                    subtreeRootId: deletedEntity.resource_id,
-                    dstToSrc: dstToSrc,
-                    srcToDst: srcToDst
-                }
-            })
-            .then((newEntity) => {
-                newEntityId = newEntity.get('resource_id');
-            })
-            .catch((err) => {
-                editor.call('status:error', err);
-            });
+            asset.apiAsset
+                .instantiateTemplate(parentEnt.apiEntity, {
+                    index: childIndex,
+                    history: false,
+                    extraData: {
+                        subtreeRootId: deletedEntity.resource_id,
+                        dstToSrc: dstToSrc,
+                        srcToDst: srcToDst
+                    }
+                })
+                .then((newEntity) => {
+                    newEntityId = newEntity.get('resource_id');
+                })
+                .catch((err) => {
+                    editor.call('status:error', err);
+                });
         }
 
         redo();
@@ -136,7 +137,11 @@ editor.once('load', () => {
         });
     }
 
-    function revertNewJsonScriptAttributeArrayElement(entity: EntityObserver, override: TemplateOverride, index: number): void {
+    function revertNewJsonScriptAttributeArrayElement(
+        entity: EntityObserver,
+        override: TemplateOverride,
+        index: number
+    ): void {
         const prev = entity.get(override.path);
         const path = override.path.substring(0, override.path.lastIndexOf('.'));
 
@@ -162,7 +167,6 @@ editor.once('load', () => {
             entity.history.enabled = false;
             entity.insert(path, prev, index);
             entity.history.enabled = history;
-
         }
 
         redo();
@@ -190,8 +194,6 @@ editor.once('load', () => {
             entity.history.enabled = false;
             entity.remove(path, index);
             entity.history.enabled = history;
-
-
         }
 
         function redo() {
@@ -276,12 +278,10 @@ editor.once('load', () => {
 
                     entity.set(override.path, override.dst_value);
                 }
-
             }
             if (entity.get('components.script.order').indexOf(scriptName) === -1) {
                 entity.insert('components.script.order', scriptName);
             }
-
 
             entity.history.enabled = history;
         }
@@ -311,15 +311,10 @@ editor.once('load', () => {
         const parent = entities.get(oldParent);
         if (!parent) {
             // TODO: show error visually
-            editor.call(
-                'picker:confirm',
-                'Cannot revert this override because the parent does not exist.',
-                null,
-                {
-                    yesText: 'OK',
-                    noText: ''
-                }
-            );
+            editor.call('picker:confirm', 'Cannot revert this override because the parent does not exist.', null, {
+                yesText: 'OK',
+                noText: ''
+            });
             return;
         }
 
@@ -348,10 +343,12 @@ editor.once('load', () => {
             return;
         }
 
-        editor.call('entities:reparent', [{
-            entity: entity,
-            parent: parent
-        }]);
+        editor.call('entities:reparent', [
+            {
+                entity: entity,
+                parent: parent
+            }
+        ]);
     }
 
     function revertChildrenReordering(entity: EntityObserver, override: TemplateOverride): void {
@@ -459,7 +456,6 @@ editor.once('load', () => {
             const history = entity.history.enabled;
             entity.history.enabled = false;
 
-
             entity.history.enabled = history;
         }
 
@@ -564,16 +560,14 @@ editor.once('load', () => {
         }
     });
 
-    /* eslint-disable require-atomic-updates */
     editor.method('templates:revertAll', (entityObserver: EntityObserver) => {
-
         const templateId = entityObserver.get('template_id');
         const templateEntIds = entityObserver.get('template_ent_ids');
         if (!templateId || !templateEntIds) {
             return false;
         }
 
-        const asset: AssetObserver = (editor.call('assets:get', templateId));
+        const asset: AssetObserver = editor.call('assets:get', templateId);
         if (!asset) {
             return;
         }
@@ -583,7 +577,7 @@ editor.once('load', () => {
             return;
         }
 
-        const ignorePathValues = IGNORE_PATHS.map(path => entityObserver.get(path));
+        const ignorePathValues = IGNORE_PATHS.map((path) => entityObserver.get(path));
 
         const entitiesPanelState = rememberEntitiesPanelState(entityObserver);
 
@@ -599,7 +593,11 @@ editor.once('load', () => {
             if (entityObserver) {
                 await entityObserver.apiEntity.delete({ history: false, preserveEntityReferences: true });
 
-                const entity = editor.api.globals.entities.create(prev, { history: false, index: childIndex, select: true });
+                const entity = editor.api.globals.entities.create(prev, {
+                    history: false,
+                    index: childIndex,
+                    select: true
+                });
                 entityObserver = entity.observer;
 
                 prev = null;
@@ -618,7 +616,11 @@ editor.once('load', () => {
             // use waitSubmitted to wait for scene operational transforms to be submitted to ShareDB -
             // delete() prepares Operations Transforms on the frontend but instantiateTemplate()
             // bakes them on the backend and we should wait till everything submitted after delete
-            await entityObserver.apiEntity.delete({ history: false, waitSubmitted: true, preserveEntityReferences: true });
+            await entityObserver.apiEntity.delete({
+                history: false,
+                waitSubmitted: true,
+                preserveEntityReferences: true
+            });
 
             const newEntity = await asset.apiAsset.instantiateTemplate(parent.apiEntity, {
                 history: false,
@@ -646,12 +648,11 @@ editor.once('load', () => {
 
         return true;
     });
-    /* eslint-enable require-atomic-updates */
 
     function setRemappedDstVal(override: TemplateOverride, entity: EntityObserver): void {
-        const v = override.entity_ref_paths ?
-            editor.call('template:attrUtils', 'remapDstForRevert', override) :
-            override.dst_value;
+        const v = override.entity_ref_paths
+            ? editor.call('template:attrUtils', 'remapDstForRevert', override)
+            : override.dst_value;
 
         entity.set(override.path, v);
 

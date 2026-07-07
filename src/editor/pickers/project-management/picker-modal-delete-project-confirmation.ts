@@ -1,7 +1,6 @@
 import { Button, Container, Element, Label, Overlay, Panel, TextInput } from '@playcanvas/pcui';
 
 editor.once('load', () => {
-
     // GLOBAL VARIABLES
     let currentProject;
 
@@ -64,7 +63,7 @@ editor.once('load', () => {
     inputElement.on('change', () => {
         validateInput(inputElement.value);
     });
-    inputElement.dom.addEventListener('paste', e => e.preventDefault());
+    inputElement.dom.addEventListener('paste', (e) => e.preventDefault());
 
     const deleteButtonContainer = new Container({
         flex: true
@@ -94,9 +93,8 @@ editor.once('load', () => {
             editor.call('picker:project:close');
             editor.call('picker:project:cms:toggleProgress', true);
         });
-        inputElement.value = '';  // reset input
+        inputElement.value = ''; // reset input
     });
-
 
     // CONTROLLERS
 

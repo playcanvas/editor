@@ -81,7 +81,6 @@ editor.once('load', () => {
                     continue;
                 }
 
-                // eslint-disable-next-line no-loop-func
                 editor.call('assets:contents:get', asset, (err, contents) => {
                     if (err) {
                         done++;

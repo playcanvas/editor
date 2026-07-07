@@ -1,4 +1,5 @@
-import { type AppBase, Color, Vec2, Vec3 } from 'playcanvas';
+import { Color, Vec2, Vec3 } from 'playcanvas';
+import type { AppBase } from 'playcanvas';
 
 import type { EntityObserver } from '@/editor-api';
 
@@ -192,23 +193,18 @@ editor.once('load', () => {
                 const refResolution = entities[key].entity.get('components.screen.referenceResolution');
 
                 vecA.set(refResolution[0], refResolution[1]);
-                const screenScale = entity.screen.scaleMode === 'blend' ? entity.screen._calcScale(entity.screen.resolution, vecA) || Number.MIN_VALUE : 1;
+                const screenScale =
+                    entity.screen.scaleMode === 'blend'
+                        ? entity.screen._calcScale(entity.screen.resolution, vecA) || Number.MIN_VALUE
+                        : 1;
 
-                left
-                .copy(r)
-                .mulScalar(-0.5 * entity.screen.resolution.x * scale.x / screenScale);
+                left.copy(r).mulScalar((-0.5 * entity.screen.resolution.x * scale.x) / screenScale);
 
-                right
-                .copy(r)
-                .mulScalar(0.5 * entity.screen.resolution.x * scale.x / screenScale);
+                right.copy(r).mulScalar((0.5 * entity.screen.resolution.x * scale.x) / screenScale);
 
-                top
-                .copy(u)
-                .mulScalar(0.5 * entity.screen.resolution.y * scale.y / screenScale);
+                top.copy(u).mulScalar((0.5 * entity.screen.resolution.y * scale.y) / screenScale);
 
-                bottom
-                .copy(u)
-                .mulScalar(-0.5 * entity.screen.resolution.y * scale.y / screenScale);
+                bottom.copy(u).mulScalar((-0.5 * entity.screen.resolution.y * scale.y) / screenScale);
 
                 positions[0].copy(position).add(left).add(top);
                 positions[1].copy(position).add(left).add(bottom);

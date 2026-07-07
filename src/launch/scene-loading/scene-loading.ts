@@ -4,7 +4,11 @@ editor.once('load', () => {
     // cache
     const loaded = {};
     let sceneLoadingCount = 0;
-    const loadScene = function (id: string, callback?: (err: Error | null, data?: { uniqueId?: number }) => void, settingsOnly?: boolean) {
+    const loadScene = function (
+        id: string,
+        callback?: (err: Error | null, data?: { uniqueId?: number }) => void,
+        settingsOnly?: boolean
+    ) {
         if (loaded[id]) {
             if (callback) {
                 callback(null, loaded[id].data);
@@ -33,14 +37,13 @@ editor.once('load', () => {
             loaded[id] = scene;
 
             // notify of operations
-            scene.on('op', (ops: Array<{ p: string[] }>, local: boolean) => {
+            scene.on('op', (ops: { p: string[] }[], local: boolean) => {
                 if (local) {
                     return;
                 }
 
                 for (let i = 0; i < ops.length; i++) {
                     const op = ops[i];
-
                     // console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
 
                     if (op.p[0]) {

@@ -28,10 +28,11 @@ editor.once('load', () => {
         // then set cursor to 'crosshair' to indicate
         // that next click will select node in model asset
         if (inViewport && node && node.model && node.model.asset && node.model.model) {
-            if (editor.call('selector:type') === 'entity' &&
+            if (
+                editor.call('selector:type') === 'entity' &&
                 editor.call('selector:count') === 1 &&
-                editor.call('selector:items')[0].entity === node) {
-
+                editor.call('selector:items')[0].entity === node
+            ) {
                 hover = true;
             }
         }

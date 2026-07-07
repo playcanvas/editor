@@ -33,7 +33,6 @@
 //     });
 // };
 
-
 import type { Observer } from '@playcanvas/observer';
 
 editor.once('load', () => {
@@ -49,7 +48,7 @@ editor.once('load', () => {
     let lastFocusedId = null;
 
     // Loads the editable document that corresponds to the specified asset id
-    const loadDocument = function (asset: Observer, importSubModules: boolean = true) {
+    const loadDocument = function (asset: Observer, importSubModules = true) {
         const id = asset.get('id').toString();
         const uniqueId = asset.get('uniqueId').toString();
         const connection = editor.call('realtime:connection');
@@ -107,10 +106,12 @@ editor.once('load', () => {
                     if (importingAssetPath) {
                         // Return the immediate dependencies of the asset
                         const deps = editor.call('utils:deps-from-string', content, importingAssetPath);
-                        const depsAsAsset = Array.from(deps).map(path => editor.call('assets:getByVirtualPath', path)).filter(Boolean);
+                        const depsAsAsset = Array.from(deps)
+                            .map((path) => editor.call('assets:getByVirtualPath', path))
+                            .filter(Boolean);
 
                         // And load them, ensuring that Monaco can resolve dependencies
-                        depsAsAsset.forEach(asset => loadDocument(asset, false));
+                        depsAsAsset.forEach((asset) => loadDocument(asset, false));
                     }
                 }
 
@@ -120,7 +121,6 @@ editor.once('load', () => {
                     editor.emit('documents:dirty', id, dirty);
                 }
             });
-
         });
 
         // subscribe for realtime events
@@ -167,7 +167,6 @@ editor.once('load', () => {
 
                 queuedLoad[asset.get('id')] = evtLoad;
             }
-
         }
     });
 
@@ -216,7 +215,10 @@ editor.once('load', () => {
 
         entry.error = err;
         const asset = editor.call('assets:get', id);
-        editor.call('status:error', `Realtime error for document "${asset.get('name')}": ${err}. Please reload this document.`);
+        editor.call(
+            'status:error',
+            `Realtime error for document "${asset.get('name')}": ${err}. Please reload this document.`
+        );
     });
 
     // Check if document content differs from asset file contents

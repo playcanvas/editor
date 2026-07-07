@@ -136,7 +136,7 @@ class Entities extends Events {
      * ```
      */
     list() {
-        return this._entities.array().map((e: { apiEntity: any; }) => e.apiEntity);
+        return this._entities.array().map((e: { apiEntity: any }) => e.apiEntity);
     }
 
     /**
@@ -156,7 +156,9 @@ class Entities extends Events {
         this._entities.add(entity.observer);
         if (!entity.get('parent')) {
             if (this._root) {
-                console.error(`More than one root entities in Scene. Current root is Entity "${this._root.get('name')}" [${this._root.get('resource_id')}] but Entity "${entity.get('name')}" [${id}] also has a null parent`);
+                console.error(
+                    `More than one root entities in Scene. Current root is Entity "${this._root.get('name')}" [${this._root.get('resource_id')}] but Entity "${entity.get('name')}" [${id}] also has a null parent`
+                );
             } else {
                 this._root = entity;
             }
@@ -173,7 +175,7 @@ class Entities extends Events {
      * @category Internal
      * @param entityData - The entity data
      */
-    serverAdd(entityData: { parent: Entity, children: Entity[] }) {
+    serverAdd(entityData: { parent: Entity; children: Entity[] }) {
         const entity = new Entity(entityData as object);
         entity.set('parent', entityData.parent);
         entity.set('children', entityData.children);
@@ -265,7 +267,7 @@ class Entities extends Events {
         this._entities.clear();
 
         if (api.selection) {
-            if (api.selection.items[0] instanceof Entity)  {
+            if (api.selection.items[0] instanceof Entity) {
                 const history = api.selection.history.enabled;
                 api.selection.history.enabled = false;
                 api.selection.clear();
@@ -302,7 +304,7 @@ class Entities extends Events {
      * });
      *```
      */
-    create(data: CreateEntityArguments = null, options: { index?: number, history?: boolean, select?: boolean } = {}) {
+    create(data: CreateEntityArguments = null, options: { index?: number; history?: boolean; select?: boolean } = {}) {
         return createEntity(data, options);
     }
 
@@ -337,7 +339,7 @@ class Entities extends Events {
      * }])
      * ```
      */
-    reparent(data: ReparentArguments[], options: { preserveTransform?: boolean, history?: boolean } = {}) {
+    reparent(data: ReparentArguments[], options: { preserveTransform?: boolean; history?: boolean } = {}) {
         reparentEntities(data, options);
     }
 
@@ -352,10 +354,9 @@ class Entities extends Events {
      * @example
      * const duplicated = await editor.entities.duplicate(entities);
      */
-    async duplicate(entities: Entity[], options: { history?: boolean, select?: boolean, rename?: boolean } = {}) {
+    async duplicate(entities: Entity[], options: { history?: boolean; select?: boolean; rename?: boolean } = {}) {
         const result = await duplicateEntities(entities, options);
         return result;
-
     }
 
     /**
@@ -408,7 +409,11 @@ class Entities extends Events {
      * @param options.index - The desired index in the entity's scripts order to add this script.
      * @returns A promise
      */
-    addScript(entities: Entity[], scriptName: string, options: { attributes?: object, history?: boolean, index?: number } = {}) {
+    addScript(
+        entities: Entity[],
+        scriptName: string,
+        options: { attributes?: object; history?: boolean; index?: number } = {}
+    ) {
         return addScript(entities, scriptName, options);
     }
 

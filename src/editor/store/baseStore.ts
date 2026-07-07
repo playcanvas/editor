@@ -50,7 +50,7 @@ class BaseStore {
     }
 
     // build sorting menu item
-    buildSortingMenuItem(root: import('@playcanvas/pcui').Container, label: string, sortPolicy: string, selected?: boolean) {
+    buildSortingMenuItem(root: Container, label: string, sortPolicy: string, selected?: boolean) {
         const sortingMenuItem = new Container({ class: 'sorting-menu-item' });
         root.append(sortingMenuItem);
 

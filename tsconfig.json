@@ -10,20 +10,11 @@
         "useDefineForClassFields": false,
         "moduleResolution": "bundler",
         "outDir": "dist",
-        "lib": ["es2021", "dom", "webworker"],
+        "lib": ["es2023", "dom", "webworker"],
         "paths": {
             "@/*": ["./src/*"]
         }
     },
-    "include": [
-        "src",
-        "test",
-        "eslint.config.mjs",
-        "vite.config.mjs",
-        "types.d.ts"
-    ],
-    "exclude": [
-        "src/wasm",
-        "test/editor-api"
-    ]
+    "include": ["src", "test", "eslint.config.mjs", "vite.config.mjs", "types.d.ts"],
+    "exclude": ["src/wasm", "test/editor-api"]
 }

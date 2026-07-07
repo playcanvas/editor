@@ -80,7 +80,6 @@ editor.once('load', () => {
     };
 
     editor.method('attributes:linkField', (args) => {
-        var update, changeField, changeFieldQueue;
         args.field._changing = false;
         const events = [];
 
@@ -88,7 +87,7 @@ editor.once('load', () => {
             args.link = [args.link];
         }
 
-        update = function () {
+        const update = function () {
             let different = false;
             let values = null;
             let path = pathAt(args, 0);
@@ -205,7 +204,7 @@ editor.once('load', () => {
             }
         };
 
-        changeField = function (value: unknown) {
+        const changeField = function (value: unknown) {
             if (args.field._changing) {
                 return;
             }
@@ -309,7 +308,7 @@ editor.once('load', () => {
             }
         };
 
-        changeFieldQueue = function () {
+        const changeFieldQueue = function () {
             if (args.field._changing) {
                 return;
             }
@@ -342,7 +341,7 @@ editor.once('load', () => {
                 return items;
             };
 
-            historyEnd = function (items: Array<{ item: Observer; value: unknown }>, value: unknown) {
+            historyEnd = function (items: { item: Observer; value: unknown }[], value: unknown) {
                 // history
                 editor.api.globals.history.add({
                     name: pathAt(args, 0),
@@ -377,28 +376,30 @@ editor.once('load', () => {
 
         if (args.type === 'rgb') {
             let colorPickerOn = false;
-            events.push(args.field.on('click', () => {
-                colorPickerOn = true;
+            events.push(
+                args.field.on('click', () => {
+                    colorPickerOn = true;
 
-                let items = [];
+                    let items = [];
 
-                // picking starts
-                const evtColorPickStart = editor.on('picker:color:start', () => {
-                    items = historyStart();
-                });
+                    // picking starts
+                    const evtColorPickStart = editor.on('picker:color:start', () => {
+                        items = historyStart();
+                    });
 
-                const evtColorPickEnd = editor.on('picker:color:end', () => {
-                    historyEnd(items.slice(0), args.field.value);
-                });
+                    const evtColorPickEnd = editor.on('picker:color:end', () => {
+                        historyEnd(items.slice(0), args.field.value);
+                    });
 
-                // picker closed
-                editor.once('picker:color:close', () => {
-                    evtColorPickStart.unbind();
-                    evtColorPickEnd.unbind();
-                    colorPickerOn = false;
-                    args.field.element.focus();
-                });
-            }));
+                    // picker closed
+                    editor.once('picker:color:close', () => {
+                        evtColorPickStart.unbind();
+                        evtColorPickEnd.unbind();
+                        colorPickerOn = false;
+                        args.field.element.focus();
+                    });
+                })
+            );
 
             // close picker if field destroyed
             args.field.once('destroy', () => {
@@ -409,13 +410,17 @@ editor.once('load', () => {
         } else if (args.slider) {
             let sliderRecords;
 
-            events.push(args.field.on('start', () => {
-                sliderRecords = historyStart();
-            }));
+            events.push(
+                args.field.on('start', () => {
+                    sliderRecords = historyStart();
+                })
+            );
 
-            events.push(args.field.on('end', () => {
-                historyEnd(sliderRecords.slice(0), args.field.value);
-            }));
+            events.push(
+                args.field.on('end', () => {
+                    historyEnd(sliderRecords.slice(0), args.field.value);
+                })
+            );
         }
 
         update();
@@ -426,11 +431,13 @@ editor.once('load', () => {
             events.push(args.link[i].on(`${pathAt(args, i)}:unset`, changeFieldQueue));
         }
 
-        events.push(args.field.once('destroy', () => {
-            for (let i = 0; i < events.length; i++) {
-                events[i].unbind();
-            }
-        }));
+        events.push(
+            args.field.once('destroy', () => {
+                for (let i = 0; i < events.length; i++) {
+                    events[i].unbind();
+                }
+            })
+        );
 
         return events;
     });
@@ -464,11 +471,11 @@ editor.once('load', () => {
             panel.append(label);
 
             if (args.reference) {
-                const tooltip = label._tooltip = editor.call('attributes:reference', {
+                const tooltip = (label._tooltip = editor.call('attributes:reference', {
                     title: args.reference.title,
                     subTitle: args.reference.subTitle,
                     description: args.reference.description
-                });
+                }));
 
                 tooltip.attach({
                     target: label,
@@ -494,7 +501,7 @@ editor.once('load', () => {
             }
         }
 
-        const linkField = args.linkField = function () {
+        const linkField = (args.linkField = function () {
             if (args.link) {
                 const link = function (field: any, path?: string | string[]) {
                     const data: any = {
@@ -536,13 +543,13 @@ editor.once('load', () => {
                             });
                         }
 
-                        link(field[i], paths || (`${args.path}.${i}`));
+                        link(field[i], paths || `${args.path}.${i}`);
                     }
                 } else {
                     link(field);
                 }
             }
-        };
+        });
 
         args.unlinkField = function () {
             for (let i = 0; i < args.linkEvents.length; i++) {
@@ -574,11 +581,11 @@ editor.once('load', () => {
                 panel.append(field);
                 break;
 
-            case 'tags':
+            case 'tags': {
                 // TODO: why isn't this in a seperate class/file???
 
-                var innerPanel = createPanel();
-                var tagType = args.tagType || 'string';
+                const innerPanel = createPanel();
+                const tagType = args.tagType || 'string';
 
                 if (args.enum) {
                     field = createSelectInput({
@@ -600,7 +607,6 @@ editor.once('load', () => {
                     });
 
                     innerPanel.append(field);
-
                 } else {
                     field = createTextInput();
                     field.blurOnEnter = false;
@@ -632,17 +638,19 @@ editor.once('load', () => {
                     innerPanel.append(btnAdd);
                 }
 
-
-                var tagsPanel = createPanel();
+                const tagsPanel = createPanel();
                 tagsPanel.class.add('tags');
                 tagsPanel.flex = true;
                 innerPanel.append(tagsPanel);
 
-                var tagItems = { };
-                var tagIndex = { };
-                var tagList = [];
+                let tagItems = {};
+                let tagIndex = {};
+                let tagList = [];
+                let addTag = undefined;
+                let removeTag = undefined;
+                let insertElement = undefined;
 
-                var onRemoveClick = function () {
+                const onRemoveClick = function () {
                     if (innerPanel.disabled) {
                         return;
                     }
@@ -650,7 +658,7 @@ editor.once('load', () => {
                     removeTag(this.tag);
                 };
 
-                var removeTag = function (tag: string | number) {
+                removeTag = function (tag: string | number) {
                     if (tagType === 'string' && !tag) {
                         return;
                     }
@@ -658,7 +666,7 @@ editor.once('load', () => {
                         return;
                     }
 
-                    if (!tagIndex.hasOwnProperty(tag)) {
+                    if (!Object.prototype.hasOwnProperty.call(tagIndex, tag)) {
                         return;
                     }
 
@@ -713,7 +721,7 @@ editor.once('load', () => {
                     }
                 };
 
-                var addTag = function (tag: string | number) {
+                addTag = function (tag: string | number) {
                     const records = [];
 
                     // convert to number if needed
@@ -774,8 +782,8 @@ editor.once('load', () => {
                     }
                 };
 
-                var onInsert = function (tag: string | number) {
-                    if (!tagIndex.hasOwnProperty(tag)) {
+                const onInsert = function (tag: string | number) {
+                    if (!Object.prototype.hasOwnProperty.call(tagIndex, tag)) {
                         tagIndex[tag] = 0;
                         tagList.push(tag);
                     }
@@ -784,7 +792,7 @@ editor.once('load', () => {
                     insertElement(tag);
                 };
 
-                var onRemove = function (tag: string | number) {
+                const onRemove = function (tag: string | number) {
                     if (!tagIndex[tag]) {
                         return;
                     }
@@ -810,7 +818,7 @@ editor.once('load', () => {
                 };
 
                 // when tag field is initialized
-                var onSet = function (values: (string | number)[], oldValues?: (string | number)[]) {
+                const onSet = function (values: (string | number)[], oldValues?: (string | number)[]) {
                     if (oldValues) {
                         for (let i = 0; i < oldValues.length; i++) {
                             onRemove(oldValues[i]);
@@ -823,7 +831,7 @@ editor.once('load', () => {
                     }
                 };
 
-                var sortTags = function () {
+                const sortTags = function () {
                     tagList.sort((a, b) => {
                         if (args.tagToString) {
                             a = args.tagToString(a);
@@ -840,7 +848,7 @@ editor.once('load', () => {
                     });
                 };
 
-                var insertElement = function (tag: string | number) {
+                insertElement = function (tag: string | number) {
                     if (!tagItems[tag]) {
                         sortTags();
 
@@ -915,7 +923,7 @@ editor.once('load', () => {
                                     continue;
                                 }
 
-                                if (!tagIndex.hasOwnProperty(tags[t])) {
+                                if (!Object.prototype.hasOwnProperty.call(tagIndex, tags[t])) {
                                     tagIndex[tags[t]] = 0;
                                     tagList.push(tags[t]);
                                 }
@@ -944,8 +952,8 @@ editor.once('load', () => {
                     }
 
                     tagList = [];
-                    tagIndex = { };
-                    tagItems = { };
+                    tagIndex = {};
+                    tagItems = {};
                 };
 
                 args.linkField();
@@ -954,6 +962,7 @@ editor.once('load', () => {
 
                 panel.append(innerPanel);
                 break;
+            }
 
             case 'text':
                 field = createTextAreaInput();
@@ -1035,8 +1044,8 @@ editor.once('load', () => {
 
             case 'vec2':
             case 'vec3':
-            case 'vec4':
-                var channels = parseInt(args.type[3], 10);
+            case 'vec4': {
+                const channels = parseInt(args.type[3], 10);
                 field = [];
 
                 for (let i = 0; i < channels; i++) {
@@ -1072,6 +1081,7 @@ editor.once('load', () => {
 
                 linkField();
                 break;
+            }
 
             case 'rgb':
                 field = createColorInput(args);
@@ -1173,7 +1183,7 @@ editor.once('load', () => {
                 panel.append(field);
                 break;
 
-            case 'curveset':
+            case 'curveset': {
                 field = createCurveInput(args);
                 field.flexGrow = 1;
                 field.text = args.text || '';
@@ -1190,9 +1200,9 @@ editor.once('load', () => {
                     field.link(link, args.canRandomize ? [path, `${path}2`] : [path]);
                 }
 
-                var curvePickerOn = false;
+                let curvePickerOn = false;
 
-                var toggleCurvePicker = function () {
+                const toggleCurvePicker = function () {
                     if (!field.class.contains('disabled') && !curvePickerOn) {
                         editor.call('picker:curve', field.value, args);
 
@@ -1240,7 +1250,6 @@ editor.once('load', () => {
                                 previous.paths.push(path);
                                 previous.values.push(field._link.get(path));
                             }
-
 
                             const undo = function () {
                                 const item = link.latest();
@@ -1311,7 +1320,6 @@ editor.once('load', () => {
                                 undo: undo,
                                 redo: redo
                             });
-
                         });
 
                         const evtRefreshPicker = field.on('change', (value) => {
@@ -1340,6 +1348,7 @@ editor.once('load', () => {
 
                 panel.append(field);
                 break;
+            }
 
             case 'gradient':
                 field = createGradientInput(args);
@@ -1394,9 +1403,11 @@ editor.once('load', () => {
         clearPanel();
 
         // clear if destroyed
-        inspectedItems.push(item.once('destroy', () => {
-            editor.call('attributes:clear');
-        }));
+        inspectedItems.push(
+            item.once('destroy', () => {
+                editor.call('attributes:clear');
+            })
+        );
 
         root.headerText = type;
         editor.emit(`attributes:inspect[${type}]`, [item]);
@@ -1420,9 +1431,11 @@ editor.once('load', () => {
 
         // clear if destroyed
         for (let i = 0; i < items.length; i++) {
-            inspectedItems.push(items[i].once('destroy', () => {
-                editor.call('attributes:clear');
-            }));
+            inspectedItems.push(
+                items[i].once('destroy', () => {
+                    editor.call('attributes:clear');
+                })
+            );
         }
 
         root.headerText = type;

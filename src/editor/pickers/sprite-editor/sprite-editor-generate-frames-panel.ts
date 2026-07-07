@@ -1,5 +1,6 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { Button, Container, Panel, type SelectInput, type VectorInput } from '@playcanvas/pcui';
+import { Button, Container, Panel } from '@playcanvas/pcui';
+import type { SelectInput, VectorInput } from '@playcanvas/pcui';
 
 import type { Attribute } from '@/editor/inspector/attribute.type.d';
 import { AttributesInspector } from '@/editor/inspector/attributes-inspector';
@@ -158,9 +159,11 @@ editor.once('load', () => {
 
         panel.enabled = editor.call('permissions:write');
 
-        events.push(editor.on('permissions:writeState', (canWrite: boolean) => {
-            panel.enabled = canWrite;
-        }));
+        events.push(
+            editor.on('permissions:writeState', (canWrite: boolean) => {
+                panel.enabled = canWrite;
+            })
+        );
 
         const fieldType = inspector.getField('type');
         const fieldFrameCount = inspector.getField('frameCount');
@@ -175,7 +178,8 @@ editor.once('load', () => {
             fieldFrameCount.parent.hidden = typeValue !== TYPE_GRID_BY_FRAME_COUNT;
             fieldFrameSize.parent.hidden = typeValue !== TYPE_GRID_BY_FRAME_SIZE;
             fieldOffset.parent.hidden = typeValue !== TYPE_GRID_BY_FRAME_COUNT && typeValue !== TYPE_GRID_BY_FRAME_SIZE;
-            fieldSpacing.parent.hidden = typeValue !== TYPE_GRID_BY_FRAME_COUNT && typeValue !== TYPE_GRID_BY_FRAME_SIZE;
+            fieldSpacing.parent.hidden =
+                typeValue !== TYPE_GRID_BY_FRAME_COUNT && typeValue !== TYPE_GRID_BY_FRAME_SIZE;
         };
 
         toggleFields();
@@ -428,12 +432,14 @@ editor.once('load', () => {
             return imageData.data[alpha] === 0;
         };
 
-        events.push(rootPanel.on('clear', () => {
-            panel.destroy();
-        }));
+        events.push(
+            rootPanel.on('clear', () => {
+                panel.destroy();
+            })
+        );
 
         panel.once('destroy', () => {
-            events.forEach(event => event.unbind());
+            events.forEach((event) => event.unbind());
             events.length = 0;
         });
     });

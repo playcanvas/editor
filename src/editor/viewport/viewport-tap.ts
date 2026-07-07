@@ -1,7 +1,7 @@
 import type { Canvas } from '@playcanvas/pcui';
 
 /** Tap/pointer state passed to viewport:tap:* and viewport:mouse:move handlers */
-export interface ViewportTap {
+export type ViewportTap = {
     x: number;
     y: number;
     lx?: number;
@@ -9,7 +9,7 @@ export interface ViewportTap {
     button: number;
     mouse?: boolean;
     move?: boolean;
-}
+};
 
 editor.once('load', () => {
     const canvas = editor.call('viewport:canvas') as Canvas | null;
@@ -30,13 +30,13 @@ editor.once('load', () => {
 
         sy: number;
 
-        nx: number = 0;
+        nx = 0;
 
-        ny: number = 0;
+        ny = 0;
 
-        move: boolean = false;
+        move = false;
 
-        down: boolean = true;
+        down = true;
 
         button: number;
 
@@ -54,7 +54,7 @@ editor.once('load', () => {
             const y = evt.clientY - rect.top;
 
             // if it's moved
-            if (this.down && !this.move && (Math.abs(this.sx - x) + Math.abs(this.sy - y)) > 8) {
+            if (this.down && !this.move && Math.abs(this.sx - x) + Math.abs(this.sy - y) > 8) {
                 this.move = true;
             }
 
@@ -83,12 +83,13 @@ editor.once('load', () => {
     const evtMouseMove = function (evt: MouseEvent) {
         const rect = canvas.dom.getBoundingClientRect();
         for (let i = 0; i < taps.length; i++) {
-            if (!taps[i].mouse) {
+            const tap = taps[i];
+            if (!tap.mouse) {
                 continue;
             }
 
-            taps[i].update(evt, rect);
-            editor.emit('viewport:tap:move', taps[i], evt);
+            tap.update(evt, rect);
+            editor.emit('viewport:tap:move', tap, evt);
         }
 
         editor.emit('viewport:mouse:move', {
@@ -98,7 +99,12 @@ editor.once('load', () => {
         });
 
         // track hover state as the mouse moves
-        if (evt.clientX >= rect.left && evt.clientX <= rect.right && evt.clientY >= rect.top && evt.clientY <= rect.bottom) {
+        if (
+            evt.clientX >= rect.left &&
+            evt.clientX <= rect.right &&
+            evt.clientY >= rect.top &&
+            evt.clientY <= rect.bottom
+        ) {
             if (!inViewport) {
                 inViewport = true;
                 editor.emit('viewport:hover', true);
@@ -130,20 +136,21 @@ editor.once('load', () => {
         const items = taps.slice(0);
 
         for (let i = 0; i < items.length; i++) {
-        // if (tapMouse.down) {
-            if (!items[i].mouse || !items[i].down || items[i].button !== evt.button) {
+            const item = items[i];
+            // if (tapMouse.down) {
+            if (!item.mouse || !item.down || item.button !== evt.button) {
                 continue;
             }
 
-            items[i].down = false;
-            items[i].update(evt, canvas.dom.getBoundingClientRect());
-            editor.emit('viewport:tap:end', items[i], evt);
+            item.down = false;
+            item.update(evt, canvas.dom.getBoundingClientRect());
+            editor.emit('viewport:tap:end', item, evt);
 
-            if (!items[i].move) {
-                editor.emit('viewport:tap:click', items[i], evt);
+            if (!item.move) {
+                editor.emit('viewport:tap:click', item, evt);
             }
 
-            const ind = taps.indexOf(items[i]);
+            const ind = taps.indexOf(item);
             if (ind !== -1) {
                 taps.splice(ind, 1);
             }
@@ -158,43 +165,55 @@ editor.once('load', () => {
         });
     };
 
-    canvas.dom.addEventListener('mousedown', (evt) => {
-        if (gizmoCapture(evt)) {
-            return;
-        }
-        const rect = canvas.dom.getBoundingClientRect();
+    canvas.dom.addEventListener(
+        'mousedown',
+        (evt) => {
+            if (gizmoCapture(evt)) {
+                return;
+            }
+            const rect = canvas.dom.getBoundingClientRect();
 
-        editor.emit('viewport:mouse:move', {
-            x: evt.clientX - rect.left,
-            y: evt.clientY - rect.top,
-            down: true
-        });
+            editor.emit('viewport:mouse:move', {
+                x: evt.clientX - rect.left,
+                y: evt.clientY - rect.top,
+                down: true
+            });
 
-        const tap = new Tap(evt, rect, true);
-        taps.push(tap);
+            const tap = new Tap(evt, rect, true);
+            taps.push(tap);
 
-        editor.emit('viewport:tap:start', tap, evt);
+            editor.emit('viewport:tap:start', tap, evt);
 
-        if (document.activeElement && document.activeElement.tagName.toLowerCase() === 'input') {
-            (document.activeElement as HTMLElement).blur();
-        }
+            if (document.activeElement && document.activeElement.tagName.toLowerCase() === 'input') {
+                (document.activeElement as HTMLElement).blur();
+            }
 
-        evt.preventDefault();
-    }, false);
+            evt.preventDefault();
+        },
+        false
+    );
 
-    canvas.dom.addEventListener('mouseover', () => {
-        editor.emit('viewport:hover', true);
-    }, false);
+    canvas.dom.addEventListener(
+        'mouseover',
+        () => {
+            editor.emit('viewport:hover', true);
+        },
+        false
+    );
 
-    canvas.dom.addEventListener('mouseleave', (evt) => {
-        // ignore tooltip
-        const target = evt.relatedTarget as Element | null;
-        if (target && target.classList.contains('cursor-tooltip')) {
-            return;
-        }
+    canvas.dom.addEventListener(
+        'mouseleave',
+        (evt) => {
+            // ignore tooltip
+            const target = evt.relatedTarget as Element | null;
+            if (target && target.classList.contains('cursor-tooltip')) {
+                return;
+            }
 
-        editor.emit('viewport:hover', false);
-    }, false);
+            editor.emit('viewport:hover', false);
+        },
+        false
+    );
 
     window.addEventListener('mousemove', evtMouseMove, false);
     window.addEventListener('dragover', evtMouseMove, false);

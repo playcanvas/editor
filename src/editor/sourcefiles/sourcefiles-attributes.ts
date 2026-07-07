@@ -1,17 +1,16 @@
-interface ScriptAttribute {
+type ScriptAttribute = {
     name: string;
     type?: string;
     defaultValue: unknown;
     options?: { displayName?: string; description?: string; type?: unknown };
-}
+};
 
-interface ScriptAttributesData {
+type ScriptAttributesData = {
     name: string;
     values: ScriptAttribute[];
-}
+};
 
 editor.once('load', () => {
-
     const typeofs = ['undefined', 'number', 'string', 'boolean'];
     const objectTypes = {
         '[object Array]': 'array',
@@ -66,10 +65,15 @@ editor.once('load', () => {
     const REGEX_COLOR_CURVE = /^(?:r(?:gba?)?|[gba])$/; // r or g or b or rgb or rgba
 
     const attributeErrorMsg = function (url: string, attribute: ScriptAttribute, error: string) {
-        return pc.string.format('Attribute \'{0}\' of script {1} is invalid: {2}', attribute.name, url, error);
+        return pc.string.format("Attribute '{0}' of script {1} is invalid: {2}", attribute.name, url, error);
     };
 
-    const validateValue = function (url: string, attribute: ScriptAttribute, correctType: string, valueIfUndefined: unknown) {
+    const validateValue = function (
+        url: string,
+        attribute: ScriptAttribute,
+        correctType: string,
+        valueIfUndefined: unknown
+    ) {
         const attrType = type(attribute.defaultValue);
         if (attrType === 'undefined' || attrType === 'null') {
             attribute.defaultValue = valueIfUndefined;
@@ -78,26 +82,40 @@ editor.once('load', () => {
         }
     };
 
-    const validateArrayValue = function (url: string, attribute: ScriptAttribute, valueIfUndefined: unknown[], correctLength: number, typeofElements: string) {
+    const validateArrayValue = function (
+        url: string,
+        attribute: ScriptAttribute,
+        valueIfUndefined: unknown[],
+        correctLength: number,
+        typeofElements: string
+    ) {
         validateValue(url, attribute, 'array', valueIfUndefined);
 
         if (correctLength >= 0 && attribute.defaultValue.length !== correctLength) {
-            throw attributeErrorMsg(url, attribute, pc.string.format('Value must be an array with {0} elements of type {1}', correctLength, typeofElements));
+            throw attributeErrorMsg(
+                url,
+                attribute,
+                pc.string.format('Value must be an array with {0} elements of type {1}', correctLength, typeofElements)
+            );
         } else {
             for (let i = 0; i < attribute.defaultValue.length; i++) {
                 if (typeof attribute.defaultValue[i] !== typeofElements) {
-                    throw attributeErrorMsg(url, attribute, pc.string.format('Value must be an array with elements of type {0}', typeofElements));
+                    throw attributeErrorMsg(
+                        url,
+                        attribute,
+                        pc.string.format('Value must be an array with elements of type {0}', typeofElements)
+                    );
                 }
             }
         }
     };
 
     const validators = {
-        'number': function (url: string, attribute: ScriptAttribute) {
+        number: function (url: string, attribute: ScriptAttribute) {
             validateValue(url, attribute, 'number', 0);
         },
 
-        'string': function (url: string, attribute: ScriptAttribute) {
+        string: function (url: string, attribute: ScriptAttribute) {
             validateValue(url, attribute, 'string', '');
 
             if (attribute.defaultValue.length > 512) {
@@ -105,63 +123,78 @@ editor.once('load', () => {
             }
         },
 
-        'boolean': function (url: string, attribute: ScriptAttribute) {
+        boolean: function (url: string, attribute: ScriptAttribute) {
             validateValue(url, attribute, 'boolean', false);
         },
 
-        'asset': function (url: string, attribute: ScriptAttribute) {
+        asset: function (url: string, attribute: ScriptAttribute) {
             // TODO check max array length
             validateArrayValue(url, attribute, [], -1, 'number');
         },
 
-        'vector': function (url: string, attribute: ScriptAttribute) {
+        vector: function (url: string, attribute: ScriptAttribute) {
             validateArrayValue(url, attribute, [0, 0, 0], 3, 'number');
         },
 
-        'vec2': function (url: string, attribute: ScriptAttribute) {
+        vec2: function (url: string, attribute: ScriptAttribute) {
             validateArrayValue(url, attribute, [0, 0], 2, 'number');
         },
 
-        'vec3': function (url: string, attribute: ScriptAttribute) {
+        vec3: function (url: string, attribute: ScriptAttribute) {
             validateArrayValue(url, attribute, [0, 0, 0], 3, 'number');
         },
 
-        'vec4': function (url: string, attribute: ScriptAttribute) {
+        vec4: function (url: string, attribute: ScriptAttribute) {
             validateArrayValue(url, attribute, [0, 0, 0, 0], 4, 'number');
         },
 
-        'rgb': function (url: string, attribute: ScriptAttribute) {
+        rgb: function (url: string, attribute: ScriptAttribute) {
             validateArrayValue(url, attribute, [0, 0, 0], 3, 'number');
         },
 
-        'rgba': function (url: string, attribute: ScriptAttribute) {
+        rgba: function (url: string, attribute: ScriptAttribute) {
             validateArrayValue(url, attribute, [0, 0, 0, 1], 4, 'number');
         },
 
-        'enumeration': function (url: string, attribute: ScriptAttribute) {
-            if (attribute.options &&
+        enumeration: function (url: string, attribute: ScriptAttribute) {
+            if (
+                attribute.options &&
                 attribute.options.enumerations &&
                 type(attribute.options.enumerations) === 'array' &&
-                attribute.options.enumerations.length) {
-
+                attribute.options.enumerations.length
+            ) {
                 let valueType;
                 const enumerations = attribute.options.enumerations;
                 // TODO check enumerations max length
                 for (let i = 0; i < enumerations.length; i++) {
-                    if (type(enumerations[i]) !== 'object') {
-                        throw attributeErrorMsg(url, attribute, 'Each enumeration must be an object with this form: {name: \'...\', value: ...}');
+                    const enumeration = enumerations[i];
+                    if (type(enumeration) !== 'object') {
+                        throw attributeErrorMsg(
+                            url,
+                            attribute,
+                            "Each enumeration must be an object with this form: {name: '...', value: ...}"
+                        );
                     } else {
-                        if (type(enumerations[i].name) !== 'string' ||
-                            enumerations[i].name.length === 0 ||
-                            type(enumerations[i].value) === 'undefined') {
-
-                            throw attributeErrorMsg(url, attribute, 'Each enumeration must be an object with this form: {name: \'...\', value: ...}');
+                        if (
+                            type(enumeration.name) !== 'string' ||
+                            enumeration.name.length === 0 ||
+                            type(enumeration.value) === 'undefined'
+                        ) {
+                            throw attributeErrorMsg(
+                                url,
+                                attribute,
+                                "Each enumeration must be an object with this form: {name: '...', value: ...}"
+                            );
                         } else {
                             if (!valueType) {
-                                valueType = type(enumerations[i].value);
+                                valueType = type(enumeration.value);
                             } else {
-                                if (valueType !== type(enumerations[i].value)) {
-                                    throw attributeErrorMsg(url, attribute, 'All enumerations values must be the same type');
+                                if (valueType !== type(enumeration.value)) {
+                                    throw attributeErrorMsg(
+                                        url,
+                                        attribute,
+                                        'All enumerations values must be the same type'
+                                    );
                                 }
                             }
                         }
@@ -172,7 +205,8 @@ editor.once('load', () => {
 
                 let isValueInEnumerations = false;
                 for (let i = 0; i < enumerations.length; i++) {
-                    if (enumerations[i].value === attribute.defaultValue) {
+                    const enumeration = enumerations[i];
+                    if (enumeration.value === attribute.defaultValue) {
                         isValueInEnumerations = true;
                         break;
                     }
@@ -186,7 +220,7 @@ editor.once('load', () => {
             }
         },
 
-        'entity': function (url: string, attribute: ScriptAttribute) {
+        entity: function (url: string, attribute: ScriptAttribute) {
             validateValue(url, attribute, 'string', null);
 
             if (attribute.defaultValue && !REGEX_GUID.test(attribute.defaultValue)) {
@@ -194,7 +228,7 @@ editor.once('load', () => {
             }
         },
 
-        'curve': function (url: string, attribute: ScriptAttribute) {
+        curve: function (url: string, attribute: ScriptAttribute) {
             if (!attribute.options) {
                 attribute.options = {};
             }
@@ -233,20 +267,36 @@ editor.once('load', () => {
 
                 if (attribute.options.curves.length > 1) {
                     if (validData.keys.length !== 0 && validData.keys.length !== attribute.options.curves.length) {
-                        throw attributeErrorMsg(url, attribute, `Invalid keys. Needs to be an array of ${attribute.options.curves.length} arrays`);
+                        throw attributeErrorMsg(
+                            url,
+                            attribute,
+                            `Invalid keys. Needs to be an array of ${attribute.options.curves.length} arrays`
+                        );
                     } else {
                         for (let i = 0, len = validData.keys.length; i < len; i++) {
                             if (!(validData.keys[i] instanceof Array)) {
-                                throw attributeErrorMsg(url, attribute, `Invalid keys. Needs to be an array of ${len} arrays`);
+                                throw attributeErrorMsg(
+                                    url,
+                                    attribute,
+                                    `Invalid keys. Needs to be an array of ${len} arrays`
+                                );
                             } else {
                                 const len2 = validData.keys[i].length;
                                 if (len2 % 2 !== 0) {
-                                    throw attributeErrorMsg(url, attribute, 'Invalid keys. Array must hold an even amount of numbers');
+                                    throw attributeErrorMsg(
+                                        url,
+                                        attribute,
+                                        'Invalid keys. Array must hold an even amount of numbers'
+                                    );
                                 }
 
                                 for (let j = 0; j < len2; j++) {
                                     if (typeof validData.keys[i][j] !== 'number') {
-                                        throw attributeErrorMsg(url, attribute, 'Invalid keys. Array values must be numbers');
+                                        throw attributeErrorMsg(
+                                            url,
+                                            attribute,
+                                            'Invalid keys. Array values must be numbers'
+                                        );
                                     }
                                 }
                             }
@@ -255,7 +305,11 @@ editor.once('load', () => {
                 } else {
                     if (attribute.options.curves.length === 1) {
                         if (validData.keys.length % 2 !== 0) {
-                            throw attributeErrorMsg(url, attribute, 'Invalid keys. Array must hold an even amount of numbers');
+                            throw attributeErrorMsg(
+                                url,
+                                attribute,
+                                'Invalid keys. Array must hold an even amount of numbers'
+                            );
                         }
 
                         for (let i = 0, len = validData.keys.length; i < len; i++) {
@@ -275,13 +329,14 @@ editor.once('load', () => {
                     attribute.defaultValue.keys = [0, 0];
                 } else {
                     for (let i = 0; i < attribute.options.curves.length; i++) {
+                        const _curve = attribute.options.curves[i];
                         attribute.defaultValue.keys.push([0, 0]);
                     }
                 }
             }
         },
 
-        'colorcurve': function (url: string, attribute: ScriptAttribute) {
+        colorcurve: function (url: string, attribute: ScriptAttribute) {
             if (!attribute.options) {
                 attribute.options = {};
             }
@@ -290,7 +345,11 @@ editor.once('load', () => {
                 attribute.options.type = 'rgb';
             } else {
                 if (!REGEX_COLOR_CURVE.test(attribute.options.type)) {
-                    throw attributeErrorMsg(url, attribute, 'Color curve type can be one of \'r\', \'g\', \'b\', \'a\', \'rgb\', \'rgba\'');
+                    throw attributeErrorMsg(
+                        url,
+                        attribute,
+                        "Color curve type can be one of 'r', 'g', 'b', 'a', 'rgb', 'rgba'"
+                    );
                 }
             }
 
@@ -318,20 +377,36 @@ editor.once('load', () => {
 
                 if (attribute.options.type.length > 1) {
                     if (validData.keys.length !== 0 && validData.keys.length !== attribute.options.type.length) {
-                        throw attributeErrorMsg(url, attribute, `Invalid keys. Needs to be an array of ${attribute.options.type.length} arrays`);
+                        throw attributeErrorMsg(
+                            url,
+                            attribute,
+                            `Invalid keys. Needs to be an array of ${attribute.options.type.length} arrays`
+                        );
                     } else {
                         for (let i = 0, len = validData.keys.length; i < len; i++) {
                             if (!(validData.keys[i] instanceof Array)) {
-                                throw attributeErrorMsg(url, attribute, `Invalid keys. Needs to be an array of ${len} arrays`);
+                                throw attributeErrorMsg(
+                                    url,
+                                    attribute,
+                                    `Invalid keys. Needs to be an array of ${len} arrays`
+                                );
                             } else {
                                 const len2 = validData.keys[i].length;
                                 if (len2 % 2 !== 0) {
-                                    throw attributeErrorMsg(url, attribute, 'Invalid keys. Array must hold an even amount of numbers');
+                                    throw attributeErrorMsg(
+                                        url,
+                                        attribute,
+                                        'Invalid keys. Array must hold an even amount of numbers'
+                                    );
                                 }
 
                                 for (let j = 0; j < len2; j++) {
                                     if (typeof validData.keys[i][j] !== 'number') {
-                                        throw attributeErrorMsg(url, attribute, 'Invalid keys. Array values must be numbers');
+                                        throw attributeErrorMsg(
+                                            url,
+                                            attribute,
+                                            'Invalid keys. Array values must be numbers'
+                                        );
                                     }
                                 }
                             }
@@ -340,7 +415,11 @@ editor.once('load', () => {
                 } else {
                     if (attribute.options.type.length === 1) {
                         if (validData.keys.length % 2 !== 0) {
-                            throw attributeErrorMsg(url, attribute, 'Invalid keys. Array must hold an even amount of numbers');
+                            throw attributeErrorMsg(
+                                url,
+                                attribute,
+                                'Invalid keys. Array must hold an even amount of numbers'
+                            );
                         }
 
                         for (let i = 0, len = validData.keys.length; i < len; i++) {
@@ -383,7 +462,9 @@ editor.once('load', () => {
                 }
 
                 if (attr.name.length > 128) {
-                    throw pc.string.format(pc.string.format('Validation error in {0}: Attribute name exceeds 128 characters', url));
+                    throw pc.string.format(
+                        pc.string.format('Validation error in {0}: Attribute name exceeds 128 characters', url)
+                    );
                 }
 
                 // check if type is valid
@@ -392,7 +473,11 @@ editor.once('load', () => {
                 }
 
                 if (VALID_TYPES.indexOf(attr.type) < 0) {
-                    throw attributeErrorMsg(url, attr, pc.string.format('{0} is not a valid attribute type', attr.type));
+                    throw attributeErrorMsg(
+                        url,
+                        attr,
+                        pc.string.format('{0} is not a valid attribute type', attr.type)
+                    );
                 }
 
                 if (attr.options) {
@@ -402,7 +487,11 @@ editor.once('load', () => {
                         }
 
                         if (attr.options.displayName.length > 128) {
-                            throw attributeErrorMsg(url, attr, 'Display name of attribute cannot exceed 128 characters');
+                            throw attributeErrorMsg(
+                                url,
+                                attr,
+                                'Display name of attribute cannot exceed 128 characters'
+                            );
                         }
                     }
 
@@ -412,7 +501,11 @@ editor.once('load', () => {
                         }
 
                         if (attr.options.description.length > 1024) {
-                            throw attributeErrorMsg(url, attr, 'Description of attribute cannot exceed 1024 characters');
+                            throw attributeErrorMsg(
+                                url,
+                                attr,
+                                'Description of attribute cannot exceed 1024 characters'
+                            );
                         }
                     }
                 }
@@ -433,17 +526,19 @@ editor.once('load', () => {
                     defaultValue: attr.defaultValue,
                     value: attr.defaultValue,
                     type: attr.type,
-                    options: attr.options ? {
-                        // Only allowed options
-                        max: attr.options.max,
-                        min: attr.options.min,
-                        step: attr.options.step,
-                        type: attr.options.type,
-                        decimalPrecision: attr.options.decimalPrecision,
-                        enumerations: attr.options.enumerations,
-                        curves: attr.options.curves,
-                        color: attr.options.color
-                    } : {}
+                    options: attr.options
+                        ? {
+                              // Only allowed options
+                              max: attr.options.max,
+                              min: attr.options.min,
+                              step: attr.options.step,
+                              type: attr.options.type,
+                              decimalPrecision: attr.options.decimalPrecision,
+                              enumerations: attr.options.enumerations,
+                              curves: attr.options.curves,
+                              color: attr.options.color
+                          }
+                        : {}
                 };
             } catch (e) {
                 hasErrors = true;

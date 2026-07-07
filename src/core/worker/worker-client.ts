@@ -1,7 +1,7 @@
 class WorkerClient {
     _transfer: (ArrayBuffer | MessagePort | ImageBitmap)[] = [];
 
-    _callbacks: Map<string, Function[]> = new Map();
+    _callbacks = new Map<string, ((...args: any[]) => void)[]>();
 
     url: string;
 
@@ -24,7 +24,8 @@ class WorkerClient {
         }
         const callbacks = this._callbacks.get(type).slice();
         for (let i = 0; i < callbacks.length; i++) {
-            callbacks[i](...args);
+            const callback = callbacks[i];
+            callback(...args);
         }
     }
 
@@ -102,7 +103,7 @@ class WorkerClient {
      * @param type - The type of the message.
      * @param callback - The callback function.
      */
-    on(type: string, callback: Function) {
+    on(type: string, callback: (...args: any[]) => void) {
         if (!this._callbacks.has(type)) {
             this._callbacks.set(type, []);
         }
@@ -115,7 +116,7 @@ class WorkerClient {
      * @param type - The type of the message.
      * @param callback - The callback function.
      */
-    once(type: string, callback: Function) {
+    once(type: string, callback: (...args: any[]) => void) {
         const onceCallback = (...args: unknown[]) => {
             this.off(type, onceCallback);
             callback(...args);
@@ -129,7 +130,7 @@ class WorkerClient {
      * @param type - The type of the message.
      * @param callback - The callback function.
      */
-    off(type: string, callback: Function) {
+    off(type: string, callback: (...args: any[]) => void) {
         if (!this._callbacks.has(type)) {
             return;
         }

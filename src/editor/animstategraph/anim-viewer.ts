@@ -1,7 +1,6 @@
-import { Container, Canvas, Label, Button, SliderInput, type ContainerArgs } from '@playcanvas/pcui';
+import { Container, Canvas, Label, Button, SliderInput } from '@playcanvas/pcui';
+import type { ContainerArgs } from '@playcanvas/pcui';
 import {
-    type AnimTrack,
-    type Application,
     BLEND_NORMAL,
     BoundingBox,
     BUFFER_DYNAMIC,
@@ -20,7 +19,6 @@ import {
     RenderTarget,
     SEMANTIC_COLOR,
     SEMANTIC_POSITION,
-    StandardMaterial,
     Texture,
     TYPE_FLOAT32,
     TYPE_UINT8,
@@ -28,6 +26,7 @@ import {
     VertexBuffer,
     VertexFormat
 } from 'playcanvas';
+import type { AnimTrack, Application, StandardMaterial } from 'playcanvas';
 
 import { createColorMaterial } from '../viewport/viewport-color-material';
 
@@ -39,18 +38,30 @@ class Skeleton {
     static _rotationMatrix = new Mat4();
 
     static _unitBone = [
-        [0, 0, 0], [-0.5, 0.3, 0],
-        [0, 0, 0], [0.5, 0.3, 0],
-        [0, 0, 0], [0, 0.3, -0.5],
-        [0, 0, 0], [0, 0.3, 0.5],
-        [0, 1, 0], [-0.5, 0.3, 0],
-        [0, 1, 0], [0.5, 0.3, 0],
-        [0, 1, 0], [0, 0.3, -0.5],
-        [0, 1, 0], [0, 0.3, 0.5],
-        [0, 0.3, -0.5], [0.5, 0.3, 0],
-        [0.5, 0.3, 0], [0, 0.3, 0.5],
-        [0, 0.3, 0.5], [-0.5, 0.3, 0],
-        [-0.5, 0.3, 0], [0, 0.3, -0.5]
+        [0, 0, 0],
+        [-0.5, 0.3, 0],
+        [0, 0, 0],
+        [0.5, 0.3, 0],
+        [0, 0, 0],
+        [0, 0.3, -0.5],
+        [0, 0, 0],
+        [0, 0.3, 0.5],
+        [0, 1, 0],
+        [-0.5, 0.3, 0],
+        [0, 1, 0],
+        [0.5, 0.3, 0],
+        [0, 1, 0],
+        [0, 0.3, -0.5],
+        [0, 1, 0],
+        [0, 0.3, 0.5],
+        [0, 0.3, -0.5],
+        [0.5, 0.3, 0],
+        [0.5, 0.3, 0],
+        [0, 0.3, 0.5],
+        [0, 0.3, 0.5],
+        [-0.5, 0.3, 0],
+        [-0.5, 0.3, 0],
+        [0, 0.3, -0.5]
     ];
 
     _app: Application;
@@ -146,7 +157,7 @@ class Skeleton {
             vertexData[this._vertexCount * 4 + 0] = boneVertex.x;
             vertexData[this._vertexCount * 4 + 1] = boneVertex.y;
             vertexData[this._vertexCount * 4 + 2] = boneVertex.z;
-            colorData[this._vertexCount * 4 + 3] = 0xFFFFFFFF;
+            colorData[this._vertexCount * 4 + 3] = 0xffffffff;
             this._vertexCount++;
         }
 
@@ -183,9 +194,9 @@ class Skeleton {
     }
 }
 
-interface AnimViewerArgs extends ContainerArgs {
+type AnimViewerArgs = {
     app: Application;
-}
+} & ContainerArgs;
 
 class AnimViewer extends Container {
     _shownError = false;
@@ -327,10 +338,7 @@ class AnimViewer extends Container {
         });
         window.addEventListener('mousemove', (e) => {
             if (mouseDown) {
-                this._rotationX = Math.min(
-                    Math.max(this._rotationX + -e.movementY * 0.3, -90),
-                    90
-                );
+                this._rotationX = Math.min(Math.max(this._rotationX + -e.movementY * 0.3, -90), 90);
                 this._rotationY += -e.movementX * 0.3;
                 requestAnimationFrame(() => this.render(0));
             }
@@ -581,12 +589,10 @@ class AnimViewer extends Container {
             if (this._playing && this._entity.anim.baseLayer.activeStateProgress === 1) {
                 this._slider.value = 1;
             } else if (this._playing) {
-                if (
-                    this._entity.anim.baseLayer.activeStateDuration >
-                    (1 / 60) * 5
-                ) {
+                if (this._entity.anim.baseLayer.activeStateDuration > (1 / 60) * 5) {
                     this._slider.value =
-                        this._entity.anim.baseLayer.activeStateCurrentTime % this._entity.anim.baseLayer.activeStateDuration;
+                        this._entity.anim.baseLayer.activeStateCurrentTime %
+                        this._entity.anim.baseLayer.activeStateDuration;
                 }
             }
             this._suppressSliderChange = false;
@@ -600,12 +606,14 @@ class AnimViewer extends Container {
             this._entity.anim.layers[0].update(dt);
         }
 
-
         if (this._skeleton && this._showSkeleton) {
             this._skeleton.update();
             this._frontLayer.addMeshInstances([this._skeleton.meshInstance]);
 
-            if (this._renderComponents.length > 0 || this._entity.model && this._entity.model.meshInstances.length > 0) {
+            if (
+                this._renderComponents.length > 0 ||
+                (this._entity.model && this._entity.model.meshInstances.length > 0)
+            ) {
                 if (this._showModel) {
                     this._skeleton.setColor(new Color(1, 1, 1, 0.5));
                 } else {
@@ -621,11 +629,7 @@ class AnimViewer extends Container {
             this._cameraOrigin.setLocalPosition(0, this._skeleton.boundingBox.center.y, 0);
             this._rotationX = -15;
             this._rotationY = 45;
-            this._cameraOrigin.setLocalEulerAngles(
-                this._rotationX,
-                this._rotationY,
-                0
-            );
+            this._cameraOrigin.setLocalEulerAngles(this._rotationX, this._rotationY, 0);
 
             const { x, y, z } = this._skeleton.boundingBox.halfExtents;
             this._camera.setLocalPosition(0, 0, Math.max(x, y, z) * 3.5);
@@ -633,11 +637,7 @@ class AnimViewer extends Container {
         }
 
         // update scene
-        this._cameraOrigin.setLocalEulerAngles(
-            this._rotationX,
-            this._rotationY,
-            0
-        );
+        this._cameraOrigin.setLocalEulerAngles(this._rotationX, this._rotationY, 0);
         this._light.setLocalRotation(this._cameraOrigin.getLocalRotation());
         this._light.rotateLocal(90, 0, 0);
 
@@ -682,19 +682,8 @@ class AnimViewer extends Container {
 
         // read pixels from texture
         const device = this._app.graphicsDevice;
-        device.gl.bindFramebuffer(
-            device.gl.FRAMEBUFFER,
-            this._renderTarget.impl._glFrameBuffer
-        );
-        device.gl.readPixels(
-            0,
-            0,
-            width,
-            height,
-            device.gl.RGBA,
-            device.gl.UNSIGNED_BYTE,
-            this._renderTarget.pixels
-        );
+        device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, this._renderTarget.impl._glFrameBuffer);
+        device.gl.readPixels(0, 0, width, height, device.gl.RGBA, device.gl.UNSIGNED_BYTE, this._renderTarget.pixels);
 
         // Check if pixel data is valid (buffer length must match width * height * 4)
         const expectedLength = width * height * 4;

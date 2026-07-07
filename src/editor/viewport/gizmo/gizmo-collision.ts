@@ -23,13 +23,11 @@ import {
     Shader,
     SphereGeometry,
     TYPE_FLOAT32,
-    type AppBase,
-    type Asset,
-    type GraphicsDevice,
     Vec3,
     VertexBuffer,
     VertexFormat
 } from 'playcanvas';
+import type { AppBase, Asset, GraphicsDevice } from 'playcanvas';
 
 import { GIZMO_MASK } from '@/core/constants';
 import type { EntityObserver } from '@/editor-api';
@@ -54,13 +52,23 @@ editor.once('load', () => {
     const materialDefault = createColorMaterial();
     materialDefault.name = 'collision';
     materialDefault.color = colorPrimary;
-    materialDefault.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
+    materialDefault.blendState = new BlendState(
+        true,
+        BLENDEQUATION_ADD,
+        BLENDMODE_SRC_ALPHA,
+        BLENDMODE_ONE_MINUS_SRC_ALPHA
+    );
     materialDefault.update();
 
     const materialBehind = createColorMaterial();
     materialBehind.name = 'collision behind';
     materialBehind.color = colorBehind;
-    materialBehind.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
+    materialBehind.blendState = new BlendState(
+        true,
+        BLENDEQUATION_ADD,
+        BLENDMODE_SRC_ALPHA,
+        BLENDMODE_ONE_MINUS_SRC_ALPHA
+    );
     materialBehind.depthWrite = false;
     materialBehind.depthTest = true;
     materialBehind.update();
@@ -79,8 +87,8 @@ editor.once('load', () => {
     const models = {};
     const axesNames = { 0: 'x', 1: 'y', 2: 'z' };
     const poolModels = {
-        'box': [],
-        'sphere': [],
+        box: [],
+        sphere: [],
         'capsule-x': [],
         'capsule-y': [],
         'capsule-z': [],
@@ -304,7 +312,11 @@ editor.once('load', () => {
                     // Note: render does not have an equivalent of this
                     if (this.entity.model.model) {
                         const { model: entityModel } = this._link.entity;
-                        const picking = !visible && entityModel?.enabled && entityModel.type === 'asset' && entityModel.asset === collision.asset;
+                        const picking =
+                            !visible &&
+                            entityModel?.enabled &&
+                            entityModel.type === 'asset' &&
+                            entityModel.asset === collision.asset;
                         if (picking !== this.entity.model.model.__picking) {
                             this.entity.model.model.__picking = picking;
                             for (const mesh of this.entity.model.meshInstances) {
@@ -328,9 +340,11 @@ editor.once('load', () => {
             this.unlink();
             this._link = obj;
 
-            this.events.push(this._link.once('destroy', () => {
-                this.unlink();
-            }));
+            this.events.push(
+                this._link.once('destroy', () => {
+                    this.unlink();
+                })
+            );
 
             this.color = null;
 
@@ -415,17 +429,19 @@ editor.once('load', () => {
                     this.entity.model.model = createModelCopy(asset.resource, this.color);
                 }
             } else {
-                this.events.push(asset.once('load', (loadedAsset: Asset) => {
-                    if (this.asset !== loadedAsset.id) {
-                        return;
-                    }
+                this.events.push(
+                    asset.once('load', (loadedAsset: Asset) => {
+                        if (this.asset !== loadedAsset.id) {
+                            return;
+                        }
 
-                    if (isRender) {
-                        this.entity.render.meshInstances = createRenderCopy(loadedAsset.resource, this.color);
-                    } else {
-                        this.entity.model.model = createModelCopy(loadedAsset.resource, this.color);
-                    }
-                }));
+                        if (isRender) {
+                            this.entity.render.meshInstances = createRenderCopy(loadedAsset.resource, this.color);
+                        } else {
+                            this.entity.model.model = createModelCopy(loadedAsset.resource, this.color);
+                        }
+                    })
+                );
             }
         }
     }
@@ -540,7 +556,6 @@ void main(void)
                 return shaderDefault;
             }
             return origFunc.call(this, params);
-
         };
         materialDefault.update();
 
@@ -685,17 +700,27 @@ void main(void)
 
         // ================
         // box
-        models.box = createModel(Mesh.fromGeometry(app.graphicsDevice, new BoxGeometry({
-            halfExtents: new Vec3(1, 1, 1)
-        })));
+        models.box = createModel(
+            Mesh.fromGeometry(
+                app.graphicsDevice,
+                new BoxGeometry({
+                    halfExtents: new Vec3(1, 1, 1)
+                })
+            )
+        );
 
         // ================
         // sphere
-        models.sphere = createModel(Mesh.fromGeometry(app.graphicsDevice, new SphereGeometry({
-            radius: 1,
-            latitudeBands: 32,
-            longitudeBands: 64
-        })));
+        models.sphere = createModel(
+            Mesh.fromGeometry(
+                app.graphicsDevice,
+                new SphereGeometry({
+                    radius: 1,
+                    latitudeBands: 32,
+                    longitudeBands: 64
+                })
+            )
+        );
 
         // ================
         // cones (shared mesh, rotation handles axis)
@@ -711,7 +736,10 @@ void main(void)
 
         // ================
         // cylinders (shared mesh, rotation handles axis)
-        const cylinderMesh = Mesh.fromGeometry(app.graphicsDevice, new CylinderGeometry({ radius: 1, height: 1, capSegments: 72 }));
+        const cylinderMesh = Mesh.fromGeometry(
+            app.graphicsDevice,
+            new CylinderGeometry({ radius: 1, height: 1, capSegments: 72 })
+        );
         models['cylinder-x'] = createModel(cylinderMesh);
         models['cylinder-x'].graph.setLocalEulerAngles(0, 0, -90);
         models['cylinder-y'] = createModel(cylinderMesh);
@@ -736,7 +764,7 @@ void main(void)
 
             // Top cylinder ring (aSide = +1)
             for (let j = 0; j <= capSegments; j++) {
-                const phi = j * 2 * Math.PI / capSegments - Math.PI / 2;
+                const phi = (j * 2 * Math.PI) / capSegments - Math.PI / 2;
                 const x = Math.cos(phi);
                 const z = Math.sin(phi);
 
@@ -747,7 +775,7 @@ void main(void)
 
             // Bottom cylinder ring (aSide = -1)
             for (let j = 0; j <= capSegments; j++) {
-                const phi = j * 2 * Math.PI / capSegments - Math.PI / 2;
+                const phi = (j * 2 * Math.PI) / capSegments - Math.PI / 2;
                 const x = Math.cos(phi);
                 const z = Math.sin(phi);
 
@@ -776,7 +804,7 @@ void main(void)
                 const cosTheta = Math.cos(theta);
 
                 for (let lon = 0; lon <= capSegments; lon++) {
-                    const phi = lon * 2 * Math.PI / capSegments - Math.PI / 2;
+                    const phi = (lon * 2 * Math.PI) / capSegments - Math.PI / 2;
                     const sinPhi = Math.sin(phi);
                     const cosPhi = Math.cos(phi);
 
@@ -822,7 +850,7 @@ void main(void)
                 const cosTheta = Math.cos(theta);
 
                 for (let lon = 0; lon <= capSegments; lon++) {
-                    const phi = lon * 2 * Math.PI / capSegments - Math.PI / 2;
+                    const phi = (lon * 2 * Math.PI) / capSegments - Math.PI / 2;
                     const sinPhi = Math.sin(phi);
                     const cosPhi = Math.cos(phi);
 

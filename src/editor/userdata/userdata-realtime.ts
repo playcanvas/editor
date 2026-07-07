@@ -25,8 +25,9 @@ editor.once('load', () => {
             }
 
             for (let i = 0; i < ops.length; i++) {
-                if (ops[i].p[0]) {
-                    editor.emit(`realtime:userdata:${userId}:op:${ops[i].p[0]}`, ops[i]);
+                const op = ops[i];
+                if (op.p[0]) {
+                    editor.emit(`realtime:userdata:${userId}:op:${op.p[0]}`, op);
                 }
             }
         });
@@ -90,5 +91,4 @@ editor.once('load', () => {
             loadUserData();
         }
     });
-
 });

@@ -18,16 +18,18 @@ class TooltipHandle extends Container {
 
     private _removeTarget?: () => void;
 
-    constructor(args: {
-        class?: string,
-        hoverable?: boolean,
-        x?: number,
-        y?: number,
-        align?: 'top' | 'right' | 'bottom' | 'left',
-        hidden?: boolean,
-        text?: string,
-        html?: string
-    } = {}) {
+    constructor(
+        args: {
+            class?: string;
+            hoverable?: boolean;
+            x?: number;
+            y?: number;
+            align?: 'top' | 'right' | 'bottom' | 'left';
+            hidden?: boolean;
+            text?: string;
+            html?: string;
+        } = {}
+    ) {
         super({
             class: 'pcui-tooltip',
             hidden: args.hidden ?? true
@@ -259,12 +261,12 @@ class TooltipHandle extends Container {
     }
 
     static make(args: {
-        root?: Container,
-        text?: string,
-        html?: string,
-        align?: 'top' | 'right' | 'bottom' | 'left',
-        hoverable?: boolean,
-        class?: string
+        root?: Container;
+        text?: string;
+        html?: string;
+        align?: 'top' | 'right' | 'bottom' | 'left';
+        hoverable?: boolean;
+        class?: string;
     }) {
         const item = new TooltipHandle(args);
         (args.root || editor.call('layout.root')).append(item);
@@ -272,13 +274,13 @@ class TooltipHandle extends Container {
     }
 
     static attach(args: {
-        root?: Container,
-        target: HTMLElement,
-        text?: string,
-        html?: string,
-        align?: 'top' | 'right' | 'bottom' | 'left',
-        hoverable?: boolean,
-        class?: string
+        root?: Container;
+        target: HTMLElement;
+        text?: string;
+        html?: string;
+        align?: 'top' | 'right' | 'bottom' | 'left';
+        hoverable?: boolean;
+        class?: string;
     }) {
         const item = TooltipHandle.make(args);
         item.attach(args.target);
@@ -292,21 +294,17 @@ class TooltipHandle extends Container {
  * @param args - The arguments.
  * @returns The tooltip.
  */
-export const tooltipSimpleItem = ({
-    text,
-    classNames = []
-}: {
-    text: string;
-    classNames?: string[];
-}): Container => {
+export const tooltipSimpleItem = ({ text, classNames = [] }: { text: string; classNames?: string[] }): Container => {
     const item = new Container({
         class: ['tooltip-simple', ...classNames]
     });
 
-    item.append(new Label({
-        class: 'text',
-        text: text
-    }));
+    item.append(
+        new Label({
+            class: 'text',
+            text: text
+        })
+    );
 
     return item;
 };
@@ -329,29 +327,39 @@ export const tooltipRefItem = ({
         flex: true
     });
 
-    item.append(new Label({
-        class: 'title',
-        text: reference.title
-    }));
-    item.append(new Label({
-        class: 'subtitle',
-        text: reference.subTitle
-    }));
-    item.append(new Label({
-        class: 'desc',
-        text: reference.description,
-        unsafe: true
-    }));
-    item.append(new Label({
-        class: 'webgl2',
-        text: 'WebGL 2.0 Only',
-        hidden: !reference.webgl2
-    }));
-    item.append(new Label({
-        class: 'code',
-        text: reference.code,
-        hidden: !reference.code
-    }));
+    item.append(
+        new Label({
+            class: 'title',
+            text: reference.title
+        })
+    );
+    item.append(
+        new Label({
+            class: 'subtitle',
+            text: reference.subTitle
+        })
+    );
+    item.append(
+        new Label({
+            class: 'desc',
+            text: reference.description,
+            unsafe: true
+        })
+    );
+    item.append(
+        new Label({
+            class: 'webgl2',
+            text: 'WebGL 2.0 Only',
+            hidden: !reference.webgl2
+        })
+    );
+    item.append(
+        new Label({
+            class: 'code',
+            text: reference.code,
+            hidden: !reference.code
+        })
+    );
 
     const btnUrl = new Button({
         class: 'api',
@@ -402,14 +410,18 @@ export const tooltipOverrideItem = ({
         class: ['tooltip-override'],
         flex: true
     });
-    item.append(new Label({
-        class: 'title',
-        text: title
-    }));
-    item.append(new Label({
-        class: 'subtitle',
-        text: subTitle
-    }));
+    item.append(
+        new Label({
+            class: 'title',
+            text: title
+        })
+    );
+    item.append(
+        new Label({
+            class: 'subtitle',
+            text: subTitle
+        })
+    );
 
     const templates = editor.call('templates:findApplyCandidatesForOverride', override, entities, templateRoot);
     templates.forEach((template: Observer) => {

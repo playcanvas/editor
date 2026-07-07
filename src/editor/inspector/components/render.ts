@@ -1,135 +1,165 @@
 import type { ObserverList } from '@playcanvas/observer';
-import { Label, type Element as PcuiElement } from '@playcanvas/pcui';
+import { Label } from '@playcanvas/pcui';
+import type { Element as PcuiElement } from '@playcanvas/pcui';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
 import type { EntityObserver } from '@/editor-api';
 
-import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+import { ComponentInspector } from './component';
+import type { ComponentInspectorArgs } from './component';
 
-const ATTRIBUTES: Attribute[] = [{
-    label: 'Type',
-    path: 'components.render.type',
-    reference: 'render:type',
-    type: 'select',
-    args: {
-        type: 'string',
-        options: [{
-            v: 'asset', t: 'Asset'
-        }, {
-            v: 'box', t: 'Box'
-        }, {
-            v: 'capsule', t: 'Capsule'
-        }, {
-            v: 'sphere', t: 'Sphere'
-        }, {
-            v: 'cylinder', t: 'Cylinder'
-        }, {
-            v: 'cone', t: 'Cone'
-        }, {
-            v: 'plane', t: 'Plane'
-        }]
+const ATTRIBUTES: Attribute[] = [
+    {
+        label: 'Type',
+        path: 'components.render.type',
+        reference: 'render:type',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [
+                {
+                    v: 'asset',
+                    t: 'Asset'
+                },
+                {
+                    v: 'box',
+                    t: 'Box'
+                },
+                {
+                    v: 'capsule',
+                    t: 'Capsule'
+                },
+                {
+                    v: 'sphere',
+                    t: 'Sphere'
+                },
+                {
+                    v: 'cylinder',
+                    t: 'Cylinder'
+                },
+                {
+                    v: 'cone',
+                    t: 'Cone'
+                },
+                {
+                    v: 'plane',
+                    t: 'Plane'
+                }
+            ]
+        }
+    },
+    {
+        label: 'Asset',
+        path: 'components.render.asset',
+        reference: 'render:asset',
+        type: 'asset',
+        args: {
+            assetType: 'render'
+        }
+    },
+    {
+        label: 'Root Bone',
+        path: 'components.render.rootBone',
+        reference: 'render:rootBone',
+        type: 'entity'
+    },
+    {
+        label: 'Cast Shadows',
+        path: 'components.render.castShadows',
+        reference: 'render:castShadows',
+        type: 'boolean'
+    },
+    {
+        label: 'Cast Lightmap Shadows',
+        path: 'components.render.castShadowsLightmap',
+        reference: 'render:castShadowsLightmap',
+        type: 'boolean'
+    },
+    {
+        label: 'Receive Shadows',
+        path: 'components.render.receiveShadows',
+        reference: 'render:receiveShadows',
+        type: 'boolean'
+    },
+    {
+        label: 'Static',
+        path: 'components.render.isStatic',
+        reference: 'render:isStatic',
+        type: 'boolean'
+    },
+    {
+        label: 'Lightmapped',
+        path: 'components.render.lightmapped',
+        reference: 'render:lightmapped',
+        type: 'boolean'
+    },
+    {
+        label: 'Lightmap Size',
+        alias: 'components.render.lightmapSize',
+        type: 'label'
+    },
+    {
+        label: 'Lightmap Size Multiplier',
+        path: 'components.render.lightmapSizeMultiplier',
+        type: 'number',
+        args: {
+            min: 0
+        }
+    },
+    {
+        label: 'Custom AABB',
+        alias: 'components.render.customAabb',
+        reference: 'render:customAabb',
+        type: 'boolean',
+        args: {
+            renderChanges: false
+        }
+    },
+    {
+        label: 'AABB Center',
+        path: 'components.render.aabbCenter',
+        reference: 'render:aabbCenter',
+        type: 'vec3'
+    },
+    {
+        label: 'AABB Half Extents',
+        path: 'components.render.aabbHalfExtents',
+        reference: 'render:aabbHalfExtents',
+        type: 'vec3',
+        args: {
+            min: 0
+        }
+    },
+    {
+        label: 'Batch Group',
+        path: 'components.render.batchGroupId',
+        reference: 'render:batchGroupId',
+        type: 'batchgroup'
+    },
+    {
+        label: 'Layers',
+        path: 'components.render.layers',
+        reference: 'render:layers',
+        type: 'layers',
+        args: {
+            excludeLayers: [LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE]
+        }
+    },
+    {
+        label: 'Materials',
+        path: 'components.render.materialAssets',
+        reference: 'render:materialAssets',
+        type: 'array:asset',
+        args: {
+            assetType: 'material',
+            fixedSize: true
+        }
     }
-}, {
-    label: 'Asset',
-    path: 'components.render.asset',
-    reference: 'render:asset',
-    type: 'asset',
-    args: {
-        assetType: 'render'
-    }
-}, {
-    label: 'Root Bone',
-    path: 'components.render.rootBone',
-    reference: 'render:rootBone',
-    type: 'entity'
-}, {
-    label: 'Cast Shadows',
-    path: 'components.render.castShadows',
-    reference: 'render:castShadows',
-    type: 'boolean'
-}, {
-    label: 'Cast Lightmap Shadows',
-    path: 'components.render.castShadowsLightmap',
-    reference: 'render:castShadowsLightmap',
-    type: 'boolean'
-}, {
-    label: 'Receive Shadows',
-    path: 'components.render.receiveShadows',
-    reference: 'render:receiveShadows',
-    type: 'boolean'
-}, {
-    label: 'Static',
-    path: 'components.render.isStatic',
-    reference: 'render:isStatic',
-    type: 'boolean'
-}, {
-    label: 'Lightmapped',
-    path: 'components.render.lightmapped',
-    reference: 'render:lightmapped',
-    type: 'boolean'
-}, {
-    label: 'Lightmap Size',
-    alias: 'components.render.lightmapSize',
-    type: 'label'
-}, {
-    label: 'Lightmap Size Multiplier',
-    path: 'components.render.lightmapSizeMultiplier',
-    type: 'number',
-    args: {
-        min: 0
-    }
-}, {
-    label: 'Custom AABB',
-    alias: 'components.render.customAabb',
-    reference: 'render:customAabb',
-    type: 'boolean',
-    args: {
-        renderChanges: false
-    }
-}, {
-    label: 'AABB Center',
-    path: 'components.render.aabbCenter',
-    reference: 'render:aabbCenter',
-    type: 'vec3'
-}, {
-    label: 'AABB Half Extents',
-    path: 'components.render.aabbHalfExtents',
-    reference: 'render:aabbHalfExtents',
-    type: 'vec3',
-    args: {
-        min: 0
-    }
-}, {
-    label: 'Batch Group',
-    path: 'components.render.batchGroupId',
-    reference: 'render:batchGroupId',
-    type: 'batchgroup'
-}, {
-    label: 'Layers',
-    path: 'components.render.layers',
-    reference: 'render:layers',
-    type: 'layers',
-    args: {
-        excludeLayers: [
-            LAYERID_DEPTH,
-            LAYERID_SKYBOX,
-            LAYERID_IMMEDIATE
-        ]
-    }
-}, {
-    label: 'Materials',
-    path: 'components.render.materialAssets',
-    reference: 'render:materialAssets',
-    type: 'array:asset',
-    args: {
-        assetType: 'material',
-        fixedSize: true
-    }
-}];
+];
 
 class RenderComponentInspector extends ComponentInspector {
     _assets: ObserverList;
@@ -203,8 +233,10 @@ class RenderComponentInspector extends ComponentInspector {
         }
 
         binding.on('history:init', (context) => {
-            context.prevMaterials = context.observers.map(observer => observer.get('components.render.materialAssets'));
-            context.prevAssets = context.observers.map(observer => observer.get('components.render.asset'));
+            context.prevMaterials = context.observers.map((observer) =>
+                observer.get('components.render.materialAssets')
+            );
+            context.prevAssets = context.observers.map((observer) => observer.get('components.render.asset'));
         });
 
         binding.on('history:redo', (context) => {
@@ -271,11 +303,13 @@ class RenderComponentInspector extends ComponentInspector {
             let max = -Infinity;
             this._entities.forEach((e) => {
                 const lightmapped = this._field('lightmapped').value;
-                if (!lightmapped ||
-                    !e.entity || !e.entity.render ||
-                    !e.entity.render.asset && e.entity.render.type === 'asset' ||
-                    e.entity.render.asset && !app.assets.get(e.entity.render.asset)) {
-
+                if (
+                    !lightmapped ||
+                    !e.entity ||
+                    !e.entity.render ||
+                    (!e.entity.render.asset && e.entity.render.type === 'asset') ||
+                    (e.entity.render.asset && !app.assets.get(e.entity.render.asset))
+                ) {
                     return;
                 }
 
@@ -290,7 +324,7 @@ class RenderComponentInspector extends ComponentInspector {
             });
 
             if (min) {
-                value = (min !== max ? `${min} - ${max}` : min);
+                value = min !== max ? `${min} - ${max}` : min;
             }
         }
 
@@ -302,9 +336,11 @@ class RenderComponentInspector extends ComponentInspector {
 
         for (let i = 0; this._entities && i < this._entities.length && !missing; i++) {
             const e = this._entities[i];
-            if (!e.has('components.render') ||
+            if (
+                !e.has('components.render') ||
                 e.get('components.render.type') !== 'asset' ||
-                !e.get('components.render.asset')) {
+                !e.get('components.render.asset')
+            ) {
                 continue;
             }
 
@@ -339,13 +375,16 @@ class RenderComponentInspector extends ComponentInspector {
         this._field('asset').hidden = this._field('type').value !== 'asset';
 
         // Show Root Bone only if all selected entities have a skinned render asset
-        const showRootBone = (this._entities?.length > 0 && this._entities.every((e) => {
-            if (e.get('components.render.type') !== 'asset') {
-                return false;
-            }
-            const assetId = e.get('components.render.asset');
-            return assetId && this._assets.get(assetId)?.get('meta.skinned');
-        })) ?? false;
+        const showRootBone =
+            (this._entities?.length > 0 &&
+                this._entities.every((e) => {
+                    if (e.get('components.render.type') !== 'asset') {
+                        return false;
+                    }
+                    const assetId = e.get('components.render.asset');
+                    return assetId && this._assets.get(assetId)?.get('meta.skinned');
+                })) ??
+            false;
         this._field('rootBone').parent.hidden = !showRootBone;
 
         const customAabb = this._field('customAabb').value;
@@ -434,7 +473,6 @@ class RenderComponentInspector extends ComponentInspector {
         }
     }
 
-
     _refreshCustomAabb() {
         if (!this._entities) {
             return;
@@ -443,7 +481,7 @@ class RenderComponentInspector extends ComponentInspector {
         this._suppressCustomAabb = true;
         this._suppressToggleFields = true;
 
-        const customAabbs = this._entities.map(e => e.has('components.render.aabbCenter'));
+        const customAabbs = this._entities.map((e) => e.has('components.render.aabbCenter'));
         this._field('customAabb').values = customAabbs;
 
         this._suppressCustomAabb = false;
@@ -459,7 +497,7 @@ class RenderComponentInspector extends ComponentInspector {
 
         super.link(entities);
 
-        const customAabbs = this._entities.map(e => e.has('components.render.aabbCenter'));
+        const customAabbs = this._entities.map((e) => e.has('components.render.aabbCenter'));
         this._field('customAabb').values = customAabbs;
 
         entities.forEach((e) => {

@@ -1,5 +1,5 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { type Container, Label, type Panel } from '@playcanvas/pcui';
+import type { Container, Label, Panel } from '@playcanvas/pcui';
 
 import type { Attribute } from '@/editor/inspector/attribute.type.d';
 import { AttributesInspector } from '@/editor/inspector/attributes-inspector';
@@ -62,42 +62,48 @@ editor.once('load', () => {
         updateFrameCount();
 
         // Update number of frames when data.frames changes or when a new frame is added
-        events.push(atlasAsset.on('*:set', (path: string) => {
-            if (!/^data\.frames(?:\.\d+)?$/.test(path)) {
-                return;
-            }
+        events.push(
+            atlasAsset.on('*:set', (path: string) => {
+                if (!/^data\.frames(?:\.\d+)?$/.test(path)) {
+                    return;
+                }
 
-            // do this in a timeout to avoid updating
-            // when we add a lot of frames at once
-            if (!timeout) {
-                timeout = setTimeout(updateFrameCount);
-            }
-        }));
+                // do this in a timeout to avoid updating
+                // when we add a lot of frames at once
+                if (!timeout) {
+                    timeout = setTimeout(updateFrameCount);
+                }
+            })
+        );
 
         // Update number of frames when a frame is deleted
-        events.push(atlasAsset.on('*:unset', (path: string) => {
-            if (!/^data\.frames\.\d+$/.test(path)) {
-                return;
-            }
+        events.push(
+            atlasAsset.on('*:unset', (path: string) => {
+                if (!/^data\.frames\.\d+$/.test(path)) {
+                    return;
+                }
 
-            // do this in a timeout to avoid updating
-            // when we add a lot of frames at once
-            if (!timeout) {
-                timeout = setTimeout(updateFrameCount);
-            }
-        }));
+                // do this in a timeout to avoid updating
+                // when we add a lot of frames at once
+                if (!timeout) {
+                    timeout = setTimeout(updateFrameCount);
+                }
+            })
+        );
 
-        events.push(rootPanel.on('clear', () => {
-            if (timeout) {
-                clearTimeout(timeout);
-                timeout = null;
-            }
-            inspector.unlink();
-            inspector.destroy();
-        }));
+        events.push(
+            rootPanel.on('clear', () => {
+                if (timeout) {
+                    clearTimeout(timeout);
+                    timeout = null;
+                }
+                inspector.unlink();
+                inspector.destroy();
+            })
+        );
 
         inspector.once('destroy', () => {
-            events.forEach(event => event.unbind());
+            events.forEach((event) => event.unbind());
             events.length = 0;
         });
     });

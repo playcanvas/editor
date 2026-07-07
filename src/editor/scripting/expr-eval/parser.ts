@@ -31,7 +31,8 @@ const tokenize = (str: string): string[] => {
     // - logical/comparison/operators (&&, ||, ==, ===, !=, !==, <=, >=, <, >, +, -, *, /, !)
     // - identifiers (including underscores and $)
     // - strings in quotes (single or double)
-    const tokenPattern = /\s*(\d+\.\d*|\.\d+|\d+|[A-Z_$][\w$]*|\.|&&|\|\||===|!==|==|!=|<=|>=|[<>+\-*/!()[\]]|"[^"]*"|'[^']*')\s*/gi;
+    const tokenPattern =
+        /\s*(\d+\.\d*|\.\d+|\d+|[A-Z_$][\w$]*|\.|&&|\|\||===|!==|==|!=|<=|>=|[<>+\-*/!()[\]]|"[^"]*"|'[^']*')\s*/gi;
 
     const result = [];
     let match;
@@ -40,7 +41,6 @@ const tokenize = (str: string): string[] => {
     }
     return result;
 };
-
 
 // Utils
 const NUM_REGEXP = /^(?:\d*\.\d+|\d+\.\d*|\d+)$/;
@@ -56,10 +56,8 @@ const isNumber = (token: string): boolean => NUM_REGEXP.test(token);
  * @param token - Checks if the token is a string
  * @returns true if the token is a string, false otherwise
  */
-const isString = (token: string): boolean => (
-    (token.startsWith('"') && token.endsWith('"')) ||
-    (token.startsWith('\'') && token.endsWith('\''))
-);
+const isString = (token: string): boolean =>
+    (token.startsWith('"') && token.endsWith('"')) || (token.startsWith("'") && token.endsWith("'"));
 
 /**
  * Assumes string has quotation marks, and removes them
@@ -95,7 +93,6 @@ const isIdentifier = (token: string): boolean => IDENTIFIER_REGEXP.test(token);
  * @returns The parsed AST
  */
 const parseTokens = (tokens: string[]): ASTNode => {
-
     let position = 0;
 
     // Helper functions for navigating the tokens
@@ -104,7 +101,8 @@ const parseTokens = (tokens: string[]): ASTNode => {
     const peek = () => tokens[position];
     const isAtEnd = () => position >= tokens.length;
 
-    const match = (...expected: string[]) => {  // rest params in arrow - typedef applies to function expressions
+    const match = (...expected: string[]) => {
+        // rest params in arrow - typedef applies to function expressions
         if (!isAtEnd() && expected.includes(peek())) {
             position++;
             return true;
@@ -210,7 +208,6 @@ const parseTokens = (tokens: string[]): ASTNode => {
 
     // Member Expression Handling
     function parseMember() {
-
         // Start with a primary (number, string, identifier, or (expr))
         let node = parsePrimary();
 
@@ -218,7 +215,7 @@ const parseTokens = (tokens: string[]): ASTNode => {
         while (true) {
             if (match('.')) {
                 // object.prop
-                const propertyName = consumeIdentifier('Expected property name after \'.\'');
+                const propertyName = consumeIdentifier("Expected property name after '.'");
                 node = {
                     type: 'MemberExpression',
                     object: node,
@@ -228,7 +225,7 @@ const parseTokens = (tokens: string[]): ASTNode => {
             } else if (match('[')) {
                 // object[ expression ]
                 const propertyExpr = parseExpression(); // parse what's inside []
-                consume(']', 'Expected \']\' after property expression');
+                consume(']', "Expected ']' after property expression");
                 node = {
                     type: 'MemberExpression',
                     object: node,
@@ -245,7 +242,7 @@ const parseTokens = (tokens: string[]): ASTNode => {
     function parsePrimary() {
         if (match('(')) {
             const exprNode = parseExpression();
-            consume(')', 'Expected \')\' after expression');
+            consume(')', "Expected ')' after expression");
             return exprNode;
         }
 

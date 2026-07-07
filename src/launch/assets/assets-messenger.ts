@@ -1,7 +1,21 @@
 editor.once('load', () => {
     const validRuntimeAssets = new Set([
-        'animation', 'container', 'cubemap', 'css', 'gsplat', 'html', 'json', 'material',
-        'model', 'render', 'scene', 'script', 'sprite', 'text', 'texture', 'textureatlas'
+        'animation',
+        'container',
+        'cubemap',
+        'css',
+        'gsplat',
+        'html',
+        'json',
+        'material',
+        'model',
+        'render',
+        'scene',
+        'script',
+        'sprite',
+        'text',
+        'texture',
+        'textureatlas'
     ]);
 
     const create = (data: { asset: { id: number; source?: boolean; type: string; status?: string } }) => {
@@ -32,7 +46,7 @@ editor.once('load', () => {
     });
 
     // remove multiple
-    editor.on('messenger:assets.delete', (data: { assets: Array<string | number> }) => {
+    editor.on('messenger:assets.delete', (data: { assets: (string | number)[] }) => {
         data.assets.forEach((id: string | number) => {
             const asset = editor.call('assets:getUnique', Number(id));
             if (asset) {

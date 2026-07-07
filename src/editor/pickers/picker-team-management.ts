@@ -24,7 +24,7 @@ editor.once('load', () => {
         access_level: 'read',
         error: null
     };
-    const previousAccessLevels = {};  // store previous access levels so we can restore them in case of error
+    const previousAccessLevels = {}; // store previous access levels so we can restore them in case of error
 
     // UI
 
@@ -40,10 +40,14 @@ editor.once('load', () => {
         addMeAsAdminButton.enabled = false;
 
         // Update invite warning label
-        if (currentProject.access_level === 'none' || editor.call('picker:project:showNoAdmin', currentProject, collaborators)) {
+        if (
+            currentProject.access_level === 'none' ||
+            editor.call('picker:project:showNoAdmin', currentProject, collaborators)
+        ) {
             inviteInput.hidden = true;
             inviteSubmit.hidden = true;
-            inviteWarning.dom.innerHTML = 'You are not currently an admin for this project. Assign yourself as an admin to edit and manage this project';
+            inviteWarning.dom.innerHTML =
+                'You are not currently an admin for this project. Assign yourself as an admin to edit and manage this project';
 
             addMeAsAdminButton.hidden = false;
             addMeAsAdminButton.enabled = true;
@@ -54,16 +58,20 @@ editor.once('load', () => {
         } else if (!owner.limits || owner.plan_type === 'free') {
             // if organization does not belong to user or they are on a free account (limits only accessible to org owner)
             inviteWarning.dom.innerHTML = '';
-        } else if ((!owner.organization && owner.plan_type !== 'free') || (owner.organization && !currentProjectPrivate)) {
+        } else if (
+            (!owner.organization && owner.plan_type !== 'free') ||
+            (owner.organization && !currentProjectPrivate)
+        ) {
             inviteWarning.dom.innerHTML = 'Invite paid/personal organization users only.';
-        } else if (owner.organization && (collaborators.length - 1) < owner.limits.seats && collaborators.length < 60) {
+        } else if (owner.organization && collaborators.length - 1 < owner.limits.seats && collaborators.length < 60) {
             inviteWarning.dom.innerHTML = `Invite users who already occupy seats on your organization. New users will occupy 1 seat each once invites are accepted. This organization has <a class='warning-link--white' href='${config.url.home}/upgrade?account=${owner.username}' target='_blank'>${owner.limits.seats - (collaborators.length - 1)}/${owner.limits.seats} seats</a> left.`;
-        } else if (owner.organization && (collaborators.length - 1) === owner.limits.seats && collaborators.length < 60) {
+        } else if (owner.organization && collaborators.length - 1 === owner.limits.seats && collaborators.length < 60) {
             inviteWarning.dom.innerHTML = `Invite users who already occupy seats on your organization only. This organization has no remaining seats for new users. <a class='warning-link' href='${config.url.home}/upgrade?account=${owner.username}' target='_blank'>Buy more seats now</a>`;
         } else if (collaborators.length === 60) {
             inviteInput.hidden = true;
-            inviteSubmit.hidden = true;  // don't allow to invite any more members
-            inviteWarning.dom.innerHTML = 'This project has reached its max member capacity. Please remove inactive users to make space for more.';
+            inviteSubmit.hidden = true; // don't allow to invite any more members
+            inviteWarning.dom.innerHTML =
+                'This project has reached its max member capacity. Please remove inactive users to make space for more.';
         }
     };
 
@@ -71,7 +79,7 @@ editor.once('load', () => {
     const createCollaboratorUI = (collaborator) => {
         if (collaborator.inviter_id && currentUser.access_level !== 'admin') {
             return;
-        }  // don't display invitees to non-admin users
+        } // don't display invitees to non-admin users
 
         const isOwner = collaborator.username === owner.username;
         if (isOwner) {
@@ -126,7 +134,11 @@ editor.once('load', () => {
 
         const collaboratorSubtitle = new Label({
             class: 'collaborator-subtitle',
-            text: isOwner ? 'Project owner' : collaborator.inviter_id ? 'Invited user' : collaborator.full_name || collaborator.email || ''
+            text: isOwner
+                ? 'Project owner'
+                : collaborator.inviter_id
+                  ? 'Invited user'
+                  : collaborator.full_name || collaborator.email || ''
         });
         identity.dom.appendChild(collaboratorSubtitle.dom);
 
@@ -135,7 +147,11 @@ editor.once('load', () => {
         });
         parentContainer.dom.appendChild(accessCell.dom);
 
-        if (isOwner || collaborator.inviter_id || currentUser && (currentUser.id === collaborator.id || currentProject.access_level !== 'admin')) {
+        if (
+            isOwner ||
+            collaborator.inviter_id ||
+            (currentUser && (currentUser.id === collaborator.id || currentProject.access_level !== 'admin'))
+        ) {
             const accessLevelLabel = new Label({
                 class: isOwner ? ['team-pill', 'owner'] : ['team-pill', 'muted'],
                 text: isOwner ? 'Owner' : collaborator.organization ? 'Organization' : accessLabel
@@ -148,24 +164,30 @@ editor.once('load', () => {
             });
             accessLevelDropdown.on('click', () => {
                 roleMenu.clear();
-                [{
-                    v: 'read',
-                    t: 'Read Only'
-                }, {
-                    v: 'write',
-                    t: 'Read & Write'
-                }, {
-                    v: 'admin',
-                    t: 'Admin'
-                }].forEach((option) => {
-                    roleMenu.append(new MenuItem({
-                        text: option.t,
-                        class: option.v === collaborator.access_level ? 'selected' : '',
-                        onSelect: () => {
-                            accessLevelDropdown.text = option.t;
-                            updateCollaborator(collaborator, option.v);
-                        }
-                    }));
+                [
+                    {
+                        v: 'read',
+                        t: 'Read Only'
+                    },
+                    {
+                        v: 'write',
+                        t: 'Read & Write'
+                    },
+                    {
+                        v: 'admin',
+                        t: 'Admin'
+                    }
+                ].forEach((option) => {
+                    roleMenu.append(
+                        new MenuItem({
+                            text: option.t,
+                            class: option.v === collaborator.access_level ? 'selected' : '',
+                            onSelect: () => {
+                                accessLevelDropdown.text = option.t;
+                                updateCollaborator(collaborator, option.v);
+                            }
+                        })
+                    );
                 });
 
                 if (activeRoleButton && activeRoleButton !== accessLevelDropdown) {
@@ -213,9 +235,10 @@ editor.once('load', () => {
         if (isOwner) {
             deleteCollaboratorBtn.enabled = false;
         } else if (collaborator.username !== config.self.username) {
-            deleteCollaboratorBtn.enabled = currentProject.access_level === 'admin';  // only allow admins to remove collaborators
+            deleteCollaboratorBtn.enabled = currentProject.access_level === 'admin'; // only allow admins to remove collaborators
         } else {
-            deleteCollaboratorBtn.enabled = currentProject.owner !== config.self.username && currentProject.id !== config.project.id;
+            deleteCollaboratorBtn.enabled =
+                currentProject.owner !== config.self.username && currentProject.id !== config.project.id;
         }
 
         deleteCollaboratorBtn.on('click', () => {
@@ -311,7 +334,7 @@ editor.once('load', () => {
 
     const inviteWarning = new Label({
         class: 'invite-warning',
-        text: ''  // by default no label under invite input
+        text: '' // by default no label under invite input
     });
     inviteInputContainer.append(inviteWarning);
 
@@ -396,17 +419,23 @@ editor.once('load', () => {
             user: config.self.username,
             access_level: 'admin'
         };
-        editor.call('users:createCollaborator', project.id, newCollaborator, () => {
-            project.permissions.admin.push(config.self.username);
-            collaborators.push(config.self.username);
-            project.access_level = 'admin';
-            addMeAsAdminButton.hidden = true;
-            editor.call('picker:project:close');
-            editor.call('picker:project:reduced', currentProject);
-            editor.call('picker:project:cms:refreshProjects');
-        }, (err) => {
-            editor.call('picker:project:buildAlert', panel, err);
-        });
+        editor.call(
+            'users:createCollaborator',
+            project.id,
+            newCollaborator,
+            () => {
+                project.permissions.admin.push(config.self.username);
+                collaborators.push(config.self.username);
+                project.access_level = 'admin';
+                addMeAsAdminButton.hidden = true;
+                editor.call('picker:project:close');
+                editor.call('picker:project:reduced', currentProject);
+                editor.call('picker:project:cms:refreshProjects');
+            },
+            (err) => {
+                editor.call('picker:project:buildAlert', panel, err);
+            }
+        );
     };
 
     // creates a collaborator in the database through API call and calls createCollaboratorUI to render it on screen
@@ -414,44 +443,56 @@ editor.once('load', () => {
         if (newCollaborator.user && canAddCollaborator()) {
             const newUsername = newCollaborator.user;
 
-            editor.call('users:createCollaborator', currentProject.id, newCollaborator, (result) => {
-                let added = false;
-                newCollaborator.user = null;
-                newCollaborator.error = null;
+            editor.call(
+                'users:createCollaborator',
+                currentProject.id,
+                newCollaborator,
+                (result) => {
+                    let added = false;
+                    newCollaborator.user = null;
+                    newCollaborator.error = null;
 
-                // update existing or add new one
-                collaborators.forEach((collaborator) => {
-                    if (collaborator.username === result.username) {
-                        added = true;
-                        editor.call('picker:project:buildAlert', panel, 'TEAM ERROR: User already exists');
-                    }
-                });
-
-                if (!added) {
-                    collaborators.push(result);
-                    createCollaboratorUI(result);
-                }
-
-                updateLabels();
-
-                previousAccessLevels[result.username] = result.access_level;
-
-            }, (status, error) => {
-                // if the collaborator was not found and this is email,
-                // send an email invitation
-                if (status === 404 && /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/.test(newUsername)) {
-                    editor.call('projects:createInvitation', currentProject, newUsername, 'read', (invitation) => {
-                        newCollaborator.user = null;
-                        invitations.push(invitation);
-
-                        createCollaboratorUI(invitation);
-                    }, (error) => {
-                        handleTeamError(status, error);
+                    // update existing or add new one
+                    collaborators.forEach((collaborator) => {
+                        if (collaborator.username === result.username) {
+                            added = true;
+                            editor.call('picker:project:buildAlert', panel, 'TEAM ERROR: User already exists');
+                        }
                     });
-                } else {
-                    handleTeamError(status, error);
+
+                    if (!added) {
+                        collaborators.push(result);
+                        createCollaboratorUI(result);
+                    }
+
+                    updateLabels();
+
+                    previousAccessLevels[result.username] = result.access_level;
+                },
+                (status, error) => {
+                    // if the collaborator was not found and this is email,
+                    // send an email invitation
+                    if (status === 404 && /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/.test(newUsername)) {
+                        editor.call(
+                            'projects:createInvitation',
+                            currentProject,
+                            newUsername,
+                            'read',
+                            (invitation) => {
+                                newCollaborator.user = null;
+                                invitations.push(invitation);
+
+                                createCollaboratorUI(invitation);
+                            },
+                            (error) => {
+                                handleTeamError(status, error);
+                            }
+                        );
+                    } else {
+                        handleTeamError(status, error);
+                    }
                 }
-            });
+            );
         }
     };
 
@@ -461,13 +502,19 @@ editor.once('load', () => {
             const previousAccessLevel = collaborator.access_level;
             collaborator.access_level = access_level;
             const index = collaborators.indexOf(collaborator);
-            editor.call('users:updateCollaboratorAccess', currentProject.id, collaborator, (result) => {
-                collaborators[index] = result;
-                previousAccessLevels[collaborator.username] = result.access_level;
-            }, (status, error) => {
-                handleTeamError(status, error);
-                collaborator.access_level = previousAccessLevel;
-            });
+            editor.call(
+                'users:updateCollaboratorAccess',
+                currentProject.id,
+                collaborator,
+                (result) => {
+                    collaborators[index] = result;
+                    previousAccessLevels[collaborator.username] = result.access_level;
+                },
+                (status, error) => {
+                    handleTeamError(status, error);
+                    collaborator.access_level = previousAccessLevel;
+                }
+            );
         }
     };
 
@@ -481,20 +528,39 @@ editor.once('load', () => {
             if (!text) {
                 text = 'You do not have permission to edit the team';
             } else if (text === 'Could not retrieve customer') {
-                editor.call('picker:project:buildAlert', panel, 'You do not have a credit card on your account', true, 'UPGRADE', { url: `${config.url.home}/upgrade` });
+                editor.call(
+                    'picker:project:buildAlert',
+                    panel,
+                    'You do not have a credit card on your account',
+                    true,
+                    'UPGRADE',
+                    { url: `${config.url.home}/upgrade` }
+                );
             }
         }
 
         if (text === 'Reached seats limit' || /reached the user limit/.test(text)) {
             if (owner.plan_type === 'org') {
                 // show charge popup
-                editor.call('picker:project:buildAlert', panel, errorMessage, true, 'BUY SEAT', { currentUser: owner, errorCallback: handleTeamError });
+                editor.call('picker:project:buildAlert', panel, errorMessage, true, 'BUY SEAT', {
+                    currentUser: owner,
+                    errorCallback: handleTeamError
+                });
             } else {
                 // show upgrade
-                editor.call('picker:project:buildAlert', panel, errorMessage, true, 'UPGRADE', { url: `${config.url.home}/upgrade` });
+                editor.call('picker:project:buildAlert', panel, errorMessage, true, 'UPGRADE', {
+                    url: `${config.url.home}/upgrade`
+                });
             }
         } else if (status === 400 && text === 'Could not retrieve customer') {
-            editor.call('picker:project:buildAlert', panel, 'You do not have a credit card on your account', true, 'UPGRADE', { url: `${config.url.home}/upgrade` });
+            editor.call(
+                'picker:project:buildAlert',
+                panel,
+                'You do not have a credit card on your account',
+                true,
+                'UPGRADE',
+                { url: `${config.url.home}/upgrade` }
+            );
         } else {
             editor.call('picker:project:buildAlert', panel, errorMessage);
         }
@@ -595,7 +661,6 @@ editor.once('load', () => {
 
             // Only populate first time around
             if (currentProject.access_level !== 'none' && refreshTeam) {
-
                 let currentUserIsCollaborator = false;
                 editor.call('projects:getCollaborators', currentProject, (data) => {
                     data.forEach((collaborator) => {
@@ -613,28 +678,32 @@ editor.once('load', () => {
                     sortCollaborators();
                     if (currentUser && currentUserIsCollaborator) {
                         collaborators.unshift(currentUser);
-                    }  // add current user to top of list (if not organization account)
+                    } // add current user to top of list (if not organization account)
 
                     updateLabels();
 
-                    editor.call('projects:invitations', { project: currentProject, pending: true }, (apiInvitations) => {
-                        invitations = apiInvitations;
+                    editor.call(
+                        'projects:invitations',
+                        { project: currentProject, pending: true },
+                        (apiInvitations) => {
+                            invitations = apiInvitations;
 
-                        collaborators.forEach((collaborator) => {
-                            createCollaboratorUI(collaborator);
-                        });
-
-                        // only display invited collaborators if current user is admin
-                        if (currentProject.access_level === 'admin') {
-                            invitations.forEach((invitation) => {
-                                createCollaboratorUI(invitation);
+                            collaborators.forEach((collaborator) => {
+                                createCollaboratorUI(collaborator);
                             });
-                        }
 
-                    }, (err) => {
-                        invitations = [];
-                        editor.call('picker:project:buildAlert', panel, err);
-                    });
+                            // only display invited collaborators if current user is admin
+                            if (currentProject.access_level === 'admin') {
+                                invitations.forEach((invitation) => {
+                                    createCollaboratorUI(invitation);
+                                });
+                            }
+                        },
+                        (err) => {
+                            invitations = [];
+                            editor.call('picker:project:buildAlert', panel, err);
+                        }
+                    );
                 });
 
                 uiRefresh = false;
@@ -693,5 +762,4 @@ editor.once('load', () => {
         inviteInput.enabled = currentProject.access_level === 'admin';
         inviteSubmit.enabled = currentProject.access_level === 'admin';
     });
-
 });

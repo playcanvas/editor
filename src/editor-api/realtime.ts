@@ -45,5 +45,4 @@ class Realtime extends Events {
     }
 }
 
-
 export { Realtime };

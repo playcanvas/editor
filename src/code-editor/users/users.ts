@@ -1,6 +1,6 @@
 editor.once('load', () => {
-    const users = { };
-    const userRequests = { };
+    const users = {};
+    const userRequests = {};
 
     // Loads a user from the server
     editor.method('users:loadOne', (id, callback) => {
@@ -14,12 +14,12 @@ editor.once('load', () => {
 
         userRequests[id] = [callback];
 
-        editor.api.globals.rest.users.userGet(id)
-        .on('load', (status, data) => {
+        editor.api.globals.rest.users.userGet(id).on('load', (status, data) => {
             users[id] = data;
 
             for (let i = 0; i < userRequests[id].length; i++) {
-                userRequests[id][i](data);
+                const request = userRequests[id][i];
+                request(data);
             }
 
             delete userRequests[id];

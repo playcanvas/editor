@@ -1,9 +1,10 @@
 import type { EventHandle } from '@playcanvas/observer';
 
-import { findEntityReferencesInComponents, updateReferences } from './references';
-import { Entity } from '../entity';
+import type { Entity } from '../entity';
 import { globals as api } from '../globals';
 import { Guid } from '../guid';
+
+import { findEntityReferencesInComponents, updateReferences } from './references';
 
 const TIME_WAIT_ENTITIES = 5000;
 let evtMessenger: EventHandle = null;
@@ -19,7 +20,11 @@ const USE_BACKEND_LIMIT = 500;
  * @param oldEntity - The old entity
  * @param duplicatedIdsMap - Map of old id -> new id
  */
-function updateDuplicatedEntityReferences(newEntity: Entity, oldEntity: Entity, duplicatedIdsMap: Record<string, string>) {
+function updateDuplicatedEntityReferences(
+    newEntity: Entity,
+    oldEntity: Entity,
+    duplicatedIdsMap: Record<string, string>
+) {
     // remap template_ent_ids for template instances
     newEntity.depthFirst((entity: Entity) => {
         const templateEntIds = entity.get('template_ent_ids');
@@ -84,9 +89,9 @@ function splitEntityNameAndNumber(entityName: string) {
 }
 
 function isEntityNameTaken(name: string, entities: Entity[]) {
-    for (let j = 0; j < entities.length; j++) {
-        const entity = entities[j];
-        const entityName = entities[j].get('name');
+    for (let i = 0; i < entities.length; i++) {
+        const entity = entities[i];
+        const entityName = entity.get('name');
         if (entity && entityName === name) {
             return true;
         }
@@ -116,7 +121,13 @@ function getUniqueNameForDuplicatedEntity(entityName: string, entities: Entity[]
  * @param useUniqueName - Controls whether duplicated entity will have a unique name
  * @returns The new entity
  */
-function duplicateEntity(entity: Entity, parent: Entity, ind: number, duplicatedIdsMap: Record<string, string>, useUniqueName: boolean = false) {
+function duplicateEntity(
+    entity: Entity,
+    parent: Entity,
+    ind: number,
+    duplicatedIdsMap: Record<string, string>,
+    useUniqueName = false
+) {
     const originalResourceId = entity.get('resource_id');
     const data = entity.json() as Record<string, any>;
     const children = data.children;
@@ -162,7 +173,6 @@ function duplicateInBackend(entities: Entity[], options: { history?: boolean } =
         reject: null
     };
 
-
     const promise = new Promise<Entity[]>((resolve, reject) => {
         deferred.resolve = resolve;
         deferred.reject = reject;
@@ -175,7 +185,7 @@ function duplicateInBackend(entities: Entity[], options: { history?: boolean } =
                 return;
             }
 
-            const result = data.multTaskResults.map((d: { newRootId: any; }) => d.newRootId);
+            const result = data.multTaskResults.map((d: { newRootId: any }) => d.newRootId);
             callback(result);
         });
     }
@@ -246,7 +256,10 @@ function duplicateInBackend(entities: Entity[], options: { history?: boolean } =
  * @param options.rename - Whether to rename the duplicated entities. Defaults to false.
  * @returns The duplicated entities
  */
-async function duplicateEntities(entities: Entity[], options: { history?: boolean, select?: boolean, rename?: boolean } = {}) {
+async function duplicateEntities(
+    entities: Entity[],
+    options: { history?: boolean; select?: boolean; rename?: boolean } = {}
+) {
     // copy entities for safety in undo / redo
     entities = entities.slice();
 
@@ -366,7 +379,7 @@ async function duplicateEntities(entities: Entity[], options: { history?: boolea
                     }
                 },
                 redo: () => {
-                    function recreateEntityData(data: { children: any[]; }) {
+                    function recreateEntityData(data: { children: any[] }) {
                         data = Object.assign({}, data);
                         data.children = data.children.map((id: string) => recreateEntityData(previous[id]));
                         return data;

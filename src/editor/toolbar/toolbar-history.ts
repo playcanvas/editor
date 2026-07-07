@@ -38,7 +38,6 @@ editor.once('load', () => {
         tooltipUndo.class.add('inactive');
     }
 
-
     // redo
     const buttonRedo = new Button({
         class: 'pc-icon',

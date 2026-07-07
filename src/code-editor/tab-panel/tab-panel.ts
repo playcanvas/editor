@@ -1,4 +1,4 @@
-import { type Observer } from '@playcanvas/observer';
+import type { Observer } from '@playcanvas/observer';
 import { Button, Container, Label, Progress } from '@playcanvas/pcui';
 
 editor.once('load', () => {
@@ -45,7 +45,6 @@ editor.once('load', () => {
                 entry.tab.class.add('dirty');
             } else {
                 entry.tab.class.remove('dirty');
-
             }
         }
     };
@@ -163,7 +162,6 @@ editor.once('load', () => {
             for (let i = index + 1, len = tabOrder.length; i < len; i++) {
                 const el = tabOrder[i].tab.dom;
                 if (tabPositions[i] < x + width / 2) {
-
                     // swap DOM
                     panel.appendAfter(grabbedTab.tab, tabOrder[i].tab);
 
@@ -191,11 +189,12 @@ editor.once('load', () => {
         grabbedTab.tab.class.remove('grabbed');
 
         for (let i = 0; i < tabOrder.length; i++) {
-            tabOrder[i].tab.style.position = '';
-            tabOrder[i].tab.style.left = '';
-            tabOrder[i].tab.style.top = '';
-            tabOrder[i].tab.style.width = '';
-            tabOrder[i].tab.class.remove('animated');
+            const entry = tabOrder[i];
+            entry.tab.style.position = '';
+            entry.tab.style.left = '';
+            entry.tab.style.top = '';
+            entry.tab.style.width = '';
+            entry.tab.class.remove('animated');
         }
 
         editor.emit('tabs:reorder', grabbedTab, tabOrder);
@@ -204,7 +203,18 @@ editor.once('load', () => {
         tabPositions.length = 0;
     };
 
-    const grabTab = function (tab: { id: string; tab: { dom: HTMLElement; style: { left: string }; class: { add: (s: string) => void; remove: (s: string) => void } }; asset?: Observer }, e: MouseEvent) {
+    const grabTab = function (
+        tab: {
+            id: string;
+            tab: {
+                dom: HTMLElement;
+                style: { left: string };
+                class: { add: (s: string) => void; remove: (s: string) => void };
+            };
+            asset?: Observer;
+        },
+        e: MouseEvent
+    ) {
         grabbedTab = tab;
 
         grabbedMouseX = e.clientX;
@@ -215,8 +225,9 @@ editor.once('load', () => {
         // changing them
         const widths = [];
         for (let i = 0; i < tabOrder.length; i++) {
-            tabPositions.push(tabOrder[i].tab.dom.offsetLeft);
-            widths.push(tabOrder[i].tab.dom.offsetWidth);
+            const entry = tabOrder[i];
+            tabPositions.push(entry.tab.dom.offsetLeft);
+            widths.push(entry.tab.dom.offsetWidth);
         }
 
         for (let i = 0; i < tabOrder.length; i++) {
@@ -235,12 +246,12 @@ editor.once('load', () => {
             }
 
             for (let i = 0; i < tabOrder.length; i++) {
-                if (tabOrder[i] !== grabbedTab) {
-                    tabOrder[i].tab.class.add('animated');
+                const entry = tabOrder[i];
+                if (entry !== grabbedTab) {
+                    entry.tab.class.add('animated');
                 }
             }
         });
-
 
         grabbedTab.tab.class.add('grabbed');
 
@@ -405,7 +416,6 @@ editor.once('load', () => {
         const isNew = !tabsIndex[id];
 
         if (isNew) {
-
             // if we have a global error skip opening a new tab
             if (editor.call('errors:hasRealtime')) {
                 return;
@@ -440,7 +450,6 @@ editor.once('load', () => {
     editor.on('documents:load', (_doc: unknown, asset: Observer, _docEntry?: unknown) => {
         toggleProgress(asset.get('id'), false);
     });
-
 
     // Make temporary tab stick and not be in preview mode anymore
     editor.method('tabs:temp:stick', () => {

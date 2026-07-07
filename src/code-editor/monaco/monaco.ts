@@ -115,15 +115,18 @@ editor.once('load', () => {
 
     // add playcanvas typescript definitions
     const typesURL = config.url.engine.replace(/(\.min|\.dbg|\.prf)?\.js$/, '.d.ts');
-    fetch(typesURL).then((response) => {
-        if (response.ok) {
-            response.text().then((code) => {
-                monaco.languages.typescript.javascriptDefaults.addExtraLib(code, 'playcanvas.d.ts');
-            });
-        }
-    }).catch((err) => {
-        log.error`failed to fetch engine type definitions: ${typesURL}: ${err}`;
-    });
+    fetch(typesURL)
+        .then((response) => {
+            if (response.ok) {
+                response.text().then((code) => {
+                    monaco.languages.typescript.javascriptDefaults.addExtraLib(code, 'playcanvas.d.ts');
+                });
+            }
+        })
+        .catch((err) => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- tagged template call sets sentry fingerprint for grouping
+            log.error`failed to fetch engine type definitions: ${typesURL}: ${err}`;
+        });
 
     // hide initially
     panel.toggleCode(false);

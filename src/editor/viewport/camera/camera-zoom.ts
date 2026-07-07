@@ -1,4 +1,5 @@
-import { type Application, BoundingBox, PROJECTION_PERSPECTIVE, Vec2, Vec3 } from 'playcanvas';
+import { BoundingBox, PROJECTION_PERSPECTIVE, Vec2, Vec3 } from 'playcanvas';
+import type { Application } from 'playcanvas';
 
 import type { ViewportTap } from '../viewport-tap';
 
@@ -80,7 +81,7 @@ editor.once('viewport:load', (app: Application) => {
 
                             // cache and recalculate aabb only periodically
                             if (selectorLastType === 'entity') {
-                                if ((Date.now() - aabbSelectionLast > 1000)) {
+                                if (Date.now() - aabbSelectionLast > 1000) {
                                     aabbSelectionLast = Date.now();
                                     aabb = editor.call('selection:aabb');
                                     if (aabb) {
@@ -92,12 +93,15 @@ editor.once('viewport:load', (app: Application) => {
                             }
 
                             if (aabb) {
-                                distance = Math.max(1, Math.min(zoomMax, aabb.center.clone().sub(camera.getPosition()).length()));
+                                distance = Math.max(
+                                    1,
+                                    Math.min(zoomMax, aabb.center.clone().sub(camera.getPosition()).length())
+                                );
                             } else {
                                 // nothing selected, then size of aabb of scene or distance to center of aabb
                                 const root = editor.call('entities:root');
                                 if (root) {
-                                    if ((Date.now() - aabbRootLast) > 1000) {
+                                    if (Date.now() - aabbRootLast > 1000) {
                                         aabbRootLast = Date.now();
                                         aabbRoot.copy(editor.call('entities:aabb', root));
                                     }
@@ -106,7 +110,10 @@ editor.once('viewport:load', (app: Application) => {
                                 aabb = aabbRoot;
 
                                 if (root) {
-                                    distance = Math.max(aabb.halfExtents.length(), aabb.center.clone().sub(camera.getPosition()).length());
+                                    distance = Math.max(
+                                        aabb.halfExtents.length(),
+                                        aabb.center.clone().sub(camera.getPosition()).length()
+                                    );
                                     distance = Math.max(1, Math.min(zoomMax, distance));
                                 }
                             }
@@ -154,7 +161,7 @@ editor.once('viewport:load', (app: Application) => {
 
         altKey = evt.altKey;
 
-        const delta = (evt.deltaY > 0) ? -2 : (evt.deltaY < 0) ? 2 : 0;
+        const delta = evt.deltaY > 0 ? -2 : evt.deltaY < 0 ? 2 : 0;
 
         if (delta !== 0) {
             editor.call('camera:focus:stop');
@@ -165,7 +172,7 @@ editor.once('viewport:load', (app: Application) => {
 
             // Detect whether user is using trackpad
             if (evt.ctrlKey) {
-                evt.preventDefault();  // Prevent pinch to zoom browser functionality
+                evt.preventDefault(); // Prevent pinch to zoom browser functionality
             }
 
             const speed = delta * (altKey ? zoomSpeedFast : zoomSpeed);

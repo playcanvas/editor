@@ -3,15 +3,17 @@ import { Container } from '@playcanvas/pcui';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
 
-import { BaseSettingsPanel, type BaseSettingsPanelArgs } from './base';
+import type { Attribute } from '../attribute.type.d';
+
+import { BaseSettingsPanel } from './base';
+import type { BaseSettingsPanelArgs } from './base';
 import { LayersSettingsPanelLayerPanel } from './layers-layer-panel';
 import { LayersSettingsPanelRenderOrderPanel } from './layers-render-order';
-import type { Attribute } from '../attribute.type.d';
 
 const CLASS_ROOT = 'layers-settings-panel';
 const CLASS_LAYERS_CONTAINER = `${CLASS_ROOT}-layers-container`;
 
-const htmlSymbols = ['\'', '\\', '/', '"', '<', '>', '&', '`', '='];
+const htmlSymbols = ["'", '\\', '/', '"', '<', '>', '&', '`', '='];
 
 const ATTRIBUTES: Attribute[] = [
     {
@@ -20,7 +22,7 @@ const ATTRIBUTES: Attribute[] = [
         type: 'string',
         args: {
             placeholder: 'Name',
-            onValidate: value => !!value && !htmlSymbols.some(symbol => value.includes(symbol))
+            onValidate: (value) => !!value && !htmlSymbols.some((symbol) => value.includes(symbol))
         }
     },
     {
@@ -34,7 +36,7 @@ const ATTRIBUTES: Attribute[] = [
     }
 ];
 
-const DOM = args => [
+const DOM = (args) => [
     {
         layersContainer: new Container({
             class: CLASS_LAYERS_CONTAINER
@@ -71,17 +73,21 @@ class LayersSettingsPanel extends BaseSettingsPanel {
 
         this._loadLayers();
 
-        this._layerEvents.push(this._projectSettings.on('*:set', () => {
-            this._loadLayers();
-        }));
-        this._layerEvents.push(this._projectSettings.on('*:unset', () => {
-            this._loadLayers();
-        }));
+        this._layerEvents.push(
+            this._projectSettings.on('*:set', () => {
+                this._loadLayers();
+            })
+        );
+        this._layerEvents.push(
+            this._projectSettings.on('*:unset', () => {
+                this._loadLayers();
+            })
+        );
     }
 
     _addLayer() {
         const layerNameField = this._attributesInspector.getField('newLayer');
-        if (layerNameField.value === '' || htmlSymbols.some(symbol => layerNameField.value.includes(symbol))) {
+        if (layerNameField.value === '' || htmlSymbols.some((symbol) => layerNameField.value.includes(symbol))) {
             layerNameField.class.add(CLASS_ERROR);
             return;
         }
@@ -157,7 +163,7 @@ class LayersSettingsPanel extends BaseSettingsPanel {
         this._layerPanels = keepLayerPanels;
 
         Object.keys(layers).forEach((layerKey) => {
-            let layerPanel = this._layerPanels.find(layerPanel => layerPanel.layerKey === layerKey);
+            let layerPanel = this._layerPanels.find((layerPanel) => layerPanel.layerKey === layerKey);
             if (!layerPanel) {
                 layerPanel = new LayersSettingsPanelLayerPanel({
                     history: this._args.history,

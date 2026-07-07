@@ -49,17 +49,17 @@ const color = {
      * @param {string} s - Text to wrap.
      * @returns {string} Bold ANSI string.
      */
-    bold: s => `\x1b[1m${s}\x1b[22m`,
+    bold: (s) => `\x1b[1m${s}\x1b[22m`,
     /**
      * @param {string} s - Text to wrap.
      * @returns {string} Cyan ANSI string.
      */
-    cyan: s => `\x1b[36m${s}\x1b[39m`,
+    cyan: (s) => `\x1b[36m${s}\x1b[39m`,
     /**
      * @param {string} s - Text to wrap.
      * @returns {string} Green ANSI string.
      */
-    green: s => `\x1b[32m${s}\x1b[39m`
+    green: (s) => `\x1b[32m${s}\x1b[39m`
 };
 
 /**
@@ -90,24 +90,26 @@ const SASS_OUT_DIR = 'dist/css';
  * Compiles all top-level .scss files in SASS_DIR through sass-embedded + postcss/autoprefixer.
  */
 const compileSass = async () => {
-    const files = fs.readdirSync(SASS_DIR).filter(f => f.endsWith('.scss'));
+    const files = fs.readdirSync(SASS_DIR).filter((f) => f.endsWith('.scss'));
     const processor = postcss([autoprefixer]);
 
-    await Promise.all(files.map(async (file) => {
-        const src = `${SASS_DIR}/${file}`;
-        const dest = `${SASS_OUT_DIR}/${file.replace('.scss', '.css')}`;
+    await Promise.all(
+        files.map(async (file) => {
+            const src = `${SASS_DIR}/${file}`;
+            const dest = `${SASS_OUT_DIR}/${file.replace('.scss', '.css')}`;
 
-        console.log(color.cyan(`${color.bold(src)} \u2192 ${color.bold(dest)}...`));
-        const t0 = performance.now();
+            console.log(color.cyan(`${color.bold(src)} \u2192 ${color.bold(dest)}...`));
+            const t0 = performance.now();
 
-        const compiled = await sass.compileAsync(src, { style: 'compressed', logger: sass.Logger.silent });
-        const result = await processor.process(compiled.css, { from: undefined });
+            const compiled = await sass.compileAsync(src, { style: 'compressed', logger: sass.Logger.silent });
+            const result = await processor.process(compiled.css, { from: undefined });
 
-        fs.mkdirSync(SASS_OUT_DIR, { recursive: true });
-        fs.writeFileSync(dest, result.css);
+            fs.mkdirSync(SASS_OUT_DIR, { recursive: true });
+            fs.writeFileSync(dest, result.css);
 
-        console.log(color.green(`created ${color.bold(dest)} in ${color.bold(ts(performance.now() - t0))}`));
-    }));
+            console.log(color.green(`created ${color.bold(dest)} in ${color.bold(ts(performance.now() - t0))}`));
+        })
+    );
 };
 
 /**
@@ -116,11 +118,11 @@ const compileSass = async () => {
  * @param {string[]} modules - Module names to stub.
  * @returns {object} An esbuild plugin.
  */
-const emptyNodeModulesPlugin = modules => ({
+const emptyNodeModulesPlugin = (modules) => ({
     name: 'empty-node-modules',
     setup(build) {
         const filter = new RegExp(`^(node:)?(${modules.join('|')})$`);
-        build.onResolve({ filter }, args => ({
+        build.onResolve({ filter }, (args) => ({
             path: args.path,
             namespace: 'empty-node-module'
         }));
@@ -142,7 +144,12 @@ const replacePlugin = () => ({
     setup(build) {
         build.onLoad({ filter: /\.[jt]sx?$/ }, async (args) => {
             // skip deps and standalone bundles that don't use pcui fonts
-            if (args.path.includes('node_modules') || args.path.includes('/workers/') || args.path.includes('/plugins/') || args.path.includes('/sw/')) {
+            if (
+                args.path.includes('node_modules') ||
+                args.path.includes('/workers/') ||
+                args.path.includes('/plugins/') ||
+                args.path.includes('/sw/')
+            ) {
                 return;
             }
             const src = await fs.promises.readFile(args.path, 'utf8');
@@ -163,20 +170,20 @@ const replacePlugin = () => ({
  * @param {Record<string, string>} globals - Map of module name to global variable expression.
  * @returns {object} An esbuild plugin.
  */
-const globalExternalsPlugin = globals => ({
+const globalExternalsPlugin = (globals) => ({
     name: 'global-externals',
     setup(build) {
         const filter = new RegExp(
             `^(${Object.keys(globals)
-            .map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-            .join('|')})$`
+                .map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+                .join('|')})$`
         );
         // redirect matched imports to a synthetic module that re-exports the global
-        build.onResolve({ filter }, args => ({
+        build.onResolve({ filter }, (args) => ({
             path: args.path,
             namespace: 'global-external'
         }));
-        build.onLoad({ filter: /.*/, namespace: 'global-external' }, args => ({
+        build.onLoad({ filter: /.*/, namespace: 'global-external' }, (args) => ({
             contents: `module.exports = ${globals[args.path]};`,
             loader: 'js'
         }));
@@ -275,7 +282,7 @@ const PAGE_TARGETS = [
 
 // auto-discover plugin/worker/sw entries from their directories
 /** @type {BuildOptions[]} */
-const PLUGIN_TARGETS = fs.readdirSync('src/plugins').map(file => ({
+const PLUGIN_TARGETS = fs.readdirSync('src/plugins').map((file) => ({
     ...shared,
     entryPoints: [`src/plugins/${file}`],
     outfile: `dist/js/plugins/${file.replace(/\.ts$/, '.js')}`,
@@ -284,7 +291,7 @@ const PLUGIN_TARGETS = fs.readdirSync('src/plugins').map(file => ({
 }));
 
 /** @type {BuildOptions[]} */
-const WORKER_TARGETS = fs.readdirSync('src/workers').map(file => ({
+const WORKER_TARGETS = fs.readdirSync('src/workers').map((file) => ({
     ...shared,
     entryPoints: [`src/workers/${file}`],
     outfile: `dist/js/${file.replace(/\.ts$/, '.js')}`,
@@ -293,7 +300,7 @@ const WORKER_TARGETS = fs.readdirSync('src/workers').map(file => ({
 }));
 
 /** @type {BuildOptions[]} */
-const SERVICE_WORKER_TARGETS = fs.readdirSync('src/sw').map(file => ({
+const SERVICE_WORKER_TARGETS = fs.readdirSync('src/sw').map((file) => ({
     ...shared,
     entryPoints: [`src/sw/${file}`],
     outfile: `dist/js/${file.replace(/\.ts$/, '.js')}`,
@@ -380,44 +387,50 @@ const esbuildBundlePlugin = () => {
             // so we can print the summary after all initial builds are done
             const firstBuildDone = [];
 
-            const results = await Promise.all(configs.map(async (config) => {
-                const input = config.entryPoints[0];
-                const output = /** @type {string} */ (config.outfile || config.outdir);
-                const existing = config.plugins || [];
+            const results = await Promise.all(
+                configs.map(async (config) => {
+                    const input = config.entryPoints[0];
+                    const output = /** @type {string} */ (config.outfile || config.outdir);
+                    const existing = config.plugins || [];
 
-                if (isWatch) {
-                    // ctx.watch() resolves immediately — use a one-shot onEnd to track completion
-                    let resolveFirst;
-                    firstBuildDone.push(new Promise((r) => {
-                        resolveFirst = r;
-                    }));
-                    const onFirstBuild = {
-                        name: 'first-build-done',
-                        setup(build) {
-                            let fired = false;
-                            build.onEnd(() => {
-                                if (!fired) {
-                                    fired = true;
-                                    resolveFirst();
-                                }
-                            });
-                        }
-                    };
-                    const cfg = { ...config, plugins: [...existing, watchLogPlugin(input, output), onFirstBuild] };
-                    const ctx = await context(cfg);
-                    await ctx.watch();
+                    if (isWatch) {
+                        // ctx.watch() resolves immediately — use a one-shot onEnd to track completion
+                        let resolveFirst;
+                        firstBuildDone.push(
+                            new Promise((r) => {
+                                resolveFirst = r;
+                            })
+                        );
+                        const onFirstBuild = {
+                            name: 'first-build-done',
+                            setup(build) {
+                                let fired = false;
+                                build.onEnd(() => {
+                                    if (!fired) {
+                                        fired = true;
+                                        resolveFirst();
+                                    }
+                                });
+                            }
+                        };
+                        const cfg = { ...config, plugins: [...existing, watchLogPlugin(input, output), onFirstBuild] };
+                        const ctx = await context(cfg);
+                        await ctx.watch();
+                        return ctx;
+                    }
+
+                    // production: one-shot build then dispose
+                    const ctx = await context(config);
+                    console.log(color.cyan(`${color.bold(input)} \u2192 ${color.bold(output)}...`));
+                    const bt = performance.now();
+                    await ctx.rebuild();
+                    await ctx.dispose();
+                    console.log(
+                        color.green(`created ${color.bold(output)} in ${color.bold(ts(performance.now() - bt))}`)
+                    );
                     return ctx;
-                }
-
-                // production: one-shot build then dispose
-                const ctx = await context(config);
-                console.log(color.cyan(`${color.bold(input)} \u2192 ${color.bold(output)}...`));
-                const bt = performance.now();
-                await ctx.rebuild();
-                await ctx.dispose();
-                console.log(color.green(`created ${color.bold(output)} in ${color.bold(ts(performance.now() - bt))}`));
-                return ctx;
-            }));
+                })
+            );
 
             // wait for sass + all initial watch builds before printing summary
             if (isWatch) {

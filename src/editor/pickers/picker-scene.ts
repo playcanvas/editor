@@ -1,15 +1,16 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { Button, Container, Element, Label, Menu, TextInput } from '@playcanvas/pcui';
+import type { Element } from '@playcanvas/pcui';
+import { Button, Container, Label, Menu, TextInput } from '@playcanvas/pcui';
 
 import { convertDatetime } from '@/common/utils';
 import { config } from '@/editor/config';
 
-interface Scene {
+type Scene = {
     id: number | string;
     name: string;
     modified: string;
     uniqueId: string;
-}
+};
 
 editor.once('load', () => {
     const container = new Container({
@@ -210,7 +211,8 @@ editor.once('load', () => {
 
         sceneList.append(row);
 
-        const isCurrentScene = config.scene.id && parseInt(String(scene.id), 10) === parseInt(String(config.scene.id), 10);
+        const isCurrentScene =
+            config.scene.id && parseInt(String(scene.id), 10) === parseInt(String(config.scene.id), 10);
 
         if (isCurrentScene) {
             row.class.add('current');
@@ -260,16 +262,18 @@ editor.once('load', () => {
         });
 
         if (!isCurrentScene) {
-            events.push(row.on('click', (e) => {
-                if (e.target === row.dom || e.target === name.dom || e.target === date.dom) {
-                    if (parseInt(String(config.scene.id), 10) === parseInt(String(scene.id), 10)) {
-                        return;
-                    }
+            events.push(
+                row.on('click', (e) => {
+                    if (e.target === row.dom || e.target === name.dom || e.target === date.dom) {
+                        if (parseInt(String(config.scene.id), 10) === parseInt(String(scene.id), 10)) {
+                            return;
+                        }
 
-                    editor.call('picker:scene:close');
-                    editor.call('scene:load', scene.uniqueId);
-                }
-            }));
+                        editor.call('picker:scene:close');
+                        editor.call('scene:load', scene.uniqueId);
+                    }
+                })
+            );
         }
 
         row.on('click', (event) => {
@@ -333,7 +337,8 @@ editor.once('load', () => {
                         name = `${namePart} ${numberPart}`;
                         let found = true;
                         for (let i = 0; i < scenes.length; i++) {
-                            if (scenes[i].name === name) {
+                            const s = scenes[i];
+                            if (s.name === name) {
                                 numberPart++;
                                 found = false;
                                 break;
@@ -353,7 +358,10 @@ editor.once('load', () => {
                 class: 'delete',
                 onIsEnabled: () => editor.call('permissions:write'),
                 onSelect: () => {
-                    editor.call('picker:confirm', `Are you sure you want to permanently delete scene '${dropdownScene.name}'?`);
+                    editor.call(
+                        'picker:confirm',
+                        `Are you sure you want to permanently delete scene '${dropdownScene.name}'?`
+                    );
                     editor.once('picker:confirm:yes', () => {
                         const id = dropdownScene.id;
                         onSceneDeleted(id);
@@ -523,7 +531,7 @@ editor.once('load', () => {
 
         editor.call('scenes:get', data.scene.id, (err, scene) => {
             // keep the cache fresh even while hidden; avoid duplicates
-            if (!scenes.some(s => parseInt(String(s.id), 10) === parseInt(String(scene.id), 10))) {
+            if (!scenes.some((s) => parseInt(String(s.id), 10) === parseInt(String(scene.id), 10))) {
                 scenes.push(scene);
             }
 

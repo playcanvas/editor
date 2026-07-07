@@ -15,18 +15,26 @@ editor.once('load', () => {
     let sceneData = null;
     let sceneSettings = null;
     let loadingScreen = false;
-    let scriptList = []; // eslint-disable-line no-unused-vars
+    let scriptList = [];
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
-    var canvas;
-    var app;
-    var scriptPrefix;
+    let canvas = undefined;
+    let app = undefined;
+    let scriptPrefix = undefined;
 
     const layerIndex: Record<string, pc.Layer> = {};
 
     // try to start preload and initialization of application after load event
     const init = function () {
-
-        if (!done && gfxCreated && assets && hierarchy && settings && (!legacyScripts || sourcefiles) && libraries && loadingScreen) {
+        if (
+            !done &&
+            gfxCreated &&
+            assets &&
+            hierarchy &&
+            settings &&
+            (!legacyScripts || sourcefiles) &&
+            libraries &&
+            loadingScreen
+        ) {
             // prevent multiple init calls during scene loading
             done = true;
 
@@ -66,7 +74,6 @@ editor.once('load', () => {
     };
 
     const createLoadingScreen = function () {
-
         const defaultLoadingScreen = function () {
             editor.call('viewport:loadingScreen');
             loadingScreen = true;
@@ -89,6 +96,7 @@ editor.once('load', () => {
             };
 
             loadingScript.onerror = function () {
+                // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- tagged template call sets sentry fingerprint for grouping
                 log.error`could not load loading screen script: ${config.project.settings.loadingScreenScript}`;
                 defaultLoadingScreen();
             };
@@ -101,7 +109,10 @@ editor.once('load', () => {
         }
     };
 
-    const createLayer = function (key: string, data: { name: string; opaqueSortMode: number; transparentSortMode: number }) {
+    const createLayer = function (
+        key: string,
+        data: { name: string; opaqueSortMode: number; transparentSortMode: number }
+    ) {
         const id = parseInt(key, 10);
         return new pc.Layer({
             id: id,
@@ -120,7 +131,7 @@ editor.once('load', () => {
         libraryUrls.push(config.url.physics);
     }
 
-    const queryParams = (new pc.URI(window.location.href)).getQuery();
+    const queryParams = new pc.URI(window.location.href).getQuery();
 
     scriptPrefix = config.project.scriptPrefix;
 
@@ -158,7 +169,9 @@ editor.once('load', () => {
     const useMouse = projectSettings.has('useMouse') ? projectSettings.get('useMouse') : true;
     const useKeyboard = projectSettings.has('useKeyboard') ? projectSettings.get('useKeyboard') : true;
     const useTouch = projectSettings.has('useTouch') ? projectSettings.get('useTouch') : true;
-    const useGamepads = projectSettings.has('useGamepads') ? projectSettings.get('useGamepads') : !!projectSettings.get('vr');
+    const useGamepads = projectSettings.has('useGamepads')
+        ? projectSettings.get('useGamepads')
+        : !!projectSettings.get('vr');
 
     const gfxOptions = {
         deviceTypes: deviceTypes,
@@ -284,8 +297,16 @@ editor.once('load', () => {
             app.graphicsDevice.maxPixelRatio = window.devicePixelRatio;
         }
 
-        app.setCanvasResolution(config.project.settings.resolutionMode, config.project.settings.width, config.project.settings.height);
-        app.setCanvasFillMode(config.project.settings.fillMode, config.project.settings.width, config.project.settings.height);
+        app.setCanvasResolution(
+            config.project.settings.resolutionMode,
+            config.project.settings.width,
+            config.project.settings.height
+        );
+        app.setCanvasFillMode(
+            config.project.settings.fillMode,
+            config.project.settings.width,
+            config.project.settings.height
+        );
 
         // batch groups
         const batchGroups = config.project.settings.batchGroups;
@@ -324,12 +345,12 @@ editor.once('load', () => {
         }
 
         if (queryParams.ministats) {
-            // eslint-disable-next-line no-unused-vars
             const miniStats = new (pc.MiniStats ? pc.MiniStats : pcx.MiniStats)(app);
         }
 
         // localization
-        if (app.i18n) { // make it backwards compatible ...
+        if (app.i18n) {
+            // make it backwards compatible ...
             if (config.self.locale) {
                 app.i18n.locale = config.self.locale;
             }
@@ -382,8 +403,16 @@ editor.once('load', () => {
         createCss();
 
         const refreshResolutionProperties = function () {
-            app.setCanvasResolution(config.project.settings.resolutionMode, config.project.settings.width, config.project.settings.height);
-            app.setCanvasFillMode(config.project.settings.fillMode, config.project.settings.width, config.project.settings.height);
+            app.setCanvasResolution(
+                config.project.settings.resolutionMode,
+                config.project.settings.width,
+                config.project.settings.height
+            );
+            app.setCanvasFillMode(
+                config.project.settings.fillMode,
+                config.project.settings.width,
+                config.project.settings.height
+            );
             pcBootstrap.resizeCanvas(app, canvas);
         };
 
@@ -494,7 +523,8 @@ editor.once('load', () => {
                     if (existing) {
                         app.scene.layers.remove(existing);
                     }
-                } else if (parts.length === 3) { // change layer property
+                } else if (parts.length === 3) {
+                    // change layer property
                     layer = layerIndex[parts[1]];
                     if (layer) {
                         layer[parts[2]] = value;
@@ -589,7 +619,6 @@ editor.once('load', () => {
 
         window.addEventListener('resize', pcBootstrap.reflowHandler, false);
         window.addEventListener('orientationchange', pcBootstrap.reflowHandler, false);
-
     });
 
     // get application
@@ -616,7 +645,6 @@ editor.once('load', () => {
 
     if (legacyScripts) {
         editor.on('sourcefiles:load', (scripts: string[]) => {
-
             scriptList = scripts;
             sourcefiles = true;
             init();

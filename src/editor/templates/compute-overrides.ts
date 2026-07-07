@@ -65,27 +65,13 @@ editor.once('load', () => {
         }
 
         makeInstData() {
-            return editor.call(
-                'template:utils',
-                'makeInstanceData',
-                this.instance.entities,
-                this.srcToDst
-            );
+            return editor.call('template:utils', 'makeInstanceData', this.instance.entities, this.srcToDst);
         }
 
         makeAssetData() {
-            this.assetIdentity = editor.call(
-                'template:utils',
-                'makeIdToIdMap',
-                this.asset.entities
-            );
+            this.assetIdentity = editor.call('template:utils', 'makeIdToIdMap', this.asset.entities);
 
-            return editor.call(
-                'template:utils',
-                'makeInstanceData',
-                this.asset.entities,
-                this.assetIdentity
-            );
+            return editor.call('template:utils', 'makeInstanceData', this.asset.entities, this.assetIdentity);
         }
 
         setScriptAttrs() {
@@ -126,12 +112,7 @@ editor.once('load', () => {
         }
 
         markEntityReference(conflict: Record<string, unknown>): void {
-            editor.call(
-                'template:utils',
-                'setEntReferenceIfNeeded',
-                conflict,
-                this.scriptAttrs
-            );
+            editor.call('template:utils', 'setEntReferenceIfNeeded', conflict, this.scriptAttrs);
         }
 
         addMapToTemplIdConflicts() {
@@ -186,18 +167,21 @@ editor.once('load', () => {
      * @returns An object with fields 'conflicts',
      * 'addedEntities' and 'deletedEntities'. Return null if template asset not found.
      */
-    editor.method('templates:computeOverrides', (root: { get: (key: string) => unknown }): Record<string, unknown> | null => {
-        const templateId = root.get('template_id');
+    editor.method(
+        'templates:computeOverrides',
+        (root: { get: (key: string) => unknown }): Record<string, unknown> | null => {
+            const templateId = root.get('template_id');
 
-        const asset = getAssetData(templateId);
-        if (!asset) {
-            return null;
+            const asset = getAssetData(templateId);
+            if (!asset) {
+                return null;
+            }
+
+            const instance = getInstanceData(root);
+
+            const instRootId = root.get('resource_id');
+
+            return new FindInstanceOverrides(asset, instance, instRootId).run();
         }
-
-        const instance = getInstanceData(root);
-
-        const instRootId = root.get('resource_id');
-
-        return new FindInstanceOverrides(asset, instance, instRootId).run();
-    });
+    );
 });

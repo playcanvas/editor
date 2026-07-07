@@ -73,7 +73,7 @@ editor.once('load', () => {
         minDiffInBranch(h: Record<string, unknown>, prevNode: Record<string, unknown>) {
             const diff = this.helper('minBetweenNodes');
 
-            const connected = h.child.find(edge => edge.child === prevNode.id);
+            const connected = h.child.find((edge) => edge.child === prevNode.id);
 
             return connected ? diff.small : diff.large;
         }

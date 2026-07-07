@@ -203,7 +203,10 @@ class MaterialThumbnailRenderer extends ThumbnailRenderer {
         });
     }
 
-    render(rotationX: number = 0, rotationY: number = 0, model: 'sphere' | 'box' = 'sphere') {
+    render(rotationX?: number, rotationY?: number, model: 'sphere' | 'box' = 'sphere') {
+        rotationX = rotationX === undefined ? 0 : rotationX;
+        rotationY = rotationY === undefined ? 0 : rotationY;
+
         this._queuedRender = false;
 
         if (!this._asset) {
@@ -264,7 +267,7 @@ class MaterialThumbnailRenderer extends ThumbnailRenderer {
         // first handle texture assets
         for (let i = 0; i < StandardMaterial.TEXTURE_PARAMETERS.length; i++) {
             const name = StandardMaterial.TEXTURE_PARAMETERS[i];
-            if (!migrated.hasOwnProperty(name) || !migrated[name]) {
+            if (!Object.prototype.hasOwnProperty.call(migrated, name) || !migrated[name]) {
                 continue;
             }
 
@@ -282,7 +285,7 @@ class MaterialThumbnailRenderer extends ThumbnailRenderer {
         // then handle cubemap assets
         for (let i = 0; i < StandardMaterial.CUBEMAP_PARAMETERS.length; i++) {
             const name = StandardMaterial.CUBEMAP_PARAMETERS[i];
-            if (!migrated.hasOwnProperty(name) || !migrated[name]) {
+            if (!Object.prototype.hasOwnProperty.call(migrated, name) || !migrated[name]) {
                 continue;
             }
 
@@ -336,7 +339,11 @@ class MaterialThumbnailRenderer extends ThumbnailRenderer {
 
         // render to canvas
         const ctx = this._canvas.getContext('2d');
-        ctx.putImageData(new ImageData(rt.pixelsClamped, width, height), (this._canvas.width - width) / 2, (this._canvas.height - height) / 2);
+        ctx.putImageData(
+            new ImageData(rt.pixelsClamped, width, height),
+            (this._canvas.width - width) / 2,
+            (this._canvas.height - height) / 2
+        );
 
         layer.removeCamera(cameraEntity.camera);
         layer.removeLight(lightEntity.light);

@@ -19,39 +19,24 @@ editor.once('load', () => {
     });
     menu.append(item);
 
-    const types = [
-        'script',
-        'css',
-        'html',
-        'json',
-        'shader',
-        'text',
-        'folder'
-    ];
+    const types = ['script', 'css', 'html', 'json', 'shader', 'text', 'folder'];
 
-    const titles = [
-        'Script Asset',
-        'CSS Asset',
-        'HTML Asset',
-        'JSON Asset',
-        'Shader Asset',
-        'Text Asset',
-        'Folder'
-    ];
+    const titles = ['Script Asset', 'CSS Asset', 'HTML Asset', 'JSON Asset', 'Shader Asset', 'Text Asset', 'Folder'];
 
     types.forEach((type, index) => {
-        item.append(new MenuItem({
-            class: 'no-bottom-border',
-            text: titles[index],
-            onIsEnabled: () => {
-                return editor.call('editor:command:can:create');
-            },
-            onSelect: () => {
-                return editor.call('editor:command:create', type);
-            }
-        }));
+        item.append(
+            new MenuItem({
+                class: 'no-bottom-border',
+                text: titles[index],
+                onIsEnabled: () => {
+                    return editor.call('editor:command:can:create');
+                },
+                onSelect: () => {
+                    return editor.call('editor:command:create', type);
+                }
+            })
+        );
     });
-
 
     // context menu
     const ctxMenu = editor.call('files:contextmenu');
@@ -75,30 +60,33 @@ editor.once('load', () => {
     ctxMenu.append(item);
 
     types.forEach((type, index) => {
-        item.append(new MenuItem({
-            class: 'no-bottom-border',
-            text: titles[index],
-            onIsEnabled: () => {
-                const selection = editor.call('files:contextmenu:selected');
-                if (selection.length <= 1) {
-                    return editor.call('editor:command:can:create', selection[0]);
+        item.append(
+            new MenuItem({
+                class: 'no-bottom-border',
+                text: titles[index],
+                onIsEnabled: () => {
+                    const selection = editor.call('files:contextmenu:selected');
+                    if (selection.length <= 1) {
+                        return editor.call('editor:command:can:create', selection[0]);
+                    }
+                },
+                onSelect: () => {
+                    const selection = editor.call('files:contextmenu:selected');
+                    if (selection.length <= 1) {
+                        return editor.call('editor:command:create', type, selection[0]);
+                    }
                 }
-            },
-            onSelect: () => {
-                const selection = editor.call('files:contextmenu:selected');
-                if (selection.length <= 1) {
-                    return editor.call('editor:command:create', type, selection[0]);
-                }
-            }
-        }));
+            })
+        );
     });
 
-
     editor.method('editor:command:can:create', (folder?: Observer) => {
-        return !editor.call('editor:resolveConflictMode') &&
-                editor.call('permissions:write') &&
-               (!folder || folder.get('type') === 'folder') &&
-               !editor.call('errors:hasRealtime');
+        return (
+            !editor.call('editor:resolveConflictMode') &&
+            editor.call('permissions:write') &&
+            (!folder || folder.get('type') === 'folder') &&
+            !editor.call('errors:hasRealtime')
+        );
     });
 
     editor.method('editor:command:create', (type: string, folder?: Observer) => {
@@ -109,49 +97,64 @@ editor.once('load', () => {
 
         if (type === 'script') {
             const validate = (name: string) => editor.call('assets:script:checkCollision', name, folder);
-            editor.call('picker:script-create', (filename: string) => {
-                editor.call('assets:create:script', {
-                    filename: filename,
-                    parent: folder
-                }, (_asset: Observer) => {
-                    // refresh the asset data
-                    const asset = editor.call('assets:get', _asset.get('id'));
+            editor.call(
+                'picker:script-create',
+                (filename: string) => {
+                    editor.call(
+                        'assets:create:script',
+                        {
+                            filename: filename,
+                            parent: folder
+                        },
+                        (_asset: Observer) => {
+                            // refresh the asset data
+                            const asset = editor.call('assets:get', _asset.get('id'));
 
-                    // parse script attributes
-                    const parseScript = () => {
-                        // set url
-                        asset.set('file.url', api.Asset.getFileUrl(asset.get('id'), asset.get('file.filename')));
+                            // parse script attributes
+                            const parseScript = () => {
+                                // set url
+                                asset.set(
+                                    'file.url',
+                                    api.Asset.getFileUrl(asset.get('id'), asset.get('file.filename'))
+                                );
 
-                        // set variants urls
-                        if (asset.has('file.variants')) {
-                            const variants = asset.get('file.variants');
-                            for (const key in variants) {
-                                variants[key].url = api.Asset.getFileUrl(asset.get('id'), variants[key].filename);
+                                // set variants urls
+                                if (asset.has('file.variants')) {
+                                    const variants = asset.get('file.variants');
+                                    for (const key in variants) {
+                                        variants[key].url = api.Asset.getFileUrl(
+                                            asset.get('id'),
+                                            variants[key].filename
+                                        );
+                                    }
+                                    asset.set('file.variants', variants);
+                                }
+
+                                editor.call('scripts:parse', asset, (err: unknown) => {
+                                    if (err) {
+                                        editor.call('status:error', err);
+                                    }
+
+                                    // do this in a timeout to give the asset a frame
+                                    // to be added to the tree
+                                    setTimeout(() => {
+                                        editor.call('tabs:temp:lock');
+                                        editor.call('files:select', asset.get('id'));
+                                        editor.call('tabs:temp:unlock');
+                                    });
+                                });
+                            };
+                            if (asset.has('file.filename')) {
+                                parseScript();
+                            } else {
+                                asset.once('file.filename:set', parseScript);
                             }
-                            asset.set('file.variants', variants);
                         }
-
-                        editor.call('scripts:parse', asset, (err: unknown) => {
-                            if (err) {
-                                editor.call('status:error', err);
-                            }
-
-                            // do this in a timeout to give the asset a frame
-                            // to be added to the tree
-                            setTimeout(() => {
-                                editor.call('tabs:temp:lock');
-                                editor.call('files:select', asset.get('id'));
-                                editor.call('tabs:temp:unlock');
-                            });
-                        });
-                    };
-                    if (asset.has('file.filename')) {
-                        parseScript();
-                    } else {
-                        asset.once('file.filename:set', parseScript);
-                    }
-                });
-            }, undefined, validate);
+                    );
+                },
+                undefined,
+                validate
+            );
         } else {
             editor.call(`assets:create:${type}`, {
                 parent: folder

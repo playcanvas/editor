@@ -7,7 +7,7 @@ editor.once('load', () => {
     } // webgl not available
 
     // entities awaiting parent
-    const awaitingParent = { };
+    const awaitingParent = {};
 
     // queue for hierarchy resync
     let awaitingResyncHierarchy = false;
@@ -49,7 +49,6 @@ editor.once('load', () => {
         if (!obj.get('parent')) {
             // root
             app.root.addChild(entity);
-
         } else {
             // get parent
             let parent = editor.call('entities:get', obj.get('parent'));
@@ -175,20 +174,15 @@ editor.once('load', () => {
 
             if (path === 'name') {
                 entity.name = obj.get('name');
-
             } else if (path.startsWith('position')) {
                 resetPhysics(entity);
-
             } else if (path.startsWith('rotation')) {
                 resetPhysics(entity);
-
             } else if (path.startsWith('scale')) {
                 resetPhysics(entity);
-
             } else if (path.startsWith('enabled')) {
                 const hidden = editor.call('entities:visibility:isHidden', obj.get('resource_id'));
                 entity.enabled = obj.get('enabled') && !hidden;
-
             } else if (path.startsWith('parent')) {
                 const parent = editor.call('entities:get', obj.get('parent'));
                 if (parent && parent.entity && entity.parent !== parent.entity) {

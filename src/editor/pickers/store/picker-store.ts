@@ -7,7 +7,6 @@ import { MyAssetsStore } from '../../store/myAssetsStore';
 import { SketchFabStore } from '../../store/sketchFabStore';
 
 editor.once('load', () => {
-
     // global variables
     let selectedFilter;
     let selectedStoreFilter;
@@ -50,7 +49,6 @@ editor.once('load', () => {
 
     // builds sorting dropdown with different sorting algorithms
     const buildSortingDropdown = (sortButton) => {
-
         sortingDropdown.clear();
 
         // descending checkbox
@@ -68,7 +66,7 @@ editor.once('load', () => {
         });
 
         descendingItem.on('click', () => {
-            booleanInput.value = !booleanInput.value;  // update checkbox
+            booleanInput.value = !booleanInput.value; // update checkbox
             sortDescending = booleanInput.value;
             sortStoreItems(store.sortPolicy);
             sortButton.icon = sortDescending ? 'E437' : 'E438';
@@ -80,7 +78,6 @@ editor.once('load', () => {
     let searchTimer;
 
     const buildSearchUI = (overlay) => {
-
         searchBar = new TextInput({
             placeholder: 'Search',
             class: 'search-store',
@@ -133,7 +130,6 @@ editor.once('load', () => {
     };
 
     const buildFiltersUI = (leftPanel: Container) => {
-
         if (filtersToggle) {
             leftPanel.remove(filtersToggle);
         }
@@ -149,13 +145,9 @@ editor.once('load', () => {
         let filters = [];
 
         if (isSketchfabStore()) {
-            filters = [
-                { name: '3D', icon: 'E189' }
-            ];
+            filters = [{ name: '3D', icon: 'E189' }];
         } else if (isMyAssetsStore()) {
-            filters = [
-                { name: 'ALL', icon: 'E244' }
-            ];
+            filters = [{ name: 'ALL', icon: 'E244' }];
         } else {
             filters = [
                 { name: 'ALL', icon: 'E244' },
@@ -188,9 +180,7 @@ editor.once('load', () => {
         setSelectedFilter(filters[0].button, false);
     };
 
-
     const buildStoreFiltersUI = (leftPanel: Container) => {
-
         // storeItems toggle
         const filtersStores = new Panel({
             class: 'storeitems-toggle',
@@ -219,7 +209,6 @@ editor.once('load', () => {
         }
         setSelectedStore(filters[0].button, false);
     };
-
 
     // builds each of the item CMS UI components
     const buildStoreUI = (root: Container, item: any) => {
@@ -269,7 +258,7 @@ editor.once('load', () => {
             }
 
             if (item.views !== undefined) {
-                const viewsLabel = new Label({ class: 'text-item-views', text: `${item.views}` });  // views
+                const viewsLabel = new Label({ class: 'text-item-views', text: `${item.views}` }); // views
                 statsContainer.append(viewsLabel);
             }
 
@@ -285,7 +274,7 @@ editor.once('load', () => {
                 statsContainer.append(modifiedLabel);
             }
 
-            const sizeLabel = new Label({ class: 'text-item-size', text: bytesToHuman(item.size) });  // size
+            const sizeLabel = new Label({ class: 'text-item-size', text: bytesToHuman(item.size) }); // size
             statsContainer.append(sizeLabel);
         });
 
@@ -295,7 +284,6 @@ editor.once('load', () => {
 
     // updates the current filter UI and triggers reloading
     const setSelectedFilter = (filter, refresh = true) => {
-
         sortingDropdown.hidden = true;
 
         if (filter === selectedFilter) {
@@ -317,10 +305,8 @@ editor.once('load', () => {
         }
     };
 
-
     // updates the current store UI and triggers reloading
     const setSelectedStore = (filter, refresh = true) => {
-
         sortingDropdown.hidden = true;
 
         if (filter === selectedStoreFilter) {
@@ -337,11 +323,9 @@ editor.once('load', () => {
 
         if (isSketchfabStore()) {
             store = new SketchFabStore();
-            // @ts-ignore
             metrics.increment({ metricsName: 'store.opened.sketchfab' });
         } else if (isMyAssetsStore()) {
             store = new MyAssetsStore();
-            // @ts-ignore
             metrics.increment({ metricsName: 'store.opened.myassets' });
         } else {
             store = new AssetsStore();
@@ -377,7 +361,6 @@ editor.once('load', () => {
     };
 
     const createFilePicker = () => {
-
         if (importStoreItemsButton) {
             headerUtils.remove(importStoreItemsButton);
         }
@@ -410,7 +393,6 @@ editor.once('load', () => {
 
     // handles the flow for project importing including error and loading states
     const uploadStoreItems = async (files) => {
-
         if (files.length === 0) {
             return;
         }
@@ -427,16 +409,16 @@ editor.once('load', () => {
                 progressBar.value = progress * 100;
 
                 if (progress === 1) {
-                    progressLabel.text = 'Upload Complete! Importing... (Please don\'t close this window)';
+                    progressLabel.text = "Upload Complete! Importing... (Please don't close this window)";
                 }
             });
             const jobId = response.jobId;
 
-            var evt = editor.on('messenger:job.update', (msg) => {
+            const evt = editor.on('messenger:job.update', (msg) => {
                 if (msg.job.id === jobId) {
                     evt.unbind();
 
-                    if (msg.error)  {
+                    if (msg.error) {
                         editor.call('picker:project:buildAlert', rightPanel, `error during import: ${msg.error}`);
                     }
                     toggleProgress(false);
@@ -570,7 +552,6 @@ editor.once('load', () => {
 
     // loads the current store items into the store main panel
     const loadStore = async () => {
-
         // shows progress with a delay to avoid flickering
         const timeoutId = setTimeout(() => {
             toggleProgress(true);
@@ -588,7 +569,6 @@ editor.once('load', () => {
         let newItems;
         try {
             newItems = await store.load(selectedFilter, searchString, tags, sortDescending);
-
         } catch (err) {
             console.error('failed to retrieve a list of store items', err);
         } finally {
@@ -626,7 +606,6 @@ editor.once('load', () => {
         }, 500);
 
         try {
-
             let tags = null;
             let searchString = searchBar.value.trim();
             if (searchString.length > 1 && searchString[0] === '#') {
@@ -644,7 +623,6 @@ editor.once('load', () => {
             if (store.moreExists()) {
                 setupLoadMoreButton();
             }
-
         } catch (err) {
             console.error('failed to retrieve a list of store items', err);
         } finally {
@@ -661,11 +639,10 @@ editor.once('load', () => {
 
     const destroyEvents = () => {
         if (events) {
-            events.forEach(e => e.unbind());
+            events.forEach((e) => e.unbind());
             events = [];
         }
     };
-
 
     // LOCAL UTILS
 
@@ -724,7 +701,6 @@ editor.once('load', () => {
 
     // method to display panel
     editor.method('picker:store:cms', async () => {
-
         licenses = await loadLicenses();
 
         loadStore();

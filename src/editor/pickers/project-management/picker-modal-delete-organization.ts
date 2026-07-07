@@ -1,7 +1,6 @@
 import { Button, Container, Label, Overlay, Panel, TextInput } from '@playcanvas/pcui';
 
 editor.once('load', () => {
-
     // GLOBAL VARIABLES
     let rootUser;
     let organization;
@@ -66,7 +65,7 @@ editor.once('load', () => {
     inputElement.on('change', () => {
         validateInput();
     });
-    inputElement.dom.addEventListener('paste', e => e.preventDefault());
+    inputElement.dom.addEventListener('paste', (e) => e.preventDefault());
 
     // delete button
 
@@ -78,7 +77,6 @@ editor.once('load', () => {
     panel.append(deleteButton);
 
     deleteButton.on('click', () => {
-
         // If organization contains projects, make sure to transfer them to root user before deleting account
         if (organizationProjects.length > 0) {
             const promises = [];
@@ -95,9 +93,7 @@ editor.once('load', () => {
         } else {
             deleteOrganization();
         }
-
     });
-
 
     // CONTROLLERS
 
@@ -120,13 +116,18 @@ editor.once('load', () => {
 
     // controller that handles the deletion of organizations as well as relevant error states
     const deleteOrganization = () => {
-        editor.call('users:deleteOne', organization.id, (response) => {
-            editor.call('picker:project:cms:refreshOrgs', organization, true);
-            editor.call('picker:project:cms:resetFilter');
-            overlay.hidden = true;
-        }, (err) => {
-            editor.call('picker:project:buildAlert', editor.call('picker:project:cms:getPanel'), err);
-        });
+        editor.call(
+            'users:deleteOne',
+            organization.id,
+            (response) => {
+                editor.call('picker:project:cms:refreshOrgs', organization, true);
+                editor.call('picker:project:cms:resetFilter');
+                overlay.hidden = true;
+            },
+            (err) => {
+                editor.call('picker:project:buildAlert', editor.call('picker:project:cms:getPanel'), err);
+            }
+        );
     };
 
     // EVENTS

@@ -1,5 +1,6 @@
 import type { EventHandle, Observer } from '@playcanvas/observer';
-import { Progress, TextInput, TreeView, TreeViewItem, Panel } from '@playcanvas/pcui';
+import type { Panel } from '@playcanvas/pcui';
+import { Progress, TextInput, TreeView, TreeViewItem } from '@playcanvas/pcui';
 
 const TEXT_TYPES = new Set(['css', 'html', 'json', 'script', 'shader', 'text']);
 const RENAME_CLASS = 'pcui-treeview-item-rename';
@@ -10,7 +11,7 @@ type FileTreeItem = TreeViewItem & {
 };
 
 editor.once('load', () => {
-    const icons: Map<string, string> = new Map();
+    const icons = new Map<string, string>();
     icons.set('css', 'E206');
     icons.set('folder', 'E139');
     icons.set('html', 'E205');
@@ -48,7 +49,10 @@ editor.once('load', () => {
         const inputRect = input.dom.getBoundingClientRect();
         const popupRect = renamePopup.getBoundingClientRect();
         const x = Math.max(4, Math.min(rootRect.width - popupRect.width - 4, inputRect.left - rootRect.left));
-        const y = Math.max(4, Math.min(rootRect.height - popupRect.height - 4, inputRect.bottom - rootRect.top + POPUP_GAP));
+        const y = Math.max(
+            4,
+            Math.min(rootRect.height - popupRect.height - 4, inputRect.bottom - rootRect.top + POPUP_GAP)
+        );
 
         renamePopup.style.left = `${x}px`;
         renamePopup.style.top = `${y}px`;
@@ -82,7 +86,9 @@ editor.once('load', () => {
             return getParent(item) === parent && item.get('name').toLowerCase() === target;
         });
 
-        return collision ? `An asset named "${name}" already exists in this folder. Please choose a different name.` : null;
+        return collision
+            ? `An asset named "${name}" already exists in this folder. Please choose a different name.`
+            : null;
     };
 
     const getItemAsset = (item: TreeViewItem) => {
@@ -112,9 +118,11 @@ editor.once('load', () => {
     });
 
     const isTreeEditable = () => {
-        return editor.call('permissions:write') &&
-               editor.call('realtime:isConnected') &&
-               !editor.call('errors:hasRealtime');
+        return (
+            editor.call('permissions:write') &&
+            editor.call('realtime:isConnected') &&
+            !editor.call('errors:hasRealtime')
+        );
     };
 
     const refreshTreePermissions = () => {
@@ -260,7 +268,7 @@ editor.once('load', () => {
     /**
      * Map asset id to tree view item.
      */
-    const idToItem: Map<string, TreeViewItem> = new Map();
+    const idToItem = new Map<string, TreeViewItem>();
 
     // contains <folder id, nodes that wait for folder id to be added>
     const waitingParent = {};
@@ -315,7 +323,7 @@ editor.once('load', () => {
 
         const rect = this.getBoundingClientRect();
 
-        if (!item.numChildren || (evt.clientX - rect.left) >= 0) {
+        if (!item.numChildren || evt.clientX - rect.left >= 0) {
             const asset = editor.call('assets:get', item._assetId);
             if (!asset || asset.get('type') === 'folder') {
                 return;
@@ -340,7 +348,7 @@ editor.once('load', () => {
         }
 
         const text = item.text.toLowerCase();
-        const folder  = item.icon === icons.get('folder');
+        const folder = item.icon === icons.get('folder');
         let low = 0;
         let hi = children.length - 1;
         let mid, node, nodeText, nodeFolder;
@@ -399,7 +407,8 @@ editor.once('load', () => {
             delete waitingParent[id];
 
             for (let i = 0; i < items.length; i++) {
-                append(items[i], item);
+                const child = items[i];
+                append(child, item);
             }
         }
     };
@@ -569,7 +578,7 @@ editor.once('load', () => {
     });
 
     // Select file by id (which can be passed as a string or number)
-    editor.method('files:select', (id: number|string) => {
+    editor.method('files:select', (id: number | string) => {
         const item = idToItem.get(String(id));
         if (item && !item.destroyed) {
             tree.deselect();
@@ -584,12 +593,14 @@ editor.once('load', () => {
 
     // Get selected assets
     editor.method('assets:selected', () => {
-        return tree.selected.map((item) => {
-            if (!item._assetId) {
-                return null;
-            }
-            return editor.call('assets:get', item._assetId);
-        }).filter(asset => !!asset);
+        return tree.selected
+            .map((item) => {
+                if (!item._assetId) {
+                    return null;
+                }
+                return editor.call('assets:get', item._assetId);
+            })
+            .filter((asset) => !!asset);
     });
 
     // Get selected folder or folder that the selected asset is in if no specific folder is selected
@@ -627,7 +638,7 @@ editor.once('load', () => {
     });
 
     // handle reparenting
-    tree.on('reparent', (reparented: Array<{ item: { _assetId: string }; newParent: { _assetId: string } }>) => {
+    tree.on('reparent', (reparented: { item: { _assetId: string }; newParent: { _assetId: string } }[]) => {
         if (!reparented.length) {
             return;
         }

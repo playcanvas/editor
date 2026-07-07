@@ -27,11 +27,13 @@ editor.once('load', () => {
         }
 
         // need to update all materials on scene settings change
-        app.assets.filter((asset) => {
-            return asset.type === 'material' && asset.resource;
-        }).forEach((asset) => {
-            asset.resource.update();
-        });
+        app.assets
+            .filter((asset) => {
+                return asset.type === 'material' && asset.resource;
+            })
+            .forEach((asset) => {
+                asset.resource.update();
+            });
 
         editor.call('viewport:render');
     };

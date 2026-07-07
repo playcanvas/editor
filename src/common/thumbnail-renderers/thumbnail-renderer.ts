@@ -1,5 +1,6 @@
 import { Observer } from '@playcanvas/observer';
-import { type GraphicsDevice, Layer, LayerComposition, PIXELFORMAT_RGBA8, RenderTarget, Texture } from 'playcanvas';
+import { Layer, LayerComposition, PIXELFORMAT_RGBA8, RenderTarget, Texture } from 'playcanvas';
+import type { GraphicsDevice } from 'playcanvas';
 
 /**
  * Singleton Thumbnail Renderer
@@ -18,7 +19,6 @@ class ThumbnailRenderer extends Observer {
     static _layerComposition;
 
     getRenderTarget(device: GraphicsDevice, width: number, height: number) {
-
         const key = `${width}-${height}`;
         let target = ThumbnailRenderer.renderTargets.get(key);
 

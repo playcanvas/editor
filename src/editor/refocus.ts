@@ -13,31 +13,43 @@ editor.once('load', () => {
 
     window.addEventListener('focus', onClear, true);
 
-    window.addEventListener('blur', (evt) => {
-        if (!evt.target || !evt.target.ui || !evt.target.ui.focus || !evt.target.ui.refocusable) {
-            onClear();
-        } else {
-            timeout = setTimeout(() => {
-                last = evt.target.ui;
-            }, 0);
-        }
-    }, true);
+    window.addEventListener(
+        'blur',
+        (evt) => {
+            if (!evt.target || !evt.target.ui || !evt.target.ui.focus || !evt.target.ui.refocusable) {
+                onClear();
+            } else {
+                timeout = setTimeout(() => {
+                    last = evt.target.ui;
+                }, 0);
+            }
+        },
+        true
+    );
 
-    window.addEventListener('keydown', (evt) => {
-        if (!last) {
-            return;
-        }
+    window.addEventListener(
+        'keydown',
+        (evt) => {
+            if (!last) {
+                return;
+            }
 
-        if (evt.keyCode === 13) {
-            last.focus(true);
-        } else {
-            onClear();
-        }
-    }, false);
+            if (evt.keyCode === 13) {
+                last.focus(true);
+            } else {
+                onClear();
+            }
+        },
+        false
+    );
 
-    window.addEventListener('mousedown', () => {
-        if (last) {
-            onClear();
-        }
-    }, false);
+    window.addEventListener(
+        'mousedown',
+        () => {
+            if (last) {
+                onClear();
+            }
+        },
+        false
+    );
 });

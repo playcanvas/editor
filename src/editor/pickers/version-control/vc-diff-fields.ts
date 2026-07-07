@@ -4,7 +4,8 @@ import { ColorInput } from '@/common/pcui/element/element-color-input';
 import { CurveInput } from '@/common/pcui/element/element-curve-input';
 import { GradientInput } from '@/common/pcui/element/element-gradient-input';
 
-import { arrayFieldKind, REF_KINDS, valueKind, type NameIndex, type ValueKind } from './vc-diff-data';
+import { arrayFieldKind, REF_KINDS, valueKind } from './vc-diff-data';
+import type { NameIndex, ValueKind } from './vc-diff-data';
 import { splitDiffPath } from './vc-helpers';
 
 const AXES = ['X', 'Y', 'Z', 'W'];
@@ -82,8 +83,12 @@ export const createValueField = (kind: ValueKind, value: any, index: NameIndex):
         }
         list.appendChild(el('size', `${items.length} item${items.length === 1 ? '' : 's'}`));
         for (const item of items) {
-            const itemKind = item === undefined || item === null ? 'missing' :
-                REF_KINDS.has(inner) ? inner as ValueKind : valueKind(inner, '', item);
+            const itemKind =
+                item === undefined || item === null
+                    ? 'missing'
+                    : REF_KINDS.has(inner)
+                      ? (inner as ValueKind)
+                      : valueKind(inner, '', item);
             list.appendChild(createValueField(itemKind, item, index));
         }
         return list;
@@ -104,7 +109,14 @@ export const createValueField = (kind: ValueKind, value: any, index: NameIndex):
             return pcuiDom(new TextInput({ value, readOnly: true }));
         }
         case 'vector':
-            return pcuiDom(new VectorInput({ value, dimensions: value.length, placeholder: AXES.slice(0, value.length), readOnly: true }));
+            return pcuiDom(
+                new VectorInput({
+                    value,
+                    dimensions: value.length,
+                    placeholder: AXES.slice(0, value.length),
+                    readOnly: true
+                })
+            );
         case 'color':
             // the editor's ColorInput (the inspector's swatch), not pcui's ColorPicker
             return pcuiDom(new ColorInput({ value, channels: value.length, readOnly: true }));
@@ -167,7 +179,11 @@ export const createValueField = (kind: ValueKind, value: any, index: NameIndex):
             return missingEl('no preview available');
         case 'json': {
             // height cap keeps huge blobs from dominating the panel; the textarea scrolls
-            const area = new TextAreaInput({ value: JSON.stringify(value, null, 2), readOnly: true, height: JSON_FIELD_HEIGHT });
+            const area = new TextAreaInput({
+                value: JSON.stringify(value, null, 2),
+                readOnly: true,
+                height: JSON_FIELD_HEIGHT
+            });
             return pcuiDom(area);
         }
         default:
@@ -178,7 +194,12 @@ export const createValueField = (kind: ValueKind, value: any, index: NameIndex):
 // a list field (entity children / asset-id list) whose membership changed:
 // removed items tinted red, added tinted green, in ONE neutral list so the
 // surrounding row isn't coloured as if the whole property were added/removed
-export const createDeltaListField = (kind: 'children' | 'array:asset' | 'pills', removed: any[], added: any[], index: NameIndex): HTMLElement => {
+export const createDeltaListField = (
+    kind: 'children' | 'array:asset' | 'pills',
+    removed: any[],
+    added: any[],
+    index: NameIndex
+): HTMLElement => {
     const list = document.createElement('div');
     list.className = 'vc-diff-array';
     if (removed.length + added.length > 1) {
@@ -230,7 +251,12 @@ const assetColorType = (conflict: any, path: string) => {
 
 // the single value-cell renderer shared by the full diff and the changes-tab
 // preview so both parse colours/vectors/tags/refs the same way
-export const createSideValueField = (entry: any, side: 'src' | 'dst', index: NameIndex, conflict?: any): HTMLElement => {
+export const createSideValueField = (
+    entry: any,
+    side: 'src' | 'dst',
+    index: NameIndex,
+    conflict?: any
+): HTMLElement => {
     const value = side === 'src' ? entry.srcValue : entry.dstValue;
     const missing = side === 'src' ? entry.missingInSrc : entry.missingInDst;
     // a template's source id is an asset reference — show it as the asset name
@@ -266,6 +292,6 @@ export const createSideValueField = (entry: any, side: 'src' | 'dst', index: Nam
 // pcui widgets hold timers (curve/gradient resize loops); destroy before discarding their dom
 export const destroyValueFields = (root: HTMLElement) => {
     for (const node of Array.from(root.querySelectorAll('.vc-diff-widget'))) {
-        ((node as { ui?: { destroy?: () => void } }).ui)?.destroy?.();
+        (node as { ui?: { destroy?: () => void } }).ui?.destroy?.();
     }
 };

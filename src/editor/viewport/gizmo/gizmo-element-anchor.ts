@@ -1,4 +1,16 @@
-import { type AppBase, BlendState, BLENDEQUATION_ADD, BLENDMODE_ONE_MINUS_SRC_ALPHA, BLENDMODE_SRC_ALPHA, Color, Entity, type GraphNode, type Material, math, PROJECTION_PERSPECTIVE, Quat, Vec3 } from 'playcanvas';
+import {
+    BlendState,
+    BLENDEQUATION_ADD,
+    BLENDMODE_ONE_MINUS_SRC_ALPHA,
+    BLENDMODE_SRC_ALPHA,
+    Color,
+    Entity,
+    math,
+    PROJECTION_PERSPECTIVE,
+    Quat,
+    Vec3
+} from 'playcanvas';
+import type { AppBase, GraphNode, Material } from 'playcanvas';
 
 import { FORCE_PICK_TAG, GIZMO_MASK } from '@/core/constants';
 import type { EntityObserver } from '@/editor-api';
@@ -12,7 +24,7 @@ editor.once('load', () => {
     const vecD = new Vec3();
     const quat = new Quat();
 
-    const gizmoAnchor = null; // eslint-disable-line no-unused-vars
+    const gizmoAnchor = null;
     let evtTapStart = null;
     let moving = false;
     let mouseTap = null;
@@ -23,7 +35,7 @@ editor.once('load', () => {
     let anchorDirty = false;
     let anchorStart = [];
     const anchorCurrent = [];
-    const localPosition = []; // eslint-disable-line no-unused-vars
+    const localPosition = [];
     let offset = new Vec3();
     let visible = true;
 
@@ -106,7 +118,12 @@ editor.once('load', () => {
         const mat = createColorMaterial();
         mat.color = color;
         if (color.a !== 1) {
-            mat.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
+            mat.blendState = new BlendState(
+                true,
+                BLENDEQUATION_ADD,
+                BLENDMODE_SRC_ALPHA,
+                BLENDMODE_ONE_MINUS_SRC_ALPHA
+            );
         }
         mat.update();
         return mat;
@@ -138,11 +155,11 @@ editor.once('load', () => {
             }
         });
 
-        const isAnchorSplit = function (anchor: number[]) { // eslint-disable-line no-unused-vars
+        const isAnchorSplit = function (anchor: number[]) {
             return Math.abs(anchor[0] - anchor[2] > 0.001 || Math.abs(anchor[1] - anchor[3]) > 0.001);
         };
 
-        const clamp = function (value: number, min: number, max: number) { // eslint-disable-line no-unused-vars
+        const clamp = function (value: number, min: number, max: number) {
             return Math.min(Math.max(value, min), max);
         };
 
@@ -166,12 +183,14 @@ editor.once('load', () => {
                 return false;
             }
 
-            return visible &&
+            return (
+                visible &&
                 selectedEntity &&
                 selectedEntity.has('components.element') &&
                 editor.call('permissions:write') &&
                 selectedEntity.entity &&
-                selectedEntity.entity.element.screen;
+                selectedEntity.entity.element.screen
+            );
         };
 
         editor.method('gizmo:anchor:visible', (state: boolean) => {
@@ -182,6 +201,9 @@ editor.once('load', () => {
             }
         });
 
+        let onTapStart = undefined;
+        let pickPlane = undefined;
+
         editor.on('viewport:gizmoUpdate', (dt: number) => {
             gizmoAnchor.root.enabled = gizmoEnabled();
             if (!gizmoAnchor.root.enabled) {
@@ -190,7 +212,6 @@ editor.once('load', () => {
 
             const entity = selectedEntity.entity;
             const parent = entity.parent && entity.parent.element ? entity.parent : entity.element.screen;
-
 
             const camera = editor.call('camera:current');
             const posCamera = camera.getPosition();
@@ -205,10 +226,10 @@ editor.once('load', () => {
                 const center = vecA;
                 center.lerp(gizmoAnchor.handles.bl.getPosition(), gizmoAnchor.handles.tr.getPosition(), 0.5);
                 const dot = center.sub(posCamera).dot(camera.forward);
-                const denom = 1280 / (2 * Math.tan(camera.camera.fov * math.DEG_TO_RAD / 2));
+                const denom = 1280 / (2 * Math.tan((camera.camera.fov * math.DEG_TO_RAD) / 2));
                 scale = Math.max(0.0001, (dot / denom) * 150) * gizmoSize;
             } else {
-                scale = camera.camera.orthoHeight / 3 * gizmoSize;
+                scale = (camera.camera.orthoHeight / 3) * gizmoSize;
             }
 
             gizmoAnchor.handles.tr.setLocalScale(scale, scale, scale);
@@ -226,7 +247,9 @@ editor.once('load', () => {
                 resY = parent.screen.resolution.y;
 
                 if (parent.screen.scaleMode === 'blend') {
-                    const resScale = parent.screen._calcScale(parent.screen.resolution, parent.screen.referenceResolution) || Number.MIN_VALUE;
+                    const resScale =
+                        parent.screen._calcScale(parent.screen.resolution, parent.screen.referenceResolution) ||
+                        Number.MIN_VALUE;
                     resX /= resScale;
                     resY /= resScale;
                 }
@@ -250,19 +273,61 @@ editor.once('load', () => {
                         anchorCurrent[i] = anchorStart[i];
                     }
 
-                    if (gizmoAnchor.handle === gizmoAnchor.handles.tr || gizmoAnchor.handle === gizmoAnchor.handles.tl) {
-                        anchorCurrent[3] = offsetAnchor(anchorCurrent[3], offset.y / resY, anchorCurrent[1], 1, snapIncrement);
+                    if (
+                        gizmoAnchor.handle === gizmoAnchor.handles.tr ||
+                        gizmoAnchor.handle === gizmoAnchor.handles.tl
+                    ) {
+                        anchorCurrent[3] = offsetAnchor(
+                            anchorCurrent[3],
+                            offset.y / resY,
+                            anchorCurrent[1],
+                            1,
+                            snapIncrement
+                        );
                         if (gizmoAnchor.handle === gizmoAnchor.handles.tr) {
-                            anchorCurrent[2] = offsetAnchor(anchorCurrent[2], offset.x / resX, anchorCurrent[0], 1, snapIncrement);
+                            anchorCurrent[2] = offsetAnchor(
+                                anchorCurrent[2],
+                                offset.x / resX,
+                                anchorCurrent[0],
+                                1,
+                                snapIncrement
+                            );
                         } else {
-                            anchorCurrent[0] = offsetAnchor(anchorCurrent[0], offset.x / resX, 0, anchorCurrent[2], snapIncrement);
+                            anchorCurrent[0] = offsetAnchor(
+                                anchorCurrent[0],
+                                offset.x / resX,
+                                0,
+                                anchorCurrent[2],
+                                snapIncrement
+                            );
                         }
-                    } else if (gizmoAnchor.handle === gizmoAnchor.handles.br || gizmoAnchor.handle === gizmoAnchor.handles.bl) {
-                        anchorCurrent[1] = offsetAnchor(anchorCurrent[1], offset.y / resY, 0, anchorCurrent[3], snapIncrement);
+                    } else if (
+                        gizmoAnchor.handle === gizmoAnchor.handles.br ||
+                        gizmoAnchor.handle === gizmoAnchor.handles.bl
+                    ) {
+                        anchorCurrent[1] = offsetAnchor(
+                            anchorCurrent[1],
+                            offset.y / resY,
+                            0,
+                            anchorCurrent[3],
+                            snapIncrement
+                        );
                         if (gizmoAnchor.handle === gizmoAnchor.handles.br) {
-                            anchorCurrent[2] = offsetAnchor(anchorCurrent[2], offset.x / resX, anchorCurrent[0], 1, snapIncrement);
+                            anchorCurrent[2] = offsetAnchor(
+                                anchorCurrent[2],
+                                offset.x / resX,
+                                anchorCurrent[0],
+                                1,
+                                snapIncrement
+                            );
                         } else {
-                            anchorCurrent[0] = offsetAnchor(anchorCurrent[0], offset.x / resX, 0, anchorCurrent[2], snapIncrement);
+                            anchorCurrent[0] = offsetAnchor(
+                                anchorCurrent[0],
+                                offset.x / resX,
+                                0,
+                                anchorCurrent[2],
+                                snapIncrement
+                            );
                         }
                     }
                     // else if (gizmoAnchor.handle === gizmoAnchor.handles.center) {
@@ -318,7 +383,12 @@ editor.once('load', () => {
                     editor.emit('gizmo:transform:visible', false);
 
                     for (const key in gizmoAnchor.handles) {
-                        setModelMaterial(gizmoAnchor.handles[key].handleModel, gizmoAnchor.handles[key] === gizmoAnchor.handle ? gizmoAnchor.matActive : gizmoAnchor.matInactive);
+                        setModelMaterial(
+                            gizmoAnchor.handles[key].handleModel,
+                            gizmoAnchor.handles[key] === gizmoAnchor.handle
+                                ? gizmoAnchor.matActive
+                                : gizmoAnchor.matInactive
+                        );
                     }
 
                     if (!evtTapStart) {
@@ -328,7 +398,7 @@ editor.once('load', () => {
             }
         });
 
-        var onTapStart = function (tap: { button: number; x: number; y: number }) {
+        onTapStart = function (tap: { button: number; x: number; y: number }) {
             if (moving || tap.button !== 0) {
                 return;
             }
@@ -415,7 +485,7 @@ editor.once('load', () => {
             }
         };
 
-        var pickPlane = function (x: number, y: number): Vec3 {
+        pickPlane = function (x: number, y: number): Vec3 {
             const camera = editor.call('camera:current');
 
             const mouseWPos = camera.camera.screenToWorld(x, y, camera.camera.farClip);
@@ -446,6 +516,5 @@ editor.once('load', () => {
 
         editor.on('viewport:tap:move', onTapMove);
         editor.on('viewport:tap:end', onTapEnd);
-
     });
 });

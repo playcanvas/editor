@@ -2,11 +2,24 @@ import { Container, TextAreaInput } from '@playcanvas/pcui';
 
 import { config } from '@/editor/config';
 
-import { buildNameIndex, indexTemplateEntities, templateEntitiesFor, templateEntityPath, type NameIndex } from './vc-diff-data';
+import { diffCreate } from '../../messenger/jobs';
+
+import { buildNameIndex, indexTemplateEntities, templateEntitiesFor, templateEntityPath } from './vc-diff-data';
+import type { NameIndex } from './vc-diff-data';
 import { destroyValueFields } from './vc-diff-fields';
 import { renderPreviewPropertyDiff } from './vc-diff-preview';
-import { DIFF_SLOW_HINT_MS, DIFF_SLOW_HINT_TEXT, diffTextChangeCounts, hashChip, isHiddenDiffField, lineChangeCounts, splitDiffPath, summarizeDiff, typeLabel, type DiffSummary } from './vc-helpers';
-import { diffCreate } from '../../messenger/jobs';
+import {
+    DIFF_SLOW_HINT_MS,
+    DIFF_SLOW_HINT_TEXT,
+    diffTextChangeCounts,
+    hashChip,
+    isHiddenDiffField,
+    lineChangeCounts,
+    splitDiffPath,
+    summarizeDiff,
+    typeLabel
+} from './vc-helpers';
+import type { DiffSummary } from './vc-helpers';
 
 // composer height bounds — drag the top edge to resize; persisted per browser.
 // the min keeps the textarea usable above the Create button + tip chrome
@@ -63,7 +76,10 @@ export const createChangesPanel = () => {
         resizable: 'top',
         resizeMin: COMPOSER_MIN_H,
         resizeMax: COMPOSER_MAX_H,
-        height: Math.min(COMPOSER_MAX_H, Math.max(COMPOSER_MIN_H, editor.call('localStorage:get', COMPOSER_KEY) || COMPOSER_DEFAULT_H))
+        height: Math.min(
+            COMPOSER_MAX_H,
+            Math.max(COMPOSER_MIN_H, editor.call('localStorage:get', COMPOSER_KEY) || COMPOSER_DEFAULT_H)
+        )
     });
     form.on('resize', () => {
         editor.call('localStorage:set', COMPOSER_KEY, form.height);
@@ -84,7 +100,8 @@ export const createChangesPanel = () => {
     form.dom.appendChild(create);
 
     const gateCreate = () => {
-        create.disabled = create.classList.contains('busy') || !description.value.trim() || !editor.call('permissions:write');
+        create.disabled =
+            create.classList.contains('busy') || !description.value.trim() || !editor.call('permissions:write');
     };
 
     description.on('change', gateCreate);
@@ -112,7 +129,10 @@ export const createChangesPanel = () => {
     const renderList = () => {
         list.innerHTML = '';
         if (loading) {
-            list.insertAdjacentHTML('beforeend', `<div class="vc-skeleton">${'<div class="skeleton-row"><span class="bone line"></span></div>'.repeat(3)}</div>`);
+            list.insertAdjacentHTML(
+                'beforeend',
+                `<div class="vc-skeleton">${'<div class="skeleton-row"><span class="bone line"></span></div>'.repeat(3)}</div>`
+            );
             return;
         }
         if (!current || !current.total) {
@@ -161,7 +181,9 @@ export const createChangesPanel = () => {
     };
 
     const fileName = (conflict: any, entry: any, side: 'src' | 'dst') => {
-        return side === 'src' ? entry.srcFilename ?? conflict.srcFilename : entry.dstFilename ?? conflict.dstFilename;
+        return side === 'src'
+            ? (entry.srcFilename ?? conflict.srcFilename)
+            : (entry.dstFilename ?? conflict.dstFilename);
     };
 
     const loadLineCounts = (conflict: any, entry: any) => {
@@ -169,21 +191,29 @@ export const createChangesPanel = () => {
         if (id && entry.id && entry.mergedFilePath) {
             const key = JSON.stringify([id, entry.id, entry.mergedFilePath]);
             if (!fileStats.has(key)) {
-                fileStats.set(key, editor.api.globals.rest.merge.mergeConflicts({
-                    mergeId: id,
-                    conflictId: entry.id,
-                    fileName: entry.mergedFilePath,
-                    resolved: false
-                }).promisify()
-                .then(diffTextChangeCounts)
-                .catch((err: unknown) => {
-                    log.error(err);
-                    return null;
-                }));
+                fileStats.set(
+                    key,
+                    editor.api.globals.rest.merge
+                        .mergeConflicts({
+                            mergeId: id,
+                            conflictId: entry.id,
+                            fileName: entry.mergedFilePath,
+                            resolved: false
+                        })
+                        .promisify()
+                        .then(diffTextChangeCounts)
+                        .catch((err: unknown) => {
+                            log.error(err);
+                            return null;
+                        })
+                );
             }
             return fileStats.get(key)!;
         }
-        const inline = lineChangeCounts(entry.srcValue ?? (entry.missingInSrc ? '' : undefined), entry.dstValue ?? (entry.missingInDst ? '' : undefined));
+        const inline = lineChangeCounts(
+            entry.srcValue ?? (entry.missingInSrc ? '' : undefined),
+            entry.dstValue ?? (entry.missingInDst ? '' : undefined)
+        );
         if (inline) {
             return Promise.resolve(inline);
         }
@@ -284,8 +314,11 @@ export const createChangesPanel = () => {
         card.appendChild(head);
 
         const h = document.createElement('h3');
-        h.textContent = loading ? 'Computing changes…' :
-            current ? `${current.total} change${current.total === 1 ? '' : 's'} since your last checkpoint` : 'Changes';
+        h.textContent = loading
+            ? 'Computing changes…'
+            : current
+              ? `${current.total} change${current.total === 1 ? '' : 's'} since your last checkpoint`
+              : 'Changes';
         head.appendChild(h);
 
         const side = document.createElement('div');
@@ -318,10 +351,13 @@ export const createChangesPanel = () => {
 
         // field-level diff of the selected change
         if (loading) {
-            card.insertAdjacentHTML('beforeend', `<div class="vc-field-diff"><div class="vc-skeleton">${'<div class="skeleton-row"><span class="bone line"></span></div>'.repeat(3)}</div></div>`);
+            card.insertAdjacentHTML(
+                'beforeend',
+                `<div class="vc-field-diff"><div class="vc-skeleton">${'<div class="skeleton-row"><span class="bone line"></span></div>'.repeat(3)}</div></div>`
+            );
         } else if (current && current.total) {
             const sel = selIdx;
-            const selItem = current.groups.flatMap(g => g.items).find(it => it.index === sel) ?? null;
+            const selItem = current.groups.flatMap((g) => g.items).find((it) => it.index === sel) ?? null;
             const conflict = raw?.conflicts?.[selIdx];
             if (selItem && conflict) {
                 const itemHead = document.createElement('div');
@@ -413,52 +449,54 @@ export const createChangesPanel = () => {
                 (summary.dom.querySelector('.vc-card') ?? summary.dom).appendChild(hint);
             }
         }, DIFF_SLOW_HINT_MS);
-        pending.then((diff: any) => {
-            clearTimeout(slowHint);
-            // single-flight: clear loading even for superseded responses or refresh deadlocks
-            loading = false;
-            if (snap !== gen) {
-                // a refresh landed while this fetch was in flight (e.g. the double
-                // invalidate() after creating a checkpoint) and was dropped — run it now
-                refresh();
-                return;
-            }
-            rawPromise = null;
-            stale = false;
-            const oldId = rawDiffLive ? diffId(raw) : null;
-            const next = diff ?? {};
-            const nextId = diffId(next);
-            if (typeof oldId === 'string' && oldId !== nextId) {
-                editor.call('picker:versioncontrol:releaseDiff', oldId);
-            }
-            raw = next;
-            rawDiffLive = typeof nextId === 'string';
-            current = summarizeDiff(raw);
-            nameIndex = buildNameIndex(raw);
-            indexTemplateEntities(nameIndex, raw.conflicts ?? [], (id: any) => editor.call('assets:get', id));
-            fileStats.clear();
-            // indices shift on every recompute; default to the first change
-            selIdx = current.total ? current.groups[0].items[0].index : null;
-            render();
-            sidebar.emit('count', current.total);
-        }).catch((err) => {
-            clearTimeout(slowHint);
-            loading = false;
-            if (snap !== gen) {
-                // superseded by a dropped refresh (see .then above) — run it now
-                refresh();
-                return;
-            }
-            rawPromise = null;
-            log.error(err);
-            current = null;
-            releaseRawDiff();
-            raw = null;
-            selIdx = null;
-            render();
-            // keep the tab label honest; the count getter now reports null
-            sidebar.emit('count', 0);
-        });
+        pending
+            .then((diff: any) => {
+                clearTimeout(slowHint);
+                // single-flight: clear loading even for superseded responses or refresh deadlocks
+                loading = false;
+                if (snap !== gen) {
+                    // a refresh landed while this fetch was in flight (e.g. the double
+                    // invalidate() after creating a checkpoint) and was dropped — run it now
+                    refresh();
+                    return;
+                }
+                rawPromise = null;
+                stale = false;
+                const oldId = rawDiffLive ? diffId(raw) : null;
+                const next = diff ?? {};
+                const nextId = diffId(next);
+                if (typeof oldId === 'string' && oldId !== nextId) {
+                    editor.call('picker:versioncontrol:releaseDiff', oldId);
+                }
+                raw = next;
+                rawDiffLive = typeof nextId === 'string';
+                current = summarizeDiff(raw);
+                nameIndex = buildNameIndex(raw);
+                indexTemplateEntities(nameIndex, raw.conflicts ?? [], (id: any) => editor.call('assets:get', id));
+                fileStats.clear();
+                // indices shift on every recompute; default to the first change
+                selIdx = current.total ? current.groups[0].items[0].index : null;
+                render();
+                sidebar.emit('count', current.total);
+            })
+            .catch((err) => {
+                clearTimeout(slowHint);
+                loading = false;
+                if (snap !== gen) {
+                    // superseded by a dropped refresh (see .then above) — run it now
+                    refresh();
+                    return;
+                }
+                rawPromise = null;
+                log.error(err);
+                current = null;
+                releaseRawDiff();
+                raw = null;
+                selIdx = null;
+                render();
+                // keep the tab label honest; the count getter now reports null
+                sidebar.emit('count', 0);
+            });
     }
 
     Object.assign(sidebar, {

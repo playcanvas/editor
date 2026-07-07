@@ -8,7 +8,7 @@ const createColorMaterial = (useVertexColor?: boolean) => {
     material.diffuse = new Color(0, 0, 0);
     material.ambient = new Color(0, 0, 0);
     material.emissiveVertexColor = useVertexColor;
-    material.getShaderChunks(SHADERLANGUAGE_GLSL).set('debugOutputPS', '');   // do not apply debug output shader code to gizmo
+    material.getShaderChunks(SHADERLANGUAGE_GLSL).set('debugOutputPS', ''); // do not apply debug output shader code to gizmo
     material.update();
 
     // Convenience function to set up color and opacity as a color property.
@@ -21,7 +21,6 @@ const createColorMaterial = (useVertexColor?: boolean) => {
 const addColorProperty = (material: StandardMaterial): void => {
     Object.defineProperty(material, 'color', {
         set: function (value: Color) {
-
             const linearColor = new Color();
             linearColor.linear(value);
 

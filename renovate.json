@@ -1,70 +1,54 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ],
-  "packageRules": [
-    {
-      "matchPackageNames": ["node"],
-      "matchDepTypes": ["engines"],
-      "allowedVersions": "22.x",
-      "rangeStrategy": "pin"
-    },
-    {
-      "matchPackageNames": ["node"],
-      "matchManagers": ["nvm"],
-      "allowedVersions": "22.x",
-      "rangeStrategy": "pin"
-    },
-    {
-      "matchManagers": [
-        "npm"
-      ],
-      "groupName": "all npm dependencies",
-      "schedule": [
-        "on monday at 10:00am"
-      ]
-    },
-    {
-      "matchManagers": [
-        "npm",
-        "dockerfile"
-      ],
-      "matchPackageNames": [
-        "@playwright/test",
-        "mcr.microsoft.com/playwright"
-      ],
-      "groupName": "playwright",
-      "minimumGroupSize": 2,
-      "schedule": [
-        "on monday at 10:00am"
-      ]
-    },
-    {
-      "matchPackageNames": [
-        "@playcanvas/attribute-parser",
-        "@playcanvas/eslint-config",
-        "@playcanvas/observer",
-        "@playcanvas/pcui",
-        "@playcanvas/pcui-graph"
-      ],
-      "groupName": "internal @playcanvas dependencies",
-      "schedule": [
-        "at any time"
-      ]
-    },
-    {
-      "matchPackageNames": ["monaco-editor"],
-      "allowedVersions": "0.47.0",
-      "rangeStrategy": "pin"
-    },
-    {
-      "matchDepTypes": ["devDependencies"],
-      "rangeStrategy": "pin"
-    },
-    {
-      "matchDepTypes": ["dependencies"],
-      "rangeStrategy": "widen"
-    }
-  ]
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": ["config:recommended"],
+    "packageRules": [
+        {
+            "matchPackageNames": ["node"],
+            "matchDepTypes": ["engines"],
+            "allowedVersions": "22.x",
+            "rangeStrategy": "pin"
+        },
+        {
+            "matchPackageNames": ["node"],
+            "matchManagers": ["nvm"],
+            "allowedVersions": "22.x",
+            "rangeStrategy": "pin"
+        },
+        {
+            "matchManagers": ["npm"],
+            "groupName": "all npm dependencies",
+            "schedule": ["on monday at 10:00am"]
+        },
+        {
+            "matchManagers": ["npm", "dockerfile"],
+            "matchPackageNames": ["@playwright/test", "mcr.microsoft.com/playwright"],
+            "groupName": "playwright",
+            "minimumGroupSize": 2,
+            "schedule": ["on monday at 10:00am"]
+        },
+        {
+            "matchPackageNames": [
+                "@playcanvas/attribute-parser",
+                "@playcanvas/eslint-config",
+                "@playcanvas/observer",
+                "@playcanvas/pcui",
+                "@playcanvas/pcui-graph"
+            ],
+            "groupName": "internal @playcanvas dependencies",
+            "schedule": ["at any time"]
+        },
+        {
+            "matchPackageNames": ["monaco-editor"],
+            "allowedVersions": "0.47.0",
+            "rangeStrategy": "pin"
+        },
+        {
+            "matchDepTypes": ["devDependencies"],
+            "rangeStrategy": "pin"
+        },
+        {
+            "matchDepTypes": ["dependencies"],
+            "rangeStrategy": "widen"
+        }
+    ]
 }

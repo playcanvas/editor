@@ -8,7 +8,7 @@ import { Guid } from './guid';
  * @category Internal
  */
 class Jobs extends Events {
-    private _jobsInProgress: Record<string, Function> = {};
+    private _jobsInProgress: Record<string, (...args: any[]) => unknown> = {};
 
     /**
      * Adds a new job. The specified function will be returned when the
@@ -22,7 +22,7 @@ class Jobs extends Events {
      * editor.jobs.finish(jobId)(); // prints 'job was finished'
      * ```
      */
-    start(fn: Function) {
+    start(fn: (...args: any[]) => unknown) {
         const jobId = Guid.create().substring(0, 8);
         this._jobsInProgress[jobId] = fn;
         this.emit('start', jobId);

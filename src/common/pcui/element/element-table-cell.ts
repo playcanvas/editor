@@ -1,14 +1,15 @@
-import { Container, ContainerArgs } from '@playcanvas/pcui';
+import type { ContainerArgs } from '@playcanvas/pcui';
+import { Container } from '@playcanvas/pcui';
 
 const CLASS_CELL = 'pcui-table-cell';
 
 /**
  * The arguments for the {@link TableCell} constructor.
  */
-interface TableCellArgs extends ContainerArgs {
+type TableCellArgs = {
     /** If true then this cell belongs to a header row so it will use the <th> element */
     header?: boolean;
-}
+} & ContainerArgs;
 
 /**
  * Represents a table cell inside a TableRow

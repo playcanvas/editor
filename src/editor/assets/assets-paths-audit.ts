@@ -53,7 +53,7 @@ const startChecker = () => {
     });
 
     editor.on('assets:paths:fixes:apply', () => {
-        const previous = new Map<string, Array<string | number>>();
+        const previous = new Map<string, (string | number)[]>();
 
         const undo = () => {
             for (const [id, oldPath] of previous) {
@@ -83,7 +83,11 @@ const startChecker = () => {
                 asset.history.enabled = false;
                 asset.set('path', newPath);
                 asset.history.enabled = true;
-                editor.call('console:log:asset', asset, `asset path was deduped from [${oldPath.join(', ')}] to [${newPath.join(', ')}]`);
+                editor.call(
+                    'console:log:asset',
+                    asset,
+                    `asset path was deduped from [${oldPath.join(', ')}] to [${newPath.join(', ')}]`
+                );
             }
             pathFixes.clear();
             editor.call('assets:auditor:report', 'paths', pathFixes.size, 0);

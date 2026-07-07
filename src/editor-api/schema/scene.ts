@@ -1,4 +1,4 @@
-import { Schema } from '../schema';
+import type { Schema } from '../schema';
 import { utils } from '../utils';
 
 /**
@@ -30,7 +30,7 @@ class SceneSchema {
                 continue;
             }
 
-            if (obj[key].hasOwnProperty('$default')) {
+            if (Object.prototype.hasOwnProperty.call(obj[key], '$default')) {
                 result[key] = utils.deepCopy(obj[key].$default);
                 continue;
             } else {

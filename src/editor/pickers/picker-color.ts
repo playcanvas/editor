@@ -10,13 +10,21 @@ editor.once('load', () => {
     let channelsNumber = 4;
     let changing = false;
     let dragging = false;
-
+    let updateRects = undefined;
+    let callCallback = undefined;
+    let pickRect = undefined;
+    let pickRectHandle = undefined;
+    let pickHue = undefined;
+    let pickHueHandle = undefined;
+    let pickOpacityHandle = undefined;
+    let fieldA = undefined;
+    let fieldHex = undefined;
 
     // make hex out of channels
     const getHex = function () {
         let hex = '';
         for (let i = 0; i < channelsNumber; i++) {
-            hex += (`00${channels[i].value.toString(16)}`).slice(-2).toUpperCase();
+            hex += `00${channels[i].value.toString(16)}`.slice(-2).toUpperCase();
         }
         return hex;
     };
@@ -29,7 +37,7 @@ editor.once('load', () => {
         const y = Math.max(0, Math.min(size, Math.floor(evt.clientY - rect.top)));
 
         colorHSV[1] = x / size;
-        colorHSV[2] = 1.0 - (y / size);
+        colorHSV[2] = 1.0 - y / size;
 
         directInput = false;
         const rgb = hsv2rgb([colorHSV[0], colorHSV[1], colorHSV[2]]);
@@ -102,7 +110,6 @@ editor.once('load', () => {
         editor.emit('picker:color:end');
     };
 
-
     const updateHex = function () {
         if (!directInput) {
             return;
@@ -120,12 +127,13 @@ editor.once('load', () => {
         changing = false;
     };
 
-
     // update rgb
-    var updateRects = function () {
-        const color = channels.map((channel) => {
-            return channel.value || 0;
-        }).slice(0, channelsNumber);
+    updateRects = function () {
+        const color = channels
+            .map((channel) => {
+                return channel.value || 0;
+            })
+            .slice(0, channelsNumber);
 
         const hsv = rgb2hsv(color);
         if (directInput) {
@@ -171,7 +179,7 @@ editor.once('load', () => {
         }
 
         // position
-        pickOpacityHandle.style.top = `${Math.floor(size * (1.0 - (Math.max(0, Math.min(255, value)) / 255)))}px`;
+        pickOpacityHandle.style.top = `${Math.floor(size * (1.0 - Math.max(0, Math.min(255, value)) / 255))}px`;
 
         // color
         pickOpacityHandle.style.backgroundColor = `rgb(${[value, value, value].join(',')})`;
@@ -179,16 +187,20 @@ editor.once('load', () => {
         callCallback();
     };
 
-
     let callingCallback = false;
     const callbackHandle = function () {
         callingCallback = false;
 
-        editor.emit('picker:color', channels.map((channel) => {
-            return channel.value || 0;
-        }).slice(0, channelsNumber));
+        editor.emit(
+            'picker:color',
+            channels
+                .map((channel) => {
+                    return channel.value || 0;
+                })
+                .slice(0, channelsNumber)
+        );
     };
-    var callCallback = function () {
+    callCallback = function () {
         if (callingCallback) {
             return;
         }
@@ -196,7 +208,6 @@ editor.once('load', () => {
         callingCallback = true;
         setTimeout(callbackHandle, 1000 / 60);
     };
-
 
     // overlay
     const overlay = new Overlay({
@@ -207,9 +218,8 @@ editor.once('load', () => {
     });
     overlay.domContent.classList.add('content');
 
-
     // rectangular picker
-    var pickRect = document.createElement('div');
+    pickRect = document.createElement('div');
     pickRect.classList.add('pick-rect');
     overlay.append(pickRect);
 
@@ -237,13 +247,12 @@ editor.once('load', () => {
     pickRect.appendChild(pickRectBlack);
 
     // handle
-    var pickRectHandle = document.createElement('div');
+    pickRectHandle = document.createElement('div');
     pickRectHandle.classList.add('handle');
     pickRect.appendChild(pickRectHandle);
 
-
     // hue (rainbow) picker
-    var pickHue = document.createElement('div');
+    pickHue = document.createElement('div');
     pickHue.classList.add('pick-hue');
     overlay.append(pickHue);
 
@@ -261,10 +270,9 @@ editor.once('load', () => {
     });
 
     // handle
-    var pickHueHandle = document.createElement('div');
+    pickHueHandle = document.createElement('div');
     pickHueHandle.classList.add('handle');
     pickHue.appendChild(pickHueHandle);
-
 
     // opacity (gradient) picker
     const pickOpacity = document.createElement('div');
@@ -285,16 +293,14 @@ editor.once('load', () => {
     });
 
     // handle
-    var pickOpacityHandle = document.createElement('div');
+    pickOpacityHandle = document.createElement('div');
     pickOpacityHandle.classList.add('handle');
     pickOpacity.appendChild(pickOpacityHandle);
-
 
     // fields
     const panelFields = document.createElement('div');
     panelFields.classList.add('fields');
     overlay.append(panelFields);
-
 
     // R
     const fieldR = new NumericInput({
@@ -342,9 +348,8 @@ editor.once('load', () => {
     fieldB.on('change', updateRects);
     panelFields.appendChild(fieldB.dom);
 
-
     // A
-    var fieldA = new NumericInput({
+    fieldA = new NumericInput({
         precision: 1,
         step: 1,
         min: 0,
@@ -358,9 +363,8 @@ editor.once('load', () => {
     fieldA.on('change', updateRectAlpha);
     panelFields.appendChild(fieldA.dom);
 
-
     // HEX
-    var fieldHex = new TextInput({
+    fieldHex = new TextInput({
         renderChanges: false,
         placeholder: '#'
     });
@@ -370,10 +374,8 @@ editor.once('load', () => {
     });
     panelFields.appendChild(fieldHex.dom);
 
-
     const root = editor.call('layout.root');
     root.append(overlay);
-
 
     // esc to close
     editor.call('hotkey:register', 'picker:color:close', {
@@ -387,11 +389,9 @@ editor.once('load', () => {
         }
     });
 
-
     overlay.on('hide', () => {
         editor.emit('picker:color:close');
     });
-
 
     // call picker
     editor.method('picker:color', (color) => {

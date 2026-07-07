@@ -4,7 +4,7 @@ editor.once('load', () => {
     let counter = 0;
     let scale = 0.2;
     let events = [];
-    let cacheAssetLoading = { };
+    let cacheAssetLoading = {};
     let cacheShaderCompile = [];
     let cacheShaderCompileEvents = [];
     let cacheLightmapper = null;
@@ -25,21 +25,21 @@ editor.once('load', () => {
     // colors for different kinds of events
     const kindColors = {
         '': '#ff0',
-        'asset': '#6f6',
-        'shader': '#f60',
-        'update': '#06f',
-        'render': '#07f',
-        'physics': '#0ff',
-        'lightmap': '#f6f'
+        asset: '#6f6',
+        shader: '#f60',
+        update: '#06f',
+        render: '#07f',
+        physics: '#0ff',
+        lightmap: '#f6f'
     };
     const kindColorsOverview = {
         '': '#ff0',
-        'asset': '#6f6',
-        'shader': '#f60',
-        'update': '#06f',
-        'render': '#07f',
-        'physics': '#0ff',
-        'lightmap': '#f6f'
+        asset: '#6f6',
+        shader: '#f60',
+        update: '#06f',
+        render: '#07f',
+        physics: '#0ff',
+        lightmap: '#f6f'
     };
 
     const render = function () {
@@ -71,14 +71,16 @@ editor.once('load', () => {
                 ctx.stroke();
             }
 
-            let s = Math.floor(x + (scrollTime / 1000));
+            let s = Math.floor(x + scrollTime / 1000);
             const m = Math.floor(s / 60);
             s %= 60;
             ctx.fillText(`${(m ? `${m}m ` : '') + s}s`, barX + 2.5, canvas.height - 2.5);
         }
 
         // events
-        let e, x2 = 0, y;
+        let e,
+            x2 = 0,
+            y;
         x = 0;
         for (i = 0; i < events.length; i++) {
             e = events[i];
@@ -99,7 +101,6 @@ editor.once('load', () => {
                 if (e.t2 === -1) {
                     t2 = now - scrollTime;
                 }
-
 
                 x2 = Math.max(Math.floor(t2 * scale), x + 1);
 
@@ -206,7 +207,7 @@ editor.once('load', () => {
 
     editor.on('tools:clear', () => {
         events = [];
-        cacheAssetLoading = { };
+        cacheAssetLoading = {};
         cacheShaderCompile = [];
         cacheShaderCompileEvents = [];
     });
@@ -239,7 +240,6 @@ editor.once('load', () => {
     editor.method('tools:timeline:add', addEvent);
 
     editor.once('launcher:device:ready', () => {
-
         // subscribe to app reload start
         app.once('preload:start', () => {
             if (!enabled) {
@@ -287,7 +287,6 @@ editor.once('load', () => {
             editor.emit('tools:timeline:update', cacheAssetLoading[asset.id]);
             delete cacheAssetLoading[asset.id];
         });
-
 
         const onShaderStart = function (evt: { timestamp: number; target: unknown }) {
             if (!enabled) {
@@ -378,7 +377,6 @@ editor.once('load', () => {
         // subscribe to lightmapper baking
         app.graphicsDevice.on('lightmapper:start', onLightmapperStart);
         app.graphicsDevice.on('lightmapper:end', onLightmapperEnd);
-
     });
 
     // add performance.timing events if available

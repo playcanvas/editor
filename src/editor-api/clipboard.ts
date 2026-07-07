@@ -44,7 +44,7 @@ class Clipboard {
      * Gets the value stored in the clipboard.
      */
     get value() {
-        return this._storage.get(this._name) as (object | string);
+        return this._storage.get(this._name) as object | string;
     }
 }
 

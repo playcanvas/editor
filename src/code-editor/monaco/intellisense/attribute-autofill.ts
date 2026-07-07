@@ -5,7 +5,7 @@ import { WorkerClient } from '@/core/worker/worker-client';
 
 export type Fix = Monaco.languages.TextEdit & {
     title?: string;
-}
+};
 
 type ParseAttribute = {
     isAttribute: boolean;
@@ -13,7 +13,7 @@ type ParseAttribute = {
     type: string;
     start: { line: number; column: number };
     end: { line: number; column: number };
-}
+};
 
 const OWNER = 'attribute-autofill';
 
@@ -25,7 +25,9 @@ const fetchTypes = async (url: string): Promise<string> => {
 
 const NULL_EDIT_PROVIDER: Monaco.languages.CodeLensList = {
     lenses: [],
-    dispose: () => {}
+    dispose: () => {
+        /* no-op */
+    }
 };
 
 const buildFixAction = (
@@ -53,8 +55,8 @@ const buildFixAction = (
 /**
  * JSDoc manipulation utilities
  */
-class JSDocUtils {
-    static ATTRIBUTE_TAGS = [
+const JSDocUtils = {
+    ATTRIBUTE_TAGS: [
         '@attribute',
         '@range',
         '@precision',
@@ -66,16 +68,16 @@ class JSDocUtils {
         '@enabledif',
         '@visibleif',
         '@color'
-    ];
+    ],
 
     /**
      * Get indentation from a line
      * @param line - The line to get the indentation from
      * @returns The indentation
      */
-    static getIndent(line: string): string {
+    getIndent(line: string): string {
         return line.match(/^(\s*)/)?.[0] || '';
-    }
+    },
 
     /**
      * Create JSDoc block with specified tags
@@ -83,23 +85,23 @@ class JSDocUtils {
      * @param tags - The tags to add to the JSDoc block
      * @returns The JSDoc block
      */
-    static createJSDoc(indent: string, tags: string[]) : string {
-        const tagLines = tags.map(tag => `${indent} * ${tag}`).join('\n');
+    createJSDoc(indent: string, tags: string[]): string {
+        const tagLines = tags.map((tag) => `${indent} * ${tag}`).join('\n');
         return `${indent}/**\n${tagLines}\n${indent} */\n`;
-    }
+    },
 
     /**
      * Remove attribute tags from single-line JSDoc
      * @param content - The content to clean
      * @returns The cleaned content
      */
-    static cleanSingleLineJSDoc(content: string): string {
+    cleanSingleLineJSDoc(content: string): string {
         let cleaned = content;
         JSDocUtils.ATTRIBUTE_TAGS.forEach((tag) => {
             cleaned = cleaned.replace(new RegExp(`\\s*\\*?\\s*${tag}\\s*`, 'g'), '');
         });
         return cleaned;
-    }
+    },
 
     /**
      * Find lines containing attribute tags
@@ -108,17 +110,17 @@ class JSDocUtils {
      * @param endLine - The end line number
      * @returns The lines containing attribute tags
      */
-    static findAttributeLines(lines: string[], startLine: number, endLine: number) : number[] {
+    findAttributeLines(lines: string[], startLine: number, endLine: number): number[] {
         const linesToRemove = [];
         for (let i = startLine - 1; i < endLine; i++) {
             const line = lines[i];
-            const hasAttributeTag = JSDocUtils.ATTRIBUTE_TAGS.some(tag => line.includes(tag));
+            const hasAttributeTag = JSDocUtils.ATTRIBUTE_TAGS.some((tag) => line.includes(tag));
             if (hasAttributeTag) {
                 linesToRemove.push(i + 1);
             }
         }
         return linesToRemove;
-    }
+    },
 
     /**
      * Check if a specific tag exists in the JSDoc block
@@ -128,7 +130,7 @@ class JSDocUtils {
      * @param tag - The tag to check for (e.g., '@range', '@attribute')
      * @returns Whether the tag exists in the JSDoc block
      */
-    static hasTagInJSDoc(model: Monaco.editor.ITextModel, startLine: number, endLine: number, tag: string) : boolean {
+    hasTagInJSDoc(model: Monaco.editor.ITextModel, startLine: number, endLine: number, tag: string): boolean {
         const lines = model.getLinesContent();
         for (let i = startLine - 1; i < endLine; i++) {
             const line = lines[i];
@@ -137,20 +139,17 @@ class JSDocUtils {
             }
         }
         return false;
-    }
+    },
 
     /**
      * Apply multiple edits in reverse order to maintain line numbers
      * @param model - The text model to apply edits to
      * @param edits - The edits to apply
      */
-    static applyEditsReverse(
-        model: Monaco.editor.ITextModel,
-        edits: Monaco.editor.IIdentifiedSingleEditOperation[]
-    ): void {
-        edits.reverse().forEach(edit => model.applyEdits([edit]));
+    applyEditsReverse(model: Monaco.editor.ITextModel, edits: Monaco.editor.IIdentifiedSingleEditOperation[]): void {
+        edits.reverse().forEach((edit) => model.applyEdits([edit]));
     }
-}
+};
 
 /**
  * Fetches all ESM scripts
@@ -162,14 +161,14 @@ class JSDocUtils {
 const fetchModuleScripts = async (
     cache: Map<string, string>,
     filter: string[] = []
-) : Promise<[[string, string][], string[]]> => {
+): Promise<[[string, string][], string[]]> => {
     const assets = (editor.call('assets:list') ?? []) as Observer[];
 
     // Get all the files that no longer exist. ie files in the cache, but not in esmScripts
     const deletedFiles = [];
 
     // loop over the file cache, remove any files that do no exist in the script assets
-    const assetPaths: string[] = assets.map(asset => editor.call('assets:virtualPath', asset)).filter(Boolean);
+    const assetPaths: string[] = assets.map((asset) => editor.call('assets:virtualPath', asset)).filter(Boolean);
     for (const filePath in cache) {
         if (!assetPaths.includes(filePath)) {
             deletedFiles.push(filePath);
@@ -177,41 +176,51 @@ const fetchModuleScripts = async (
         }
     }
 
-    const scripts = await Promise.all(assets.reduce((acc: Promise<[string, string]>[], asset: Observer) => {
-        // skip non-module assets
-        if (!editor.call('assets:isModule', asset)) {
-            return acc;
-        }
+    const scripts = await Promise.all(
+        assets.reduce(
+            (acc: Promise<[string, string]>[], asset: Observer) => {
+                // skip non-module assets
+                if (!editor.call('assets:isModule', asset)) {
+                    return acc;
+                }
 
-        // skip filtered paths
-        const path: string = editor.call('assets:virtualPath', asset);
-        if (!path || filter.includes(path)) {
-            return acc;
-        }
+                // skip filtered paths
+                const path: string = editor.call('assets:virtualPath', asset);
+                if (!path || filter.includes(path)) {
+                    return acc;
+                }
 
-        // skip cached files
-        const hash: string = asset.get('file.hash');
-        if (cache.get(path) === hash) {
-            return acc;
-        }
+                // skip cached files
+                const hash: string = asset.get('file.hash');
+                if (cache.get(path) === hash) {
+                    return acc;
+                }
 
-        // Attempt to fetch the script
-        try {
-            const url = editor.call('assets:realPath', asset);
+                // Attempt to fetch the script
+                try {
+                    const url = editor.call('assets:realPath', asset);
 
-            const promise: Promise<[string, string] | null> = fetch(url).then(res => res.text()).then((content) => {
-                cache.set(path, hash);
-                return [path, content] as [string, string];
-            }).catch((e) => {
-                log.error`failed to fetch esm script ${path}: ${e}`;
-                return null;
-            });
-            acc.push(promise);
-        } catch (e) {
-            log.error`failed to fetch esm script ${path}: ${e}`;
-        }
-        return acc;
-    }, [] as Promise<[string, string]>[]));
+                    const promise: Promise<[string, string] | null> = fetch(url)
+                        .then((res) => res.text())
+                        .then((content) => {
+                            cache.set(path, hash);
+                            return [path, content] as [string, string];
+                        })
+                        .catch((e) => {
+                            // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- tagged template call sets sentry fingerprint for grouping
+                            log.error`failed to fetch esm script ${path}: ${e}`;
+                            return null;
+                        });
+                    acc.push(promise);
+                } catch (e) {
+                    // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- tagged template call sets sentry fingerprint for grouping
+                    log.error`failed to fetch esm script ${path}: ${e}`;
+                }
+                return acc;
+            },
+            [] as Promise<[string, string]>[]
+        )
+    );
 
     return [scripts, deletedFiles];
 };
@@ -228,7 +237,7 @@ const modifyJSDocAttribute = (
     lineNumber: number,
     attribute: ParseAttribute | null,
     action: 'add' | 'addSlider' | 'remove'
-) : void => {
+): void => {
     const lines = model.getLinesContent();
 
     // If start == end (same position), no JSDoc exists
@@ -255,15 +264,17 @@ const modifyJSDocAttribute = (
         const tags = action === 'addSlider' ? ['@attribute', '@range [0, 100]'] : ['@attribute'];
         const jsDoc = JSDocUtils.createJSDoc(indent, tags);
 
-        model.applyEdits([{
-            range: {
-                startLineNumber: lineNumber,
-                startColumn: 1,
-                endLineNumber: lineNumber,
-                endColumn: 1
-            },
-            text: jsDoc
-        }]);
+        model.applyEdits([
+            {
+                range: {
+                    startLineNumber: lineNumber,
+                    startColumn: 1,
+                    endLineNumber: lineNumber,
+                    endColumn: 1
+                },
+                text: jsDoc
+            }
+        ]);
     }
 };
 
@@ -277,25 +288,27 @@ const JSDocActions = {
         startLine: number,
         endLine: number,
         isSingleLine: boolean
-    ) : void {
+    ): void {
         if (isSingleLine) {
             const lineContent = lines[startLine - 1];
             const newContent = JSDocUtils.cleanSingleLineJSDoc(lineContent);
 
             if (newContent !== lineContent) {
-                model.applyEdits([{
-                    range: {
-                        startLineNumber: startLine,
-                        startColumn: 1,
-                        endLineNumber: startLine,
-                        endColumn: lineContent.length + 1
-                    },
-                    text: newContent
-                }]);
+                model.applyEdits([
+                    {
+                        range: {
+                            startLineNumber: startLine,
+                            startColumn: 1,
+                            endLineNumber: startLine,
+                            endColumn: lineContent.length + 1
+                        },
+                        text: newContent
+                    }
+                ]);
             }
         } else {
             const linesToRemove = JSDocUtils.findAttributeLines(lines, startLine, endLine);
-            const edits: Monaco.editor.IIdentifiedSingleEditOperation[] = linesToRemove.map(lineNumber => ({
+            const edits: Monaco.editor.IIdentifiedSingleEditOperation[] = linesToRemove.map((lineNumber) => ({
                 range: {
                     startLineNumber: lineNumber,
                     startColumn: 1,
@@ -316,20 +329,22 @@ const JSDocActions = {
         indent: string,
         isSingleLine: boolean,
         action: 'add' | 'addSlider'
-    ) : void {
+    ): void {
         if (isSingleLine) {
             const tags = action === 'addSlider' ? ['@attribute', '@range [0, 100]'] : ['@attribute'];
             const newJsDoc = JSDocUtils.createJSDoc(indent, tags).slice(0, -1); // Remove trailing newline
 
-            model.applyEdits([{
-                range: {
-                    startLineNumber: startLine,
-                    startColumn: 1,
-                    endLineNumber: startLine,
-                    endColumn: startLineContent.length + 1
-                },
-                text: newJsDoc
-            }]);
+            model.applyEdits([
+                {
+                    range: {
+                        startLineNumber: startLine,
+                        startColumn: 1,
+                        endLineNumber: startLine,
+                        endColumn: startLineContent.length + 1
+                    },
+                    text: newJsDoc
+                }
+            ]);
         } else {
             const insertLine = startLine + 1;
             let tagsToAdd;
@@ -337,20 +352,24 @@ const JSDocActions = {
             if (action === 'addSlider') {
                 // Check if @range already exists using the utility function
                 const hasRangeTag = JSDocUtils.hasTagInJSDoc(model, startLine, endLine, '@range');
-                tagsToAdd = hasRangeTag ? `${indent} * @attribute\n` : `${indent} * @attribute\n${indent} * @range [0, 100]\n`;
+                tagsToAdd = hasRangeTag
+                    ? `${indent} * @attribute\n`
+                    : `${indent} * @attribute\n${indent} * @range [0, 100]\n`;
             } else {
                 tagsToAdd = `${indent} * @attribute\n`;
             }
 
-            model.applyEdits([{
-                range: {
-                    startLineNumber: insertLine,
-                    startColumn: 1,
-                    endLineNumber: insertLine,
-                    endColumn: 1
-                },
-                text: tagsToAdd
-            }]);
+            model.applyEdits([
+                {
+                    range: {
+                        startLineNumber: insertLine,
+                        startColumn: 1,
+                        endLineNumber: insertLine,
+                        endColumn: 1
+                    },
+                    text: tagsToAdd
+                }
+            ]);
         }
     }
 };
@@ -365,7 +384,7 @@ const addAttributeToMember = (
     model: Monaco.editor.ITextModel,
     lineNumber: number,
     attribute: ParseAttribute | null = null
-) : void => {
+): void => {
     modifyJSDocAttribute(model, lineNumber, attribute, 'add');
 };
 
@@ -398,7 +417,6 @@ const removeAttributeFromMember = (
 };
 
 editor.once('load', () => {
-
     // start worker client
     const workerClient = new WorkerClient(`${config.url.frontend}js/esm-script.worker.js`);
     workerClient.once('init', async () => {
@@ -442,7 +460,7 @@ editor.once('load', () => {
             // Handle errors only (no markers for attributes since we use code lenses)
             if (errors && errors.length > 0) {
                 // Store errors with fixes for code actions
-                const errorsWithFixes = errors.filter(error => error.fix);
+                const errorsWithFixes = errors.filter((error) => error.fix);
                 if (errorsWithFixes.length > 0) {
                     modelMarkersWithFixes.set(model, errorsWithFixes);
                 }
@@ -512,7 +530,7 @@ editor.once('load', () => {
         const lastKnownLenses = new Map();
 
         // Helper to convert an active lens into an inactive (no-op) lens
-        const toInactiveLens = lens => ({
+        const toInactiveLens = (lens) => ({
             ...lens,
             command: lens.command ? { id: 'attribute-autofill:inactive', title: lens.command.title } : undefined
         });
@@ -522,10 +540,9 @@ editor.once('load', () => {
 
         // register code lens provider
         monaco.languages.registerCodeLensProvider('javascript', {
-            // @ts-ignore - Monaco types are overly strict about IEvent<CodeLensProvider>
+            // @ts-expect-error - Monaco types are overly strict about IEvent<CodeLensProvider>
             onDidChange: codeLensChangeEmitter.event,
             provideCodeLenses: (model: Monaco.editor.ITextModel, _token: Monaco.CancellationToken) => {
-
                 // While busy analyzing, keep previous lenses visible (as inactive) to avoid flicker
                 if (busy) {
                     const cached = lastKnownLenses.get(model);
@@ -605,17 +622,28 @@ editor.once('load', () => {
                     }
                 }
 
-                const active = { lenses, dispose: () => {} };
-                const inactive = { lenses: lenses.map(toInactiveLens), dispose: () => {} };
+                const active = {
+                    lenses,
+                    dispose: () => {
+                        /* no-op */
+                    }
+                };
+                const inactive = {
+                    lenses: lenses.map(toInactiveLens),
+                    dispose: () => {
+                        /* no-op */
+                    }
+                };
                 lastKnownLenses.set(model, { active, inactive });
 
                 return active;
             }
         });
 
-
         // Register a no-op command for inactive lenses shown while updating
-        monaco.editor.registerCommand('attribute-autofill:inactive', () => {});
+        monaco.editor.registerCommand('attribute-autofill:inactive', () => {
+            /* no-op */
+        });
 
         // Register commands for the code lens actions
         monaco.editor.registerCommand('makeAttribute', async (accessor, uri, lineNumber, attribute) => {
@@ -665,24 +693,27 @@ editor.once('load', () => {
          */
         monaco.languages.registerCodeActionProvider('javascript', {
             provideCodeActions: (model: Monaco.editor.ITextModel) => {
-
                 const actions = [];
 
                 if (!busy) {
                     // Get all markers for this model, not just context markers
                     const allMarkers = monaco.editor.getModelMarkers({ owner: OWNER });
-                    const modelMarkers = allMarkers.filter(marker => marker.resource.toString() === model.uri.toString());
+                    const modelMarkers = allMarkers.filter(
+                        (marker) => marker.resource.toString() === model.uri.toString()
+                    );
 
                     modelMarkers.forEach((marker: Monaco.editor.IMarker) => {
                         // Process any provided fixes for the marker (both errors and warnings)
                         const markersWithFixes = modelMarkersWithFixes.get(model);
                         if (markersWithFixes) {
                             // Match by position instead of message for more reliable matching
-                            const error = markersWithFixes.find(error => (
-                                error.startLineNumber === marker.startLineNumber &&
-                                error.startColumn === marker.startColumn &&
-                                error.endLineNumber === marker.endLineNumber &&
-                                error.endColumn === marker.endColumn));
+                            const error = markersWithFixes.find(
+                                (error) =>
+                                    error.startLineNumber === marker.startLineNumber &&
+                                    error.startColumn === marker.startColumn &&
+                                    error.endLineNumber === marker.endLineNumber &&
+                                    error.endColumn === marker.endColumn
+                            );
 
                             if (error?.fix) {
                                 actions.push(buildFixAction(model, marker, error.fix));
@@ -737,12 +768,15 @@ editor.once('load', () => {
 
                     // Debounce the refetch to avoid too many requests
                     clearTimeout(modelTimeouts.get(model));
-                    modelTimeouts.set(model, setTimeout(async () => {
-                        if (modelDirtyFlags.get(model)) {
-                            await fetchAttributes(model);
-                            modelDirtyFlags.set(model, false);
-                        }
-                    }, 1000));
+                    modelTimeouts.set(
+                        model,
+                        setTimeout(async () => {
+                            if (modelDirtyFlags.get(model)) {
+                                await fetchAttributes(model);
+                                modelDirtyFlags.set(model, false);
+                            }
+                        }, 1000)
+                    );
                 });
 
                 // Listen for model disposal to clean up the dirty flag
@@ -755,7 +789,7 @@ editor.once('load', () => {
         };
 
         init(editor.call('documents:getFocused'));
-        editor.on('documents:focus', assetId => init(assetId));
+        editor.on('documents:focus', (assetId) => init(assetId));
     });
 
     workerClient.once('ready', () => workerClient.send('init', config.url.frontend));

@@ -1,7 +1,8 @@
 import { Events } from '@playcanvas/observer';
 
-import { Realtime } from '../realtime';
-import { RealtimeConnection } from './connection';
+import type { Realtime } from '../realtime';
+
+import type { RealtimeConnection } from './connection';
 
 /**
  * Represents an asset in sharedb
@@ -81,7 +82,7 @@ class RealtimeAsset extends Events {
      * @param op - The operation
      * @param callback - The callback
      */
-    submitOp(op: object, callback?: Function) {
+    submitOp(op: object, callback?: (...args: any[]) => unknown) {
         if (!this._loaded) {
             return;
         }
@@ -100,7 +101,7 @@ class RealtimeAsset extends Events {
      *
      * @param callback - The callback
      */
-    whenNothingPending(callback: Function) {
+    whenNothingPending(callback: (...args: any[]) => unknown) {
         if (this._document) {
             this._document.whenNothingPending(callback);
         }
@@ -136,12 +137,12 @@ class RealtimeAsset extends Events {
         }
 
         for (let i = 0; i < ops.length; i++) {
-            if (ops[i].p[0]) {
-                this._realtime.emit('asset:op', ops[i], this._uniqueId);
+            const op = ops[i];
+            if (op.p[0]) {
+                this._realtime.emit('asset:op', op, this._uniqueId);
             }
         }
     }
-
 
     /**
      * Whether the asset is loaded
@@ -154,7 +155,7 @@ class RealtimeAsset extends Events {
      * The asset data
      */
     get data() {
-        return ((this._loaded && this._document) ? this._document.data : null) as any;
+        return (this._loaded && this._document ? this._document.data : null) as any;
     }
 
     /**

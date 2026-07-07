@@ -3,7 +3,6 @@ editor.once('load', () => {
         return;
     }
 
-
     // track all script assets
     // detect any collisions of script object within assets
     // notify about primary script asset
@@ -16,7 +15,6 @@ editor.once('load', () => {
     const scriptsList = [];
     const scripts = {};
     const scriptsPrimary = {};
-
 
     const primaryScriptSet = function (asset: { get: (path: string) => unknown } | null, script: string) {
         if (asset === null && scriptsPrimary[script]) {
@@ -42,7 +40,7 @@ editor.once('load', () => {
 
         if (collisionScripts[script]) {
             for (const key in collisionScripts[script]) {
-                if (!collisionScripts[script].hasOwnProperty(key)) {
+                if (!Object.prototype.hasOwnProperty.call(collisionScripts[script], key)) {
                     continue;
                 }
 
@@ -59,15 +57,16 @@ editor.once('load', () => {
             }
 
             for (let i = 0; i < collides.length; i++) {
-                const key = collides[i].get('id');
+                const collider = collides[i];
+                const key = collider.get('id');
                 if (collisionStates[script][key]) {
                     continue;
                 }
 
-                collisionStates[script][key] = collides[i];
-                editor.emit('assets:scripts:collide', collides[i], script);
+                collisionStates[script][key] = collider;
+                editor.emit('assets:scripts:collide', collider, script);
                 editor.emit(`assets[${key}]:scripts:collide`, script);
-                editor.emit(`assets:scripts[${script}]:collide`, collides[i]);
+                editor.emit(`assets:scripts[${script}]:collide`, collider);
                 editor.emit(`assets[${key}]:scripts[${script}]:collide`);
             }
 
@@ -76,7 +75,7 @@ editor.once('load', () => {
             // no collision
             if (collisionStates[script]) {
                 for (const key in collisionStates[script]) {
-                    if (!collisionStates[script].hasOwnProperty(key)) {
+                    if (!Object.prototype.hasOwnProperty.call(collisionStates[script], key)) {
                         continue;
                     }
 
@@ -136,7 +135,7 @@ editor.once('load', () => {
 
             if (!collisionScripts[script][assetId]) {
                 for (const key in scripts[script]) {
-                    if (!scripts[script].hasOwnProperty(key) || collisionScripts[script][key]) {
+                    if (!Object.prototype.hasOwnProperty.call(scripts[script], key) || collisionScripts[script][key]) {
                         continue;
                     }
 
@@ -195,7 +194,7 @@ editor.once('load', () => {
         // index scripts
         const scripts = asset.get('data.scripts');
         for (const key in scripts) {
-            if (!scripts.hasOwnProperty(key)) {
+            if (!Object.prototype.hasOwnProperty.call(scripts, key)) {
                 continue;
             }
 
@@ -207,7 +206,8 @@ editor.once('load', () => {
             if (path === 'preload') {
                 const scripts = Object.keys(this.get('data.scripts'));
                 for (let i = 0; i < scripts.length; i++) {
-                    checkCollisions(this, scripts[i]);
+                    const scriptName = scripts[i];
+                    checkCollisions(this, scriptName);
                 }
 
                 return;
@@ -309,7 +309,7 @@ editor.once('load', () => {
         asset.once('destroy', () => {
             const scripts = asset.get('data.scripts');
             for (const key in scripts) {
-                if (!scripts.hasOwnProperty(key)) {
+                if (!Object.prototype.hasOwnProperty.call(scripts, key)) {
                     continue;
                 }
 

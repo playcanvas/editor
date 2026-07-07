@@ -1,4 +1,16 @@
-import { type AppBase, BlendState, BLENDEQUATION_ADD, BLENDMODE_ONE_MINUS_SRC_ALPHA, BLENDMODE_SRC_ALPHA, Color, Entity, Mat4, math, PROJECTION_PERSPECTIVE, Vec3 } from 'playcanvas';
+import {
+    BlendState,
+    BLENDEQUATION_ADD,
+    BLENDMODE_ONE_MINUS_SRC_ALPHA,
+    BLENDMODE_SRC_ALPHA,
+    Color,
+    Entity,
+    Mat4,
+    math,
+    PROJECTION_PERSPECTIVE,
+    Vec3
+} from 'playcanvas';
+import type { AppBase } from 'playcanvas';
 
 import { GIZMO_MASK } from '@/core/constants';
 import type { EntityObserver } from '@/editor-api';
@@ -49,7 +61,12 @@ editor.once('load', () => {
             const mat = createColorMaterial();
             mat.color = color;
             if (color.a !== 1) {
-                mat.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
+                mat.blendState = new BlendState(
+                    true,
+                    BLENDEQUATION_ADD,
+                    BLENDMODE_SRC_ALPHA,
+                    BLENDMODE_ONE_MINUS_SRC_ALPHA
+                );
             }
             mat.update();
             return mat;
@@ -83,8 +100,12 @@ editor.once('load', () => {
     };
 
     const gizmoEnabled = function () {
-        if (editor.call('gizmo:type') === 'resize' && editor.call('permissions:write') && editor.api.globals.selection.items.length === 1) {
-            return (selectedEntity && selectedEntity.has('components.element') && selectedEntity.entity);
+        if (
+            editor.call('gizmo:type') === 'resize' &&
+            editor.call('permissions:write') &&
+            editor.api.globals.selection.items.length === 1
+        ) {
+            return selectedEntity && selectedEntity.has('components.element') && selectedEntity.entity;
         }
 
         return false;
@@ -155,10 +176,10 @@ editor.once('load', () => {
             for (let i = 0; i < 4; i++) {
                 if (camera.camera.projection === PROJECTION_PERSPECTIVE) {
                     const dot = vecA.copy(worldCorners[i]).sub(posCamera).dot(camera.forward);
-                    const denom = 1280 / (2 * Math.tan(camera.camera.fov * math.DEG_TO_RAD / 2));
+                    const denom = 1280 / (2 * Math.tan((camera.camera.fov * math.DEG_TO_RAD) / 2));
                     scale = Math.max(0.0001, (dot / denom) * 150) * gizmoSize;
                 } else {
-                    scale = camera.camera.orthoHeight / 3 * gizmoSize;
+                    scale = (camera.camera.orthoHeight / 3) * gizmoSize;
                 }
 
                 gizmo.handles[i].setPosition(worldCorners[i]);
@@ -179,22 +200,26 @@ editor.once('load', () => {
                     const pivot = entity.element.pivot;
                     let px, py, sx, sy;
 
-                    if (gizmo.handle === gizmo.handles[0]) { // bottom left
+                    if (gizmo.handle === gizmo.handles[0]) {
+                        // bottom left
                         px = 1 - pivot.x;
                         py = 1 - pivot.y;
                         sx = -1;
                         sy = -1;
-                    } else if (gizmo.handle === gizmo.handles[1]) { // bottom right
+                    } else if (gizmo.handle === gizmo.handles[1]) {
+                        // bottom right
                         px = pivot.x;
                         py = 1 - pivot.y;
                         sx = 1;
                         sy = -1;
-                    } else if (gizmo.handle === gizmo.handles[2]) { // top right
+                    } else if (gizmo.handle === gizmo.handles[2]) {
+                        // top right
                         px = pivot.x;
                         py = pivot.y;
                         sx = 1;
                         sy = 1;
-                    } else if (gizmo.handle === gizmo.handles[3]) { // top left
+                    } else if (gizmo.handle === gizmo.handles[3]) {
+                        // top left
                         px = 1 - pivot.x;
                         py = pivot.y;
                         sx = -1;
@@ -231,7 +256,6 @@ editor.once('load', () => {
 
             posCameraLast.copy(posCamera);
             mouseTapMoved = false;
-
         });
 
         const onTapStart = function (tap: { button: number; x: number; y: number }) {
@@ -253,12 +277,14 @@ editor.once('load', () => {
                 sizeStart[0] = selectedEntity.get('components.element.width');
                 sizeStart[1] = selectedEntity.get('components.element.height');
                 worldToEntitySpace.copy(selectedEntity.entity.getWorldTransform()).invert();
-                entitySpaceToParentSpace.copy(selectedEntity.entity.parent.getWorldTransform()).invert().mul(selectedEntity.entity.getWorldTransform());
+                entitySpaceToParentSpace
+                    .copy(selectedEntity.entity.parent.getWorldTransform())
+                    .invert()
+                    .mul(selectedEntity.entity.getWorldTransform());
 
                 for (let i = 0; i < 4; i++) {
                     startWorldCorners[i].copy(selectedEntity.entity.element.worldCorners[i]);
                 }
-
             }
 
             if (gizmo.root.enabled) {
@@ -353,11 +379,11 @@ editor.once('load', () => {
                     }
                 }
             } else if (!gizmo.handle || gizmo.handle !== node) {
-
                 gizmo.handle = node;
 
                 for (let i = 0; i < 4; i++) {
-                    gizmo.handles[i].model.meshInstances[0].material = (gizmo.handles[i] === node ? gizmo.matActive : gizmo.matInactive);
+                    gizmo.handles[i].model.meshInstances[0].material =
+                        gizmo.handles[i] === node ? gizmo.matActive : gizmo.matInactive;
                 }
 
                 if (!evtTapStart) {

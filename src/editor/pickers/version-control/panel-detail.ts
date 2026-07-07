@@ -1,7 +1,15 @@
 import { Container } from '@playcanvas/pcui';
 
-import { applyUserThumbnail, DIFF_SLOW_HINT_MS, DIFF_SLOW_HINT_TEXT, diffListEl, hashChip, summarizeDiff } from './vc-helpers';
 import { diffCreate } from '../../messenger/jobs';
+
+import {
+    applyUserThumbnail,
+    DIFF_SLOW_HINT_MS,
+    DIFF_SLOW_HINT_TEXT,
+    diffListEl,
+    hashChip,
+    summarizeDiff
+} from './vc-helpers';
 
 type DiffCache = {
     diff?: any;
@@ -50,7 +58,8 @@ export const createDetailPanel = () => {
         if (!previous) {
             const note = document.createElement('div');
             note.classList.add('vc-meta');
-            note.textContent = 'This is the oldest loaded checkpoint — scroll the history to load older ones for a comparison baseline.';
+            note.textContent =
+                'This is the oldest loaded checkpoint — scroll the history to load older ones for a comparison baseline.';
             card.appendChild(note);
             return card;
         }
@@ -78,16 +87,18 @@ export const createDetailPanel = () => {
                 srcCheckpointId: checkpoint.id,
                 dstBranchId: branchId,
                 dstCheckpointId: previous.id
-            }).then((diff: any) => {
-                const data = diff ?? {};
-                entry.diff = data;
-                entry.summary = summarizeDiff(data);
-                delete entry.promise;
-                return data;
-            }).catch((err) => {
-                delete diffCache[key];
-                return Promise.reject(err);
-            });
+            })
+                .then((diff: any) => {
+                    const data = diff ?? {};
+                    entry.diff = data;
+                    entry.summary = summarizeDiff(data);
+                    delete entry.promise;
+                    return data;
+                })
+                .catch((err) => {
+                    delete diffCache[key];
+                    return Promise.reject(err);
+                });
             diffCache[key] = entry;
             return entry;
         };
@@ -143,22 +154,24 @@ export const createDetailPanel = () => {
                     body.appendChild(hint);
                 }
             }, DIFF_SLOW_HINT_MS);
-            pending.then(() => {
-                clearTimeout(slowHint);
-                if (token !== renderToken) {
-                    return;
-                }
-                const next = diffCache[key]?.summary;
-                if (next) {
-                    fill(next);
-                }
-            }).catch(() => {
-                clearTimeout(slowHint);
-                if (token !== renderToken) {
-                    return;
-                }
-                body.innerHTML = '<div class="vc-meta">Failed to compute changes</div>';
-            });
+            pending
+                .then(() => {
+                    clearTimeout(slowHint);
+                    if (token !== renderToken) {
+                        return;
+                    }
+                    const next = diffCache[key]?.summary;
+                    if (next) {
+                        fill(next);
+                    }
+                })
+                .catch(() => {
+                    clearTimeout(slowHint);
+                    if (token !== renderToken) {
+                        return;
+                    }
+                    body.innerHTML = '<div class="vc-meta">Failed to compute changes</div>';
+                });
         };
 
         const cached = diffCache[key];
@@ -181,7 +194,11 @@ export const createDetailPanel = () => {
 
     Object.assign(panel, {
         clear,
-        render: (checkpoint: any, previous: any, ctx: { branchId: string; isCurrentBranch: boolean; canWrite: boolean }) => {
+        render: (
+            checkpoint: any,
+            previous: any,
+            ctx: { branchId: string; isCurrentBranch: boolean; canWrite: boolean }
+        ) => {
             const token = ++renderToken;
             panel.dom.innerHTML = '';
 
@@ -219,10 +236,15 @@ export const createDetailPanel = () => {
             copy.title = 'Copy checkpoint id';
             copy.setAttribute('aria-label', 'Copy checkpoint id');
             copy.addEventListener('click', () => {
-                navigator.clipboard.writeText(checkpoint.id).then(() => {
-                    copy.classList.add('copied');
-                    setTimeout(() => copy.classList.remove('copied'), 1500);
-                }, () => {});
+                navigator.clipboard.writeText(checkpoint.id).then(
+                    () => {
+                        copy.classList.add('copied');
+                        setTimeout(() => copy.classList.remove('copied'), 1500);
+                    },
+                    () => {
+                        // intentionally empty
+                    }
+                );
             });
             meta.appendChild(copy);
             body.appendChild(meta);
@@ -259,6 +281,10 @@ export const createDetailPanel = () => {
 
     return panel as Container & {
         clear: () => void;
-        render: (checkpoint: any, previous: any, ctx: { branchId: string; isCurrentBranch: boolean; canWrite: boolean }) => void;
+        render: (
+            checkpoint: any,
+            previous: any,
+            ctx: { branchId: string; isCurrentBranch: boolean; canWrite: boolean }
+        ) => void;
     };
 };

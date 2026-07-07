@@ -1,4 +1,5 @@
-import { type EditorMethods, Editor } from '@/common/editor';
+import { Editor } from '@/common/editor';
+import type { EditorMethods } from '@/common/editor';
 import { Messenger } from '@/common/messenger';
 import { setSentryTags } from '@/common/sentry';
 import * as api from '@/editor-api';

@@ -1,3 +1,4 @@
+import type { Container } from '@playcanvas/pcui';
 import filenamify from 'filenamify/browser';
 import Markdown from 'markdown-it';
 
@@ -10,35 +11,37 @@ const md = Markdown({});
 class SketchFabStore extends BaseStore {
     sortPolicy = 'viewCount';
 
-    get name() {
-        return 'sketchfabStore';
-    }
+    readonly name = 'sketchfabStore';
 
     async load(selectedFilter: { text: string }, searchString: string, tags: string[], sortDescending: boolean) {
         this.totalCount = 0;
         this.startItem = 0;
 
         // sketchfab store - get the list of items
-        this.searchResults = await editor.call('store:sketchfab:list',
+        this.searchResults = await editor.call(
+            'store:sketchfab:list',
             searchString,
             0,
             STORE_ITEM_PAGE_SIZE,
             tags,
             this.sortPolicy,
-            sortDescending);
+            sortDescending
+        );
 
         return this.prepareItems(this.searchResults.results);
     }
 
     async loadMore(selectedFilter: { text: string }, searchString: string, tags: string[], sortDescending: boolean) {
         // sketchfab store - get the list of items
-        this.searchResults = await editor.call('store:sketchfab:list',
+        this.searchResults = await editor.call(
+            'store:sketchfab:list',
             searchString,
             this.items.length,
             STORE_ITEM_PAGE_SIZE,
             tags,
             this.sortPolicy,
-            sortDescending);
+            sortDescending
+        );
 
         if (this.searchResults.results) {
             this.startItem = this.items.length;
@@ -52,10 +55,16 @@ class SketchFabStore extends BaseStore {
 
     async cloneItem(storeItem: { id: string; name: string; license: string }) {
         // use invoke to handle exceptions
-        await editor.invoke('store:clone:sketchfab', storeItem.id, filenamify(storeItem.name), storeItem.license, config.project.id);
+        await editor.invoke(
+            'store:clone:sketchfab',
+            storeItem.id,
+            filenamify(storeItem.name),
+            storeItem.license,
+            config.project.id
+        );
     }
 
-    buildSorting(sortingDropdown: import('@playcanvas/pcui').Container, sortCallback: () => void) {
+    buildSorting(sortingDropdown: Container, sortCallback: () => void) {
         this.buildSortingMenuItem(sortingDropdown, 'Sort By Created', 'publishedAt');
         this.buildSortingMenuItem(sortingDropdown, 'Sort By Views', 'viewCount', true);
         this.buildSortingMenuItem(sortingDropdown, 'Sort By Likes', 'likeCount');
@@ -83,17 +92,37 @@ class SketchFabStore extends BaseStore {
     // extract glb data from the sketchfab item
     _prepareAssets(item: { archives?: { glb?: { size: number } } }) {
         if (item.archives && item.archives.glb) {
-            return [{
-                name: 'model.glb',
-                size: bytesToHuman(item.archives.glb.size),
-                type: 'model'
-            }];
+            return [
+                {
+                    name: 'model.glb',
+                    size: bytesToHuman(item.archives.glb.size),
+                    type: 'model'
+                }
+            ];
         }
     }
 
     // prepare sketchfab item for the items details view
-    _prepareItem(item: { thumbnails: { images: { url: string }[] }; description: string; tags: { name: string; slug: string }[]; uid: string; name: string; viewCount: number; vertexCount: number; textureCount: number; animationCount: number; downloadCount: number; likeCount: number; updatedAt: string; viewerUrl: string; license: { slug: string }; user: { displayName: string; profileUrl: string } }, assets: { name: string; size: string; type: string }[] | undefined) {
-
+    _prepareItem(
+        item: {
+            thumbnails: { images: { url: string }[] };
+            description: string;
+            tags: { name: string; slug: string }[];
+            uid: string;
+            name: string;
+            viewCount: number;
+            vertexCount: number;
+            textureCount: number;
+            animationCount: number;
+            downloadCount: number;
+            likeCount: number;
+            updatedAt: string;
+            viewerUrl: string;
+            license: { slug: string };
+            user: { displayName: string; profileUrl: string };
+        },
+        assets: { name: string; size: string; type: string }[] | undefined
+    ) {
         let thumbnail = EMPTY_THUMBNAIL_IMAGE_LARGE;
 
         // select the thumbnail image, with resolution closest to 1920x1080
@@ -133,7 +162,20 @@ class SketchFabStore extends BaseStore {
     }
 
     // prepare sketchfab item for the list view
-    prepareItems(items: { thumbnails: { images: { url: string }[] }; uid: string; name: string; description: string; viewCount: number; likeCount: number; archives?: { glb?: { size: number } }; createdAt: string; license?: string; assets?: unknown }[]) {
+    prepareItems(
+        items: {
+            thumbnails: { images: { url: string }[] };
+            uid: string;
+            name: string;
+            description: string;
+            viewCount: number;
+            likeCount: number;
+            archives?: { glb?: { size: number } };
+            createdAt: string;
+            license?: string;
+            assets?: unknown;
+        }[]
+    ) {
         const newItems = [];
 
         if (!items) {
@@ -144,14 +186,13 @@ class SketchFabStore extends BaseStore {
             const url = `https://api.sketchfab.com/v3/models/${item.id}`;
             const response = await fetch(url);
             if (!response.ok) {
-                log.error`sketchfab fetch failed ${response.status}: ${response.statusText}`;
+                void log.error`sketchfab fetch failed ${response.status}: ${response.statusText}`;
                 return null;
             }
             return this._prepareItem(await response.json(), item.assets);
         };
 
         for (const item of items) {
-
             // select the thumbnail image, with resolution closest to 480x320
             const thumb = this._closestThumbnailImage(item.thumbnails.images, 480, 320);
 

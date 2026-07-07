@@ -87,7 +87,7 @@ export type StoreMoveData = {
      * The IDs of the assets to move
      */
     assetIds: string[];
-}
+};
 
 /**
  * Fetches store item

@@ -26,10 +26,10 @@ editor.once('load', () => {
     app.root.addChild(container);
 
     let cameraMesh = null;
-    let cameraMeshInstance = null; // eslint-disable-line no-unused-vars
+    let cameraMeshInstance = null;
 
-    const cameras = { };
-    const userdata = { };
+    const cameras = {};
+    const userdata = {};
 
     // material default
     const materialDefault = createColorMaterial();
@@ -40,13 +40,23 @@ editor.once('load', () => {
     const materialQuad = createColorMaterial();
     materialQuad.color = new Color(1, 1, 1, 0.25);
     materialQuad.cull = CULLFACE_NONE;
-    materialQuad.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
+    materialQuad.blendState = new BlendState(
+        true,
+        BLENDEQUATION_ADD,
+        BLENDMODE_SRC_ALPHA,
+        BLENDMODE_ONE_MINUS_SRC_ALPHA
+    );
     materialQuad.update();
 
     // material behind
     const materialBehind = createColorMaterial();
     materialBehind.color = new Color(1, 1, 1, 0.15);
-    materialBehind.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
+    materialBehind.blendState = new BlendState(
+        true,
+        BLENDEQUATION_ADD,
+        BLENDMODE_SRC_ALPHA,
+        BLENDMODE_ONE_MINUS_SRC_ALPHA
+    );
     materialBehind.depthTest = false;
     materialBehind.update();
 
@@ -89,32 +99,80 @@ editor.once('load', () => {
 
         const positions = [
             // top
-            close * horiz, close * vert, 0,
-            horiz, vert, -far,
-            horiz, vert, -far,
-            -horiz, vert, -far,
-            -horiz, vert, -far,
-            -close * horiz, close * vert, 0,
-            -close * horiz, close * vert, 0,
-            close * horiz, close * vert, 0,
+            close * horiz,
+            close * vert,
+            0,
+            horiz,
+            vert,
+            -far,
+            horiz,
+            vert,
+            -far,
+            -horiz,
+            vert,
+            -far,
+            -horiz,
+            vert,
+            -far,
+            -close * horiz,
+            close * vert,
+            0,
+            -close * horiz,
+            close * vert,
+            0,
+            close * horiz,
+            close * vert,
+            0,
             // bottom
-            close * horiz, -close * vert, 0,
-            horiz, -vert, -far,
-            horiz, -vert, -far,
-            -horiz, -vert, -far,
-            -horiz, -vert, -far,
-            -close * horiz, -close * vert, 0,
-            -close * horiz, -close * vert, 0,
-            close * horiz, -close * vert, 0,
+            close * horiz,
+            -close * vert,
+            0,
+            horiz,
+            -vert,
+            -far,
+            horiz,
+            -vert,
+            -far,
+            -horiz,
+            -vert,
+            -far,
+            -horiz,
+            -vert,
+            -far,
+            -close * horiz,
+            -close * vert,
+            0,
+            -close * horiz,
+            -close * vert,
+            0,
+            close * horiz,
+            -close * vert,
+            0,
             // sides
-            close * horiz, -close * vert, 0,
-            close * horiz, close * vert, 0,
-            horiz, -vert, -far,
-            horiz, vert, -far,
-            -horiz, -vert, -far,
-            -horiz, vert, -far,
-            -close * horiz, -close * vert, 0,
-            -close * horiz, close * vert, 0
+            close * horiz,
+            -close * vert,
+            0,
+            close * horiz,
+            close * vert,
+            0,
+            horiz,
+            -vert,
+            -far,
+            horiz,
+            vert,
+            -far,
+            -horiz,
+            -vert,
+            -far,
+            -horiz,
+            vert,
+            -far,
+            -close * horiz,
+            -close * vert,
+            0,
+            -close * horiz,
+            close * vert,
+            0
         ];
 
         const mesh = new Mesh(app.graphicsDevice);
@@ -129,13 +187,16 @@ editor.once('load', () => {
     };
 
     // Creates user camera and binds to real time events
-    const loadUserData = function (userId: string, data: { cameras: { perspective: { position?: number[]; rotation?: number[] } } }) {
+    const loadUserData = function (
+        userId: string,
+        data: { cameras: { perspective: { position?: number[]; rotation?: number[] } } }
+    ) {
         if (!cameraMesh) {
             cameraMesh = createCameraMesh();
         }
 
         // add user camera
-        const camera = cameras[userId] = new Entity();
+        const camera = (cameras[userId] = new Entity());
         camera.addComponent('render', {
             castShadows: false,
             castShadowsLightmap: false,
@@ -252,7 +313,6 @@ editor.once('load', () => {
         } else {
             add();
         }
-
     });
 
     // Remove user who goes offline

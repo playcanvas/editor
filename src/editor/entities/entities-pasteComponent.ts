@@ -17,7 +17,10 @@ editor.once('load', () => {
                 // 'layoutgroup' component immediately changes the layout (position, anchor, etc) for the entity's children.
                 // Therefore, before adding the component, store all children layout info for undo
                 if (component === 'layoutgroup') {
-                    const entityChildrenLayouts = editor.call('entities:layout:getElementChildrenLayouts', e.get('children'));
+                    const entityChildrenLayouts = editor.call(
+                        'entities:layout:getElementChildrenLayouts',
+                        e.get('children')
+                    );
                     previousChildrenLayouts[e.get('resource_id')] = entityChildrenLayouts;
                 }
 
@@ -48,7 +51,11 @@ editor.once('load', () => {
                 // if the component was a layoutgroup, restore the old children layout data
                 if (component === 'layoutgroup') {
                     const entityChildrenLayouts = previousChildrenLayouts[e.get('resource_id')];
-                    editor.call('entities:layout:restoreElementChildrenLayouts', e.get('children'), entityChildrenLayouts);
+                    editor.call(
+                        'entities:layout:restoreElementChildrenLayouts',
+                        e.get('children'),
+                        entityChildrenLayouts
+                    );
                 }
                 e.history.enabled = history;
             });

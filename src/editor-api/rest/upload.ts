@@ -59,15 +59,17 @@ const check = (res: Response) => {
     return res;
 };
 
-export const uploadStart = (data: UploadStartData): Promise<{ uploadId: string, key: string }> => {
+export const uploadStart = (data: UploadStartData): Promise<{ uploadId: string; key: string }> => {
     return fetch(`${api.apiUrl}/upload/start-upload`, {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
-            'Authorization': `Bearer ${api.accessToken}`,
+            Authorization: `Bearer ${api.accessToken}`,
             'Content-Type': 'application/json'
         }
-    }).then(check).then(res => res.json());
+    })
+        .then(check)
+        .then((res) => res.json());
 };
 
 /**
@@ -81,10 +83,12 @@ export const uploadUrls = (data: UploadUrlsData): Promise<{ signedUrls: string[]
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
-            'Authorization': `Bearer ${api.accessToken}`,
+            Authorization: `Bearer ${api.accessToken}`,
             'Content-Type': 'application/json'
         }
-    }).then(check).then(res => res.json());
+    })
+        .then(check)
+        .then((res) => res.json());
 };
 
 /**
@@ -98,7 +102,7 @@ export const uploadComplete = (data: UploadCompleteData): Promise<Response> => {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
-            'Authorization': `Bearer ${api.accessToken}`,
+            Authorization: `Bearer ${api.accessToken}`,
             'Content-Type': 'application/json'
         }
     }).then(check);

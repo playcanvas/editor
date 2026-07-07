@@ -1,17 +1,8 @@
-import {
-    Color,
-    Gizmo,
-    type Entity,
-    type MeshInstance,
-    type Layer,
-    RotateGizmo,
-    ScaleGizmo,
-    TransformGizmo,
-    TranslateGizmo
-} from 'playcanvas';
+import { Color, Gizmo, RotateGizmo, ScaleGizmo, TransformGizmo, TranslateGizmo } from 'playcanvas';
+import type { Entity, MeshInstance, Layer } from 'playcanvas';
 
 import { Defer } from '@/common/defer';
-import { type EntityObserver } from '@/editor-api';
+import type { EntityObserver } from '@/editor-api';
 
 type GizmoNodeTransform = {
     position: number[];
@@ -54,7 +45,7 @@ type GizmoPreset = {
         axisCenterSize: number;
         disableShapes: GizmoAxis[];
     };
-}
+};
 
 const GIZMO_AXES = ['x', 'y', 'z', 'xy', 'xz', 'yz', 'xyz', 'f'] as GizmoAxis[];
 const GIZMO_ANGLE_MULT = 5;
@@ -63,7 +54,7 @@ let translate: TranslateGizmo | null = null;
 let rotate: RotateGizmo | null = null;
 let scale: ScaleGizmo | null = null;
 
-let write: boolean = false;
+let write = false;
 
 const cursor = [0, 0];
 
@@ -168,7 +159,7 @@ const getTRS = (observer: EntityObserver): GizmoNodeTransform => {
     observer.set('scale', scale);
     return { position, rotation, scale };
 };
-const setTRS = (observer: EntityObserver, trs: GizmoNodeTransform, history: boolean = true) => {
+const setTRS = (observer: EntityObserver, trs: GizmoNodeTransform, history = true) => {
     const historyEnabled = observer.history.enabled;
     observer.history.enabled = history;
     observer.set('position', trs.position);
@@ -253,7 +244,8 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
             return;
         }
         for (let i = 0; i < observers.length; i++) {
-            getTRS(observers[i]);
+            const observer = observers[i];
+            getTRS(observer);
         }
     });
     gizmo.on(TransformGizmo.EVENT_TRANSFORMEND, () => {
@@ -326,7 +318,7 @@ editor.on('scene:load', () => {
                 axisLineThickness: translate.axisLineThickness,
                 axisPlaneGap: translate.axisPlaneGap,
                 axisPlaneSize: translate.axisPlaneSize,
-                disableShapes: GIZMO_AXES.filter(axis => !translate.isShapeEnabled(axis))
+                disableShapes: GIZMO_AXES.filter((axis) => !translate.isShapeEnabled(axis))
             },
             rotate: {
                 theme: cloneTheme(rotate.theme),
@@ -334,7 +326,7 @@ editor.on('scene:load', () => {
                 faceTubeRadius: rotate.faceTubeRadius,
                 xyzTubeRadius: rotate.xyzTubeRadius,
                 angleGuideThickness: rotate.angleGuideThickness,
-                disableShapes: GIZMO_AXES.filter(axis => !rotate.isShapeEnabled(axis))
+                disableShapes: GIZMO_AXES.filter((axis) => !rotate.isShapeEnabled(axis))
             },
             scale: {
                 theme: cloneTheme(scale.theme),
@@ -344,7 +336,7 @@ editor.on('scene:load', () => {
                 axisLineLength: scale.axisLineLength,
                 axisLineThickness: scale.axisLineThickness,
                 axisCenterSize: scale.axisCenterSize,
-                disableShapes: GIZMO_AXES.filter(axis => !scale.isShapeEnabled(axis))
+                disableShapes: GIZMO_AXES.filter((axis) => !scale.isShapeEnabled(axis))
             }
         });
     }
@@ -421,7 +413,7 @@ const reflow = () => {
 
     // set gizmo based on type
     const gizmoType: string = editor.call('gizmo:type');
-    const nodes = observers.map(observer => observer.entity);
+    const nodes = observers.map((observer) => observer.entity);
     switch (gizmoType) {
         case 'translate': {
             translate.attach(nodes);
@@ -455,7 +447,7 @@ editor.on('gizmo:translate:sync', reflow);
 editor.on('gizmo:rotate:sync', reflow);
 editor.on('gizmo:scale:sync', reflow);
 
-const enable = (state: boolean = true) => {
+const enable = (state = true) => {
     if (!translate || !rotate || !scale) {
         return;
     }

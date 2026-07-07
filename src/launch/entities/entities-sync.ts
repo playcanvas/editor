@@ -16,7 +16,6 @@ editor.once('load', () => {
         'components'
     ];
 
-
     editor.on('entities:add', (entity: Observer) => {
         if (entity.sync) {
             return;
@@ -29,7 +28,6 @@ editor.once('load', () => {
         });
     });
 
-
     // server > client
     editor.on('realtime:op:entities', (op: { p: unknown[]; od?: unknown; oi?: unknown }) => {
         let entity = null;
@@ -38,14 +36,14 @@ editor.once('load', () => {
         }
 
         if (op.p.length === 2) {
-            if (op.hasOwnProperty('od')) {
+            if (Object.prototype.hasOwnProperty.call(op, 'od')) {
                 // delete entity
                 if (entity) {
                     editor.call('entities:remove', entity);
                 } else {
                     console.log('delete operation entity not found', op);
                 }
-            } else if (op.hasOwnProperty('oi')) {
+            } else if (Object.prototype.hasOwnProperty.call(op, 'oi')) {
                 // new entity
                 editor.call('entities:add', new Observer(op.oi as object));
             } else {

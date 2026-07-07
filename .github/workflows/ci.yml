@@ -1,71 +1,74 @@
 name: CI
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
 
 jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v7
+    build:
+        name: Build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check out code
+              uses: actions/checkout@v7
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24.x
-          cache: 'npm'
-          registry-url: 'https://registry.npmjs.org/'
+            - name: Set up Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24.x
+                  cache: 'npm'
+                  registry-url: 'https://registry.npmjs.org/'
 
-      - name: Install Dependencies
-        run: npm ci
+            - name: Install Dependencies
+              run: npm ci
 
-      - name: Build PlayCanvas Editor
-        run: npm run build
+            - name: Build PlayCanvas Editor
+              run: npm run build
 
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v7
+    lint:
+        name: Lint
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check out code
+              uses: actions/checkout@v7
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24.x
-          cache: 'npm'
-          registry-url: 'https://registry.npmjs.org/'
+            - name: Set up Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24.x
+                  cache: 'npm'
+                  registry-url: 'https://registry.npmjs.org/'
 
-      - name: Install Dependencies
-        run: npm ci
+            - name: Install Dependencies
+              run: npm ci
 
-      - name: Run ESLint
-        run: npm run lint
+            - name: Run Linter
+              run: npm run lint
 
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v7
+            - name: Run Formatter
+              run: npm run fmt
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24.x
-          cache: 'npm'
-          registry-url: 'https://registry.npmjs.org/'
+    test:
+        name: Test
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check out code
+              uses: actions/checkout@v7
 
-      - name: Install Dependencies
-        run: npm ci
+            - name: Set up Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24.x
+                  cache: 'npm'
+                  registry-url: 'https://registry.npmjs.org/'
 
-      - name: Run Editor Tests
-        run: npm test
+            - name: Install Dependencies
+              run: npm ci
 
-      - name: Run Editor API Module Tests
-        run: npm run test:api
+            - name: Run Editor Tests
+              run: npm test
+
+            - name: Run Editor API Module Tests
+              run: npm run test:api

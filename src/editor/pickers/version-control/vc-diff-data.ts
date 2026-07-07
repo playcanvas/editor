@@ -19,8 +19,26 @@ export type NameIndex = {
     batchGroup: Map<string, string>;
 };
 
-export type ValueKind = 'missing' | 'boolean' | 'number' | 'string' | 'vector' | 'color' | 'curve' | 'gradient' |
-    'asset' | 'entity' | 'layer' | 'batchGroup' | 'sublayer' | 'entityMap' | 'children' | 'pills' | 'json' | 'object' | `array:${string}`;
+export type ValueKind =
+    | 'missing'
+    | 'boolean'
+    | 'number'
+    | 'string'
+    | 'vector'
+    | 'color'
+    | 'curve'
+    | 'gradient'
+    | 'asset'
+    | 'entity'
+    | 'layer'
+    | 'batchGroup'
+    | 'sublayer'
+    | 'entityMap'
+    | 'children'
+    | 'pills'
+    | 'json'
+    | 'object'
+    | `array:${string}`;
 
 const settingName = (v: unknown) => {
     if (typeof v === 'string') {
@@ -110,8 +128,14 @@ export const templateEntitiesFor = (conflict: any, getAsset: (id: any) => any) =
     for (const entry of conflict?.data ?? []) {
         const parts = (entry?.path ?? '').split('.');
         const obj = entry?.srcValue ?? entry?.dstValue;
-        if (parts.length === 3 && parts[0] === 'data' && parts[1] === 'entities' &&
-            obj && typeof obj === 'object' && !entities[parts[2]]) {
+        if (
+            parts.length === 3 &&
+            parts[0] === 'data' &&
+            parts[1] === 'entities' &&
+            obj &&
+            typeof obj === 'object' &&
+            !entities[parts[2]]
+        ) {
             entities[parts[2]] = obj;
         }
     }
@@ -134,7 +158,9 @@ export const indexTemplateEntities = (index: NameIndex, conflicts: any[], getAss
 };
 
 const numArray = (value: unknown, min: number, max: number) => {
-    return Array.isArray(value) && value.length >= min && value.length <= max && value.every(v => typeof v === 'number');
+    return (
+        Array.isArray(value) && value.length >= min && value.length <= max && value.every((v) => typeof v === 'number')
+    );
 };
 
 // how to render an array-valued diff field:
@@ -149,7 +175,7 @@ export const arrayFieldKind = (value: unknown) => {
     if (numArray(value, 2, 4)) {
         return 'tuple';
     }
-    return value.every(v => v === null || typeof v !== 'object') ? 'pills' : null;
+    return value.every((v) => v === null || typeof v !== 'object') ? 'pills' : null;
 };
 
 // channel count for curve/curveset values; 0 when not curve-shaped

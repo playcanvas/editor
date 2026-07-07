@@ -1,414 +1,421 @@
 <!doctype html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Version Control Modernization Mockup</title>
-    <link rel="stylesheet" href="/dist/css/editor.css">
-    <style>
-        :root {
-            --bg: #20292b;
-            --panel: #364346;
-            --panel-dark: #2c393c;
-            --panel-darkest: #20292b;
-            --border: #232e30;
-            --text: #fff;
-            --muted: #9ba1a3;
-            --accent: #f60;
-        }
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Version Control Modernization Mockup</title>
+        <link rel="stylesheet" href="/dist/css/editor.css" />
+        <style>
+            :root {
+                --bg: #20292b;
+                --panel: #364346;
+                --panel-dark: #2c393c;
+                --panel-darkest: #20292b;
+                --border: #232e30;
+                --text: #fff;
+                --muted: #9ba1a3;
+                --accent: #f60;
+            }
 
-        * {
-            box-sizing: border-box;
-        }
+            * {
+                box-sizing: border-box;
+            }
 
-        body {
-            margin: 0;
-            min-height: 100vh;
-            background:
-                linear-gradient(135deg, rgb(255 255 255 / 4%) 0 1px, transparent 1px 120px),
-                linear-gradient(44deg, transparent 0 46%, rgb(91 39 35 / 78%) 46% 62%, transparent 62%),
-                var(--bg);
-            color: var(--text);
-            font: 14px/1.4 "Helvetica Neue", Arial, Helvetica, sans-serif;
-        }
+            body {
+                margin: 0;
+                min-height: 100vh;
+                background:
+                    linear-gradient(135deg, rgb(255 255 255 / 4%) 0 1px, transparent 1px 120px),
+                    linear-gradient(44deg, transparent 0 46%, rgb(91 39 35 / 78%) 46% 62%, transparent 62%), var(--bg);
+                color: var(--text);
+                font:
+                    14px/1.4 'Helvetica Neue',
+                    Arial,
+                    Helvetica,
+                    sans-serif;
+            }
 
-        main {
-            display: grid;
-            gap: 28px;
-            width: min(1180px, calc(100vw - 48px));
-            margin: 36px auto;
-        }
+            main {
+                display: grid;
+                gap: 28px;
+                width: min(1180px, calc(100vw - 48px));
+                margin: 36px auto;
+            }
 
-        h1,
-        h2,
-        p {
-            margin: 0;
-        }
+            h1,
+            h2,
+            p {
+                margin: 0;
+            }
 
-        h1 {
-            font-size: 20px;
-            line-height: 1.2;
-        }
+            h1 {
+                font-size: 20px;
+                line-height: 1.2;
+            }
 
-        h2 {
-            margin-bottom: 12px;
-            color: var(--muted);
-            font-size: 13px;
-            letter-spacing: 0;
-            text-transform: uppercase;
-        }
+            h2 {
+                margin-bottom: 12px;
+                color: var(--muted);
+                font-size: 13px;
+                letter-spacing: 0;
+                text-transform: uppercase;
+            }
 
-        .intro {
-            display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-            gap: 16px;
-        }
+            .intro {
+                display: flex;
+                align-items: baseline;
+                justify-content: space-between;
+                gap: 16px;
+            }
 
-        .intro p {
-            color: var(--muted);
-        }
+            .intro p {
+                color: var(--muted);
+            }
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 18px;
-        }
+            .grid {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 18px;
+            }
 
-        .stage {
-            min-height: 270px;
-            padding: 28px;
-            border: 1px solid var(--border);
-            background: rgb(0 0 0 / 13%);
-        }
+            .stage {
+                min-height: 270px;
+                padding: 28px;
+                border: 1px solid var(--border);
+                background: rgb(0 0 0 / 13%);
+            }
 
-        .vc-surface {
-            width: min(480px, 100%);
-            margin: 32px auto 0;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            background: var(--panel);
-            box-shadow: 0 16px 30px rgb(0 0 0 / 25%);
-            overflow: hidden;
-        }
+            .vc-surface {
+                width: min(480px, 100%);
+                margin: 32px auto 0;
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                background: var(--panel);
+                box-shadow: 0 16px 30px rgb(0 0 0 / 25%);
+                overflow: hidden;
+            }
 
-        .vc-header {
-            display: flex;
-            align-items: center;
-            min-height: 36px;
-            padding: 0 14px;
-            border-bottom: 1px solid var(--border);
-            background: var(--panel-dark);
-        }
+            .vc-header {
+                display: flex;
+                align-items: center;
+                min-height: 36px;
+                padding: 0 14px;
+                border-bottom: 1px solid var(--border);
+                background: var(--panel-dark);
+            }
 
-        .vc-heading {
-            color: var(--text);
-            font-size: 14px;
-            font-weight: 700;
-            line-height: 1.2;
-        }
+            .vc-heading {
+                color: var(--text);
+                font-size: 14px;
+                font-weight: 700;
+                line-height: 1.2;
+            }
 
-        .vc-body {
-            padding: 12px;
-        }
+            .vc-body {
+                padding: 12px;
+            }
 
-        .status-card {
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            background: var(--panel-dark);
-            overflow: hidden;
-        }
+            .status-card {
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                background: var(--panel-dark);
+                overflow: hidden;
+            }
 
-        .status-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            min-height: 56px;
-            padding: 11px 12px;
-        }
+            .status-row {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                min-height: 56px;
+                padding: 11px 12px;
+            }
 
-        .icon-cell {
-            display: grid;
-            place-items: center;
-            flex: none;
-            width: 24px;
-            height: 24px;
-            color: var(--accent);
-        }
+            .icon-cell {
+                display: grid;
+                place-items: center;
+                flex: none;
+                width: 24px;
+                height: 24px;
+                color: var(--accent);
+            }
 
-        .pc-glyph {
-            font-family: pc-icon, sans-serif;
-            font-size: 21px;
-            line-height: 1;
-        }
+            .pc-glyph {
+                font-family: pc-icon, sans-serif;
+                font-size: 21px;
+                line-height: 1;
+            }
 
-        .spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid #773417;
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 850ms linear infinite;
-        }
+            .spinner {
+                width: 16px;
+                height: 16px;
+                border: 2px solid #773417;
+                border-top-color: var(--accent);
+                border-radius: 50%;
+                animation: spin 850ms linear infinite;
+            }
 
-        .check,
-        .cross {
-            position: relative;
-            display: block;
-            width: 18px;
-            height: 18px;
-        }
+            .check,
+            .cross {
+                position: relative;
+                display: block;
+                width: 18px;
+                height: 18px;
+            }
 
-        .check::before {
-            content: "";
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 12px;
-            height: 7px;
-            border-left: 2px solid #82d993;
-            border-bottom: 2px solid #82d993;
-            transform: translate(-50%, -62%) rotate(-45deg);
-            transform-origin: center;
-        }
+            .check::before {
+                content: '';
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                width: 12px;
+                height: 7px;
+                border-left: 2px solid #82d993;
+                border-bottom: 2px solid #82d993;
+                transform: translate(-50%, -62%) rotate(-45deg);
+                transform-origin: center;
+            }
 
-        .cross::before,
-        .cross::after {
-            content: "";
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 15px;
-            height: 2px;
-            border-radius: 2px;
-            background: #ff8a8a;
-            transform-origin: center;
-        }
+            .cross::before,
+            .cross::after {
+                content: '';
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                width: 15px;
+                height: 2px;
+                border-radius: 2px;
+                background: #ff8a8a;
+                transform-origin: center;
+            }
 
-        .cross::before {
-            transform: translate(-50%, -50%) rotate(45deg);
-        }
+            .cross::before {
+                transform: translate(-50%, -50%) rotate(45deg);
+            }
 
-        .cross::after {
-            transform: translate(-50%, -50%) rotate(-45deg);
-        }
+            .cross::after {
+                transform: translate(-50%, -50%) rotate(-45deg);
+            }
 
-        .copy {
-            min-width: 0;
-        }
+            .copy {
+                min-width: 0;
+            }
 
-        .title {
-            color: var(--text);
-            font-size: 14px;
-            font-weight: 700;
-            line-height: 1.35;
-        }
+            .title {
+                color: var(--text);
+                font-size: 14px;
+                font-weight: 700;
+                line-height: 1.35;
+            }
 
-        .message {
-            margin-top: 4px;
-            color: var(--muted);
-            font-size: 12px;
-            line-height: 1.35;
-        }
+            .message {
+                margin-top: 4px;
+                color: var(--muted);
+                font-size: 12px;
+                line-height: 1.35;
+            }
 
-        .merge-controls {
-            display: grid;
-            grid-template-columns: auto minmax(150px, 1fr) auto;
-            align-items: center;
-            gap: 8px;
-            margin-top: 10px;
-        }
+            .merge-controls {
+                display: grid;
+                grid-template-columns: auto minmax(150px, 1fr) auto;
+                align-items: center;
+                gap: 8px;
+                margin-top: 10px;
+            }
 
-        label {
-            color: var(--muted);
-            font-size: 12px;
-            font-weight: 400;
-            line-height: 28px;
-        }
+            label {
+                color: var(--muted);
+                font-size: 12px;
+                font-weight: 400;
+                line-height: 28px;
+            }
 
-        select,
-        button {
-            height: 28px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            background: var(--panel-darkest);
-            color: #b1b8ba;
-            font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
-            font-size: 13px;
-            line-height: 26px;
-        }
+            select,
+            button {
+                height: 28px;
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                background: var(--panel-darkest);
+                color: #b1b8ba;
+                font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+                font-size: 13px;
+                line-height: 26px;
+            }
 
-        select {
-            min-width: 0;
-            padding: 0 8px;
-            font-weight: 400;
-        }
+            select {
+                min-width: 0;
+                padding: 0 8px;
+                font-weight: 400;
+            }
 
-        button {
-            min-width: 76px;
-            padding: 0 12px;
-            font-weight: 700;
-        }
+            button {
+                min-width: 76px;
+                padding: 0 12px;
+                font-weight: 700;
+            }
 
-        button.danger {
-            width: 140px;
-            border-color: #653235;
-            background: #522f32;
-            color: #ffb7b7;
-        }
+            button.danger {
+                width: 140px;
+                border-color: #653235;
+                background: #522f32;
+                color: #ffb7b7;
+            }
 
-        .vc-footer {
-            padding: 8px 10px;
-            border-top: 1px solid var(--border);
-            background: var(--panel-dark);
-            text-align: right;
-        }
+            .vc-footer {
+                padding: 8px 10px;
+                border-top: 1px solid var(--border);
+                background: var(--panel-dark);
+                text-align: right;
+            }
 
-        .progress-widget .status-card {
-            border: 0;
-            border-radius: 0;
-            background: transparent;
-        }
+            .progress-widget .status-card {
+                border: 0;
+                border-radius: 0;
+                background: transparent;
+            }
 
-        .progress-widget {
-            margin-top: 0;
-        }
+            .progress-widget {
+                margin-top: 0;
+            }
 
-        .progress-widget .title {
-            font-size: 14px;
-            line-height: 1.25;
-        }
+            .progress-widget .title {
+                font-size: 14px;
+                line-height: 1.25;
+            }
 
-        .progress-widget .message {
-            font-size: 12px;
-        }
+            .progress-widget .message {
+                font-size: 12px;
+            }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-    </style>
-</head>
-<body>
-    <main>
-        <div class="intro">
-            <h1>Version control overlay and loading states</h1>
-            <p>Matches the implemented no-chip, no-skeleton design.</p>
-        </div>
-
-        <section>
-            <h2>Generic overlays</h2>
-            <div class="grid">
-                <div class="stage">
-                    <div class="vc-surface">
-                        <div class="vc-header">
-                            <span class="vc-heading">Version control</span>
-                        </div>
-                        <div class="vc-body">
-                            <div class="status-card">
-                                <div class="status-row">
-                                    <span class="icon-cell"><span class="spinner" aria-hidden="true"></span></span>
-                                    <div class="copy">
-                                        <p class="title">Creating checkpoint</p>
-                                        <p class="message">This may take a few seconds.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="stage">
-                    <div class="vc-surface">
-                        <div class="vc-header">
-                            <span class="vc-heading">Version control</span>
-                        </div>
-                        <div class="vc-body">
-                            <div class="status-card">
-                                <div class="status-row">
-                                    <span class="icon-cell"><span class="check" aria-hidden="true"></span></span>
-                                    <div class="copy">
-                                        <p class="title">Branch switched</p>
-                                        <p class="message">Refreshing browser</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="stage">
-                    <div class="vc-surface">
-                        <div class="vc-header">
-                            <span class="vc-heading">Version control</span>
-                        </div>
-                        <div class="vc-body">
-                            <div class="status-card">
-                                <div class="status-row">
-                                    <span class="icon-cell"><span class="cross" aria-hidden="true"></span></span>
-                                    <div class="copy">
-                                        <p class="title">Merge force stopped</p>
-                                        <p class="message">Refreshing browser</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <div class="intro">
+                <h1>Version control overlay and loading states</h1>
+                <p>Matches the implemented no-chip, no-skeleton design.</p>
             </div>
-        </section>
 
-        <section>
-            <h2>Merge in progress</h2>
-            <div class="stage">
-                <div class="vc-surface">
-                    <div class="vc-header">
-                        <span class="vc-heading">Version control</span>
+            <section>
+                <h2>Generic overlays</h2>
+                <div class="grid">
+                    <div class="stage">
+                        <div class="vc-surface">
+                            <div class="vc-header">
+                                <span class="vc-heading">Version control</span>
+                            </div>
+                            <div class="vc-body">
+                                <div class="status-card">
+                                    <div class="status-row">
+                                        <span class="icon-cell"><span class="spinner" aria-hidden="true"></span></span>
+                                        <div class="copy">
+                                            <p class="title">Creating checkpoint</p>
+                                            <p class="message">This may take a few seconds.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="vc-body">
+
+                    <div class="stage">
+                        <div class="vc-surface">
+                            <div class="vc-header">
+                                <span class="vc-heading">Version control</span>
+                            </div>
+                            <div class="vc-body">
+                                <div class="status-card">
+                                    <div class="status-row">
+                                        <span class="icon-cell"><span class="check" aria-hidden="true"></span></span>
+                                        <div class="copy">
+                                            <p class="title">Branch switched</p>
+                                            <p class="message">Refreshing browser</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stage">
+                        <div class="vc-surface">
+                            <div class="vc-header">
+                                <span class="vc-heading">Version control</span>
+                            </div>
+                            <div class="vc-body">
+                                <div class="status-card">
+                                    <div class="status-row">
+                                        <span class="icon-cell"><span class="cross" aria-hidden="true"></span></span>
+                                        <div class="copy">
+                                            <p class="title">Merge force stopped</p>
+                                            <p class="message">Refreshing browser</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>Merge in progress</h2>
+                <div class="stage">
+                    <div class="vc-surface">
+                        <div class="vc-header">
+                            <span class="vc-heading">Version control</span>
+                        </div>
+                        <div class="vc-body">
+                            <div class="status-card">
+                                <div class="status-row">
+                                    <span class="icon-cell"
+                                        ><span class="pc-glyph" aria-hidden="true">&#xE431;</span></span
+                                    >
+                                    <div class="copy">
+                                        <p class="title">Merge in progress</p>
+                                        <p class="message">Resolve the active merge before continuing.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="merge-controls">
+                                <label for="branch">Switch to</label>
+                                <select id="branch">
+                                    <option>main</option>
+                                    <option>other</option>
+                                </select>
+                                <button>Switch</button>
+                            </div>
+                        </div>
+                        <div class="vc-footer">
+                            <button class="danger">Stop merge</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>Picker progress widget</h2>
+                <div class="stage">
+                    <div class="vc-surface progress-widget">
+                        <div class="vc-header">
+                            <span class="vc-heading">Resolve conflicts</span>
+                        </div>
                         <div class="status-card">
                             <div class="status-row">
-                                <span class="icon-cell"><span class="pc-glyph" aria-hidden="true">&#xE431;</span></span>
+                                <span class="icon-cell"><span class="spinner" aria-hidden="true"></span></span>
                                 <div class="copy">
-                                    <p class="title">Merge in progress</p>
-                                    <p class="message">Resolve the active merge before continuing.</p>
+                                    <p class="title">Checking merge conflicts</p>
+                                    <p class="message">This may take a few seconds.</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="merge-controls">
-                            <label for="branch">Switch to</label>
-                            <select id="branch">
-                                <option>main</option>
-                                <option>other</option>
-                            </select>
-                            <button>Switch</button>
-                        </div>
-                    </div>
-                    <div class="vc-footer">
-                        <button class="danger">Stop merge</button>
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <section>
-            <h2>Picker progress widget</h2>
-            <div class="stage">
-                <div class="vc-surface progress-widget">
-                    <div class="vc-header">
-                        <span class="vc-heading">Resolve conflicts</span>
-                    </div>
-                    <div class="status-card">
-                        <div class="status-row">
-                            <span class="icon-cell"><span class="spinner" aria-hidden="true"></span></span>
-                            <div class="copy">
-                                <p class="title">Checking merge conflicts</p>
-                                <p class="message">This may take a few seconds.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-</body>
+            </section>
+        </main>
+    </body>
 </html>

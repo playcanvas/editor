@@ -6,52 +6,61 @@ import { AttributesInspector } from '../attributes-inspector';
 
 const CLASS_META_ATTRIBUTES = 'asset-model-inspector-meta-attributes';
 
-const META_ATTRIBUTES: Attribute[] = [{
-    label: 'Vertices',
-    alias: 'vertices',
-    path: 'meta.vertices',
-    type: 'label'
-}, {
-    label: 'Triangles',
-    alias: 'triangles',
-    path: 'meta.triangles',
-    type: 'label'
-}, {
-    label: 'Meshes',
-    path: 'meta.meshes',
-    type: 'label'
-}, {
-    label: 'Skinned',
-    path: 'meta.skinned',
-    type: 'label'
-}, {
-    label: 'Attributes',
-    path: 'meta.attributes',
-    type: 'label'
-}, {
-    label: 'Mesh Compression',
-    path: 'meta.meshCompression',
-    type: 'label'
-}];
-
-const ATTRIBUTES: Attribute[] = [{
-    label: 'Index',
-    path: 'data.renderIndex',
-    type: 'label',
-    reference: 'asset:render:renderIndex'
-}, {
-    label: 'Container',
-    path: 'data.containerAsset',
-    type: 'asset',
-    reference: 'asset:render:containerAsset',
-    args: {
-        readOnly: true,
-        assetType: 'container'
+const META_ATTRIBUTES: Attribute[] = [
+    {
+        label: 'Vertices',
+        alias: 'vertices',
+        path: 'meta.vertices',
+        type: 'label'
+    },
+    {
+        label: 'Triangles',
+        alias: 'triangles',
+        path: 'meta.triangles',
+        type: 'label'
+    },
+    {
+        label: 'Meshes',
+        path: 'meta.meshes',
+        type: 'label'
+    },
+    {
+        label: 'Skinned',
+        path: 'meta.skinned',
+        type: 'label'
+    },
+    {
+        label: 'Attributes',
+        path: 'meta.attributes',
+        type: 'label'
+    },
+    {
+        label: 'Mesh Compression',
+        path: 'meta.meshCompression',
+        type: 'label'
     }
-}];
+];
 
+const ATTRIBUTES: Attribute[] = [
+    {
+        label: 'Index',
+        path: 'data.renderIndex',
+        type: 'label',
+        reference: 'asset:render:renderIndex'
+    },
+    {
+        label: 'Container',
+        path: 'data.containerAsset',
+        type: 'asset',
+        reference: 'asset:render:containerAsset',
+        args: {
+            readOnly: true,
+            assetType: 'container'
+        }
+    }
+];
 
-const DOM = parent => [
+const DOM = (parent) => [
     {
         root: {
             metaPanel: new Panel({
@@ -127,7 +136,7 @@ class RenderAssetInspector extends Container {
 
         const text = Object.keys(metaAttributes).join(', ');
         const field = this._metaAttributesInspector.getField('meta.attributes');
-        field.values = assets.map(asset => text);
+        field.values = assets.map((asset) => text);
         field.parent.class.add(CLASS_META_ATTRIBUTES);
     }
 
@@ -137,12 +146,11 @@ class RenderAssetInspector extends Container {
             none: 'Disabled',
             draco: 'Draco'
         };
-        const text =
-            Array.from(new Set(assets.map(asset => asset.get(attribute))))
-            .map(v => names[v] || v)
+        const text = Array.from(new Set(assets.map((asset) => asset.get(attribute))))
+            .map((v) => names[v] || v)
             .join(', ');
         const field = this._metaAttributesInspector.getField(attribute);
-        field.values = assets.map(asset => text);
+        field.values = assets.map((asset) => text);
     }
 }
 

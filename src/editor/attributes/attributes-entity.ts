@@ -1,12 +1,13 @@
-import { createButton, createLabel } from './attributes-pcui';
 import { EntityInspector } from '../inspector/entity';
 import { TemplatesEntityInspector } from '../templates/templates-entity-inspector';
 import { TemplateOverridesView } from '../templates/templates-override-panel';
 
+import { createButton, createLabel } from './attributes-pcui';
+
 editor.once('load', () => {
     const projectSettings = editor.call('settings:project');
 
-    var entityInspector;
+    let entityInspector = undefined;
 
     // legacy
     editor.method('attributes:entity.panelComponents', () => {
@@ -58,8 +59,9 @@ editor.once('load', () => {
         };
         checkPanel();
         for (let i = 0; i < entities.length; i++) {
-            events.push(entities[i].on(`components.${name}:set`, queueCheckPanel));
-            events.push(entities[i].on(`components.${name}:unset`, queueCheckPanel));
+            const entity = entities[i];
+            events.push(entity.on(`components.${name}:set`, queueCheckPanel));
+            events.push(entity.on(`components.${name}:unset`, queueCheckPanel));
         }
         panel.once('destroy', () => {
             for (let i = 0; i < entities.length; i++) {
@@ -71,23 +73,26 @@ editor.once('load', () => {
         const fieldRemove = createButton();
 
         fieldRemove.hidden = !editor.call('permissions:write');
-        events.push(editor.on('permissions:writeState', (state) => {
-            fieldRemove.hidden = !state;
-        }));
+        events.push(
+            editor.on('permissions:writeState', (state) => {
+                fieldRemove.hidden = !state;
+            })
+        );
 
         fieldRemove.class.add('component-remove');
         fieldRemove.on('click', () => {
             const records = [];
 
             for (let i = 0; i < entities.length; i++) {
+                const entity = entities[i];
                 records.push({
-                    item: entities[i],
-                    value: entities[i].get(`components.${name}`)
+                    item: entity,
+                    value: entity.get(`components.${name}`)
                 });
 
-                entities[i].history.enabled = false;
-                entities[i].unset(`components.${name}`);
-                entities[i].history.enabled = true;
+                entity.history.enabled = false;
+                entity.unset(`components.${name}`);
+                entity.history.enabled = true;
             }
 
             editor.api.globals.history.add({
@@ -95,19 +100,21 @@ editor.once('load', () => {
                 combine: false,
                 undo: function () {
                     for (let i = 0; i < records.length; i++) {
-                        const item = records[i].item.latest();
+                        const record = records[i];
+                        const item = record.item.latest();
                         if (!item) {
                             continue;
                         }
 
                         item.history.enabled = false;
-                        item.set(`components.${name}`, records[i].value);
+                        item.set(`components.${name}`, record.value);
                         item.history.enabled = true;
                     }
                 },
                 redo: function () {
                     for (let i = 0; i < records.length; i++) {
-                        const item = records[i].item.latest();
+                        const record = records[i];
+                        const item = record.item.latest();
                         if (!item) {
                             continue;
                         }
@@ -156,7 +163,7 @@ editor.once('load', () => {
     });
     editor.call('layout.root').append(templateOverrides);
 
-    const templateInspector = new TemplatesEntityInspector({ // eslint-disable-line no-unused-vars
+    const templateInspector = new TemplatesEntityInspector({
         flex: true,
         assets: editor.call('assets:raw'),
         entities: editor.call('entities:raw'),

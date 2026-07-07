@@ -9,9 +9,13 @@ editor.once('load', () => {
         hidden: true
     });
 
-    overlay.dom.addEventListener('mousewheel', (evt) => {
-        evt.stopPropagation();
-    }, { passive: true });
+    overlay.dom.addEventListener(
+        'mousewheel',
+        (evt) => {
+            evt.stopPropagation();
+        },
+        { passive: true }
+    );
 
     // header
     const header = new Container({
@@ -52,95 +56,118 @@ editor.once('load', () => {
             buttons: ['Ctrl', '$+', 'Enter'],
             title: 'Launch',
             icons: ['&#57649;']
-        }, {
+        },
+        {
             buttons: ['Ctrl', '$+', 'E'],
             title: 'New Entity',
             icons: ['&#57632;']
-        }, {
+        },
+        {
             buttons: ['Ctrl', '$+', 'C'],
             title: 'Copy Entity / Asset',
             icons: ['&#58193;']
-        }, {
+        },
+        {
             buttons: ['Ctrl', '$+', 'V'],
             title: 'Paste Entity / Asset',
             icons: ['&#58184;']
-        }, {
+        },
+        {
             buttons: ['Ctrl', '$+', 'Shift', '$+', 'V'],
             title: 'Paste Assets (keep folder structure)',
             icons: ['&#58184;']
-        }, {
+        },
+        {
             buttons: ['Delete', '$/', 'Ctrl', '$+', 'Backspace'],
             title: 'Delete Selected',
             icons: ['&#57636;']
-        }, {
+        },
+        {
             buttons: ['Ctrl', '$+', 'D'],
             title: 'Duplicate Entity',
             icons: ['&#57638;']
-        }, {
+        },
+        {
             buttons: ['N', '$/', 'F2'],
             title: 'Rename Entity / Asset',
             icons: ['&#57895;']
-        }, {
+        },
+        {
             buttons: ['F'],
             title: 'Focus on Entity',
             icons: ['&#58120;']
-        }, {
+        },
+        {
             buttons: ['Shift', '$+', 'X'],
             title: 'Previous Selection',
             icons: ['&#57671;']
-        }, {
+        },
+        {
             buttons: ['Ctrl', '$+', 'Z'],
             title: 'Undo',
             icons: ['&#57620;']
-        }, {
+        },
+        {
             buttons: ['Ctrl', '$+', 'Y', '$/', 'Ctrl', '$+', 'Shift', '$+', 'Z'],
             title: 'Redo',
             icons: ['&#57621;']
-        }, {
+        },
+        {
             buttons: ['Ctrl', '$+', 'B'],
             title: 'Bake / Recalculate Lights',
             icons: ['&#57745;']
-        }, {
+        },
+        {
             buttons: ['Space'],
             title: 'Toggle All Panels',
             icons: ['&#57639;']
-        }, {
+        },
+        {
             buttons: ['1', '2', '3'],
             title: 'Translate / Rotate / Scale Gizmo',
             icons: ['&#57618;', '&#57619;', '&#57617;']
-        }, {
+        },
+        {
             buttons: ['L'],
             title: 'Toggle space: World / Local ',
             icons: ['&#57879;']
-        }, {
+        },
+        {
             buttons: ['Numpad 1', '$/', 'Ctrl', '$+', 'Numpad 1'],
             title: 'Front / Back Camera',
             icons: ['&#57874;']
-        }, {
+        },
+        {
             buttons: ['Numpad 3', '$/', 'Ctrl', '$+', 'Numpad 3'],
             title: 'Right / Left Camera',
             icons: ['&#57874;']
-        }, {
+        },
+        {
             buttons: ['Numpad 7', '$/', 'Ctrl', '$+', 'Numpad 7'],
             title: 'Top / Bottom Camera',
             icons: ['&#57874;']
-        }, {
+        },
+        {
             buttons: ['Numpad 5'],
             title: 'Toggle Perspective / Orthographic',
             icons: ['&#57874;']
-        }, {
+        },
+        {
             buttons: ['Numpad 0'],
             title: 'Perspective Camera',
             icons: ['&#57874;']
-        }, {
+        },
+        {
             buttons: ['Shift', '$+', '?'],
             title: 'Controls',
             icons: ['&#57654;']
-        }, {
+        },
+        {
             buttons: ['Alt', '$+', 'A'],
             title: 'Focus on Assets Search Field',
             icons: ['&#57641;']
-        }, {
+        },
+        {
             buttons: ['Ctrl', '$+', 'Space'],
             title: 'How do I...?',
             icons: ['&#57656;']
@@ -162,6 +189,7 @@ editor.once('load', () => {
     }
 
     for (let i = 0; i < items.length; i++) {
+        const item = items[i];
         const row = document.createElement('div');
         row.classList.add('row');
 
@@ -169,12 +197,13 @@ editor.once('load', () => {
         buttons.classList.add('buttons');
         row.appendChild(buttons);
 
-        for (let n = 0; n < items[i].buttons.length; n++) {
+        for (let i = 0; i < item.buttons.length; i++) {
+            const buttonLabel = item.buttons[i];
             const button = document.createElement('div');
-            const divider = items[i].buttons[n].startsWith('$');
+            const divider = buttonLabel.startsWith('$');
             let sign = '';
             if (divider) {
-                sign = items[i].buttons[n].slice(1);
+                sign = buttonLabel.slice(1);
             }
 
             button.classList.add(divider ? 'divider' : 'button');
@@ -185,19 +214,20 @@ editor.once('load', () => {
                 button.classList.add('or');
             }
 
-            button.textContent = divider ? sign : items[i].buttons[n];
+            button.textContent = divider ? sign : buttonLabel;
             buttons.appendChild(button);
         }
 
         const title = document.createElement('div');
         title.classList.add('title');
-        title.textContent = items[i].title;
+        title.textContent = item.title;
         row.appendChild(title);
 
-        for (let n = 0; n < items[i].icons.length; n++) {
+        for (let i = 0; i < item.icons.length; i++) {
+            const iconHtml = item.icons[i];
             const icon = document.createElement('div');
             icon.classList.add('icon');
-            icon.innerHTML = items[i].icons[n];
+            icon.innerHTML = iconHtml;
             title.appendChild(icon);
         }
 
@@ -205,7 +235,6 @@ editor.once('load', () => {
     }
 
     root.append(overlay);
-
 
     editor.method('help:controls', () => {
         overlay.hidden = false;

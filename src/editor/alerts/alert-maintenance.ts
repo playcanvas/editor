@@ -17,7 +17,7 @@ editor.once('load', async () => {
     if (!res1.ok) {
         return;
     }
-    const rate = await res1.json() as { rate: { remaining: number } };
+    const rate = (await res1.json()) as { rate: { remaining: number } };
     if (rate.rate.remaining === 0) {
         return;
     }
@@ -26,8 +26,8 @@ editor.once('load', async () => {
     if (!res2.ok) {
         return;
     }
-    const issues = await res2.json() as { title: string, html_url: string }[];
-    const maintenance = issues.find(issue => issue.title.startsWith(PREFIX));
+    const issues = (await res2.json()) as { title: string; html_url: string }[];
+    const maintenance = issues.find((issue) => issue.title.startsWith(PREFIX));
     if (!maintenance) {
         return;
     }

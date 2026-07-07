@@ -2,24 +2,24 @@ import type { Observer } from '@playcanvas/observer';
 
 editor.once('load', () => {
     editor.method('assets:uploadFile', (args, fn) => {
-        editor.api.globals.rest.assets.assetCreate(args)
-        .on('load', (status, data) => {
-            if (fn) {
-                fn(null, data);
-            }
-        })
-        .on('error', (status, data) => {
-            if (/Disk allowance/.test(data)) {
-                data += '. <a href="/upgrade" target="_blank">UPGRADE</a> to get more disk space.';
-            }
+        editor.api.globals.rest.assets
+            .assetCreate(args)
+            .on('load', (status, data) => {
+                if (fn) {
+                    fn(null, data);
+                }
+            })
+            .on('error', (status, data) => {
+                if (/Disk allowance/.test(data)) {
+                    data += '. <a href="/upgrade" target="_blank">UPGRADE</a> to get more disk space.';
+                }
 
-            editor.call('status:error', data);
-            if (fn) {
-                fn(data || new Error(`Status ${status}`));
-            }
-        });
+                editor.call('status:error', data);
+                if (fn) {
+                    fn(data || new Error(`Status ${status}`));
+                }
+            });
     });
-
 
     const onAssetSelect = function (asset: Observer) {
         // do this in a timeout to give the asset a frame

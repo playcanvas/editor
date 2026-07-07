@@ -64,7 +64,7 @@ editor.once('load', () => {
         }
 
         panel.style.width = `${width}px`;
-        panel.style.left = `${topLeftWidth + (((topControlsRect.left - titleWidgetRect.right) - width) / 2)}px`;
+        panel.style.left = `${topLeftWidth + (topControlsRect.left - titleWidgetRect.right - width) / 2}px`;
     };
 
     // events when panel is shown
@@ -169,7 +169,6 @@ editor.once('load', () => {
 
     // method to register new suggestions
     editor.method('help:howdoi:register', (data: { title: string; keywords?: string[] }) => {
-
         // create new menu item
         const menuItem = new Container({
             class: 'howdoi-menu-item'

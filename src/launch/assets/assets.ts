@@ -1,4 +1,5 @@
-import { ObserverList, type Observer } from '@playcanvas/observer';
+import { ObserverList } from '@playcanvas/observer';
+import type { Observer } from '@playcanvas/observer';
 
 editor.once('load', () => {
     let uniqueIdToItemId: Record<string | number, number> = {};
@@ -81,8 +82,7 @@ editor.once('load', () => {
 
     // check if asset is a module
     editor.method('assets:isModule', (asset: Observer) => {
-        return editor.call('assets:isScript', asset) &&
-            asset.get('file.filename')?.endsWith('.mjs');
+        return editor.call('assets:isScript', asset) && asset.get('file.filename')?.endsWith('.mjs');
     });
 
     // get asset ide path

@@ -2,18 +2,7 @@ import { ObserverSync } from '@/common/observer-sync';
 
 editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
-    const syncPaths = [
-        'name',
-        'path',
-        'exclude',
-        'preload',
-        'tags',
-        'scope',
-        'data',
-        'meta',
-        'file',
-        'i18n'
-    ];
+    const syncPaths = ['name', 'path', 'exclude', 'preload', 'tags', 'scope', 'data', 'meta', 'file', 'i18n'];
 
     // try to detect if the browser was inactive for a while e.g.
     // if the computer went to sleep
@@ -40,19 +29,24 @@ editor.once('load', () => {
         const assets = connection.collections.assets;
 
         for (let i = 0; i < data.length; i++) {
-            if (!assets.hasOwnProperty(data[i].uniqueId)) {
+            const item = data[i];
+            if (!Object.prototype.hasOwnProperty.call(assets, item.uniqueId)) {
                 continue;
             }
 
             // force snapshot path data
-            assets[data[i].uniqueId].data.path = data[i].path;
+            assets[item.uniqueId].data.path = item.path;
 
             // sync observer
-            editor.emit('realtime:op:assets', {
-                p: ['path'],
-                oi: data[i].path,
-                od: null
-            }, data[i].uniqueId);
+            editor.emit(
+                'realtime:op:assets',
+                {
+                    p: ['path'],
+                    oi: item.path,
+                    od: null
+                },
+                item.uniqueId
+            );
         }
     });
 
@@ -150,11 +144,12 @@ editor.once('load', () => {
         const assets = [];
 
         for (let i = 0; i < list.length; i++) {
-            if (legacyScripts && list[i].get('type') === 'script') {
-                editor.emit('sourcefiles:remove', list[i]);
-                editor.api.globals.rest.projects.projectRepoSourcefilesDelete(list[i].get('filename'));
+            const item = list[i];
+            if (legacyScripts && item.get('type') === 'script') {
+                editor.emit('sourcefiles:remove', item);
+                editor.api.globals.rest.projects.projectRepoSourcefilesDelete(item.get('filename'));
             } else {
-                assets.push(list[i]);
+                assets.push(item);
             }
         }
 
@@ -234,7 +229,7 @@ editor.once('load', () => {
                 app.assets._callbacks.clear();
             } else {
                 // compatibility with 1.64 and below
-                app.assets._callbacks = { };
+                app.assets._callbacks = {};
             }
         }
 

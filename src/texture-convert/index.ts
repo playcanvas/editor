@@ -29,8 +29,12 @@ export const convert = async (frontendURL, buffer, sourceFormat, targetFormat): 
     const { default: encode, init: initEncode } = await importImageEncoder(targetFormat);
     const { default: decode, init: initDecode } = await importImageDecoder(sourceFormat);
 
-    const encodeBinary = await WebAssembly.compileStreaming(fetch(`${frontendURL}wasm/codecs/${targetFormat}/enc.wasm`));
-    const decodeBinary = await WebAssembly.compileStreaming(fetch(`${frontendURL}wasm/codecs/${sourceFormat}/dec.wasm`));
+    const encodeBinary = await WebAssembly.compileStreaming(
+        fetch(`${frontendURL}wasm/codecs/${targetFormat}/enc.wasm`)
+    );
+    const decodeBinary = await WebAssembly.compileStreaming(
+        fetch(`${frontendURL}wasm/codecs/${sourceFormat}/dec.wasm`)
+    );
 
     // Provide locateFile to prevent Emscripten codecs from calling
     // new URL("xxx.wasm", import.meta.url), which fails in the bundled worker context.
@@ -38,16 +42,16 @@ export const convert = async (frontendURL, buffer, sourceFormat, targetFormat): 
     // but without locateFile the new URL() call still executes and throws.
     // For the PNG codec (wasm-bindgen), the second argument is harmlessly ignored.
     const encodeOverrides = {
-        locateFile: (path: string) => `${frontendURL}wasm/codecs/${targetFormat}/${path}`,
+        locateFile: (path: string) => `${frontendURL}wasm/codecs/${targetFormat}/${path}`
     };
     const decodeOverrides = {
-        locateFile: (path: string) => `${frontendURL}wasm/codecs/${sourceFormat}/${path}`,
+        locateFile: (path: string) => `${frontendURL}wasm/codecs/${sourceFormat}/${path}`
     };
     await initEncode(encodeBinary, encodeOverrides);
     await initDecode(decodeBinary, decodeOverrides);
 
     const decoded = await decode(buffer);
-    const encoded = await encode(decoded) as any;
+    const encoded = (await encode(decoded)) as any;
 
     // PNG encode method doesn't return a buffer, so you must access it manually.
     return encoded.buffer ? encoded.buffer : encoded;

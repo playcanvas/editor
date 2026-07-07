@@ -10,7 +10,9 @@ editor.once('load', () => {
         if (type === 'script' && useLegacyScripts) {
             const filename = asset.get('filename') || asset.get('name');
             try {
-                const text = await editor.api.globals.rest.projects.projectRepoSourcefile('directory', filename).promisify();
+                const text = await editor.api.globals.rest.projects
+                    .projectRepoSourcefile('directory', filename)
+                    .promisify();
                 const preview = new LegacyScriptPreviewOverlay({
                     name: filename,
                     code: text

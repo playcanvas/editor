@@ -1,4 +1,5 @@
-import { type AppBase, BoundingBox, Color, EMITTERSHAPE_BOX, EMITTERSHAPE_SPHERE, Entity, Mat4, Vec3 } from 'playcanvas';
+import { BoundingBox, Color, EMITTERSHAPE_BOX, EMITTERSHAPE_SPHERE, Entity, Mat4, Vec3 } from 'playcanvas';
+import type { AppBase } from 'playcanvas';
 
 editor.once('load', () => {
     let app = null;
@@ -95,14 +96,12 @@ editor.once('load', () => {
     // bounding box is calculated from one of the components
     // attached to the entity in a priority order
     const getBoundingBoxForEntity = function (entity: Entity, resultBB: BoundingBox): BoundingBox {
-
         // clear result box
         resultBB.center.set(0, 0, 0);
         resultBB.halfExtents.set(0, 0, 0);
 
         // first choice is to use the bounding box of all mesh instances on a model or render component
         if (entity.model || entity.render) {
-
             let meshInstances;
             if (entity.model && entity.model.model && entity.model.meshInstances.length) {
                 meshInstances = entity.model.meshInstances;
@@ -114,15 +113,16 @@ editor.once('load', () => {
             if (meshInstances) {
                 let first = true;
                 for (let i = 0; i < meshInstances.length; i++) {
-                    if (meshInstances[i]._hidden) {
+                    const meshInstance = meshInstances[i];
+                    if (meshInstance._hidden) {
                         continue;
                     }
 
                     if (first) {
                         first = false;
-                        resultBB.copy(meshInstances[i].aabb);
+                        resultBB.copy(meshInstance.aabb);
                     } else {
-                        resultBB.add(meshInstances[i].aabb);
+                        resultBB.add(meshInstance.aabb);
                     }
                 }
 
@@ -169,14 +169,16 @@ editor.once('load', () => {
 
             if (entity.screen.screenSpace) {
                 resultBB.center.copy(position);
-                const screenScale = entity.screen.scaleMode === 'blend' ?
-                    entity.screen._calcScale(entity.screen.resolution, entity.screen.referenceResolution) || Number.MIN_VALUE :
-                    1;
+                const screenScale =
+                    entity.screen.scaleMode === 'blend'
+                        ? entity.screen._calcScale(entity.screen.resolution, entity.screen.referenceResolution) ||
+                          Number.MIN_VALUE
+                        : 1;
 
                 resultBB.halfExtents.set(
-                    0.5 * entity.screen.resolution.x * scale.x / screenScale,
-                    0.5 * entity.screen.resolution.y * scale.y / screenScale,
-                    0.1  // small z extent since screens are 2D
+                    (0.5 * entity.screen.resolution.x * scale.x) / screenScale,
+                    (0.5 * entity.screen.resolution.y * scale.y) / screenScale,
+                    0.1 // small z extent since screens are 2D
                 );
             } else {
                 // For non-screen space, create unrotated box and transform it
@@ -184,7 +186,7 @@ editor.once('load', () => {
                 _tmpBB.halfExtents.set(
                     0.5 * entity.screen.resolution.x * scale.x,
                     0.5 * entity.screen.resolution.y * scale.y,
-                    0.1  // small z extent since screens are 2D
+                    0.1 // small z extent since screens are 2D
                 );
                 resultBB.setFromTransformedAabb(_tmpBB, entity.getWorldTransform(), true);
             }
@@ -227,7 +229,11 @@ editor.once('load', () => {
             }
             if (entity.particlesystem.emitterShape === EMITTERSHAPE_SPHERE) {
                 resultBB.center.copy(entity.getPosition());
-                resultBB.halfExtents.set(entity.particlesystem.emitterRadius, entity.particlesystem.emitterRadius, entity.particlesystem.emitterRadius);
+                resultBB.halfExtents.set(
+                    entity.particlesystem.emitterRadius,
+                    entity.particlesystem.emitterRadius,
+                    entity.particlesystem.emitterRadius
+                );
                 return resultBB;
             }
         }
@@ -263,12 +269,13 @@ editor.once('load', () => {
 
         const children = root.children;
         for (let i = 0; i < children.length; i++) {
-            if (children[i].__editor || !(children[i] instanceof Entity)) {
+            const child = children[i];
+            if (child.__editor || !(child instanceof Entity)) {
                 continue;
             }
 
             // now we pass in the bounding box to be added to
-            getBoundingBoxForHierarchy(children[i], hierarchyBB);
+            getBoundingBoxForHierarchy(child, hierarchyBB);
         }
 
         return hierarchyBB;

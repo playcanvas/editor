@@ -1,4 +1,5 @@
-import { type AppBase, Color, ElementInput, Vec3 } from 'playcanvas';
+import { Color, ElementInput, Vec3 } from 'playcanvas';
+import type { AppBase } from 'playcanvas';
 
 editor.once('load', () => {
     let corners = [];

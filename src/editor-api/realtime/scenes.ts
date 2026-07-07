@@ -1,8 +1,9 @@
 import { Events } from '@playcanvas/observer';
 
+import type { Realtime } from '../realtime';
+
+import type { RealtimeConnection } from './connection';
 import { RealtimeScene } from './scene';
-import { Realtime } from '../realtime';
-import { RealtimeConnection } from './connection';
 
 /**
  * Provides methods to load scenes from sharedb

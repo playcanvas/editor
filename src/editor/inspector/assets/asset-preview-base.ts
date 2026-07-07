@@ -15,7 +15,7 @@ class AssetInspectorPreviewBase extends Container {
 
     private _noPreviewText: Label;
 
-    private _hasPreview: boolean = false;
+    private _hasPreview = false;
 
     private _domEvtPointerDown = (evt: PointerEvent) => this._onPointerDown(evt);
 

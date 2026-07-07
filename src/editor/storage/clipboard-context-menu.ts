@@ -1,7 +1,6 @@
 import { Menu, MenuItem, Label } from '@playcanvas/pcui';
 import { Color } from 'playcanvas';
 
-
 const colorA = new Color();
 
 // list of asset types
@@ -61,21 +60,23 @@ const convertStringToVec = (string: string, valueOld: number[]) => {
 
         if (Array.isArray(value)) {
             for (let i = 0; i < Math.min(value.length, valueOld.length); i++) {
-                if (typeof (value[i]) === 'number') {
+                if (typeof value[i] === 'number') {
                     valueNew[i] = value[i];
                 }
             }
-        } else if (typeof (value) === 'object') {
+        } else if (typeof value === 'object') {
             ['x', 'y', 'z', 'w'].forEach((c, i) => {
                 if (i >= valueOld.length) {
                     return;
                 }
-                if (value.hasOwnProperty(c) && typeof (value[c]) === 'number') {
+                if (Object.prototype.hasOwnProperty.call(value, c) && typeof value[c] === 'number') {
                     valueNew[i] = value[c];
                 }
             });
         }
-    } catch (ex) { }
+    } catch (ex) {
+        // ignore parse errors, fall back to old value
+    }
 
     return valueNew;
 };
@@ -107,63 +108,71 @@ const convertStringToColor = (string: string, valueOld: number[]) => {
 
             if (Array.isArray(value)) {
                 for (let i = 0; i < Math.min(value.length, valueOld.length); i++) {
-                    if (typeof (value[i]) === 'number') {
+                    if (typeof value[i] === 'number') {
                         valueNew[i] = value[i];
                     }
                 }
-            } else if (typeof (value) === 'object') {
+            } else if (typeof value === 'object') {
                 ['r', 'g', 'b', 'a'].forEach((c, i) => {
                     if (i >= valueOld.length) {
                         return;
                     }
-                    if (value.hasOwnProperty(c) && typeof (value[c]) === 'number') {
+                    if (Object.prototype.hasOwnProperty.call(value, c) && typeof value[c] === 'number') {
                         valueNew[i] = value[c];
                     }
                 });
             }
         }
-    } catch (ex) { }
+    } catch (ex) {
+        // ignore parse errors, fall back to old value
+    }
 
     return valueNew;
 };
 
 // list of conversion methods,
 // it uses new value (n) and optionally an old value (o)
-// eslint-disable-next-line func-call-spacing
+
 const convertTypes = new Map<string, (n: unknown, o: unknown) => unknown>([
     [
         'boolean-string',
         (n: unknown, _o: unknown) => {
             return n ? 'true' : 'false';
         }
-    ], [
+    ],
+    [
         'boolean-text',
         (n: unknown, o: unknown) => {
             return n ? 'true' : 'false';
         }
-    ], [
+    ],
+    [
         'boolean-number',
         (n: unknown, o: unknown) => {
             return n ? 1 : 0;
         }
-    ], [
+    ],
+    [
         'boolean-slider',
         (n: unknown, o: unknown) => {
             return n ? 1 : 0;
         }
-    ], [
+    ],
+    [
         'string-text',
         (n: unknown, o: unknown) => {
             return n;
         }
-    ], [
+    ],
+    [
         'string-array:string',
         (n: unknown, o: unknown) => {
             const items = [];
             const data = n.split(',');
 
             for (let i = 0; i < data.length; i++) {
-                const string = data[i].trim();
+                const entry = data[i];
+                const string = entry.trim();
                 if (string) {
                     items.push(string);
                 }
@@ -171,13 +180,15 @@ const convertTypes = new Map<string, (n: unknown, o: unknown) => unknown>([
 
             return items;
         }
-    ], [
+    ],
+    [
         'string-tags',
         (n: unknown, o: unknown) => {
             const set = new Set();
             const items = n.split(',');
             for (let i = 0; i < items.length; i++) {
-                const tag = items[i].trim();
+                const item = items[i];
+                const tag = item.trim();
                 if (!tag) {
                     continue;
                 }
@@ -188,7 +199,8 @@ const convertTypes = new Map<string, (n: unknown, o: unknown) => unknown>([
             }
             return Array.from(set);
         }
-    ], [
+    ],
+    [
         'string-number',
         (n: unknown, o: unknown) => {
             const number = parseFloat(n);
@@ -197,7 +209,8 @@ const convertTypes = new Map<string, (n: unknown, o: unknown) => unknown>([
             }
             return number;
         }
-    ], [
+    ],
+    [
         'string-slider',
         (n: unknown, o: unknown) => {
             const number = parseFloat(n);
@@ -206,32 +219,25 @@ const convertTypes = new Map<string, (n: unknown, o: unknown) => unknown>([
             }
             return number;
         }
-    ], [
-        'string-vec2',
-        convertStringToVec
-    ], [
-        'string-vec3',
-        convertStringToVec
-    ], [
-        'string-vec4',
-        convertStringToVec
-    ], [
-        'string-rgb',
-        convertStringToColor
-    ], [
-        'string-rgba',
-        convertStringToColor
-    ], [
+    ],
+    ['string-vec2', convertStringToVec],
+    ['string-vec3', convertStringToVec],
+    ['string-vec4', convertStringToVec],
+    ['string-rgb', convertStringToColor],
+    ['string-rgba', convertStringToColor],
+    [
         'array:string-string',
         (n: unknown, _o: unknown) => {
             return n.join(', ');
         }
-    ], [
+    ],
+    [
         'array:string-text',
         (n: unknown, _o: unknown) => {
             return n.join('\n');
         }
-    ], [
+    ],
+    [
         'array:string-tags',
         (n: unknown, _o: unknown) => {
             const set = new Set();
@@ -246,12 +252,14 @@ const convertTypes = new Map<string, (n: unknown, o: unknown) => unknown>([
             }
             return Array.from(set);
         }
-    ], [
+    ],
+    [
         'text-string',
         (n: unknown, _o: unknown) => {
             return n;
         }
-    ], [
+    ],
+    [
         'text-array:string',
         (n: unknown, _o: unknown) => {
             const items = n.split('\n');
@@ -260,13 +268,15 @@ const convertTypes = new Map<string, (n: unknown, o: unknown) => unknown>([
             }
             return items;
         }
-    ], [
+    ],
+    [
         'text-tags',
         (n: unknown, _o: unknown) => {
             const set = new Set();
             const items = n.split('\n');
             for (let i = 0; i < items.length; i++) {
-                const tag = items[i].trim();
+                const item = items[i];
+                const tag = item.trim();
                 if (!tag) {
                     continue;
                 }
@@ -277,67 +287,80 @@ const convertTypes = new Map<string, (n: unknown, o: unknown) => unknown>([
             }
             return Array.from(set);
         }
-    ], [
+    ],
+    [
         'tags-string',
         (n: unknown, _o: unknown) => {
             return n.join(', ');
         }
-    ], [
+    ],
+    [
         'tags-array:string',
         (n: unknown, _o: unknown) => {
             return n;
         }
-    ], [
+    ],
+    [
         'tags-text',
         (n: unknown, _o: unknown) => {
             return n.join('\n');
         }
-    ], [
+    ],
+    [
         'number-boolean',
         (n: unknown, _o: unknown) => {
             return !!n;
         }
-    ], [
+    ],
+    [
         'number-string',
         (n: unknown, _o: unknown) => {
             return `${n}`;
         }
-    ], [
+    ],
+    [
         'number-text',
         (n: unknown, _o: unknown) => {
             return `${n}`;
         }
-    ], [
+    ],
+    [
         'number-slider',
         (n: unknown, _o: unknown) => {
             return n;
         }
-    ], [
+    ],
+    [
         'number-vec2',
         (n: unknown, o: unknown) => {
             return [n, (o as number[])[1]];
         }
-    ], [
+    ],
+    [
         'number-vec3',
         (n: unknown, o: unknown) => {
             return [n, (o as number[])[1], (o as number[])[2]];
         }
-    ], [
+    ],
+    [
         'number-vec4',
         (n: unknown, o: unknown) => {
             return [n, o[1], o[2], o[3]];
         }
-    ], [
+    ],
+    [
         'number-rgb',
         (n: unknown, o: unknown) => {
             return [n, (o as number[])[1], (o as number[])[2]];
         }
-    ], [
+    ],
+    [
         'number-rgba',
         (n: unknown, o: unknown) => {
             return [n, (o as number[])[1], (o as number[])[2], (o as number[])[3]];
         }
-    ], [
+    ],
+    [
         'number-asset',
         (n: unknown, o: unknown) => {
             if (!n) {
@@ -349,157 +372,188 @@ const convertTypes = new Map<string, (n: unknown, o: unknown) => unknown>([
             }
             return n;
         }
-    ], [
+    ],
+    [
         'vec2-string',
         (n: unknown, o: unknown) => {
             return JSON.stringify(n);
         }
-    ], [
+    ],
+    [
         'vec2-text',
         (n: unknown, o: unknown) => {
             return JSON.stringify(n);
         }
-    ], [
+    ],
+    [
         'vec2-vec3',
         (n: unknown, o: unknown) => {
             return [n[0], n[1], o[2]];
         }
-    ], [
+    ],
+    [
         'vec2-vec4',
         (n: unknown, o: unknown) => {
             return [n[0], n[1], o[2], o[3]];
         }
-    ], [
+    ],
+    [
         'vec2-rgb',
         (n: unknown, o: unknown) => {
             return [n[0], n[1], o[2]];
         }
-    ], [
+    ],
+    [
         'vec2-rgba',
         (n: unknown, o: unknown) => {
             return [n[0], n[1], o[2], o[3]];
         }
-    ], [
+    ],
+    [
         'vec3-string',
         (n: unknown, o: unknown) => {
             return JSON.stringify(n);
         }
-    ], [
+    ],
+    [
         'vec3-text',
         (n: unknown, o: unknown) => {
             return JSON.stringify(n);
         }
-    ], [
+    ],
+    [
         'vec3-vec2',
         (n: unknown, o: unknown) => {
             return [n[0], n[1]];
         }
-    ], [
+    ],
+    [
         'vec3-vec4',
         (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2], o[3]];
         }
-    ], [
+    ],
+    [
         'vec3-rgb',
         (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2]];
         }
-    ], [
+    ],
+    [
         'vec3-rgba',
         (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2], o[3]];
         }
-    ], [
+    ],
+    [
         'vec4-string',
         (n: unknown, o: unknown) => {
             return JSON.stringify(n);
         }
-    ], [
+    ],
+    [
         'vec4-text',
         (n: unknown, o: unknown) => {
             return JSON.stringify(n);
         }
-    ], [
+    ],
+    [
         'vec4-vec2',
         (n: unknown, o: unknown) => {
             return [n[0], n[1]];
         }
-    ], [
+    ],
+    [
         'vec4-vec3',
         (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2]];
         }
-    ], [
+    ],
+    [
         'vec4-rgb',
         (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2]];
         }
-    ], [
+    ],
+    [
         'vec4-rgba',
         (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2], n[3]];
         }
-    ], [
+    ],
+    [
         'rgb-string',
         (n: unknown, o: unknown) => {
             return colorA.fromArray(n).toString(false).toUpperCase();
         }
-    ], [
+    ],
+    [
         'rgb-text',
         (n: unknown, o: unknown) => {
             return colorA.fromArray(n).toString(false).toUpperCase();
         }
-    ], [
+    ],
+    [
         'rgb-vec2',
         (n: unknown, o: unknown) => {
             return [n[0], n[1]];
         }
-    ], [
+    ],
+    [
         'rgb-vec3',
         (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2]];
         }
-    ], [
+    ],
+    [
         'rgb-vec4',
         (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2], o[3]];
         }
-    ], [
+    ],
+    [
         'rgb-rgba',
         (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2], o[3]];
         }
-    ], [
+    ],
+    [
         'rgba-string',
         (n: unknown, o: unknown) => {
             return colorA.fromArray(n).toString(true).toUpperCase();
         }
-    ], [
+    ],
+    [
         'rgba-text',
         (n: unknown, o: unknown) => {
             return colorA.fromArray(n).toString(true).toUpperCase();
         }
-    ], [
+    ],
+    [
         'rgba-vec2',
         (n: unknown, o: unknown) => {
             return [n[0], n[1]];
         }
-    ], [
+    ],
+    [
         'rgba-vec3',
         (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2]];
         }
-    ], [
+    ],
+    [
         'rgba-vec4',
         (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2], n[3]];
         }
-    ], [
+    ],
+    [
         'rgba-rgb',
         (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2]];
         }
-    ], [
+    ],
+    [
         'entity-array:entity',
         (n: unknown, o: unknown) => {
             if (Array.isArray(n)) {
@@ -509,16 +563,17 @@ const convertTypes = new Map<string, (n: unknown, o: unknown) => unknown>([
             }
             return [];
         }
-    ], [
+    ],
+    [
         'array:entity-entity',
         (n: unknown, o: unknown) => {
             if (n.length) {
                 return n[0];
             }
             return null;
-
         }
-    ], [
+    ],
+    [
         'asset-array:asset',
         (n: unknown, o: unknown) => {
             if (Array.isArray(n)) {
@@ -527,11 +582,9 @@ const convertTypes = new Map<string, (n: unknown, o: unknown) => unknown>([
                 return [n];
             }
             return [];
-
         }
     ]
 ]);
-
 
 // additional assets conversions
 for (const type of assetTypes) {
@@ -564,14 +617,15 @@ for (const type of assetTypes) {
         if (Array.isArray(n)) {
             const items = [];
             for (let i = 0; i < n.length; i++) {
-                const assetType = editor.call('assets:get', n[i])?.get('type');
+                const id = n[i];
+                const assetType = editor.call('assets:get', id)?.get('type');
 
                 if (!assetType) {
                     continue;
                 }
 
                 if (assetType === type) {
-                    items.push(n[i]);
+                    items.push(id);
                 }
             }
 
@@ -580,7 +634,6 @@ for (const type of assetTypes) {
             }
 
             return o;
-
         } else if (n) {
             const assetType = editor.call('assets:get', n)?.get('type');
 
@@ -615,11 +668,9 @@ for (const type of assetTypes) {
     });
 }
 
-
 editor.method('clipboard:types', () => {
     return types;
 });
-
 
 editor.once('load', () => {
     const root = editor.call('layout.root');
@@ -630,7 +681,7 @@ editor.once('load', () => {
 
     let path: string | null = null;
     let schemaType: string | null = null;
-    let fieldEnabled: boolean = false;
+    let fieldEnabled = false;
     let fieldOptions: object[] | null = null;
     let elementHighlighted = null;
 
@@ -639,28 +690,23 @@ editor.once('load', () => {
     }
 
     // types of selected objects currently supported
-    const objTypes = new Set([
-        'entity',
-        'asset'
-    ]);
-
+    const objTypes = new Set(['entity', 'asset']);
 
     // list of exceptions
     // if object type and path matches,
     // copy/paste will not be provided for such field
-    const pathsExceptions = new Set([
-        'entity:components.render.materialAssets'
-    ]);
-
+    const pathsExceptions = new Set(['entity:components.render.materialAssets']);
 
     // check if in clipboard we have a valid object
     const isValidClipboardObject = (value: unknown): value is { type: string; value: unknown } => {
-        return value &&
-            (typeof value) === 'object' &&
+        return (
+            value &&
+            typeof value === 'object' &&
             !Array.isArray(value) &&
-            value.hasOwnProperty('type') &&
-            value.hasOwnProperty('value') &&
-            value.type;
+            Object.prototype.hasOwnProperty.call(value, 'type') &&
+            Object.prototype.hasOwnProperty.call(value, 'value') &&
+            value.type
+        );
     };
 
     // context menu
@@ -710,7 +756,6 @@ editor.once('load', () => {
     menu.append(menuItemPaste);
     root.append(menu);
 
-
     // when clipboard menu is hidden
     menu.on('hide', () => {
         if (!elementHighlighted) {
@@ -721,7 +766,6 @@ editor.once('load', () => {
         elementHighlighted.classList.remove('pcui-highlight');
         elementHighlighted = null;
     });
-
 
     // convert type string to more human-friendly version
     editor.method('clipboard:typeToHuman', (type: string) => {
@@ -736,7 +780,6 @@ editor.once('load', () => {
         return type;
     });
 
-
     // return current clipboard type
     editor.method('clipboard:type', () => {
         const paste = clipboard.value;
@@ -745,7 +788,6 @@ editor.once('load', () => {
         }
         return null;
     });
-
 
     // check if it is possible to copy value
     editor.method('clipboard:validCopy', (path: string, type: string) => {
@@ -772,9 +814,8 @@ editor.once('load', () => {
         return true;
     });
 
-
     // check if path and type are valid to be pasted in the current selection
-    editor.method('clipboard:validPaste', (path: string, type: string, options: Array<{ v: unknown }> | null) => {
+    editor.method('clipboard:validPaste', (path: string, type: string, options: { v: unknown }[] | null) => {
         if (!path || !type) {
             return false;
         }
@@ -844,57 +885,67 @@ editor.once('load', () => {
         return true;
     });
 
-
     // method to open context menu
-    editor.method('clipboard:contextmenu:open', (x: number, y: number, newPath: string, type: string, options: Array<{ v: unknown }> | null, element: HTMLElement, canPaste: boolean = true) => {
-        // it might not have a path
-        if (!newPath) {
-            schemaType = null;
-            path = null;
-            return;
+    editor.method(
+        'clipboard:contextmenu:open',
+        (
+            x: number,
+            y: number,
+            newPath: string,
+            type: string,
+            options: { v: unknown }[] | null,
+            element: HTMLElement,
+            canPaste = true
+        ) => {
+            // it might not have a path
+            if (!newPath) {
+                schemaType = null;
+                path = null;
+                return;
+            }
+
+            // selector should have type
+            const selectionType = editor.call('selector:type') ?? null;
+            if (!selectionType) {
+                return;
+            }
+
+            // we should support that selection type
+            if (!objTypes.has(selectionType)) {
+                return;
+            }
+
+            // respect exceptions
+            if (pathsExceptions.has(`${selectionType}:${newPath}`)) {
+                return;
+            }
+
+            // remember target path and value type
+            path = newPath;
+            schemaType = type;
+            fieldOptions = options;
+            fieldEnabled = canPaste;
+            menuItemCopyLabel.text = editor.call('clipboard:typeToHuman', schemaType);
+
+            // highlight field
+            elementHighlighted = element;
+            elementHighlighted?.classList?.add('pcui-highlight');
+
+            // check if paste is possible
+            const paste = clipboard.value;
+            if (isValidClipboardObject(paste)) {
+                // if possible, update paste postfix
+                menuItemPasteLabel.text = editor.call('clipboard:typeToHuman', paste.type);
+                menuItemPasteLabel.enabled = true;
+            } else {
+                menuItemPasteLabel.enabled = false;
+            }
+
+            // show context menu
+            menu.hidden = false;
+            menu.position(x + 1, y);
         }
-
-        // selector should have type
-        const selectionType = editor.call('selector:type') ?? null;
-        if (!selectionType) {
-            return;
-        }
-
-        // we should support that selection type
-        if (!objTypes.has(selectionType)) {
-            return;
-        }
-
-        // respect exceptions
-        if (pathsExceptions.has(`${selectionType}:${newPath}`)) {
-            return;
-        }
-
-        // remember target path and value type
-        path = newPath;
-        schemaType = type;
-        fieldOptions = options;
-        fieldEnabled = canPaste;
-        menuItemCopyLabel.text = editor.call('clipboard:typeToHuman', schemaType);
-
-        // highlight field
-        elementHighlighted = element;
-        elementHighlighted?.classList?.add('pcui-highlight');
-
-        // check if paste is possible
-        const paste = clipboard.value;
-        if (isValidClipboardObject(paste)) {
-            // if possible, update paste postfix
-            menuItemPasteLabel.text = editor.call('clipboard:typeToHuman', paste.type);
-            menuItemPasteLabel.enabled = true;
-        } else {
-            menuItemPasteLabel.enabled = false;
-        }
-
-        // show context menu
-        menu.hidden = false;
-        menu.position(x + 1, y);
-    });
+    );
 
     // copy to clipoard value by path from current selection
     editor.method('clipboard:copy', (path: string, type: string) => {
@@ -919,7 +970,7 @@ editor.once('load', () => {
         return true;
     });
 
-    editor.method('clipboard:paste', (path: string, type: string, options: Array<{ v: unknown }> | null) => {
+    editor.method('clipboard:paste', (path: string, type: string, options: { v: unknown }[] | null) => {
         if (!editor.call('clipboard:validPaste', path, type, options)) {
             return false;
         }
@@ -945,7 +996,8 @@ editor.once('load', () => {
         const records = [];
 
         for (let i = 0; i < items.length; i++) {
-            const valueOld = items[i].get(path);
+            const item = items[i];
+            const valueOld = item.get(path);
             let valueNew = convert ? convertTypes.get(conversionTuple)(paste.value, valueOld) : paste.value;
 
             if (type === 'entity' && Array.isArray(valueNew)) {
@@ -956,16 +1008,16 @@ editor.once('load', () => {
 
             // create history records
             records.push({
-                item: items[i],
+                item: item,
                 path: path,
                 valueOld: valueOld,
                 valueNew: valueNew
             });
 
             // paste new value
-            items[i].history.enabled = false;
-            items[i].set(path, valueNew);
-            items[i].history.enabled = true;
+            item.history.enabled = false;
+            item.set(path, valueNew);
+            item.history.enabled = true;
 
             // TODO:
             // setting render-component asset does not update materials - bug in render component inspector
@@ -977,23 +1029,25 @@ editor.once('load', () => {
             combine: false,
             undo: () => {
                 for (let i = 0; i < records.length; i++) {
-                    const item = records[i].item.latest();
+                    const record = records[i];
+                    const item = record.item.latest();
                     if (!item) {
                         continue;
                     }
                     item.history.enabled = false;
-                    item.set(records[i].path, records[i].valueOld);
+                    item.set(record.path, record.valueOld);
                     item.history.enabled = true;
                 }
             },
             redo: () => {
                 for (let i = 0; i < records.length; i++) {
-                    const item = records[i].item.latest();
+                    const record = records[i];
+                    const item = record.item.latest();
                     if (!item) {
                         continue;
                     }
                     item.history.enabled = false;
-                    item.set(records[i].path, records[i].valueNew);
+                    item.set(record.path, record.valueNew);
                     item.history.enabled = true;
                 }
             }

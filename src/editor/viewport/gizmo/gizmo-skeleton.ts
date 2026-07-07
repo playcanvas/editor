@@ -1,4 +1,5 @@
-import { type AppBase, Color, Entity, type GraphNode } from 'playcanvas';
+import { Color } from 'playcanvas';
+import type { Entity, AppBase, GraphNode } from 'playcanvas';
 
 import type { EntityObserver } from '@/editor-api';
 
@@ -34,7 +35,7 @@ editor.once('load', () => {
             }
         };
 
-        for (let i = 0; i < entities.length; ++i) {
+        for (let i = 0; i < entities.length; i++) {
             const entity = entities[i];
             if (entity) {
                 const model = entity.model;

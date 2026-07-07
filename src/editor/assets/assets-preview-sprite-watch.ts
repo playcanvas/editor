@@ -4,7 +4,7 @@ editor.once('load', () => {
         return;
     } // webgl not available
 
-    const watching = { };
+    const watching = {};
 
     const trigger = function (watch: { callbacks: Record<string | number, { callback: () => void }> }) {
         for (const key in watch.callbacks) {
@@ -12,7 +12,10 @@ editor.once('load', () => {
         }
     };
 
-    const unwatchAtlas = function (watch: { events: Record<string, (() => void) | { unbind: () => void } | undefined> }, atlas: string | number | null) {
+    const unwatchAtlas = function (
+        watch: { events: Record<string, (() => void) | { unbind: () => void } | undefined> },
+        atlas: string | number | null
+    ) {
         if (!atlas) {
             return;
         }
@@ -49,7 +52,10 @@ editor.once('load', () => {
         }
     };
 
-    const subscribe = function (watch: { asset: { get: (path: string) => string | number | null }; events: Record<string, (() => void) | { unbind: () => void } | undefined> }) {
+    const subscribe = function (watch: {
+        asset: { get: (path: string) => string | number | null };
+        events: Record<string, (() => void) | { unbind: () => void } | undefined>;
+    }) {
         const onChange = function () {
             trigger(watch);
         };
@@ -92,7 +98,6 @@ editor.once('load', () => {
                 if (!engineAtlas.resource) {
                     app.assets.load(engineAtlas);
                 }
-
             } else {
                 app.assets.once(`add:${atlas}`, watchAtlas);
                 watch.events.onAtlasAdd = watchAtlas;
@@ -113,7 +118,10 @@ editor.once('load', () => {
         });
     };
 
-    const unsubscribe = function (watch: { asset: { get: (path: string) => string | number | null }; events: Record<string, (() => void) | { unbind: () => void } | undefined> }) {
+    const unsubscribe = function (watch: {
+        asset: { get: (path: string) => string | number | null };
+        events: Record<string, (() => void) | { unbind: () => void } | undefined>;
+    }) {
         const atlas = watch.asset.get('data.textureAtlasAsset');
         unwatchAtlas(watch, atlas);
         if (watch.events.onSetAtlas) {
@@ -124,7 +132,6 @@ editor.once('load', () => {
         }
         watch.events = {};
     };
-
 
     // used to force the trigger when the asset is known to have changed
     // e.g. when loading the uncompressed texture atlas completes
@@ -143,7 +150,7 @@ editor.once('load', () => {
                 asset: args.asset,
                 events: {},
                 ind: 0,
-                callbacks: { }
+                callbacks: {}
             };
             subscribe(watch);
         }
@@ -155,14 +162,13 @@ editor.once('load', () => {
         return watch.ind;
     });
 
-
     editor.method('assets:sprite:unwatch', (asset, handle) => {
         const watch = watching[asset.get('id')];
         if (!watch) {
             return;
         }
 
-        if (!watch.callbacks.hasOwnProperty(handle)) {
+        if (!Object.prototype.hasOwnProperty.call(watch.callbacks, handle)) {
             return;
         }
 

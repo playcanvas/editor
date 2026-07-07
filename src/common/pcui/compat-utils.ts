@@ -33,9 +33,4 @@ const toLinkedFieldValue = (type: string | undefined, value: any, different: boo
     return type === 'entity' && different ? null : value;
 };
 
-export {
-    acceptsAssetDropType,
-    toLinkedFieldValue,
-    toOptions,
-    WILDCARD_ASSET_TYPE
-};
+export { acceptsAssetDropType, toLinkedFieldValue, toOptions, WILDCARD_ASSET_TYPE };

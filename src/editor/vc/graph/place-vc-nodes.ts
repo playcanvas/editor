@@ -16,7 +16,11 @@ editor.once('load', () => {
 
         curBranch?: string;
 
-        constructor(data: { idToNode: Record<string, Record<string, unknown>>; branches: Record<string, Record<string, unknown>>; startNode: Record<string, unknown> }) {
+        constructor(data: {
+            idToNode: Record<string, Record<string, unknown>>;
+            branches: Record<string, Record<string, unknown>>;
+            startNode: Record<string, unknown>;
+        }) {
             this.idToNode = data.idToNode;
             this.branches = data.branches;
             this.startNode = data.startNode;
@@ -87,16 +91,13 @@ editor.once('load', () => {
         prepIteration() {
             if (this.q1.length) {
                 return true;
-
             }
             if (this.q2.length) {
                 this.moveTo1();
 
                 return true;
-
             }
             return false;
-
         }
 
         moveTo1() {
