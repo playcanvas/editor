@@ -25,6 +25,8 @@ editor.once('load', () => {
         return args.paths ? args.paths[index] : args.path;
     };
 
+    let getDefaultValue = undefined;
+
     // Creates an array widget
     editor.method('attributes:addArrayField', (args) => {
         const events = [];
@@ -82,6 +84,8 @@ editor.once('load', () => {
         });
 
         fieldSize.parent.flexGrow = 1;
+
+        let changeArraySize = undefined;
 
         fieldSize.on('change', (value) => {
             // check fieldSize._changing otherwise this will
@@ -321,7 +325,7 @@ editor.once('load', () => {
         });
 
         // Undoable action - change the size of the array of each link
-        const changeArraySize = function (size: number) {
+        changeArraySize = function (size: number) {
             let prev;
 
             const redo = function () {
@@ -440,7 +444,7 @@ editor.once('load', () => {
 
     // Returns the default value for a new array element
     // based on the args provided
-    const getDefaultValue = function (args: { type?: string; color?: unknown[]; curves?: unknown[] }) {
+    getDefaultValue = function (args: { type?: string; color?: unknown[]; curves?: unknown[] }) {
         let result = null;
 
         if (defaults[args.type] !== undefined) {

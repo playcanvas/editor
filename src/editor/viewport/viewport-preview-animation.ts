@@ -46,11 +46,13 @@ editor.once('load', () => {
             return;
         }
 
+        let item = undefined;
+
         const onCheckState = function () {
             checkState(item);
         };
 
-        const item = (index[id] = {
+        item = index[id] = {
             id: id,
             entity: entity,
             active: false,
@@ -59,7 +61,7 @@ editor.once('load', () => {
             }),
             evtSet: entity.on('components.animation:set', onCheckState),
             evtUnset: entity.on('components.animation:unset', onCheckState)
-        });
+        };
 
         checkState(item);
     };

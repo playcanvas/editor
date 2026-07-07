@@ -53,11 +53,13 @@ editor.once('load', () => {
             return;
         }
 
+        let item = undefined;
+
         const onCheckState = function () {
             checkState(item);
         };
 
-        const item = (index[id] = {
+        item = index[id] = {
             id: id,
             entity: entity,
             active: false,
@@ -66,7 +68,7 @@ editor.once('load', () => {
             }),
             evtSet: entity.on('components.particlesystem:set', onCheckState),
             evtUnset: entity.on('components.particlesystem:unset', onCheckState)
-        });
+        };
 
         checkState(item);
     };

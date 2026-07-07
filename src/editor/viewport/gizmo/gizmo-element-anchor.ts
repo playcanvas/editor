@@ -201,6 +201,9 @@ editor.once('load', () => {
             }
         });
 
+        let onTapStart = undefined;
+        let pickPlane = undefined;
+
         editor.on('viewport:gizmoUpdate', (dt: number) => {
             gizmoAnchor.root.enabled = gizmoEnabled();
             if (!gizmoAnchor.root.enabled) {
@@ -395,7 +398,7 @@ editor.once('load', () => {
             }
         });
 
-        const onTapStart = function (tap: { button: number; x: number; y: number }) {
+        onTapStart = function (tap: { button: number; x: number; y: number }) {
             if (moving || tap.button !== 0) {
                 return;
             }
@@ -482,7 +485,7 @@ editor.once('load', () => {
             }
         };
 
-        const pickPlane = function (x: number, y: number): Vec3 {
+        pickPlane = function (x: number, y: number): Vec3 {
             const camera = editor.call('camera:current');
 
             const mouseWPos = camera.camera.screenToWorld(x, y, camera.camera.farClip);

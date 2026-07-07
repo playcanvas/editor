@@ -41,6 +41,7 @@ editor.once('load', () => {
 
     // Container for only the filters
     const advancedSearchFilterContainer = new Container({ flex: true });
+    let searchByField = undefined;
 
     // Advanced Search Filters
     const filterList = ['Name', 'Component Type', 'Script Name', 'Tags'].reverse();
@@ -125,7 +126,7 @@ editor.once('load', () => {
 
     // Search by
 
-    const searchByField = new Element();
+    searchByField = new Element();
     searchByField.dom.innerHTML = 'Select All';
     searchByField.class.add('advanced-search-select-all-button');
 

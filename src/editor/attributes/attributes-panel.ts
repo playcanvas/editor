@@ -646,6 +646,9 @@ editor.once('load', () => {
                 let tagItems = {};
                 let tagIndex = {};
                 let tagList = [];
+                let addTag = undefined;
+                let removeTag = undefined;
+                let insertElement = undefined;
 
                 const onRemoveClick = function () {
                     if (innerPanel.disabled) {
@@ -655,7 +658,7 @@ editor.once('load', () => {
                     removeTag(this.tag);
                 };
 
-                const removeTag = function (tag: string | number) {
+                removeTag = function (tag: string | number) {
                     if (tagType === 'string' && !tag) {
                         return;
                     }
@@ -718,7 +721,7 @@ editor.once('load', () => {
                     }
                 };
 
-                const addTag = function (tag: string | number) {
+                addTag = function (tag: string | number) {
                     const records = [];
 
                     // convert to number if needed
@@ -845,7 +848,7 @@ editor.once('load', () => {
                     });
                 };
 
-                const insertElement = function (tag: string | number) {
+                insertElement = function (tag: string | number) {
                     if (!tagItems[tag]) {
                         sortTags();
 

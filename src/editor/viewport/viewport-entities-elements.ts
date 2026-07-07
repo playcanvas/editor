@@ -4,6 +4,9 @@ import type { EntityObserver } from '@/editor-api';
 
 editor.once('load', () => {
     const events = [];
+    let updateElementProperties = undefined;
+    let addEvents = undefined;
+    let clear = undefined;
 
     editor.on('attributes:inspect[entity]', (entities: EntityObserver[]) => {
         if (events.length) {
@@ -23,7 +26,7 @@ editor.once('load', () => {
     // update entities stored properties with whatever the realtime element
     // has - that's because depending on the screen size an element might not have
     // the correct properties when inspected so make sure these are right
-    const updateElementProperties = function (entity: EntityObserver): void {
+    updateElementProperties = function (entity: EntityObserver): void {
         if (!entity.entity || !entity.has('components.element')) {
             return;
         }
@@ -62,7 +65,7 @@ editor.once('load', () => {
         });
     };
 
-    const addEvents = function (entity: EntityObserver): void {
+    addEvents = function (entity: EntityObserver): void {
         const setting: {
             position?: boolean;
             anchor?: boolean;
@@ -378,7 +381,7 @@ editor.once('load', () => {
         );
     };
 
-    const clear = function (): void {
+    clear = function (): void {
         for (let i = 0, len = events.length; i < len; i++) {
             events[i].unbind();
         }
