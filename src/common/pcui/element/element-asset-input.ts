@@ -1,11 +1,13 @@
 import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
-import { Element, ElementArgs, Label, Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
+import type { ElementArgs} from '@playcanvas/pcui';
+import { Element, Label, Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
 
-import { type AssetObserver } from '@/editor-api';
+import type {AssetObserver} from '@/editor-api';
 
-import { AssetThumbnail } from './element-asset-thumbnail';
 import { acceptsAssetDropType } from '../compat-utils';
 import { CLASS_MULTIPLE_VALUES } from '../constants';
+
+import { AssetThumbnail } from './element-asset-thumbnail';
 
 const CLASS_ASSET_INPUT = 'pcui-asset-input';
 const CLASS_ASSET_INPUT_THUMB = 'pcui-asset-input-thumb';
@@ -18,7 +20,7 @@ const CLASS_ASSET_INPUT_REMOVE = 'pcui-asset-input-remove';
 /**
  * The arguments for the {@link AssetInput} constructor.
  */
-interface AssetInputArgs extends ElementArgs {
+type AssetInputArgs = {
     /** The assets observer list */
     assets?: ObserverList;
     /** The initial value (asset id) */
@@ -41,7 +43,7 @@ interface AssetInputArgs extends ElementArgs {
     dragLeaveFn?: (...args: any[]) => void;
     /** If true then the Element will flash when its value changes */
     renderChanges?: boolean;
-}
+} & ElementArgs
 
 /**
  * Represents an asset input field. It shows a thumbnail of the asset and allows picking of an
@@ -269,7 +271,7 @@ class AssetInput extends Element {
         editor.call('assets:panel:currentFolder', folder);
     }
 
-    _updateValue(value: any, force: boolean = false) {
+    _updateValue(value: any, force = false) {
         if (this._value === value && !force) {
             return false;
         }

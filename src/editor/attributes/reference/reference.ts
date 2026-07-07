@@ -6,7 +6,7 @@ editor.once('load', () => {
     const root = editor.call('layout.root');
     const panel = editor.call('layout.attributes');
 
-    const legacyMissing: Set<string> = new Set();
+    const legacyMissing = new Set<string>();
     const legacyReferenceIndex: Record<string, LegacyAttributeReference> = {};
 
     const referenceIndex: Record<string, AttributeReference> = {};

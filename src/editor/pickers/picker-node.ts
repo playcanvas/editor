@@ -1,7 +1,8 @@
 import { Overlay } from '@playcanvas/pcui';
 
-import { addSidePanelOverlayClose } from './side-panel-overlay';
 import { ModelAssetInspectorMeshInstances } from '../inspector/assets/model-mesh-instances';
+
+import { addSidePanelOverlayClose } from './side-panel-overlay';
 
 editor.once('load', () => {
     const overlay = new Overlay({

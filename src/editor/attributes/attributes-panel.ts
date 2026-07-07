@@ -342,7 +342,7 @@ editor.once('load', () => {
                 return items;
             };
 
-            historyEnd = function (items: Array<{ item: Observer; value: unknown }>, value: unknown) {
+            historyEnd = function (items: { item: Observer; value: unknown }[], value: unknown) {
                 // history
                 editor.api.globals.history.add({
                     name: pathAt(args, 0),

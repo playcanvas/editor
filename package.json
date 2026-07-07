@@ -1,8 +1,6 @@
 {
     "name": "@playcanvas/editor",
     "version": "2.26.6",
-    "author": "PlayCanvas <support@playcanvas.com>",
-    "homepage": "https://playcanvas.com",
     "description": "The PlayCanvas Editor Frontend",
     "keywords": [
         "editor",
@@ -14,9 +12,7 @@
         "webgpu",
         "webxr"
     ],
-    "license": "MIT",
-    "main": "js/editor/index.js",
-    "type": "module",
+    "homepage": "https://playcanvas.com",
     "bugs": {
         "url": "https://github.com/playcanvas/editor/issues"
     },
@@ -24,9 +20,29 @@
         "type": "git",
         "url": "https://github.com/playcanvas/editor.git"
     },
+    "license": "MIT",
+    "author": "PlayCanvas <support@playcanvas.com>",
+    "type": "module",
+    "main": "js/editor/index.js",
+    "scripts": {
+        "build": "cross-env NODE_ENV=production vite build",
+        "develop": "concurrently --kill-others \"npm run watch\" \"npm run serve\"",
+        "fmt": "prettier --check .",
+        "fmt:fix": "prettier --write .",
+        "lint": "stylelint sass && eslint",
+        "lint:fix": "stylelint sass --fix && eslint --fix",
+        "serve": "serve dist -p 3487 --cors",
+        "test": "mocha",
+        "test:api": "rollup -c test/editor-api/rollup.test.config.mjs && karma start test/editor-api/karma.conf.cjs --single-run",
+        "typecheck": "tsc",
+        "watch": "cross-env NODE_ENV=development vite build --watch"
+    },
     "browserslist": [
         ">0.3%, defaults"
     ],
+    "dependencies": {
+        "@playcanvas/attribute-parser": "^1.11.0"
+    },
     "devDependencies": {
         "@jsquash/avif": "1.3.0",
         "@jsquash/jpeg": "1.6.0",
@@ -75,22 +91,6 @@
         "ts-node": "10.9.2",
         "typescript": "5.9.3",
         "vite": "7.3.5"
-    },
-    "dependencies": {
-        "@playcanvas/attribute-parser": "^1.11.0"
-    },
-    "scripts": {
-        "build": "cross-env NODE_ENV=production vite build",
-        "develop": "concurrently --kill-others \"npm run watch\" \"npm run serve\"",
-        "fmt": "prettier --check .",
-        "fmt:fix": "prettier --write .",
-        "lint": "stylelint sass && eslint",
-        "lint:fix": "stylelint sass --fix && eslint --fix",
-        "serve": "serve dist -p 3487 --cors",
-        "test": "mocha",
-        "test:api": "rollup -c test/editor-api/rollup.test.config.mjs && karma start test/editor-api/karma.conf.cjs --single-run",
-        "typecheck": "tsc",
-        "watch": "cross-env NODE_ENV=development vite build --watch"
     },
     "engines": {
         "node": ">=22.22.0"

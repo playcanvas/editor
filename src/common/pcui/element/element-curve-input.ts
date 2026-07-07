@@ -1,4 +1,5 @@
-import { Element, ElementArgs, Canvas } from '@playcanvas/pcui';
+import type { ElementArgs} from '@playcanvas/pcui';
+import { Element, Canvas } from '@playcanvas/pcui';
 import { Curve } from 'playcanvas';
 
 import { deepCopy } from '../../utils';
@@ -9,7 +10,7 @@ const CLASS_CURVE = 'pcui-curve';
 /**
  * The arguments for the {@link CurveInput} constructor.
  */
-interface CurveInputArgs extends ElementArgs {
+type CurveInputArgs = {
     /** The width of the rendered lines in pixels. */
     lineWidth?: number;
     /** The minimum value that curves can take. */
@@ -26,7 +27,7 @@ interface CurveInputArgs extends ElementArgs {
     renderChanges?: boolean;
     /** The curves configuration */
     curves?: any;
-}
+} & ElementArgs
 
 /**
  * Shows a curve or curveset.

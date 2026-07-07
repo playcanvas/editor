@@ -58,9 +58,9 @@ class ColorPicker extends Events {
 
     _storeHsva: number[] = [0, 0, 0, 1];
 
-    _dragMode: number = 0;
+    _dragMode = 0;
 
-    _changing: boolean = false;
+    _changing = false;
 
     constructor(parent: HTMLElement) {
         super();
@@ -914,7 +914,7 @@ editor.once('load', () => {
         return ctx.createPattern(canvas.dom as HTMLCanvasElement, 'repeat');
     }
 
-    function setValue(value: Array<{ keys?: number[][]; type?: number }>, args?: unknown) {
+    function setValue(value: { keys?: number[][]; type?: number }[], args?: unknown) {
         // sanity checks mostly for script 'curve' attributes
         if (
             !(value instanceof Array) ||

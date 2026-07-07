@@ -1,8 +1,9 @@
-import { Observer, type ObserverList, type EventHandle } from '@playcanvas/observer';
+import { Observer   } from '@playcanvas/observer';
+import type {ObserverList, EventHandle} from '@playcanvas/observer';
 import {
     Element,
     GridViewItem,
-    type GridViewItemArgs,
+    
     Container,
     Progress,
     Panel,
@@ -14,13 +15,14 @@ import {
     GridView,
     Spinner,
     Label,
-    BindingObserversToElement,
-    type PanelArgs
+    BindingObserversToElement
+    
 } from '@playcanvas/pcui';
+import type {GridViewItemArgs, PanelArgs} from '@playcanvas/pcui';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
 import { AssetThumbnail } from '@/common/pcui/element/element-asset-thumbnail';
-import { type DropManager } from '@/common/pcui/element/element-drop-manager';
+import type {DropManager} from '@/common/pcui/element/element-drop-manager';
 import { DropTarget } from '@/common/pcui/element/element-drop-target';
 import { Table } from '@/common/pcui/element/element-table';
 import { TableCell } from '@/common/pcui/element/element-table-cell';
@@ -28,7 +30,7 @@ import { TableRow } from '@/common/pcui/element/element-table-row';
 import { TooltipHandle } from '@/common/tooltips';
 import { bytesToHuman, naturalCompare } from '@/common/utils';
 import { config } from '@/editor/config';
-import { type AssetObserver } from '@/editor-api';
+import type {AssetObserver} from '@/editor-api';
 
 const CLASS_ROOT = 'pcui-asset-panel';
 const CLASS_LEFT = `${CLASS_ROOT}-left`;
@@ -2231,11 +2233,11 @@ class AssetPanel extends Panel {
     }
 
     _onFolderTreeReparent(
-        reparentedItems: Array<{
+        reparentedItems: {
             item: TreeViewItem & { asset: AssetObserver | null };
             newParent: TreeViewItem & { asset: AssetObserver | null };
             newChildIndex: number;
-        }>
+        }[]
     ) {
         const assets = reparentedItems.map((reparented) => {
             return reparented.item.asset;

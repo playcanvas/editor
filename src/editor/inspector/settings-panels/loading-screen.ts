@@ -3,8 +3,10 @@ import { Container, Button } from '@playcanvas/pcui';
 import { TooltipHandle } from '@/common/tooltips';
 import type { Asset } from '@/editor-api';
 
-import { BaseSettingsPanel, type BaseSettingsPanelArgs } from './base';
 import type { Attribute } from '../attribute.type.d';
+
+import { BaseSettingsPanel  } from './base';
+import type {BaseSettingsPanelArgs} from './base';
 
 const ATTRIBUTES: Attribute[] = [
     {

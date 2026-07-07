@@ -1,7 +1,8 @@
-import { createButton, createLabel } from './attributes-pcui';
 import { EntityInspector } from '../inspector/entity';
 import { TemplatesEntityInspector } from '../templates/templates-entity-inspector';
 import { TemplateOverridesView } from '../templates/templates-override-panel';
+
+import { createButton, createLabel } from './attributes-pcui';
 
 editor.once('load', () => {
     const projectSettings = editor.call('settings:project');
