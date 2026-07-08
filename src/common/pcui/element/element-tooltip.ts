@@ -20,6 +20,9 @@ class Tooltip extends Container {
         }
     >();
 
+    // the single container currently shown; the singleton shows one at a time (gh 2133)
+    private _shown: Container | null = null;
+
     /**
      * Creates new tooltip.
      *
@@ -153,7 +156,6 @@ class Tooltip extends Container {
 
         const events = [];
         let timeout = null;
-        let appended = false;
 
         const defer = () => {
             if (timeout) {
@@ -170,10 +172,16 @@ class Tooltip extends Container {
 
         const hover = () => {
             defer().then(() => {
+                // drop whatever was shown before. a field destroyed while its tooltip is
+                // up never fires hoverend, so its container would otherwise linger and
+                // stack with the next one shown (gh 2133)
+                if (this._shown && this._shown !== container) {
+                    this.remove(this._shown);
+                }
+                this._shown = container;
                 this.hidden = false;
-                if (!appended) {
+                if (container.parent !== this) {
                     this.append(container);
-                    appended = true;
                 }
                 this._realign(align, horz, vert);
             });
@@ -181,11 +189,13 @@ class Tooltip extends Container {
 
         const hoverend = () => {
             defer().then(() => {
-                this.hidden = true;
-                if (appended) {
-                    this.remove(container);
-                    appended = false;
+                // a later hover may have taken the singleton over; leave that one alone
+                if (this._shown !== container) {
+                    return;
                 }
+                this.hidden = true;
+                this.remove(container);
+                this._shown = null;
             });
         };
 
@@ -229,6 +239,9 @@ class Tooltip extends Container {
         events.forEach((evt: EventHandle) => evt.unbind());
         arrow.remove();
         this.remove(container);
+        if (this._shown === container) {
+            this._shown = null;
+        }
         this._targets.delete(target);
 
         return this;
