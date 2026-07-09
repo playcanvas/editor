@@ -131,6 +131,11 @@ export type AssetUpdateData = {
      * The file to add to the form
      */
     file?: File;
+
+    /**
+     * Skip server-side conversion (for assets the editor generates itself, e.g. client-side fonts)
+     */
+    noConvert?: boolean;
 };
 
 export type AssetCreateData = AssetUpdateData & {
@@ -173,11 +178,6 @@ export type AssetCreateData = AssetUpdateData & {
      * Whether to preload the asset
      */
     preloadDefault?: boolean;
-
-    /**
-     * Skip server-side conversion (for assets the editor generates itself, e.g. client-side fonts)
-     */
-    noConvert?: boolean;
 };
 
 export type AssetPipelineOptions = {
@@ -435,6 +435,11 @@ const assetUpdateFields = (form: FormData, data: AssetUpdateData, pipeline: Asse
     // branch
     form.append('branchId', api.branchId);
 
+    // noConvert (editor-generated assets skip server-side conversion)
+    if (data.noConvert) {
+        form.append('noConvert', 'true');
+    }
+
     // name
     if (data.name) {
         form.append('name', data.name);
@@ -537,11 +542,6 @@ export const assetCreate = (data: AssetCreateData, pipeline: AssetPipelineOption
     // source_asset_id
     if (data.source_asset_id) {
         form.append('source_asset_id', data.source_asset_id);
-    }
-
-    // noConvert (editor-generated assets skip server-side conversion)
-    if (data.noConvert) {
-        form.append('noConvert', 'true');
     }
 
     // data

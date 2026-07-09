@@ -54,6 +54,22 @@ const LOCALIZATION_ATTRIBUTES: Attribute[] = [
     }
 ];
 
+// pickers for the unpacked mirror assets of a client-imported (referenced) font
+const SOURCE_FILES_ATTRIBUTES: Attribute[] = [
+    {
+        label: 'JSON',
+        path: 'data.jsonAsset',
+        type: 'asset',
+        args: { assetType: 'json' }
+    },
+    {
+        label: 'Texture',
+        path: 'data.textureAssets.0',
+        type: 'asset',
+        args: { assetType: 'texture' }
+    }
+];
+
 /**
  * @param attributes - The attributes to add references to
  */
@@ -83,6 +99,22 @@ const DOM = (parent) => [
                     assets: parent._args.assets,
                     history: parent._args.history,
                     attributes: PROPERTIES_ATTRIBUTES
+                })
+            }
+        ]
+    },
+    {
+        root: {
+            sourceFilesPanel: new Panel({
+                headerText: 'SOURCE FILES'
+            })
+        },
+        children: [
+            {
+                sourceFilesAttributes: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: SOURCE_FILES_ATTRIBUTES
                 })
             }
         ]
@@ -360,6 +392,10 @@ class FontAssetInspector extends Container {
 
     _propertiesAttributes: AttributesInspector;
 
+    _sourceFilesPanel: Panel;
+
+    _sourceFilesAttributes: AttributesInspector;
+
     constructor(args: FontAssetInspectorArgs = {} as FontAssetInspectorArgs) {
         args = Object.assign({}, args);
 
@@ -473,6 +509,12 @@ class FontAssetInspector extends Container {
                 }
             }
 
+            // client-imported (referenced) fonts regenerate in the editor, not via the server pipeline
+            if (asset.get('data.jsonAsset')) {
+                editor.call('fonts:reprocess', asset, unique, this._fontAttributes.getField('meta.invert').value);
+                return;
+            }
+
             const task = {
                 source: parseInt(source.get('uniqueId'), 10),
                 target: parseInt(asset.get('uniqueId'), 10),
@@ -561,6 +603,7 @@ class FontAssetInspector extends Container {
 
         // Linking
         this._propertiesAttributes.link(assets);
+        this._sourceFilesAttributes.link(assets);
         this._fontAttributes.link(assets);
         this._localizationAttributes.link(assets);
         this._refreshLocalizationsForAsset();
@@ -617,6 +660,8 @@ class FontAssetInspector extends Container {
         this._characterPresetsPanel.hidden = assets.length > 1;
         this._fontPanel.hidden = assets.length > 1;
         this._localizationPanel.hidden = assets.length > 1;
+        // only client-imported (referenced) fonts have unpacked mirror assets
+        this._sourceFilesPanel.hidden = assets.length > 1 || !assets[0].get('data.jsonAsset');
 
         const charactersField = this._fontAttributes.getField('characters');
         charactersField.renderChanges = false;
@@ -631,6 +676,7 @@ class FontAssetInspector extends Container {
             return;
         }
         this._propertiesAttributes.unlink();
+        this._sourceFilesAttributes.unlink();
         this._fontAttributes.unlink();
         this._localizationAttributes.unlink();
         Object.keys(this._localizations).forEach((localization) => {

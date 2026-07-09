@@ -340,6 +340,19 @@ editor.once('load', () => {
             );
         };
 
+        // client-side font import: create a folder named after the font and generate the json +
+        // texture mirrors + runtime font in the editor (needs the backend noConvert support)
+        if (!asset && type === 'font' && source && editor.call('users:hasFlag', 'hasClientFontImport')) {
+            const folderName = file.name.replace(/\.[^.]+$/, '');
+            createFolder(currentFolder, folderName, (folder) => {
+                if (!multipleFiles) {
+                    currentFolder = editor.call('assets:panel:currentFolder', folder);
+                }
+                editor.call('fonts:import', file, folder);
+            });
+            return;
+        }
+
         const settings = editor.call('settings:projectUser');
         // if we're not replacing a current file, the file is of type FBX and the user has the createFBXFolder option enabled,
         // we should create a folder for the contents of the FBX
