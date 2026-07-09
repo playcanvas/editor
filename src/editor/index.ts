@@ -185,6 +185,7 @@ import './assets/assets-sprite-utils';
 import './assets/assets-bundles';
 import './assets/assets-move-to-store';
 import './assets/assets-texture-convert';
+import './assets/assets-font-generate';
 import './assets/assets-mapping-removal';
 import './assets/assets-thumbnail-regen';
 

@@ -26,10 +26,13 @@ const STATIC_ASSETS = [
     { src: 'static/img', dest: 'dist/static/img' },
     { src: 'src/wasm/lodepng', dest: 'dist/wasm/lodepng' },
     { src: 'src/wasm/codecs', dest: 'dist/wasm/codecs' },
+    { src: 'node_modules/@playcanvas/msdfgen-wasm/dist/msdfgen.wasm', dest: 'dist/js/msdfgen.wasm' },
     { src: 'node_modules/@playcanvas/attribute-parser/dist/libs.d.ts', dest: 'dist/types/libs.d.ts' }
 ];
 
 const STUBBED_NODE_MODULES = ['worker_threads', 'path', 'fs'];
+// the font-generate worker bundles msdfgen-wasm, whose node-only branches pull these in
+const WORKER_STUBBED_NODE_MODULES = [...STUBBED_NODE_MODULES, 'module', 'crypto', 'url'];
 
 /**
  * Formats a duration in milliseconds to a human-readable string.
@@ -220,6 +223,7 @@ const watchLogPlugin = (input, output) => ({
 });
 
 const stubNodeBuiltins = emptyNodeModulesPlugin(STUBBED_NODE_MODULES);
+const stubWorkerNodeBuiltins = emptyNodeModulesPlugin(WORKER_STUBBED_NODE_MODULES);
 
 const pagePlugins = [stubNodeBuiltins, replacePlugin(), polyfillNode()];
 
@@ -291,13 +295,19 @@ const PLUGIN_TARGETS = fs.readdirSync('src/plugins').map((file) => ({
 }));
 
 /** @type {BuildOptions[]} */
-const WORKER_TARGETS = fs.readdirSync('src/workers').map((file) => ({
-    ...shared,
-    entryPoints: [`src/workers/${file}`],
-    outfile: `dist/js/${file.replace(/\.ts$/, '.js')}`,
-    format: /** @type {const} */ ('esm'),
-    plugins: [stubNodeBuiltins]
-}));
+const WORKER_TARGETS = fs.readdirSync('src/workers').map((file) => {
+    // the font worker bundles msdfgen-wasm which references import.meta.url; workers load as
+    // classic scripts so define it away (to the worker url) and stub its node-only deps
+    const isFont = file.startsWith('font-generate');
+    return {
+        ...shared,
+        entryPoints: [`src/workers/${file}`],
+        outfile: `dist/js/${file.replace(/\.ts$/, '.js')}`,
+        format: /** @type {const} */ ('esm'),
+        plugins: [isFont ? stubWorkerNodeBuiltins : stubNodeBuiltins],
+        define: isFont ? { ...shared.define, 'import.meta.url': 'self.location.href' } : shared.define
+    };
+});
 
 /** @type {BuildOptions[]} */
 const SERVICE_WORKER_TARGETS = fs.readdirSync('src/sw').map((file) => ({
