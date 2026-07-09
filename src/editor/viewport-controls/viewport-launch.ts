@@ -81,7 +81,10 @@ editor.once('load', () => {
             query.push('debug=true');
         }
 
-        if (launchOptions.concatenate) {
+        // concatenation is a classic-scripts-only backend feature; the concatenated-scripts
+        // endpoint times out (504) for projects containing esm (.mjs) scripts, which hangs the
+        // launcher, so skip it when any esm script is present
+        if (launchOptions.concatenate && !editor.call('assets:list').some(a => editor.call('assets:isModule', a))) {
             query.push('concatenateScripts=true');
         }
 
