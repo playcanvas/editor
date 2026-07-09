@@ -28,7 +28,7 @@ test/editor-api/dist
 /test-suite/.editor-api-types
 
 # superpowers
-docs/superpowers/
+docs/
 
 # claude worktrees
 .claude/worktrees
