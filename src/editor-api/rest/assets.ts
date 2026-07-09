@@ -173,6 +173,11 @@ export type AssetCreateData = AssetUpdateData & {
      * Whether to preload the asset
      */
     preloadDefault?: boolean;
+
+    /**
+     * Skip server-side conversion (for assets the editor generates itself, e.g. client-side fonts)
+     */
+    noConvert?: boolean;
 };
 
 export type AssetPipelineOptions = {
@@ -532,6 +537,11 @@ export const assetCreate = (data: AssetCreateData, pipeline: AssetPipelineOption
     // source_asset_id
     if (data.source_asset_id) {
         form.append('source_asset_id', data.source_asset_id);
+    }
+
+    // noConvert (editor-generated assets skip server-side conversion)
+    if (data.noConvert) {
+        form.append('noConvert', 'true');
     }
 
     // data
