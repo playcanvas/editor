@@ -3,6 +3,8 @@ import { Observer } from '@playcanvas/observer';
 import { ObserverSync } from '@/common/observer-sync';
 import type { LaunchConfig } from '@/editor-api/external-types/config';
 
+const CONCATENATION_TIMEOUT_MS = 2000;
+
 editor.once('load', () => {
     const app = editor.call('viewport:app');
     if (!app) {
@@ -17,7 +19,8 @@ editor.once('load', () => {
     const pendingOps = new Map();
 
     const queryParams = new pc.URI(window.location.href).getQuery() as Record<string, string>;
-    const concatenateScripts = queryParams.concatenateScripts === 'true';
+    const wantsConcatenation = queryParams.concatenateScripts === 'true';
+    let concatenateScripts = false;
     const concatenatedScriptsUrl = `projects/${(config.project as { id: string }).id}/concatenated-scripts/scripts.js?branchId=${(config.self as { branch: { id: string } }).branch.id}`;
     const useBundles = queryParams.useBundles !== 'false';
 
@@ -439,8 +442,18 @@ editor.once('load', () => {
     };
 
     // load all assets
-    editor.on('realtime:authenticated', () => {
+    editor.on('realtime:authenticated', async () => {
         pendingOps.clear();
+        concatenateScripts =
+            wantsConcatenation &&
+            (await fetch(`${app.assets.prefix}${concatenatedScriptsUrl}`, {
+                cache: 'no-store',
+                method: 'HEAD',
+                signal: AbortSignal.timeout(CONCATENATION_TIMEOUT_MS)
+            }).then(
+                (res) => res.status === 200,
+                () => false
+            ));
         editor.api.globals.rest.projects
             .projectAssets('launcher', true)
             .on('load', (_status: number, data: { id: string; uniqueId: string; name?: string }[]) => {
