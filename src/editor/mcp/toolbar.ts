@@ -8,12 +8,17 @@ editor.once('load', () => {
     const root = editor.call('layout.root');
     const toolbar = editor.call('layout.toolbar');
 
-    // toolbar button
+    // toolbar button, placed directly under the code editor button
     const button = new Button({
-        class: ['pc-icon', 'mcp', 'bottom'],
+        class: ['pc-icon', 'mcp'],
         icon: 'E184' // ponytail: placeholder glyph, swap for a proper MCP icon
     });
-    toolbar.append(button);
+    const publishButton = toolbar.dom.querySelector('.publish-download');
+    if (publishButton) {
+        toolbar.appendBefore(button, publishButton);
+    } else {
+        toolbar.append(button);
+    }
 
     // connect popover
     const popover = new Panel({
