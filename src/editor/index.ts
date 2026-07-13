@@ -300,6 +300,11 @@ import './toolbar/toolbar-lightmapper';
 import './toolbar/toolbar-publish';
 import './toolbar/toolbar-code-editor';
 
+// mcp
+import './mcp/connection';
+import './mcp/methods';
+import './mcp/toolbar';
+
 // viewport controls
 import './viewport-controls/viewport-scene';
 import './viewport-controls/viewport-launch';
