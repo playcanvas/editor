@@ -16,6 +16,7 @@ import { LayersSettingsPanel } from './settings-panels/layers';
 import { LightmappingSettingsPanel } from './settings-panels/lightmapping';
 import { LoadingScreenSettingsPanel } from './settings-panels/loading-screen';
 import { LocalizationSettingsPanel } from './settings-panels/localization';
+import { MCPSettingsPanel } from './settings-panels/mcp';
 import { NetworkSettingsPanel } from './settings-panels/network';
 import { PhysicsSettingsPanel } from './settings-panels/physics';
 import { RenderingSettingsPanel } from './settings-panels/rendering';
@@ -27,6 +28,7 @@ const CLASS_ROOT = 'settings';
 
 const SETTINGS_PANELS = [
     EngineSettingsPanel,
+    MCPSettingsPanel,
     EditorSettingsPanel,
     VersionControlSettingsPanel,
     AssetImportSettingsPanel,
