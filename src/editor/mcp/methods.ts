@@ -25,7 +25,7 @@ const rest = (method: string, path: string, data?: FormData | object, auth = fal
         headers['Content-Type'] = 'application/json';
         init.body = JSON.stringify(data);
     }
-    return fetch(`/api/${path}`, init).then(res => res.json());
+    return fetch(`/api/${path}`, init).then((res) => res.json());
 };
 
 /**
@@ -133,7 +133,7 @@ mcp.method('viewport:focus', (ids, options: any = {}) => {
 
     // calculate distance based on bounding box and FOV
     let distance = Math.max(aabb.halfExtents.x, aabb.halfExtents.y, aabb.halfExtents.z);
-    distance /= Math.tan(0.5 * camera.camera.fov * Math.PI / 180.0);
+    distance /= Math.tan((0.5 * camera.camera.fov * Math.PI) / 180.0);
     distance = distance * 1.1 + 1;
 
     // apply orientation if specified
@@ -183,7 +183,7 @@ mcp.method('entities:create', (entityDataArray) => {
 
         log(`Created entity(${entity.get('resource_id')})`);
     }
-    return { data: entities.map(entity => entity.get('resource_id')) };
+    return { data: entities.map((entity) => entity.get('resource_id')) };
 });
 mcp.method('entities:modify', (edits) => {
     for (const { id, path, value } of edits) {
@@ -221,7 +221,9 @@ mcp.method('entities:reparent', (options) => {
     return { data: true };
 });
 mcp.method('entities:delete', async (ids) => {
-    const entities = ids.map((id: string) => api.entities.get(id)).filter((entity: any) => entity !== api.entities.root);
+    const entities = ids
+        .map((id: string) => api.entities.get(id))
+        .filter((entity: any) => entity !== api.entities.root);
     if (!entities.length) {
         return { error: 'No entities to delete' };
     }
@@ -235,13 +237,13 @@ mcp.method('entities:list', (options: any = {}) => {
     // apply filters
     if (options.name) {
         const searchName = options.name.toLowerCase();
-        entities = entities.filter(entity => entity.get('name').toLowerCase().includes(searchName));
+        entities = entities.filter((entity) => entity.get('name').toLowerCase().includes(searchName));
     }
     if (options.component) {
-        entities = entities.filter(entity => entity.get(`components.${options.component}`));
+        entities = entities.filter((entity) => entity.get(`components.${options.component}`));
     }
     if (options.tag) {
-        entities = entities.filter(entity => entity.get('tags').includes(options.tag));
+        entities = entities.filter((entity) => entity.get('tags').includes(options.tag));
     }
 
     if (!entities.length) {
@@ -252,7 +254,7 @@ mcp.method('entities:list', (options: any = {}) => {
 
     // return full JSON or summary
     if (options.full) {
-        return { data: entities.map(entity => entity.json()) };
+        return { data: entities.map((entity) => entity.json()) };
     }
 
     // summary mode: return minimal data with component names
@@ -381,14 +383,14 @@ mcp.method('assets:list', (options: any = {}) => {
 
     // apply filters
     if (options.type) {
-        assets = assets.filter(asset => asset.get('type') === options.type);
+        assets = assets.filter((asset) => asset.get('type') === options.type);
     }
     if (options.name) {
         const searchName = options.name.toLowerCase();
-        assets = assets.filter(asset => asset.get('name').toLowerCase().includes(searchName));
+        assets = assets.filter((asset) => asset.get('name').toLowerCase().includes(searchName));
     }
     if (options.tag) {
-        assets = assets.filter(asset => (asset.get('tags') || []).includes(options.tag));
+        assets = assets.filter((asset) => (asset.get('tags') || []).includes(options.tag));
     }
 
     if (!assets.length) {
@@ -399,7 +401,7 @@ mcp.method('assets:list', (options: any = {}) => {
 
     // return full JSON or summary
     if (options.full) {
-        return { data: assets.map(asset => asset.json()) };
+        return { data: assets.map((asset) => asset.json()) };
     }
 
     // summary mode: return minimal data
