@@ -18,6 +18,10 @@
         margin: 0; // override pcui default element margin on labels/fields
     }
 
+    .mcp-row:first-child {
+        padding-top: 9px; // a little breathing room below the header
+    }
+
     .mcp-row-label {
         width: 74px;
         flex-shrink: 0;
