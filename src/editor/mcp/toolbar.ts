@@ -77,7 +77,6 @@ editor.once('load', () => {
         popover.hidden = true;
     };
     button.on('click', () => {
-        tooltip.hidden = true;
         if (!popover.hidden) {
             popover.hidden = true;
             return;
@@ -88,6 +87,14 @@ editor.once('load', () => {
         popover.dom.style.left = `${rect.right + 4}px`;
         popover.dom.style.top = `${Math.max(4, top)}px`;
     });
-    popover.on('show', () => window.addEventListener('mousedown', onOutside));
-    popover.on('hide', () => window.removeEventListener('mousedown', onOutside));
+    popover.on('show', () => {
+        // suppress the hover tooltip while open so its arrow doesn't poke out from under the popover
+        tooltip.detach();
+        tooltip.hidden = true;
+        window.addEventListener('mousedown', onOutside);
+    });
+    popover.on('hide', () => {
+        tooltip.attach(button.dom);
+        window.removeEventListener('mousedown', onOutside);
+    });
 });
