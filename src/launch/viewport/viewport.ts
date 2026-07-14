@@ -1,6 +1,7 @@
 import type { Observer } from '@playcanvas/observer';
 import { LAYERID_DEPTH } from 'playcanvas';
 
+import { ReferencedFontHandler } from '@/common/referenced-font-handler';
 import { config } from '@/launch/config';
 
 editor.once('load', () => {
@@ -235,7 +236,7 @@ editor.once('load', () => {
             pc.ShaderHandler,
             pc.HierarchyHandler,
             pc.FolderHandler,
-            pc.FontHandler,
+            ReferencedFontHandler as unknown as typeof pc.ResourceHandler,
             pc.BinaryHandler,
             pc.TextureAtlasHandler,
             pc.SpriteHandler,

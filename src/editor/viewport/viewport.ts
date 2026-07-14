@@ -1,6 +1,8 @@
 import { Canvas } from '@playcanvas/pcui';
+import type { ResourceHandler } from 'playcanvas';
 import { LAYERID_DEPTH, Mouse, TouchDevice, WasmModule } from 'playcanvas';
 
+import { ReferencedFontHandler } from '@/common/referenced-font-handler';
 import { config } from '@/editor/config';
 
 import { ViewportApplication } from './viewport-application';
@@ -50,6 +52,10 @@ editor.once('load', () => {
         editor.emit('viewport:error', ex);
         return;
     }
+
+    // swap the stock font handler for one that also resolves client-referenced fonts
+    app.loader.removeHandler('font');
+    app.loader.addHandler('font', new ReferencedFontHandler(app) as unknown as ResourceHandler);
 
     // set module configs
     config.wasmModules.forEach((m: { moduleName: string; glueUrl: string; wasmUrl: string; fallbackUrl: string }) => {
