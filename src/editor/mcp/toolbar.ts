@@ -39,7 +39,7 @@ editor.once('load', () => {
     });
     inspector.link([]);
 
-    const popover = new Panel({ class: 'mcp-popover', headerText: 'MCP SERVER', hidden: true });
+    const popover = new Panel({ class: 'mcp-popover', headerText: 'MCP SERVER', collapsible: true, hidden: true });
     popover.append(inspector);
     root.append(popover);
 
