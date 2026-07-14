@@ -1,23 +1,60 @@
-@use 'sass:color';
-
 .mcp-popover {
-    position: fixed; // anchored next to the toolbar button in toolbar.ts
+    position: fixed; // centered on the toolbar button in toolbar.ts
     width: 220px;
     z-index: 402; // above #layout-toolbar (400) and PCUI Menu (401)
-    background-color: color.adjust($bcg-primary, $lightness: 6%);
-    border: 1px solid $bcg-darkest;
-    border-radius: 4px;
+    background-color: $bcg-primary;
+    border: 1px solid $border-primary;
+    border-radius: 2px;
     box-shadow: 0 2px 8px rgb(0 0 0 / 30%);
 
-    .mcp-disconnected {
-        color: #e74c3c;
+    .mcp-row {
+        display: flex;
+        align-items: center;
+        padding: 7px 10px;
     }
 
-    .mcp-connecting {
-        color: #f4a62a;
+    .mcp-row-label {
+        width: 74px;
+        flex-shrink: 0;
+        color: $text-dark;
+        font-size: 12px;
     }
 
-    .mcp-connected {
-        color: #2ecc71;
+    .mcp-field {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .mcp-status-value {
+        position: relative;
+        padding-left: 16px;
+        color: $text-secondary;
+        font-size: 12px;
+
+        &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: $error;
+        }
+
+        &.mcp-connecting::before {
+            background-color: #f4a62a;
+        }
+
+        &.mcp-connected::before {
+            background-color: #4ea86a;
+        }
+    }
+
+    .mcp-toggle {
+        display: block;
+        width: calc(100% - 20px);
+        margin: 3px 10px 11px;
     }
 }
