@@ -1,6 +1,8 @@
-import { Button, Label, Panel, TextInput } from '@playcanvas/pcui';
+import { Button, Panel } from '@playcanvas/pcui';
+import type { Label, NumericInput } from '@playcanvas/pcui';
 
 import { TooltipHandle } from '@/common/tooltips';
+import { AttributesInspector } from '@/editor/inspector/attributes-inspector';
 
 import { DEFAULT_PORT } from './connection';
 
@@ -20,54 +22,53 @@ editor.once('load', () => {
         toolbar.append(button);
     }
 
-    // connect popover
-    const popover = new Panel({
-        class: 'mcp-popover',
-        headerText: 'MCP SERVER',
-        hidden: true
+    const tooltip = TooltipHandle.attach({
+        target: button.dom,
+        text: 'MCP Server',
+        align: 'left',
+        root
     });
-    const status = new Label({ class: 'mcp-status', text: 'Disconnected' });
-    const portField = new TextInput({ class: 'mcp-port', value: String(DEFAULT_PORT), placeholder: 'Port' });
-    const toggle = new Button({ class: 'mcp-toggle', text: 'CONNECT' });
-    popover.append(status);
-    popover.append(portField);
-    popover.append(toggle);
+
+    // connect popover, built with the inspector attribute layout
+    const inspector = new AttributesInspector({
+        attributes: [
+            { label: 'Status', type: 'label', alias: 'mcpStatus' },
+            { label: 'Port', type: 'number', alias: 'mcpPort', args: { min: 1, max: 65535, precision: 0 } },
+            { label: '', type: 'button', alias: 'mcpToggle', args: { text: 'CONNECT' } }
+        ]
+    });
+    inspector.link([]);
+
+    const popover = new Panel({ class: 'mcp-popover', headerText: 'MCP SERVER', hidden: true });
+    popover.append(inspector);
     root.append(popover);
 
+    const status = inspector.getField<Label>('mcpStatus');
+    const port = inspector.getField<NumericInput>('mcpPort');
+    const toggle = inspector.getField('mcpToggle') as unknown as Button;
+
+    port.value = DEFAULT_PORT;
+
     const render = (state: string) => {
-        status.class.remove('disconnected', 'connecting', 'connected');
-        status.class.add(state);
+        status.value = state.charAt(0).toUpperCase() + state.slice(1);
+        status.class.remove('mcp-disconnected', 'mcp-connecting', 'mcp-connected');
+        status.class.add(`mcp-${state}`);
         button.class[state === 'connected' ? 'add' : 'remove']('active');
-        switch (state) {
-            case 'connecting':
-                status.text = 'Connecting';
-                portField.enabled = false;
-                toggle.text = 'CANCEL';
-                break;
-            case 'connected':
-                status.text = 'Connected';
-                portField.enabled = false;
-                toggle.text = 'DISCONNECT';
-                break;
-            default:
-                status.text = 'Disconnected';
-                portField.enabled = true;
-                toggle.text = 'CONNECT';
-                break;
-        }
+        port.enabled = state === 'disconnected';
+        toggle.text = state === 'connecting' ? 'CANCEL' : state === 'connected' ? 'DISCONNECT' : 'CONNECT';
     };
     render(editor.call('mcp:status') || 'disconnected');
     editor.on('mcp:status', render);
 
     toggle.on('click', () => {
         if (editor.call('mcp:status') === 'disconnected') {
-            editor.call('mcp:connect', parseInt(portField.value, 10) || DEFAULT_PORT);
+            editor.call('mcp:connect', port.value || DEFAULT_PORT);
         } else {
             editor.call('mcp:disconnect');
         }
     });
 
-    // toggle popover, close on outside click
+    // toggle popover next to the button, close on outside click
     const onOutside = (evt: MouseEvent) => {
         const target = evt.target as Node;
         if (popover.dom.contains(target) || button.dom.contains(target)) {
@@ -76,6 +77,7 @@ editor.once('load', () => {
         popover.hidden = true;
     };
     button.on('click', () => {
+        tooltip.hidden = true;
         if (popover.hidden) {
             const rect = button.dom.getBoundingClientRect();
             popover.dom.style.left = `${rect.right + 4}px`;
@@ -85,11 +87,4 @@ editor.once('load', () => {
     });
     popover.on('show', () => window.addEventListener('mousedown', onOutside));
     popover.on('hide', () => window.removeEventListener('mousedown', onOutside));
-
-    TooltipHandle.attach({
-        target: button.dom,
-        text: 'MCP Server',
-        align: 'left',
-        root
-    });
 });

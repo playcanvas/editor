@@ -7,37 +7,17 @@
     background-color: color.adjust($bcg-primary, $lightness: 6%);
     border: 1px solid $bcg-darkest;
     border-radius: 4px;
-    box-shadow: 0 4px 16px rgb(0 0 0 / 60%);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 30%);
 
-    .mcp-status {
-        display: block;
-        margin: 8px;
-        padding-left: 16px;
-        position: relative;
-
-        &::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #e74c3c; // disconnected
-        }
-
-        &.connecting::before {
-            background-color: #f4a62a;
-        }
-
-        &.connected::before {
-            background-color: #2ecc71;
-        }
+    .mcp-disconnected {
+        color: #e74c3c;
     }
 
-    .mcp-port,
-    .mcp-toggle {
-        margin: 8px;
+    .mcp-connecting {
+        color: #f4a62a;
+    }
+
+    .mcp-connected {
+        color: #2ecc71;
     }
 }
