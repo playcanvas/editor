@@ -342,7 +342,7 @@ editor.once('load', () => {
 
         // client-side font import: create a folder named after the font and generate the json +
         // texture mirrors + runtime font in the editor (needs the backend noConvert support)
-        if (!asset && type === 'font' && source && editor.call('users:hasFlag', 'hasClientFontImport')) {
+        if (!asset && type === 'font' && source) {
             const folderName = file.name.replace(/\.[^.]+$/, '');
             createFolder(currentFolder, folderName, (folder) => {
                 if (!multipleFiles) {

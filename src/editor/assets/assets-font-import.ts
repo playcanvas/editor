@@ -1,6 +1,6 @@
 // Client-side font import: generate MSDF (json + atlas png) in a worker, then lay the result
 // out as a GLB-style folder — source .otf + a JSON mirror + Texture mirror(s) + a runtime font
-// that is baked from them. Gated by the hasClientFontImport flag + the backend noConvert support.
+// that is baked from them. Needs the backend noConvert support.
 
 type FontDataV3 = {
     version: number;
@@ -32,7 +32,8 @@ editor.once('load', () => {
         const map0 = v3.info?.maps?.[0] ?? { width: 0, height: 0 };
         return {
             version: 2,
-            type: v3.type ?? 'msdf',
+            // no top-level `type`: real v2 font data omits it and the engine defaults to msdf when absent.
+            // the fontDataSchema (collab op validation) rejects unknown top-level keys.
             intensity: v3.intensity ?? 0,
             info: { face: v3.info?.face, width: map0.width, height: map0.height, maps: v3.info?.maps ?? [] },
             chars,
@@ -67,12 +68,6 @@ editor.once('load', () => {
         new Promise<any>((resolve) => {
             const asset = editor.call('assets:get', id);
             return asset ? resolve(asset) : editor.once(`assets:add[${id}]`, resolve);
-        });
-
-    // resolve once the asset's file has been uploaded and its url is available
-    const whenFile = (asset: any) =>
-        new Promise<object>((resolve) => {
-            return asset.get('file.url') ? resolve(asset.get('file')) : asset.once('file.url:set', () => resolve(asset.get('file')));
         });
 
     const importFont = async (file: File, folder: any) => {
@@ -131,27 +126,27 @@ editor.once('load', () => {
             })
         );
 
-        // 5) runtime font — created file-less (so the backend keeps type 'font'), self-contained v2 data
-        // plus authoring refs to the mirrors
+        // 5) runtime font — created with its own copy of the page-0 atlas as its file. the backend keeps
+        // type 'font' (font is exempt from extension-based type detection) and noConvert skips reprocessing.
+        // it needs its own file because file.url is server-derived per asset id, so a font can't point at
+        // the texture mirror's stored object. self-contained v2 data + authoring refs to the mirrors.
         const data = toV2(v3) as Record<string, unknown>;
         data.jsonAsset = jsonId;
         data.textureAssets = textureIds;
         const fontId = await createAsset({
             name: filename,
             type: 'font',
+            file: new Blob([textures[0] as BlobPart], { type: 'image/png' }),
+            filename: `${base}.png`,
             source_asset_id: `${sourceId}`,
             data,
             meta: { chars, invert: false },
             parent: folder,
+            noConvert: true,
             preload: true
         });
 
-        // 6) bake: point the font's file at the page-0 texture mirror's object so the engine loads the atlas
-        const tex0 = await getObserver(textureIds[0]);
-        const fileObj = await whenFile(tex0);
         const font = await getObserver(fontId);
-        font.set('file', fileObj);
-
         editor.call('selector:set', 'asset', [font]);
     };
 
@@ -181,17 +176,28 @@ editor.once('load', () => {
 
         if (textureIds[0]) {
             const tex0 = editor.call('assets:get', textureIds[0]);
-            const fileObj = tex0?.get('file');
-            if (fileObj) {
-                font.set('file', fileObj);
+            const url = tex0?.get('file.url');
+            if (url) {
+                const bytes = await (await fetch(url)).arrayBuffer();
+                const base = font.get('name').replace(/\.[^.]+$/, '');
+                await updateFile(font, new Blob([bytes], { type: 'image/png' }), `${base}.png`, true);
             }
         }
     };
 
+    // guard re-entrancy: rebake writes font.data, which can re-fire the ref watchers below
+    const baking = new Set<number>();
     editor.method('fonts:rebake', (font: any) => {
-        rebake(font).catch((err) => {
-            void log.error`font rebake failed ${err?.message ?? err}`;
-        });
+        const id = font.get('id');
+        if (baking.has(id)) {
+            return;
+        }
+        baking.add(id);
+        rebake(font)
+            .catch((err) => {
+                void log.error`font rebake failed ${err?.message ?? err}`;
+            })
+            .finally(() => baking.delete(id));
     });
 
     // update an existing mirror asset's file (assetUpdate via the upload path)
@@ -217,6 +223,11 @@ editor.once('load', () => {
 
         const { data: v3, textures } = await generate(buffer, { chars, fontName: base, invert });
 
+        // font-tools silently drops requested glyphs the source lacks; report them so the inspector can
+        // warn (referenced fonts have no server `task` for the pipeline's warning to key off)
+        const missing = Array.from(chars).filter((c) => !v3.chars[c]);
+        editor.emit('fonts:reprocessed', font, missing);
+
         const jsonAsset = editor.call('assets:get', font.get('data.jsonAsset'));
         if (jsonAsset) {
             await updateFile(jsonAsset, new Blob([JSON.stringify(v3)], { type: 'application/json' }), `${base}.json`, false);
@@ -240,10 +251,11 @@ editor.once('load', () => {
         });
     });
 
-    // watch referenced mirrors of each referenced font and re-bake on their file changes
+    // watch each referenced font: re-bake when a referenced mirror's file changes (edit the json/atlas)
+    // or when a picker is repointed (override) — both flow back into the runtime font
     const watched = new Set<number>();
     editor.on('assets:add', (asset: any) => {
-        if (asset.get('type') !== 'font' || asset.get('source') || !asset.get('data.jsonAsset')) {
+        if (asset.get('type') !== 'font' || asset.get('source') || !asset.has('data.jsonAsset')) {
             return;
         }
         const fontId = asset.get('id');
@@ -252,15 +264,37 @@ editor.once('load', () => {
         }
         watched.add(fontId);
 
-        const mirrorIds = [asset.get('data.jsonAsset'), ...(asset.get('data.textureAssets') || [])].filter(Boolean);
-        mirrorIds.forEach((id: number) => {
-            const trigger = () => editor.call('fonts:rebake', asset);
-            const mirror = editor.call('assets:get', id);
-            if (mirror) {
-                mirror.on('file.url:set', trigger);
-            } else {
-                editor.once(`assets:add[${id}]`, (m: any) => m.on('file.url:set', trigger));
+        const rebake = () => editor.call('fonts:rebake', asset);
+        let fileWatches: any[] = [];
+
+        // re-upload changes file.hash but not file.url (server-derived per id+name), and the observer
+        // suppresses no-op file.url sets — so watch any file.* change to catch edits/reprocess/replaces
+        const onFileChange = (p: string) => {
+            if (typeof p === 'string' && p.startsWith('file')) {
+                rebake();
             }
+        };
+
+        // (re)subscribe to the current mirrors' file changes; called again when a ref is repointed
+        const syncWatches = () => {
+            fileWatches.forEach((h) => h.unbind());
+            fileWatches = [];
+            [asset.get('data.jsonAsset'), ...(asset.get('data.textureAssets') || [])].filter(Boolean).forEach((id: number) => {
+                const mirror = editor.call('assets:get', id);
+                if (mirror) {
+                    fileWatches.push(mirror.on('*:set', onFileChange));
+                } else {
+                    editor.once(`assets:add[${id}]`, (m: any) => fileWatches.push(m.on('*:set', onFileChange)));
+                }
+            });
+        };
+        syncWatches();
+
+        ['data.jsonAsset:set', 'data.textureAssets:set', 'data.textureAssets.0:set'].forEach((evt) => {
+            asset.on(evt, () => {
+                syncWatches();
+                rebake();
+            });
         });
     });
 });

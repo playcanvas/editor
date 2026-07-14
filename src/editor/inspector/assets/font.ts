@@ -483,6 +483,7 @@ class FontAssetInspector extends Container {
         }
 
         this._contextMenus.length = 0;
+        this._processFontWarningContainer.hidden = true;
 
         const characterValues = this._fontAttributes.getField('characters').value;
         this._assets.forEach((asset) => {
@@ -509,8 +510,9 @@ class FontAssetInspector extends Container {
                 }
             }
 
-            // client-imported (referenced) fonts regenerate in the editor, not via the server pipeline
-            if (asset.get('data.jsonAsset')) {
+            // client-imported (referenced) fonts regenerate in the editor, not via the server pipeline.
+            // gate on the ref field existing (not its value) so a cleared picker still uses the client path
+            if (asset.has('data.jsonAsset')) {
                 editor.call('fonts:reprocess', asset, unique, this._fontAttributes.getField('meta.invert').value);
                 return;
             }
@@ -531,6 +533,15 @@ class FontAssetInspector extends Container {
 
     _toggleProcessFontButton(asset: Observer) {
         this._processFontButton.enabled = asset.get('task') !== 'running';
+    }
+
+    _showUnavailableCharacters(unavailableCharacters: string[]) {
+        this._processFontWarningContainer.hidden = unavailableCharacters.length === 0;
+        if (unavailableCharacters.length > 0) {
+            this._processFontWarningItems.link(
+                unavailableCharacters.map((char) => new Observer({ character: char }))
+            );
+        }
     }
 
     _refreshLocalizationsForAsset() {
@@ -628,24 +639,15 @@ class FontAssetInspector extends Container {
             this._assetEvents.push(
                 asset.on('task:set', (v) => {
                     // process font complete
-                    this._processFontWarningContainer.hidden = true;
                     if (v === null) {
                         const availableCharacters = asset.get('data.chars');
-                        const unavailableCharacters = [];
-                        this._fontAttributes
+                        const unavailableCharacters = this._fontAttributes
                             .getField('characters')
                             .value.split('')
-                            .forEach((character) => {
-                                if (!availableCharacters[character.charCodeAt()]) {
-                                    unavailableCharacters.push(character);
-                                }
-                            });
-                        if (unavailableCharacters.length > 0) {
-                            this._processFontWarningContainer.hidden = false;
-                            this._processFontWarningItems.link(
-                                unavailableCharacters.map((char) => new Observer({ character: char }))
-                            );
-                        }
+                            .filter((character: string) => !availableCharacters[character.charCodeAt(0)]);
+                        this._showUnavailableCharacters(unavailableCharacters);
+                    } else {
+                        this._processFontWarningContainer.hidden = true;
                     }
                     this._toggleProcessFontButton(asset);
                 })
@@ -655,13 +657,25 @@ class FontAssetInspector extends Container {
             this._assetEvents.push(asset.on('*:unset', this._refreshLocalizationsForAsset.bind(this)));
         });
 
+        // client-imported (referenced) fonts have no server `task`; fonts:reprocess reports the glyphs the
+        // source didn't provide via this event, mirroring the server pipeline's warning table
+        this._assetEvents.push(
+            editor.on('fonts:reprocessed', (font: Observer, unavailableCharacters: string[]) => {
+                if (this._assets?.includes(font)) {
+                    this._showUnavailableCharacters(unavailableCharacters);
+                }
+            })
+        );
+
         // View adjustments
         this._characterRangePanel.hidden = assets.length > 1;
         this._characterPresetsPanel.hidden = assets.length > 1;
         this._fontPanel.hidden = assets.length > 1;
         this._localizationPanel.hidden = assets.length > 1;
-        // only client-imported (referenced) fonts have unpacked mirror assets
-        this._sourceFilesPanel.hidden = assets.length > 1 || !assets[0].get('data.jsonAsset');
+        // only client-imported (referenced) fonts have unpacked mirror assets. gate on the ref fields
+        // existing (not their current value) so clearing a picker doesn't hide the whole panel
+        this._sourceFilesPanel.hidden =
+            assets.length > 1 || (!assets[0].has('data.jsonAsset') && !assets[0].has('data.textureAssets'));
 
         const charactersField = this._fontAttributes.getField('characters');
         charactersField.renderChanges = false;

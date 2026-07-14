@@ -1,6 +1,6 @@
 import { generateFont } from '@playcanvas/font-tools';
-import { createCanvasImageBackend } from '@playcanvas/font-tools/image-backend-canvas';
 import { createMsdfgenGlyphSource } from '@playcanvas/font-tools/glyph-source-msdfgen';
+import { createCanvasImageBackend } from '@playcanvas/font-tools/image-backend-canvas';
 
 import { WorkerServer } from '@/core/worker/worker-server';
 
@@ -17,17 +17,36 @@ type Options = {
     pxrange?: number;
 };
 
+const median = (r: number, g: number, b: number) => Math.max(Math.min(r, g), Math.min(Math.max(r, g), b));
+
+// msdfgen emits an inverted signed-distance field for some fonts (notably CFF/OTF winding), which
+// renders as solid blocks. a glyph's bitmap corner is always background, so if it reads "inside"
+// (high median) the field is inverted and needs negating.
+const isInverted = (glyphSource: any, size: number, pxrange: number) => {
+    for (const cp of [72, 88, 65, 111, 101]) {
+        const g = glyphSource.generateGlyph(cp, { size, pxrange });
+        if (g) {
+            const d = g.bitmap.data;
+            return median(d[0], d[1], d[2]) > 128;
+        }
+    }
+    return false;
+};
+
 const generate = async (frontendURL: string, buffer: ArrayBuffer, options: Options) => {
     const ttf = new Uint8Array(buffer);
     const glyphSource = await createMsdfgenGlyphSource(ttf, {
         moduleOverrides: { locateFile: () => `${frontendURL}js/msdfgen.wasm` }
     });
 
+    // auto-correct winding; the caller's invert flag flips on top of the detection
+    const invert = isInverted(glyphSource, options.size ?? 64, options.pxrange ?? 8) !== Boolean(options.invert);
+
     const { data, textures } = await generateFont({
         chars: options.chars,
         fontName: options.fontName,
         intensity: options.intensity,
-        invert: options.invert,
+        invert,
         size: options.size,
         pxrange: options.pxrange,
         glyphSource,
