@@ -4,15 +4,17 @@ import { TooltipHandle } from '@/common/tooltips';
 
 import { DEFAULT_PORT } from './connection';
 
+// MCP mark. ponytail: hand-drawn recreation — drop in the official MCP logo SVG to swap.
+const MCP_ICON =
+    '<svg class="mcp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12.8 10 5.3a3 3 0 0 1 4.3 4.3l-6.4 6.4"/><path d="M6.3 12.8 13.8 5.3a3 3 0 0 1 4.3 4.3l-6.4 6.4a2.4 2.4 0 0 0 3.4 3.4l4.5-4.5"/></svg>';
+
 editor.once('load', () => {
     const root = editor.call('layout.root');
     const toolbar = editor.call('layout.toolbar');
 
     // toolbar button, placed directly under the code editor button
-    const button = new Button({
-        class: ['pc-icon', 'mcp'],
-        icon: 'E184' // ponytail: placeholder glyph, swap for a proper MCP icon
-    });
+    const button = new Button({ class: ['pc-icon', 'mcp'] });
+    button.dom.appendChild(new DOMParser().parseFromString(MCP_ICON, 'image/svg+xml').documentElement);
     const publishButton = toolbar.dom.querySelector('.publish-download');
     if (publishButton) {
         toolbar.appendBefore(button, publishButton);
