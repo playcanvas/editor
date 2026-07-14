@@ -16,7 +16,6 @@ import { LayersSettingsPanel } from './settings-panels/layers';
 import { LightmappingSettingsPanel } from './settings-panels/lightmapping';
 import { LoadingScreenSettingsPanel } from './settings-panels/loading-screen';
 import { LocalizationSettingsPanel } from './settings-panels/localization';
-import { MCPSettingsPanel } from './settings-panels/mcp';
 import { NetworkSettingsPanel } from './settings-panels/network';
 import { PhysicsSettingsPanel } from './settings-panels/physics';
 import { RenderingSettingsPanel } from './settings-panels/rendering';
@@ -28,7 +27,6 @@ const CLASS_ROOT = 'settings';
 
 const SETTINGS_PANELS = [
     EngineSettingsPanel,
-    MCPSettingsPanel,
     EditorSettingsPanel,
     VersionControlSettingsPanel,
     AssetImportSettingsPanel,
@@ -105,7 +103,7 @@ class SettingsPanel extends Container {
             editor.emit('scene:name', op.oi);
         });
 
-        const panels = SETTINGS_PANELS.map((panelType) => {
+        SETTINGS_PANELS.forEach((panelType) => {
             const panel = new panelType({
                 history: args.history,
                 assets: args.assets,
@@ -117,14 +115,6 @@ class SettingsPanel extends Container {
                 sessionSettings: args.sessionSettings
             });
             this.append(panel);
-            return panel;
-        });
-
-        // collapse every settings section except the one with the given header
-        editor.method('settings:expandOnly', (headerText: string) => {
-            panels.forEach((panel) => {
-                panel.collapsed = panel.headerText !== headerText;
-            });
         });
 
         this._linkSceneNameField();

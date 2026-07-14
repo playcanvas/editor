@@ -1,7 +1,8 @@
-import { Button } from '@playcanvas/pcui';
+import { Button, Label, Panel, TextInput } from '@playcanvas/pcui';
 
 import { TooltipHandle } from '@/common/tooltips';
-import { MCP_SETTINGS_HEADER } from '@/editor/inspector/settings-panels/mcp';
+
+import { DEFAULT_PORT } from './connection';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');
@@ -19,16 +20,66 @@ editor.once('load', () => {
         toolbar.append(button);
     }
 
-    // open the settings panel with only the MCP section expanded
-    button.on('click', () => {
-        editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
-        editor.call('settings:expandOnly', MCP_SETTINGS_HEADER);
+    // connect popover
+    const popover = new Panel({
+        class: 'mcp-popover',
+        headerText: 'MCP SERVER',
+        hidden: true
+    });
+    const status = new Label({ class: 'mcp-status', text: 'Disconnected' });
+    const portField = new TextInput({ class: 'mcp-port', value: String(DEFAULT_PORT), placeholder: 'Port' });
+    const toggle = new Button({ class: 'mcp-toggle', text: 'CONNECT' });
+    popover.append(status);
+    popover.append(portField);
+    popover.append(toggle);
+    root.append(popover);
+
+    const render = (state: string) => {
+        status.class.remove('disconnected', 'connecting', 'connected');
+        status.class.add(state);
+        button.class[state === 'connected' ? 'add' : 'remove']('active');
+        switch (state) {
+            case 'connecting':
+                status.text = 'Connecting';
+                portField.enabled = false;
+                toggle.text = 'CANCEL';
+                break;
+            case 'connected':
+                status.text = 'Connected';
+                portField.enabled = false;
+                toggle.text = 'DISCONNECT';
+                break;
+            default:
+                status.text = 'Disconnected';
+                portField.enabled = true;
+                toggle.text = 'CONNECT';
+                break;
+        }
+    };
+    render(editor.call('mcp:status') || 'disconnected');
+    editor.on('mcp:status', render);
+
+    toggle.on('click', () => {
+        if (editor.call('mcp:status') === 'disconnected') {
+            editor.call('mcp:connect', parseInt(portField.value, 10) || DEFAULT_PORT);
+        } else {
+            editor.call('mcp:disconnect');
+        }
     });
 
-    // reflect connection status on the button
-    const setActive = (state: string) => button.class[state === 'connected' ? 'add' : 'remove']('active');
-    setActive(editor.call('mcp:status') || 'disconnected');
-    editor.on('mcp:status', setActive);
+    // toggle popover, close on outside click
+    const onOutside = (evt: MouseEvent) => {
+        const target = evt.target as Node;
+        if (popover.dom.contains(target) || button.dom.contains(target)) {
+            return;
+        }
+        popover.hidden = true;
+    };
+    button.on('click', () => {
+        popover.hidden = !popover.hidden;
+    });
+    popover.on('show', () => window.addEventListener('mousedown', onOutside));
+    popover.on('hide', () => window.removeEventListener('mousedown', onOutside));
 
     TooltipHandle.attach({
         target: button.dom,
