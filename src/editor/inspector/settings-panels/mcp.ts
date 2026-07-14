@@ -7,6 +7,8 @@ import type { Attribute } from '../attribute.type.d';
 import { BaseSettingsPanel } from './base';
 import type { BaseSettingsPanelArgs } from './base';
 
+const MCP_SETTINGS_HEADER = 'MCP SERVER';
+
 const ATTRIBUTES: Attribute[] = [
     {
         label: 'Status',
@@ -35,8 +37,8 @@ const ATTRIBUTES: Attribute[] = [
 
 class MCPSettingsPanel extends BaseSettingsPanel {
     constructor(args: BaseSettingsPanelArgs) {
-        args = Object.assign({ collapsed: false }, args);
-        args.headerText = 'MCP SERVER';
+        args = Object.assign({}, args);
+        args.headerText = MCP_SETTINGS_HEADER;
         args.attributes = ATTRIBUTES;
         args.hideIcon = true;
 
@@ -66,4 +68,4 @@ class MCPSettingsPanel extends BaseSettingsPanel {
     }
 }
 
-export { MCPSettingsPanel };
+export { MCPSettingsPanel, MCP_SETTINGS_HEADER };

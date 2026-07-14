@@ -1,6 +1,7 @@
 import { Button } from '@playcanvas/pcui';
 
 import { TooltipHandle } from '@/common/tooltips';
+import { MCP_SETTINGS_HEADER } from '@/editor/inspector/settings-panels/mcp';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');
@@ -18,9 +19,10 @@ editor.once('load', () => {
         toolbar.append(button);
     }
 
-    // open the MCP section in the settings panel
+    // open the settings panel with only the MCP section expanded
     button.on('click', () => {
         editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
+        editor.call('settings:expandOnly', MCP_SETTINGS_HEADER);
     });
 
     // reflect connection status on the button

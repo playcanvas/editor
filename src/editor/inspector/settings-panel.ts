@@ -105,7 +105,7 @@ class SettingsPanel extends Container {
             editor.emit('scene:name', op.oi);
         });
 
-        SETTINGS_PANELS.forEach((panelType) => {
+        const panels = SETTINGS_PANELS.map((panelType) => {
             const panel = new panelType({
                 history: args.history,
                 assets: args.assets,
@@ -117,6 +117,14 @@ class SettingsPanel extends Container {
                 sessionSettings: args.sessionSettings
             });
             this.append(panel);
+            return panel;
+        });
+
+        // collapse every settings section except the one with the given header
+        editor.method('settings:expandOnly', (headerText: string) => {
+            panels.forEach((panel) => {
+                panel.collapsed = panel.headerText !== headerText;
+            });
         });
 
         this._linkSceneNameField();
