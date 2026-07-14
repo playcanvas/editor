@@ -1,0 +1,81 @@
+#layout-toolbar > .pcui-button.mcp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#layout-toolbar > .pcui-button.mcp .mcp-icon {
+    display: block;
+    width: 22px;
+    height: 22px;
+}
+
+.mcp-popover {
+    position: fixed; // centered on the toolbar button in toolbar.ts
+    width: 220px;
+    z-index: 402; // above #layout-toolbar (400) and PCUI Menu (401)
+    background-color: $bcg-primary;
+    border: 1px solid $border-primary;
+    border-radius: 2px;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 30%);
+
+    .mcp-row {
+        display: flex;
+        align-items: center;
+        padding: 4px 10px;
+        margin: 0; // override pcui default element margin (6px)
+    }
+
+    .mcp-row > * {
+        margin: 0; // override pcui default element margin on labels/fields
+    }
+
+    .mcp-row:first-child {
+        padding-top: 9px; // a little breathing room below the header
+    }
+
+    .mcp-row-label {
+        width: 74px;
+        flex-shrink: 0;
+        color: $text-dark;
+        font-size: 12px;
+    }
+
+    .mcp-field {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .mcp-status-value {
+        position: relative;
+        padding-left: 16px;
+        color: $text-secondary;
+        font-size: 12px;
+
+        &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: $error;
+        }
+
+        &.mcp-connecting::before {
+            background-color: #f4a62a;
+        }
+
+        &.mcp-connected::before {
+            background-color: #4ea86a;
+        }
+    }
+
+    .mcp-toggle {
+        display: block;
+        width: calc(100% - 20px);
+        margin: 3px 10px 11px;
+    }
+}
