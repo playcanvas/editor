@@ -12,15 +12,10 @@ editor.once('load', () => {
     const root = editor.call('layout.root');
     const toolbar = editor.call('layout.toolbar');
 
-    // toolbar button, placed directly under the code editor button
+    // toolbar button, placed below the publish button (last item in the top group)
     const button = new Button({ class: ['pc-icon', 'mcp'] });
     button.dom.appendChild(new DOMParser().parseFromString(MCP_ICON, 'image/svg+xml').documentElement);
-    const publishButton = toolbar.dom.querySelector('.publish-download');
-    if (publishButton) {
-        toolbar.appendBefore(button, publishButton);
-    } else {
-        toolbar.append(button);
-    }
+    toolbar.append(button);
 
     const tooltip = TooltipHandle.attach({
         target: button.dom,
