@@ -1,4 +1,5 @@
-import { AppBase, Asset, Font, FontHandler } from 'playcanvas';
+import type { AppBase } from 'playcanvas';
+import { Font, FontHandler } from 'playcanvas';
 
 // referenced (client-imported) fonts carry a jsonAsset reference; server fonts never do.
 // field-existence, not truthiness: a cleared picker leaves jsonAsset === null but still referenced.
