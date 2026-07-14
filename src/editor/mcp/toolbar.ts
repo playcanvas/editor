@@ -76,6 +76,11 @@ editor.once('load', () => {
         popover.hidden = true;
     };
     button.on('click', () => {
+        if (popover.hidden) {
+            const rect = button.dom.getBoundingClientRect();
+            popover.dom.style.left = `${rect.right + 4}px`;
+            popover.dom.style.top = `${rect.top}px`;
+        }
         popover.hidden = !popover.hidden;
     });
     popover.on('show', () => window.addEventListener('mousedown', onOutside));

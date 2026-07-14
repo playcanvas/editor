@@ -1,9 +1,13 @@
+@use 'sass:color';
+
 .mcp-popover {
-    position: absolute;
-    left: 48px;
-    bottom: 8px;
+    position: fixed; // anchored next to the toolbar button in toolbar.ts
     width: 220px;
     z-index: 402; // above #layout-toolbar (400) and PCUI Menu (401)
+    background-color: color.adjust($bcg-primary, $lightness: 6%);
+    border: 1px solid $bcg-darkest;
+    border-radius: 4px;
+    box-shadow: 0 4px 16px rgb(0 0 0 / 60%);
 
     .mcp-status {
         display: block;
