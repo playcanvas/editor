@@ -1,4 +1,4 @@
-import { Font, FontHandler } from 'playcanvas';
+import { AppBase, Asset, Font, FontHandler } from 'playcanvas';
 
 // referenced (client-imported) fonts carry a jsonAsset reference; server fonts never do.
 // field-existence, not truthiness: a cleared picker leaves jsonAsset === null but still referenced.
@@ -8,11 +8,11 @@ export const isReferencedFont = (asset: any) =>
 class ReferencedFontHandler {
     handlerType = 'font';
 
-    _app: any;
+    _app: AppBase;
 
-    _stock: any;
+    _stock: FontHandler;
 
-    constructor(app: any) {
+    constructor(app: AppBase) {
         this._app = app;
         this._stock = new FontHandler(app);
     }
