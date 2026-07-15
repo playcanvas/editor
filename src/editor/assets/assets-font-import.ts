@@ -187,10 +187,10 @@ editor.once('load', () => {
         });
     });
 
-    // keep the viewport/thumbnail font in sync with its referenced mirrors. the editor observer is
-    // synced into the engine asset by assets-registry on a deferred tick, so we react to ENGINE signals
-    // (which fire after that sync) not the observer's own events (which fire before it — reloading then
-    // would re-resolve the handler against still-stale engine data/mirror resources).
+    // keep the viewport/thumbnail font in sync with its referenced mirrors by rebuilding the engine font
+    // resource. two change sources: the font's own refs being repointed (observer data:set), and a
+    // referenced mirror's file being edited/reprocessed/replaced (the mirror's engine `load`, which fires
+    // once assets-registry has re-fetched it — so the mirror resource is fresh by then).
     const watched = new Set<number>();
     editor.on('assets:add', (asset: any) => {
         if (asset.get('type') !== 'font' || asset.get('source') || !asset.has('data.jsonAsset')) {
@@ -207,18 +207,21 @@ editor.once('load', () => {
             return; // headless (no webgl): no viewport font to keep live
         }
 
-        // re-run ReferencedFontHandler against the current refs; skip while a load is in flight so we
-        // don't interrupt the initial preload
+        // rebuild the engine font from the current refs. push the observer's data onto the engine asset
+        // first: assets-registry only syncs it on a deferred tick, so without this the handler would
+        // re-resolve the stale refs on a repoint. skip while a load is in flight (don't interrupt preload).
         const reload = () => {
             const engineAsset = app.assets.get(fontId);
-            if (engineAsset && !engineAsset.loading) {
-                engineAsset.unload();
-                app.assets.load(engineAsset);
+            if (!engineAsset || engineAsset.loading) {
+                return;
             }
+            engineAsset.data = asset.json().data;
+            engineAsset.unload();
+            app.assets.load(engineAsset);
         };
 
-        // reload when a referenced mirror's engine asset (re)loads — assets-registry re-fetches it after
-        // its json/atlas is edited/reprocessed/replaced
+        // (re)subscribe to each current mirror's engine `load` so an edit/reprocess/replace rebuilds the
+        // font once the mirror is fresh; re-run on repoint to track the new ids
         let mirrorWatches: any[] = [];
         const syncWatches = () => {
             mirrorWatches.forEach((h) => h.off());
@@ -228,19 +231,12 @@ editor.once('load', () => {
         };
         syncWatches();
 
-        // reload when the refs are repointed — assets-registry pushes the new data onto the engine asset
-        // (firing this change), and we re-point the mirror watches at the new ids
-        const onRepoint = (_a: any, prop: string) => {
-            if (prop === 'data') {
+        // reload when a picker is repointed to a different asset
+        ['data.jsonAsset:set', 'data.textureAssets:set', 'data.textureAssets.0:set'].forEach((evt) => {
+            asset.on(evt, () => {
                 syncWatches();
                 reload();
-            }
-        };
-        const engineFont = app.assets.get(fontId);
-        if (engineFont) {
-            engineFont.on('change', onRepoint);
-        } else {
-            app.assets.once(`add:${fontId}`, (a: any) => a.on('change', onRepoint));
-        }
+            });
+        });
     });
 });
