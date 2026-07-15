@@ -215,7 +215,10 @@ editor.once('load', () => {
             if (!engineAsset || engineAsset.loading) {
                 return;
             }
-            engineAsset.data = asset.json().data;
+            // update the engine asset's refs WITHOUT the public `data` setter: setting asset.data fires the
+            // text element's _onFontChange, which treats asset.data as a font descriptor and corrupts a
+            // referenced font (whose data is refs, not chars). unload/load re-runs the handler cleanly.
+            engineAsset._data = asset.json().data;
             engineAsset.unload();
             app.assets.load(engineAsset);
         };
