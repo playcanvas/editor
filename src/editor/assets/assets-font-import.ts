@@ -111,12 +111,13 @@ editor.once('load', () => {
         // into a third copy. It still needs a file: AssetRegistry.load() only calls a handler's load()
         // when asset.file is truthy, so a file-less font would skip straight to open() and the handler's
         // async reference resolution would never run. This placeholder's contents are ignored by the
-        // handler for referenced fonts.
+        // handler for referenced fonts. The .json filename matters: the backend marks a font-with-file
+        // as a source asset unless its extension is a target extension, and we want a usable target font.
         const fontId = await createAsset({
             name: filename,
             type: 'font',
             file: new Blob(['{}'], { type: 'application/json' }),
-            filename: `${base}.font`,
+            filename: `${base}.json`,
             source_asset_id: `${sourceId}`,
             data: { jsonAsset: jsonId, textureAssets: textureIds },
             meta: { chars, invert: false },
