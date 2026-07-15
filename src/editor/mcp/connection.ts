@@ -4,15 +4,19 @@ const DEFAULT_PORT = 52000;
 const RETRY_TIMEOUT = 1000;
 
 type Status = 'connecting' | 'connected' | 'disconnected';
-type Method = (...args: any[]) => { data?: any; error?: string } | Promise<{ data?: any; error?: string }>;
+type Role = 'editor' | 'runtime';
+type MethodResult = { data?: any; error?: string; meta?: Record<string, any> };
+type Method = (...args: any[]) => MethodResult | Promise<MethodResult>;
 
-const log = (msg: string) => console.log(`%c[MCP] ${msg}`, 'color:#f60');
-const error = (msg: unknown) => console.error(`%c[MCP] ${msg}`, 'color:#f60');
+const log = (msg: string) => console.log(`[MCP] ${msg}`);
+const error = (msg: unknown) => console.error(`[MCP] ${msg}`);
 
 /**
- * WebSocket client that connects the editor to the external MCP server and dispatches its
+ * WebSocket client that connects the page to the external MCP server and dispatches its
  * tool requests to registered handlers. Same wire protocol as the former Chrome extension:
- * `{ id, name, args }` in, `{ id, res }` out.
+ * `{ id, name, args }` in, `{ id, res }` out. On open it announces its role
+ * (`{ register: 'editor' | 'runtime' }`) so the server routes edit-time vs runtime
+ * methods to the correct peer.
  */
 class MCPConnection extends Events {
     private _ws: WebSocket | null = null;
@@ -23,8 +27,18 @@ class MCPConnection extends Events {
 
     private _status: Status = 'disconnected';
 
+    private _port: number = DEFAULT_PORT;
+
+    private _role: Role = 'editor';
+
+    private _forceClosed = false;
+
     get status() {
         return this._status;
+    }
+
+    get port() {
+        return this._port;
     }
 
     private _setStatus(status: Status) {
@@ -33,57 +47,77 @@ class MCPConnection extends Events {
     }
 
     /**
+     * Connect to the MCP server and keep the connection alive. If the socket drops
+     * unexpectedly (server restart, transient network, background-tab throttling) we retry
+     * automatically until it reconnects or disconnect() is called.
+     *
      * @param port - The MCP server port to connect to.
+     * @param role - The peer role announced to the server.
      */
-    connect(port: number = DEFAULT_PORT) {
-        const address = `ws://localhost:${port}`;
+    connect(port: number = DEFAULT_PORT, role: Role = 'editor') {
+        this._port = port;
+        this._role = role;
+        this._forceClosed = false;
+
         this._setStatus('connecting');
-        log(`Connecting to ${address}`);
+        log(`Connecting to ws://localhost:${port}`);
 
         if (this._connectTimeout) {
             clearTimeout(this._connectTimeout);
+            this._connectTimeout = null;
         }
 
-        this._connect(address, () => {
-            this._ws!.onclose = (evt) => {
-                if (evt.reason === 'FORCE') {
-                    return;
-                }
-                this._setStatus('disconnected');
-                log('Disconnected');
-            };
-            this._setStatus('connected');
-            log('Connected');
-        });
+        this._open();
     }
 
     /**
-     * @param address - The WebSocket address to connect to.
-     * @param resolve - Called once the connection is established.
+     * Open a single WebSocket and wire up auto-reconnect on unexpected close.
      */
-    private _connect(address: string, resolve: () => void) {
-        this._ws = new WebSocket(address);
-        this._ws.onopen = () => resolve();
-        this._ws.onmessage = async (event) => {
+    private _open() {
+        const ws = new WebSocket(`ws://localhost:${this._port}`);
+        this._ws = ws;
+
+        ws.onopen = () => {
+            // announce our role so the server can route edit-time vs runtime methods
+            ws.send(JSON.stringify({ register: this._role }));
+            this._setStatus('connected');
+            log('Connected');
+        };
+        ws.onmessage = async (event) => {
             try {
                 const { id, name, args } = JSON.parse(event.data);
                 const res = await this.call(name, ...args);
-                this._ws?.send(JSON.stringify({ id, res }));
+                ws.send(JSON.stringify({ id, res }));
             } catch (e) {
                 error(e);
             }
         };
-        this._ws.onclose = () => {
+        ws.onerror = () => {
+            // a socket error is always followed by a close event, which drives the
+            // reconnect below; swallow it here so it isn't surfaced as unhandled
+        };
+        ws.onclose = (evt) => {
+            // a deliberate disconnect() (FORCE) must never reconnect
+            if (this._forceClosed || evt?.reason === 'FORCE') {
+                return;
+            }
+            this._setStatus('connecting');
+            log('Disconnected; reconnecting');
+            if (this._connectTimeout) {
+                clearTimeout(this._connectTimeout);
+            }
             this._connectTimeout = setTimeout(() => {
                 this._connectTimeout = null;
-                this._connect(address, resolve);
+                this._open();
             }, RETRY_TIMEOUT);
         };
     }
 
     disconnect() {
+        this._forceClosed = true;
         if (this._connectTimeout) {
             clearTimeout(this._connectTimeout);
+            this._connectTimeout = null;
         }
         if (this._ws) {
             this._ws.close(1000, 'FORCE');
@@ -110,16 +144,21 @@ class MCPConnection extends Events {
      * @param args - The arguments to pass to the method.
      * @returns The handler result.
      */
-    call(name: string, ...args: any[]) {
-        return this._methods.get(name)?.(...args);
+    call(name: string, ...args: any[]): MethodResult | Promise<MethodResult> {
+        const fn = this._methods.get(name);
+        if (!fn) {
+            return { error: `Unknown method: ${name}. The editor may be outdated; reload the page and reconnect.` };
+        }
+        return fn(...args);
     }
 }
 
 const mcp = new MCPConnection();
 
-editor.method('mcp:connect', (port?: number) => mcp.connect(port));
+editor.method('mcp:connect', (port?: number, role?: Role) => mcp.connect(port, role));
 editor.method('mcp:disconnect', () => mcp.disconnect());
 editor.method('mcp:status', () => mcp.status);
+editor.method('mcp:port', () => mcp.port);
 mcp.on('status', (status: Status) => editor.emit('mcp:status', status));
 
 export { mcp, DEFAULT_PORT };

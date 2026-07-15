@@ -39,10 +39,22 @@ editor.once('load', () => {
 
     const toggle = new Button({ class: 'mcp-toggle', text: 'CONNECT' });
 
+    // shown when an app was launched before connecting, so its URL has no mcp_port
+    const hint = new Label({ class: 'mcp-hint', text: 'Relaunch the open app to connect it', hidden: true });
+
     popover.append(statusRow);
     popover.append(portRow);
+    popover.append(hint);
     popover.append(toggle);
     root.append(popover);
+
+    const updateHint = () => {
+        const last = editor.call('launch:window');
+        hint.hidden = !(
+            editor.call('mcp:status') === 'connected' &&
+            last && !last.window.closed && !last.mcp
+        );
+    };
 
     const render = (state: string) => {
         statusValue.text = state.charAt(0).toUpperCase() + state.slice(1);
@@ -53,6 +65,7 @@ editor.once('load', () => {
         button.class[state === 'connected' ? 'add' : 'remove']('active');
         portField.enabled = state === 'disconnected';
         toggle.text = state === 'connecting' ? 'CANCEL' : state === 'connected' ? 'DISCONNECT' : 'CONNECT';
+        updateHint();
     };
     render(editor.call('mcp:status') || 'disconnected');
     editor.on('mcp:status', render);
@@ -88,6 +101,7 @@ editor.once('load', () => {
         // suppress the hover tooltip while open so its arrow doesn't poke out from under the popover
         tooltip.detach();
         tooltip.hidden = true;
+        updateHint();
         window.addEventListener('mousedown', onOutside);
     });
     popover.on('hide', () => {

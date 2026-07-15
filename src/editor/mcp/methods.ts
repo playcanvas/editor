@@ -1,8 +1,10 @@
+import { config } from '@/editor/config';
+
 import { mcp } from './connection';
 
 const api = editor.api.globals;
 
-const log = (msg: string) => console.log(`%c[MCP] ${msg}`, 'color:#f60');
+const log = (msg: string) => console.log(`[MCP] ${msg}`);
 
 /**
  * PlayCanvas REST API wrapper.
@@ -43,6 +45,130 @@ const iterateObject = (obj: Record<string, any>, callback: (path: string, value:
         }
     });
 };
+
+/**
+ * Build a human-readable hierarchy path for an entity (e.g. `Root/Player/Camera`).
+ * This resolves the otherwise opaque UUID chain into semantic context.
+ *
+ * @param entity - The entity API instance.
+ * @returns The slash-separated path from the root to the entity.
+ */
+const entityPath = (entity: any) => {
+    const names = [];
+    let current = entity;
+    const seen = new Set();
+    while (current && !seen.has(current.get('resource_id'))) {
+        seen.add(current.get('resource_id'));
+        names.unshift(current.get('name'));
+        const parentId = current.get('parent');
+        current = parentId ? api.entities.get(parentId) : null;
+    }
+    return names.join('/');
+};
+
+/**
+ * Produce the compact, semantic summary returned by list/create/modify tools.
+ * Returning this inline after mutations lets agents skip a follow-up
+ * `list_entities` round-trip.
+ *
+ * @param entity - The entity API instance.
+ * @returns The entity summary.
+ */
+const entitySummary = (entity: any) => {
+    const components = entity.get('components') || {};
+    return {
+        resource_id: entity.get('resource_id'),
+        name: entity.get('name'),
+        path: entityPath(entity),
+        parent: entity.get('parent'),
+        enabled: entity.get('enabled'),
+        tags: entity.get('tags') || [],
+        components: Object.keys(components)
+    };
+};
+
+// top-level entity properties that entities:modify may set directly. Anything
+// else must be addressed under `components.<type>.…` (or is not settable).
+const ENTITY_TOP_LEVEL_PATHS = ['name', 'enabled', 'position', 'rotation', 'scale', 'tags'];
+
+/**
+ * Validate an entities:modify path against an entity BEFORE writing, so an invalid path
+ * fails fast with an actionable message instead of silently "succeeding". Only rejects
+ * paths that are provably wrong (unknown top-level key, or a component path for a
+ * component the entity does not have) — valid edits are never blocked.
+ *
+ * @param entity - The entity API instance.
+ * @param path - The dot-notation path the caller wants to set.
+ * @returns An actionable error string if the path is invalid, otherwise null.
+ */
+const validateEntityPath = (entity: any, path: string) => {
+    const components = Object.keys(entity.get('components') || {});
+    const componentList = components.length ? components.join(', ') : 'none';
+    if (typeof path !== 'string' || !path.length) {
+        return `Missing path. Valid top-level paths: ${ENTITY_TOP_LEVEL_PATHS.join(', ')}; or component paths like components.<type>.<prop>. This entity has components: [${componentList}].`;
+    }
+    if (path.startsWith('components.')) {
+        const component = path.split('.')[1];
+        if (!component) {
+            return `Incomplete path '${path}'. Component paths look like components.<type>.<prop>, e.g. components.light.intensity. This entity has components: [${componentList}].`;
+        }
+        if (!entity.get(`components.${component}`)) {
+            return `Entity ${entity.get('resource_id')} (${entity.get('name')}) has no '${component}' component, so '${path}' cannot be set. This entity has components: [${componentList}]. Add it first with add_components, or target an existing component.`;
+        }
+        return null;
+    }
+    const top = path.split('.')[0];
+    if (!ENTITY_TOP_LEVEL_PATHS.includes(top)) {
+        return `Unknown path '${path}'. Valid top-level paths: ${ENTITY_TOP_LEVEL_PATHS.join(', ')} (vectors are arrays e.g. position [0,1,0], euler rotation in degrees). For component properties use components.<type>.<prop>; this entity has components: [${componentList}].`;
+    }
+    return null;
+};
+
+/**
+ * Compact summary for an asset.
+ *
+ * @param asset - The asset API instance.
+ * @returns The asset summary.
+ */
+const assetSummary = (asset: any) => {
+    const path = asset.get('path') || [];
+    return {
+        id: asset.get('id'),
+        name: asset.get('name'),
+        type: asset.get('type'),
+        folder: path.length > 0 ? path[path.length - 1] : null,
+        tags: asset.get('tags') || []
+    };
+};
+
+/**
+ * Apply limit/offset pagination to a list and return the page plus the pagination
+ * metadata that belongs in the response envelope.
+ *
+ * @param items - The full result set.
+ * @param options - Pagination options (`limit` default 50, `offset` default 0).
+ * @returns The page and pagination meta.
+ */
+const paginate = <T>(items: T[], options: { limit?: number; offset?: number } = {}) => {
+    const total = items.length;
+    const limit = Number.isFinite(options.limit) ? Math.max(0, options.limit!) : 50;
+    const offset = Number.isFinite(options.offset) ? Math.max(0, options.offset!) : 0;
+    const page = limit > 0 ? items.slice(offset, offset + limit) : items.slice(offset);
+    const end = offset + page.length;
+    const hasMore = end < total;
+    return {
+        page,
+        meta: {
+            total,
+            count: page.length,
+            hasMore,
+            nextCursor: hasMore ? String(end) : null
+        }
+    };
+};
+
+// remember a handle to the launched runtime window so we can stop it later
+let runtimeWindow: Window | null = null;
 
 // general
 mcp.method('ping', () => ({ data: 'pong' }));
@@ -109,26 +235,26 @@ mcp.method('viewport:capture', () => {
         const base64 = dataUrl.split(',')[1];
 
         log(`Captured viewport screenshot (${dstWidth}x${dstHeight})`);
-        return { data: base64 };
+        return { data: base64, meta: { mimeType: 'image/webp', width: dstWidth, height: dstHeight } };
     } catch (e: any) {
-        return { error: `Failed to capture viewport: ${e.message}` };
+        return { error: `Failed to capture viewport: ${e.message}. Ensure a scene is loaded and the viewport is visible, then retry.` };
     }
 });
 mcp.method('viewport:focus', (ids, options: any = {}) => {
     const entities = ids.map((id: string) => api.entities.get(id)).filter(Boolean);
     if (!entities.length) {
-        return { error: 'No valid entities found' };
+        return { error: 'No valid entities found. Call list_entities (or resolve_entities) to obtain valid resource_ids.' };
     }
     api.selection.set(entities, { history: true });
 
     // get camera and calculate target
     const camera = editor.call('camera:current');
     if (!camera) {
-        return { error: 'Could not retrieve current camera' };
+        return { error: 'Could not retrieve current camera. Ensure a scene is loaded in the editor and retry.' };
     }
     const aabb = editor.call('selection:aabb');
     if (!aabb) {
-        return { error: 'Could not calculate selection bounds' };
+        return { error: 'Could not calculate selection bounds. The selected entities may have no renderable bounds.' };
     }
 
     // calculate distance based on bounding box and FOV
@@ -160,7 +286,48 @@ mcp.method('viewport:focus', (ids, options: any = {}) => {
     // focus camera on target
     editor.call('camera:focus', aabb.center, distance);
     log(`Focused viewport on entities: ${ids.join(', ')}`);
-    return { data: true };
+    return { data: { focused: entities.length } };
+});
+
+// launch (runtime control)
+mcp.method('launch:start', (options: any = {}) => {
+    const sceneId = config.scene?.id;
+    const base = config.url?.launch;
+    if (!sceneId || !base) {
+        return { error: 'No scene loaded, or launch URL unavailable. Load a scene in the editor and retry.' };
+    }
+    const params = new URLSearchParams();
+
+    // debug=true makes the engine log warnings/errors to the console, which
+    // read_runtime_logs relies on
+    params.set('debug', 'true');
+    if (options.device) {
+        params.set('device', options.device);
+    }
+
+    // pass the MCP port so the launch page can connect back as the runtime peer
+    // without any popup UI
+    params.set('mcp_port', String(mcp.port));
+    const url = `${base}${sceneId}?${params.toString()}`;
+
+    if (runtimeWindow && !runtimeWindow.closed) {
+        runtimeWindow.close();
+    }
+    runtimeWindow = window.open(url, '_blank');
+    if (!runtimeWindow) {
+        return { error: 'Could not open the launch window (popup blocked). Allow popups for the editor origin and retry.' };
+    }
+    log(`Launched runtime for scene(${sceneId})`);
+    return { data: { url, sceneId } };
+});
+mcp.method('launch:stop', () => {
+    const wasOpen = !!(runtimeWindow && !runtimeWindow.closed);
+    if (runtimeWindow && !runtimeWindow.closed) {
+        runtimeWindow.close();
+    }
+    runtimeWindow = null;
+    log('Stopped runtime');
+    return { data: { stopped: wasOpen } };
 });
 
 // entities
@@ -170,66 +337,94 @@ mcp.method('entities:create', (entityDataArray) => {
         if (Object.hasOwn(entityData, 'parent')) {
             const parent = api.entities.get(entityData.parent);
             if (!parent) {
-                return { error: `Parent entity not found: ${entityData.parent}` };
+                return { error: `Parent entity not found: ${entityData.parent}. Call list_entities (or resolve_entities) to obtain a valid parent resource_id, or omit 'parent' to create under the root.` };
             }
             entityData.entity.parent = parent;
         }
 
         const entity = api.entities.create(entityData.entity);
         if (!entity) {
-            return { error: 'Failed to create entity' };
+            return { error: 'Failed to create entity. Verify the entity definition is valid (e.g. component data types) and retry.' };
         }
         entities.push(entity);
 
         log(`Created entity(${entity.get('resource_id')})`);
     }
-    return { data: entities.map((entity) => entity.get('resource_id')) };
+
+    // return the resulting entity summaries inline so the agent gets the new
+    // ids + hierarchy paths without a follow-up list_entities call
+    return { data: entities.map(entitySummary) };
 });
 mcp.method('entities:modify', (edits) => {
+    const modified = new Map();
     for (const { id, path, value } of edits) {
         const entity = api.entities.get(id);
         if (!entity) {
-            return { error: `Entity not found: ${id}` };
+            return { error: `Entity not found: ${id}. Call list_entities (or resolve_entities) to obtain a valid resource_id.` };
+        }
+
+        // validate-on-write: reject a provably-invalid path up front so the agent gets
+        // an actionable message and never mistakes a no-op for a successful edit
+        const pathError = validateEntityPath(entity, path);
+        if (pathError) {
+            return { error: pathError };
         }
         entity.set(path, value);
+        modified.set(id, entity);
         log(`Set property(${path}) of entity(${id}) to: ${JSON.stringify(value)}`);
     }
-    return { data: true };
+
+    // return the post-edit summaries of every touched entity
+    return { data: Array.from(modified.values()).map(entitySummary) };
 });
 mcp.method('entities:duplicate', async (ids, options: any = {}) => {
-    const entities = ids.map((id: string) => api.entities.get(id));
+    const entities = ids.map((id: string) => api.entities.get(id)).filter(Boolean);
     if (!entities.length) {
-        return { error: 'Entities not found' };
+        return { error: 'No valid entities to duplicate. Call list_entities (or resolve_entities) to obtain valid resource_ids.' };
     }
     const res = await api.entities.duplicate(entities, options);
     log(`Duplicated entities: ${res.map((entity: any) => entity.get('resource_id')).join(', ')}`);
-    return { data: res.map((entity: any) => entity.get('resource_id')) };
+    return { data: res.map(entitySummary) };
 });
 mcp.method('entities:reparent', (options) => {
     const entity = api.entities.get(options.id);
     if (!entity) {
-        return { error: 'Entity not found' };
+        return { error: `Entity not found: ${options.id}. Call list_entities (or resolve_entities) to obtain a valid resource_id.` };
     }
     const parent = api.entities.get(options.parent);
     if (!parent) {
-        return { error: 'Parent entity not found' };
+        return { error: `Parent entity not found: ${options.parent}. Call list_entities (or resolve_entities) to obtain a valid parent resource_id.` };
     }
     entity.reparent(parent, options.index, {
         preserveTransform: options.preserveTransform
     });
     log(`Reparented entity(${options.id}) to entity(${options.parent})`);
-    return { data: true };
+    return { data: entitySummary(entity) };
 });
 mcp.method('entities:delete', async (ids) => {
     const entities = ids
         .map((id: string) => api.entities.get(id))
-        .filter((entity: any) => entity !== api.entities.root);
+        .filter((entity: any) => entity && entity !== api.entities.root);
     if (!entities.length) {
-        return { error: 'No entities to delete' };
+        return { error: 'No deletable entities found (the root entity cannot be deleted). Call list_entities to obtain valid, non-root resource_ids.' };
     }
     await api.entities.delete(entities);
     log(`Deleted entities: ${ids.join(', ')}`);
-    return { data: true };
+    return { data: { deleted: entities.length } };
+});
+mcp.method('entities:resolve', (options: any = {}) => {
+    const name = (options.name || '').toLowerCase();
+    if (!name) {
+        return { error: 'Provide a non-empty "name" to resolve.' };
+    }
+    const matches = api.entities.list().filter((entity) => {
+        const entityName = (entity.get('name') || '').toLowerCase();
+        return options.exact ? entityName === name : entityName.includes(name);
+    });
+    log(`Resolved entities by name(${options.name}): ${matches.length} match(es)`);
+
+    // empty match is a valid result, not an error
+    return { data: matches.map(entitySummary), meta: { total: matches.length, count: matches.length } };
 });
 mcp.method('entities:list', (options: any = {}) => {
     let entities = api.entities.list();
@@ -246,65 +441,66 @@ mcp.method('entities:list', (options: any = {}) => {
         entities = entities.filter((entity) => entity.get('tags').includes(options.tag));
     }
 
-    if (!entities.length) {
-        return { error: 'No entities found' };
-    }
+    // an empty result is a valid success, not an error
+    const { page, meta } = paginate(entities, options);
 
-    log('Listed entities');
+    log(`Listed entities (${meta.count}/${meta.total})`);
 
     // return full JSON or summary
     if (options.full) {
-        return { data: entities.map((entity) => entity.json()) };
+        return { data: page.map((entity) => entity.json()), meta };
     }
 
-    // summary mode: return minimal data with component names
-    return {
-        data: entities.map((entity) => {
-            const components = entity.get('components') || {};
-            return {
-                resource_id: entity.get('resource_id'),
-                name: entity.get('name'),
-                parent: entity.get('parent'),
-                enabled: entity.get('enabled'),
-                tags: entity.get('tags') || [],
-                components: Object.keys(components)
-            };
-        })
-    };
+    // summary mode: compact, semantic data
+    return { data: page.map(entitySummary), meta };
 });
 mcp.method('entities:components:add', (id, components) => {
     const entity = api.entities.get(id);
     if (!entity) {
-        return { error: 'Entity not found' };
+        return { error: `Entity not found: ${id}. Call list_entities (or resolve_entities) to obtain a valid resource_id.` };
     }
     Object.entries(components).forEach(([name, data]) => {
         entity.addComponent(name, data);
     });
     log(`Added components(${Object.keys(components).join(', ')}) to entity(${id})`);
-    return { data: true };
+    return { data: entitySummary(entity) };
 });
 mcp.method('entities:components:remove', (id, components) => {
     const entity = api.entities.get(id);
     if (!entity) {
-        return { error: 'Entity not found' };
+        return { error: `Entity not found: ${id}. Call list_entities (or resolve_entities) to obtain a valid resource_id.` };
     }
     components.forEach((component: string) => {
         entity.removeComponent(component);
     });
     log(`Removed components(${components.join(', ')}) from entity(${id})`);
-    return { data: true };
+    return { data: entitySummary(entity) };
 });
 mcp.method('entities:components:script:add', (id, scriptName) => {
     const entity = api.entities.get(id);
     if (!entity) {
-        return { error: 'Entity not found' };
+        return { error: `Entity not found: ${id}. Call list_entities (or resolve_entities) to obtain a valid resource_id.` };
     }
     if (!entity.get('components.script')) {
-        return { error: 'Script component not found' };
+        return { error: `Entity ${id} has no script component. Add one first via add_components { script: {} } or use attach_script which creates it automatically.` };
     }
     entity.addScript(scriptName);
     log(`Added script(${scriptName}) to component(script) of entity(${id})`);
-    return { data: entity.get('components.script') };
+    return { data: entitySummary(entity) };
+});
+mcp.method('entities:script:attach', (id, scriptName) => {
+    const entity = api.entities.get(id);
+    if (!entity) {
+        return { error: `Entity not found: ${id}. Call list_entities (or resolve_entities) to obtain a valid resource_id.` };
+    }
+
+    // consolidated flow: ensure the script component exists, then attach
+    if (!entity.get('components.script')) {
+        entity.addComponent('script', {});
+    }
+    entity.addScript(scriptName);
+    log(`Attached script(${scriptName}) to entity(${id})`);
+    return { data: entitySummary(entity) };
 });
 
 // assets
@@ -357,8 +553,9 @@ mcp.method('assets:create', async (assets) => {
                 throw new Error(`Failed to create asset of type ${type}`);
             }
 
+            // return the asset summary inline
             log(`Created asset(${asset.get('id')}) - Type: ${type}`);
-            return asset.get('id');
+            return assetSummary(asset);
         });
 
         const createdAssetsData = await Promise.all(assetCreationPromises);
@@ -370,13 +567,13 @@ mcp.method('assets:create', async (assets) => {
     }
 });
 mcp.method('assets:delete', (ids) => {
-    const assets = ids.map((id: number) => api.assets.get(id));
+    const assets = ids.map((id: number) => api.assets.get(id)).filter(Boolean);
     if (!assets.length) {
-        return { error: 'Assets not found' };
+        return { error: 'No valid assets to delete. Call list_assets to obtain valid asset ids.' };
     }
     api.assets.delete(assets);
     log(`Deleted assets: ${ids.join(', ')}`);
-    return { data: true };
+    return { data: { deleted: assets.length } };
 });
 mcp.method('assets:list', (options: any = {}) => {
     let assets = api.assets.list();
@@ -393,56 +590,59 @@ mcp.method('assets:list', (options: any = {}) => {
         assets = assets.filter((asset) => (asset.get('tags') || []).includes(options.tag));
     }
 
-    if (!assets.length) {
-        return { error: 'No assets found' };
-    }
+    // an empty result is a valid success, not an error
+    const { page, meta } = paginate(assets, options);
 
-    log('Listed assets');
+    log(`Listed assets (${meta.count}/${meta.total})`);
 
     // return full JSON or summary
     if (options.full) {
-        return { data: assets.map((asset) => asset.json()) };
+        return { data: page.map((asset) => asset.json()), meta };
     }
 
     // summary mode: return minimal data
-    return {
-        data: assets.map((asset) => {
-            const path = asset.get('path') || [];
-            return {
-                id: asset.get('id'),
-                name: asset.get('name'),
-                type: asset.get('type'),
-                folder: path.length > 0 ? path[path.length - 1] : null,
-                tags: asset.get('tags') || []
-            };
-        })
-    };
+    return { data: page.map(assetSummary), meta };
 });
 mcp.method('assets:instantiate', async (ids) => {
-    const assets = ids.map((id: number) => api.assets.get(id));
+    const assets = ids.map((id: number) => api.assets.get(id)).filter(Boolean);
     if (!assets.length) {
-        return { error: 'Assets not found' };
+        return { error: 'No valid assets found. Call list_assets with type="template" to obtain valid template asset ids.' };
     }
     if (assets.some((asset: any) => asset.get('type') !== 'template')) {
-        return { error: 'Invalid template asset' };
+        return { error: 'One or more ids are not template assets. Only template assets can be instantiated; call list_assets with type="template".' };
     }
     const entities = await api.assets.instantiateTemplates(assets, api.entities.root);
     log(`Instantiated assets: ${ids.join(', ')}`);
-    return { data: entities.map((entity: any) => entity.get('resource_id')) };
+    return { data: entities.map(entitySummary) };
 });
 mcp.method('assets:property:set', (id, prop, value) => {
     const asset = api.assets.get(id);
     if (!asset) {
-        return { error: 'Asset not found' };
+        return { error: `Asset not found: ${id}. Call list_assets to obtain a valid asset id.` };
     }
     asset.set(`data.${prop}`, value);
     log(`Set asset(${id}) property(${prop}) to: ${JSON.stringify(value)}`);
-    return { data: true };
+    return { data: { id, [prop]: value } };
+});
+mcp.method('assets:data:set', (id, props) => {
+    const asset = api.assets.get(id);
+    if (!asset) {
+        return { error: `Asset not found: ${id}. Call list_assets to obtain a valid asset id.` };
+    }
+    const keys = Object.keys(props || {});
+    if (!keys.length) {
+        return { error: 'No properties provided to set.' };
+    }
+    keys.forEach((key) => {
+        asset.set(`data.${key}`, props[key]);
+    });
+    log(`Set asset(${id}) properties(${keys.join(', ')})`);
+    return { data: assetSummary(asset) };
 });
 mcp.method('assets:script:text:set', async (id, text) => {
     const asset = api.assets.get(id);
     if (!asset) {
-        return { error: 'Asset not found' };
+        return { error: `Asset not found: ${id}. Call list_assets with type="script" to obtain a valid script asset id.` };
     }
 
     const form = new FormData();
@@ -464,8 +664,9 @@ mcp.method('assets:script:text:set', async (id, text) => {
 mcp.method('assets:script:parse', async (id) => {
     const asset = api.assets.get(id);
     if (!asset) {
-        return { error: 'Asset not found' };
+        return { error: `Asset not found: ${id}. Call list_assets with type="script" to obtain a valid script asset id.` };
     }
+
     // FIXME: hacky way to get the parsed script data. Expose a proper API for this.
     const [err, data] = await new Promise<any[]>((resolve) => {
         editor.call('scripts:parse', (asset as any).observer, (...d: any[]) => resolve(d));
@@ -487,7 +688,9 @@ mcp.method('scene:settings:modify', (settings) => {
         scene.set(path, value);
     });
     log('Modified scene settings');
-    return { data: true };
+
+    // return the resulting settings snapshot inline
+    return { data: scene.json() };
 });
 mcp.method('scene:settings:query', () => {
     const scene = api.settings.scene;

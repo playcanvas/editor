@@ -6,6 +6,9 @@ import '@/common/extensions';
 
 // general
 import './editor';
+
+// mcp runtime peer (imported early so console capture covers scene/script logs)
+import './mcp/runtime';
 import './messenger/messenger';
 import './wasm/wasm';
 
