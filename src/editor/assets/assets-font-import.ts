@@ -186,9 +186,10 @@ editor.once('load', () => {
         });
     });
 
-    // watch each referenced font: reload its engine resource when a referenced mirror's file changes
-    // (edit the json/atlas) or when a picker is repointed (override), so the handler re-resolves and
-    // the viewport/thumbnail pick up the change
+    // keep the viewport/thumbnail font in sync with its referenced mirrors. the editor observer is
+    // synced into the engine asset by assets-registry on a deferred tick, so we react to ENGINE signals
+    // (which fire after that sync) not the observer's own events (which fire before it — reloading then
+    // would re-resolve the handler against still-stale engine data/mirror resources).
     const watched = new Set<number>();
     editor.on('assets:add', (asset: any) => {
         if (asset.get('type') !== 'font' || asset.get('source') || !asset.has('data.jsonAsset')) {
@@ -200,46 +201,45 @@ editor.once('load', () => {
         }
         watched.add(fontId);
 
-        // no-op without a live viewport (e.g. no webgl) — reloads the shared editor viewport engine
-        // asset, which also drives the font thumbnail
+        const app = editor.call('viewport:app');
+        if (!app) {
+            return; // headless (no webgl): no viewport font to keep live
+        }
+
+        // re-run ReferencedFontHandler against the current refs; skip while a load is in flight so we
+        // don't interrupt the initial preload
         const reload = () => {
-            const app = editor.call('viewport:app');
-            const engineAsset = app && app.assets.get(asset.get('id'));
-            if (engineAsset) {
+            const engineAsset = app.assets.get(fontId);
+            if (engineAsset && !engineAsset.loading) {
                 engineAsset.unload();
                 app.assets.load(engineAsset);
             }
         };
-        let fileWatches: any[] = [];
 
-        // re-upload changes file.hash but not file.url (server-derived per id+name), and the observer
-        // suppresses no-op file.url sets — so watch any file.* change to catch edits/reprocess/replaces
-        const onFileChange = (p: string) => {
-            if (typeof p === 'string' && p.startsWith('file')) {
-                reload();
-            }
-        };
-
-        // (re)subscribe to the current mirrors' file changes; called again when a ref is repointed
+        // reload when a referenced mirror's engine asset (re)loads — assets-registry re-fetches it after
+        // its json/atlas is edited/reprocessed/replaced
+        let mirrorWatches: any[] = [];
         const syncWatches = () => {
-            fileWatches.forEach((h) => h.unbind());
-            fileWatches = [];
-            [asset.get('data.jsonAsset'), ...(asset.get('data.textureAssets') || [])].filter(Boolean).forEach((id: number) => {
-                const mirror = editor.call('assets:get', id);
-                if (mirror) {
-                    fileWatches.push(mirror.on('*:set', onFileChange));
-                } else {
-                    editor.once(`assets:add[${id}]`, (m: any) => fileWatches.push(m.on('*:set', onFileChange)));
-                }
-            });
+            mirrorWatches.forEach((h) => h.off());
+            mirrorWatches = [asset.get('data.jsonAsset'), ...(asset.get('data.textureAssets') || [])]
+                .filter(Boolean)
+                .map((id: number) => app.assets.on(`load:${id}`, reload));
         };
         syncWatches();
 
-        ['data.jsonAsset:set', 'data.textureAssets:set', 'data.textureAssets.0:set'].forEach((evt) => {
-            asset.on(evt, () => {
+        // reload when the refs are repointed — assets-registry pushes the new data onto the engine asset
+        // (firing this change), and we re-point the mirror watches at the new ids
+        const onRepoint = (_a: any, prop: string) => {
+            if (prop === 'data') {
                 syncWatches();
                 reload();
-            });
-        });
+            }
+        };
+        const engineFont = app.assets.get(fontId);
+        if (engineFont) {
+            engineFont.on('change', onRepoint);
+        } else {
+            app.assets.once(`add:${fontId}`, (a: any) => a.on('change', onRepoint));
+        }
     });
 });
