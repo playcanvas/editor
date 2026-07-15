@@ -237,13 +237,17 @@ mcp.method('viewport:capture', () => {
         log(`Captured viewport screenshot (${dstWidth}x${dstHeight})`);
         return { data: base64, meta: { mimeType: 'image/webp', width: dstWidth, height: dstHeight } };
     } catch (e: any) {
-        return { error: `Failed to capture viewport: ${e.message}. Ensure a scene is loaded and the viewport is visible, then retry.` };
+        return {
+            error: `Failed to capture viewport: ${e.message}. Ensure a scene is loaded and the viewport is visible, then retry.`
+        };
     }
 });
 mcp.method('viewport:focus', (ids, options: any = {}) => {
     const entities = ids.map((id: string) => api.entities.get(id)).filter(Boolean);
     if (!entities.length) {
-        return { error: 'No valid entities found. Call list_entities (or resolve_entities) to obtain valid resource_ids.' };
+        return {
+            error: 'No valid entities found. Call list_entities (or resolve_entities) to obtain valid resource_ids.'
+        };
     }
     api.selection.set(entities, { history: true });
 
@@ -315,7 +319,9 @@ mcp.method('launch:start', (options: any = {}) => {
     }
     runtimeWindow = window.open(url, '_blank');
     if (!runtimeWindow) {
-        return { error: 'Could not open the launch window (popup blocked). Allow popups for the editor origin and retry.' };
+        return {
+            error: 'Could not open the launch window (popup blocked). Allow popups for the editor origin and retry.'
+        };
     }
     log(`Launched runtime for scene(${sceneId})`);
     return { data: { url, sceneId } };
@@ -337,14 +343,18 @@ mcp.method('entities:create', (entityDataArray) => {
         if (Object.hasOwn(entityData, 'parent')) {
             const parent = api.entities.get(entityData.parent);
             if (!parent) {
-                return { error: `Parent entity not found: ${entityData.parent}. Call list_entities (or resolve_entities) to obtain a valid parent resource_id, or omit 'parent' to create under the root.` };
+                return {
+                    error: `Parent entity not found: ${entityData.parent}. Call list_entities (or resolve_entities) to obtain a valid parent resource_id, or omit 'parent' to create under the root.`
+                };
             }
             entityData.entity.parent = parent;
         }
 
         const entity = api.entities.create(entityData.entity);
         if (!entity) {
-            return { error: 'Failed to create entity. Verify the entity definition is valid (e.g. component data types) and retry.' };
+            return {
+                error: 'Failed to create entity. Verify the entity definition is valid (e.g. component data types) and retry.'
+            };
         }
         entities.push(entity);
 
@@ -360,7 +370,9 @@ mcp.method('entities:modify', (edits) => {
     for (const { id, path, value } of edits) {
         const entity = api.entities.get(id);
         if (!entity) {
-            return { error: `Entity not found: ${id}. Call list_entities (or resolve_entities) to obtain a valid resource_id.` };
+            return {
+                error: `Entity not found: ${id}. Call list_entities (or resolve_entities) to obtain a valid resource_id.`
+            };
         }
 
         // validate-on-write: reject a provably-invalid path up front so the agent gets
@@ -380,7 +392,9 @@ mcp.method('entities:modify', (edits) => {
 mcp.method('entities:duplicate', async (ids, options: any = {}) => {
     const entities = ids.map((id: string) => api.entities.get(id)).filter(Boolean);
     if (!entities.length) {
-        return { error: 'No valid entities to duplicate. Call list_entities (or resolve_entities) to obtain valid resource_ids.' };
+        return {
+            error: 'No valid entities to duplicate. Call list_entities (or resolve_entities) to obtain valid resource_ids.'
+        };
     }
     const res = await api.entities.duplicate(entities, options);
     log(`Duplicated entities: ${res.map((entity: any) => entity.get('resource_id')).join(', ')}`);
@@ -389,11 +403,15 @@ mcp.method('entities:duplicate', async (ids, options: any = {}) => {
 mcp.method('entities:reparent', (options) => {
     const entity = api.entities.get(options.id);
     if (!entity) {
-        return { error: `Entity not found: ${options.id}. Call list_entities (or resolve_entities) to obtain a valid resource_id.` };
+        return {
+            error: `Entity not found: ${options.id}. Call list_entities (or resolve_entities) to obtain a valid resource_id.`
+        };
     }
     const parent = api.entities.get(options.parent);
     if (!parent) {
-        return { error: `Parent entity not found: ${options.parent}. Call list_entities (or resolve_entities) to obtain a valid parent resource_id.` };
+        return {
+            error: `Parent entity not found: ${options.parent}. Call list_entities (or resolve_entities) to obtain a valid parent resource_id.`
+        };
     }
     entity.reparent(parent, options.index, {
         preserveTransform: options.preserveTransform
@@ -406,7 +424,9 @@ mcp.method('entities:delete', async (ids) => {
         .map((id: string) => api.entities.get(id))
         .filter((entity: any) => entity && entity !== api.entities.root);
     if (!entities.length) {
-        return { error: 'No deletable entities found (the root entity cannot be deleted). Call list_entities to obtain valid, non-root resource_ids.' };
+        return {
+            error: 'No deletable entities found (the root entity cannot be deleted). Call list_entities to obtain valid, non-root resource_ids.'
+        };
     }
     await api.entities.delete(entities);
     log(`Deleted entities: ${ids.join(', ')}`);
@@ -457,7 +477,9 @@ mcp.method('entities:list', (options: any = {}) => {
 mcp.method('entities:components:add', (id, components) => {
     const entity = api.entities.get(id);
     if (!entity) {
-        return { error: `Entity not found: ${id}. Call list_entities (or resolve_entities) to obtain a valid resource_id.` };
+        return {
+            error: `Entity not found: ${id}. Call list_entities (or resolve_entities) to obtain a valid resource_id.`
+        };
     }
     Object.entries(components).forEach(([name, data]) => {
         entity.addComponent(name, data);
@@ -468,7 +490,9 @@ mcp.method('entities:components:add', (id, components) => {
 mcp.method('entities:components:remove', (id, components) => {
     const entity = api.entities.get(id);
     if (!entity) {
-        return { error: `Entity not found: ${id}. Call list_entities (or resolve_entities) to obtain a valid resource_id.` };
+        return {
+            error: `Entity not found: ${id}. Call list_entities (or resolve_entities) to obtain a valid resource_id.`
+        };
     }
     components.forEach((component: string) => {
         entity.removeComponent(component);
@@ -479,10 +503,14 @@ mcp.method('entities:components:remove', (id, components) => {
 mcp.method('entities:components:script:add', (id, scriptName) => {
     const entity = api.entities.get(id);
     if (!entity) {
-        return { error: `Entity not found: ${id}. Call list_entities (or resolve_entities) to obtain a valid resource_id.` };
+        return {
+            error: `Entity not found: ${id}. Call list_entities (or resolve_entities) to obtain a valid resource_id.`
+        };
     }
     if (!entity.get('components.script')) {
-        return { error: `Entity ${id} has no script component. Add one first via add_components { script: {} } or use attach_script which creates it automatically.` };
+        return {
+            error: `Entity ${id} has no script component. Add one first via add_components { script: {} } or use attach_script which creates it automatically.`
+        };
     }
     entity.addScript(scriptName);
     log(`Added script(${scriptName}) to component(script) of entity(${id})`);
@@ -491,7 +519,9 @@ mcp.method('entities:components:script:add', (id, scriptName) => {
 mcp.method('entities:script:attach', (id, scriptName) => {
     const entity = api.entities.get(id);
     if (!entity) {
-        return { error: `Entity not found: ${id}. Call list_entities (or resolve_entities) to obtain a valid resource_id.` };
+        return {
+            error: `Entity not found: ${id}. Call list_entities (or resolve_entities) to obtain a valid resource_id.`
+        };
     }
 
     // consolidated flow: ensure the script component exists, then attach
@@ -606,10 +636,14 @@ mcp.method('assets:list', (options: any = {}) => {
 mcp.method('assets:instantiate', async (ids) => {
     const assets = ids.map((id: number) => api.assets.get(id)).filter(Boolean);
     if (!assets.length) {
-        return { error: 'No valid assets found. Call list_assets with type="template" to obtain valid template asset ids.' };
+        return {
+            error: 'No valid assets found. Call list_assets with type="template" to obtain valid template asset ids.'
+        };
     }
     if (assets.some((asset: any) => asset.get('type') !== 'template')) {
-        return { error: 'One or more ids are not template assets. Only template assets can be instantiated; call list_assets with type="template".' };
+        return {
+            error: 'One or more ids are not template assets. Only template assets can be instantiated; call list_assets with type="template".'
+        };
     }
     const entities = await api.assets.instantiateTemplates(assets, api.entities.root);
     log(`Instantiated assets: ${ids.join(', ')}`);
@@ -642,7 +676,9 @@ mcp.method('assets:data:set', (id, props) => {
 mcp.method('assets:script:text:set', async (id, text) => {
     const asset = api.assets.get(id);
     if (!asset) {
-        return { error: `Asset not found: ${id}. Call list_assets with type="script" to obtain a valid script asset id.` };
+        return {
+            error: `Asset not found: ${id}. Call list_assets with type="script" to obtain a valid script asset id.`
+        };
     }
 
     const form = new FormData();
@@ -664,7 +700,9 @@ mcp.method('assets:script:text:set', async (id, text) => {
 mcp.method('assets:script:parse', async (id) => {
     const asset = api.assets.get(id);
     if (!asset) {
-        return { error: `Asset not found: ${id}. Call list_assets with type="script" to obtain a valid script asset id.` };
+        return {
+            error: `Asset not found: ${id}. Call list_assets with type="script" to obtain a valid script asset id.`
+        };
     }
 
     // FIXME: hacky way to get the parsed script data. Expose a proper API for this.

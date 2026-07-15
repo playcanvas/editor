@@ -50,10 +50,7 @@ editor.once('load', () => {
 
     const updateHint = () => {
         const last = editor.call('launch:window');
-        hint.hidden = !(
-            editor.call('mcp:status') === 'connected' &&
-            last && !last.window.closed && !last.mcp
-        );
+        hint.hidden = !(editor.call('mcp:status') === 'connected' && last && !last.window.closed && !last.mcp);
     };
 
     const render = (state: string) => {

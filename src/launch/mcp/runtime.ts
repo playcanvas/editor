@@ -60,65 +60,71 @@ window.addEventListener('unhandledrejection', (e) => {
 
 mcp.method('runtime:ping', () => ({ data: 'pong' }));
 
-mcp.method('runtime:capture', () => new Promise<{ data?: any; error?: string; meta?: Record<string, any> }>((resolve) => {
-    const app = editor.call('viewport:app');
-    if (!app || !app.graphicsDevice) {
-        resolve({ error: 'Runtime app not ready yet. Wait for the scene to finish loading (poll read_runtime_logs) and retry.' });
-        return;
-    }
-    const device = app.graphicsDevice;
-    const gl = device.gl;
-    if (!gl) {
-        resolve({ error: 'WebGL context not found on the runtime app.' });
-        return;
-    }
-
-    // read the backbuffer at the end of a frame, while it is still valid
-    const onEnd = () => {
-        app.off('frameend', onEnd);
-        try {
-            const width = device.width;
-            const height = device.height;
-
-            const pixels = new Uint8Array(width * height * 4);
-            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-            gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-
-            // flip vertically (WebGL reads bottom-to-top)
-            const flipped = new Uint8Array(width * height * 4);
-            const rowSize = width * 4;
-            for (let y = 0; y < height; y++) {
-                flipped.set(pixels.subarray((height - 1 - y) * rowSize, (height - y) * rowSize), y * rowSize);
+mcp.method(
+    'runtime:capture',
+    () =>
+        new Promise<{ data?: any; error?: string; meta?: Record<string, any> }>((resolve) => {
+            const app = editor.call('viewport:app');
+            if (!app || !app.graphicsDevice) {
+                resolve({
+                    error: 'Runtime app not ready yet. Wait for the scene to finish loading (poll read_runtime_logs) and retry.'
+                });
+                return;
+            }
+            const device = app.graphicsDevice;
+            const gl = device.gl;
+            if (!gl) {
+                resolve({ error: 'WebGL context not found on the runtime app.' });
+                return;
             }
 
-            const srcCanvas = document.createElement('canvas');
-            srcCanvas.width = width;
-            srcCanvas.height = height;
-            const srcCtx = srcCanvas.getContext('2d')!;
-            srcCtx.putImageData(new ImageData(new Uint8ClampedArray(flipped.buffer), width, height), 0, 0);
+            // read the backbuffer at the end of a frame, while it is still valid
+            const onEnd = () => {
+                app.off('frameend', onEnd);
+                try {
+                    const width = device.width;
+                    const height = device.height;
 
-            const maxWidth = 800;
-            let dstWidth = width;
-            let dstHeight = height;
-            if (width > maxWidth) {
-                dstWidth = maxWidth;
-                dstHeight = Math.round(height * (maxWidth / width));
-            }
+                    const pixels = new Uint8Array(width * height * 4);
+                    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                    gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
 
-            const dstCanvas = document.createElement('canvas');
-            dstCanvas.width = dstWidth;
-            dstCanvas.height = dstHeight;
-            dstCanvas.getContext('2d')!.drawImage(srcCanvas, 0, 0, dstWidth, dstHeight);
+                    // flip vertically (WebGL reads bottom-to-top)
+                    const flipped = new Uint8Array(width * height * 4);
+                    const rowSize = width * 4;
+                    for (let y = 0; y < height; y++) {
+                        flipped.set(pixels.subarray((height - 1 - y) * rowSize, (height - y) * rowSize), y * rowSize);
+                    }
 
-            const base64 = dstCanvas.toDataURL('image/webp', 0.8).split(',')[1];
-            log(`Captured runtime screenshot (${dstWidth}x${dstHeight})`);
-            resolve({ data: base64, meta: { mimeType: 'image/webp', width: dstWidth, height: dstHeight } });
-        } catch (e: any) {
-            resolve({ error: `Failed to capture runtime: ${e.message}` });
-        }
-    };
-    app.on('frameend', onEnd);
-}));
+                    const srcCanvas = document.createElement('canvas');
+                    srcCanvas.width = width;
+                    srcCanvas.height = height;
+                    const srcCtx = srcCanvas.getContext('2d')!;
+                    srcCtx.putImageData(new ImageData(new Uint8ClampedArray(flipped.buffer), width, height), 0, 0);
+
+                    const maxWidth = 800;
+                    let dstWidth = width;
+                    let dstHeight = height;
+                    if (width > maxWidth) {
+                        dstWidth = maxWidth;
+                        dstHeight = Math.round(height * (maxWidth / width));
+                    }
+
+                    const dstCanvas = document.createElement('canvas');
+                    dstCanvas.width = dstWidth;
+                    dstCanvas.height = dstHeight;
+                    dstCanvas.getContext('2d')!.drawImage(srcCanvas, 0, 0, dstWidth, dstHeight);
+
+                    const base64 = dstCanvas.toDataURL('image/webp', 0.8).split(',')[1];
+                    log(`Captured runtime screenshot (${dstWidth}x${dstHeight})`);
+                    resolve({ data: base64, meta: { mimeType: 'image/webp', width: dstWidth, height: dstHeight } });
+                } catch (e: any) {
+                    resolve({ error: `Failed to capture runtime: ${e.message}` });
+                }
+            };
+            app.on('frameend', onEnd);
+        })
+);
 
 mcp.method('runtime:logs', (options: any = {}) => {
     const order: Record<string, number> = { debug: 0, log: 1, info: 1, warn: 2, error: 3 };
@@ -206,7 +212,9 @@ const entityRuntimeState = (e: any) => {
 mcp.method('runtime:state', (options: any = {}) => {
     const app = editor.call('viewport:app');
     if (!app || !app.root) {
-        return { error: 'Runtime app not ready yet. Wait for the scene to finish loading (poll read_runtime_logs) and retry.' };
+        return {
+            error: 'Runtime app not ready yet. Wait for the scene to finish loading (poll read_runtime_logs) and retry.'
+        };
     }
 
     let entities;
@@ -214,7 +222,9 @@ mcp.method('runtime:state', (options: any = {}) => {
         entities = options.ids.map((id: string) => app.root.findByGuid(id)).filter(Boolean);
     } else if (options.name) {
         const q = String(options.name).toLowerCase();
-        entities = app.root.find((n: any) => typeof n.getGuid === 'function' && n.name && n.name.toLowerCase().includes(q));
+        entities = app.root.find(
+            (n: any) => typeof n.getGuid === 'function' && n.name && n.name.toLowerCase().includes(q)
+        );
     } else {
         // no filter: return every entity (paginated). Excludes the root.
         entities = app.root.find((n: any) => typeof n.getGuid === 'function' && n !== app.root);
@@ -294,7 +304,13 @@ const getCanvas = (): HTMLCanvasElement | null => {
 };
 
 const dispatchKey = (kind: string, info: { key: string; code: string; keyCode: number }) => {
-    const e = new KeyboardEvent(kind, { key: info.key, code: info.code, bubbles: true, cancelable: true, view: window });
+    const e = new KeyboardEvent(kind, {
+        key: info.key,
+        code: info.code,
+        bubbles: true,
+        cancelable: true,
+        view: window
+    });
 
     // keyCode/which are read-only and not settable via the constructor, but
     // PlayCanvas' keyboard handler reads them — so back them with getters
@@ -309,20 +325,45 @@ const dispatchMouse = (kind: string, canvas: HTMLCanvasElement, x?: number, y?: 
     const clientX = rect.left + (x || 0);
     const clientY = rect.top + (y || 0);
     const buttons = kind === 'mousedown' ? (button === 2 ? 2 : button === 1 ? 4 : 1) : 0;
-    canvas.dispatchEvent(new MouseEvent(kind, {
-        clientX, clientY, button: button || 0, buttons, bubbles: true, cancelable: true, view: window
-    }));
+    canvas.dispatchEvent(
+        new MouseEvent(kind, {
+            clientX,
+            clientY,
+            button: button || 0,
+            buttons,
+            bubbles: true,
+            cancelable: true,
+            view: window
+        })
+    );
 };
 
 const dispatchTouch = (kind: string, canvas: HTMLCanvasElement, x?: number, y?: number, id?: number) => {
     const rect = canvas.getBoundingClientRect();
     const clientX = rect.left + (x || 0);
     const clientY = rect.top + (y || 0);
-    const touch = new Touch({ identifier: id || 0, target: canvas, clientX, clientY, pageX: clientX, pageY: clientY, radiusX: 1, radiusY: 1, force: 1 });
+    const touch = new Touch({
+        identifier: id || 0,
+        target: canvas,
+        clientX,
+        clientY,
+        pageX: clientX,
+        pageY: clientY,
+        radiusX: 1,
+        radiusY: 1,
+        force: 1
+    });
     const active = kind === 'touchend' ? [] : [touch];
-    canvas.dispatchEvent(new TouchEvent(kind, {
-        touches: active, targetTouches: active, changedTouches: [touch], bubbles: true, cancelable: true, view: window
-    }));
+    canvas.dispatchEvent(
+        new TouchEvent(kind, {
+            touches: active,
+            targetTouches: active,
+            changedTouches: [touch],
+            bubbles: true,
+            cancelable: true,
+            view: window
+        })
+    );
 };
 
 mcp.method('runtime:input', async (payload: any = {}) => {
@@ -332,7 +373,9 @@ mcp.method('runtime:input', async (payload: any = {}) => {
     }
     const canvas = getCanvas();
     if (!canvas) {
-        return { error: 'Runtime canvas not found. Ensure launch_start succeeded and the scene has loaded, then retry.' };
+        return {
+            error: 'Runtime canvas not found. Ensure launch_start succeeded and the scene has loaded, then retry.'
+        };
     }
     const betweenMs = Number.isFinite(payload.betweenMs) ? payload.betweenMs : 0;
 
