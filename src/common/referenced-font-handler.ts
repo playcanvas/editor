@@ -42,9 +42,18 @@ class ReferencedFontHandler {
             if (errored || --remaining > 0) {
                 return;
             }
+            const textures = texAssets.map((a: any) => a.resource);
+            // MSDF atlases hold linear signed-distance data, not colour; texture assets default to srgb,
+            // which corrupts the median distance reconstruction (broken corners/thin strokes). force linear,
+            // matching the stock font handler (which loads its atlas as a raw, non-srgb texture).
+            textures.forEach((t: any) => {
+                if (t) {
+                    t.srgb = false;
+                }
+            });
             callback(null, {
                 data: jsonAsset.resource, // v3 descriptor (font-tools shape); pc.Font consumes v3 directly
-                textures: texAssets.map((a: any) => a.resource)
+                textures
             });
         };
         toLoad.forEach((a: any) => {
