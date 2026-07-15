@@ -52,6 +52,10 @@ editor.once('load', () => {
 
     const launchOptions = {};
 
+    // last manually launched window and whether its URL carried mcp_port, so the
+    // MCP popover can hint that an already-open app needs a relaunch to connect
+    let lastLaunch: { window: Window; mcp: boolean } | null = null;
+
     const launchApp = (
         deviceOptions: {
             webgpu?: boolean;
@@ -93,6 +97,13 @@ editor.once('load', () => {
             query.push('ministats=true');
         }
 
+        // if the editor is connected to an MCP server, hand the port to the launch
+        // page so it connects back as the runtime peer
+        const withMcp = editor.call('mcp:status') === 'connected';
+        if (withMcp) {
+            query.push(`mcp_port=${editor.call('mcp:port')}`);
+        }
+
         const params = new URLSearchParams(location.search);
         if (params.has('use_local_engine')) {
             query.push(`use_local_engine=${params.get('use_local_engine')}`);
@@ -120,8 +131,11 @@ editor.once('load', () => {
         if (launcher) {
             launcher.opener = null;
             launcher.location = url;
+            lastLaunch = { window: launcher, mcp: withMcp };
         }
     };
+
+    editor.method('launch:window', () => lastLaunch);
 
     buttonLaunch.on('click', (e: MouseEvent) => launchApp({}, e.shiftKey));
 
