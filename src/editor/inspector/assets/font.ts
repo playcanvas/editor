@@ -390,6 +390,8 @@ class FontAssetInspector extends Container {
 
     _characterRangeButton: Button;
 
+    _propertiesPanel: Panel;
+
     _propertiesAttributes: AttributesInspector;
 
     _sourceFilesPanel: Panel;
@@ -676,6 +678,9 @@ class FontAssetInspector extends Container {
         // existing (not their current value) so clearing a picker doesn't hide the whole panel
         this._sourceFilesPanel.hidden =
             assets.length > 1 || (!assets[0].has('data.jsonAsset') && !assets[0].has('data.textureAssets'));
+        // referenced fonts derive intensity from the json descriptor, not font.data.intensity — the
+        // slider is inert for them, so hide the PROPERTIES panel (keep it for server-pipeline fonts)
+        this._propertiesPanel.hidden = assets[0].has('data.jsonAsset');
 
         const charactersField = this._fontAttributes.getField('characters');
         charactersField.renderChanges = false;
