@@ -710,7 +710,9 @@ mcp.method('assets:file:text:get', async (id) => {
 
     const type = asset.get('type');
     if (!['css', 'html', 'json', 'script', 'shader', 'text'].includes(type)) {
-        return { error: `Asset ${id} is type "${type}"; only text-based assets (css, html, json, script, shader, text) can be read as text.` };
+        return {
+            error: `Asset ${id} is type "${type}"; only text-based assets (css, html, json, script, shader, text) can be read as text.`
+        };
     }
 
     const url = asset.get('file.url');
