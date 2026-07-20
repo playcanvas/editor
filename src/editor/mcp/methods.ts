@@ -1,3 +1,5 @@
+import { Vec3 } from 'playcanvas';
+
 import { config } from '@/editor/config';
 
 import { mcp } from './connection';
@@ -697,6 +699,34 @@ mcp.method('assets:script:text:set', async (id, text) => {
         return { error: e.message };
     }
 });
+mcp.method('assets:file:text:get', async (id) => {
+    const asset = api.assets.get(id);
+    if (!asset) {
+        return { error: `Asset not found: ${id}. Call list_assets to obtain a valid asset id.` };
+    }
+
+    const type = asset.get('type');
+    if (!['css', 'html', 'json', 'script', 'shader', 'text'].includes(type)) {
+        return { error: `Asset ${id} is type "${type}"; only text-based assets (css, html, json, script, shader, text) can be read as text.` };
+    }
+
+    const url = asset.get('file.url');
+    if (!url) {
+        return { error: `Asset ${id} has no source file.` };
+    }
+
+    try {
+        const res = await fetch(url);
+        if (!res.ok) {
+            return { error: `Failed to fetch asset text: ${res.status} ${res.statusText}` };
+        }
+        const text = await res.text();
+        log(`Got asset(${id}) text`);
+        return { data: { id, type, filename: asset.get('file.filename'), text } };
+    } catch (e: any) {
+        return { error: e.message };
+    }
+});
 mcp.method('assets:script:parse', async (id) => {
     const asset = api.assets.get(id);
     if (!asset) {
@@ -734,6 +764,151 @@ mcp.method('scene:settings:query', () => {
     const scene = api.settings.scene;
     log('Queried scene settings');
     return { data: scene.json() };
+});
+
+// project settings
+mcp.method('project:settings:modify', (settings) => {
+    const project = editor.call('settings:project');
+    iterateObject(settings, (path, value) => {
+        project.set(path, value);
+    });
+    log('Modified project settings');
+
+    // return the resulting settings snapshot inline
+    return { data: project.json() };
+});
+mcp.method('project:settings:query', () => {
+    const project = editor.call('settings:project');
+    log('Queried project settings');
+    return { data: project.json() };
+});
+
+// scene management
+mcp.method('scenes:list', async () => {
+    const data = await new Promise((resolve) => {
+        editor.call('scenes:list', (result: unknown) => resolve(result));
+    });
+    log('Listed scenes');
+    return { data };
+});
+mcp.method('scenes:get', async (id) => {
+    const [err, data] = await new Promise<any[]>((resolve) => {
+        editor.call('scenes:get', String(id), (e: unknown, d: unknown) => resolve([e, d]));
+    });
+    if (err) {
+        return { error: `Scene not found: ${id}. Call list_scenes to obtain a valid scene id.` };
+    }
+    log(`Got scene(${id})`);
+    return { data };
+});
+mcp.method('scenes:new', async (name) => {
+    const data = await new Promise((resolve) => {
+        editor.call('scenes:new', name, (d: unknown) => resolve(d));
+    });
+    log(`Created scene: ${name ?? '(unnamed)'}`);
+    return { data };
+});
+mcp.method('scenes:duplicate', async (id, name) => {
+    const data = await new Promise((resolve) => {
+        editor.call('scenes:duplicate', String(id), name, (d: unknown) => resolve(d));
+    });
+    log(`Duplicated scene(${id})`);
+    return { data };
+});
+mcp.method('scenes:delete', async (id) => {
+    await new Promise<void>((resolve) => {
+        editor.call('scenes:delete', String(id), () => resolve());
+    });
+    log(`Deleted scene(${id})`);
+    return { data: { deleted: id } };
+});
+mcp.method('scene:load', (uniqueId) => {
+    // scene:load defers until realtime is authenticated, so this returns before
+    // the switch completes; the editor loads the scene asynchronously.
+    editor.call('scene:load', uniqueId);
+    log(`Loading scene(${uniqueId})`);
+    return { data: { loading: uniqueId } };
+});
+
+// selection
+mcp.method('selection:get', () => {
+    const items = api.selection.items || [];
+    const type = editor.call('selector:type');
+    const ids = items.map((it: any) => (type === 'asset' ? it.get('id') : it.get('resource_id')));
+    log('Queried selection');
+    return { data: { type, ids } };
+});
+mcp.method('selection:set', (type, ids) => {
+    const items = (ids || [])
+        .map((id: any) => (type === 'asset' ? api.assets.get(id) : api.entities.get(id)))
+        .filter(Boolean);
+    api.selection.set(items);
+    log(`Set ${type} selection (${items.length})`);
+    return { data: { type, ids: items.map((it: any) => (type === 'asset' ? it.get('id') : it.get('resource_id'))) } };
+});
+mcp.method('selection:clear', () => {
+    api.selection.clear();
+    log('Cleared selection');
+    return { data: { type: null, ids: [] } };
+});
+
+// history (undo/redo)
+mcp.method('history:undo', () => {
+    const undone = api.history.canUndo;
+    if (undone) {
+        api.history.undo();
+    }
+    log(undone ? 'Undo' : 'Undo (nothing to undo)');
+    return { data: { undone, canUndo: api.history.canUndo, canRedo: api.history.canRedo } };
+});
+mcp.method('history:redo', () => {
+    const redone = api.history.canRedo;
+    if (redone) {
+        api.history.redo();
+    }
+    log(redone ? 'Redo' : 'Redo (nothing to redo)');
+    return { data: { redone, canUndo: api.history.canUndo, canRedo: api.history.canRedo } };
+});
+
+// transform gizmo
+mcp.method('gizmo:state:set', (state) => {
+    const s = state || {};
+    if (s.mode !== undefined) {
+        editor.call('gizmo:type', s.mode);
+    }
+    if (s.space !== undefined) {
+        editor.call('gizmo:coordSystem', s.space);
+    }
+    if (s.snap !== undefined) {
+        editor.call('gizmo:snap', s.snap);
+    }
+    log('Set gizmo state');
+    return { data: { mode: editor.call('gizmo:type'), space: editor.call('gizmo:coordSystem') } };
+});
+
+// camera framing
+mcp.method('camera:focus:point', (point, distance) => {
+    if (!Array.isArray(point) || point.length !== 3) {
+        return { error: 'point must be an array [x, y, z].' };
+    }
+    editor.call('camera:focus', new Vec3(point[0], point[1], point[2]), distance);
+    log(`Focused camera on [${point.join(', ')}] at distance ${distance}`);
+    return { data: { point, distance } };
+});
+
+// entity search
+mcp.method('entities:search', (query, limit) => {
+    let results = editor.call('entities:fuzzy-search', query) || [];
+    if (typeof limit === 'number') {
+        results = results.slice(0, limit);
+    }
+    log(`Searched entities for "${query}" (${results.length})`);
+    return { data: results.map(entitySummary) };
+});
+mcp.method('entities:byScript', (script) => {
+    const results = editor.call('entities:list:byScript', script) || [];
+    log(`Listed entities by script "${script}" (${results.length})`);
+    return { data: results.map(entitySummary) };
 });
 
 // store - playcanvas
