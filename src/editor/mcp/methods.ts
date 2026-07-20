@@ -726,8 +726,8 @@ mcp.method('assets:file:text:get', async (id) => {
         const text = await res.text();
         log(`Got asset(${id}) text`);
         return { data: { id, type, filename: asset.get('file.filename'), text } };
-    } catch (e: any) {
-        return { error: e.message };
+    } catch (e) {
+        return { error: e instanceof Error ? e.message : String(e) };
     }
 });
 mcp.method('assets:script:parse', async (id) => {
@@ -795,7 +795,7 @@ mcp.method('scenes:list', async () => {
     return { data };
 });
 mcp.method('scenes:get', async (id) => {
-    const [err, data] = await new Promise<any[]>((resolve) => {
+    const [err, data] = await new Promise<unknown[]>((resolve) => {
         editor.call('scenes:get', String(id), (e: unknown, d: unknown) => resolve([e, d]));
     });
     if (err) {
@@ -837,17 +837,17 @@ mcp.method('scene:load', (uniqueId) => {
 mcp.method('selection:get', () => {
     const items = api.selection.items || [];
     const type = editor.call('selector:type');
-    const ids = items.map((it: any) => (type === 'asset' ? it.get('id') : it.get('resource_id')));
+    const ids = items.map((it) => (type === 'asset' ? it.get('id') : it.get('resource_id')));
     log('Queried selection');
     return { data: { type, ids } };
 });
 mcp.method('selection:set', (type, ids) => {
     const items = (ids || [])
-        .map((id: any) => (type === 'asset' ? api.assets.get(id) : api.entities.get(id)))
+        .map((id) => (type === 'asset' ? api.assets.get(id) : api.entities.get(id)))
         .filter(Boolean);
     api.selection.set(items);
     log(`Set ${type} selection (${items.length})`);
-    return { data: { type, ids: items.map((it: any) => (type === 'asset' ? it.get('id') : it.get('resource_id'))) } };
+    return { data: { type, ids: items.map((it) => (type === 'asset' ? it.get('id') : it.get('resource_id'))) } };
 });
 mcp.method('selection:clear', () => {
     api.selection.clear();
