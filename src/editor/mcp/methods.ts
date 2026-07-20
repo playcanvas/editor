@@ -6,6 +6,9 @@ import { mcp } from './connection';
 
 const api = editor.api.globals;
 
+// reused scratch vector — camera:focus copies it synchronously, no listener retains it
+const tmpVec3 = new Vec3();
+
 const log = (msg: string) => console.log(`[MCP] ${msg}`);
 
 /**
@@ -891,7 +894,7 @@ mcp.method('camera:focus:point', (point, distance) => {
     if (!Array.isArray(point) || point.length !== 3) {
         return { error: 'point must be an array [x, y, z].' };
     }
-    editor.call('camera:focus', new Vec3(point[0], point[1], point[2]), distance);
+    editor.call('camera:focus', tmpVec3.set(point[0], point[1], point[2]), distance);
     log(`Focused camera on [${point.join(', ')}] at distance ${distance}`);
     return { data: { point, distance } };
 });
