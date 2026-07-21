@@ -69,8 +69,12 @@ editor.once('load', () => {
 
     toggle.on('click', () => {
         if (editor.call('mcp:status') === 'disconnected') {
-            editor.call('mcp:connect', parseInt(portField.value, 10) || DEFAULT_PORT);
+            const port = parseInt(portField.value, 10) || DEFAULT_PORT;
+            editor.call('localStorage:set', 'editor:mcp:connected', true);
+            editor.call('localStorage:set', 'editor:mcp:port', port);
+            editor.call('mcp:connect', port);
         } else {
+            editor.call('localStorage:set', 'editor:mcp:connected', false);
             editor.call('mcp:disconnect');
         }
     });
@@ -105,4 +109,12 @@ editor.once('load', () => {
         tooltip.attach(button.dom);
         window.removeEventListener('mousedown', onOutside);
     });
+
+    // reconnect automatically if the user was connected before a page reload
+    // (branch switch / checkpoint restore reload the editor and drop the socket)
+    if (editor.call('localStorage:get', 'editor:mcp:connected')) {
+        const port = editor.call('localStorage:get', 'editor:mcp:port') || DEFAULT_PORT;
+        portField.value = String(port);
+        editor.call('mcp:connect', port);
+    }
 });
