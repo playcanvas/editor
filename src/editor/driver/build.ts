@@ -3,6 +3,8 @@ import { config } from '@/editor/config';
 import { driver } from './driver';
 import { api, log } from './shared';
 
+const BUILD_PAGE_SIZE = 500;
+
 type Scene = { id: number | string };
 type Filters = { type?: string; status?: string; format?: string; branch?: string; actor?: string };
 type Options = {
@@ -86,9 +88,18 @@ driver.method('builds:list', async (options: { limit?: number; cursor?: string; 
 });
 
 driver.method('builds:get', async (id) => {
-    const data = await api.rest.projects.projectBuilds(0, 0).promisify();
-    const build = data.result.find((item) => Number(item.id) === Number(id));
-    return build ? { data: build } : { error: `Build not found in the designated project: ${id}.` };
+    let offset = 0;
+    while (true) {
+        const data = await api.rest.projects.projectBuilds(BUILD_PAGE_SIZE, offset).promisify();
+        const build = data.result.find((item) => Number(item.id) === Number(id));
+        if (build) {
+            return { data: build };
+        }
+        offset += data.result.length;
+        if (!data.result.length || offset >= data.pagination.total) {
+            return { error: `Build not found in the designated project: ${id}.` };
+        }
+    }
 });
 
 driver.method('builds:create', async (options) => {

@@ -6,9 +6,10 @@ import { api, log } from './shared';
 const mappings = (assetId: number, prev: any, next: any) => {
     const before = animStateKeys(prev);
     const after = animStateKeys(next);
-    const changes = Array.from(before).flatMap(([id, key]) =>
-        after.has(id) && after.get(id) !== key ? [[key, after.get(id)]] : []
-    );
+    const changes = Array.from(before).flatMap(([id, key]) => {
+        const next = after.get(id);
+        return next !== key ? [{ key, next }] : [];
+    });
     if (!changes.length) {
         return [];
     }
@@ -18,8 +19,13 @@ const mappings = (assetId: number, prev: any, next: any) => {
         }
         const oldMap = structuredClone(entity.get('components.anim.animationAssets') || {});
         const newMap = structuredClone(oldMap);
-        changes.forEach(([key]) => delete newMap[key]);
-        changes.forEach(([key, newKey]) => (newMap[newKey] = oldMap[key] ?? { asset: null }));
+        changes.forEach(({ key, next }) => {
+            const value = oldMap[key] ?? { asset: null };
+            delete newMap[key];
+            if (next) {
+                newMap[next] = value;
+            }
+        });
         return [{ id: entity.get('resource_id'), before: oldMap, after: newMap }];
     });
 };
