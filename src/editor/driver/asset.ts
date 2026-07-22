@@ -210,12 +210,19 @@ const setText = async (id: number, text: string) => {
     return { data };
 };
 
-const instantiateTemplates = async ({ assetIds, parentId, index }: any) => {
+const instantiateTemplates = async ({ assetIds, parentId, index, ignoreMissing }: any) => {
     const denied = writeError('instantiate templates');
     if (denied) {
         return denied;
     }
-    const assets = assetIds.map(getAsset);
+    const assets = ignoreMissing
+        ? assetIds.map((id: number) => api.assets.get(id)).filter(Boolean)
+        : assetIds.map(getAsset);
+    if (!assets.length) {
+        return {
+            error: 'No valid assets found. Call list_assets with type="template" to obtain valid template asset ids.'
+        };
+    }
     if (assets.some((asset: any) => asset.get('type') !== 'template')) {
         return { error: 'One or more ids are not template assets.' };
     }
@@ -256,7 +263,9 @@ driver.method('assets:create', async (assets) => {
     );
     const succeeded = results.flatMap((item) => ('result' in item ? [item.result] : []));
     const failed = results.flatMap((item) => ('error' in item ? [item.error] : []));
-    return { data: { succeeded, failed }, meta: { partial: failed.length > 0 } };
+    return failed.length
+        ? { error: failed[0].message, meta: { succeeded, failed, partial: true } }
+        : { data: succeeded.map(({ asset }) => asset) };
 });
 driver.method('assets:upload', async (items) => {
     const denied = writeError('upload assets');
@@ -407,7 +416,10 @@ driver.method('assets:delete', async (ids) => {
     if (denied) {
         return denied;
     }
-    const assets = ids.map(getAsset);
+    const assets = ids.map((id: number) => api.assets.get(id)).filter(Boolean);
+    if (!assets.length) {
+        return { error: 'No valid assets to delete. Call list_assets to obtain valid asset ids.' };
+    }
     await api.assets.delete(assets);
     log(`Deleted assets: ${ids.join(', ')}`);
     return { data: { deleted: assets.length } };
@@ -441,16 +453,18 @@ driver.method('assets:list', (options: any = {}) => {
     return { data: page.map(assetSummary), meta };
 });
 driver.method('templates:instantiate', instantiateTemplates);
-driver.method('assets:instantiate', (ids) => instantiateTemplates({ assetIds: ids }));
-driver.method('assets:property:set', (id, prop, value) => {
-    return modifyAssets([{ id, path: `data.${prop}`, value }]);
+driver.method('assets:instantiate', (ids) => instantiateTemplates({ assetIds: ids, ignoreMissing: true }));
+driver.method('assets:property:set', async (id, prop, value) => {
+    const result = await modifyAssets([{ id, path: `data.${prop}`, value }]);
+    return 'error' in result ? result : { data: { id, [prop]: value } };
 });
-driver.method('assets:data:set', (id, props) => {
+driver.method('assets:data:set', async (id, props) => {
     const keys = Object.keys(props || {});
     if (!keys.length) {
         return { error: 'No properties provided to set.' };
     }
-    return modifyAssets(keys.map((key) => ({ id, path: `data.${key}`, value: props[key] })));
+    const result = await modifyAssets(keys.map((key) => ({ id, path: `data.${key}`, value: props[key] })));
+    return 'error' in result ? result : { data: result.data[0] };
 });
 driver.method('assets:text:set', setText);
 driver.method('assets:script:text:set', setText);
@@ -559,7 +573,8 @@ driver.method('templates:revert', async ({ entityId, overrides }: any) => {
         return { error: `Entity not found: ${entityId}.` };
     }
     if (overrides?.length) {
-        overrides.forEach((override: any) => editor.call('templates:revertOverride', override, [entity.observer]));
+        const entities = editor.call('entities:raw');
+        overrides.forEach((override: any) => editor.call('templates:revertOverride', override, entities));
     } else {
         const reverted = await new Promise((resolve) => {
             const accepted = editor.call('templates:revertAll', entity.observer, resolve);

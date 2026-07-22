@@ -107,36 +107,42 @@ driver.method('scenes:delete', async (id) => {
     log(`Deleted scene(${id})`);
     return { data: { deleted: id } };
 });
-driver.method('scene:load', async (uniqueId) => {
+driver.method('scene:load', (uniqueId, options: any = {}) => {
+    if (!options.wait) {
+        editor.call('scene:load', uniqueId);
+        log(`Loading scene(${uniqueId})`);
+        return { data: { loading: uniqueId } };
+    }
     if (String(config.scene.uniqueId) === String(uniqueId)) {
         return { data: { id: config.scene.id, uniqueId: config.scene.uniqueId } };
     }
-    const [err, data] = await scenes();
-    if (err) {
-        return { error: String(err) };
-    }
-    if (!Array.isArray(data)) {
-        return { error: 'Could not list scenes in the designated project.' };
-    }
-    const scene = data.find((item) => String(item.uniqueId) === String(uniqueId));
-    if (!scene) {
-        return { error: `Scene not found in the designated project: ${uniqueId}.` };
-    }
-    const loaded = new Promise<{ id?: number | string; uniqueId?: number | string; error?: string }>((resolve) => {
-        const event = editor.on('scene:load', (id: number | string, loadedId: number | string) => {
-            if (String(loadedId) === String(uniqueId)) {
-                clearTimeout(timer);
+    return scenes().then(async ([err, data]) => {
+        if (err) {
+            return { error: String(err) };
+        }
+        if (!Array.isArray(data)) {
+            return { error: 'Could not list scenes in the designated project.' };
+        }
+        const scene = data.find((item) => String(item.uniqueId) === String(uniqueId));
+        if (!scene) {
+            return { error: `Scene not found in the designated project: ${uniqueId}.` };
+        }
+        const loaded = new Promise<{ id?: number | string; uniqueId?: number | string; error?: string }>((resolve) => {
+            const event = editor.on('scene:load', (id: number | string, loadedId: number | string) => {
+                if (String(loadedId) === String(uniqueId)) {
+                    clearTimeout(timer);
+                    event.unbind();
+                    resolve({ id, uniqueId: loadedId });
+                }
+            });
+            const timer = setTimeout(() => {
                 event.unbind();
-                resolve({ id, uniqueId: loadedId });
-            }
+                resolve({ error: `Timed out waiting for scene ${uniqueId} to load.` });
+            }, LOAD_TIMEOUT);
         });
-        const timer = setTimeout(() => {
-            event.unbind();
-            resolve({ error: `Timed out waiting for scene ${uniqueId} to load.` });
-        }, LOAD_TIMEOUT);
+        editor.call('scene:load', uniqueId);
+        log(`Loading scene(${uniqueId})`);
+        const result = await loaded;
+        return result.error ? { error: result.error } : { data: result };
     });
-    editor.call('scene:load', uniqueId);
-    log(`Loading scene(${uniqueId})`);
-    const result = await loaded;
-    return result.error ? { error: result.error } : { data: result };
 });

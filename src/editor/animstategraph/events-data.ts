@@ -19,7 +19,7 @@ const id = (value: unknown) => {
     return Number(value);
 };
 
-const validate = (event: Record<string, unknown>, duration?: number) => {
+const validate = (event: Record<string, unknown>) => {
     if (typeof event.name !== 'string' || !event.name.trim()) {
         fail('Event name must be a non-empty string.');
     }
@@ -27,8 +27,8 @@ const validate = (event: Record<string, unknown>, duration?: number) => {
     if (typeof time !== 'number' || !Number.isFinite(time) || time < 0) {
         fail('Event time must be a finite non-negative number.');
     }
-    if (typeof duration === 'number' && Number.isFinite(duration) && Number(time) > duration) {
-        fail(`Event time must not exceed the clip duration (${duration}).`);
+    if (Number(time) > 1) {
+        fail('Event time must be between 0 and 1.');
     }
     if (
         event.number !== undefined &&
@@ -42,7 +42,7 @@ const validate = (event: Record<string, unknown>, duration?: number) => {
     }
 };
 
-const modifyAnimationEvents = (value: EventData = {}, operations: EventOperation[], duration?: number) => {
+const modifyAnimationEvents = (value: EventData = {}, operations: EventOperation[]) => {
     const events = structuredClone(value);
     const ids: number[] = [];
     if (!Array.isArray(operations) || !operations.length) {
@@ -63,7 +63,7 @@ const modifyAnimationEvents = (value: EventData = {}, operations: EventOperation
                 fail(`Event ${eventId} already exists.`);
             }
             const event = { ...op.properties, name: op.name, time: op.time };
-            validate(event, duration);
+            validate(event);
             events[eventId] = event as EventData[string];
             ids.push(eventId);
             return;
@@ -74,7 +74,7 @@ const modifyAnimationEvents = (value: EventData = {}, operations: EventOperation
         }
         if (op.kind === 'event.update') {
             const event = { ...events[eventId], ...op.properties };
-            validate(event, duration);
+            validate(event);
             events[eventId] = event as EventData[string];
         } else if (op.kind === 'event.remove') {
             delete events[eventId];

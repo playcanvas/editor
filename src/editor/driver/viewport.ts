@@ -111,12 +111,12 @@ driver.method('viewport:capture', () => {
     }
 });
 driver.method('viewport:focus', (ids, options: any = {}) => {
-    const entities = ids.map((id: string) => api.entities.get(id));
-    const missing = ids.filter((_id: string, index: number) => !entities[index]);
-    if (missing.length) {
-        return { error: `Entities not found: ${missing.join(', ')}. Call list_entities to obtain valid resource_ids.` };
+    const found = ids.map((id: string) => api.entities.get(id)).filter(Boolean);
+    if (!found.length) {
+        return {
+            error: 'No valid entities found. Call list_entities (or resolve_entities) to obtain valid resource_ids.'
+        };
     }
-    const found = entities.filter(Boolean);
     api.selection.set(found, { history: true });
 
     // get camera and calculate target

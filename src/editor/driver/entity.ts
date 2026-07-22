@@ -193,7 +193,12 @@ driver.method('entities:duplicate', async (ids, options: any = {}) => {
     if (denied) {
         return denied;
     }
-    const entities = getEntities(ids);
+    const entities = ids.map((id: string) => api.entities.get(id)).filter(Boolean);
+    if (!entities.length) {
+        return {
+            error: 'No valid entities to duplicate. Call list_entities (or resolve_entities) to obtain valid resource_ids.'
+        };
+    }
     const res = await api.entities.duplicate(entities, options);
     log(`Duplicated entities: ${res.map((entity: any) => entity.get('resource_id')).join(', ')}`);
     return { data: res.map(entitySummary) };
@@ -226,9 +231,13 @@ driver.method('entities:delete', async (ids) => {
     if (denied) {
         return denied;
     }
-    const entities = getEntities(ids);
-    if (entities.includes(api.entities.root)) {
-        return { error: 'The root entity cannot be deleted.' };
+    const entities = ids
+        .map((id: string) => api.entities.get(id))
+        .filter((entity: any) => entity && entity !== api.entities.root);
+    if (!entities.length) {
+        return {
+            error: 'No deletable entities found (the root entity cannot be deleted). Call list_entities to obtain valid, non-root resource_ids.'
+        };
     }
     await api.entities.delete(entities);
     log(`Deleted entities: ${ids.join(', ')}`);

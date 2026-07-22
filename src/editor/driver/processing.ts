@@ -154,9 +154,9 @@ driver.method('assets:sprite:modify', (id, props: SpriteProps) => {
             !Array.isArray(after.frameKeys) ||
             !Number.isFinite(after.pixelsPerUnit) ||
             after.pixelsPerUnit <= 0 ||
-            ![0, 1].includes(after.renderMode)
+            ![0, 1, 2].includes(after.renderMode)
         ) {
-            return { error: 'Sprite data requires frameKeys, pixelsPerUnit > 0, and renderMode 0 or 1.' };
+            return { error: 'Sprite data requires frameKeys, pixelsPerUnit > 0, and renderMode 0, 1, or 2.' };
         }
         const atlas = api.assets.get(after.textureAtlasAsset);
         if (!atlas || atlas.get('type') !== 'textureatlas') {

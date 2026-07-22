@@ -711,6 +711,16 @@ ${className}.prototype.update = function(dt) {
         expect(data.get('data')).to.equal(JSON.stringify(expected));
     });
 
+    it('returns the created template asset', async function () {
+        api.globals.schema = new api.Schema(schema);
+        api.globals.entities = new api.Entities();
+        const root = api.globals.entities.create({ name: 'root' });
+        const asset = new api.Asset({ id: 1, type: 'template' });
+        sandbox.stub(assets, 'upload').resolves(asset);
+
+        expect(await assets.createTemplate({ entity: root })).to.equal(asset);
+    });
+
     it('template asset remaps entity references', function () {
         const xhr = sandbox.useFakeXMLHttpRequest();
         const requests = [];
