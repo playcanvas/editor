@@ -303,7 +303,6 @@ import './toolbar/toolbar-code-editor';
 // mcp
 import './mcp/connection';
 import './mcp/methods';
-import './mcp/methods-vcs';
 import './mcp/toolbar';
 
 // viewport controls
