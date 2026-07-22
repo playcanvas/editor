@@ -8,6 +8,7 @@ const MAX_FILE_BYTES = 20 * 1024 * 1024;
 const MAX_BASE64_LENGTH = Math.ceil(MAX_FILE_BYTES / 3) * 4;
 const OPERATION_TIMEOUT = 30_000;
 const TEXT_TYPES = ['css', 'html', 'json', 'script', 'shader', 'text'];
+let uploadId = 0;
 const MIME_TYPES: Record<string, string> = {
     css: 'text/css',
     html: 'text/html',
@@ -63,6 +64,15 @@ const uploadAsset = (data: any, overrides: any = {}) => {
     const pipeline = settings.get('editor.pipeline') || {};
     const options = { ...pipeline, pow2: pipeline.texturePot, ...overrides };
     return new Promise<any>((resolve, reject) => {
+        const job = --uploadId;
+        const finish = (asset: any) => {
+            api.assets.defaultUploadCompletedCallback?.(job, asset);
+            resolve(asset);
+        };
+        const fail = (error: unknown) => {
+            api.assets.defaultUploadErrorCallback?.(job, error instanceof Error ? error : new Error(String(error)));
+            reject(error);
+        };
         const payload = {
             ...data,
             parent: data.folder?.observer,
@@ -71,24 +81,26 @@ const uploadAsset = (data: any, overrides: any = {}) => {
         const request = data.id
             ? api.rest.assets.assetUpdate(String(data.id), payload, options)
             : api.rest.assets.assetCreate(payload, options);
+        api.assets.defaultUploadProgressCallback?.(job, 0);
         request
             .on('load', (_status: number, result: { id: number }) => {
                 const id = data.id || result.id;
                 const asset = api.assets.get(id);
                 if (asset) {
-                    resolve(asset);
+                    finish(asset);
                     return;
                 }
                 const timer = setTimeout(() => {
                     event.unbind();
-                    reject(new Error(`Timed out waiting for uploaded asset ${id}.`));
+                    fail(new Error(`Timed out waiting for uploaded asset ${id}.`));
                 }, OPERATION_TIMEOUT);
                 const event = api.assets.once(`add[${id}]`, (value: any) => {
                     clearTimeout(timer);
-                    resolve(value);
+                    finish(value);
                 });
             })
-            .on('error', (_status: number, error: unknown) => reject(error));
+            .on('progress', (progress: number) => api.assets.defaultUploadProgressCallback?.(job, progress))
+            .on('error', (_status: number, error: unknown) => fail(error));
     });
 };
 

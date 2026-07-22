@@ -304,6 +304,16 @@ export type AssetPipelineOptions = {
     meshCompression?: boolean;
 
     /**
+     * The speed of Draco decoding
+     */
+    dracoDecodeSpeed?: number;
+
+    /**
+     * The size of Draco meshes
+     */
+    dracoMeshSize?: number;
+
+    /**
      * Whether to unwrap UVs
      */
     unwrapUv?: boolean;
@@ -496,6 +506,8 @@ const assetUpdateFields = (form: FormData, data: AssetUpdateData, pipeline: Asse
                 form.append('animUseFbxFilename', `${pipeline.animUseFbxFilename}`);
                 form.append('useContainers', `${pipeline.useContainers}`);
                 form.append('meshCompression', `${pipeline.meshCompression}`);
+                form.append('dracoDecodeSpeed', `${pipeline.dracoDecodeSpeed}`);
+                form.append('dracoMeshSize', `${pipeline.dracoMeshSize}`);
                 form.append('unwrapUv', `${pipeline.unwrapUv}`);
                 form.append('unwrapUvTexelsPerMeter', `${pipeline.unwrapUvTexelsPerMeter}`);
                 form.append('importMorphNormals', `${pipeline.importMorphNormals}`);
