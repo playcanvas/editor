@@ -34,6 +34,24 @@ driver.method('scene:settings:query', () => {
     log('Queried scene settings');
     return { data: scene.json() };
 });
+driver.method('scene:name:set', (name) => {
+    const denied = writeError('rename the current scene');
+    if (denied) {
+        return denied;
+    }
+    const scene = api.realtime.scenes.current;
+    if (!scene?.data) {
+        return { error: 'No scene is loaded.' };
+    }
+    editor.call('realtime:scene:op', {
+        p: ['name'],
+        od: scene.data.name || '',
+        oi: name
+    });
+    editor.emit('scene:name', name);
+    log(`Renamed scene(${scene.id}) to: ${name}`);
+    return { data: { id: scene.id, uniqueId: scene.uniqueId, name } };
+});
 
 // scene management
 driver.method('scenes:list', async () => {

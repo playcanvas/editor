@@ -58,6 +58,40 @@ const getAsset = (id: number) => {
     return asset;
 };
 
+const uploadAsset = (data: any, overrides: any = {}) => {
+    const settings = editor.call('settings:projectUser');
+    const pipeline = settings.get('editor.pipeline') || {};
+    const options = { ...pipeline, pow2: pipeline.texturePot, ...overrides };
+    return new Promise<any>((resolve, reject) => {
+        const payload = {
+            ...data,
+            parent: data.folder?.observer,
+            preloadDefault: data.type === 'script' ? true : pipeline.defaultAssetPreload
+        };
+        const request = data.id
+            ? api.rest.assets.assetUpdate(String(data.id), payload, options)
+            : api.rest.assets.assetCreate(payload, options);
+        request
+            .on('load', (_status: number, result: { id: number }) => {
+                const id = data.id || result.id;
+                const asset = api.assets.get(id);
+                if (asset) {
+                    resolve(asset);
+                    return;
+                }
+                const timer = setTimeout(() => {
+                    event.unbind();
+                    reject(new Error(`Timed out waiting for uploaded asset ${id}.`));
+                }, OPERATION_TIMEOUT);
+                const event = api.assets.once(`add[${id}]`, (value: any) => {
+                    clearTimeout(timer);
+                    resolve(value);
+                });
+            })
+            .on('error', (_status: number, error: unknown) => reject(error));
+    });
+};
+
 const prepareCreate = ({ type, options = {} }: any) => {
     const method = CREATE_METHODS[type];
     if (!method) {
@@ -288,8 +322,13 @@ driver.method('assets:upload', async (items) => {
         if (folder && folder.get('type') !== 'folder') {
             throw new Error(`Asset ${item.folder} is not a folder.`);
         }
+        const asset = item.id === undefined ? null : getAsset(item.id);
+        if (asset && asset.get('type') !== item.type) {
+            throw new Error(`Asset ${item.id} is type ${asset.get('type')}, not ${item.type}.`);
+        }
         return {
             data: {
+                id: item.id,
                 name: item.name,
                 type: item.type,
                 folder,
@@ -305,7 +344,7 @@ driver.method('assets:upload', async (items) => {
     const results = await Promise.all(
         prepared.map(({ data, settings }, index) =>
             Promise.resolve()
-                .then(() => api.assets.upload(data, settings))
+                .then(() => uploadAsset(data, settings))
                 .then(
                     (asset) => ({ result: { index, asset: assetSummary(asset) } }),
                     (error) => ({

@@ -22,8 +22,9 @@ const validateEntityPath = (entity: any, path: string) => {
         return `Missing path. Valid top-level paths: ${ENTITY_TOP_LEVEL_PATHS.join(', ')}; or component paths like components.<type>.<prop>. This entity has components: [${componentList}].`;
     }
     if (path.startsWith('components.')) {
-        const component = path.split('.')[1];
-        if (!component) {
+        const parts = path.split('.');
+        const component = parts[1];
+        if (!component || parts.length < 3) {
             return `Incomplete path '${path}'. Component paths look like components.<type>.<prop>, e.g. components.light.intensity. This entity has components: [${componentList}].`;
         }
         if (!entity.get(`components.${component}`)) {
@@ -142,7 +143,8 @@ driver.method('entities:modify', (edits) => {
     if (denied) {
         return denied;
     }
-    const prepared = edits.map(({ id, path, value }: any) => {
+    const prepared = edits.map((edit: any) => {
+        const { id, path, value } = edit;
         const entity = api.entities.get(id);
         if (!entity) {
             throw new Error(`Entity not found: ${id}. Call list_entities to obtain a valid resource_id.`);
@@ -151,7 +153,25 @@ driver.method('entities:modify', (edits) => {
         if (error) {
             throw new Error(error);
         }
-        return { entity, id, path, value, exists: entity.has(path), previous: structuredClone(entity.get(path)) };
+        const op = edit.op || 'set';
+        if (op !== 'set' && op !== 'unset') {
+            throw new Error(`Invalid entity operation: ${op}.`);
+        }
+        if (op === 'set' && !Object.hasOwn(edit, 'value')) {
+            throw new Error(`Missing value for entity ${id} path ${path}.`);
+        }
+        if (op === 'unset' && !path.startsWith('components.')) {
+            throw new Error('Only component properties can be unset; set top-level entity properties explicitly.');
+        }
+        return {
+            entity,
+            id,
+            path,
+            value,
+            op,
+            exists: entity.has(path),
+            previous: structuredClone(entity.get(path))
+        };
     });
     const write = ({ entity, path, value, exists }: any) => {
         const target = entity.latest ? entity.latest() : entity;
@@ -169,10 +189,12 @@ driver.method('entities:modify', (edits) => {
     };
     const modified = new Map();
     for (const item of prepared) {
-        const { entity, id, path, value } = item;
-        write({ entity, path, value, exists: true });
+        const { entity, id, path, value, op } = item;
+        write({ entity, path, value, exists: op === 'set' });
         modified.set(id, entity);
-        log(`Set property(${path}) of entity(${id}) to: ${JSON.stringify(value)}`);
+        log(
+            `${op === 'set' ? 'Set' : 'Unset'} property(${path}) of entity(${id})${op === 'set' ? ` to: ${JSON.stringify(value)}` : ''}`
+        );
     }
     api.history.add({
         name: 'modify entities',
@@ -182,7 +204,15 @@ driver.method('entities:modify', (edits) => {
                 .slice()
                 .reverse()
                 .forEach(({ entity, path, previous, exists }) => write({ entity, path, value: previous, exists })),
-        redo: () => prepared.forEach(({ entity, path, value }) => write({ entity, path, value, exists: true }))
+        redo: () =>
+            prepared.forEach(({ entity, path, value, op }) =>
+                write({
+                    entity,
+                    path,
+                    value,
+                    exists: op === 'set'
+                })
+            )
     });
 
     // return the post-edit summaries of every touched entity
