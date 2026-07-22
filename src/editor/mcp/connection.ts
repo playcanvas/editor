@@ -1,7 +1,10 @@
 import { Events } from '@playcanvas/observer';
 
+import { handleRequest } from './request';
+
 const DEFAULT_PORT = 52000;
 const RETRY_TIMEOUT = 1000;
+const PROTOCOL_VERSION = 1;
 
 type Status = 'connecting' | 'connected' | 'disconnected';
 type Role = 'editor' | 'runtime';
@@ -15,7 +18,7 @@ const error = (msg: unknown) => console.error(`[MCP] ${msg}`);
  * WebSocket client that connects the page to the external MCP server and dispatches its
  * tool requests to registered handlers. Same wire protocol as the former Chrome extension:
  * `{ id, name, args }` in, `{ id, res }` out. On open it announces its role
- * (`{ register: 'editor' | 'runtime' }`) so the server routes edit-time vs runtime
+ * (`{ register, protocolVersion, methods }`) so the server routes edit-time vs runtime
  * methods to the correct peer.
  */
 class MCPConnection extends Events {
@@ -78,18 +81,21 @@ class MCPConnection extends Events {
         this._ws = ws;
 
         ws.onopen = () => {
-            // announce our role so the server can route edit-time vs runtime methods
-            ws.send(JSON.stringify({ register: this._role }));
+            ws.send(JSON.stringify({
+                register: this._role,
+                protocolVersion: PROTOCOL_VERSION,
+                methods: Array.from(this._methods.keys()).sort()
+            }));
             this._setStatus('connected');
             log('Connected');
         };
         ws.onmessage = async (event) => {
-            try {
-                const { id, name, args } = JSON.parse(event.data);
-                const res = await this.call(name, ...args);
-                ws.send(JSON.stringify({ id, res }));
-            } catch (e) {
-                error(e);
+            const msg = await handleRequest(event.data, (name, ...args) => this.call(name, ...args));
+            if ('id' in msg) {
+                ws.send(JSON.stringify(msg));
+            }
+            if ('error' in msg) {
+                error(msg.error);
             }
         };
         ws.onerror = () => {
@@ -161,4 +167,4 @@ editor.method('mcp:status', () => mcp.status);
 editor.method('mcp:port', () => mcp.port);
 mcp.on('status', (status: Status) => editor.emit('mcp:status', status));
 
-export { mcp, DEFAULT_PORT };
+export { mcp, DEFAULT_PORT, PROTOCOL_VERSION };

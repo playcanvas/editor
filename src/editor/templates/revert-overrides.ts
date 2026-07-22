@@ -560,7 +560,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.method('templates:revertAll', (entityObserver: EntityObserver) => {
+    editor.method('templates:revertAll', (entityObserver: EntityObserver, callback?: (entity: EntityObserver) => void) => {
         const templateId = entityObserver.get('template_id');
         const templateEntIds = entityObserver.get('template_ent_ids');
         if (!templateId || !templateEntIds) {
@@ -584,6 +584,7 @@ editor.once('load', () => {
         const childIndex = parent.get('children').indexOf(entityObserver.get('resource_id'));
 
         let prev;
+        let complete = callback;
 
         async function undo() {
             if (!parent.latest()) {
@@ -636,6 +637,8 @@ editor.once('load', () => {
             // use timeout to make sure treeview has been updated
             setTimeout(() => {
                 afterAddInstance(entityObserver, entitiesPanelState, ignorePathValues);
+                complete?.(entityObserver);
+                complete = undefined;
             });
         }
 

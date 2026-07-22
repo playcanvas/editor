@@ -27,6 +27,7 @@ editor.once('load', () => {
             const response = await fetch(`/api/assets/${id}/download?branchId=${config.self.branch.id}`);
             if (!response.ok) {
                 void log.error`texture download failed ${response.status}: ${response.statusText}`;
+                callback(new Error(`Texture download failed (${response.status} ${response.statusText}).`));
                 return;
             }
             const buffer = await response.arrayBuffer();
@@ -46,14 +47,19 @@ editor.once('load', () => {
                             file,
                             parent
                         },
-                        () => {
-                            callback();
+                        (err, data) => {
+                            callback(err, data);
                             workerClient.stop();
                         }
                     );
                 });
 
                 workerClient.with([buffer]).send('convert', config.url.frontend, buffer, sourceFormat, targetFormat);
+            });
+
+            workerClient.on('error', (err) => {
+                callback(err);
+                workerClient.stop();
             });
 
             workerClient.start();

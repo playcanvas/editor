@@ -1,15 +1,17 @@
 const TEXT_TYPES = new Set(['css', 'html', 'json', 'script', 'shader', 'text']);
 
 editor.once('load', () => {
-    const changeName = function (assetId: string | number, assetName: string) {
-        editor.api.globals.rest.assets.assetUpdate(assetId, { name: assetName }).on('error', (err, data) => {
-            console.warn(`rename error: ${err} ${data}`);
-            editor.call('status:error', `Couldn't update the name: ${data}`);
-        });
+    const changeName = function (assetId: string | number, assetName: string, callback?: (error?: unknown) => void) {
+        editor.api.globals.rest.assets.assetUpdate(String(assetId), { name: assetName })
+            .on('load', () => callback?.())
+            .on('error', (err, data) => {
+                console.warn(`rename error: ${err} ${data}`);
+                editor.call('status:error', `Couldn't update the name: ${data}`);
+                callback?.(data || err);
+            });
     };
 
-    editor.method('assets:rename', (asset, newName) => {
-        const oldName = asset.get('name');
+    const validate = (asset: any, newName: string) => {
         const id = asset.get('id');
         const type = asset.get('type');
         const path = asset.get('path');
@@ -31,9 +33,20 @@ editor.once('load', () => {
             });
 
             if (collision) {
-                const message = `An asset named "${newName}" already exists in this folder. Please choose a different name.`;
-                return message;
+                return `An asset named "${newName}" already exists in this folder. Please choose a different name.`;
             }
+        }
+        return null;
+    };
+
+    editor.method('assets:rename:validate', validate);
+
+    editor.method('assets:rename', (asset, newName, callback?: (error?: unknown) => void) => {
+        const oldName = asset.get('name');
+        const id = asset.get('id');
+        const error = validate(asset, newName);
+        if (error) {
+            return error;
         }
 
         editor.api.globals.history?.add({
@@ -51,7 +64,7 @@ editor.once('load', () => {
             }
         });
 
-        changeName(id, newName);
+        changeName(id, newName, callback);
         return null;
     });
 });

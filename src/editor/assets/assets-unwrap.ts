@@ -6,7 +6,12 @@ editor.once('load', () => {
     editor.method('assets:model:unwrap', (asset, args, callback) => {
         const assetId = asset.get('id');
 
-        if (asset.get('type') !== 'model' || !asset.has('file.filename') || activeWorkers.has(assetId)) {
+        if (asset.get('type') !== 'model' || !asset.has('file.filename')) {
+            callback?.(new Error('A model asset with a source file is required.'));
+            return;
+        }
+        if (activeWorkers.has(assetId)) {
+            callback?.(new Error(`Model asset ${assetId} is already being unwrapped.`));
             return;
         }
         if (typeof args === 'function') {
@@ -22,7 +27,7 @@ editor.once('load', () => {
 
         // N.B. Update to use frontend URL
         const workerClient = new WorkerClient(`${config.url.frontend}js/assets-unwrap.worker.js`);
-        activeWorkers.set(assetId, workerClient);
+        activeWorkers.set(assetId, { worker: workerClient, callback });
 
         workerClient.once('ready', () => {
             workerClient.on('start', (data, area) => {
@@ -72,10 +77,15 @@ editor.once('load', () => {
 
     editor.method('assets:model:unwrap:cancel', (asset) => {
         const assetId = asset.get('id');
-        const workerClient = activeWorkers.get(assetId);
+        const active = activeWorkers.get(assetId);
 
-        workerClient?.stop();
+        if (!active) {
+            return false;
+        }
+        active.worker.stop();
         activeWorkers.delete(assetId);
+        active.callback?.(new Error(`Model asset ${assetId} unwrap was cancelled.`));
+        return true;
     });
 
     editor.method('assets:model:area', (asset, callback) => {
