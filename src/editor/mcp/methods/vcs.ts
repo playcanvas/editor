@@ -2,7 +2,7 @@ import { MERGE_STATUS_AUTO_ENDED, MERGE_STATUS_READY_FOR_REVIEW } from '@/core/c
 import { config } from '@/editor/config';
 import { checkpointCreate, diffCreate } from '@/editor/messenger/jobs';
 
-import { mcp } from './connection';
+import { mcp } from '../connection';
 
 const api = editor.api.globals;
 
