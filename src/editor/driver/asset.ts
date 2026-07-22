@@ -1,7 +1,6 @@
 import { config } from '@/editor/config';
 
-import { mcp } from '../connection';
-
+import { driver } from './driver';
 import { api, log, rest, entitySummary, paginate } from './shared';
 
 /**
@@ -22,7 +21,7 @@ const assetSummary = (asset: any) => {
 };
 
 // assets
-mcp.method('assets:create', async (assets) => {
+driver.method('assets:create', async (assets) => {
     try {
         const assetCreationPromises = assets.map(async ({ type, options }: any) => {
             if (options?.folder) {
@@ -84,7 +83,7 @@ mcp.method('assets:create', async (assets) => {
         return { error: errorMessage };
     }
 });
-mcp.method('assets:delete', (ids) => {
+driver.method('assets:delete', (ids) => {
     const assets = ids.map((id: number) => api.assets.get(id)).filter(Boolean);
     if (!assets.length) {
         return { error: 'No valid assets to delete. Call list_assets to obtain valid asset ids.' };
@@ -93,7 +92,7 @@ mcp.method('assets:delete', (ids) => {
     log(`Deleted assets: ${ids.join(', ')}`);
     return { data: { deleted: assets.length } };
 });
-mcp.method('assets:list', (options: any = {}) => {
+driver.method('assets:list', (options: any = {}) => {
     let assets = api.assets.list();
 
     // apply filters
@@ -121,7 +120,7 @@ mcp.method('assets:list', (options: any = {}) => {
     // summary mode: return minimal data
     return { data: page.map(assetSummary), meta };
 });
-mcp.method('assets:instantiate', async (ids) => {
+driver.method('assets:instantiate', async (ids) => {
     const assets = ids.map((id: number) => api.assets.get(id)).filter(Boolean);
     if (!assets.length) {
         return {
@@ -137,7 +136,7 @@ mcp.method('assets:instantiate', async (ids) => {
     log(`Instantiated assets: ${ids.join(', ')}`);
     return { data: entities.map(entitySummary) };
 });
-mcp.method('assets:property:set', (id, prop, value) => {
+driver.method('assets:property:set', (id, prop, value) => {
     const asset = api.assets.get(id);
     if (!asset) {
         return { error: `Asset not found: ${id}. Call list_assets to obtain a valid asset id.` };
@@ -146,7 +145,7 @@ mcp.method('assets:property:set', (id, prop, value) => {
     log(`Set asset(${id}) property(${prop}) to: ${JSON.stringify(value)}`);
     return { data: { id, [prop]: value } };
 });
-mcp.method('assets:data:set', (id, props) => {
+driver.method('assets:data:set', (id, props) => {
     const asset = api.assets.get(id);
     if (!asset) {
         return { error: `Asset not found: ${id}. Call list_assets to obtain a valid asset id.` };
@@ -161,7 +160,7 @@ mcp.method('assets:data:set', (id, props) => {
     log(`Set asset(${id}) properties(${keys.join(', ')})`);
     return { data: assetSummary(asset) };
 });
-mcp.method('assets:script:text:set', async (id, text) => {
+driver.method('assets:script:text:set', async (id, text) => {
     const asset = api.assets.get(id);
     if (!asset) {
         return {
@@ -185,7 +184,7 @@ mcp.method('assets:script:text:set', async (id, text) => {
         return { error: e.message };
     }
 });
-mcp.method('assets:file:text:get', async (id) => {
+driver.method('assets:file:text:get', async (id) => {
     const asset = api.assets.get(id);
     if (!asset) {
         return { error: `Asset not found: ${id}. Call list_assets to obtain a valid asset id.` };
@@ -215,7 +214,7 @@ mcp.method('assets:file:text:get', async (id) => {
         return { error: e instanceof Error ? e.message : String(e) };
     }
 });
-mcp.method('assets:script:parse', async (id) => {
+driver.method('assets:script:parse', async (id) => {
     const asset = api.assets.get(id);
     if (!asset) {
         return {

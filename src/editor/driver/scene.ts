@@ -1,9 +1,8 @@
-import { mcp } from '../connection';
-
+import { driver } from './driver';
 import { api, log, iterateObject } from './shared';
 
 // scene settings
-mcp.method('scene:settings:modify', (settings) => {
+driver.method('scene:settings:modify', (settings) => {
     const scene = api.settings.scene;
     iterateObject(settings, (path, value) => {
         scene.set(path, value);
@@ -13,21 +12,21 @@ mcp.method('scene:settings:modify', (settings) => {
     // return the resulting settings snapshot inline
     return { data: scene.json() };
 });
-mcp.method('scene:settings:query', () => {
+driver.method('scene:settings:query', () => {
     const scene = api.settings.scene;
     log('Queried scene settings');
     return { data: scene.json() };
 });
 
 // scene management
-mcp.method('scenes:list', async () => {
+driver.method('scenes:list', async () => {
     const data = await new Promise((resolve) => {
         editor.call('scenes:list', (result: unknown) => resolve(result));
     });
     log('Listed scenes');
     return { data };
 });
-mcp.method('scenes:get', async (id) => {
+driver.method('scenes:get', async (id) => {
     const [err, data] = await new Promise<unknown[]>((resolve) => {
         editor.call('scenes:get', String(id), (e: unknown, d: unknown) => resolve([e, d]));
     });
@@ -37,28 +36,28 @@ mcp.method('scenes:get', async (id) => {
     log(`Got scene(${id})`);
     return { data };
 });
-mcp.method('scenes:new', async (name) => {
+driver.method('scenes:new', async (name) => {
     const data = await new Promise((resolve) => {
         editor.call('scenes:new', name, (d: unknown) => resolve(d));
     });
     log(`Created scene: ${name ?? '(unnamed)'}`);
     return { data };
 });
-mcp.method('scenes:duplicate', async (id, name) => {
+driver.method('scenes:duplicate', async (id, name) => {
     const data = await new Promise((resolve) => {
         editor.call('scenes:duplicate', String(id), name, (d: unknown) => resolve(d));
     });
     log(`Duplicated scene(${id})`);
     return { data };
 });
-mcp.method('scenes:delete', async (id) => {
+driver.method('scenes:delete', async (id) => {
     await new Promise<void>((resolve) => {
         editor.call('scenes:delete', String(id), () => resolve());
     });
     log(`Deleted scene(${id})`);
     return { data: { deleted: id } };
 });
-mcp.method('scene:load', (uniqueId) => {
+driver.method('scene:load', (uniqueId) => {
     // scene:load defers until realtime is authenticated, so this returns before
     // the switch completes; the editor loads the scene asynchronously.
     editor.call('scene:load', uniqueId);

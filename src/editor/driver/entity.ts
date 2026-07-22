@@ -1,5 +1,4 @@
-import { mcp } from '../connection';
-
+import { driver } from './driver';
 import { api, log, entitySummary, paginate } from './shared';
 
 // top-level entity properties that entities:modify may set directly. Anything
@@ -40,7 +39,7 @@ const validateEntityPath = (entity: any, path: string) => {
 };
 
 // entities
-mcp.method('entities:create', (entityDataArray) => {
+driver.method('entities:create', (entityDataArray) => {
     const entities = [];
     for (const entityData of entityDataArray) {
         if (Object.hasOwn(entityData, 'parent')) {
@@ -68,7 +67,7 @@ mcp.method('entities:create', (entityDataArray) => {
     // ids + hierarchy paths without a follow-up list_entities call
     return { data: entities.map(entitySummary) };
 });
-mcp.method('entities:modify', (edits) => {
+driver.method('entities:modify', (edits) => {
     const modified = new Map();
     for (const { id, path, value } of edits) {
         const entity = api.entities.get(id);
@@ -92,7 +91,7 @@ mcp.method('entities:modify', (edits) => {
     // return the post-edit summaries of every touched entity
     return { data: Array.from(modified.values()).map(entitySummary) };
 });
-mcp.method('entities:duplicate', async (ids, options: any = {}) => {
+driver.method('entities:duplicate', async (ids, options: any = {}) => {
     const entities = ids.map((id: string) => api.entities.get(id)).filter(Boolean);
     if (!entities.length) {
         return {
@@ -103,7 +102,7 @@ mcp.method('entities:duplicate', async (ids, options: any = {}) => {
     log(`Duplicated entities: ${res.map((entity: any) => entity.get('resource_id')).join(', ')}`);
     return { data: res.map(entitySummary) };
 });
-mcp.method('entities:reparent', (options) => {
+driver.method('entities:reparent', (options) => {
     const entity = api.entities.get(options.id);
     if (!entity) {
         return {
@@ -122,7 +121,7 @@ mcp.method('entities:reparent', (options) => {
     log(`Reparented entity(${options.id}) to entity(${options.parent})`);
     return { data: entitySummary(entity) };
 });
-mcp.method('entities:delete', async (ids) => {
+driver.method('entities:delete', async (ids) => {
     const entities = ids
         .map((id: string) => api.entities.get(id))
         .filter((entity: any) => entity && entity !== api.entities.root);
@@ -135,7 +134,7 @@ mcp.method('entities:delete', async (ids) => {
     log(`Deleted entities: ${ids.join(', ')}`);
     return { data: { deleted: entities.length } };
 });
-mcp.method('entities:resolve', (options: any = {}) => {
+driver.method('entities:resolve', (options: any = {}) => {
     const name = (options.name || '').toLowerCase();
     if (!name) {
         return { error: 'Provide a non-empty "name" to resolve.' };
@@ -149,7 +148,7 @@ mcp.method('entities:resolve', (options: any = {}) => {
     // empty match is a valid result, not an error
     return { data: matches.map(entitySummary), meta: { total: matches.length, count: matches.length } };
 });
-mcp.method('entities:list', (options: any = {}) => {
+driver.method('entities:list', (options: any = {}) => {
     let entities = api.entities.list();
 
     // apply filters
@@ -177,7 +176,7 @@ mcp.method('entities:list', (options: any = {}) => {
     // summary mode: compact, semantic data
     return { data: page.map(entitySummary), meta };
 });
-mcp.method('entities:components:add', (id, components) => {
+driver.method('entities:components:add', (id, components) => {
     const entity = api.entities.get(id);
     if (!entity) {
         return {
@@ -190,7 +189,7 @@ mcp.method('entities:components:add', (id, components) => {
     log(`Added components(${Object.keys(components).join(', ')}) to entity(${id})`);
     return { data: entitySummary(entity) };
 });
-mcp.method('entities:components:remove', (id, components) => {
+driver.method('entities:components:remove', (id, components) => {
     const entity = api.entities.get(id);
     if (!entity) {
         return {
@@ -203,7 +202,7 @@ mcp.method('entities:components:remove', (id, components) => {
     log(`Removed components(${components.join(', ')}) from entity(${id})`);
     return { data: entitySummary(entity) };
 });
-mcp.method('entities:components:script:add', (id, scriptName) => {
+driver.method('entities:components:script:add', (id, scriptName) => {
     const entity = api.entities.get(id);
     if (!entity) {
         return {
@@ -219,7 +218,7 @@ mcp.method('entities:components:script:add', (id, scriptName) => {
     log(`Added script(${scriptName}) to component(script) of entity(${id})`);
     return { data: entitySummary(entity) };
 });
-mcp.method('entities:script:attach', (id, scriptName) => {
+driver.method('entities:script:attach', (id, scriptName) => {
     const entity = api.entities.get(id);
     if (!entity) {
         return {
@@ -237,7 +236,7 @@ mcp.method('entities:script:attach', (id, scriptName) => {
 });
 
 // entity search
-mcp.method('entities:search', (query, limit) => {
+driver.method('entities:search', (query, limit) => {
     let results = editor.call('entities:fuzzy-search', query) || [];
     if (typeof limit === 'number') {
         results = results.slice(0, limit);
@@ -245,7 +244,7 @@ mcp.method('entities:search', (query, limit) => {
     log(`Searched entities for "${query}" (${results.length})`);
     return { data: results.map(entitySummary) };
 });
-mcp.method('entities:byScript', (script) => {
+driver.method('entities:byScript', (script) => {
     const results = editor.call('entities:list:byScript', script) || [];
     log(`Listed entities by script "${script}" (${results.length})`);
     return { data: results.map(entitySummary) };

@@ -1,14 +1,13 @@
 import { Vec3 } from 'playcanvas';
 
-import { mcp } from '../connection';
-
+import { driver } from './driver';
 import { api, log } from './shared';
 
 // reused scratch vector — camera:focus copies it synchronously, no listener retains it
 const tmpVec3 = new Vec3();
 
 // viewport
-mcp.method('viewport:capture', () => {
+driver.method('viewport:capture', () => {
     const app = editor.call('viewport:app');
     if (!app) {
         return { error: 'Viewport app not found' };
@@ -76,7 +75,7 @@ mcp.method('viewport:capture', () => {
         };
     }
 });
-mcp.method('viewport:focus', (ids, options: any = {}) => {
+driver.method('viewport:focus', (ids, options: any = {}) => {
     const entities = ids.map((id: string) => api.entities.get(id)).filter(Boolean);
     if (!entities.length) {
         return {
@@ -128,7 +127,7 @@ mcp.method('viewport:focus', (ids, options: any = {}) => {
 });
 
 // camera framing
-mcp.method('camera:focus:point', (point, distance) => {
+driver.method('camera:focus:point', (point, distance) => {
     if (!Array.isArray(point) || point.length !== 3) {
         return { error: 'point must be an array [x, y, z].' };
     }

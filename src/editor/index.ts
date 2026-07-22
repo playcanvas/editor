@@ -302,7 +302,7 @@ import './toolbar/toolbar-code-editor';
 
 // mcp
 import './mcp/connection';
-import './mcp/methods';
+import './mcp/register';
 import './mcp/toolbar';
 
 // viewport controls

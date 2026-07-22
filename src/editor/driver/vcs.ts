@@ -2,7 +2,7 @@ import { MERGE_STATUS_AUTO_ENDED, MERGE_STATUS_READY_FOR_REVIEW } from '@/core/c
 import { config } from '@/editor/config';
 import { checkpointCreate, diffCreate } from '@/editor/messenger/jobs';
 
-import { mcp } from '../connection';
+import { driver } from './driver';
 
 const api = editor.api.globals;
 
@@ -46,7 +46,7 @@ const listMeta = (result: { id: string }[], pagination?: { hasMore?: boolean }) 
     nextCursor: result.length ? result[result.length - 1].id : null
 });
 
-mcp.method('vcs:status', () => {
+driver.method('vcs:status', () => {
     const b = config.self.branch;
     return {
         data: {
@@ -57,7 +57,7 @@ mcp.method('vcs:status', () => {
     };
 });
 
-mcp.method('vcs:branch:list', async (opts: any = {}) => {
+driver.method('vcs:branch:list', async (opts: any = {}) => {
     try {
         const res: any = await api.rest.projects
             .projectBranches({
@@ -73,7 +73,7 @@ mcp.method('vcs:branch:list', async (opts: any = {}) => {
     }
 });
 
-mcp.method('vcs:branch:create', async (opts: any = {}) => {
+driver.method('vcs:branch:create', async (opts: any = {}) => {
     try {
         const branch = await api.rest.branches
             .branchCreate({
@@ -90,7 +90,7 @@ mcp.method('vcs:branch:create', async (opts: any = {}) => {
     }
 });
 
-mcp.method('vcs:branch:checkout', async (branchId: string) => {
+driver.method('vcs:branch:checkout', async (branchId: string) => {
     try {
         await api.rest.branches.branchCheckout({ branchId }).promisify();
         // the version-control messenger switches branch and reloads the page
@@ -100,7 +100,7 @@ mcp.method('vcs:branch:checkout', async (branchId: string) => {
     }
 });
 
-mcp.method('vcs:checkpoint:list', async (opts: any = {}) => {
+driver.method('vcs:checkpoint:list', async (opts: any = {}) => {
     try {
         const res: any = await api.rest.branches
             .branchCheckpoints({
@@ -115,7 +115,7 @@ mcp.method('vcs:checkpoint:list', async (opts: any = {}) => {
     }
 });
 
-mcp.method('vcs:checkpoint:create', async (opts: any = {}) => {
+driver.method('vcs:checkpoint:create', async (opts: any = {}) => {
     try {
         const checkpoint = await checkpointCreate({
             projectId: config.project.id,
@@ -128,7 +128,7 @@ mcp.method('vcs:checkpoint:create', async (opts: any = {}) => {
     }
 });
 
-mcp.method('vcs:checkpoint:restore', async (opts: any = {}) => {
+driver.method('vcs:checkpoint:restore', async (opts: any = {}) => {
     try {
         await api.rest.checkpoints
             .checkpointRestore({
@@ -143,7 +143,7 @@ mcp.method('vcs:checkpoint:restore', async (opts: any = {}) => {
     }
 });
 
-mcp.method('vcs:checkpoint:hardreset', async (opts: any = {}) => {
+driver.method('vcs:checkpoint:hardreset', async (opts: any = {}) => {
     try {
         await api.rest.checkpoints
             .checkpointHardReset({
@@ -158,7 +158,7 @@ mcp.method('vcs:checkpoint:hardreset', async (opts: any = {}) => {
     }
 });
 
-mcp.method('vcs:checkpoint:get', async (opts: any = {}) => {
+driver.method('vcs:checkpoint:get', async (opts: any = {}) => {
     try {
         const checkpoint = await api.rest.checkpoints.checkpointGet({ checkpointId: opts.checkpointId }).promisify();
         return { data: checkpoint };
@@ -167,7 +167,7 @@ mcp.method('vcs:checkpoint:get', async (opts: any = {}) => {
     }
 });
 
-mcp.method('vcs:branch:close', async (opts: any = {}) => {
+driver.method('vcs:branch:close', async (opts: any = {}) => {
     try {
         const branch = await api.rest.branches.branchClose({ branchId: opts.branchId }).promisify();
         return { data: branch };
@@ -176,7 +176,7 @@ mcp.method('vcs:branch:close', async (opts: any = {}) => {
     }
 });
 
-mcp.method('vcs:branch:open', async (opts: any = {}) => {
+driver.method('vcs:branch:open', async (opts: any = {}) => {
     try {
         const branch = await api.rest.branches.branchOpen({ branchId: opts.branchId }).promisify();
         return { data: branch };
@@ -185,7 +185,7 @@ mcp.method('vcs:branch:open', async (opts: any = {}) => {
     }
 });
 
-mcp.method('vcs:branch:delete', async (opts: any = {}) => {
+driver.method('vcs:branch:delete', async (opts: any = {}) => {
     try {
         const branch = await api.rest.branches.branchDelete({ branchId: opts.branchId }).promisify();
         return { data: branch };
@@ -194,7 +194,7 @@ mcp.method('vcs:branch:delete', async (opts: any = {}) => {
     }
 });
 
-mcp.method('vcs:merge:create', async (opts: any = {}) => {
+driver.method('vcs:merge:create', async (opts: any = {}) => {
     try {
         // subscribe before firing so we can't miss the auto-merge-done event
         const settled = waitForMergeStatus([MERGE_STATUS_AUTO_ENDED, MERGE_STATUS_READY_FOR_REVIEW]);
@@ -214,7 +214,7 @@ mcp.method('vcs:merge:create', async (opts: any = {}) => {
     }
 });
 
-mcp.method('vcs:merge:get', async (opts: any = {}) => {
+driver.method('vcs:merge:get', async (opts: any = {}) => {
     try {
         const merge = await api.rest.merge.mergeGet({ mergeId: opts.mergeId }).promisify();
         return { data: merge };
@@ -223,7 +223,7 @@ mcp.method('vcs:merge:get', async (opts: any = {}) => {
     }
 });
 
-mcp.method('vcs:merge:apply', async (opts: any = {}) => {
+driver.method('vcs:merge:apply', async (opts: any = {}) => {
     try {
         if (opts.finalize) {
             // finalize commits the merge checkpoint onto the current branch; the messenger
@@ -242,7 +242,7 @@ mcp.method('vcs:merge:apply', async (opts: any = {}) => {
     }
 });
 
-mcp.method('vcs:merge:delete', async (opts: any = {}) => {
+driver.method('vcs:merge:delete', async (opts: any = {}) => {
     try {
         const merge = await api.rest.merge.mergeDelete({ mergeId: opts.mergeId }).promisify();
         return { data: merge };
@@ -251,7 +251,7 @@ mcp.method('vcs:merge:delete', async (opts: any = {}) => {
     }
 });
 
-mcp.method('vcs:conflict:resolve', async (opts: any = {}) => {
+driver.method('vcs:conflict:resolve', async (opts: any = {}) => {
     try {
         const flags =
             opts.resolution === 'source'
@@ -272,7 +272,7 @@ mcp.method('vcs:conflict:resolve', async (opts: any = {}) => {
     }
 });
 
-mcp.method('vcs:conflict:getfile', async (opts: any = {}) => {
+driver.method('vcs:conflict:getfile', async (opts: any = {}) => {
     try {
         const content = await api.rest.merge
             .mergeConflicts({
@@ -288,7 +288,7 @@ mcp.method('vcs:conflict:getfile', async (opts: any = {}) => {
     }
 });
 
-mcp.method('vcs:diff', async (opts: any = {}) => {
+driver.method('vcs:diff', async (opts: any = {}) => {
     try {
         // diffCreate posts /diff then awaits the job-done event and fetches the result
         const diff = await diffCreate({

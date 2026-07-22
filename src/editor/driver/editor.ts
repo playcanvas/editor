@@ -1,19 +1,15 @@
-import { mcp } from '../connection';
-
+import { driver } from './driver';
 import { api, log } from './shared';
 
-// general
-mcp.method('ping', () => ({ data: 'pong' }));
-
 // selection
-mcp.method('selection:get', () => {
+driver.method('selection:get', () => {
     const items = api.selection.items || [];
     const type = editor.call('selector:type');
     const ids = items.map((it) => (type === 'asset' ? it.get('id') : it.get('resource_id')));
     log('Queried selection');
     return { data: { type, ids } };
 });
-mcp.method('selection:set', (type, ids) => {
+driver.method('selection:set', (type, ids) => {
     const items = (ids || [])
         .map((id) => (type === 'asset' ? api.assets.get(id) : api.entities.get(id)))
         .filter(Boolean);
@@ -21,14 +17,14 @@ mcp.method('selection:set', (type, ids) => {
     log(`Set ${type} selection (${items.length})`);
     return { data: { type, ids: items.map((it) => (type === 'asset' ? it.get('id') : it.get('resource_id'))) } };
 });
-mcp.method('selection:clear', () => {
+driver.method('selection:clear', () => {
     api.selection.clear();
     log('Cleared selection');
     return { data: { type: null, ids: [] } };
 });
 
 // history (undo/redo)
-mcp.method('history:undo', () => {
+driver.method('history:undo', () => {
     const undone = api.history.canUndo;
     if (undone) {
         api.history.undo();
@@ -36,7 +32,7 @@ mcp.method('history:undo', () => {
     log(undone ? 'Undo' : 'Undo (nothing to undo)');
     return { data: { undone, canUndo: api.history.canUndo, canRedo: api.history.canRedo } };
 });
-mcp.method('history:redo', () => {
+driver.method('history:redo', () => {
     const redone = api.history.canRedo;
     if (redone) {
         api.history.redo();
@@ -46,7 +42,7 @@ mcp.method('history:redo', () => {
 });
 
 // transform gizmo
-mcp.method('gizmo:state:set', (state) => {
+driver.method('gizmo:state:set', (state) => {
     const s = state || {};
     if (s.mode !== undefined) {
         editor.call('gizmo:type', s.mode);
