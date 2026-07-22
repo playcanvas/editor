@@ -1,8 +1,12 @@
 import { driver } from './driver';
-import { log, iterateObject } from './shared';
+import { log, iterateObject, writeError } from './shared';
 
 // project settings
 driver.method('project:settings:modify', (settings) => {
+    const denied = writeError('modify project settings');
+    if (denied) {
+        return denied;
+    }
     const project = editor.call('settings:project');
     iterateObject(settings, (path, value) => {
         project.set(path, value);

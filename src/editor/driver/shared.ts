@@ -2,6 +2,9 @@ const api = editor.api.globals;
 
 const log = (msg: string) => console.log(`[Editor Driver] ${msg}`);
 
+const writeError = (action = 'modify the designated project') =>
+    editor.call('permissions:write') ? null : { error: `Write permission is required to ${action}.` };
+
 /**
  * PlayCanvas REST API wrapper.
  *
@@ -109,4 +112,4 @@ const paginate = <T>(items: T[], options: { limit?: number; offset?: number } = 
     };
 };
 
-export { api, log, rest, iterateObject, entitySummary, paginate };
+export { api, log, rest, iterateObject, entitySummary, paginate, writeError };

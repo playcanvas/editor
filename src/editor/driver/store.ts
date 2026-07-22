@@ -1,7 +1,7 @@
 import { config } from '@/editor/config';
 
 import { driver } from './driver';
-import { log, rest } from './shared';
+import { log, rest, writeError } from './shared';
 
 // store - playcanvas
 driver.method('store:playcanvas:list', async (options: any = {}) => {
@@ -44,6 +44,10 @@ driver.method('store:playcanvas:get', async (id) => {
     }
 });
 driver.method('store:playcanvas:clone', async (id, name, license) => {
+    const denied = writeError('download store assets');
+    if (denied) {
+        return denied;
+    }
     try {
         const data = await rest('POST', `store/${id}/clone`, {
             scope: {
@@ -107,6 +111,10 @@ driver.method('store:sketchfab:get', async (uid) => {
     }
 });
 driver.method('store:sketchfab:clone', async (uid, name, license) => {
+    const denied = writeError('download store assets');
+    if (denied) {
+        return denied;
+    }
     try {
         const data = await rest('POST', `store/${uid}/clone`, {
             scope: {

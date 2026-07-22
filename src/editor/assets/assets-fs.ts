@@ -9,7 +9,7 @@ editor.once('load', () => {
         const ids = [];
         for (let i = 0; i < assets.length; i++) {
             const asset = assets[i];
-            ids.push(parseInt(asset.get('uniqueId'), 10));
+            ids.push(parseInt(String(asset.get('uniqueId')), 10));
         }
 
         return ids;
@@ -45,11 +45,9 @@ editor.once('load', () => {
         // If there are conflicting ES Module assets, show an error message and return early
         if (conflictingAssets.length > 0) {
             const conflictingAssetNames = conflictingAssets.map((asset) => asset.get('name')).join(', ');
-            editor.call(
-                'status:error',
-                `The assets "${conflictingAssetNames}" already exist in this location. Move Aborted.`
-            );
-            return;
+            const error = `The assets "${conflictingAssetNames}" already exist in this location. Move Aborted.`;
+            editor.call('status:error', error);
+            return error;
         }
 
         editor.call('realtime:send', 'fs', {
@@ -57,6 +55,7 @@ editor.once('load', () => {
             ids: getIds(assets),
             to: assetTo ? parseInt(assetTo.get('uniqueId'), 10) : null
         });
+        return null;
     });
 
     editor.method('assets:fs:duplicate', (assets) => {

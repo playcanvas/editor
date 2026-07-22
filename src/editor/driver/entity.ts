@@ -1,5 +1,5 @@
 import { driver } from './driver';
-import { api, log, entitySummary, paginate } from './shared';
+import { api, log, entitySummary, paginate, writeError } from './shared';
 
 // top-level entity properties that entities:modify may set directly. Anything
 // else must be addressed under `components.<type>.…` (or is not settable).
@@ -38,24 +38,77 @@ const validateEntityPath = (entity: any, path: string) => {
     return null;
 };
 
+const getEntities = (ids: string[]) =>
+    ids.map((id) => {
+        const entity = api.entities.get(id);
+        if (!entity) {
+            throw new Error(`Entity not found: ${id}. Call list_entities to obtain a valid resource_id.`);
+        }
+        return entity;
+    });
+
+const addScripts = async ({ entityIds, script, attributes, index }: any) => {
+    const denied = writeError('modify entity scripts');
+    if (denied) {
+        return denied;
+    }
+    const entities = getEntities(entityIds);
+    if (!api.assets.getAssetForScript(script)) {
+        return { error: `Parsed script not found: ${script}. Create or parse the script asset first.` };
+    }
+    for (const entity of entities) {
+        const order = entity.get('components.script.order') || [];
+        if (index !== undefined && (!Number.isInteger(index) || index < 0 || index > order.length)) {
+            return { error: `Invalid script index ${index} for entity ${entity.get('resource_id')}.` };
+        }
+    }
+    await api.entities.addScript(entities, script, { attributes, index });
+    log(`Added script(${script}) to entities(${entityIds.join(', ')})`);
+    return { data: entities.map(entitySummary) };
+};
+
 // entities
-driver.method('entities:create', (entityDataArray) => {
-    const entities = [];
-    for (const entityData of entityDataArray) {
+driver.method('entities:create', async (entityDataArray) => {
+    const denied = writeError('create entities');
+    if (denied) {
+        return denied;
+    }
+    const prepared = entityDataArray.map((entityData: any) => {
+        if (!entityData.entity || typeof entityData.entity !== 'object' || Array.isArray(entityData.entity)) {
+            throw new Error('Each create_entities item must contain an entity object.');
+        }
+        const data = { ...entityData.entity };
         if (Object.hasOwn(entityData, 'parent')) {
             const parent = api.entities.get(entityData.parent);
             if (!parent) {
-                return {
-                    error: `Parent entity not found: ${entityData.parent}. Call list_entities (or resolve_entities) to obtain a valid parent resource_id, or omit 'parent' to create under the root.`
-                };
+                throw new Error(
+                    `Parent entity not found: ${entityData.parent}. Call list_entities to obtain a valid parent resource_id.`
+                );
             }
-            entityData.entity.parent = parent;
+            data.parent = parent;
         }
-
-        const entity = api.entities.create(entityData.entity);
-        if (!entity) {
+        return data;
+    });
+    if (!prepared.length) {
+        return { error: 'At least one entity is required.' };
+    }
+    let entities: any[] = [];
+    for (const data of prepared) {
+        const [error, entity] = await Promise.resolve()
+            .then(() => api.entities.create(data, { history: false }))
+            .then(
+                (value) => [null, value],
+                (err) => [err, null]
+            );
+        if (error || !entity) {
+            if (entities.length) {
+                await api.entities.delete(entities, { history: false });
+            }
             return {
-                error: 'Failed to create entity. Verify the entity definition is valid (e.g. component data types) and retry.'
+                error:
+                    error instanceof Error
+                        ? error.message
+                        : 'Failed to create entity. Verify the entity definition is valid and retry.'
             };
         }
         entities.push(entity);
@@ -63,35 +116,83 @@ driver.method('entities:create', (entityDataArray) => {
         log(`Created entity(${entity.get('resource_id')})`);
     }
 
+    api.history.add({
+        name: 'create entities',
+        combine: false,
+        undo: async () => {
+            const current = entities.flatMap((entity) => {
+                const latest = entity?.latest();
+                return latest ? [latest] : [];
+            });
+            if (current.length) {
+                await api.entities.delete(current, { history: false });
+            }
+        },
+        redo: () => {
+            entities = prepared.map((data) => api.entities.create(data, { history: false }));
+        }
+    });
+
     // return the resulting entity summaries inline so the agent gets the new
     // ids + hierarchy paths without a follow-up list_entities call
     return { data: entities.map(entitySummary) };
 });
 driver.method('entities:modify', (edits) => {
-    const modified = new Map();
-    for (const { id, path, value } of edits) {
+    const denied = writeError('modify entities');
+    if (denied) {
+        return denied;
+    }
+    const prepared = edits.map(({ id, path, value }: any) => {
         const entity = api.entities.get(id);
         if (!entity) {
-            return {
-                error: `Entity not found: ${id}. Call list_entities (or resolve_entities) to obtain a valid resource_id.`
-            };
+            throw new Error(`Entity not found: ${id}. Call list_entities to obtain a valid resource_id.`);
         }
-
-        // validate-on-write: reject a provably-invalid path up front so the agent gets
-        // an actionable message and never mistakes a no-op for a successful edit
-        const pathError = validateEntityPath(entity, path);
-        if (pathError) {
-            return { error: pathError };
+        const error = validateEntityPath(entity, path);
+        if (error) {
+            throw new Error(error);
         }
-        entity.set(path, value);
+        return { entity, id, path, value, exists: entity.has(path), previous: structuredClone(entity.get(path)) };
+    });
+    const write = ({ entity, path, value, exists }: any) => {
+        const target = entity.latest ? entity.latest() : entity;
+        if (!target) {
+            return;
+        }
+        const enabled = target.history.enabled;
+        target.history.enabled = false;
+        if (exists) {
+            target.set(path, structuredClone(value));
+        } else {
+            target.unset(path);
+        }
+        target.history.enabled = enabled;
+    };
+    const modified = new Map();
+    for (const item of prepared) {
+        const { entity, id, path, value } = item;
+        write({ entity, path, value, exists: true });
         modified.set(id, entity);
         log(`Set property(${path}) of entity(${id}) to: ${JSON.stringify(value)}`);
     }
+    api.history.add({
+        name: 'modify entities',
+        combine: false,
+        undo: () =>
+            prepared
+                .slice()
+                .reverse()
+                .forEach(({ entity, path, previous, exists }) => write({ entity, path, value: previous, exists })),
+        redo: () => prepared.forEach(({ entity, path, value }) => write({ entity, path, value, exists: true }))
+    });
 
     // return the post-edit summaries of every touched entity
     return { data: Array.from(modified.values()).map(entitySummary) };
 });
 driver.method('entities:duplicate', async (ids, options: any = {}) => {
+    const denied = writeError('duplicate entities');
+    if (denied) {
+        return denied;
+    }
     const entities = ids.map((id: string) => api.entities.get(id)).filter(Boolean);
     if (!entities.length) {
         return {
@@ -103,6 +204,10 @@ driver.method('entities:duplicate', async (ids, options: any = {}) => {
     return { data: res.map(entitySummary) };
 });
 driver.method('entities:reparent', (options) => {
+    const denied = writeError('reparent entities');
+    if (denied) {
+        return denied;
+    }
     const entity = api.entities.get(options.id);
     if (!entity) {
         return {
@@ -122,6 +227,10 @@ driver.method('entities:reparent', (options) => {
     return { data: entitySummary(entity) };
 });
 driver.method('entities:delete', async (ids) => {
+    const denied = writeError('delete entities');
+    if (denied) {
+        return denied;
+    }
     const entities = ids
         .map((id: string) => api.entities.get(id))
         .filter((entity: any) => entity && entity !== api.entities.root);
@@ -177,11 +286,19 @@ driver.method('entities:list', (options: any = {}) => {
     return { data: page.map(entitySummary), meta };
 });
 driver.method('entities:components:add', (id, components) => {
+    const denied = writeError('add entity components');
+    if (denied) {
+        return denied;
+    }
     const entity = api.entities.get(id);
     if (!entity) {
         return {
             error: `Entity not found: ${id}. Call list_entities (or resolve_entities) to obtain a valid resource_id.`
         };
+    }
+    const existing = Object.keys(components).filter((component) => entity.has(`components.${component}`));
+    if (existing.length) {
+        return { error: `Entity ${id} already has components: ${existing.join(', ')}.` };
     }
     Object.entries(components).forEach(([name, data]) => {
         entity.addComponent(name, data);
@@ -190,11 +307,19 @@ driver.method('entities:components:add', (id, components) => {
     return { data: entitySummary(entity) };
 });
 driver.method('entities:components:remove', (id, components) => {
+    const denied = writeError('remove entity components');
+    if (denied) {
+        return denied;
+    }
     const entity = api.entities.get(id);
     if (!entity) {
         return {
             error: `Entity not found: ${id}. Call list_entities (or resolve_entities) to obtain a valid resource_id.`
         };
+    }
+    const missing = components.filter((component: string) => !entity.has(`components.${component}`));
+    if (missing.length) {
+        return { error: `Entity ${id} does not have components: ${missing.join(', ')}.` };
     }
     components.forEach((component: string) => {
         entity.removeComponent(component);
@@ -202,7 +327,42 @@ driver.method('entities:components:remove', (id, components) => {
     log(`Removed components(${components.join(', ')}) from entity(${id})`);
     return { data: entitySummary(entity) };
 });
-driver.method('entities:components:script:add', (id, scriptName) => {
+driver.method('entities:scripts:add', addScripts);
+driver.method('entities:scripts:remove', ({ entityIds, script }: any) => {
+    const denied = writeError('remove entity scripts');
+    if (denied) {
+        return denied;
+    }
+    const entities = getEntities(entityIds);
+    const missing = entities.filter((entity) => !(entity.get('components.script.order') || []).includes(script));
+    if (missing.length) {
+        return {
+            error: `Script ${script} is not attached to entities: ${missing.map((entity) => entity.get('resource_id')).join(', ')}.`
+        };
+    }
+    api.entities.removeScript(entities, script);
+    log(`Removed script(${script}) from entities(${entityIds.join(', ')})`);
+    return { data: entities.map(entitySummary) };
+});
+driver.method('entities:scripts:move', ({ entityId, script, index }: any) => {
+    const denied = writeError('reorder entity scripts');
+    if (denied) {
+        return denied;
+    }
+    const entity = getEntities([entityId])[0];
+    const order = entity.get('components.script.order') || [];
+    const previous = order.indexOf(script);
+    if (previous === -1) {
+        return { error: `Entity ${entityId} does not contain script ${script}.` };
+    }
+    if (!Number.isInteger(index) || index < 0 || index >= order.length) {
+        return { error: `Invalid script index ${index}; expected 0-${order.length - 1}.` };
+    }
+    entity.observer.move('components.script.order', previous, index);
+    log(`Moved script(${script}) on entity(${entityId}) to index ${index}`);
+    return { data: entitySummary(entity) };
+});
+driver.method('entities:components:script:add', async (id, scriptName) => {
     const entity = api.entities.get(id);
     if (!entity) {
         return {
@@ -214,26 +374,9 @@ driver.method('entities:components:script:add', (id, scriptName) => {
             error: `Entity ${id} has no script component. Add one first via add_components { script: {} } or use attach_script which creates it automatically.`
         };
     }
-    entity.addScript(scriptName);
-    log(`Added script(${scriptName}) to component(script) of entity(${id})`);
-    return { data: entitySummary(entity) };
+    return addScripts({ entityIds: [id], script: scriptName });
 });
-driver.method('entities:script:attach', (id, scriptName) => {
-    const entity = api.entities.get(id);
-    if (!entity) {
-        return {
-            error: `Entity not found: ${id}. Call list_entities (or resolve_entities) to obtain a valid resource_id.`
-        };
-    }
-
-    // consolidated flow: ensure the script component exists, then attach
-    if (!entity.get('components.script')) {
-        entity.addComponent('script', {});
-    }
-    entity.addScript(scriptName);
-    log(`Attached script(${scriptName}) to entity(${id})`);
-    return { data: entitySummary(entity) };
-});
+driver.method('entities:script:attach', (id, scriptName) => addScripts({ entityIds: [id], script: scriptName }));
 
 // entity search
 driver.method('entities:search', (query, limit) => {

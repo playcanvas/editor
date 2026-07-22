@@ -1,10 +1,45 @@
-import { Vec3 } from 'playcanvas';
+import { PROJECTION_ORTHOGRAPHIC, PROJECTION_PERSPECTIVE, Vec3 } from 'playcanvas';
 
 import { driver } from './driver';
 import { api, log } from './shared';
 
 // reused scratch vector — camera:focus copies it synchronously, no listener retains it
 const tmpVec3 = new Vec3();
+
+type ViewportState = {
+    cameraId?: string;
+    position?: number[];
+    rotation?: number[];
+    projection?: 'perspective' | 'orthographic';
+    orthoHeight?: number;
+    grid?: { divisions?: number; size?: number };
+    bones?: boolean;
+    iconSize?: number;
+    expanded?: boolean;
+};
+
+const viewportState = () => {
+    const camera = editor.call('camera:current');
+    if (!camera) {
+        return null;
+    }
+    const grid = editor.call('settings:projectUser');
+    const user = editor.call('settings:user');
+    return {
+        cameraId: camera.__editorName || camera.getGuid(),
+        position: camera.getPosition().toArray(),
+        rotation: camera.getEulerAngles().toArray(),
+        projection: camera.camera.projection === PROJECTION_ORTHOGRAPHIC ? 'orthographic' : 'perspective',
+        orthoHeight: camera.camera.orthoHeight,
+        grid: {
+            divisions: grid.get('editor.gridDivisions'),
+            size: grid.get('editor.gridDivisionSize')
+        },
+        bones: user.get('editor.showSkeleton'),
+        iconSize: user.get('editor.iconSize'),
+        expanded: editor.call('viewport:expand:state')
+    };
+};
 
 // viewport
 driver.method('viewport:capture', () => {
@@ -76,13 +111,13 @@ driver.method('viewport:capture', () => {
     }
 });
 driver.method('viewport:focus', (ids, options: any = {}) => {
-    const entities = ids.map((id: string) => api.entities.get(id)).filter(Boolean);
-    if (!entities.length) {
+    const found = ids.map((id: string) => api.entities.get(id)).filter(Boolean);
+    if (!found.length) {
         return {
             error: 'No valid entities found. Call list_entities (or resolve_entities) to obtain valid resource_ids.'
         };
     }
-    api.selection.set(entities, { history: true });
+    api.selection.set(found, { history: true });
 
     // get camera and calculate target
     const camera = editor.call('camera:current');
@@ -123,7 +158,7 @@ driver.method('viewport:focus', (ids, options: any = {}) => {
     // focus camera on target
     editor.call('camera:focus', aabb.center, distance);
     log(`Focused viewport on entities: ${ids.join(', ')}`);
-    return { data: { focused: entities.length } };
+    return { data: { focused: found.length } };
 });
 
 // camera framing
@@ -134,4 +169,71 @@ driver.method('camera:focus:point', (point, distance) => {
     editor.call('camera:focus', tmpVec3.set(point[0], point[1], point[2]), distance);
     log(`Focused camera on [${point.join(', ')}] at distance ${distance}`);
     return { data: { point, distance } };
+});
+
+driver.method('viewport:state:get', () => {
+    const state = viewportState();
+    return state
+        ? { data: state }
+        : { error: 'Could not retrieve the current viewport camera. Ensure a scene is loaded.' };
+});
+driver.method('viewport:state:set', (state: ViewportState = {}) => {
+    let camera = editor.call('camera:current');
+    if (state.cameraId !== undefined) {
+        camera = editor.call('camera:get', state.cameraId) || api.entities.get(state.cameraId)?.observer.entity;
+        if (!camera?.camera) {
+            return {
+                error: `Camera not found: ${state.cameraId}. Use an editor camera name or a camera entity resource_id.`
+            };
+        }
+        editor.call('camera:set', camera);
+    }
+    if (!camera) {
+        return { error: 'Could not retrieve the current viewport camera. Ensure a scene is loaded.' };
+    }
+    if (state.position !== undefined) {
+        camera.setPosition(...state.position);
+    }
+    if (state.rotation !== undefined) {
+        camera.setEulerAngles(...state.rotation);
+    }
+    if (state.projection !== undefined) {
+        camera.camera.projection =
+            state.projection === 'orthographic' ? PROJECTION_ORTHOGRAPHIC : PROJECTION_PERSPECTIVE;
+    }
+    if (state.orthoHeight !== undefined) {
+        camera.camera.orthoHeight = state.orthoHeight;
+    }
+    const grid = editor.call('settings:projectUser');
+    if (state.grid?.divisions !== undefined) {
+        grid.set('editor.gridDivisions', state.grid.divisions);
+    }
+    if (state.grid?.size !== undefined) {
+        grid.set('editor.gridDivisionSize', state.grid.size);
+    }
+    const user = editor.call('settings:user');
+    if (state.bones !== undefined) {
+        user.set('editor.showSkeleton', state.bones);
+    }
+    if (state.iconSize !== undefined) {
+        user.set('editor.iconSize', state.iconSize);
+    }
+    if (state.expanded !== undefined) {
+        editor.call('viewport:expand', state.expanded);
+    }
+    editor.call('viewport:render');
+    log('Set viewport state');
+    return { data: viewportState() };
+});
+driver.method('viewport:visibility:get', () => {
+    return { data: { hidden: editor.call('entities:visibility:getHidden') || [] } };
+});
+driver.method('viewport:visibility:set', (ids, hidden) => {
+    const missing = ids.filter((id: string) => !api.entities.get(id));
+    if (missing.length) {
+        return { error: `Entities not found: ${missing.join(', ')}. Call list_entities to obtain valid resource_ids.` };
+    }
+    editor.call('entities:visibility:set', ids, hidden);
+    log(`${hidden ? 'Hid' : 'Showed'} ${ids.length} entities in the viewport`);
+    return { data: { hidden: editor.call('entities:visibility:getHidden') || [] } };
 });

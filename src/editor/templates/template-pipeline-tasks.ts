@@ -7,7 +7,7 @@ editor.once('load', () => {
         return guid.create().substring(0, 8);
     }
 
-    function addJob(jobId: string, callback: (result: unknown) => void) {
+    function addJob(jobId: string, callback?: (result: unknown) => void) {
         jobsInProgress[jobId] = callback;
         editor.call('status:job', jobId, 1);
     }
@@ -108,56 +108,63 @@ editor.once('load', () => {
         }
     }
 
-    editor.method('templates:apply', (root: { get: (key: string) => unknown }) => {
-        if (!editor.call('permissions:write')) {
-            return;
-        }
-
-        const resourceId = root.get('resource_id');
-
-        const templateId = root.get('template_id');
-        const templateAsset = editor.call('assets:get', templateId);
-        if (!templateAsset) {
-            return;
-        }
-
-        // check if there are any circular references
-        if (checkCircularReferences(root, {})) {
-            editor.call(
-                'picker:confirm',
-                'Template instances cannot contain children that are instances of the same template. Please remove those children and try applying again.',
-                () => {
-                    // no-op
-                },
-                {
-                    yesText: 'OK',
-                    noText: ''
-                }
-            );
-            return false;
-        }
-
-        const jobId = randomGuid();
-
-        editor.call('realtime:send', 'pipeline', {
-            name: 'template-apply',
-            data: {
-                jobId: jobId,
-                entityId: resourceId,
-                templateId: templateAsset.get('uniqueId'),
-                templateItemId: templateId,
-                branchId: config.self.branch.id
+    editor.method(
+        'templates:apply',
+        (root: { get: (key: string) => unknown }, callback?: (result: unknown) => void) => {
+            if (!editor.call('permissions:write')) {
+                return;
             }
-        });
 
-        addJob(jobId);
+            const resourceId = root.get('resource_id');
 
-        return true;
-    });
+            const templateId = root.get('template_id');
+            const templateAsset = editor.call('assets:get', templateId);
+            if (!templateAsset) {
+                return;
+            }
+
+            // check if there are any circular references
+            if (checkCircularReferences(root, {})) {
+                editor.call(
+                    'picker:confirm',
+                    'Template instances cannot contain children that are instances of the same template. Please remove those children and try applying again.',
+                    () => {
+                        // no-op
+                    },
+                    {
+                        yesText: 'OK',
+                        noText: ''
+                    }
+                );
+                return false;
+            }
+
+            const jobId = randomGuid();
+
+            editor.call('realtime:send', 'pipeline', {
+                name: 'template-apply',
+                data: {
+                    jobId: jobId,
+                    entityId: resourceId,
+                    templateId: templateAsset.get('uniqueId'),
+                    templateItemId: templateId,
+                    branchId: config.self.branch.id
+                }
+            });
+
+            addJob(jobId, callback);
+
+            return true;
+        }
+    );
 
     editor.method(
         'templates:applyOverride',
-        (root: { get: (key: string) => unknown }, override: Record<string, unknown>) => {
+        (
+            root: { get: (key: string) => unknown },
+            override: Record<string, unknown>,
+            callback?: (result: unknown) => void
+        ) => {
             if (!editor.call('permissions:write')) {
                 return;
             }
@@ -220,19 +227,16 @@ editor.once('load', () => {
                         path: override.path
                     }
                 ],
-                jobId: jobId
+                jobId: jobId,
+                ...(override.path ? { path: override.path } : {})
             };
-
-            if (override.path) {
-                taskData.path = override.path;
-            }
 
             editor.call('realtime:send', 'pipeline', {
                 name: 'template-apply-override',
                 data: taskData
             });
 
-            addJob(jobId);
+            addJob(jobId, callback);
 
             return true;
         }

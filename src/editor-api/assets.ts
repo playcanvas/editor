@@ -1232,6 +1232,8 @@ class Assets extends Events {
         options.entity.set('template_id', parseInt(asset.get('id'), 10));
         options.entity.set('template_ent_ids', oldToNewIds);
         options.entity.history.enabled = history;
+
+        return asset;
     }
 
     /**
