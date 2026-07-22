@@ -38,13 +38,14 @@ const validateEntityPath = (entity: any, path: string) => {
     return null;
 };
 
-const getEntities = (ids: string[]) => ids.map((id) => {
-    const entity = api.entities.get(id);
-    if (!entity) {
-        throw new Error(`Entity not found: ${id}. Call list_entities to obtain a valid resource_id.`);
-    }
-    return entity;
-});
+const getEntities = (ids: string[]) =>
+    ids.map((id) => {
+        const entity = api.entities.get(id);
+        if (!entity) {
+            throw new Error(`Entity not found: ${id}. Call list_entities to obtain a valid resource_id.`);
+        }
+        return entity;
+    });
 
 const addScripts = async ({ entityIds, script, attributes, index }: any) => {
     const denied = writeError('modify entity scripts');
@@ -80,7 +81,9 @@ driver.method('entities:create', async (entityDataArray) => {
         if (Object.hasOwn(entityData, 'parent')) {
             const parent = api.entities.get(entityData.parent);
             if (!parent) {
-                throw new Error(`Parent entity not found: ${entityData.parent}. Call list_entities to obtain a valid parent resource_id.`);
+                throw new Error(
+                    `Parent entity not found: ${entityData.parent}. Call list_entities to obtain a valid parent resource_id.`
+                );
             }
             data.parent = parent;
         }
@@ -93,15 +96,19 @@ driver.method('entities:create', async (entityDataArray) => {
     for (const data of prepared) {
         const [error, entity] = await Promise.resolve()
             .then(() => api.entities.create(data, { history: false }))
-            .then((value) => [null, value], (err) => [err, null]);
+            .then(
+                (value) => [null, value],
+                (err) => [err, null]
+            );
         if (error || !entity) {
             if (entities.length) {
                 await api.entities.delete(entities, { history: false });
             }
             return {
-                error: error instanceof Error
-                    ? error.message
-                    : 'Failed to create entity. Verify the entity definition is valid and retry.'
+                error:
+                    error instanceof Error
+                        ? error.message
+                        : 'Failed to create entity. Verify the entity definition is valid and retry.'
             };
         }
         entities.push(entity);
@@ -170,9 +177,11 @@ driver.method('entities:modify', (edits) => {
     api.history.add({
         name: 'modify entities',
         combine: false,
-        undo: () => prepared.slice().reverse().forEach(({ entity, path, previous, exists }) =>
-            write({ entity, path, value: previous, exists })
-        ),
+        undo: () =>
+            prepared
+                .slice()
+                .reverse()
+                .forEach(({ entity, path, previous, exists }) => write({ entity, path, value: previous, exists })),
         redo: () => prepared.forEach(({ entity, path, value }) => write({ entity, path, value, exists: true }))
     });
 
@@ -318,7 +327,9 @@ driver.method('entities:scripts:remove', ({ entityIds, script }: any) => {
     const entities = getEntities(entityIds);
     const missing = entities.filter((entity) => !(entity.get('components.script.order') || []).includes(script));
     if (missing.length) {
-        return { error: `Script ${script} is not attached to entities: ${missing.map((entity) => entity.get('resource_id')).join(', ')}.` };
+        return {
+            error: `Script ${script} is not attached to entities: ${missing.map((entity) => entity.get('resource_id')).join(', ')}.`
+        };
     }
     api.entities.removeScript(entities, script);
     log(`Removed script(${script}) from entities(${entityIds.join(', ')})`);

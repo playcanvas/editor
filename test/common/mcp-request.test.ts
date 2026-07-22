@@ -12,7 +12,9 @@ describe('handleRequest', () => {
     });
 
     it('returns rejected handler failures to the caller', async () => {
-        const res = await handleRequest('{"id":2,"name":"fail","args":[]}', () => Promise.reject(new Error('rejected')));
+        const res = await handleRequest('{"id":2,"name":"fail","args":[]}', () =>
+            Promise.reject(new Error('rejected'))
+        );
         expect(res).to.deep.equal({ id: 2, res: { error: 'rejected' } });
     });
 

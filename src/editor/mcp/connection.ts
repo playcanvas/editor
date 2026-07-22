@@ -81,11 +81,13 @@ class MCPConnection extends Events {
         this._ws = ws;
 
         ws.onopen = () => {
-            ws.send(JSON.stringify({
-                register: this._role,
-                protocolVersion: PROTOCOL_VERSION,
-                methods: Array.from(this._methods.keys()).sort()
-            }));
+            ws.send(
+                JSON.stringify({
+                    register: this._role,
+                    protocolVersion: PROTOCOL_VERSION,
+                    methods: Array.from(this._methods.keys()).sort()
+                })
+            );
             this._setStatus('connected');
             log('Connected');
         };

@@ -1,6 +1,6 @@
 type Result = { data?: unknown; error?: string; meta?: Record<string, unknown> };
 
-const message = (err: unknown) => err instanceof Error ? err.message : String(err);
+const message = (err: unknown) => (err instanceof Error ? err.message : String(err));
 
 const handleRequest = async (data: string, call: (name: string, ...args: unknown[]) => Result | Promise<Result>) => {
     let id: number | undefined;

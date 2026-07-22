@@ -560,97 +560,100 @@ editor.once('load', () => {
         }
     });
 
-    editor.method('templates:revertAll', (entityObserver: EntityObserver, callback?: (entity: EntityObserver) => void) => {
-        const templateId = entityObserver.get('template_id');
-        const templateEntIds = entityObserver.get('template_ent_ids');
-        if (!templateId || !templateEntIds) {
-            return false;
-        }
+    editor.method(
+        'templates:revertAll',
+        (entityObserver: EntityObserver, callback?: (entity: EntityObserver) => void) => {
+            const templateId = entityObserver.get('template_id');
+            const templateEntIds = entityObserver.get('template_ent_ids');
+            if (!templateId || !templateEntIds) {
+                return false;
+            }
 
-        const asset: AssetObserver = editor.call('assets:get', templateId);
-        if (!asset) {
-            return;
-        }
-
-        const parent = editor.call('entities:get', entityObserver.get('parent'));
-        if (!parent) {
-            return;
-        }
-
-        const ignorePathValues = IGNORE_PATHS.map((path) => entityObserver.get(path));
-
-        const entitiesPanelState = rememberEntitiesPanelState(entityObserver);
-
-        const childIndex = parent.get('children').indexOf(entityObserver.get('resource_id'));
-
-        let prev;
-        let complete = callback;
-
-        async function undo() {
-            if (!parent.latest()) {
+            const asset: AssetObserver = editor.call('assets:get', templateId);
+            if (!asset) {
                 return;
             }
 
-            if (entityObserver) {
-                await entityObserver.apiEntity.delete({ history: false, preserveEntityReferences: true });
+            const parent = editor.call('entities:get', entityObserver.get('parent'));
+            if (!parent) {
+                return;
+            }
 
-                const entity = editor.api.globals.entities.create(prev, {
+            const ignorePathValues = IGNORE_PATHS.map((path) => entityObserver.get(path));
+
+            const entitiesPanelState = rememberEntitiesPanelState(entityObserver);
+
+            const childIndex = parent.get('children').indexOf(entityObserver.get('resource_id'));
+
+            let prev;
+            let complete = callback;
+
+            async function undo() {
+                if (!parent.latest()) {
+                    return;
+                }
+
+                if (entityObserver) {
+                    await entityObserver.apiEntity.delete({ history: false, preserveEntityReferences: true });
+
+                    const entity = editor.api.globals.entities.create(prev, {
+                        history: false,
+                        index: childIndex,
+                        select: true
+                    });
+                    entityObserver = entity.observer;
+
+                    prev = null;
+                }
+            }
+
+            async function redo() {
+                if (!parent.latest()) {
+                    return;
+                }
+
+                // remove entity and then re-add instance from
+                // the template keeping the same ids as before
+                prev = entityObserver.apiEntity.jsonHierarchy();
+
+                // use waitSubmitted to wait for scene operational transforms to be submitted to ShareDB -
+                // delete() prepares Operations Transforms on the frontend but instantiateTemplate()
+                // bakes them on the backend and we should wait till everything submitted after delete
+                await entityObserver.apiEntity.delete({
+                    history: false,
+                    waitSubmitted: true,
+                    preserveEntityReferences: true
+                });
+
+                const newEntity = await asset.apiAsset.instantiateTemplate(parent.apiEntity, {
                     history: false,
                     index: childIndex,
-                    select: true
+                    extraData: {
+                        dstToSrc: templateEntIds,
+                        srcToDst: editor.call('template:utils', 'invertMap', templateEntIds)
+                    }
                 });
-                entityObserver = entity.observer;
 
-                prev = null;
+                entityObserver = newEntity.observer;
+
+                // use timeout to make sure treeview has been updated
+                setTimeout(() => {
+                    afterAddInstance(entityObserver, entitiesPanelState, ignorePathValues);
+                    complete?.(entityObserver);
+                    complete = undefined;
+                });
             }
+
+            editor.api.globals.history.addAndExecute({
+                name: 'revert all',
+                combine: false,
+                undo: undo,
+                redo: redo
+            });
+
+            return true;
         }
-
-        async function redo() {
-            if (!parent.latest()) {
-                return;
-            }
-
-            // remove entity and then re-add instance from
-            // the template keeping the same ids as before
-            prev = entityObserver.apiEntity.jsonHierarchy();
-
-            // use waitSubmitted to wait for scene operational transforms to be submitted to ShareDB -
-            // delete() prepares Operations Transforms on the frontend but instantiateTemplate()
-            // bakes them on the backend and we should wait till everything submitted after delete
-            await entityObserver.apiEntity.delete({
-                history: false,
-                waitSubmitted: true,
-                preserveEntityReferences: true
-            });
-
-            const newEntity = await asset.apiAsset.instantiateTemplate(parent.apiEntity, {
-                history: false,
-                index: childIndex,
-                extraData: {
-                    dstToSrc: templateEntIds,
-                    srcToDst: editor.call('template:utils', 'invertMap', templateEntIds)
-                }
-            });
-
-            entityObserver = newEntity.observer;
-
-            // use timeout to make sure treeview has been updated
-            setTimeout(() => {
-                afterAddInstance(entityObserver, entitiesPanelState, ignorePathValues);
-                complete?.(entityObserver);
-                complete = undefined;
-            });
-        }
-
-        editor.api.globals.history.addAndExecute({
-            name: 'revert all',
-            combine: false,
-            undo: undo,
-            redo: redo
-        });
-
-        return true;
-    });
+    );
 
     function setRemappedDstVal(override: TemplateOverride, entity: EntityObserver): void {
         const v = override.entity_ref_paths

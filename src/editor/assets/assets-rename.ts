@@ -2,7 +2,8 @@ const TEXT_TYPES = new Set(['css', 'html', 'json', 'script', 'shader', 'text']);
 
 editor.once('load', () => {
     const changeName = function (assetId: string | number, assetName: string, callback?: (error?: unknown) => void) {
-        editor.api.globals.rest.assets.assetUpdate(String(assetId), { name: assetName })
+        editor.api.globals.rest.assets
+            .assetUpdate(String(assetId), { name: assetName })
             .on('load', () => callback?.())
             .on('error', (err, data) => {
                 console.warn(`rename error: ${err} ${data}`);

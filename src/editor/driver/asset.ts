@@ -107,10 +107,14 @@ const modifyAssets = async (edits: any[]) => {
             throw new Error(`Operation ${op} is only supported under data.*.`);
         }
         if (asset.get('type') === 'animstategraph' && edit.path.startsWith('data.')) {
-            throw new Error('Anim state graph data requires modify_anim_state_graph. Generic leaf writes can be ignored by the editor.');
+            throw new Error(
+                'Anim state graph data requires modify_anim_state_graph. Generic leaf writes can be ignored by the editor.'
+            );
         }
         if (asset.get('type') === 'animation' && edit.path.startsWith('data.events')) {
-            throw new Error('Animation events require modify_animation_events. Generic leaf writes can be ignored by the editor.');
+            throw new Error(
+                'Animation events require modify_animation_events. Generic leaf writes can be ignored by the editor.'
+            );
         }
         if (op === 'set') {
             if (!Object.hasOwn(edit, 'value')) {
@@ -136,7 +140,10 @@ const modifyAssets = async (edits: any[]) => {
             if (!Array.isArray(value)) {
                 throw new Error(`Asset path ${edit.path} is not an array.`);
             }
-            if (edit.index !== undefined && (!Number.isInteger(edit.index) || edit.index < 0 || edit.index > value.length)) {
+            if (
+                edit.index !== undefined &&
+                (!Number.isInteger(edit.index) || edit.index < 0 || edit.index > value.length)
+            ) {
                 throw new Error(`Invalid index ${edit.index} for asset path ${edit.path}.`);
             }
             if (op !== 'insert' && edit.index >= value.length) {
@@ -153,7 +160,9 @@ const modifyAssets = async (edits: any[]) => {
     for (const { asset, edit, op } of prepared) {
         if (op === 'set') {
             if (edit.path === 'name') {
-                const error = await new Promise((resolve) => editor.call('assets:rename', asset.observer, edit.value, resolve));
+                const error = await new Promise((resolve) =>
+                    editor.call('assets:rename', asset.observer, edit.value, resolve)
+                );
                 if (error) {
                     return { error: String(error) };
                 }
@@ -226,21 +235,27 @@ driver.method('assets:create', async (assets) => {
         return denied;
     }
     const prepared = assets.map(prepareCreate);
-    const results = await Promise.all(prepared.map(({ method, options, type }, index) =>
-        Promise.resolve().then(async () => {
-            const asset = await api.assets[method](options);
-            if (!asset) {
-                throw new Error(`Failed to create asset of type ${type}`);
-            }
-            log(`Created asset(${asset.get('id')}) - Type: ${type}`);
-            return { index, type, asset: assetSummary(asset) };
-        }).then(
-            (result) => ({ result }),
-            (error) => ({ error: { index, type, message: error instanceof Error ? error.message : String(error) } })
+    const results = await Promise.all(
+        prepared.map(({ method, options, type }, index) =>
+            Promise.resolve()
+                .then(async () => {
+                    const asset = await api.assets[method](options);
+                    if (!asset) {
+                        throw new Error(`Failed to create asset of type ${type}`);
+                    }
+                    log(`Created asset(${asset.get('id')}) - Type: ${type}`);
+                    return { index, type, asset: assetSummary(asset) };
+                })
+                .then(
+                    (result) => ({ result }),
+                    (error) => ({
+                        error: { index, type, message: error instanceof Error ? error.message : String(error) }
+                    })
+                )
         )
-    ));
-    const succeeded = results.flatMap((item) => 'result' in item ? [item.result] : []);
-    const failed = results.flatMap((item) => 'error' in item ? [item.error] : []);
+    );
+    const succeeded = results.flatMap((item) => ('result' in item ? [item.result] : []));
+    const failed = results.flatMap((item) => ('error' in item ? [item.error] : []));
     return { data: { succeeded, failed }, meta: { partial: failed.length > 0 } };
 });
 driver.method('assets:upload', async (items) => {
@@ -278,14 +293,24 @@ driver.method('assets:upload', async (items) => {
             settings: item.settings
         };
     });
-    const results = await Promise.all(prepared.map(({ data, settings }, index) =>
-        Promise.resolve().then(() => api.assets.upload(data, settings)).then(
-            (asset) => ({ result: { index, asset: assetSummary(asset) } }),
-            (error) => ({ error: { index, filename: data.filename, message: error instanceof Error ? error.message : String(error) } })
+    const results = await Promise.all(
+        prepared.map(({ data, settings }, index) =>
+            Promise.resolve()
+                .then(() => api.assets.upload(data, settings))
+                .then(
+                    (asset) => ({ result: { index, asset: assetSummary(asset) } }),
+                    (error) => ({
+                        error: {
+                            index,
+                            filename: data.filename,
+                            message: error instanceof Error ? error.message : String(error)
+                        }
+                    })
+                )
         )
-    ));
-    const succeeded = results.flatMap((item) => 'result' in item ? [item.result] : []);
-    const failed = results.flatMap((item) => 'error' in item ? [item.error] : []);
+    );
+    const succeeded = results.flatMap((item) => ('result' in item ? [item.result] : []));
+    const failed = results.flatMap((item) => ('error' in item ? [item.error] : []));
     return { data: { succeeded, failed }, meta: { partial: failed.length > 0 } };
 });
 driver.method('assets:modify', modifyAssets);
@@ -317,7 +342,11 @@ driver.method('assets:move', async (ids, folderId) => {
         }
     }
     const timer = setTimeout(() => finish('Timed out waiting for moved assets to update.'), OPERATION_TIMEOUT);
-    const error = editor.call('assets:fs:move', assets.map((asset: any) => asset.observer), folder?.observer || null);
+    const error = editor.call(
+        'assets:fs:move',
+        assets.map((asset: any) => asset.observer),
+        folder?.observer || null
+    );
     if (error) {
         cleanup();
         return { error };
@@ -332,7 +361,10 @@ driver.method('assets:duplicate', (ids) => {
         return denied;
     }
     const assets = ids.map(getAsset);
-    editor.call('assets:fs:duplicate', assets.map((asset: any) => asset.observer));
+    editor.call(
+        'assets:fs:duplicate',
+        assets.map((asset: any) => asset.observer)
+    );
     return { data: { accepted: ids } };
 });
 driver.method('assets:replace', (id, replacementId) => {
@@ -351,15 +383,23 @@ driver.method('assets:reimport', async (ids, settings = {}) => {
         return denied;
     }
     ids.forEach(getAsset);
-    const results = await Promise.all(ids.map((id: number) => new Promise((resolve) => {
-        api.rest.assets.assetReimport(String(id), settings)
-            .on('load', (_status: number, result: unknown) => resolve({ result: { id, result } }))
-            .on('error', (_status: number, error: unknown) => resolve({
-                error: { id, message: error instanceof Error ? error.message : String(error) }
-            }));
-    })));
-    const succeeded = results.flatMap((item: any) => item.result ? [item.result] : []);
-    const failed = results.flatMap((item: any) => item.error ? [item.error] : []);
+    const results = await Promise.all(
+        ids.map(
+            (id: number) =>
+                new Promise((resolve) => {
+                    api.rest.assets
+                        .assetReimport(String(id), settings)
+                        .on('load', (_status: number, result: unknown) => resolve({ result: { id, result } }))
+                        .on('error', (_status: number, error: unknown) =>
+                            resolve({
+                                error: { id, message: error instanceof Error ? error.message : String(error) }
+                            })
+                        );
+                })
+        )
+    );
+    const succeeded = results.flatMap((item: any) => (item.result ? [item.result] : []));
+    const failed = results.flatMap((item: any) => (item.error ? [item.error] : []));
     return { data: { succeeded, failed }, meta: { partial: failed.length > 0 } };
 });
 driver.method('assets:delete', async (ids) => {
@@ -482,12 +522,13 @@ driver.method('templates:apply', async ({ entityId, overrides }: any) => {
     if (!entity) {
         return { error: `Entity not found: ${entityId}.` };
     }
-    const apply = (name: string, ...args: any[]) => new Promise((resolve) => {
-        const accepted = editor.call(name, ...args, resolve);
-        if (!accepted) {
-            resolve(false);
-        }
-    });
+    const apply = (name: string, ...args: any[]) =>
+        new Promise((resolve) => {
+            const accepted = editor.call(name, ...args, resolve);
+            if (!accepted) {
+                resolve(false);
+            }
+        });
     const results = [];
     if (overrides?.length) {
         for (const override of overrides) {
@@ -544,7 +585,10 @@ driver.method('templates:unlink', ({ entityIds }: any) => {
         }
         return entity;
     });
-    editor.call('templates:unlink', entities.map((entity: any) => entity.observer));
+    editor.call(
+        'templates:unlink',
+        entities.map((entity: any) => entity.observer)
+    );
     return { data: entities.map(entitySummary) };
 });
 driver.method('assets:script:parse', async (id) => {

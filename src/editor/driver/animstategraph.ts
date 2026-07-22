@@ -68,7 +68,10 @@ driver.method('animstategraph:modify', async (assetId, operations) => {
 
     const [err, result] = await Promise.resolve()
         .then(() => modifyAnimStateGraph(asset.get('data'), operations))
-        .then((value) => [null, value] as const, (error) => [error, null] as const);
+        .then(
+            (value) => [null, value] as const,
+            (error) => [error, null] as const
+        );
     if (err) {
         return { error: err instanceof Error ? err.message : String(err) };
     }

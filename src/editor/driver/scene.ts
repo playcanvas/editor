@@ -5,9 +5,14 @@ import { api, log, iterateObject, writeError } from './shared';
 
 const LOAD_TIMEOUT = 50_000;
 
-const scenes = () => new Promise<unknown[]>((resolve) => {
-    editor.call('scenes:list', (result: unknown) => resolve([null, result]), (error: unknown) => resolve([error]));
-});
+const scenes = () =>
+    new Promise<unknown[]>((resolve) => {
+        editor.call(
+            'scenes:list',
+            (result: unknown) => resolve([null, result]),
+            (error: unknown) => resolve([error])
+        );
+    });
 
 // scene settings
 driver.method('scene:settings:modify', (settings) => {
@@ -55,7 +60,12 @@ driver.method('scenes:new', async (name) => {
         return denied;
     }
     const [err, data] = await new Promise<unknown[]>((resolve) => {
-        editor.call('scenes:new', name, (result: unknown) => resolve([null, result]), (error: unknown) => resolve([error]));
+        editor.call(
+            'scenes:new',
+            name,
+            (result: unknown) => resolve([null, result]),
+            (error: unknown) => resolve([error])
+        );
     });
     if (err) {
         return { error: String(err) };
@@ -69,7 +79,13 @@ driver.method('scenes:duplicate', async (id, name) => {
         return denied;
     }
     const [err, data] = await new Promise<unknown[]>((resolve) => {
-        editor.call('scenes:duplicate', String(id), name, (result: unknown) => resolve([null, result]), (error: unknown) => resolve([error]));
+        editor.call(
+            'scenes:duplicate',
+            String(id),
+            name,
+            (result: unknown) => resolve([null, result]),
+            (error: unknown) => resolve([error])
+        );
     });
     if (err) {
         return { error: String(err) };

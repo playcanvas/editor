@@ -42,7 +42,10 @@ driver.method('animation:events:modify', async (assetId, operations) => {
 
     const [err, result] = await Promise.resolve()
         .then(() => modifyAnimationEvents(value.get('data.events') || {}, operations, value.get('meta.duration')))
-        .then((data) => [null, data] as const, (error) => [error, null] as const);
+        .then(
+            (data) => [null, data] as const,
+            (error) => [error, null] as const
+        );
     if (err) {
         return { error: err instanceof Error ? err.message : String(err) };
     }
