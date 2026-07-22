@@ -1,9 +1,8 @@
-import { mcp } from '../connection';
-
+import { driver } from './driver';
 import { log, iterateObject } from './shared';
 
 // project settings
-mcp.method('project:settings:modify', (settings) => {
+driver.method('project:settings:modify', (settings) => {
     const project = editor.call('settings:project');
     iterateObject(settings, (path, value) => {
         project.set(path, value);
@@ -13,7 +12,7 @@ mcp.method('project:settings:modify', (settings) => {
     // return the resulting settings snapshot inline
     return { data: project.json() };
 });
-mcp.method('project:settings:query', () => {
+driver.method('project:settings:query', () => {
     const project = editor.call('settings:project');
     log('Queried project settings');
     return { data: project.json() };

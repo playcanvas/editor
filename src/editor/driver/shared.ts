@@ -1,6 +1,6 @@
 const api = editor.api.globals;
 
-const log = (msg: string) => console.log(`[MCP] ${msg}`);
+const log = (msg: string) => console.log(`[Editor Driver] ${msg}`);
 
 /**
  * PlayCanvas REST API wrapper.

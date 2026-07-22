@@ -1,11 +1,10 @@
 import { config } from '@/editor/config';
 
-import { mcp } from '../connection';
-
+import { driver } from './driver';
 import { log, rest } from './shared';
 
 // store - playcanvas
-mcp.method('store:playcanvas:list', async (options: any = {}) => {
+driver.method('store:playcanvas:list', async (options: any = {}) => {
     const params = [];
     if (options.search) {
         params.push(`search=${options.search}`);
@@ -32,7 +31,7 @@ mcp.method('store:playcanvas:list', async (options: any = {}) => {
         return { error: e.message };
     }
 });
-mcp.method('store:playcanvas:get', async (id) => {
+driver.method('store:playcanvas:get', async (id) => {
     try {
         const data = await rest('GET', `store/${id}`);
         if (data.error) {
@@ -44,7 +43,7 @@ mcp.method('store:playcanvas:get', async (id) => {
         return { error: e.message };
     }
 });
-mcp.method('store:playcanvas:clone', async (id, name, license) => {
+driver.method('store:playcanvas:clone', async (id, name, license) => {
     try {
         const data = await rest('POST', `store/${id}/clone`, {
             scope: {
@@ -67,7 +66,7 @@ mcp.method('store:playcanvas:clone', async (id, name, license) => {
 });
 
 // store - sketchfab
-mcp.method('store:sketchfab:list', async (options: any = {}) => {
+driver.method('store:sketchfab:list', async (options: any = {}) => {
     const params = ['restricted=0', 'type=models', 'downloadable=true'];
     if (options.search) {
         params.push(`q=${options.search}`);
@@ -94,7 +93,7 @@ mcp.method('store:sketchfab:list', async (options: any = {}) => {
         return { error: e.message };
     }
 });
-mcp.method('store:sketchfab:get', async (uid) => {
+driver.method('store:sketchfab:get', async (uid) => {
     try {
         const res = await fetch(`https://api.sketchfab.com/v3/models/${uid}`);
         const data = await res.json();
@@ -107,7 +106,7 @@ mcp.method('store:sketchfab:get', async (uid) => {
         return { error: e.message };
     }
 });
-mcp.method('store:sketchfab:clone', async (uid, name, license) => {
+driver.method('store:sketchfab:clone', async (uid, name, license) => {
     try {
         const data = await rest('POST', `store/${uid}/clone`, {
             scope: {

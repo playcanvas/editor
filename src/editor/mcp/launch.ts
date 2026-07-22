@@ -1,8 +1,8 @@
 import { config } from '@/editor/config';
 
-import { mcp } from '../connection';
+import { mcp } from './connection';
 
-import { log } from './shared';
+const log = (msg: string) => console.log(`[MCP] ${msg}`);
 
 // remember a handle to the launched runtime window so we can stop it later
 let runtimeWindow: Window | null = null;
