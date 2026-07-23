@@ -7,9 +7,7 @@ const MAX_FILE_BYTES = 20 * 1024 * 1024;
 const MAX_CHUNK_BYTES = 1024 * 1024;
 const MAX_TRANSFER_BYTES = 512 * 1024 * 1024;
 const MAX_TRANSFERS = 1;
-const MAX_TRANSFER_MEMORY = 512 * 1024 * 1024;
 const MAX_BASE64_LENGTH = Math.ceil(MAX_FILE_BYTES / 3) * 4;
-const OPERATION_TIMEOUT = 60_000;
 const TRANSFER_TIMEOUT = 60_000;
 const TEXT_TYPES = ['css', 'html', 'json', 'script', 'shader', 'text'];
 const MIME_TYPES: Record<string, string> = {
@@ -37,7 +35,6 @@ const CREATE_METHODS: Record<string, string> = {
     text: 'createText'
 };
 const transfers = new Map<string, any>();
-let reserved = 0;
 let pendingDownload = false;
 
 /**
@@ -70,21 +67,11 @@ const waitForAsset = (id: number) => {
     if (asset) {
         return Promise.resolve(asset);
     }
-    return new Promise<any>((resolve, reject) => {
-        const event = api.assets.once(`add[${id}]`, (value: any) => {
-            clearTimeout(timer);
-            resolve(value);
-        });
-        const timer = setTimeout(() => {
-            event.unbind();
-            reject(new Error(`Timed out waiting for asset ${id}.`));
-        }, OPERATION_TIMEOUT);
-    });
+    return new Promise<any>((resolve) => api.assets.once(`add[${id}]`, resolve));
 };
 
 const uploadAsset = (data: any, settings: any = {}) =>
     new Promise<any>((resolve, reject) => {
-        const timer = setTimeout(() => reject(new Error(`Timed out uploading ${data.filename}.`)), OPERATION_TIMEOUT);
         editor.call(
             'assets:uploadFile',
             {
@@ -94,7 +81,6 @@ const uploadAsset = (data: any, settings: any = {}) =>
                 settings
             },
             (error: unknown, result: { id: number }) => {
-                clearTimeout(timer);
                 if (error) {
                     reject(error);
                     return;
@@ -104,8 +90,8 @@ const uploadAsset = (data: any, settings: any = {}) =>
         );
     });
 
-const uploadBytes = (item: any, bytes: Uint8Array) => {
-    if (!bytes.length) {
+const uploadFile = (item: any, file: File) => {
+    if (!file.size) {
         throw new Error(`Cannot upload empty file: ${item.filename}.`);
     }
     const folder = item.folder === undefined || item.folder === null ? undefined : getAsset(item.folder);
@@ -123,13 +109,22 @@ const uploadBytes = (item: any, bytes: Uint8Array) => {
             type: item.type,
             folder,
             filename: item.filename,
-            file: new Blob([bytes.buffer as ArrayBuffer], { type: item.mime || 'application/octet-stream' }),
+            file: new File([file], item.filename, { type: item.mime || 'application/octet-stream' }),
             tags: item.tags,
             data: item.data,
             preload: item.preload
         },
         item.settings
     );
+};
+
+const base64ToBytes = (base64: string) => {
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
 };
 
 const bytesToBase64 = (bytes: Uint8Array) => {
@@ -140,20 +135,22 @@ const bytesToBase64 = (bytes: Uint8Array) => {
     return btoa(binary);
 };
 
-const dropTransfer = (id: string) => {
+const dropTransfer = async (id: string) => {
     const transfer = transfers.get(id);
     if (!transfer) {
         return false;
     }
     clearTimeout(transfer.timer);
     transfers.delete(id);
-    reserved -= transfer.size;
+    await transfer.writer?.abort().catch(() => false);
+    await transfer.reader?.cancel().catch(() => false);
+    await transfer.root?.removeEntry(id).catch(() => false);
     return true;
 };
 
 const touchTransfer = (transfer: any) => {
     clearTimeout(transfer.timer);
-    transfer.timer = setTimeout(() => dropTransfer(transfer.id), TRANSFER_TIMEOUT);
+    transfer.timer = setTimeout(() => void dropTransfer(transfer.id), TRANSFER_TIMEOUT);
 };
 
 const addTransfer = (transfer: any) => {
@@ -162,47 +159,78 @@ const addTransfer = (transfer: any) => {
         transfer.size < 0 ||
         (transfer.direction === 'upload' && transfer.size === 0) ||
         transfer.size > MAX_TRANSFER_BYTES ||
-        transfers.size >= MAX_TRANSFERS ||
-        reserved + transfer.size > MAX_TRANSFER_MEMORY
+        transfers.size >= MAX_TRANSFERS
     ) {
-        throw new Error('Transfer exceeds the configured size, concurrency, or memory limit.');
+        throw new Error('Transfer exceeds the configured size or concurrency limit.');
     }
     transfer.id = crypto.randomUUID();
     transfer.offset = 0;
     transfers.set(transfer.id, transfer);
-    reserved += transfer.size;
     touchTransfer(transfer);
     return transfer;
 };
 
-const downloadAsset = async (id: number) => {
+const openDownload = async (id: number) => {
     const asset = getAsset(id);
     const type = asset.get('type');
-    let blob;
     let filename = asset.get('file.filename') || asset.get('name');
     if (type === 'animstategraph') {
         filename = `${filename}.json`;
-        blob = new Blob([JSON.stringify(asset.get('data'), null, 4)], { type: 'application/json' });
-    } else {
-        const res = await fetch(`/api/assets/${id}/download?branchId=${config.self.branch.id}`);
-        if (!res.ok) {
-            throw new Error(`Failed to download asset: ${res.status} ${res.statusText}`);
-        }
-        const length = Number(res.headers.get('content-length'));
-        if (length > MAX_TRANSFER_BYTES) {
+        const file = new Blob([JSON.stringify(asset.get('data'), null, 4)], { type: 'application/json' });
+        if (file.size > MAX_TRANSFER_BYTES) {
             throw new Error(`Asset download exceeds the ${MAX_TRANSFER_BYTES / 1024 / 1024} MiB limit.`);
         }
-        blob = await res.blob();
+        return { id, filename, mime: file.type, size: file.size, stream: file.stream() };
     }
-    if (blob.size > MAX_TRANSFER_BYTES) {
+    const res = await fetch(`/api/assets/${id}/download?branchId=${config.self.branch.id}`);
+    if (!res.ok) {
+        await res.body?.cancel();
+        throw new Error(`Failed to download asset: ${res.status} ${res.statusText}`);
+    }
+    const header = res.headers.get('content-length');
+    const size = header === null ? Number(asset.get('file.size')) : Number(header);
+    if (!Number.isInteger(size) || size < 0) {
+        await res.body?.cancel();
+        throw new Error('Asset download size is unavailable.');
+    }
+    if (size > MAX_TRANSFER_BYTES) {
+        await res.body?.cancel();
         throw new Error(`Asset download exceeds the ${MAX_TRANSFER_BYTES / 1024 / 1024} MiB limit.`);
+    }
+    if (!res.body) {
+        throw new Error('Asset download body is unavailable.');
     }
     return {
         id,
         filename,
-        mime: blob.type || 'application/octet-stream',
-        bytes: new Uint8Array(await blob.arrayBuffer())
+        mime: res.headers.get('content-type') || 'application/octet-stream',
+        size,
+        stream: res.body
     };
+};
+
+const readDownload = async (transfer: any, length: number) => {
+    const size = Math.min(length, transfer.size - transfer.offset);
+    const bytes = new Uint8Array(size);
+    let offset = 0;
+    while (offset < size) {
+        let chunk = transfer.pending;
+        if (!chunk?.length) {
+            const result = await transfer.reader.read();
+            if (result.done) {
+                break;
+            }
+            chunk = result.value;
+        }
+        const count = Math.min(chunk.length, size - offset);
+        bytes.set(chunk.subarray(0, count), offset);
+        offset += count;
+        transfer.pending = count < chunk.length ? chunk.subarray(count) : null;
+    }
+    if (offset !== size) {
+        throw new Error(`Asset download ended at ${transfer.offset + offset} of ${transfer.size} bytes.`);
+    }
+    return bytes;
 };
 
 const prepareCreate = ({ type, options = {} }: any) => {
@@ -349,7 +377,11 @@ const modifyAssets = async (edits: any[]) => {
 
     const modified = new Map();
     const renamed = [];
-    for (const { asset, edit } of prepared.filter(({ edit, op }) => op === 'set' && edit.path === 'name')) {
+    for (let i = 0; i < prepared.length; i++) {
+        const { asset, edit, op } = prepared[i];
+        if (op !== 'set' || edit.path !== 'name') {
+            continue;
+        }
         const error = await new Promise((resolve) => editor.call('assets:rename', asset.observer, edit.value, resolve));
         if (error) {
             return {
@@ -364,7 +396,11 @@ const modifyAssets = async (edits: any[]) => {
         renamed.push({ id: edit.id, path: edit.path });
         modified.set(edit.id, asset);
     }
-    for (const { asset, edit, op, value } of prepared.filter(({ edit }) => edit.path !== 'name')) {
+    for (let i = 0; i < prepared.length; i++) {
+        const { asset, edit, op, value } = prepared[i];
+        if (edit.path === 'name') {
+            continue;
+        }
         if (op === 'set') {
             asset.set(edit.path, value);
         } else if (op === 'unset') {
@@ -474,16 +510,21 @@ driver.method('assets:upload', async (items) => {
         if (typeof item.base64 !== 'string' || item.base64.length > MAX_BASE64_LENGTH) {
             throw new Error(`Asset upload exceeds the ${MAX_FILE_BYTES / 1024 / 1024} MiB limit.`);
         }
-        const binary = atob(item.base64);
-        if (binary.length > MAX_FILE_BYTES) {
+        const bytes = base64ToBytes(item.base64);
+        if (bytes.length > MAX_FILE_BYTES) {
             throw new Error(`Asset upload exceeds the ${MAX_FILE_BYTES / 1024 / 1024} MiB limit.`);
         }
-        return { item, bytes: Uint8Array.from(binary, (char) => char.charCodeAt(0)) };
+        return { item, bytes };
     });
     const results = await Promise.all(
         prepared.map(({ item, bytes }, index) =>
             Promise.resolve()
-                .then(() => uploadBytes(item, bytes))
+                .then(() =>
+                    uploadFile(
+                        item,
+                        new File([bytes], item.filename, { type: item.mime || 'application/octet-stream' })
+                    )
+                )
                 .then(
                     (asset) => ({ result: { index, asset: assetSummary(asset) } }),
                     (error) => ({
@@ -514,8 +555,9 @@ driver.method('assets:move', async (ids, folderId) => {
     let finish: (error: string | null) => void;
     const events = assets.map((asset: any) => asset.on('path:set', check));
     const cleanup = () => {
-        clearTimeout(timer);
-        events.forEach((event: any) => event.unbind());
+        for (let i = 0; i < events.length; i++) {
+            events[i].unbind();
+        }
     };
     const complete = new Promise<string | null>((resolve) => {
         finish = (error) => {
@@ -528,7 +570,6 @@ driver.method('assets:move', async (ids, folderId) => {
             finish?.(null);
         }
     }
-    const timer = setTimeout(() => finish('Timed out waiting for moved assets to update.'), OPERATION_TIMEOUT);
     const error = editor.call(
         'assets:fs:move',
         assets.map((asset: any) => asset.observer),
@@ -577,7 +618,9 @@ driver.method('assets:reimport', async (ids, settings = {}) => {
     if (denied) {
         return denied;
     }
-    ids.forEach(getAsset);
+    for (let i = 0; i < ids.length; i++) {
+        getAsset(ids[i]);
+    }
     const results = await Promise.all(
         ids.map((id: number) => {
             const asset = getAsset(id);
@@ -702,17 +745,25 @@ driver.method('assets:file:text:get', async (id) => {
     }
 });
 driver.method('assets:file:get', async (id) => {
-    const data = await downloadAsset(id);
-    if (data.bytes.length > MAX_FILE_BYTES) {
+    const data = await openDownload(id);
+    if (data.size > MAX_FILE_BYTES) {
+        await data.stream.cancel();
         return { error: `Asset download exceeds the ${MAX_FILE_BYTES / 1024 / 1024} MiB limit.` };
     }
-    return { data: { id, filename: data.filename, mime: data.mime, base64: bytesToBase64(data.bytes) } };
+    const bytes = new Uint8Array(await new Response(data.stream).arrayBuffer());
+    if (bytes.length !== data.size) {
+        throw new Error(`Asset download ended at ${bytes.length} of ${data.size} bytes.`);
+    }
+    return { data: { id, filename: data.filename, mime: data.mime, base64: bytesToBase64(bytes) } };
 });
 
-driver.method('files:upload:start', (item, size) => {
+driver.method('files:upload:start', async (item, size) => {
     const denied = writeError('upload assets');
     if (denied) {
         return denied;
+    }
+    if (transfers.size || pendingDownload) {
+        throw new Error('Finish or cancel the active file transfer before starting another.');
     }
     if (!item?.filename || !item?.type) {
         throw new Error('Upload transfer requires filename and type.');
@@ -723,11 +774,26 @@ driver.method('files:upload:start', (item, size) => {
     if (item.id !== undefined && getAsset(item.id).get('type') !== item.type) {
         throw new Error(`Asset ${item.id} does not match upload type ${item.type}.`);
     }
-    const transfer = addTransfer({ direction: 'upload', size, item, bytes: new Uint8Array(size) });
+    const transfer = addTransfer({ direction: 'upload', size, item });
+    const [error, data] = await navigator.storage
+        .getDirectory()
+        .then(async (root) => {
+            const file = await root.getFileHandle(transfer.id, { create: true });
+            return { root, file, writer: await file.createWritable() };
+        })
+        .then(
+            (value) => [null, value],
+            (value) => [value, null]
+        );
+    if (error) {
+        await dropTransfer(transfer.id);
+        throw error;
+    }
+    Object.assign(transfer, data);
     return { data: { transferId: transfer.id, size, chunkSize: MAX_CHUNK_BYTES } };
 });
 
-driver.method('files:upload:append', (id, offset, base64) => {
+driver.method('files:upload:append', async (id, offset, base64) => {
     const transfer = transfers.get(id);
     if (!transfer || transfer.direction !== 'upload') {
         throw new Error(`Upload transfer not found: ${id}.`);
@@ -739,12 +805,11 @@ driver.method('files:upload:append', (id, offset, base64) => {
     ) {
         throw new Error(`Invalid upload offset or chunk for transfer ${id}.`);
     }
-    const binary = atob(base64);
-    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    const bytes = base64ToBytes(base64);
     if (!bytes.length || bytes.length > MAX_CHUNK_BYTES || transfer.offset + bytes.length > transfer.size) {
         throw new Error(`Invalid upload chunk length for transfer ${id}.`);
     }
-    transfer.bytes.set(bytes, transfer.offset);
+    await transfer.writer.write(bytes);
     transfer.offset += bytes.length;
     touchTransfer(transfer);
     return { data: { transferId: id, offset: transfer.offset } };
@@ -757,12 +822,17 @@ driver.method('files:upload:finish', async (id) => {
     }
     clearTimeout(transfer.timer);
     transfer.direction = 'finishing';
-    touchTransfer(transfer);
-    const [error, asset] = await uploadBytes(transfer.item, transfer.bytes).then(
-        (value) => [null, value],
-        (value) => [value, null]
-    );
-    dropTransfer(id);
+    const [error, asset] = await Promise.resolve()
+        .then(async () => {
+            await transfer.writer.close();
+            transfer.writer = null;
+            return uploadFile(transfer.item, await transfer.file.getFile());
+        })
+        .then(
+            (value) => [null, value],
+            (value) => [value, null]
+        );
+    await dropTransfer(id);
     if (error) {
         throw error;
     }
@@ -774,37 +844,56 @@ driver.method('files:download:start', async (id, inlineLimit = 0) => {
         throw new Error('Finish or cancel the active file transfer before starting another.');
     }
     pendingDownload = true;
-    const [error, data] = await downloadAsset(id).then(
-        (value) => [null, value],
-        (value) => [value, null]
-    );
-    pendingDownload = false;
+    const [error, result] = await Promise.resolve()
+        .then(async () => {
+            const data = await openDownload(id);
+            if (data.size <= Math.min(inlineLimit, MAX_FILE_BYTES)) {
+                const bytes = new Uint8Array(await new Response(data.stream).arrayBuffer());
+                if (bytes.length !== data.size) {
+                    throw new Error(`Asset download ended at ${bytes.length} of ${data.size} bytes.`);
+                }
+                return {
+                    data: {
+                        size: data.size,
+                        filename: data.filename,
+                        mime: data.mime,
+                        base64: bytesToBase64(bytes)
+                    }
+                };
+            }
+            const transfer = addTransfer({
+                direction: 'download',
+                size: data.size,
+                reader: data.stream.getReader(),
+                pending: null
+            });
+            return {
+                data: {
+                    transferId: transfer.id,
+                    size: transfer.size,
+                    chunkSize: MAX_CHUNK_BYTES,
+                    filename: data.filename,
+                    mime: data.mime
+                }
+            };
+        })
+        .then(
+            (value) => {
+                pendingDownload = false;
+                return [null, value];
+            },
+            (value) => {
+                pendingDownload = false;
+                return [value, null];
+            }
+        );
     if (error) {
         throw error;
     }
-    if (data.bytes.length <= Math.min(inlineLimit, MAX_FILE_BYTES)) {
-        return {
-            data: {
-                size: data.bytes.length,
-                filename: data.filename,
-                mime: data.mime,
-                base64: bytesToBase64(data.bytes)
-            }
-        };
-    }
-    const transfer = addTransfer({ direction: 'download', size: data.bytes.length, data });
-    return {
-        data: {
-            transferId: transfer.id,
-            size: transfer.size,
-            chunkSize: MAX_CHUNK_BYTES,
-            filename: data.filename,
-            mime: data.mime
-        }
-    };
+    return result;
 });
 
-driver.method('files:download:read', (id, offset, length = MAX_CHUNK_BYTES) => {
+driver.method('files:download:read', async (id, offset, length = MAX_CHUNK_BYTES) => {
     const transfer = transfers.get(id);
     if (!transfer || transfer.direction !== 'download') {
         throw new Error(`Download transfer not found: ${id}.`);
@@ -812,7 +901,7 @@ driver.method('files:download:read', (id, offset, length = MAX_CHUNK_BYTES) => {
     if (offset !== transfer.offset || !Number.isInteger(length) || length <= 0 || length > MAX_CHUNK_BYTES) {
         throw new Error(`Invalid download offset or chunk length for transfer ${id}.`);
     }
-    const bytes = transfer.data.bytes.subarray(offset, Math.min(offset + length, transfer.size));
+    const bytes = await readDownload(transfer, length);
     transfer.offset += bytes.length;
     touchTransfer(transfer);
     return {
@@ -825,23 +914,24 @@ driver.method('files:download:read', (id, offset, length = MAX_CHUNK_BYTES) => {
     };
 });
 
-driver.method('files:transfer:finish', (id) => {
+driver.method('files:transfer:finish', async (id) => {
     const transfer = transfers.get(id);
     if (!transfer || transfer.offset !== transfer.size) {
         throw new Error(`Incomplete transfer: ${id}.`);
     }
-    dropTransfer(id);
+    await dropTransfer(id);
     return { data: { transferId: id, size: transfer.size } };
 });
 
-driver.method('files:transfer:cancel', (id) => ({
-    data: {
-        transferId: id,
-        cancelled: transfers.get(id)?.direction === 'finishing' ? false : dropTransfer(id)
+driver.method('files:transfer:cancel', async (id) => {
+    const cancelled = transfers.get(id)?.direction === 'finishing' ? false : await dropTransfer(id);
+    return { data: { transferId: id, cancelled } };
+});
+driver.method('files:transfer:clear', async () => {
+    const ids = [...transfers.keys()];
+    for (let i = 0; i < ids.length; i++) {
+        await dropTransfer(ids[i]);
     }
-}));
-driver.method('files:transfer:clear', () => {
-    [...transfers.keys()].forEach(dropTransfer);
     return { data: { cleared: true } };
 });
 driver.method('templates:apply', async ({ entityId, overrides }: any) => {

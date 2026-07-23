@@ -1,5 +1,5 @@
 import { driver } from './driver';
-import { api, log, entitySummary, paginate, writeError } from './shared';
+import { api, log, entitySummary, paginate, validatePath, writeError } from './shared';
 
 const ENTITY_TOP_LEVEL_PATHS = ['name', 'enabled', 'position', 'rotation', 'scale', 'tags'];
 
@@ -9,6 +9,7 @@ const validateEntityPath = (entity: any, path: string) => {
     if (typeof path !== 'string' || !path.length) {
         return `Missing path. Valid top-level paths: ${ENTITY_TOP_LEVEL_PATHS.join(', ')}; or component paths like components.<type>.<prop>. This entity has components: [${componentList}].`;
     }
+    validatePath(path);
     if (path.startsWith('components.')) {
         const parts = path.split('.');
         const component = parts[1];
@@ -195,20 +196,23 @@ driver.method('entities:modify', (edits) => {
     api.history.add({
         name: 'modify entities',
         combine: false,
-        undo: () =>
-            prepared
-                .slice()
-                .reverse()
-                .forEach(({ entity, path, previous, exists }) => write({ entity, path, value: previous, exists })),
-        redo: () =>
-            prepared.forEach(({ entity, path, value, op }) =>
+        undo: () => {
+            for (let i = prepared.length - 1; i >= 0; i--) {
+                const { entity, path, previous, exists } = prepared[i];
+                write({ entity, path, value: previous, exists });
+            }
+        },
+        redo: () => {
+            for (let i = 0; i < prepared.length; i++) {
+                const { entity, path, value, op } = prepared[i];
                 write({
                     entity,
                     path,
                     value,
                     exists: op === 'set'
-                })
-            )
+                });
+            }
+        }
     });
 
     // return the post-edit summaries of every touched entity
@@ -318,11 +322,14 @@ driver.method('entities:components:add', (id, components) => {
     if (existing.length) {
         return { error: `Entity ${id} already has components: ${existing.join(', ')}.` };
     }
-    Object.keys(components).forEach((component) => api.schema.components.getDefaultData(component));
-    Object.entries(components).forEach(([name, data]) => {
-        entity.addComponent(name, data);
-    });
-    log(`Added components(${Object.keys(components).join(', ')}) to entity(${id})`);
+    const names = Object.keys(components);
+    for (let i = 0; i < names.length; i++) {
+        api.schema.components.getDefaultData(names[i]);
+    }
+    for (let i = 0; i < names.length; i++) {
+        entity.addComponent(names[i], components[names[i]]);
+    }
+    log(`Added components(${names.join(', ')}) to entity(${id})`);
     return { data: entitySummary(entity) };
 });
 driver.method('entities:components:remove', (id, components) => {
@@ -340,9 +347,9 @@ driver.method('entities:components:remove', (id, components) => {
     if (missing.length) {
         return { error: `Entity ${id} does not have components: ${missing.join(', ')}.` };
     }
-    components.forEach((component: string) => {
-        entity.removeComponent(component);
-    });
+    for (let i = 0; i < components.length; i++) {
+        entity.removeComponent(components[i]);
+    }
     log(`Removed components(${components.join(', ')}) from entity(${id})`);
     return { data: entitySummary(entity) };
 });

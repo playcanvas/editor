@@ -12,7 +12,6 @@ type SpriteProps = {
     textureAtlasAsset?: number;
     frames?: Record<string, Frame>;
 };
-const OPERATION_TIMEOUT = 60_000;
 const VARIANTS = ['basis', 'dxt', 'etc1', 'etc2', 'pvr'];
 
 const summary = (asset: Asset) => ({
@@ -35,7 +34,7 @@ const setData = (id: number, data: Record<string, unknown>) => {
 const writable = () =>
     editor.call('permissions:write') || { error: 'Write permission is required for asset processing.' };
 
-const bounded = (name: string, start: (done: (error?: unknown, data?: any) => void) => void, cancel?: () => void) =>
+const bounded = (start: (done: (error?: unknown, data?: any) => void) => void, cleanup?: () => void) =>
     new Promise<any[]>((resolve) => {
         let active = true;
         const finish = (error?: unknown, data?: any) => {
@@ -43,29 +42,23 @@ const bounded = (name: string, start: (done: (error?: unknown, data?: any) => vo
                 return;
             }
             active = false;
-            clearTimeout(timer);
+            cleanup?.();
             resolve([error, data]);
         };
-        const timer = setTimeout(() => {
-            cancel?.();
-            finish(new Error(`Timed out waiting for ${name}.`));
-        }, OPERATION_TIMEOUT);
         Promise.resolve()
             .then(() => start(finish))
             .catch(finish);
     });
 
-const waitAsset = async (id: number, name: string) => {
+const waitAsset = async (id: number) => {
     const current = api.assets.get(id);
     if (current) {
         return [null, current];
     }
     let event: any;
     return bounded(
-        name,
         (done) => {
             event = api.assets.once(`add[${id}]`, (asset: Asset) => {
-                event.unbind();
                 done(null, asset);
             });
         },
@@ -73,11 +66,15 @@ const waitAsset = async (id: number, name: string) => {
     );
 };
 
-const waitTask = (asset: any, name: string, start: () => void) =>
+const waitTask = (asset: any, start: () => boolean | void) =>
     new Promise<any[]>((resolve) => {
+        let active = true;
         let running = asset.get('task') !== null;
         const finish = (error?: unknown) => {
-            clearTimeout(timer);
+            if (!active) {
+                return;
+            }
+            active = false;
             event.unbind();
             resolve([error]);
         };
@@ -87,8 +84,14 @@ const waitTask = (asset: any, name: string, start: () => void) =>
                 finish();
             }
         });
-        const timer = setTimeout(() => finish(new Error(`Timed out waiting for ${name}.`)), OPERATION_TIMEOUT);
-        Promise.resolve().then(start).catch(finish);
+        Promise.resolve()
+            .then(start)
+            .then((scheduled) => {
+                if (scheduled === false) {
+                    finish();
+                }
+            })
+            .catch(finish);
     });
 
 driver.method('lightmapper:bake', async (ids?: string[]) => {
@@ -106,10 +109,8 @@ driver.method('lightmapper:bake', async (ids?: string[]) => {
         .filter((id) => id && !api.assets.get(id)?.has('meta.attributes.texCoord1'));
     let event: any;
     const [error] = await bounded(
-        'lightmap bake',
         (done) => {
             event = editor.once('lightmapper:baked', () => {
-                event.unbind();
                 done();
             });
             editor.call('lightmapper:bake', targets);
@@ -133,11 +134,7 @@ driver.method('assets:model:unwrap', async (id, options: { padding?: number } = 
     if (!asset || asset.get('type') !== 'model' || !asset.has('file.filename')) {
         return { error: `Model asset not found or has no source file: ${id}.` };
     }
-    const [error, result] = await bounded(
-        'model unwrap',
-        (done) => editor.call('assets:model:unwrap', asset, options, done),
-        () => editor.call('assets:model:unwrap:cancel', asset)
-    );
+    const [error, result] = await bounded((done) => editor.call('assets:model:unwrap', asset, options, done));
     return error ? { error: String(error) } : { data: summary(result || asset) };
 });
 
@@ -163,14 +160,12 @@ driver.method('assets:texture:convert', async (id, format) => {
     if (!['avif', 'jpeg', 'png', 'webp'].includes(format)) {
         return { error: `Unsupported texture format: ${format}.` };
     }
-    const [error, data] = await bounded('texture conversion', (done) =>
-        editor.call('assets:texture:convert', id, format, done)
-    );
+    const [error, data] = await bounded((done) => editor.call('assets:texture:convert', id, format, done));
     if (error) {
         return { error: String(error) };
     }
     const createdId = data?.asset?.id || data?.id;
-    const [settleError, result] = createdId ? await waitAsset(createdId, 'converted texture settlement') : [null, null];
+    const [settleError, result] = createdId ? await waitAsset(createdId) : [null, null];
     return settleError ? { error: String(settleError) } : { data: result ? summary(result) : data || null };
 });
 
@@ -183,13 +178,11 @@ driver.method('assets:texture:toAtlas', async (id) => {
     if (!asset || asset.get('type') !== 'texture' || asset.get('source')) {
         return { error: `Editable texture asset not found: ${id}.` };
     }
-    const [error, atlasId] = await bounded('texture atlas creation', (done) =>
-        editor.call('assets:textureToAtlas', asset, done)
-    );
+    const [error, atlasId] = await bounded((done) => editor.call('assets:textureToAtlas', asset, done));
     if (error) {
         return { error: String(error) };
     }
-    const [settleError, atlas] = await waitAsset(atlasId, 'texture atlas settlement');
+    const [settleError, atlas] = await waitAsset(atlasId);
     return settleError ? { error: String(settleError) } : { data: summary(atlas) };
 });
 
@@ -202,9 +195,7 @@ driver.method('assets:texture:toCubemap', async (id) => {
     if (!asset || asset.get('type') !== 'texture' || asset.get('source')) {
         return { error: `Editable texture asset not found: ${id}.` };
     }
-    const [error, cubemap] = await bounded('cubemap creation', (done) =>
-        editor.call('assets:textureToCubemap', asset, done)
-    );
+    const [error, cubemap] = await bounded((done) => editor.call('assets:textureToCubemap', asset, done));
     return error ? { error: String(error) } : { data: summary(cubemap) };
 });
 
@@ -223,7 +214,7 @@ driver.method('assets:font:process', async (id, options: { characters: string; i
     if (options.invert !== undefined) {
         asset.set('meta.invert', options.invert);
     }
-    const [error] = await waitTask(asset, 'font processing', () =>
+    const [error] = await waitTask(asset, () => {
         editor.call('realtime:send', 'pipeline', {
             name: 'convert',
             data: {
@@ -232,8 +223,8 @@ driver.method('assets:font:process', async (id, options: { characters: string; i
                 chars: characters,
                 invert: !!asset.get('meta.invert')
             }
-        })
-    );
+        });
+    });
     return error ? { error: error.message } : { data: summary(asset) };
 });
 
@@ -251,10 +242,8 @@ driver.method('assets:texture:metadata', async (id) => {
     }
     let event: any;
     const [error] = await bounded(
-        'texture metadata',
         (done) => {
             event = asset.once('meta:set', () => {
-                event.unbind();
                 done();
             });
             editor.call('realtime:send', 'pipeline', { name: 'meta', id: asset.get('uniqueId') });
@@ -280,8 +269,10 @@ driver.method(
         if (!formats.length || invalid.length) {
             return { error: `Texture formats must be one or more of: ${VARIANTS.join(', ')}.` };
         }
-        formats.forEach((format) => asset.set(`meta.compress.${format}`, !options.remove));
-        const [error] = await waitTask(asset, 'texture variant processing', () =>
+        for (let i = 0; i < formats.length; i++) {
+            asset.set(`meta.compress.${formats[i]}`, !options.remove);
+        }
+        const [error] = await waitTask(asset, () =>
             TextureCompressor.compress([asset.observer], formats, !!options.force)
         );
         return error
@@ -299,20 +290,16 @@ driver.method('assets:cubemap:prefilter', async (id, legacy = false) => {
     if (!asset || asset.get('type') !== 'cubemap') {
         return { error: `Cubemap asset not found: ${id}.` };
     }
-    const [error] = await bounded('cubemap prefiltering', (done) =>
-        editor.call('assets:cubemaps:prefilter', asset.observer, legacy, done)
-    );
+    const [error] = await bounded((done) => editor.call('assets:cubemaps:prefilter', asset.observer, legacy, done));
     if (error) {
         return { error: String(error) };
     }
     if (!asset.get('file')) {
         let event: any;
         const [settleError] = await bounded(
-            'cubemap prefilter settlement',
             (done) => {
                 event = asset.on('file:set', (file: unknown) => {
                     if (file) {
-                        event.unbind();
                         done();
                     }
                 });
@@ -340,11 +327,9 @@ driver.method('assets:cubemap:prefilter:clear', async (id) => {
     }
     let event: any;
     const [error] = await bounded(
-        'cubemap prefilter clear',
         (done) => {
             event = asset.on('file:set', (file: unknown) => {
                 if (file === null) {
-                    event.unbind();
                     done();
                 }
             });

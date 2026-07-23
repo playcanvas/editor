@@ -47,13 +47,14 @@ const modifySettings = (scope: string, edits: any[]) => {
         }
         return { ...edit, op };
     });
-    prepared.forEach(({ path, op, value }) => {
+    for (let i = 0; i < prepared.length; i++) {
+        const { path, op, value } = prepared[i];
         if (op === 'unset') {
             settings.unset(path);
         } else {
             settings.set(path, value);
         }
-    });
+    }
     log(`Modified ${scope} settings: ${prepared.map(({ path }) => path).join(', ')}`);
     return { data: settings.json() };
 };

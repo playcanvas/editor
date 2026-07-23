@@ -14,21 +14,24 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
         options.history = true;
     }
 
-    const parents = new Map(data.map(({ entity, parent }) => [entity, parent]));
-    if (parents.size !== data.length) {
-        throw new Error('An entity cannot be reparented more than once in one operation.');
-    }
+    const parents = new Map<Entity, Entity>();
     const sizes = new Map<Entity, number>();
-    data.forEach(({ entity, parent }) => {
+    for (let i = 0; i < data.length; i++) {
+        const { entity, parent } = data[i];
+        if (parents.has(entity)) {
+            throw new Error('An entity cannot be reparented more than once in one operation.');
+        }
         if (!entity.parent) {
             throw new Error('The root entity cannot be reparented.');
         }
+        parents.set(entity, parent);
         sizes.set(entity.parent, sizes.get(entity.parent) ?? entity.parent.get('children').length);
         sizes.set(parent, sizes.get(parent) ?? parent.get('children').length);
         sizes.set(entity.parent, sizes.get(entity.parent) - 1);
         sizes.set(parent, sizes.get(parent) + 1);
-    });
-    data.forEach(({ entity, parent, index }) => {
+    }
+    for (let i = 0; i < data.length; i++) {
+        const { entity, parent, index } = data[i];
         let current: Entity | null = parent;
         while (current && current !== entity) {
             current = parents.get(current) || current.parent;
@@ -43,7 +46,7 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
         ) {
             throw new Error(`Invalid child index: ${index}.`);
         }
-    });
+    }
 
     const records = data.map((entry: any) => {
         const parentOld = entry.entity.parent;

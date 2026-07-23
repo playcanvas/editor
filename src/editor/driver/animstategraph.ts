@@ -1,4 +1,4 @@
-import { animStateKeys, modifyAnimStateGraph } from '../animstategraph/data';
+import { animStateKeys, modifyAnimStateGraph, remapAnimStateAssets } from '../animstategraph/data';
 
 import { driver } from './driver';
 import { api, log } from './shared';
@@ -6,29 +6,35 @@ import { api, log } from './shared';
 const mappings = (assetId: number, prev: any, next: any) => {
     const before = animStateKeys(prev);
     const after = animStateKeys(next);
-    const changes = Array.from(before).flatMap(([id, key]) => {
+    const changes = [];
+    for (const [id, key] of before) {
         const next = after.get(id);
-        return next !== key ? [{ key, next }] : [];
-    });
+        if (next !== key) {
+            changes.push({ key, next });
+        }
+    }
     if (!changes.length) {
         return [];
     }
-    return api.entities.list().flatMap((entity: any) => {
-        if (entity.get('components.anim.stateGraphAsset') !== assetId) {
-            return [];
+    const refs = editor.call('assets:used:index')?.[assetId]?.ref || {};
+    const ids = Object.keys(refs);
+    const maps = [];
+    for (let i = 0; i < ids.length; i++) {
+        if (refs[ids[i]].type !== 'entity') {
+            continue;
+        }
+        const entity = api.entities.get(ids[i]);
+        if (!entity || entity.get('components.anim.stateGraphAsset') !== assetId) {
+            continue;
         }
         const oldMap = structuredClone(entity.get('components.anim.animationAssets') || {});
-        const newMap = structuredClone(oldMap);
-        changes.forEach(({ key }) => {
-            delete newMap[key];
+        maps.push({
+            id: ids[i],
+            before: oldMap,
+            after: remapAnimStateAssets(oldMap, changes)
         });
-        changes.forEach(({ key, next }) => {
-            if (next) {
-                newMap[next] = oldMap[key] ?? { asset: null };
-            }
-        });
-        return [{ id: entity.get('resource_id'), before: oldMap, after: newMap }];
-    });
+    }
+    return maps;
 };
 
 const write = (asset: any, data: any, maps: any[], side: 'before' | 'after') => {
@@ -40,16 +46,16 @@ const write = (asset: any, data: any, maps: any[], side: 'before' | 'after') => 
     current.history.enabled = false;
     current.set('data', structuredClone(data));
     current.history.enabled = history;
-    maps.forEach((map) => {
-        const entity = api.entities.get(map.id);
+    for (let i = 0; i < maps.length; i++) {
+        const entity = api.entities.get(maps[i].id);
         if (!entity) {
-            return;
+            continue;
         }
         const enabled = entity.history.enabled;
         entity.history.enabled = false;
-        entity.set('components.anim.animationAssets', structuredClone(map[side]));
+        entity.set('components.anim.animationAssets', structuredClone(maps[i][side]));
         entity.history.enabled = enabled;
-    });
+    }
 };
 
 driver.method('animstategraph:get', (assetId) => {

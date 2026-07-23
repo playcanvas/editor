@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 
+import { remapAnimStateAssets } from '../../../src/editor/animstategraph/data';
 import { modifyAnimationEvents } from '../../../src/editor/animstategraph/events-data';
 
 describe('modifyAnimationEvents', () => {
@@ -15,5 +16,25 @@ describe('modifyAnimationEvents', () => {
         expect(() => modifyAnimationEvents({}, [{ kind: 'event.add', name: 'late', time: 1.01 }])).to.throw(
             'Event time must be between 0 and 1.'
         );
+    });
+});
+
+describe('remapAnimStateAssets', () => {
+    it('remaps chained keys without overwriting source values', () => {
+        expect(
+            remapAnimStateAssets(
+                {
+                    'Layer:A': { asset: 1 },
+                    'Layer:B': { asset: 2 }
+                },
+                [
+                    { key: 'Layer:A', next: 'Layer:B' },
+                    { key: 'Layer:B', next: 'Layer:C' }
+                ]
+            )
+        ).to.deep.equal({
+            'Layer:B': { asset: 1 },
+            'Layer:C': { asset: 2 }
+        });
     });
 });

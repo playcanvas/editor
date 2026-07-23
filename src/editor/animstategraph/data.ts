@@ -103,6 +103,20 @@ const animStateKeys = (data: Data) => {
     return keys;
 };
 
+const remapAnimStateAssets = (current: Record<string, any>, changes: { key: string; next?: string }[]) => {
+    const result = structuredClone(current);
+    for (let i = 0; i < changes.length; i++) {
+        delete result[changes[i].key];
+    }
+    for (let i = 0; i < changes.length; i++) {
+        const { key, next } = changes[i];
+        if (next) {
+            result[next] = current[key] ?? { asset: null };
+        }
+    }
+    return result;
+};
+
 const parameter = (data: Data, name: string) => {
     const value = Object.values(data.parameters).find((item) => item.name === name);
     if (!value) {
@@ -688,5 +702,5 @@ const modifyAnimStateGraph = (value: Data, operations: Operation[]) => {
     return { data, ids };
 };
 
-export { animStateKeys, modifyAnimStateGraph };
+export { animStateKeys, modifyAnimStateGraph, remapAnimStateAssets };
 export type { Data as AnimStateGraphData, Operation as AnimStateGraphOperation };

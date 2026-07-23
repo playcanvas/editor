@@ -3,7 +3,8 @@ import { config } from '@/editor/config';
 import { driver } from './driver';
 import { api, log, writeError } from './shared';
 
-type License = string | { author: string; authorUrl: string; license: string };
+type License =
+    string | { author: string; authorUrl: string; license: string } | { id: string; author: string; authorUrl: string };
 
 const clone = (store: string, id: string, name: string, license: License, folder?: number) =>
     api.rest.store
@@ -98,12 +99,20 @@ driver.method('store:myassets:list', async (options: any = {}) => {
     return { data };
 });
 
-driver.method('store:myassets:clone', async (id, name, folder) => {
+driver.method('store:myassets:clone', async (id, _name, folder) => {
     const denied = writeError('download My Assets');
     if (denied) {
         return denied;
     }
-    const data = await clone('myassets', id, name, '', folder);
+    const data = await api.rest.assets
+        .assetClone(String(id), {
+            scope: {
+                type: 'project',
+                id: Number(config.project.id)
+            },
+            targetFolderId: folder ?? null
+        })
+        .promisify();
     return { data };
 });
 

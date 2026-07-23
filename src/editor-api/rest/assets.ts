@@ -66,6 +66,14 @@ export type AssetDuplicateData = {
     branchId: string;
 };
 
+export type AssetCloneData = {
+    scope: {
+        type: string;
+        id: number;
+    };
+    targetFolderId?: number | null;
+};
+
 export type AssetPasteData = {
     /**
      * The ID of the project the assets are from
@@ -377,6 +385,21 @@ export const assetDuplicate = (assetId: string, data: AssetDuplicateData) => {
         headers: {
             Accept: 'application/json'
         }
+    });
+};
+
+/**
+ * Clones a user-owned asset into a project.
+ *
+ * @param assetId - The ID of the asset to clone
+ * @param data - The target project and folder
+ * @returns A request that responds with the clone result
+ */
+export const assetClone = (assetId: string, data: AssetCloneData) => {
+    return Ajax.post({
+        url: `${api.apiUrl}/assets/${assetId}/clone`,
+        auth: true,
+        data
     });
 };
 

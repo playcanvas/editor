@@ -38,6 +38,11 @@ export type StoreCloneData = {
               author: string;
               authorUrl: string;
               license: string;
+          }
+        | {
+              id: string;
+              author: string;
+              authorUrl: string;
           };
 };
 

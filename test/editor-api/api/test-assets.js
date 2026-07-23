@@ -10,6 +10,7 @@ describe('Assets API tests', function () {
         api.globals.messenger = null;
         api.globals.history = null;
         api.globals.assets = new api.Assets();
+        api.globals.apiUrl = '';
         assets = api.globals.assets;
         sandbox = sinon.createSandbox();
     });
@@ -583,6 +584,28 @@ ${className}.prototype.update = function(dt) {
         const data = requests[0].requestBody;
         expect(data.get('meshCompression')).to.equal('draco');
         expect(data.get('useUniqueIndices')).to.equal('false');
+    });
+
+    it('clones a user asset through the assets route', function () {
+        const xhr = sandbox.useFakeXMLHttpRequest();
+        const requests = [];
+        xhr.onCreate = (fake) => {
+            requests.push(fake);
+        };
+        api.globals.apiUrl = '/api';
+
+        new api.Rest().assets.assetClone('9', {
+            scope: { type: 'project', id: 1 },
+            targetFolderId: 10
+        });
+
+        expect(requests.length).to.equal(1);
+        expect(requests[0].method).to.equal('POST');
+        expect(requests[0].url).to.equal('/api/assets/9/clone');
+        expect(JSON.parse(requests[0].requestBody)).to.deep.equal({
+            scope: { type: 'project', id: 1 },
+            targetFolderId: 10
+        });
     });
 
     it('creates shader asset', async function () {
