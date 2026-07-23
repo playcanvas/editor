@@ -140,7 +140,7 @@ driver.method('builds:primary:set', async (id) => {
     }
     const result: any = await driver.invoke('builds:get', id);
     const build = result?.data;
-    if (!build || build.type !== 'publish' || build.task?.status !== 'complete' || !build.app_id) {
+    if (!build || build.type !== 'publish' || build.status !== 'complete' || !build.app_id) {
         return { error: `Completed publish build not found: ${id}.` };
     }
     const error = await new Promise<unknown>((resolve) =>

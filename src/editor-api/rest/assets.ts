@@ -88,7 +88,7 @@ export type AssetPasteData = {
     /**
      * The ID of the project to paste the assets to
      */
-    targetProjectId: string;
+    targetProjectId: number;
 
     /**
      * The ID of the branch to paste the assets to
@@ -411,7 +411,7 @@ export const assetClone = (assetId: string, data: AssetCloneData) => {
  * @returns A request that responds with the result of the paste
  */
 export const assetPaste = (data: AssetPasteData) => {
-    return Ajax.post({
+    return Ajax.post<{ result: { id: number }[] }>({
         url: `${api.apiUrl}/assets/paste`,
         auth: true,
         data

@@ -583,25 +583,24 @@ driver.method('assets:move', async (ids, folderId) => {
     const failure = await complete;
     return failure ? { error: failure } : { data: assets.map(assetSummary) };
 });
-driver.method('assets:duplicate', (ids) => {
+driver.method('assets:duplicate', async (ids) => {
     const denied = writeError('duplicate assets');
     if (denied) {
         return denied;
     }
-    const assets = ids.map(getAsset);
-    return Promise.all(
-        assets.map((asset: any) =>
-            new Promise<number>((resolve, reject) => {
-                api.rest.assets
-                    .assetDuplicate(String(asset.get('id')), {
-                        type: asset.get('type'),
-                        branchId: config.self.branch.id
-                    })
-                    .on('load', (_status: number, result: { id: number }) => resolve(result.id))
-                    .on('error', (_status: number, error: unknown) => reject(error));
-            }).then(waitForAsset)
-        )
-    ).then((created) => ({ data: created.map(assetSummary) }));
+    ids.forEach(getAsset);
+    const result = await api.rest.assets
+        .assetPaste({
+            projectId: config.project.id,
+            branchId: config.self.branch.id,
+            targetProjectId: config.project.id,
+            targetBranchId: config.self.branch.id,
+            keepFolderStructure: true,
+            assets: ids.map(String)
+        })
+        .promisify();
+    const created = await Promise.all(result.result.map((asset: { id: number }) => waitForAsset(asset.id)));
+    return { data: created.map(assetSummary) };
 });
 driver.method('assets:replace', (id, replacementId) => {
     const denied = writeError('replace asset references');
