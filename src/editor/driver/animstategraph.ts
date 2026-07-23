@@ -1,4 +1,4 @@
-import { animStateKeys, modifyAnimStateGraph, remapAnimStateAssets } from '../animstategraph/data';
+import { animStateKeys, modifyAnimStateGraph } from '../animstategraph/data';
 
 import { driver } from './driver';
 import { api, log } from './shared';
@@ -32,10 +32,20 @@ const mappings = (assetId: number, prev: any, next: any) => {
             continue;
         }
         const oldMap = structuredClone(entity.get('components.anim.animationAssets') || {});
+        const newMap = structuredClone(oldMap);
+        for (let j = 0; j < changes.length; j++) {
+            const { key, next, drop } = changes[j];
+            if (drop) {
+                delete newMap[key];
+            }
+            if (next) {
+                newMap[next] = oldMap[key] ?? { asset: null };
+            }
+        }
         maps.push({
             id: ids[i],
             before: oldMap,
-            after: remapAnimStateAssets(oldMap, changes)
+            after: newMap
         });
     }
     return maps;
