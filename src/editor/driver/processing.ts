@@ -50,7 +50,9 @@ const bounded = (name: string, start: (done: (error?: unknown, data?: any) => vo
             cancel?.();
             finish(new Error(`Timed out waiting for ${name}.`));
         }, OPERATION_TIMEOUT);
-        Promise.resolve().then(() => start(finish)).catch(finish);
+        Promise.resolve()
+            .then(() => start(finish))
+            .catch(finish);
     });
 
 const waitAsset = async (id: number, name: string) => {
@@ -59,12 +61,16 @@ const waitAsset = async (id: number, name: string) => {
         return [null, current];
     }
     let event: any;
-    return bounded(name, (done) => {
-        event = api.assets.once(`add[${id}]`, (asset: Asset) => {
-            event.unbind();
-            done(null, asset);
-        });
-    }, () => event?.unbind());
+    return bounded(
+        name,
+        (done) => {
+            event = api.assets.once(`add[${id}]`, (asset: Asset) => {
+                event.unbind();
+                done(null, asset);
+            });
+        },
+        () => event?.unbind()
+    );
 };
 
 const waitTask = (asset: any, name: string, start: () => void) =>
@@ -99,13 +105,17 @@ driver.method('lightmapper:bake', async (ids?: string[]) => {
         .map((entity) => entity.get('components.model.asset'))
         .filter((id) => id && !api.assets.get(id)?.has('meta.attributes.texCoord1'));
     let event: any;
-    const [error] = await bounded('lightmap bake', (done) => {
-        event = editor.once('lightmapper:baked', () => {
-            event.unbind();
-            done();
-        });
-        editor.call('lightmapper:bake', targets);
-    }, () => event?.unbind());
+    const [error] = await bounded(
+        'lightmap bake',
+        (done) => {
+            event = editor.once('lightmapper:baked', () => {
+                event.unbind();
+                done();
+            });
+            editor.call('lightmapper:bake', targets);
+        },
+        () => event?.unbind()
+    );
     if (error) {
         return { error: error.message };
     }
@@ -154,7 +164,8 @@ driver.method('assets:texture:convert', async (id, format) => {
         return { error: `Unsupported texture format: ${format}.` };
     }
     const [error, data] = await bounded('texture conversion', (done) =>
-        editor.call('assets:texture:convert', id, format, done));
+        editor.call('assets:texture:convert', id, format, done)
+    );
     if (error) {
         return { error: String(error) };
     }
@@ -173,7 +184,8 @@ driver.method('assets:texture:toAtlas', async (id) => {
         return { error: `Editable texture asset not found: ${id}.` };
     }
     const [error, atlasId] = await bounded('texture atlas creation', (done) =>
-        editor.call('assets:textureToAtlas', asset, done));
+        editor.call('assets:textureToAtlas', asset, done)
+    );
     if (error) {
         return { error: String(error) };
     }
@@ -191,7 +203,8 @@ driver.method('assets:texture:toCubemap', async (id) => {
         return { error: `Editable texture asset not found: ${id}.` };
     }
     const [error, cubemap] = await bounded('cubemap creation', (done) =>
-        editor.call('assets:textureToCubemap', asset, done));
+        editor.call('assets:textureToCubemap', asset, done)
+    );
     return error ? { error: String(error) } : { data: summary(cubemap) };
 });
 
@@ -219,7 +232,8 @@ driver.method('assets:font:process', async (id, options: { characters: string; i
                 chars: characters,
                 invert: !!asset.get('meta.invert')
             }
-        }));
+        })
+    );
     return error ? { error: error.message } : { data: summary(asset) };
 });
 
@@ -236,13 +250,17 @@ driver.method('assets:texture:metadata', async (id) => {
         return { data: summary(asset) };
     }
     let event: any;
-    const [error] = await bounded('texture metadata', (done) => {
-        event = asset.once('meta:set', () => {
-            event.unbind();
-            done();
-        });
-        editor.call('realtime:send', 'pipeline', { name: 'meta', id: asset.get('uniqueId') });
-    }, () => event?.unbind());
+    const [error] = await bounded(
+        'texture metadata',
+        (done) => {
+            event = asset.once('meta:set', () => {
+                event.unbind();
+                done();
+            });
+            editor.call('realtime:send', 'pipeline', { name: 'meta', id: asset.get('uniqueId') });
+        },
+        () => event?.unbind()
+    );
     return error ? { error: error.message } : { data: summary(asset) };
 });
 
@@ -264,7 +282,8 @@ driver.method(
         }
         formats.forEach((format) => asset.set(`meta.compress.${format}`, !options.remove));
         const [error] = await waitTask(asset, 'texture variant processing', () =>
-            TextureCompressor.compress([asset.observer], formats, !!options.force));
+            TextureCompressor.compress([asset.observer], formats, !!options.force)
+        );
         return error
             ? { error: error.message }
             : { data: { ...summary(asset), variants: asset.get('file.variants') || {} } };
@@ -281,20 +300,25 @@ driver.method('assets:cubemap:prefilter', async (id, legacy = false) => {
         return { error: `Cubemap asset not found: ${id}.` };
     }
     const [error] = await bounded('cubemap prefiltering', (done) =>
-        editor.call('assets:cubemaps:prefilter', asset.observer, legacy, done));
+        editor.call('assets:cubemaps:prefilter', asset.observer, legacy, done)
+    );
     if (error) {
         return { error: String(error) };
     }
     if (!asset.get('file')) {
         let event: any;
-        const [settleError] = await bounded('cubemap prefilter settlement', (done) => {
-            event = asset.on('file:set', (file: unknown) => {
-                if (file) {
-                    event.unbind();
-                    done();
-                }
-            });
-        }, () => event?.unbind());
+        const [settleError] = await bounded(
+            'cubemap prefilter settlement',
+            (done) => {
+                event = asset.on('file:set', (file: unknown) => {
+                    if (file) {
+                        event.unbind();
+                        done();
+                    }
+                });
+            },
+            () => event?.unbind()
+        );
         if (settleError) {
             return { error: String(settleError) };
         }
@@ -315,15 +339,19 @@ driver.method('assets:cubemap:prefilter:clear', async (id) => {
         return { data: summary(asset) };
     }
     let event: any;
-    const [error] = await bounded('cubemap prefilter clear', (done) => {
-        event = asset.on('file:set', (file: unknown) => {
-            if (file === null) {
-                event.unbind();
-                done();
-            }
-        });
-        editor.call('realtime:send', 'cubemap:clear:', Number(asset.get('uniqueId')));
-    }, () => event?.unbind());
+    const [error] = await bounded(
+        'cubemap prefilter clear',
+        (done) => {
+            event = asset.on('file:set', (file: unknown) => {
+                if (file === null) {
+                    event.unbind();
+                    done();
+                }
+            });
+            editor.call('realtime:send', 'cubemap:clear:', Number(asset.get('uniqueId')));
+        },
+        () => event?.unbind()
+    );
     if (error) {
         return { error: String(error) };
     }

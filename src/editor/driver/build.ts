@@ -144,7 +144,8 @@ driver.method('builds:primary:set', async (id) => {
         return { error: `Completed publish build not found: ${id}.` };
     }
     const error = await new Promise<unknown>((resolve) =>
-        editor.call('projects:setPrimaryApp', String(build.app_id), () => resolve(null), resolve));
+        editor.call('projects:setPrimaryApp', String(build.app_id), () => resolve(null), resolve)
+    );
     if (error) {
         return { error: String(error) };
     }

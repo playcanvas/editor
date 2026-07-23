@@ -253,9 +253,7 @@ const modifyAssets = async (edits: any[]) => {
                 `Invalid asset path: ${edit.path}. Use name, tags, preload, exclude, i18n.*, data.*, meta.compress.*, or meta.invert.`
             );
         }
-        const resolved = root === 'data'
-            ? api.schema.assets.resolvePath(asset.get('type'), edit.path.slice(5))
-            : null;
+        const resolved = root === 'data' ? api.schema.assets.resolvePath(asset.get('type'), edit.path.slice(5)) : null;
         if (root === 'data' && !resolved) {
             throw new Error(`Unknown ${asset.get('type')} asset path: ${edit.path}.`);
         }
@@ -551,17 +549,16 @@ driver.method('assets:duplicate', (ids) => {
     }
     const assets = ids.map(getAsset);
     return Promise.all(
-        assets.map(
-            (asset: any) =>
-                new Promise<number>((resolve, reject) => {
-                    api.rest.assets
-                        .assetDuplicate(String(asset.get('id')), {
-                            type: asset.get('type'),
-                            branchId: config.self.branch.id
-                        })
-                        .on('load', (_status: number, result: { id: number }) => resolve(result.id))
-                        .on('error', (_status: number, error: unknown) => reject(error));
-                }).then(waitForAsset)
+        assets.map((asset: any) =>
+            new Promise<number>((resolve, reject) => {
+                api.rest.assets
+                    .assetDuplicate(String(asset.get('id')), {
+                        type: asset.get('type'),
+                        branchId: config.self.branch.id
+                    })
+                    .on('load', (_status: number, result: { id: number }) => resolve(result.id))
+                    .on('error', (_status: number, error: unknown) => reject(error));
+            }).then(waitForAsset)
         )
     ).then((created) => ({ data: created.map(assetSummary) }));
 });
@@ -581,15 +578,20 @@ driver.method('assets:reimport', async (ids, settings = {}) => {
         return denied;
     }
     ids.forEach(getAsset);
-    const results = await Promise.all(ids.map((id: number) => {
-        const asset = getAsset(id);
-        return new Promise((resolve) => {
-            editor.call('assets:reimport', id, asset.get('type'), settings, (error: unknown, result: unknown) =>
-                resolve(error
-                    ? { error: { id, message: error instanceof Error ? error.message : String(error) } }
-                    : { result: { id, result } }));
-        });
-    }));
+    const results = await Promise.all(
+        ids.map((id: number) => {
+            const asset = getAsset(id);
+            return new Promise((resolve) => {
+                editor.call('assets:reimport', id, asset.get('type'), settings, (error: unknown, result: unknown) =>
+                    resolve(
+                        error
+                            ? { error: { id, message: error instanceof Error ? error.message : String(error) } }
+                            : { result: { id, result } }
+                    )
+                );
+            });
+        })
+    );
     const succeeded = results.flatMap((item: any) => (item.result ? [item.result] : []));
     const failed = results.flatMap((item: any) => (item.error ? [item.error] : []));
     return { data: { succeeded, failed }, meta: { partial: failed.length > 0 } };
@@ -730,7 +732,11 @@ driver.method('files:upload:append', (id, offset, base64) => {
     if (!transfer || transfer.direction !== 'upload') {
         throw new Error(`Upload transfer not found: ${id}.`);
     }
-    if (offset !== transfer.offset || typeof base64 !== 'string' || base64.length > Math.ceil(MAX_CHUNK_BYTES / 3) * 4) {
+    if (
+        offset !== transfer.offset ||
+        typeof base64 !== 'string' ||
+        base64.length > Math.ceil(MAX_CHUNK_BYTES / 3) * 4
+    ) {
         throw new Error(`Invalid upload offset or chunk for transfer ${id}.`);
     }
     const binary = atob(base64);

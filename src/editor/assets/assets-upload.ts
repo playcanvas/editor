@@ -96,6 +96,8 @@ editor.once('load', () => {
             animUseFbxFilename: projectUserSettings.get('editor.pipeline.animUseFbxFilename'),
             useContainers: projectUserSettings.get('editor.pipeline.useContainers'),
             meshCompression: projectUserSettings.get('editor.pipeline.meshCompression'),
+            dracoDecodeSpeed: projectUserSettings.get('editor.pipeline.dracoDecodeSpeed'),
+            dracoMeshSize: projectUserSettings.get('editor.pipeline.dracoMeshSize'),
             unwrapUv: projectUserSettings.get('editor.pipeline.unwrapUv'),
             unwrapUvTexelsPerMeter: projectUserSettings.get('editor.pipeline.unwrapUvTexelsPerMeter'),
             importMorphNormals: projectUserSettings.get('editor.pipeline.importMorphNormals'),

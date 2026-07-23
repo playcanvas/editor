@@ -84,15 +84,17 @@ driver.method('store:sketchfab:clone', async (uid, name, license, folder) => {
 });
 
 driver.method('store:myassets:list', async (options: any = {}) => {
-    const data = await api.rest.assets.assetsList({
-        search: options.search,
-        regex: !!options.search,
-        sort: options.sort,
-        order: options.order,
-        skip: options.skip,
-        limit: options.limit,
-        tags: options.tags
-    }).promisify();
+    const data = await api.rest.assets
+        .assetsList({
+            search: options.search,
+            regex: !!options.search,
+            sort: options.sort,
+            order: options.order,
+            skip: options.skip,
+            limit: options.limit,
+            tags: options.tags
+        })
+        .promisify();
     return { data };
 });
 

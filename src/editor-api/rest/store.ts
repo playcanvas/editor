@@ -32,11 +32,13 @@ export type StoreCloneData = {
     /**
      * The license of the store item
      */
-    license?: string | {
-        author: string;
-        authorUrl: string;
-        license: string;
-    };
+    license?:
+        | string
+        | {
+              author: string;
+              authorUrl: string;
+              license: string;
+          };
 };
 
 export type StoreListOptions = {
