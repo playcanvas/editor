@@ -105,6 +105,7 @@ class MCPConnection extends Events {
             // reconnect below; swallow it here so it isn't surfaced as unhandled
         };
         ws.onclose = (evt) => {
+            this._methods.get('files:transfer:clear')?.();
             // a deliberate disconnect() (FORCE) must never reconnect
             if (this._forceClosed || evt?.reason === 'FORCE') {
                 return;
@@ -123,6 +124,7 @@ class MCPConnection extends Events {
 
     disconnect() {
         this._forceClosed = true;
+        this._methods.get('files:transfer:clear')?.();
         if (this._connectTimeout) {
             clearTimeout(this._connectTimeout);
             this._connectTimeout = null;

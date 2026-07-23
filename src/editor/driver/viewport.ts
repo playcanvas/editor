@@ -100,10 +100,11 @@ driver.method('viewport:capture', () => {
 
         // convert to base64 WebP for smaller file size (falls back to PNG if unsupported)
         const dataUrl = dstCanvas.toDataURL('image/webp', 0.8);
-        const base64 = dataUrl.split(',')[1];
+        const [header, base64] = dataUrl.split(',');
+        const mimeType = header.match(/^data:([^;]+)/)?.[1] || 'image/png';
 
         log(`Captured viewport screenshot (${dstWidth}x${dstHeight})`);
-        return { data: base64, meta: { mimeType: 'image/webp', width: dstWidth, height: dstHeight } };
+        return { data: base64, meta: { mimeType, width: dstWidth, height: dstHeight } };
     } catch (e: any) {
         return {
             error: `Failed to capture viewport: ${e.message}. Ensure a scene is loaded and the viewport is visible, then retry.`

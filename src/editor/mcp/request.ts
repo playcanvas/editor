@@ -1,6 +1,14 @@
 type Result = { data?: unknown; error?: string; meta?: Record<string, unknown> };
 
-const message = (err: unknown) => (err instanceof Error ? err.message : String(err));
+const message = (err: any) => {
+    if (err instanceof Error || (typeof ErrorEvent !== 'undefined' && err instanceof ErrorEvent)) {
+        return err.message;
+    }
+    if (typeof err === 'string') {
+        return err;
+    }
+    return String(err?.message || err?.error || err?.response?.message || err?.response?.error || JSON.stringify(err));
+};
 
 const handleRequest = async (data: string, call: (name: string, ...args: unknown[]) => Result | Promise<Result>) => {
     let id: number | undefined;

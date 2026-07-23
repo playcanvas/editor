@@ -10,6 +10,7 @@ describe('Assets API tests', function () {
         api.globals.messenger = null;
         api.globals.history = null;
         api.globals.assets = new api.Assets();
+        api.globals.apiUrl = '';
         assets = api.globals.assets;
         sandbox = sinon.createSandbox();
     });
@@ -544,7 +545,10 @@ ${className}.prototype.update = function(dt) {
         const folder = new api.Asset({ id: 10 });
         api.globals.assets.createMaterial({
             name: 'name',
-            folder: folder
+            folder: folder,
+            data: {
+                opacity: 0
+            }
         });
 
         expect(requests.length).to.equal(1);
@@ -557,8 +561,51 @@ ${className}.prototype.update = function(dt) {
         expect(data.get('parent')).to.equal('10');
         expect(data.get('preload')).to.equal('true');
         expect(data.get('data')).to.equal(JSON.stringify({
-            diffuse: [0, 0, 0]
+            diffuse: [0, 0, 0],
+            opacity: 0
         }));
+    });
+
+    it('serializes scene import pipeline options', function () {
+        const xhr = sandbox.useFakeXMLHttpRequest();
+        const requests = [];
+        xhr.onCreate = (fake) => {
+            requests.push(fake);
+        };
+        api.globals.branchId = 'branch';
+        api.globals.projectId = 1;
+
+        new api.Rest().assets.assetCreate(
+            { type: 'scene', name: 'model.glb' },
+            { meshCompression: 'draco', useUniqueIndices: false }
+        );
+
+        expect(requests.length).to.equal(1);
+        const data = requests[0].requestBody;
+        expect(data.get('meshCompression')).to.equal('draco');
+        expect(data.get('useUniqueIndices')).to.equal('false');
+    });
+
+    it('clones a user asset through the assets route', function () {
+        const xhr = sandbox.useFakeXMLHttpRequest();
+        const requests = [];
+        xhr.onCreate = (fake) => {
+            requests.push(fake);
+        };
+        api.globals.apiUrl = '/api';
+
+        new api.Rest().assets.assetClone('9', {
+            scope: { type: 'project', id: 1 },
+            targetFolderId: 10
+        });
+
+        expect(requests.length).to.equal(1);
+        expect(requests[0].method).to.equal('POST');
+        expect(requests[0].url).to.equal('/api/assets/9/clone');
+        expect(JSON.parse(requests[0].requestBody)).to.deep.equal({
+            scope: { type: 'project', id: 1 },
+            targetFolderId: 10
+        });
     });
 
     it('creates shader asset', async function () {

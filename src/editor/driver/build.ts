@@ -15,6 +15,7 @@ type Options = {
     description?: string;
     version?: string;
     releaseNotes?: string;
+    imageS3Key?: string;
     concatenate?: boolean;
     minify?: boolean;
     sourceMaps?: boolean;
@@ -45,6 +46,9 @@ const payload = async (options: Options, format = 'playcanvas') => {
         ids.splice(ids.indexOf(primary), 1);
         ids.unshift(primary);
     }
+    if (options.sourceMaps && (!options.concatenate || !options.minify)) {
+        throw new Error('Source maps require concatenate and minify.');
+    }
     const key = options.engineVersion || editor.call('settings:session').get('engineVersion');
     const engine = config.engineVersions[key as keyof typeof config.engineVersions]?.version || key;
     const versions = Object.values(config.engineVersions).map((item) => item?.version);
@@ -60,9 +64,10 @@ const payload = async (options: Options, format = 'playcanvas') => {
         ...(options.description ? { description: options.description } : {}),
         ...(options.version ? { version: options.version } : {}),
         ...(options.releaseNotes ? { release_notes: options.releaseNotes } : {}),
+        ...(options.imageS3Key ? { image_s3_key: options.imageS3Key } : {}),
         scripts_concatenate: !npm && !!options.concatenate,
         scripts_minify: !npm && !!options.minify,
-        scripts_sourcemaps: !npm && !!options.minify && !!options.sourceMaps,
+        scripts_sourcemaps: !npm && !!options.concatenate && !!options.minify && !!options.sourceMaps,
         optimize_scene_format: !npm && !!options.optimizeSceneFormat,
         engine_version: engine,
         format
@@ -127,4 +132,22 @@ driver.method('builds:delete', async (id) => {
     const data = await api.rest.projects.projectBuildDelete(Number(id)).promisify();
     log(`Deleted build(${id})`);
     return { data };
+});
+
+driver.method('builds:primary:set', async (id) => {
+    if (!editor.call('permissions:write')) {
+        return { error: 'Write permission is required to set the primary build.' };
+    }
+    const result: any = await driver.invoke('builds:get', id);
+    const build = result?.data;
+    if (!build || build.type !== 'publish' || build.status !== 'complete' || !build.app_id) {
+        return { error: `Completed publish build not found: ${id}.` };
+    }
+    const error = await new Promise<unknown>((resolve) =>
+        editor.call('projects:setPrimaryApp', String(build.app_id), () => resolve(null), resolve)
+    );
+    if (error) {
+        return { error: String(error) };
+    }
+    return { data: { buildId: Number(id), appId: Number(build.app_id) } };
 });

@@ -88,15 +88,18 @@ class SettingsPanel extends Container {
 
         this.buildDom(DOM(this));
 
-        editor.on('scene:raw', (data) => {
-            editor.emit('scene:name', data.name);
-            this._sceneName = data.name;
+        editor.on('scene:name', (name) => {
+            this._sceneName = name;
             const sceneNameField = this._sceneAttributes.getField('name');
 
             const suspend = this._suspendSceneNameEvt;
             this._suspendSceneNameEvt = true;
             sceneNameField.value = this._sceneName;
             this._suspendSceneNameEvt = suspend;
+        });
+
+        editor.on('scene:raw', (data) => {
+            editor.emit('scene:name', data.name);
         });
 
         editor.on('realtime:scene:op:name', (op) => {

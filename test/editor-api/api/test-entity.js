@@ -240,6 +240,12 @@ describe('api.Entity tests', function () {
         expect(e.get('components.testcomponent.entityRef')).to.equal(e.get('resource_id'));
     });
 
+    it('addComponent rejects unsupported components', function () {
+        api.globals.schema = new api.Schema(schema);
+        const e = api.globals.entities.create();
+        expect(() => e.addComponent('ligth')).to.throw('Unsupported component: ligth');
+    });
+
     it('removeComponent removes component', function () {
         api.globals.schema = new api.Schema(schema);
         const e = api.globals.entities.create();

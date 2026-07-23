@@ -11,6 +11,8 @@
 
 The PlayCanvas Editor is a visual editing environment for building WebGL/WebGPU/WebXR apps. It can be accessed at https://playcanvas.com.
 
+The Editor also includes a built-in [Model Context Protocol (MCP) integration](https://github.com/playcanvas/editor-mcp-server) for AI-assisted automation.
+
 ![Editor](https://raw.githubusercontent.com/playcanvas/editor/refs/heads/main/images/editor.png)
 
 You can see more projects built using the Editor on the [PlayCanvas website](https://playcanvas.com/explore).

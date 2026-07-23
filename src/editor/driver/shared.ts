@@ -5,6 +5,14 @@ const log = (msg: string) => console.log(`[Editor Driver] ${msg}`);
 const writeError = (action = 'modify the designated project') =>
     editor.call('permissions:write') ? null : { error: `Write permission is required to ${action}.` };
 
+const BLOCKED_PATHS = new Set(['__proto__', 'prototype', 'constructor']);
+
+const validatePath = (path: string) => {
+    if (!path || path.split('.').some((part) => !part || BLOCKED_PATHS.has(part))) {
+        throw new Error(`Invalid path: ${path}.`);
+    }
+};
+
 /**
  * PlayCanvas REST API wrapper.
  *
@@ -37,6 +45,7 @@ const rest = (method: string, path: string, data?: FormData | object, auth = fal
 const iterateObject = (obj: Record<string, any>, callback: (path: string, value: any) => void, currentPath = '') => {
     Object.entries(obj).forEach(([key, value]) => {
         const path = currentPath ? `${currentPath}.${key}` : key;
+        validatePath(path);
         if (value && typeof value === 'object' && !Array.isArray(value)) {
             iterateObject(value, callback, path);
         } else {
@@ -112,4 +121,4 @@ const paginate = <T>(items: T[], options: { limit?: number; offset?: number } = 
     };
 };
 
-export { api, log, rest, iterateObject, entitySummary, paginate, writeError };
+export { api, log, rest, iterateObject, entitySummary, paginate, validatePath, writeError };

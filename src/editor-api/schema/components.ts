@@ -44,6 +44,9 @@ class ComponentSchema {
      * ```
      */
     getDefaultData(component: string) {
+        if (!Object.hasOwn(this._schema, component)) {
+            throw new Error(`Unsupported component: ${component}`);
+        }
         const result: Record<string, any> = {};
         for (const fieldName in this._schema[component]) {
             if (fieldName.startsWith('$')) {
@@ -58,6 +61,46 @@ class ComponentSchema {
         this._resolveLazyDefaults(result);
 
         return result;
+    }
+
+    resolvePath(component: string, path: string) {
+        let field = this._schema[component];
+        let open = false;
+
+        if (!field) {
+            return null;
+        }
+        for (const part of path.split('.')) {
+            if (!part) {
+                return null;
+            }
+            if (field.$type === 'map' || field.$type === 'mixed') {
+                open = true;
+                if (!field.$of) {
+                    return { field: null, default: undefined, hasDefault: false, open };
+                }
+                field = field.$of;
+            } else if (Array.isArray(field.$type)) {
+                if (!Number.isInteger(Number(part)) || Number(part) < 0) {
+                    return null;
+                }
+                field = field.$type[0];
+            } else if (Object.hasOwn(field, part)) {
+                field = field[part];
+                continue;
+            } else {
+                return null;
+            }
+        }
+
+        const hasDefault = Object.hasOwn(field, '$default');
+        const value = hasDefault ? field.$default : undefined;
+        return {
+            field,
+            default: hasDefault ? (typeof value === 'function' ? value() : utils.deepCopy(value)) : undefined,
+            hasDefault,
+            open
+        };
     }
 
     /**

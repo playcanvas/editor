@@ -52,72 +52,7 @@ export type AssetGetFileOptions = {
     immutableBackup?: string;
 };
 
-export type AssetReimportData = {
-    /**
-     * Whether to use power of two textures
-     */
-    pow2?: boolean;
-
-    /**
-     * The animation sample rate
-     */
-    searchRelatedAssets?: boolean;
-
-    /**
-     * Whether to search for related assets
-     */
-    overwriteModel?: boolean;
-
-    /**
-     * Whether to overwrite the model
-     */
-    overwriteAnimation?: boolean;
-
-    /**
-     * Whether to overwrite the animation
-     */
-    overwriteMaterial?: boolean;
-
-    /**
-     * Whether to overwrite the material
-     */
-    overwriteTexture?: boolean;
-
-    /**
-     * Whether to overwrite the texture
-     */
-    preserveMapping?: boolean;
-
-    /**
-     * Whether to preserve the mapping
-     */
-    useGlb?: boolean;
-
-    /**
-     * The animation sample rate
-     */
-    useContainers?: boolean;
-
-    /**
-     * Whether to use containers
-     */
-    meshCompression?: boolean;
-
-    /**
-     * Whether to use mesh compression
-     */
-    dracoDecodeSpeed?: number;
-
-    /**
-     * The speed of Draco decoding
-     */
-    dracoMeshSize?: number;
-
-    /**
-     * The size of Draco meshes
-     */
-    animUseFbxFilename?: boolean;
-};
+export type AssetReimportData = AssetPipelineOptions;
 
 export type AssetDuplicateData = {
     /**
@@ -129,6 +64,14 @@ export type AssetDuplicateData = {
      * The ID of the branch to duplicate the asset to
      */
     branchId: string;
+};
+
+export type AssetCloneData = {
+    scope: {
+        type: string;
+        id: number;
+    };
+    targetFolderId?: number | null;
 };
 
 export type AssetPasteData = {
@@ -145,7 +88,7 @@ export type AssetPasteData = {
     /**
      * The ID of the project to paste the assets to
      */
-    targetProjectId: string;
+    targetProjectId: number;
 
     /**
      * The ID of the branch to paste the assets to
@@ -299,9 +242,19 @@ export type AssetPipelineOptions = {
     useContainers?: boolean;
 
     /**
-     * Whether to use mesh compression
+     * The mesh compression mode
      */
-    meshCompression?: boolean;
+    meshCompression?: 'none' | 'draco';
+
+    /**
+     * The speed of Draco decoding
+     */
+    dracoDecodeSpeed?: number;
+
+    /**
+     * The size of Draco meshes
+     */
+    dracoMeshSize?: number;
 
     /**
      * Whether to unwrap UVs
@@ -317,6 +270,11 @@ export type AssetPipelineOptions = {
      * Whether to import morph normals
      */
     importMorphNormals?: boolean;
+
+    /**
+     * Whether to use unique mesh indices
+     */
+    useUniqueIndices?: boolean;
 };
 
 /**
@@ -431,6 +389,21 @@ export const assetDuplicate = (assetId: string, data: AssetDuplicateData) => {
 };
 
 /**
+ * Clones a user-owned asset into a project.
+ *
+ * @param assetId - The ID of the asset to clone
+ * @param data - The target project and folder
+ * @returns A request that responds with the clone result
+ */
+export const assetClone = (assetId: string, data: AssetCloneData) => {
+    return Ajax.post({
+        url: `${api.apiUrl}/assets/${assetId}/clone`,
+        auth: true,
+        data
+    });
+};
+
+/**
  * Pastes the given assets
  *
  * @param data - The data to paste
@@ -438,7 +411,7 @@ export const assetDuplicate = (assetId: string, data: AssetDuplicateData) => {
  * @returns A request that responds with the result of the paste
  */
 export const assetPaste = (data: AssetPasteData) => {
-    return Ajax.post({
+    return Ajax.post<{ result: { id: number }[] }>({
         url: `${api.apiUrl}/assets/paste`,
         auth: true,
         data
@@ -496,9 +469,12 @@ const assetUpdateFields = (form: FormData, data: AssetUpdateData, pipeline: Asse
                 form.append('animUseFbxFilename', `${pipeline.animUseFbxFilename}`);
                 form.append('useContainers', `${pipeline.useContainers}`);
                 form.append('meshCompression', `${pipeline.meshCompression}`);
+                form.append('dracoDecodeSpeed', `${pipeline.dracoDecodeSpeed}`);
+                form.append('dracoMeshSize', `${pipeline.dracoMeshSize}`);
                 form.append('unwrapUv', `${pipeline.unwrapUv}`);
                 form.append('unwrapUvTexelsPerMeter', `${pipeline.unwrapUvTexelsPerMeter}`);
                 form.append('importMorphNormals', `${pipeline.importMorphNormals}`);
+                form.append('useUniqueIndices', `${pipeline.useUniqueIndices}`);
                 break;
             case 'font':
                 break;

@@ -599,19 +599,43 @@ describe('api.Entities tests', function () {
         expect(parent2.children).to.deep.equal([child, child2]);
     });
 
-    it('reparent child to one of its children is not allowed', function () {
+    it('reparent rejects invalid hierarchy targets before mutation', function () {
         const root = api.globals.entities.create();
         const parent = api.globals.entities.create({ parent: root });
         const child = api.globals.entities.create({ parent: parent });
+        const sibling = api.globals.entities.create({ parent: root });
 
-        api.globals.entities.reparent([{
+        expect(() => api.globals.entities.reparent([{
             entity: parent,
             parent: child
-        }]);
+        }])).to.throw('An entity cannot be parented to itself or its descendant.');
+        expect(() => api.globals.entities.reparent([{
+            entity: parent,
+            parent
+        }])).to.throw('An entity cannot be parented to itself or its descendant.');
+        expect(() => api.globals.entities.reparent([{
+            entity: root,
+            parent
+        }])).to.throw('The root entity cannot be reparented.');
+        expect(() => api.globals.entities.reparent([{
+            entity: child,
+            parent: root,
+            index: -1
+        }])).to.throw('Invalid child index: -1.');
+        expect(() => api.globals.entities.reparent([{
+            entity: child,
+            parent: root,
+            index: 10
+        }])).to.throw('Invalid child index: 10.');
+        expect(() => api.globals.entities.reparent([
+            { entity: parent, parent: sibling },
+            { entity: sibling, parent }
+        ])).to.throw('An entity cannot be parented to itself or its descendant.');
 
         expect(child.children).to.deep.equal([]);
         expect(parent.parent).to.equal(root);
         expect(parent.children).to.deep.equal([child]);
+        expect(sibling.parent).to.equal(root);
     });
 
     it('undo / redo reparent', async function () {

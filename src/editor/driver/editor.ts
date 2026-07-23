@@ -40,6 +40,7 @@ driver.method('history:redo', () => {
     log(redone ? 'Redo' : 'Redo (nothing to redo)');
     return { data: { redone, canUndo: api.history.canUndo, canRedo: api.history.canRedo } };
 });
+driver.method('editor:logs', (options: any = {}) => editor.call('console:query', options));
 
 // transform gizmo
 driver.method('gizmo:state:set', (state) => {

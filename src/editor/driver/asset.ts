@@ -1,12 +1,14 @@
 import { config } from '@/editor/config';
 
 import { driver } from './driver';
-import { api, log, rest, entitySummary, paginate, writeError } from './shared';
+import { api, log, rest, entitySummary, paginate, validatePath, writeError } from './shared';
 
-// ponytail: base64 keeps one transport; add streaming if 20 mib imports are common
 const MAX_FILE_BYTES = 20 * 1024 * 1024;
+const MAX_CHUNK_BYTES = 1024 * 1024;
+const MAX_TRANSFER_BYTES = 512 * 1024 * 1024;
+const MAX_TRANSFERS = 1;
 const MAX_BASE64_LENGTH = Math.ceil(MAX_FILE_BYTES / 3) * 4;
-const OPERATION_TIMEOUT = 30_000;
+const TRANSFER_TIMEOUT = 60_000;
 const TEXT_TYPES = ['css', 'html', 'json', 'script', 'shader', 'text'];
 const MIME_TYPES: Record<string, string> = {
     css: 'text/css',
@@ -32,6 +34,8 @@ const CREATE_METHODS: Record<string, string> = {
     template: 'createTemplate',
     text: 'createText'
 };
+const transfers = new Map<string, any>();
+let pendingDownload = false;
 
 /**
  * Compact summary for an asset.
@@ -56,6 +60,177 @@ const getAsset = (id: number) => {
         throw new Error(`Asset not found: ${id}. Call list_assets to obtain a valid asset id.`);
     }
     return asset;
+};
+
+const waitForAsset = (id: number) => {
+    const asset = api.assets.get(id);
+    if (asset) {
+        return Promise.resolve(asset);
+    }
+    return new Promise<any>((resolve) => api.assets.once(`add[${id}]`, resolve));
+};
+
+const uploadAsset = (data: any, settings: any = {}) =>
+    new Promise<any>((resolve, reject) => {
+        editor.call(
+            'assets:uploadFile',
+            {
+                ...data,
+                asset: data.id === undefined ? undefined : getAsset(data.id).observer,
+                parent: data.folder?.observer,
+                settings
+            },
+            (error: unknown, result: { id: number }) => {
+                if (error) {
+                    reject(error);
+                    return;
+                }
+                waitForAsset(result.id).then(resolve, reject);
+            }
+        );
+    });
+
+const uploadFile = (item: any, file: File) => {
+    if (!file.size) {
+        throw new Error(`Cannot upload empty file: ${item.filename}.`);
+    }
+    const folder = item.folder === undefined || item.folder === null ? undefined : getAsset(item.folder);
+    if (folder && folder.get('type') !== 'folder') {
+        throw new Error(`Asset ${item.folder} is not a folder.`);
+    }
+    const asset = item.id === undefined ? null : getAsset(item.id);
+    if (asset && asset.get('type') !== item.type) {
+        throw new Error(`Asset ${item.id} is type ${asset.get('type')}, not ${item.type}.`);
+    }
+    return uploadAsset(
+        {
+            id: item.id,
+            name: item.name,
+            type: item.type,
+            folder,
+            filename: item.filename,
+            file: new File([file], item.filename, { type: item.mime || 'application/octet-stream' }),
+            tags: item.tags,
+            data: item.data,
+            preload: item.preload
+        },
+        item.settings
+    );
+};
+
+const base64ToBytes = (base64: string) => {
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+};
+
+const bytesToBase64 = (bytes: Uint8Array) => {
+    let binary = '';
+    for (let i = 0; i < bytes.length; i += 0x8000) {
+        binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+    }
+    return btoa(binary);
+};
+
+const dropTransfer = async (id: string) => {
+    const transfer = transfers.get(id);
+    if (!transfer) {
+        return false;
+    }
+    clearTimeout(transfer.timer);
+    transfers.delete(id);
+    await transfer.writer?.abort().catch(() => false);
+    await transfer.reader?.cancel().catch(() => false);
+    await transfer.root?.removeEntry(id).catch(() => false);
+    return true;
+};
+
+const touchTransfer = (transfer: any) => {
+    clearTimeout(transfer.timer);
+    transfer.timer = setTimeout(() => void dropTransfer(transfer.id), TRANSFER_TIMEOUT);
+};
+
+const addTransfer = (transfer: any) => {
+    if (
+        !Number.isInteger(transfer.size) ||
+        transfer.size < 0 ||
+        (transfer.direction === 'upload' && transfer.size === 0) ||
+        transfer.size > MAX_TRANSFER_BYTES ||
+        transfers.size >= MAX_TRANSFERS
+    ) {
+        throw new Error('Transfer exceeds the configured size or concurrency limit.');
+    }
+    transfer.id = crypto.randomUUID();
+    transfer.offset = 0;
+    transfers.set(transfer.id, transfer);
+    touchTransfer(transfer);
+    return transfer;
+};
+
+const openDownload = async (id: number) => {
+    const asset = getAsset(id);
+    const type = asset.get('type');
+    let filename = asset.get('file.filename') || asset.get('name');
+    if (type === 'animstategraph') {
+        filename = `${filename}.json`;
+        const file = new Blob([JSON.stringify(asset.get('data'), null, 4)], { type: 'application/json' });
+        if (file.size > MAX_TRANSFER_BYTES) {
+            throw new Error(`Asset download exceeds the ${MAX_TRANSFER_BYTES / 1024 / 1024} MiB limit.`);
+        }
+        return { id, filename, mime: file.type, size: file.size, stream: file.stream() };
+    }
+    const res = await fetch(`/api/assets/${id}/download?branchId=${config.self.branch.id}`);
+    if (!res.ok) {
+        await res.body?.cancel();
+        throw new Error(`Failed to download asset: ${res.status} ${res.statusText}`);
+    }
+    const header = res.headers.get('content-length');
+    const size = header === null ? Number(asset.get('file.size')) : Number(header);
+    if (!Number.isInteger(size) || size < 0) {
+        await res.body?.cancel();
+        throw new Error('Asset download size is unavailable.');
+    }
+    if (size > MAX_TRANSFER_BYTES) {
+        await res.body?.cancel();
+        throw new Error(`Asset download exceeds the ${MAX_TRANSFER_BYTES / 1024 / 1024} MiB limit.`);
+    }
+    if (!res.body) {
+        throw new Error('Asset download body is unavailable.');
+    }
+    return {
+        id,
+        filename,
+        mime: res.headers.get('content-type') || 'application/octet-stream',
+        size,
+        stream: res.body
+    };
+};
+
+const readDownload = async (transfer: any, length: number) => {
+    const size = Math.min(length, transfer.size - transfer.offset);
+    const bytes = new Uint8Array(size);
+    let offset = 0;
+    while (offset < size) {
+        let chunk = transfer.pending;
+        if (!chunk?.length) {
+            const result = await transfer.reader.read();
+            if (result.done) {
+                break;
+            }
+            chunk = result.value;
+        }
+        const count = Math.min(chunk.length, size - offset);
+        bytes.set(chunk.subarray(0, count), offset);
+        offset += count;
+        transfer.pending = count < chunk.length ? chunk.subarray(count) : null;
+    }
+    if (offset !== size) {
+        throw new Error(`Asset download ended at ${transfer.offset + offset} of ${transfer.size} bytes.`);
+    }
+    return bytes;
 };
 
 const prepareCreate = ({ type, options = {} }: any) => {
@@ -96,15 +271,38 @@ const modifyAssets = async (edits: any[]) => {
     if (denied) {
         return denied;
     }
+    const arrays = new Map<string, any[]>();
     const prepared = edits.map((edit) => {
         const asset = getAsset(edit.id);
         const root = edit.path?.split('.')[0];
-        if (!['name', 'tags', 'preload', 'data'].includes(root)) {
-            throw new Error(`Invalid asset path: ${edit.path}. Use name, tags, preload, or data.*.`);
+        validatePath(edit.path);
+        if (!['name', 'tags', 'preload', 'exclude', 'i18n', 'data', 'meta'].includes(root)) {
+            throw new Error(
+                `Invalid asset path: ${edit.path}. Use name, tags, preload, exclude, i18n.*, data.*, meta.compress.*, or meta.invert.`
+            );
+        }
+        const resolved = root === 'data' ? api.schema.assets.resolvePath(asset.get('type'), edit.path.slice(5)) : null;
+        if (root === 'data' && !resolved) {
+            throw new Error(`Unknown ${asset.get('type')} asset path: ${edit.path}.`);
+        }
+        if (
+            (root === 'i18n' && !edit.path.startsWith('i18n.')) ||
+            (root === 'meta' && edit.path !== 'meta.invert' && !edit.path.startsWith('meta.compress.'))
+        ) {
+            throw new Error(`Invalid asset path: ${edit.path}.`);
         }
         const op = edit.op || 'set';
-        if (op !== 'set' && !edit.path.startsWith('data.')) {
+        if (!['set', 'unset', 'insert', 'remove', 'move'].includes(op)) {
+            throw new Error(`Invalid asset operation: ${op}.`);
+        }
+        if (['insert', 'remove', 'move'].includes(op) && !edit.path.startsWith('data.')) {
             throw new Error(`Operation ${op} is only supported under data.*.`);
+        }
+        if (op === 'unset' && ['name', 'tags', 'preload', 'exclude'].includes(root)) {
+            throw new Error(`Asset path ${edit.path} cannot be unset.`);
+        }
+        if (op === 'unset' && root === 'data' && !resolved.hasDefault && !resolved.open) {
+            throw new Error(`Asset path ${edit.path} cannot be unset.`);
         }
         if (asset.get('type') === 'animstategraph' && edit.path.startsWith('data.')) {
             throw new Error(
@@ -136,7 +334,8 @@ const modifyAssets = async (edits: any[]) => {
                 throw new Error('Asset preload must be a boolean.');
             }
         } else if (op !== 'unset') {
-            const value = asset.get(edit.path);
+            const key = `${edit.id}:${edit.path}`;
+            const value = arrays.get(key) || structuredClone(asset.get(edit.path));
             if (!Array.isArray(value)) {
                 throw new Error(`Asset path ${edit.path} is not an array.`);
             }
@@ -152,23 +351,58 @@ const modifyAssets = async (edits: any[]) => {
             if (op === 'move' && (!Number.isInteger(edit.to) || edit.to < 0 || edit.to >= value.length)) {
                 throw new Error(`Invalid destination index ${edit.to} for asset path ${edit.path}.`);
             }
+            arrays.set(key, value);
+            if (op === 'insert') {
+                value.splice(edit.index ?? value.length, 0, structuredClone(edit.value));
+            } else if (op === 'remove') {
+                value.splice(edit.index, 1);
+            } else {
+                value.splice(edit.to, 0, value.splice(edit.index, 1)[0]);
+            }
         }
-        return { asset, edit, op };
+        const nextOp = op === 'unset' && resolved?.hasDefault ? 'set' : op;
+        const value = op === 'unset' && resolved?.hasDefault ? resolved.default : edit.value;
+        if (nextOp === 'set' && Array.isArray(value)) {
+            arrays.set(`${edit.id}:${edit.path}`, structuredClone(value));
+        } else if (nextOp === 'unset') {
+            arrays.delete(`${edit.id}:${edit.path}`);
+        }
+        return {
+            asset,
+            edit,
+            op: nextOp,
+            value
+        };
     });
 
     const modified = new Map();
-    for (const { asset, edit, op } of prepared) {
-        if (op === 'set') {
-            if (edit.path === 'name') {
-                const error = await new Promise((resolve) =>
-                    editor.call('assets:rename', asset.observer, edit.value, resolve)
-                );
-                if (error) {
-                    return { error: String(error) };
+    const renamed = [];
+    for (let i = 0; i < prepared.length; i++) {
+        const { asset, edit, op } = prepared[i];
+        if (op !== 'set' || edit.path !== 'name') {
+            continue;
+        }
+        const error = await new Promise((resolve) => editor.call('assets:rename', asset.observer, edit.value, resolve));
+        if (error) {
+            return {
+                error: String(error),
+                meta: {
+                    partial: renamed.length > 0,
+                    succeeded: renamed,
+                    failed: [{ id: edit.id, path: edit.path, message: String(error) }]
                 }
-            } else {
-                asset.set(edit.path, edit.value);
-            }
+            };
+        }
+        renamed.push({ id: edit.id, path: edit.path });
+        modified.set(edit.id, asset);
+    }
+    for (let i = 0; i < prepared.length; i++) {
+        const { asset, edit, op, value } = prepared[i];
+        if (edit.path === 'name') {
+            continue;
+        }
+        if (op === 'set') {
+            asset.set(edit.path, value);
         } else if (op === 'unset') {
             asset.unset(edit.path);
         } else if (op === 'insert') {
@@ -276,42 +510,27 @@ driver.method('assets:upload', async (items) => {
         if (typeof item.base64 !== 'string' || item.base64.length > MAX_BASE64_LENGTH) {
             throw new Error(`Asset upload exceeds the ${MAX_FILE_BYTES / 1024 / 1024} MiB limit.`);
         }
-        const binary = atob(item.base64);
-        if (!binary.length) {
-            throw new Error(`Cannot upload empty file: ${item.filename}.`);
-        }
-        if (binary.length > MAX_FILE_BYTES) {
+        const bytes = base64ToBytes(item.base64);
+        if (bytes.length > MAX_FILE_BYTES) {
             throw new Error(`Asset upload exceeds the ${MAX_FILE_BYTES / 1024 / 1024} MiB limit.`);
         }
-        const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
-        const folder = item.folder === undefined || item.folder === null ? undefined : getAsset(item.folder);
-        if (folder && folder.get('type') !== 'folder') {
-            throw new Error(`Asset ${item.folder} is not a folder.`);
-        }
-        return {
-            data: {
-                name: item.name,
-                type: item.type,
-                folder,
-                filename: item.filename,
-                file: new Blob([bytes], { type: item.mime || 'application/octet-stream' }),
-                tags: item.tags,
-                data: item.data,
-                preload: item.preload
-            },
-            settings: item.settings
-        };
+        return { item, bytes };
     });
     const results = await Promise.all(
-        prepared.map(({ data, settings }, index) =>
+        prepared.map(({ item, bytes }, index) =>
             Promise.resolve()
-                .then(() => api.assets.upload(data, settings))
+                .then(() =>
+                    uploadFile(
+                        item,
+                        new File([bytes], item.filename, { type: item.mime || 'application/octet-stream' })
+                    )
+                )
                 .then(
                     (asset) => ({ result: { index, asset: assetSummary(asset) } }),
                     (error) => ({
                         error: {
                             index,
-                            filename: data.filename,
+                            filename: item.filename,
                             message: error instanceof Error ? error.message : String(error)
                         }
                     })
@@ -336,8 +555,9 @@ driver.method('assets:move', async (ids, folderId) => {
     let finish: (error: string | null) => void;
     const events = assets.map((asset: any) => asset.on('path:set', check));
     const cleanup = () => {
-        clearTimeout(timer);
-        events.forEach((event: any) => event.unbind());
+        for (let i = 0; i < events.length; i++) {
+            events[i].unbind();
+        }
     };
     const complete = new Promise<string | null>((resolve) => {
         finish = (error) => {
@@ -350,7 +570,6 @@ driver.method('assets:move', async (ids, folderId) => {
             finish?.(null);
         }
     }
-    const timer = setTimeout(() => finish('Timed out waiting for moved assets to update.'), OPERATION_TIMEOUT);
     const error = editor.call(
         'assets:fs:move',
         assets.map((asset: any) => asset.observer),
@@ -364,17 +583,24 @@ driver.method('assets:move', async (ids, folderId) => {
     const failure = await complete;
     return failure ? { error: failure } : { data: assets.map(assetSummary) };
 });
-driver.method('assets:duplicate', (ids) => {
+driver.method('assets:duplicate', async (ids) => {
     const denied = writeError('duplicate assets');
     if (denied) {
         return denied;
     }
-    const assets = ids.map(getAsset);
-    editor.call(
-        'assets:fs:duplicate',
-        assets.map((asset: any) => asset.observer)
-    );
-    return { data: { accepted: ids } };
+    ids.forEach(getAsset);
+    const result = await api.rest.assets
+        .assetPaste({
+            projectId: config.project.id,
+            branchId: config.self.branch.id,
+            targetProjectId: config.project.id,
+            targetBranchId: config.self.branch.id,
+            keepFolderStructure: true,
+            assets: ids.map(String)
+        })
+        .promisify();
+    const created = await Promise.all(result.result.map((asset: { id: number }) => waitForAsset(asset.id)));
+    return { data: created.map(assetSummary) };
 });
 driver.method('assets:replace', (id, replacementId) => {
     const denied = writeError('replace asset references');
@@ -391,34 +617,39 @@ driver.method('assets:reimport', async (ids, settings = {}) => {
     if (denied) {
         return denied;
     }
-    ids.forEach(getAsset);
+    for (let i = 0; i < ids.length; i++) {
+        getAsset(ids[i]);
+    }
     const results = await Promise.all(
-        ids.map(
-            (id: number) =>
-                new Promise((resolve) => {
-                    api.rest.assets
-                        .assetReimport(String(id), settings)
-                        .on('load', (_status: number, result: unknown) => resolve({ result: { id, result } }))
-                        .on('error', (_status: number, error: unknown) =>
-                            resolve({
-                                error: { id, message: error instanceof Error ? error.message : String(error) }
-                            })
-                        );
-                })
-        )
+        ids.map((id: number) => {
+            const asset = getAsset(id);
+            return new Promise((resolve) => {
+                editor.call('assets:reimport', id, asset.get('type'), settings, (error: unknown, result: unknown) =>
+                    resolve(
+                        error
+                            ? { error: { id, message: error instanceof Error ? error.message : String(error) } }
+                            : { result: { id, result } }
+                    )
+                );
+            });
+        })
     );
     const succeeded = results.flatMap((item: any) => (item.result ? [item.result] : []));
     const failed = results.flatMap((item: any) => (item.error ? [item.error] : []));
     return { data: { succeeded, failed }, meta: { partial: failed.length > 0 } };
 });
-driver.method('assets:delete', async (ids) => {
+driver.method('assets:delete', async (ids, options: any = {}) => {
     const denied = writeError('delete assets');
     if (denied) {
         return denied;
     }
-    const assets = ids.map((id: number) => api.assets.get(id)).filter(Boolean);
-    if (!assets.length) {
-        return { error: 'No valid assets to delete. Call list_assets to obtain valid asset ids.' };
+    const assets = ids.map(getAsset);
+    if (options.rejectReferenced) {
+        const index = editor.call('assets:used:index') || {};
+        const referenced = ids.filter((id: number) => index[id]?.count);
+        if (referenced.length) {
+            throw new Error(`Referenced assets cannot be deleted: ${referenced.join(', ')}.`);
+        }
     }
     await api.assets.delete(assets);
     log(`Deleted assets: ${ids.join(', ')}`);
@@ -451,6 +682,20 @@ driver.method('assets:list', (options: any = {}) => {
 
     // summary mode: return minimal data
     return { data: page.map(assetSummary), meta };
+});
+driver.method('assets:get', (id) => ({ data: getAsset(id).json() }));
+driver.method('assets:references:get', (id) => {
+    getAsset(id);
+    const ref = editor.call('assets:used:index')?.[id]?.ref || {};
+    return {
+        data: {
+            id,
+            references: Object.entries(ref).map(([resourceId, value]: any) => ({
+                type: value.type,
+                id: resourceId
+            }))
+        }
+    };
 });
 driver.method('templates:instantiate', instantiateTemplates);
 driver.method('assets:instantiate', (ids) => instantiateTemplates({ assetIds: ids, ignoreMissing: true }));
@@ -499,33 +744,194 @@ driver.method('assets:file:text:get', async (id) => {
     }
 });
 driver.method('assets:file:get', async (id) => {
-    const asset = getAsset(id);
-    const type = asset.get('type');
-    let blob;
-    let filename = asset.get('file.filename') || asset.get('name');
-    if (type === 'animstategraph') {
-        filename = `${filename}.json`;
-        blob = new Blob([JSON.stringify(asset.get('data'), null, 4)], { type: 'application/json' });
-    } else {
-        const res = await fetch(`/api/assets/${id}/download?branchId=${config.self.branch.id}`);
-        if (!res.ok) {
-            return { error: `Failed to download asset: ${res.status} ${res.statusText}` };
-        }
-        const length = Number(res.headers.get('content-length'));
-        if (length > MAX_FILE_BYTES) {
-            return { error: `Asset download exceeds the ${MAX_FILE_BYTES / 1024 / 1024} MiB limit.` };
-        }
-        blob = await res.blob();
-    }
-    if (blob.size > MAX_FILE_BYTES) {
+    const data = await openDownload(id);
+    if (data.size > MAX_FILE_BYTES) {
+        await data.stream.cancel();
         return { error: `Asset download exceeds the ${MAX_FILE_BYTES / 1024 / 1024} MiB limit.` };
     }
-    const bytes = new Uint8Array(await blob.arrayBuffer());
-    let binary = '';
-    for (let i = 0; i < bytes.length; i += 0x8000) {
-        binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+    const bytes = new Uint8Array(await new Response(data.stream).arrayBuffer());
+    if (bytes.length !== data.size) {
+        throw new Error(`Asset download ended at ${bytes.length} of ${data.size} bytes.`);
     }
-    return { data: { id, filename, mime: blob.type || 'application/octet-stream', base64: btoa(binary) } };
+    return { data: { id, filename: data.filename, mime: data.mime, base64: bytesToBase64(bytes) } };
+});
+
+driver.method('files:upload:start', async (item, size) => {
+    const denied = writeError('upload assets');
+    if (denied) {
+        return denied;
+    }
+    if (transfers.size || pendingDownload) {
+        throw new Error('Finish or cancel the active file transfer before starting another.');
+    }
+    if (!item?.filename || !item?.type) {
+        throw new Error('Upload transfer requires filename and type.');
+    }
+    if (item.folder !== undefined && item.folder !== null && getAsset(item.folder).get('type') !== 'folder') {
+        throw new Error(`Asset ${item.folder} is not a folder.`);
+    }
+    if (item.id !== undefined && getAsset(item.id).get('type') !== item.type) {
+        throw new Error(`Asset ${item.id} does not match upload type ${item.type}.`);
+    }
+    const transfer = addTransfer({ direction: 'upload', size, item });
+    const [error, data] = await navigator.storage
+        .getDirectory()
+        .then(async (root) => {
+            const file = await root.getFileHandle(transfer.id, { create: true });
+            return { root, file, writer: await file.createWritable() };
+        })
+        .then(
+            (value) => [null, value],
+            (value) => [value, null]
+        );
+    if (error) {
+        await dropTransfer(transfer.id);
+        throw error;
+    }
+    Object.assign(transfer, data);
+    return { data: { transferId: transfer.id, size, chunkSize: MAX_CHUNK_BYTES } };
+});
+
+driver.method('files:upload:append', async (id, offset, base64) => {
+    const transfer = transfers.get(id);
+    if (!transfer || transfer.direction !== 'upload') {
+        throw new Error(`Upload transfer not found: ${id}.`);
+    }
+    if (
+        offset !== transfer.offset ||
+        typeof base64 !== 'string' ||
+        base64.length > Math.ceil(MAX_CHUNK_BYTES / 3) * 4
+    ) {
+        throw new Error(`Invalid upload offset or chunk for transfer ${id}.`);
+    }
+    const bytes = base64ToBytes(base64);
+    if (!bytes.length || bytes.length > MAX_CHUNK_BYTES || transfer.offset + bytes.length > transfer.size) {
+        throw new Error(`Invalid upload chunk length for transfer ${id}.`);
+    }
+    await transfer.writer.write(bytes);
+    transfer.offset += bytes.length;
+    touchTransfer(transfer);
+    return { data: { transferId: id, offset: transfer.offset } };
+});
+
+driver.method('files:upload:finish', async (id) => {
+    const transfer = transfers.get(id);
+    if (!transfer || transfer.direction !== 'upload' || transfer.offset !== transfer.size) {
+        throw new Error(`Incomplete upload transfer: ${id}.`);
+    }
+    clearTimeout(transfer.timer);
+    transfer.direction = 'finishing';
+    const [error, asset] = await Promise.resolve()
+        .then(async () => {
+            await transfer.writer.close();
+            transfer.writer = null;
+            return uploadFile(transfer.item, await transfer.file.getFile());
+        })
+        .then(
+            (value) => [null, value],
+            (value) => [value, null]
+        );
+    await dropTransfer(id);
+    if (error) {
+        throw error;
+    }
+    return { data: assetSummary(asset) };
+});
+
+driver.method('files:download:start', async (id, inlineLimit = 0) => {
+    if (transfers.size || pendingDownload) {
+        throw new Error('Finish or cancel the active file transfer before starting another.');
+    }
+    pendingDownload = true;
+    const [error, result] = await Promise.resolve()
+        .then(async () => {
+            const data = await openDownload(id);
+            if (data.size <= Math.min(inlineLimit, MAX_FILE_BYTES)) {
+                const bytes = new Uint8Array(await new Response(data.stream).arrayBuffer());
+                if (bytes.length !== data.size) {
+                    throw new Error(`Asset download ended at ${bytes.length} of ${data.size} bytes.`);
+                }
+                return {
+                    data: {
+                        size: data.size,
+                        filename: data.filename,
+                        mime: data.mime,
+                        base64: bytesToBase64(bytes)
+                    }
+                };
+            }
+            const transfer = addTransfer({
+                direction: 'download',
+                size: data.size,
+                reader: data.stream.getReader(),
+                pending: null
+            });
+            return {
+                data: {
+                    transferId: transfer.id,
+                    size: transfer.size,
+                    chunkSize: MAX_CHUNK_BYTES,
+                    filename: data.filename,
+                    mime: data.mime
+                }
+            };
+        })
+        .then(
+            (value) => {
+                pendingDownload = false;
+                return [null, value];
+            },
+            (value) => {
+                pendingDownload = false;
+                return [value, null];
+            }
+        );
+    if (error) {
+        throw error;
+    }
+    return result;
+});
+
+driver.method('files:download:read', async (id, offset, length = MAX_CHUNK_BYTES) => {
+    const transfer = transfers.get(id);
+    if (!transfer || transfer.direction !== 'download') {
+        throw new Error(`Download transfer not found: ${id}.`);
+    }
+    if (offset !== transfer.offset || !Number.isInteger(length) || length <= 0 || length > MAX_CHUNK_BYTES) {
+        throw new Error(`Invalid download offset or chunk length for transfer ${id}.`);
+    }
+    const bytes = await readDownload(transfer, length);
+    transfer.offset += bytes.length;
+    touchTransfer(transfer);
+    return {
+        data: {
+            transferId: id,
+            offset: transfer.offset,
+            base64: bytesToBase64(bytes),
+            done: transfer.offset === transfer.size
+        }
+    };
+});
+
+driver.method('files:transfer:finish', async (id) => {
+    const transfer = transfers.get(id);
+    if (!transfer || transfer.offset !== transfer.size) {
+        throw new Error(`Incomplete transfer: ${id}.`);
+    }
+    await dropTransfer(id);
+    return { data: { transferId: id, size: transfer.size } };
+});
+
+driver.method('files:transfer:cancel', async (id) => {
+    const cancelled = transfers.get(id)?.direction === 'finishing' ? false : await dropTransfer(id);
+    return { data: { transferId: id, cancelled } };
+});
+driver.method('files:transfer:clear', async () => {
+    const ids = [...transfers.keys()];
+    for (let i = 0; i < ids.length; i++) {
+        await dropTransfer(ids[i]);
+    }
+    return { data: { cleared: true } };
 });
 driver.method('templates:apply', async ({ entityId, overrides }: any) => {
     const denied = writeError('apply template overrides');
@@ -619,10 +1025,10 @@ driver.method('assets:script:parse', async (id) => {
         editor.call('scripts:parse', (asset as any).observer, (...d: any[]) => resolve(d));
     });
     if (err) {
-        return { error: err };
+        return { error: err?.message || err?.error || String(err) };
     }
-    if (Object.keys(data.scripts).length === 0) {
-        return { error: 'Failed to parse script' };
+    if (!data?.scripts || Object.keys(data.scripts).length === 0) {
+        return { error: `Script parser returned no declarations for asset ${id}.` };
     }
     log(`Parsed asset(${id}) script`);
     return { data };

@@ -16,11 +16,24 @@ mcp.method('launch:start', (options: any = {}) => {
     }
     const params = new URLSearchParams();
 
-    // debug=true makes the engine log warnings/errors to the console, which
-    // read_runtime_logs relies on
-    params.set('debug', 'true');
+    params.set('debug', String(options.debug ?? true));
     if (options.device) {
         params.set('device', options.device);
+    }
+    if (options.engineVersion) {
+        params.set('version', options.engineVersion);
+    }
+    if (options.profiler) {
+        params.set('profile', 'true');
+    }
+    if (options.concatenate) {
+        params.set('concatenateScripts', 'true');
+    }
+    if (options.bundles !== undefined) {
+        params.set('useBundles', String(options.bundles));
+    }
+    if (options.miniStats) {
+        params.set('ministats', 'true');
     }
 
     // pass the MCP port so the launch page can connect back as the runtime peer

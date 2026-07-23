@@ -16,23 +16,28 @@ const scenes = () =>
 
 // scene settings
 driver.method('scene:settings:modify', (settings) => {
-    const denied = writeError('modify scene settings');
+    const edits: any[] = [];
+    iterateObject(settings, (path, value) => edits.push({ path, value }));
+    return driver.invoke('settings:modify', 'scene', edits);
+});
+driver.method('scene:settings:query', () => driver.invoke('settings:query', 'scene'));
+driver.method('scene:name:set', (name) => {
+    const denied = writeError('rename the current scene');
     if (denied) {
         return denied;
     }
-    const scene = api.settings.scene;
-    iterateObject(settings, (path, value) => {
-        scene.set(path, value);
+    const scene = api.realtime.scenes.current;
+    if (!scene?.data) {
+        return { error: 'No scene is loaded.' };
+    }
+    editor.call('realtime:scene:op', {
+        p: ['name'],
+        od: scene.data.name || '',
+        oi: name
     });
-    log('Modified scene settings');
-
-    // return the resulting settings snapshot inline
-    return { data: scene.json() };
-});
-driver.method('scene:settings:query', () => {
-    const scene = api.settings.scene;
-    log('Queried scene settings');
-    return { data: scene.json() };
+    editor.emit('scene:name', name);
+    log(`Renamed scene(${scene.id}) to: ${name}`);
+    return { data: { id: scene.id, uniqueId: scene.uniqueId, name } };
 });
 
 // scene management
