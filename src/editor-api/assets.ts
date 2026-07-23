@@ -968,7 +968,7 @@ class Assets extends Events {
         const defaultData = api.schema.assets.getDefaultData('material') as any;
         if (options.data) {
             for (const key in defaultData) {
-                if (options.data[key]) {
+                if (Object.hasOwn(options.data, key)) {
                     defaultData[key] = options.data[key];
                 }
             }

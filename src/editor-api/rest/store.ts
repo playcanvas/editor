@@ -27,12 +27,16 @@ export type StoreCloneData = {
     /**
      * The ID of the folder to clone the item to
      */
-    targetFolderId?: string;
+    targetFolderId?: string | null;
 
     /**
      * The license of the store item
      */
-    license?: string;
+    license?: string | {
+        author: string;
+        authorUrl: string;
+        license: string;
+    };
 };
 
 export type StoreListOptions = {
@@ -124,7 +128,7 @@ export const storeUpload = (data: object, mimeType: string) => {
  * @param data - The data for the new store item
  * @returns A request that responds with the new store item
  */
-export const storeClone = (storeId: number, data: StoreCloneData) => {
+export const storeClone = (storeId: number | string, data: StoreCloneData) => {
     return Ajax.post({
         url: `${api.apiUrl}/store/${storeId}/clone`,
         auth: true,

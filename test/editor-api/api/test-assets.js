@@ -544,7 +544,10 @@ ${className}.prototype.update = function(dt) {
         const folder = new api.Asset({ id: 10 });
         api.globals.assets.createMaterial({
             name: 'name',
-            folder: folder
+            folder: folder,
+            data: {
+                opacity: 0
+            }
         });
 
         expect(requests.length).to.equal(1);
@@ -557,8 +560,29 @@ ${className}.prototype.update = function(dt) {
         expect(data.get('parent')).to.equal('10');
         expect(data.get('preload')).to.equal('true');
         expect(data.get('data')).to.equal(JSON.stringify({
-            diffuse: [0, 0, 0]
+            diffuse: [0, 0, 0],
+            opacity: 0
         }));
+    });
+
+    it('serializes scene import pipeline options', function () {
+        const xhr = sandbox.useFakeXMLHttpRequest();
+        const requests = [];
+        xhr.onCreate = (fake) => {
+            requests.push(fake);
+        };
+        api.globals.branchId = 'branch';
+        api.globals.projectId = 1;
+
+        new api.Rest().assets.assetCreate(
+            { type: 'scene', name: 'model.glb' },
+            { meshCompression: 'draco', useUniqueIndices: false }
+        );
+
+        expect(requests.length).to.equal(1);
+        const data = requests[0].requestBody;
+        expect(data.get('meshCompression')).to.equal('draco');
+        expect(data.get('useUniqueIndices')).to.equal('false');
     });
 
     it('creates shader asset', async function () {

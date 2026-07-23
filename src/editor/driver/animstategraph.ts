@@ -19,11 +19,12 @@ const mappings = (assetId: number, prev: any, next: any) => {
         }
         const oldMap = structuredClone(entity.get('components.anim.animationAssets') || {});
         const newMap = structuredClone(oldMap);
-        changes.forEach(({ key, next }) => {
-            const value = oldMap[key] ?? { asset: null };
+        changes.forEach(({ key }) => {
             delete newMap[key];
+        });
+        changes.forEach(({ key, next }) => {
             if (next) {
-                newMap[next] = value;
+                newMap[next] = oldMap[key] ?? { asset: null };
             }
         });
         return [{ id: entity.get('resource_id'), before: oldMap, after: newMap }];

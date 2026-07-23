@@ -132,6 +132,26 @@ workerServer.on('init', async ({ projectId, branchId, legacyLogs }) => {
         });
     });
 
+    workerServer.on('query', async (id: number, options: any = {}) => {
+        await addPromise;
+        const logs = (await db.logs.toArray())
+            .concat(queue)
+            .filter((row) => row.projectId === projectId && row.branchId === branchId)
+            .filter((row) => !options.types?.length || options.types.includes(row.type))
+            .filter((row) => !options.search || row.msg.toLowerCase().includes(options.search.toLowerCase()))
+            .filter((row) => !options.since || row.ts >= options.since)
+            .reverse();
+        const offset = options.offset || 0;
+        const limit = options.limit || 100;
+        const data = logs.slice(offset, offset + limit);
+        workerServer.send(`query:${id}`, data, {
+            total: logs.length,
+            count: data.length,
+            hasMore: offset + data.length < logs.length,
+            nextCursor: offset + data.length < logs.length ? String(offset + data.length) : null
+        });
+    });
+
     // history blob generation
     let historyUrl = null;
     workerServer.on('history', async (projectName: string, branchName: string) => {

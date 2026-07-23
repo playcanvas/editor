@@ -1,11 +1,13 @@
 import { driver } from './driver';
-import { api, log, iterateObject, writeError } from './shared';
+import { api, log, iterateObject, validatePath, writeError } from './shared';
 
 const WRITE_SCOPES = new Set(['project', 'projectPrivate', 'scene']);
-const BLOCKED_PATHS = new Set(['__proto__', 'prototype', 'constructor']);
 
 const getSettings = (scope: string) => {
     if (scope === 'scene') {
+        if (!api.realtime.scenes.current?.data) {
+            throw new Error('No scene is currently loaded.');
+        }
         return api.settings.scene.observer;
     }
     if (['project', 'projectUser', 'projectPrivate', 'user', 'session'].includes(scope)) {
@@ -14,34 +16,7 @@ const getSettings = (scope: string) => {
     throw new Error(`Invalid settings scope: ${scope}.`);
 };
 
-const validatePath = (path: string) => {
-    if (!path || path.split('.').some((part) => !part || BLOCKED_PATHS.has(part))) {
-        throw new Error(`Invalid settings path: ${path}.`);
-    }
-};
-
-// project settings
-driver.method('project:settings:modify', (settings) => {
-    const denied = writeError('modify project settings');
-    if (denied) {
-        return denied;
-    }
-    const project = editor.call('settings:project');
-    iterateObject(settings, (path, value) => {
-        project.set(path, value);
-    });
-    log('Modified project settings');
-
-    // return the resulting settings snapshot inline
-    return { data: project.json() };
-});
-driver.method('project:settings:query', () => {
-    const project = editor.call('settings:project');
-    log('Queried project settings');
-    return { data: project.json() };
-});
-
-driver.method('settings:query', (scope, path) => {
+const querySettings = (scope: string, path?: string) => {
     const settings = getSettings(scope);
     if (path === undefined) {
         return { data: settings.json() };
@@ -51,9 +26,9 @@ driver.method('settings:query', (scope, path) => {
         return { error: `Settings path not found in ${scope}: ${path}.` };
     }
     return { data: settings.get(path) };
-});
+};
 
-driver.method('settings:modify', (scope, edits) => {
+const modifySettings = (scope: string, edits: any[]) => {
     if (WRITE_SCOPES.has(scope)) {
         const denied = writeError(`modify ${scope} settings`);
         if (denied) {
@@ -81,4 +56,13 @@ driver.method('settings:modify', (scope, edits) => {
     });
     log(`Modified ${scope} settings: ${prepared.map(({ path }) => path).join(', ')}`);
     return { data: settings.json() };
+};
+
+driver.method('settings:query', querySettings);
+driver.method('settings:modify', modifySettings);
+driver.method('project:settings:query', () => querySettings('project'));
+driver.method('project:settings:modify', (settings) => {
+    const edits: any[] = [];
+    iterateObject(settings, (path, value) => edits.push({ path, value }));
+    return modifySettings('project', edits);
 });

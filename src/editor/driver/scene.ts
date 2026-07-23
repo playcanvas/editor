@@ -16,24 +16,11 @@ const scenes = () =>
 
 // scene settings
 driver.method('scene:settings:modify', (settings) => {
-    const denied = writeError('modify scene settings');
-    if (denied) {
-        return denied;
-    }
-    const scene = api.settings.scene;
-    iterateObject(settings, (path, value) => {
-        scene.set(path, value);
-    });
-    log('Modified scene settings');
-
-    // return the resulting settings snapshot inline
-    return { data: scene.json() };
+    const edits: any[] = [];
+    iterateObject(settings, (path, value) => edits.push({ path, value }));
+    return driver.invoke('settings:modify', 'scene', edits);
 });
-driver.method('scene:settings:query', () => {
-    const scene = api.settings.scene;
-    log('Queried scene settings');
-    return { data: scene.json() };
-});
+driver.method('scene:settings:query', () => driver.invoke('settings:query', 'scene'));
 driver.method('scene:name:set', (name) => {
     const denied = writeError('rename the current scene');
     if (denied) {

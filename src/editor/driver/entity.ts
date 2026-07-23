@@ -1,20 +1,8 @@
 import { driver } from './driver';
 import { api, log, entitySummary, paginate, writeError } from './shared';
 
-// top-level entity properties that entities:modify may set directly. Anything
-// else must be addressed under `components.<type>.…` (or is not settable).
 const ENTITY_TOP_LEVEL_PATHS = ['name', 'enabled', 'position', 'rotation', 'scale', 'tags'];
 
-/**
- * Validate an entities:modify path against an entity BEFORE writing, so an invalid path
- * fails fast with an actionable message instead of silently "succeeding". Only rejects
- * paths that are provably wrong (unknown top-level key, or a component path for a
- * component the entity does not have) — valid edits are never blocked.
- *
- * @param entity - The entity API instance.
- * @param path - The dot-notation path the caller wants to set.
- * @returns An actionable error string if the path is invalid, otherwise null.
- */
 const validateEntityPath = (entity: any, path: string) => {
     const components = Object.keys(entity.get('components') || {});
     const componentList = components.length ? components.join(', ') : 'none';
@@ -30,10 +18,10 @@ const validateEntityPath = (entity: any, path: string) => {
         if (!entity.get(`components.${component}`)) {
             return `Entity ${entity.get('resource_id')} (${entity.get('name')}) has no '${component}' component, so '${path}' cannot be set. This entity has components: [${componentList}]. Add it first with add_components, or target an existing component.`;
         }
-        return null;
+        const resolved = api.schema.components.resolvePath(component, parts.slice(2).join('.'));
+        return resolved ? null : `Unknown component path '${path}'.`;
     }
-    const top = path.split('.')[0];
-    if (!ENTITY_TOP_LEVEL_PATHS.includes(top)) {
+    if (!ENTITY_TOP_LEVEL_PATHS.includes(path)) {
         return `Unknown path '${path}'. Valid top-level paths: ${ENTITY_TOP_LEVEL_PATHS.join(', ')} (vectors are arrays e.g. position [0,1,0], euler rotation in degrees). For component properties use components.<type>.<prop>; this entity has components: [${componentList}].`;
     }
     return null;
@@ -144,7 +132,7 @@ driver.method('entities:modify', (edits) => {
         return denied;
     }
     const prepared = edits.map((edit: any) => {
-        const { id, path, value } = edit;
+        const { id, path } = edit;
         const entity = api.entities.get(id);
         if (!entity) {
             throw new Error(`Entity not found: ${id}. Call list_entities to obtain a valid resource_id.`);
@@ -163,12 +151,20 @@ driver.method('entities:modify', (edits) => {
         if (op === 'unset' && !path.startsWith('components.')) {
             throw new Error('Only component properties can be unset; set top-level entity properties explicitly.');
         }
+        const resolved = path.startsWith('components.')
+            ? api.schema.components.resolvePath(path.split('.')[1], path.split('.').slice(2).join('.'))
+            : null;
+        if (op === 'unset' && !resolved?.hasDefault && !resolved?.open) {
+            throw new Error(`Component path ${path} cannot be unset.`);
+        }
+        const nextOp = op === 'unset' && resolved?.hasDefault ? 'set' : op;
+        const value = nextOp === 'set' && op === 'unset' ? resolved.default : edit.value;
         return {
             entity,
             id,
             path,
             value,
-            op,
+            op: nextOp,
             exists: entity.has(path),
             previous: structuredClone(entity.get(path))
         };
@@ -223,12 +219,7 @@ driver.method('entities:duplicate', async (ids, options: any = {}) => {
     if (denied) {
         return denied;
     }
-    const entities = ids.map((id: string) => api.entities.get(id)).filter(Boolean);
-    if (!entities.length) {
-        return {
-            error: 'No valid entities to duplicate. Call list_entities (or resolve_entities) to obtain valid resource_ids.'
-        };
-    }
+    const entities = getEntities(ids);
     const res = await api.entities.duplicate(entities, options);
     log(`Duplicated entities: ${res.map((entity: any) => entity.get('resource_id')).join(', ')}`);
     return { data: res.map(entitySummary) };
@@ -261,13 +252,9 @@ driver.method('entities:delete', async (ids) => {
     if (denied) {
         return denied;
     }
-    const entities = ids
-        .map((id: string) => api.entities.get(id))
-        .filter((entity: any) => entity && entity !== api.entities.root);
-    if (!entities.length) {
-        return {
-            error: 'No deletable entities found (the root entity cannot be deleted). Call list_entities to obtain valid, non-root resource_ids.'
-        };
+    const entities = getEntities(ids);
+    if (entities.includes(api.entities.root)) {
+        throw new Error('The root entity cannot be deleted.');
     }
     await api.entities.delete(entities);
     log(`Deleted entities: ${ids.join(', ')}`);
@@ -315,6 +302,7 @@ driver.method('entities:list', (options: any = {}) => {
     // summary mode: compact, semantic data
     return { data: page.map(entitySummary), meta };
 });
+driver.method('entities:get', (id) => ({ data: getEntities([id])[0].json() }));
 driver.method('entities:components:add', (id, components) => {
     const denied = writeError('add entity components');
     if (denied) {
@@ -330,6 +318,7 @@ driver.method('entities:components:add', (id, components) => {
     if (existing.length) {
         return { error: `Entity ${id} already has components: ${existing.join(', ')}.` };
     }
+    Object.keys(components).forEach((component) => api.schema.components.getDefaultData(component));
     Object.entries(components).forEach(([name, data]) => {
         entity.addComponent(name, data);
     });

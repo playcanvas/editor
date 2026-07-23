@@ -80,7 +80,7 @@ editor.once('load', () => {
     });
 
     // returns the pipeline options for assets
-    const pipelineOptions = () => {
+    const pipelineOptions = (overrides = {}) => {
         return {
             pow2: projectUserSettings.get('editor.pipeline.texturePot'),
             searchRelatedAssets: projectUserSettings.get('editor.pipeline.searchRelatedAssets'),
@@ -99,20 +99,22 @@ editor.once('load', () => {
             unwrapUv: projectUserSettings.get('editor.pipeline.unwrapUv'),
             unwrapUvTexelsPerMeter: projectUserSettings.get('editor.pipeline.unwrapUvTexelsPerMeter'),
             importMorphNormals: projectUserSettings.get('editor.pipeline.importMorphNormals'),
-            useUniqueIndices: projectUserSettings.get('editor.pipeline.useUniqueIndices')
+            useUniqueIndices: projectUserSettings.get('editor.pipeline.useUniqueIndices'),
+            ...overrides
         };
     };
+    editor.method('assets:pipeline:options', pipelineOptions);
 
     editor.method('assets:uploadFile', (args, fn) => {
         let request;
         if (args.asset) {
             const assetId = args.asset.get('id');
-            request = editor.api.globals.rest.assets.assetUpdate(assetId, args, pipelineOptions());
+            request = editor.api.globals.rest.assets.assetUpdate(assetId, args, pipelineOptions(args.settings));
         } else {
             // default preload scripts to true
             args.preloadDefault =
                 args.type === 'script' ? true : projectUserSettings.get('editor.pipeline.defaultAssetPreload');
-            request = editor.api.globals.rest.assets.assetCreate(args, pipelineOptions());
+            request = editor.api.globals.rest.assets.assetCreate(args, pipelineOptions(args.settings));
         }
 
         const job = ++uploadJobs;

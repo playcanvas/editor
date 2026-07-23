@@ -52,72 +52,7 @@ export type AssetGetFileOptions = {
     immutableBackup?: string;
 };
 
-export type AssetReimportData = {
-    /**
-     * Whether to use power of two textures
-     */
-    pow2?: boolean;
-
-    /**
-     * The animation sample rate
-     */
-    searchRelatedAssets?: boolean;
-
-    /**
-     * Whether to search for related assets
-     */
-    overwriteModel?: boolean;
-
-    /**
-     * Whether to overwrite the model
-     */
-    overwriteAnimation?: boolean;
-
-    /**
-     * Whether to overwrite the animation
-     */
-    overwriteMaterial?: boolean;
-
-    /**
-     * Whether to overwrite the material
-     */
-    overwriteTexture?: boolean;
-
-    /**
-     * Whether to overwrite the texture
-     */
-    preserveMapping?: boolean;
-
-    /**
-     * Whether to preserve the mapping
-     */
-    useGlb?: boolean;
-
-    /**
-     * The animation sample rate
-     */
-    useContainers?: boolean;
-
-    /**
-     * Whether to use containers
-     */
-    meshCompression?: boolean;
-
-    /**
-     * Whether to use mesh compression
-     */
-    dracoDecodeSpeed?: number;
-
-    /**
-     * The speed of Draco decoding
-     */
-    dracoMeshSize?: number;
-
-    /**
-     * The size of Draco meshes
-     */
-    animUseFbxFilename?: boolean;
-};
+export type AssetReimportData = AssetPipelineOptions;
 
 export type AssetDuplicateData = {
     /**
@@ -299,9 +234,9 @@ export type AssetPipelineOptions = {
     useContainers?: boolean;
 
     /**
-     * Whether to use mesh compression
+     * The mesh compression mode
      */
-    meshCompression?: boolean;
+    meshCompression?: 'none' | 'draco';
 
     /**
      * The speed of Draco decoding
@@ -327,6 +262,11 @@ export type AssetPipelineOptions = {
      * Whether to import morph normals
      */
     importMorphNormals?: boolean;
+
+    /**
+     * Whether to use unique mesh indices
+     */
+    useUniqueIndices?: boolean;
 };
 
 /**
@@ -511,6 +451,7 @@ const assetUpdateFields = (form: FormData, data: AssetUpdateData, pipeline: Asse
                 form.append('unwrapUv', `${pipeline.unwrapUv}`);
                 form.append('unwrapUvTexelsPerMeter', `${pipeline.unwrapUvTexelsPerMeter}`);
                 form.append('importMorphNormals', `${pipeline.importMorphNormals}`);
+                form.append('useUniqueIndices', `${pipeline.useUniqueIndices}`);
                 break;
             case 'font':
                 break;
