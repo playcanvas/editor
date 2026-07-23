@@ -28,13 +28,31 @@ describe('remapAnimStateAssets', () => {
                     'Layer:B': { asset: 2 }
                 },
                 [
-                    { key: 'Layer:A', next: 'Layer:B' },
-                    { key: 'Layer:B', next: 'Layer:C' }
+                    { key: 'Layer:A', next: 'Layer:B', drop: true },
+                    { key: 'Layer:B', next: 'Layer:C', drop: false }
                 ]
             )
         ).to.deep.equal({
             'Layer:B': { asset: 1 },
             'Layer:C': { asset: 2 }
+        });
+    });
+
+    it('remaps swapped keys without losing values', () => {
+        expect(
+            remapAnimStateAssets(
+                {
+                    'Layer:A': { asset: 1 },
+                    'Layer:B': { asset: 2 }
+                },
+                [
+                    { key: 'Layer:A', next: 'Layer:B', drop: true },
+                    { key: 'Layer:B', next: 'Layer:A', drop: false }
+                ]
+            )
+        ).to.deep.equal({
+            'Layer:A': { asset: 2 },
+            'Layer:B': { asset: 1 }
         });
     });
 });

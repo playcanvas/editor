@@ -103,13 +103,16 @@ const animStateKeys = (data: Data) => {
     return keys;
 };
 
-const remapAnimStateAssets = (current: Record<string, any>, changes: { key: string; next?: string }[]) => {
+const remapAnimStateAssets = (
+    current: Record<string, any>,
+    changes: { key: string; next?: string; drop: boolean }[]
+) => {
     const result = structuredClone(current);
     for (let i = 0; i < changes.length; i++) {
-        delete result[changes[i].key];
-    }
-    for (let i = 0; i < changes.length; i++) {
-        const { key, next } = changes[i];
+        const { key, next, drop } = changes[i];
+        if (drop) {
+            delete result[key];
+        }
         if (next) {
             result[next] = current[key] ?? { asset: null };
         }

@@ -7,10 +7,14 @@ const mappings = (assetId: number, prev: any, next: any) => {
     const before = animStateKeys(prev);
     const after = animStateKeys(next);
     const changes = [];
+    const targets = new Set<string>();
     for (const [id, key] of before) {
         const next = after.get(id);
         if (next !== key) {
-            changes.push({ key, next });
+            changes.push({ key, next, drop: !targets.has(key) });
+            if (next) {
+                targets.add(next);
+            }
         }
     }
     if (!changes.length) {
