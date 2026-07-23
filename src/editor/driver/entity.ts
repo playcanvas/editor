@@ -324,7 +324,7 @@ driver.method('entities:components:add', (id, components) => {
     }
     const names = Object.keys(components);
     const valid = api.schema.components.list();
-    const invalid = names.filter(name => !valid.includes(name));
+    const invalid = names.filter((name) => !valid.includes(name));
     if (invalid.length) {
         return { error: `Unsupported component(s): ${invalid.join(', ')}. Valid components: ${valid.join(', ')}.` };
     }
