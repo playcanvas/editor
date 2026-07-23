@@ -44,9 +44,6 @@ class ComponentSchema {
      * ```
      */
     getDefaultData(component: string) {
-        if (!Object.hasOwn(this._schema, component)) {
-            throw new Error(`Unsupported component: ${component}`);
-        }
         const result: Record<string, any> = {};
         for (const fieldName in this._schema[component]) {
             if (fieldName.startsWith('$')) {

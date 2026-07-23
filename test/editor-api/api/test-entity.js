@@ -240,10 +240,11 @@ describe('api.Entity tests', function () {
         expect(e.get('components.testcomponent.entityRef')).to.equal(e.get('resource_id'));
     });
 
-    it('addComponent rejects unsupported components', function () {
+    it('addComponent tolerates unsupported components (legacy data loads without throwing)', function () {
         api.globals.schema = new api.Schema(schema);
         const e = api.globals.entities.create();
-        expect(() => e.addComponent('ligth')).to.throw('Unsupported component: ligth');
+        e.addComponent('pack', { legacy: true });
+        expect(e.get('components.pack')).to.deep.equal({ legacy: true });
     });
 
     it('removeComponent removes component', function () {

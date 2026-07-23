@@ -323,8 +323,10 @@ driver.method('entities:components:add', (id, components) => {
         return { error: `Entity ${id} already has components: ${existing.join(', ')}.` };
     }
     const names = Object.keys(components);
-    for (let i = 0; i < names.length; i++) {
-        api.schema.components.getDefaultData(names[i]);
+    const valid = api.schema.components.list();
+    const invalid = names.filter(name => !valid.includes(name));
+    if (invalid.length) {
+        return { error: `Unsupported component(s): ${invalid.join(', ')}. Valid components: ${valid.join(', ')}.` };
     }
     for (let i = 0; i < names.length; i++) {
         entity.addComponent(names[i], components[names[i]]);
