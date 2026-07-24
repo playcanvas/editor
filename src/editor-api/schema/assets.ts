@@ -47,6 +47,40 @@ class AssetsSchema {
         return result;
     }
 
+    resolvePath(type: string, path: string) {
+        let field = this._schema[`${type}Data`];
+        let open = false;
+
+        if (!field) {
+            return null;
+        }
+        for (const part of path.split('.')) {
+            if (!part) {
+                return null;
+            }
+            if (field.$type === 'map' || field.$type === 'mixed') {
+                open = true;
+                if (!field.$of) {
+                    return { field: null, default: undefined, hasDefault: false, open };
+                }
+                field = field.$of;
+            } else if (Array.isArray(field.$type)) {
+                if (!Number.isInteger(Number(part)) || Number(part) < 0) {
+                    return null;
+                }
+                field = field.$type[0];
+            } else if (Object.hasOwn(field, part)) {
+                field = field[part];
+                continue;
+            } else {
+                return null;
+            }
+        }
+
+        const hasDefault = Object.hasOwn(field, '$default');
+        return { field, default: hasDefault ? utils.deepCopy(field.$default) : undefined, hasDefault, open };
+    }
+
     /**
      * Gets a list of fields of a particular type for an asset type
      *

@@ -14,12 +14,14 @@ const removeExtension = (name) => {
 editor.method('assets:textureToCubemap', (textureAsset, callback) => {
     // validate texture asset
     if (textureAsset.get('type') !== 'texture' || textureAsset.get('source')) {
+        callback?.(new Error('An editable texture asset is required.'));
         return;
     }
 
     // get the app
     const app = editor.call('viewport:app');
     if (!app) {
+        callback?.(new Error('The viewport must be loaded to create a cubemap.'));
         return;
     }
 
@@ -83,7 +85,11 @@ editor.method('assets:textureToCubemap', (textureAsset, callback) => {
                             parent: folder
                         },
                         (err, data) => {
-                            resolve(data.id);
+                            if (err) {
+                                reject(err);
+                            } else {
+                                resolve(data.id);
+                            }
                         }
                     );
                 })
@@ -99,22 +105,29 @@ editor.method('assets:textureToCubemap', (textureAsset, callback) => {
         const faceAssets = faceIds.map((id) => editor.call('assets:get', id));
 
         // create the cubemap asset
-        editor.api.globals.assets.createCubemap({
+        return editor.api.globals.assets.createCubemap({
             name: `${nameBase}_cubemap`,
             textures: faceAssets,
             folder: folder
         });
     };
 
+    const done = (promise) => {
+        promise.then((asset) => callback?.(null, asset)).catch((err) => callback?.(err));
+    };
+
     const asset = app.assets.get(parseInt(textureAsset.get('id'), 10));
     if (asset) {
         if (asset.resource) {
-            onLoaded(asset.resource);
+            done(onLoaded(asset.resource));
         } else {
             asset.once('load', (asset) => {
-                onLoaded(asset.resource);
+                done(onLoaded(asset.resource));
             });
+            asset.once('error', (err) => callback?.(err || new Error('Failed to load the texture resource.')));
             app.assets.load(asset);
         }
+    } else {
+        callback?.(new Error(`Texture resource ${textureAsset.get('id')} is not loaded.`));
     }
 });

@@ -117,7 +117,8 @@ const TextureCompressor = {
      * @param force - Force recompression. If false then the method will
      * check if recompression is needed first.
      */
-    compress(assets: Observer[], formats: string[], force: boolean): void {
+    compress(assets: Observer[], formats: string[], force = false) {
+        let scheduled = false;
         for (let i = 0; i < assets.length; i++) {
             const asset = assets[i];
             if (!asset.get('file')) {
@@ -127,7 +128,8 @@ const TextureCompressor = {
             const variants = [];
             const toDelete = [];
 
-            for (const format of formats) {
+            for (let j = 0; j < formats.length; j++) {
+                const format = formats[j];
                 if (format !== 'original') {
                     switch (this.determineRequiredProcessing(asset, format, force)) {
                         case 'compress':
@@ -143,6 +145,7 @@ const TextureCompressor = {
             }
 
             if (toDelete.length) {
+                scheduled = true;
                 editor.call('realtime:send', 'pipeline', {
                     name: 'delete-variant',
                     data: {
@@ -155,6 +158,7 @@ const TextureCompressor = {
             }
 
             if (variants.length) {
+                scheduled = true;
                 const task = {
                     asset: parseInt(asset.get('uniqueId'), 10),
                     options: {
@@ -189,6 +193,7 @@ const TextureCompressor = {
                 });
             }
         }
+        return scheduled;
     }
 };
 

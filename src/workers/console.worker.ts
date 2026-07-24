@@ -26,6 +26,7 @@ const workerServer = new WorkerServer(self);
 workerServer.on('init', async ({ projectId, branchId, legacyLogs }) => {
     const db = new Dexie('editor-console') as Dexie & { logs: Dexie.Table<Log, number> };
     db.version(1).stores({ logs: '++id' });
+    db.version(2).stores({ logs: '++id,[projectId+branchId]' });
 
     // get log count
     let count = await db.logs.count();
@@ -129,6 +130,37 @@ workerServer.on('init', async ({ projectId, branchId, legacyLogs }) => {
             await db.logs.bulkAdd(chunk);
             count += chunk.length;
             workerServer.send('log');
+        });
+    });
+
+    workerServer.on('query', async (id: number, options: any = {}) => {
+        await addPromise;
+        const stored = await db.logs.where('[projectId+branchId]').equals([projectId, branchId]).reverse().toArray();
+        const logs = queue.slice().reverse().concat(stored);
+        const search = options.search?.toLowerCase();
+        const offset = options.offset || 0;
+        const limit = options.limit || 100;
+        const data = [];
+        let total = 0;
+        for (let i = 0; i < logs.length; i++) {
+            const row = logs[i];
+            if (
+                (options.types?.length && !options.types.includes(row.type)) ||
+                (search && !row.msg.toLowerCase().includes(search)) ||
+                (options.since && row.ts < options.since)
+            ) {
+                continue;
+            }
+            if (total >= offset && data.length < limit) {
+                data.push(row);
+            }
+            total++;
+        }
+        workerServer.send(`query:${id}`, data, {
+            total,
+            count: data.length,
+            hasMore: offset + data.length < total,
+            nextCursor: offset + data.length < total ? String(offset + data.length) : null
         });
     });
 

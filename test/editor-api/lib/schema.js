@@ -75,6 +75,10 @@ window.schema = {
         diffuse: {
             $type: ["number"],
             $default: [0, 0, 0]
+        },
+        opacity: {
+            $type: "number",
+            $default: 1
         }
     },
     modelData: {

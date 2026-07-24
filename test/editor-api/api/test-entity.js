@@ -240,6 +240,13 @@ describe('api.Entity tests', function () {
         expect(e.get('components.testcomponent.entityRef')).to.equal(e.get('resource_id'));
     });
 
+    it('addComponent tolerates unsupported components (legacy data loads without throwing)', function () {
+        api.globals.schema = new api.Schema(schema);
+        const e = api.globals.entities.create();
+        e.addComponent('pack', { legacy: true });
+        expect(e.get('components.pack')).to.deep.equal({ legacy: true });
+    });
+
     it('removeComponent removes component', function () {
         api.globals.schema = new api.Schema(schema);
         const e = api.globals.entities.create();

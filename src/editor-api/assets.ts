@@ -968,7 +968,7 @@ class Assets extends Events {
         const defaultData = api.schema.assets.getDefaultData('material') as any;
         if (options.data) {
             for (const key in defaultData) {
-                if (options.data[key]) {
+                if (Object.hasOwn(options.data, key)) {
                     defaultData[key] = options.data[key];
                 }
             }
@@ -1232,6 +1232,8 @@ class Assets extends Events {
         options.entity.set('template_id', parseInt(asset.get('id'), 10));
         options.entity.set('template_ent_ids', oldToNewIds);
         options.entity.history.enabled = history;
+
+        return asset;
     }
 
     /**

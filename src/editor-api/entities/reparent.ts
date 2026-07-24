@@ -14,6 +14,40 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
         options.history = true;
     }
 
+    const parents = new Map<Entity, Entity>();
+    const sizes = new Map<Entity, number>();
+    for (let i = 0; i < data.length; i++) {
+        const { entity, parent } = data[i];
+        if (parents.has(entity)) {
+            throw new Error('An entity cannot be reparented more than once in one operation.');
+        }
+        if (!entity.parent) {
+            throw new Error('The root entity cannot be reparented.');
+        }
+        parents.set(entity, parent);
+        sizes.set(entity.parent, sizes.get(entity.parent) ?? entity.parent.get('children').length);
+        sizes.set(parent, sizes.get(parent) ?? parent.get('children').length);
+        sizes.set(entity.parent, sizes.get(entity.parent) - 1);
+        sizes.set(parent, sizes.get(parent) + 1);
+    }
+    for (let i = 0; i < data.length; i++) {
+        const { entity, parent, index } = data[i];
+        let current: Entity | null = parent;
+        while (current && current !== entity) {
+            current = parents.get(current) || current.parent;
+        }
+        if (current === entity) {
+            throw new Error('An entity cannot be parented to itself or its descendant.');
+        }
+        if (
+            index !== undefined &&
+            index !== null &&
+            (!Number.isInteger(index) || index < 0 || index > sizes.get(parent))
+        ) {
+            throw new Error(`Invalid child index: ${index}.`);
+        }
+    }
+
     const records = data.map((entry: any) => {
         const parentOld = entry.entity.parent;
         const indexOld = parentOld.get('children').indexOf(entry.entity.get('resource_id'));
