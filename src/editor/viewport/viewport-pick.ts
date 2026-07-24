@@ -156,7 +156,7 @@ editor.once('load', () => {
                     continue;
                 }
 
-                const guid = entity.getGuid();
+                const guid = entity.guid;
                 if (!seenGuids.has(guid)) {
                     seenGuids.add(guid);
                     entities.push(entity);

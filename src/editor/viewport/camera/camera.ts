@@ -113,7 +113,7 @@ editor.once('load', () => {
                     });
                 };
 
-                const e = editor.call('entities:get', entity.getGuid());
+                const e = editor.call('entities:get', entity.guid);
                 if (e) {
                     evtLayersInsert = e.on('components.camera.layers:insert', fixLayers);
                     evtLayersRemove = e.on('components.camera.layers:remove', fixLayers);
@@ -151,11 +151,11 @@ editor.once('load', () => {
         });
 
         editor.method('camera:add', (entity: Entity) => {
-            if (camerasIndex[entity.getGuid()]) {
+            if (camerasIndex[entity.guid]) {
                 return;
             }
 
-            camerasIndex[entity.getGuid()] = entity;
+            camerasIndex[entity.guid] = entity;
 
             if (entity.camera) {
                 entity.camera.enabled = false;
@@ -166,11 +166,11 @@ editor.once('load', () => {
         });
 
         editor.method('camera:remove', (entity: Entity) => {
-            if (!camerasIndex[entity.getGuid()]) {
+            if (!camerasIndex[entity.guid]) {
                 return;
             }
 
-            delete camerasIndex[entity.getGuid()];
+            delete camerasIndex[entity.guid];
 
             if (entity === currentCamera) {
                 editor.call('camera:set');

@@ -44,7 +44,7 @@ editor.once('load', () => {
                 name = `${node.name} &#8594; ${picked.node.name}`;
             } else {
                 // normal entity
-                if (editor.call('entities:get', node.getGuid())) {
+                if (editor.call('entities:get', node.guid)) {
                     name = node.name;
                 }
             }

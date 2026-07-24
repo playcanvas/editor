@@ -10,7 +10,7 @@ editor.once('load', () => {
             }
         }
 
-        return editor.call('entities:get', targetNode.getGuid()) || null;
+        return editor.call('entities:get', targetNode.guid) || null;
     };
 
     editor.on('viewport:pick:clear', () => {

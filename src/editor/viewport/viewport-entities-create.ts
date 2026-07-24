@@ -33,7 +33,7 @@ editor.once('load', () => {
         entitiesIndex[obj.get('resource_id')] = entity;
 
         entity.name = obj.get('name');
-        entity.setGuid(obj.get('resource_id'));
+        entity.guid = obj.get('resource_id');
         entity.setLocalPosition(obj.get('position.0'), obj.get('position.1'), obj.get('position.2'));
         entity.setLocalEulerAngles(obj.get('rotation.0'), obj.get('rotation.1'), obj.get('rotation.2'));
         entity.setLocalScale(obj.get('scale.0'), obj.get('scale.1'), obj.get('scale.2'));
@@ -50,10 +50,10 @@ editor.once('load', () => {
         // try to insert the node at the right index
         for (let i = 0, len = parent._children.length; i < len; i++) {
             const child = parent._children[i];
-            if (child instanceof Entity && childIndex[child.getGuid()]) {
+            if (child instanceof Entity && childIndex[child.guid]) {
                 // if our index is less than this child's index
                 // then put the item here
-                if (index < childIndex[child.getGuid()].index) {
+                if (index < childIndex[child.guid].index) {
                     parent.insertChild(node, i);
                     return;
                 }

@@ -76,7 +76,7 @@ editor.once('load', () => {
                 // persist the positions and sizes of elements if they were previously
                 // under control of a layout group but have now been reparented
                 if (oldParent && oldParent.layoutgroup) {
-                    editor.call('entities:layout:storeLayout', [childEntity.entity.getGuid()]);
+                    editor.call('entities:layout:storeLayout', [childEntity.entity.guid]);
                 }
             }
         };

@@ -22,7 +22,7 @@ editor.once('load', () => {
     const createEntity = function (obj: Observer) {
         const entity = new pc.Entity(obj.get('name'));
 
-        entity.setGuid(obj.get('resource_id'));
+        entity.guid = obj.get('resource_id');
         entity.setLocalPosition(obj.get('position.0'), obj.get('position.1'), obj.get('position.2'));
         entity.setLocalEulerAngles(obj.get('rotation.0'), obj.get('rotation.1'), obj.get('rotation.2'));
         entity.setLocalScale(obj.get('scale.0'), obj.get('scale.1'), obj.get('scale.2'));

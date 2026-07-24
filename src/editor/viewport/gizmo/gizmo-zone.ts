@@ -321,7 +321,7 @@ editor.once('load', () => {
 
                     if (!this.color && this._link.entity) {
                         let hash = 0;
-                        const string = this._link.entity.getGuid();
+                        const string = this._link.entity.guid;
                         for (let i = 0; i < string.length; i++) {
                             hash += string.charCodeAt(i);
                         }

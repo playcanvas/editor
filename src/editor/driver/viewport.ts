@@ -26,7 +26,7 @@ const viewportState = () => {
     const grid = editor.call('settings:projectUser');
     const user = editor.call('settings:user');
     return {
-        cameraId: camera.__editorName || camera.getGuid(),
+        cameraId: camera.__editorName || camera.guid,
         position: camera.getPosition().toArray(),
         rotation: camera.getEulerAngles().toArray(),
         projection: camera.camera.projection === PROJECTION_ORTHOGRAPHIC ? 'orthographic' : 'perspective',

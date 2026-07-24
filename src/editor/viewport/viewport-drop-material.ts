@@ -115,7 +115,7 @@ editor.once('load', () => {
             node = node._getEntity();
         }
 
-        if (!node || !editor.call('entities:get', node.getGuid())) {
+        if (!node || !editor.call('entities:get', node.guid)) {
             onHover(null, null);
             return;
         }
@@ -159,7 +159,7 @@ editor.once('load', () => {
                 return;
             }
 
-            let entity = editor.call('entities:get', hoverEntity.getGuid());
+            let entity = editor.call('entities:get', hoverEntity.guid);
             if (!entity) {
                 return;
             }

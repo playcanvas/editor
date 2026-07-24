@@ -181,7 +181,7 @@ const entityRuntimeState = (e: any) => {
     const s = e.getLocalScale();
     const state: Record<string, any> = {
         name: e.name,
-        guid: e.getGuid(),
+        guid: e.guid,
         enabled: e.enabled,
         position: [round(p.x), round(p.y), round(p.z)],
         localPosition: [round(lp.x), round(lp.y), round(lp.z)],
