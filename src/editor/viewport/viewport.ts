@@ -98,6 +98,13 @@ editor.once('load', () => {
         editor.call('viewport:render');
     });
 
+    // unified gsplat streaming fires this when it has produced new data a render would
+    // show (a new set of splats after components changed, streamed LOD, or a completed
+    // sort waiting to be applied). render a frame so it becomes visible.
+    app.systems.gsplat.on('frame:request', () => {
+        editor.call('viewport:render');
+    });
+
     app.start();
 
     editor.emit('viewport:load', app);

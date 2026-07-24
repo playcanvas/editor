@@ -71,6 +71,14 @@ class ViewportApplication extends Application {
 
             const dt = this.getDt();
 
+            // the engine's own tick fires 'framerender' every frame, even when no frame is
+            // rendered. unified gsplat rendering depends on it: the gsplat system advances its
+            // streaming from this event (LOD loading and turning gsplat placement changes into
+            // a new world state). this tick replaces the engine's, so fire it here too —
+            // without it, adding/removing/toggling gsplat components after the first one is
+            // never picked up and the viewport renders a stale set of splats.
+            this.fire('framerender');
+
             if (this.redraw) {
                 this.redraw = editor.call('viewport:keepRendering');
 
