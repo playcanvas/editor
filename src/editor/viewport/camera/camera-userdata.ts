@@ -32,7 +32,7 @@ editor.once('camera:load', () => {
                 }
             }
         } else if (!camera.__editorCamera) {
-            const obj = editor.call('entities:get', camera.getGuid());
+            const obj = editor.call('entities:get', camera.guid);
             if (!obj) {
                 return;
             }

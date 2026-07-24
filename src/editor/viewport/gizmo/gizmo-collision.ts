@@ -162,7 +162,7 @@ editor.once('load', () => {
                 this.type = type;
 
                 if (!this.color) {
-                    const guid = this._link.entity.getGuid();
+                    const guid = this._link.entity.guid;
                     let hash = 0;
                     for (const char of guid) {
                         hash += char.charCodeAt(0);

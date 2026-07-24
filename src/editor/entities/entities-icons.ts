@@ -156,7 +156,7 @@ editor.once('load', () => {
                 !this._link.entity._enabledInHierarchy ||
                 this._link.entity.__noIcon ||
                 scale === 0 ||
-                selectedIds[this._link.entity.getGuid()]
+                selectedIds[this._link.entity.guid]
             ) {
                 if (this.entity) {
                     this.entityDelete();

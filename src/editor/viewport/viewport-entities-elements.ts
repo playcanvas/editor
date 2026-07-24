@@ -297,7 +297,7 @@ editor.once('load', () => {
                     // excluding a layout child from the layout
 
                     if (value === true && valueOld === false) {
-                        editor.call('entities:layout:storeLayout', [entity.entity.getGuid()]);
+                        editor.call('entities:layout:storeLayout', [entity.entity.guid]);
                     }
                 } else if (/^components.scrollbar.orientation/.test(path)) {
                     // switching the orientation of a scrollbar - we need to update the anchoring

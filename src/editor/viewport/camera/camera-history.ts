@@ -14,7 +14,7 @@ editor.once('load', () => {
             editor.call('camera:history:stop');
         }
 
-        const obj = editor.call('entities:get', entity.getGuid());
+        const obj = editor.call('entities:get', entity.guid);
         if (!obj) {
             return;
         }
@@ -45,7 +45,7 @@ editor.once('load', () => {
             }
         }
 
-        const obj = editor.call('entities:get', camera.getGuid());
+        const obj = editor.call('entities:get', camera.guid);
         if (!obj) {
             camera = null;
             return;

@@ -146,7 +146,7 @@ editor.once('viewport:load', (app) => {
     editor.on('permissions:writeState', refreshOptions);
 
     editor.on('camera:add', (entity) => {
-        const guid = entity.getGuid();
+        const guid = entity.guid;
 
         viewportCamera.optionTitles[guid] = entity.name;
         viewportCamera.cameras[guid] = entity;
@@ -176,7 +176,7 @@ editor.once('viewport:load', (app) => {
     });
 
     editor.on('camera:remove', (entity) => {
-        const guid = entity.getGuid();
+        const guid = entity.guid;
 
         delete viewportCamera.optionTitles[guid];
         refreshOptions();
@@ -189,7 +189,7 @@ editor.once('viewport:load', (app) => {
 
     // Update camera selected title and active button
     editor.on('camera:change', (entity) => {
-        const guid = entity.getGuid();
+        const guid = entity.guid;
 
         viewportCamera.active = guid;
         clearRadioButtons();
