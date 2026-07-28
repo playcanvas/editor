@@ -418,40 +418,43 @@ editor.once('load', () => {
             forceConcatenate: false, // if true then the last two ops will be concatenated
             lastChangedLine: null,
             changedLine: null,
-            ignoreLocalChanges: false // do not send ops to sharedb while true
+            ignoreLocalChanges: false, // do not send ops to sharedb while true
+
+            // mark document as dirty on every op
+            onDocOp: (ops, local) => {
+                if (!local) {
+                    entry.context._onOp(ops);
+                }
+
+                if (!docEntry.isDirty) {
+                    docEntry.isDirty = true;
+                    editor.emit('documents:dirty', docEntry.id, true);
+                }
+
+                if (local && !docEntry.hasLocalChanges) {
+                    docEntry.hasLocalChanges = true;
+                    editor.emit('documents:dirtyLocal', docEntry.id, true);
+                }
+            },
+
+            // resync monaco after a rollback+fetch cycle
+            onDocLoad: () => {
+                if (!entry.doc.type) {
+                    return;
+                }
+
+                entry.ignoreLocalChanges = true;
+                entry.view.setValue(entry.doc.data || '');
+                entry.ignoreLocalChanges = false;
+
+                // stale undo/redo references pre-rollback state
+                entry.undo.length = 0;
+                entry.redo.length = 0;
+            }
         };
 
-        // mark document as dirty on every op
-        doc.on('op', (ops, local) => {
-            if (!local) {
-                entry.context._onOp(ops);
-            }
-
-            if (!docEntry.isDirty) {
-                docEntry.isDirty = true;
-                editor.emit('documents:dirty', docEntry.id, true);
-            }
-
-            if (local && !docEntry.hasLocalChanges) {
-                docEntry.hasLocalChanges = true;
-                editor.emit('documents:dirtyLocal', docEntry.id, true);
-            }
-        });
-
-        // resync monaco after a rollback+fetch cycle
-        doc.on('load', () => {
-            if (!entry.doc.type) {
-                return;
-            }
-
-            entry.ignoreLocalChanges = true;
-            entry.view.setValue(entry.doc.data || '');
-            entry.ignoreLocalChanges = false;
-
-            // stale undo/redo references pre-rollback state
-            entry.undo.length = 0;
-            entry.redo.length = 0;
-        });
+        doc.on('op', entry.onDocOp);
+        doc.on('load', entry.onDocLoad);
 
         // add to index
         documentIndex[asset.get('id')] = entry;
@@ -530,6 +533,14 @@ editor.once('load', () => {
     editor.on('documents:close', (id: string) => {
         if (focusedDocument === documentIndex[id]) {
             focusedDocument = null;
+        }
+
+        // detach from the doc - it can outlive this close, and these handlers write into
+        // a monaco model that is disposed on close
+        const entry = documentIndex[id];
+        if (entry) {
+            entry.doc.removeListener('op', entry.onDocOp);
+            entry.doc.removeListener('load', entry.onDocLoad);
         }
 
         delete documentIndex[id];
