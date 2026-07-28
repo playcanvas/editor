@@ -20,6 +20,10 @@
             "schedule": ["on monday at 10:00am"]
         },
         {
+            "matchUpdateTypes": ["patch"],
+            "minimumReleaseAge": "1 day"
+        },
+        {
             "matchManagers": ["npm", "dockerfile"],
             "matchPackageNames": ["@playwright/test", "mcr.microsoft.com/playwright"],
             "groupName": "playwright",
