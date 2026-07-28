@@ -12,6 +12,9 @@ import {
 
 import { formatter as f } from '@/common/utils';
 
+const LIGHTMAP_COMPONENTS = ['model', 'render'];
+const LEGACY_LIGHTMAP_PROPERTIES = ['castShadowsLightMap', 'lightMapped', 'lightMapSizeMultiplier'];
+
 editor.once('load', () => {
     /**
      * @param entity - The entity to migrate
@@ -27,6 +30,15 @@ editor.once('load', () => {
             }
 
             // components
+
+            for (const component of LIGHTMAP_COMPONENTS) {
+                for (const property of LEGACY_LIGHTMAP_PROPERTIES) {
+                    const path = `components.${component}.${property}`;
+                    if (entity.has(path)) {
+                        entity.unset(path);
+                    }
+                }
+            }
 
             // camera
             if (entity.has('components.camera')) {
