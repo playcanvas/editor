@@ -77,7 +77,7 @@
         "monaco-editor": "0.47.0",
         "monaco-themes": "0.4.8",
         "ot-text": "github:playcanvas/ot-text",
-        "playcanvas": "2.20.6",
+        "playcanvas": "2.21.2",
         "postcss": "8.5.12",
         "prettier": "3.9.4",
         "rollup": "4.59.0",
