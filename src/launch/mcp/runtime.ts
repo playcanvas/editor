@@ -9,6 +9,7 @@ import { mcp } from '@/editor/mcp/connection';
  */
 
 const LOG_CAP = 1000;
+const port = new URLSearchParams(location.search).get('mcp_port');
 
 type LogEntry = { time: number; level: string; text: string };
 
@@ -45,18 +46,20 @@ const push = (level: string, args: any[], stack?: string) => {
     }
 };
 
-(['log', 'info', 'warn', 'error', 'debug'] as const).forEach((level) => {
-    console[level] = (...args: any[]) => {
-        push(level, args);
-        original[level](...args);
-    };
-});
-window.addEventListener('error', (e) => {
-    push('error', [e.message], e.error?.stack || `${e.filename}:${e.lineno}:${e.colno}`);
-});
-window.addEventListener('unhandledrejection', (e) => {
-    push('error', [`Unhandled promise rejection: ${e.reason?.message ?? e.reason}`], e.reason?.stack);
-});
+if (port) {
+    (['log', 'info', 'warn', 'error', 'debug'] as const).forEach((level) => {
+        console[level] = (...args: any[]) => {
+            push(level, args);
+            original[level](...args);
+        };
+    });
+    window.addEventListener('error', (e) => {
+        push('error', [e.message], e.error?.stack || `${e.filename}:${e.lineno}:${e.colno}`);
+    });
+    window.addEventListener('unhandledrejection', (e) => {
+        push('error', [`Unhandled promise rejection: ${e.reason?.message ?? e.reason}`], e.reason?.stack);
+    });
+}
 
 mcp.method('runtime:ping', () => ({ data: 'pong' }));
 
@@ -426,7 +429,6 @@ mcp.method('runtime:input', async (payload: any = {}) => {
 
 // connect automatically when opened via the editor's launch:start (which appends
 // mcp_port); otherwise stay idle
-const port = new URLSearchParams(location.search).get('mcp_port');
 if (port) {
     mcp.connect(parseInt(port, 10), 'runtime');
 }
