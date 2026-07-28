@@ -50,6 +50,13 @@ editor.once('load', () => {
     // Loads the editable document that corresponds to the specified asset id
     const loadDocument = function (asset: Observer, importSubModules = true) {
         const id = asset.get('id').toString();
+
+        // already loading or loaded - re-subscribing an already loaded sharedb doc does not
+        // re-emit 'load', so a second entry would stay stuck loading and never focus
+        if (documentsIndex[id]) {
+            return;
+        }
+
         const uniqueId = asset.get('uniqueId').toString();
         const connection = editor.call('realtime:connection');
         const doc = connection.get('documents', uniqueId);
@@ -78,8 +85,8 @@ editor.once('load', () => {
                 return;
             }
 
-            // check if closed by the user
-            if (!documentsIndex[id]) {
+            // check if closed by the user or superseded by a newer entry
+            if (documentsIndex[id] !== entry) {
                 return;
             }
 
