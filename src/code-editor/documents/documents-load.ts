@@ -43,6 +43,10 @@ editor.once('load', () => {
     // becomes available for example
     const queuedLoad = {};
 
+    // docs that sharedb is still tearing down, holding any load
+    // request that arrived during that - see 'documents:close'
+    const destroying = {};
+
     // the last document id the
     // user requested to focus
     let lastFocusedId = null;
@@ -54,6 +58,14 @@ editor.once('load', () => {
         // already loading or loaded - re-subscribing an already loaded sharedb doc does not
         // re-emit 'load', so a second entry would stay stuck loading and never focus
         if (documentsIndex[id]) {
+            return;
+        }
+
+        // sharedb destroys a doc asynchronously, so loading it again now would be handed the
+        // old doc back instead of a fresh one. wait for the teardown to finish
+        if (destroying[id]) {
+            destroying[id].asset = asset;
+            destroying[id].importSubModules = importSubModules;
             return;
         }
 
@@ -181,13 +193,33 @@ editor.once('load', () => {
     editor.on('documents:close', (id: string) => {
         const entry = documentsIndex[id];
         if (entry) {
-            entry.doc.unsubscribe();
-            entry.doc.destroy();
             delete documentsIndex[id];
+
+            // sharedb defers the destroy until the unsubscribe completes, and hands the doc
+            // back to anything that asks for it in the meantime, so gate reloads until it is
+            // really gone
+            const pending: { asset?: Observer; importSubModules?: boolean } = {};
+            destroying[id] = pending;
+
+            entry.doc.unsubscribe();
+            entry.doc.destroy((err: unknown) => {
+                delete destroying[id];
+
+                if (err) {
+                    log.error(err);
+                }
+
+                if (pending.asset) {
+                    loadDocument(pending.asset, pending.importSubModules);
+                }
+            });
 
             // send close message to update whoisonline for document
             const connection = editor.call('realtime:connection');
             connection.socket.send(`close:document:${entry.uniqueId}`);
+        } else if (destroying[id]) {
+            // closed again before the teardown finished - drop the queued reload
+            delete destroying[id].asset;
         }
 
         // stop any queued load events
