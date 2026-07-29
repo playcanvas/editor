@@ -19,7 +19,7 @@ const TextureCompressor = {
     // determine whether the image may be compressed to the supplied format
     // given platform and compression format restrictions
     isCompressAllowed(asset: Observer, format: string): boolean {
-        // only allow POT textures to be compressed due to WebGL1 restrictions (for now)
+        // only allow POT textures to be compressed
         const width = asset.get('meta.width');
         const height = asset.get('meta.height');
         if (!width || !height || !this.isPOT(width, height)) {

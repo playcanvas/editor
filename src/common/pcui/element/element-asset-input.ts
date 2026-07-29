@@ -254,18 +254,9 @@ class AssetInput extends Element {
         editor.call('selector:set', 'asset', [asset]);
 
         let folder = null;
-        if (asset.get('type') === 'script') {
-            const settings = editor.call('settings:project');
-            if (settings && settings.get('useLegacyScripts')) {
-                folder = 'scripts';
-            }
-        }
-
-        if (!folder) {
-            const path = asset.get('path');
-            if (path.length) {
-                folder = this._assets.get(path[path.length - 1]);
-            }
+        const path = asset.get('path');
+        if (path.length) {
+            folder = this._assets.get(path[path.length - 1]);
         }
 
         editor.call('assets:panel:currentFolder', folder);

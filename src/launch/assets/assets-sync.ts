@@ -329,8 +329,6 @@ editor.once('load', () => {
         let count = 0;
         const scripts = {};
 
-        const legacyScripts = settings.get('useLegacyScripts');
-
         // get the set of wasm asset ids i.e. the wasm module ids and linked glue/fallback
         // script ids. the list is used to suppress the asset system from the loading
         // the scripts again.
@@ -373,7 +371,7 @@ editor.once('load', () => {
                 count++;
                 editor.call('assets:progress', (count / total) * 0.5 + 0.5);
 
-                if (!legacyScripts && asset && asset.get('type') === 'script') {
+                if (asset && asset.get('type') === 'script') {
                     scripts[asset.get('id')] = asset;
                 }
 
@@ -383,9 +381,7 @@ editor.once('load', () => {
                     // Initialize the Mapping SW which handles url mappings
                     await editor.call('sw:initialize');
 
-                    if (!legacyScripts) {
-                        loadScripts(wasmAssetIds);
-                    }
+                    loadScripts(wasmAssetIds);
 
                     // sort assets by script first and then by bundle
                     const assets = editor.call('assets:list');

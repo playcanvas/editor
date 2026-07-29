@@ -106,8 +106,6 @@ editor.once('load', () => {
             query.push(`use_local_engine=${params.get('use_local_engine')}`);
         } else if (releaseCandidate && launchOptions.releaseCandidate) {
             query.push(`version=${releaseCandidate}`);
-        } else if (launchOptions.force && config.engineVersions.force) {
-            query.push(`version=${config.engineVersions.force.version}`);
         } else {
             const engineVersion = editor.call('settings:session').get('engineVersion');
             const version = config.engineVersions[engineVersion]?.version;
@@ -297,19 +295,6 @@ editor.once('load', () => {
         root: root
     }).class.add('launch-tooltip');
 
-    // force engine version
-    const force = config.engineVersions.force;
-    if (force) {
-        const optionForce = createOption('force', `Force Engine V${force.version[0]}`);
-        const tooltipForce = TooltipHandle.attach({
-            target: optionForce.parent.dom,
-            text: `Force the launcher to use v${force.version}.`,
-            align: 'right',
-            root: root
-        });
-        tooltipForce.class.add('launch-tooltip');
-    }
-
     // release-candidate
     if (releaseCandidate) {
         const optionReleaseCandidate = createOption('releaseCandidate', 'Use Release Candidate');
@@ -422,9 +407,10 @@ editor.once('load', () => {
     });
 
     editor.on('toolbar:launch:refresh', () => {
-        const { enableWebGpu, enableWebGl2 } = editor.call('settings:project').json();
+        const { enableWebGpu } = editor.call('settings:project').json();
         launchWithWebGpu.parent.hidden = enableWebGpu;
-        launchWithWebGL2.parent.hidden = !enableWebGpu && enableWebGl2;
+        // without WebGPU the plain Launch button already uses WebGL 2.0, so the option is redundant
+        launchWithWebGL2.parent.hidden = !enableWebGpu;
     });
 
     // collapse button text to icon-only when the viewport is too narrow

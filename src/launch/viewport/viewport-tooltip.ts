@@ -47,7 +47,7 @@ editor.once('load', () => {
     };
     editor.once('launcher:device:ready', () => {
         const device = app.graphicsDevice;
-        const { enableWebGpu, enableWebGl2 } = editor.call('settings:project').json();
+        const { enableWebGpu } = editor.call('settings:project').json();
 
         // migrate old device properties
         // FIXME: Remove at some point as old not official supported
@@ -55,9 +55,8 @@ editor.once('load', () => {
             device.isWebGL2 = device.webgl2;
         }
 
-        // the engine always appends DEVICETYPE_WEBGL2, so a project with neither
-        // option enabled still resolves to WebGL2 rather than a null device
-        const projectDeviceType = getDeviceType(enableWebGpu, enableWebGl2 || !enableWebGpu);
+        // the engine always appends DEVICETYPE_WEBGL2, so WebGL 2.0 is the fallback
+        const projectDeviceType = getDeviceType(enableWebGpu, !enableWebGpu);
         const paramDeviceType = Object.keys(nameMap).includes(deviceType) ? deviceType : pc.DEVICETYPE_NULL;
         const currentDeviceType = paramDeviceType === pc.DEVICETYPE_NULL ? projectDeviceType : paramDeviceType;
         const actualDeviceType = getDeviceType(device.isWebGPU, device.isWebGL2);

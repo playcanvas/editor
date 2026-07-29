@@ -10,13 +10,10 @@ editor.once('load', () => {
     let assets = false;
     let gfxCreated = false;
     let settings = false;
-    let sourcefiles = false;
     let libraries = false;
     let sceneData = null;
     let sceneSettings = null;
     let loadingScreen = false;
-    let scriptList = [];
-    const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     let canvas = undefined;
     let app = undefined;
     let scriptPrefix = undefined;
@@ -25,16 +22,7 @@ editor.once('load', () => {
 
     // try to start preload and initialization of application after load event
     const init = function () {
-        if (
-            !done &&
-            gfxCreated &&
-            assets &&
-            hierarchy &&
-            settings &&
-            (!legacyScripts || sourcefiles) &&
-            libraries &&
-            loadingScreen
-        ) {
+        if (!done && gfxCreated && assets && hierarchy && settings && libraries && loadingScreen) {
             // prevent multiple init calls during scene loading
             done = true;
 
@@ -61,7 +49,6 @@ editor.once('load', () => {
                     // clear stored loading data
                     sceneData = null;
                     sceneSettings = null;
-                    scriptList = null;
 
                     if (err) {
                         log.error(err);
@@ -84,11 +71,7 @@ editor.once('load', () => {
         // download it and execute it
         if (config.project.settings.loadingScreenScript) {
             const loadingScript = document.createElement('script');
-            if (config.project.settings.useLegacyScripts) {
-                loadingScript.src = `${scriptPrefix}/${config.project.settings.loadingScreenScript}`;
-            } else {
-                loadingScript.src = `/api/assets/${config.project.settings.loadingScreenScript}/download?branchId=${config.self.branch.id}`;
-            }
+            loadingScript.src = `/api/assets/${config.project.settings.loadingScreenScript}/download?branchId=${config.self.branch.id}`;
 
             loadingScript.onload = function () {
                 loadingScreen = true;
@@ -135,15 +118,9 @@ editor.once('load', () => {
 
     scriptPrefix = config.project.scriptPrefix;
 
-    // device types
-    const { enableWebGpu, enableWebGl2 } = editor.call('settings:project').json();
-    let deviceTypes = [];
-    if (enableWebGpu) {
-        deviceTypes.push(pc.DEVICETYPE_WEBGPU);
-    }
-    if (enableWebGl2) {
-        deviceTypes.push(pc.DEVICETYPE_WEBGL2);
-    }
+    // device types - the engine appends WEBGL2 itself when the list omits it
+    const { enableWebGpu } = editor.call('settings:project').json();
+    let deviceTypes: string[] = enableWebGpu ? [pc.DEVICETYPE_WEBGPU] : [];
 
     // device type override
     switch (queryParams.device) {
@@ -160,9 +137,6 @@ editor.once('load', () => {
     // listen for project setting changes
     const projectSettings = editor.call('settings:project');
     const projectUserSettings = editor.call('settings:projectUser');
-
-    // legacy scripts
-    pc.script.legacy = projectSettings.get('useLegacyScripts');
 
     // playcanvas app
     const useMouse = projectSettings.has('useMouse') ? projectSettings.get('useMouse') : true;
@@ -198,8 +172,7 @@ editor.once('load', () => {
             pc.RenderComponentSystem,
             pc.CameraComponentSystem,
             pc.LightComponentSystem,
-            pc.script.legacy ? pc.ScriptLegacyComponentSystem : pc.ScriptComponentSystem,
-            pc.AudioSourceComponentSystem,
+            pc.ScriptComponentSystem,
             pc.SoundComponentSystem,
             pc.AudioListenerComponentSystem,
             pc.ParticleSystemComponentSystem,
@@ -641,14 +614,6 @@ editor.once('load', () => {
         sceneSettings = data.json();
         init();
     });
-
-    if (legacyScripts) {
-        editor.on('sourcefiles:load', (scripts: string[]) => {
-            scriptList = scripts;
-            sourcefiles = true;
-            init();
-        });
-    }
 
     createLoadingScreen();
 });

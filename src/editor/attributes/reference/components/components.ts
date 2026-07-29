@@ -3,7 +3,6 @@ import type { AttributeReference } from '../reference.type';
 import { fields as anim } from './anim';
 import { fields as animation } from './animation';
 import { fields as audiolistener } from './audiolistener';
-import { fields as audiosource } from './audiosource';
 import { fields as button } from './button';
 import { fields as camera } from './camera';
 import { fields as collision } from './collision';
@@ -31,7 +30,6 @@ editor.once('load', () => {
         ...anim,
         ...animation,
         ...audiolistener,
-        ...audiosource,
         ...button,
         ...camera,
         ...collision,

@@ -295,14 +295,6 @@ class AssetList extends Element {
                         return this._filterFn(asset);
                     }
 
-                    // do not allow picking legacy scripts
-                    if (asset.get('type') === 'script') {
-                        const settings = editor.call('settings:project');
-                        if (settings && settings.get('useLegacyScripts')) {
-                            return false;
-                        }
-                    }
-
                     return true;
                 })
                 .map((a) => parseInt(a.get('id'), 10));
@@ -368,18 +360,9 @@ class AssetList extends Element {
         editor.call('selector:set', 'asset', [asset]);
 
         let folder = null;
-        if (asset.get('type') === 'script') {
-            const settings = editor.call('settings:project');
-            if (settings && settings.get('useLegacyScripts')) {
-                folder = 'scripts';
-            }
-        }
-
-        if (!folder) {
-            const path = asset.get('path');
-            if (path.length) {
-                folder = this._assets.get(path[path.length - 1]);
-            }
+        const path = asset.get('path');
+        if (path.length) {
+            folder = this._assets.get(path[path.length - 1]);
         }
 
         editor.call('assets:panel:currentFolder', folder);

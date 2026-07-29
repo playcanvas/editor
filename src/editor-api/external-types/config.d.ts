@@ -17,12 +17,10 @@ type ProjectSettings = {
     height: number;
     use3dPhysics: boolean;
     enableWebGpu: boolean;
-    enableWebGl2: boolean;
     powerPreference: string;
     preserveDrawingBuffer: boolean;
     transparentCanvas: boolean;
     useDevicePixelRatio: boolean;
-    useLegacyScripts: boolean;
     loadingScreenScript: string | null;
     importMap: string | null;
     externalScripts: string[];
@@ -120,7 +118,6 @@ type Url = {
 
 type EngineVersions = {
     current: { version: string; description: string };
-    force?: { version: string; description: string };
     previous?: { version: string; description: string };
     releaseCandidate?: { version: string; description: string };
 };

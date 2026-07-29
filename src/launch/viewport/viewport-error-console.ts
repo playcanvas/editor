@@ -105,11 +105,7 @@ editor.once('load', () => {
 
                 codeEditorUrl = config.url.home + target;
                 query = `?line=${line}&col=${col}&error=true`;
-            } else if (
-                !editor.call('settings:project').get('useLegacyScripts') &&
-                url.includes('/api/assets/') &&
-                (url.includes('.js') || url.includes('.mjs'))
-            ) {
+            } else if (url.includes('/api/assets/') && (url.includes('.js') || url.includes('.mjs'))) {
                 const match = url.match(/\/api\/assets\/files\/.+?id=(\d+)/);
                 if (match) {
                     assetId = parseInt(match[1], 10);

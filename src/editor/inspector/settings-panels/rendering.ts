@@ -431,13 +431,6 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
         path: 'enableWebGpu'
     },
     {
-        observer: 'projectSettings',
-        label: 'Enable WebGL 2.0',
-        type: 'boolean',
-        reference: 'settings:project:enableWebGl2',
-        path: 'enableWebGl2'
-    },
-    {
         type: 'divider'
     },
     {
@@ -663,16 +656,13 @@ class RenderingSettingsPanel extends BaseSettingsPanel {
         const deviceOrder = this._attributesInspector.getField('deviceOrder');
 
         const enableWebGpu = this._attributesInspector.getField('enableWebGpu');
-        const enableWebGl2 = this._attributesInspector.getField('enableWebGl2');
 
+        // the engine always falls back to WebGL 2.0, so it is the tail of every device order
         const onDeviceChange = () => {
-            (deviceOrder as Label).text = [enableWebGpu.value ? 'WebGPU' : '', enableWebGl2.value ? 'WebGL 2.0' : '']
-                .filter(Boolean)
-                .join(' ► ');
+            (deviceOrder as Label).text = [enableWebGpu.value ? 'WebGPU' : '', 'WebGL 2.0'].filter(Boolean).join(' ► ');
             setTimeout(() => editor.emit('toolbar:launch:refresh'));
         };
         enableWebGpu.on('change', onDeviceChange);
-        enableWebGl2.on('change', onDeviceChange);
 
         onDeviceChange();
     }

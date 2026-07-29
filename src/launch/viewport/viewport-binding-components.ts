@@ -29,11 +29,7 @@ editor.once('load', () => {
             value: unknown
         ) {
             // edit component property
-            if (
-                component === 'script' &&
-                property === 'scripts' &&
-                !editor.call('settings:project').get('useLegacyScripts')
-            ) {
+            if (component === 'script' && property === 'scripts') {
                 /* eslint-disable-next-line no-empty */
                 if (parts.length <= 2) {
                 } else if (parts.length === 3) {
@@ -180,11 +176,7 @@ editor.once('load', () => {
             const property = parts[2];
 
             if (property) {
-                if (
-                    component === 'script' &&
-                    property === 'scripts' &&
-                    !editor.call('settings:project').get('useLegacyScripts')
-                ) {
+                if (component === 'script' && property === 'scripts') {
                     if (!entity.script || parts.length <= 3) {
                         return;
                     }

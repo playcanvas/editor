@@ -45,7 +45,6 @@ function initializeScene() {
     scene.defaultScreenSpaceTextMaterial = new pc.StandardMaterial();
     scene.defaultScreenSpaceTextMaterial.msdfMap = defaultTexture;
     scene.defaultScreenSpaceTextMaterial.useLighting = false;
-    scene.defaultScreenSpaceTextMaterial.useGammaTonemap = false;
     scene.defaultScreenSpaceTextMaterial.useFog = false;
     scene.defaultScreenSpaceTextMaterial.useSkybox = false;
     scene.defaultScreenSpaceTextMaterial.diffuse = new pc.Color(0, 0, 0, 1); // black diffuse color to prevent ambient light being included
