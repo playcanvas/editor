@@ -14,12 +14,20 @@ import { formatter as f } from '@/common/utils';
 
 const LIGHTMAP_COMPONENTS = ['model', 'render'];
 const LEGACY_LIGHTMAP_PROPERTIES = ['castShadowsLightMap', 'lightMapped', 'lightMapSizeMultiplier'];
+const MIGRATION_BATCH_SIZE = 100;
 
 editor.once('load', () => {
+    let run = 0;
+
     /**
      * @param entity - The entity to migrate
      */
     const migrate = (entity: Observer & { insert: (string, val) => void }) => {
+        let done = () => undefined;
+        const promise = new Promise<void>((resolve) => {
+            done = () => resolve();
+        });
+
         // Defer migration to ensure document is ready
         setTimeout(() => {
             entity.history.enabled = false;
@@ -469,15 +477,32 @@ editor.once('load', () => {
             }
 
             entity.history.enabled = true;
+            done();
         });
+        return promise;
     };
 
-    editor.on('scene:raw', () => {
-        editor.call('entities:list').forEach(migrate);
+    editor.on('scene:raw', async () => {
+        const id = ++run;
+        const entities = editor.call('entities:list');
         editor.on('entities:add', migrate);
+
+        for (let i = 0; i < entities.length && id === run; i += MIGRATION_BATCH_SIZE) {
+            await Promise.all(entities.slice(i, i + MIGRATION_BATCH_SIZE).map(migrate));
+
+            const scene = editor.call('realtime:scene');
+            if (!scene || id !== run) {
+                return;
+            }
+
+            await new Promise<void>((resolve) => {
+                scene.whenNothingPending(resolve);
+            });
+        }
     });
 
     editor.on('scene:unload', () => {
+        run++;
         editor.unbind('entities:add', migrate);
     });
 });
