@@ -321,7 +321,6 @@ import './alerts/alert-maintenance';
 // pickers
 import './pickers/picker';
 import './pickers/picker-confirm';
-import './pickers/picker-engine';
 import './pickers/picker-color';
 import './pickers/picker-asset';
 import './pickers/picker-curve';

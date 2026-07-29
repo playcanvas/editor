@@ -95,6 +95,12 @@ editor.once('load', () => {
         migrateEntityHandle = editor.on('entities:add', migrateEntity);
 
         editor.call('status:clear');
+        if (editor.call('permissions:write')) {
+            setTimeout(() => {
+                editor.call('settings:project').set('engineV2', true);
+                window.location.reload();
+            });
+        }
     };
     if (!editor.projectEngineV2) {
         editor.on('entities:load', () => {

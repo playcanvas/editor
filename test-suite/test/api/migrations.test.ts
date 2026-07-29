@@ -162,3 +162,64 @@ test.describe('migrations', () => {
         })).toStrictEqual([]);
     });
 });
+
+test.describe('engine v1 migration', () => {
+    let projectId: number;
+    let page: Page;
+
+    test.beforeAll(async ({ browser }) => {
+        page = await browser.newPage();
+        await middleware(page.context());
+
+        await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
+        await checkCookieAccept(page);
+        projectId = await importProject(page, IN_PATH);
+    });
+
+    test.afterAll(async () => {
+        await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
+        await deleteProject(page, projectId);
+        await page.close();
+    });
+
+    test('prepare engine v1 project', async () => {
+        await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
+        await page.evaluate(() => {
+            const settings = window.editor.call('settings:project') as Observer;
+            settings.set('engineV2', false);
+
+            const scene = window.editor.call('sceneSettings') as Observer;
+            scene.set('render.gamma_correction', 1);
+            scene.set('render.tonemapping', 3);
+
+            const root = window.editor.api.globals.entities.root;
+            if (!root.get('components.camera')) {
+                root.addComponent('camera');
+            }
+            root.set('components.camera.gammaCorrection', 0);
+            root.set('components.camera.toneMapping', 0);
+        });
+    });
+
+    test('automatically migrates to engine v2', async () => {
+        await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
+        await page.waitForFunction(
+            () => (window.editor.call('settings:project') as Observer).get('engineV2') === true
+        );
+
+        expect(
+            await page.evaluate(() => {
+                const root = window.editor.api.globals.entities.root;
+                return {
+                    engineV2: (window.editor.call('settings:project') as Observer).get('engineV2'),
+                    gamma: root.get('components.camera.gammaCorrection'),
+                    tone: root.get('components.camera.toneMapping')
+                };
+            })
+        ).toStrictEqual({
+            engineV2: true,
+            gamma: 1,
+            tone: 3
+        });
+    });
+});
