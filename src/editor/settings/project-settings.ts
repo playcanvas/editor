@@ -100,10 +100,6 @@ editor.once('load', () => {
             editor.call('console:log:settings', settings, msg);
         }
 
-        if (!settings.get('enableWebGpu') && !settings.get('enableWebGl2')) {
-            settings.set('enableWebGl2', true);
-        }
-
         if (!settings.get('batchGroups')) {
             settings.set('batchGroups', {});
         }

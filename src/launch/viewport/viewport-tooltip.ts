@@ -53,10 +53,11 @@ editor.once('load', () => {
         // FIXME: Remove at some point as old not official supported
         if (Object.prototype.hasOwnProperty.call(device, 'webgl2')) {
             device.isWebGL2 = device.webgl2;
-            device.isWebGL1 = !device.webgl2;
         }
 
-        const projectDeviceType = getDeviceType(enableWebGpu, enableWebGl2);
+        // the engine always appends DEVICETYPE_WEBGL2, so a project with neither
+        // option enabled still resolves to WebGL2 rather than a null device
+        const projectDeviceType = getDeviceType(enableWebGpu, enableWebGl2 || !enableWebGpu);
         const paramDeviceType = Object.keys(nameMap).includes(deviceType) ? deviceType : pc.DEVICETYPE_NULL;
         const currentDeviceType = paramDeviceType === pc.DEVICETYPE_NULL ? projectDeviceType : paramDeviceType;
         const actualDeviceType = getDeviceType(device.isWebGPU, device.isWebGL2);
