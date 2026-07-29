@@ -29,6 +29,11 @@ class SettingsSchema {
             if (!(obj[key] instanceof Object)) {
                 continue;
             }
+            // a $deprecated field is only ever flagged to the user, never written - not even
+            // its default, or opening a project would resurrect the field it was removed from
+            if (obj[key].$deprecated) {
+                continue;
+            }
 
             if (Object.prototype.hasOwnProperty.call(obj[key], '$default')) {
                 if (obj[key].$scope === scope) {

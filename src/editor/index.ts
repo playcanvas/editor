@@ -86,6 +86,7 @@ import './schema/schema-settings';
 import './schema/schema-components';
 import './schema/schema-material';
 import './schema/schema-anim-state-graph';
+import './schema/schema-deprecated';
 
 // components
 import './components/scrollbar/components-scrollbar-defaults';
