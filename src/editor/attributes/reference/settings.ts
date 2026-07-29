@@ -241,11 +241,27 @@ editor.once('load', () => {
             url: 'https://api.playcanvas.com/engine/classes/Scene.html#skyboxrotation'
         },
         {
+            name: 'settings:toneMapping',
+            title: 'toneMapping',
+            subTitle: '{Number}',
+            description:
+                'Tone mapping compresses HDR colors into the displayable range. Options: Linear - scales by exposure; Filmic - soft highlight roll-off; Hejl - filmic-like with stronger contrast; ACES - Academy curve for a filmic look; ACES2 - updated ACES with improved color/contrast; Neutral - minimal tonal shaping.',
+            url: 'https://api.playcanvas.com/engine/classes/Scene.html#tonemapping'
+        },
+        {
             name: 'settings:exposure',
             title: 'exposure',
             subTitle: '{Number}',
             description: 'The exposure value tweaks the overall brightness of the scene.',
             url: 'https://api.playcanvas.com/engine/classes/Scene.html#exposure'
+        },
+        {
+            name: 'settings:gammaCorrection',
+            title: 'gammaCorrection',
+            subTitle: '{pc.GAMMA_*}',
+            description:
+                'Computer displays output a perceptually linear (sRGB) signal, not a physically linear one. For correct lighting, color textures should be converted to linear space, and the fully lit image converted back to sRGB. Enabling gamma correction reduces overly saturated highlights and better preserves color after lighting. It is generally recommended to enable this for your scene.',
+            url: 'https://api.playcanvas.com/engine/classes/Scene.html#gammacorrection'
         },
         {
             name: 'settings:fog',
@@ -364,8 +380,13 @@ editor.once('load', () => {
         },
         {
             name: 'settings:project:enableWebGpu',
-            title: 'Enable WebGPU',
-            description: 'When enabled, the application will try to use WebGPU if available.'
+            title: `Enable WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}`,
+            description: `When enabled, the application will try to use WebGPU${editor.projectEngineV2 ? '' : ' (beta)'} if available.`
+        },
+        {
+            name: 'settings:project:enableWebGl2',
+            title: 'Enable WebGL 2.0',
+            description: 'When enabled, the application will try to use WebGL 2.0 if available.'
         },
         {
             name: 'settings:project:powerPreference',

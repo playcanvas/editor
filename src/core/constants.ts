@@ -24,6 +24,7 @@ export const COMPONENT_LOGOS = {
     anim: 'E198',
     animation: 'E198',
     audiolistener: 'E196',
+    audiosource: 'E197',
     sound: 'E197',
     camera: 'E212',
     collision: 'E187',

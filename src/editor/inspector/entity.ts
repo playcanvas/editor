@@ -14,6 +14,7 @@ import { AttributesInspector } from './attributes-inspector';
 import { AnimComponentInspector } from './components/anim';
 import { AnimationComponentInspector } from './components/animation';
 import { AudiolistenerComponentInspector } from './components/audiolistener';
+import { AudiosourceComponentInspector } from './components/audiosource';
 import { ButtonComponentInspector } from './components/button';
 import { CameraComponentInspector } from './components/camera';
 import { CollisionComponentInspector } from './components/collision';
@@ -39,6 +40,7 @@ const componentToConstructor = new Map<string, new (...args: any[]) => any>();
 componentToConstructor.set('anim', AnimComponentInspector);
 componentToConstructor.set('animation', AnimationComponentInspector);
 componentToConstructor.set('audiolistener', AudiolistenerComponentInspector);
+componentToConstructor.set('audiosource', AudiosourceComponentInspector);
 componentToConstructor.set('button', ButtonComponentInspector);
 componentToConstructor.set('camera', CameraComponentInspector);
 componentToConstructor.set('collision', CollisionComponentInspector);
@@ -110,6 +112,7 @@ const getSubMenu = function (key: string) {
             return '3d-sub-menu';
 
         case 'audiolistener':
+        case 'audiosource':
         case 'sound':
             return 'audio-sub-menu';
 
@@ -453,6 +456,9 @@ class EntityInspector extends Container {
         // Create list of abstract components (components that have been replaced by subcomponents)
         const abstractComponents = new Set(['camera', 'light', 'screen']);
 
+        // Create list of hidden components (components that are not available in the engine)
+        const hiddenComponents = new Set(['audiosource']);
+
         components.forEach((component) => {
             let title = componentsSchema[component].$title;
             if (title === 'Model' || title === 'Animation') {
@@ -462,7 +468,7 @@ class EntityInspector extends Container {
             const submenu = getSubMenu(component);
             let newComponent = null;
 
-            if (!abstractComponents.has(component)) {
+            if (!abstractComponents.has(component) && !hiddenComponents.has(component)) {
                 // Build single component
                 newComponent = this._makeAddComponentMenuItem(component, title, COMPONENT_LOGOS);
 
@@ -532,7 +538,7 @@ class EntityInspector extends Container {
                         return object.text === title;
                     });
 
-                    if (!abstractComponents.has(component)) {
+                    if (!abstractComponents.has(component) && !hiddenComponents.has(component)) {
                         items[submenu].items[index].enabled = different ? true : !hasComponent;
                     }
                 } else {

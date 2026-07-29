@@ -124,6 +124,11 @@ editor.once('load', () => {
             asset.set('data.useSkybox', true);
         }
 
+        // NOTE: useGammaTonemap is used by engine v1 so bind useTonemap to useGammaTonemap
+        asset.on('data.useTonemap:set', (value: boolean) => {
+            asset.set('data.useGammaTonemap', value);
+        });
+
         if (asset.has('data.useGamma')) {
             const tonemap: boolean = asset.get('data.useGamma') ?? true;
             asset.unset('data.useGamma');
@@ -273,6 +278,19 @@ editor.once('load', () => {
 
         if (!asset.has('data.clearCoatNormalMapOffset')) {
             asset.set('data.clearCoatNormalMapOffset', [0, 0]);
+        }
+
+        // NOTE: set shader to blinn if it is not already for engine v1
+        if (asset.get('data.shader') !== 'blinn') {
+            const shader = asset.get('data.shader');
+            asset.set('data.shader', 'blinn');
+            if (shader !== 'blinn') {
+                const msg = [
+                    `The ${f.path('data.shader')} property of material ${f.asset(asset)} is no`,
+                    'longer supported by the Editor, and this has been switched to Physical'
+                ].join(' ');
+                editor.call('console:log:asset', asset, msg);
+            }
         }
 
         // remove fresnelModel since it is now always set to schlick

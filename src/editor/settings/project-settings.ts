@@ -1,11 +1,13 @@
 import { ObserverHistory } from '@playcanvas/observer';
 import {
+    DEVICETYPE_WEBGL2,
     DEVICETYPE_WEBGPU,
     LAYERID_WORLD,
     LAYERID_DEPTH,
     LAYERID_SKYBOX,
     LAYERID_IMMEDIATE,
-    LAYERID_UI
+    LAYERID_UI,
+    script
 } from 'playcanvas';
 
 import { deepCopy, formatter as f, insert, remove, set, unset } from '@/common/utils';
@@ -20,6 +22,8 @@ editor.once('load', () => {
         id: config.project.settings.id,
         data: projectSettings
     });
+
+    script.legacy = !!settings.get('useLegacyScripts');
 
     // add history
     settings.history = new ObserverHistory({
@@ -49,8 +53,10 @@ editor.once('load', () => {
         settings.history.enabled = false;
         settings.sync.enabled = editor.call('permissions:write');
 
-        // every remaining `useLegacyScripts` reader in src/editor depends on this forcing the
-        // setting to false. it can only go once those readers do
+        if (!Object.prototype.hasOwnProperty.call(config.project.settings, 'engineV2')) {
+            settings.set('engineV2', false, undefined, undefined, true);
+        }
+
         if (Object.prototype.hasOwnProperty.call(config.project.settings, 'useLegacyScripts')) {
             if (settings.get('useLegacyScripts')) {
                 settings.set('useLegacyScripts', false);
@@ -63,6 +69,17 @@ editor.once('load', () => {
             settings.set('useLegacyScripts', false, undefined, undefined, true);
         }
 
+        if (settings.has('preferWebGl2')) {
+            const enableWebGl2 = settings.get('preferWebGl2');
+            const oldEnableWebGl2 = settings.get('enableWebGl2');
+            settings.set('enableWebGl2', enableWebGl2);
+            settings.unset('preferWebGl2');
+            let msg = `The ${f.path('preferWebGl2')} project setting has been removed`;
+            if (oldEnableWebGl2 !== enableWebGl2) {
+                msg += `. Setting project setting ${f.path('enableWebGl2')} from ${f.value(oldEnableWebGl2)} to ${f.value(enableWebGl2)}`;
+            }
+            editor.call('console:log:settings', settings, msg);
+        }
         if (settings.has('deviceTypes')) {
             const deviceTypes = settings.get('deviceTypes');
             settings.unset('deviceTypes');
@@ -74,6 +91,13 @@ editor.once('load', () => {
                 settings.set('enableWebGpu', enableWebGpu);
                 if (oldEnableWebGpu !== enableWebGpu) {
                     msg += `. Setting project setting ${f.path('enableWebGpu')} from ${f.value(oldEnableWebGpu)} to ${f.value(enableWebGpu)}`;
+                }
+
+                const enableWebGl2 = deviceTypes[0] === DEVICETYPE_WEBGL2;
+                const oldEnableWebGl2 = settings.get('enableWebGl2');
+                settings.set('enableWebGl2', enableWebGl2);
+                if (oldEnableWebGl2 !== enableWebGl2) {
+                    msg += `. Setting project setting ${f.path('enableWebGl2')} from ${f.value(oldEnableWebGl2)} to ${f.value(enableWebGl2)}`;
                 }
             }
 

@@ -922,6 +922,10 @@ type MaterialAssetData = {
      */
     useFog: boolean;
     /**
+     * Apply gamma correction and tonemapping (as configured in scene settings).
+     */
+    useGammaTonemap: boolean;
+    /**
      * Apply lighting.
      */
     useLighting: boolean;

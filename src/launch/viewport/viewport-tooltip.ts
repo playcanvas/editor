@@ -32,34 +32,38 @@ editor.once('load', () => {
     // display device type popup
     const app = editor.call('viewport:app');
     const nameMap = {
-        [pc.DEVICETYPE_WEBGPU]: 'WebGPU',
+        [pc.DEVICETYPE_WEBGPU]: `WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}`,
         [pc.DEVICETYPE_WEBGL2]: 'WebGL 2.0',
+        [pc.DEVICETYPE_WEBGL1]: 'WebGL 1.0',
         [pc.DEVICETYPE_NULL]: 'Null'
     };
-    const getDeviceType = (isWebGPU, isWebGL2) => {
+    const getDeviceType = (isWebGPU, isWebGL2, isWebGL1) => {
         if (isWebGPU) {
             return pc.DEVICETYPE_WEBGPU;
         }
         if (isWebGL2) {
             return pc.DEVICETYPE_WEBGL2;
         }
+        if (isWebGL1) {
+            return pc.DEVICETYPE_WEBGL1;
+        }
         return pc.DEVICETYPE_NULL;
     };
     editor.once('launcher:device:ready', () => {
         const device = app.graphicsDevice;
-        const { enableWebGpu } = editor.call('settings:project').json();
+        const { enableWebGpu, enableWebGl2 } = editor.call('settings:project').json();
 
         // migrate old device properties
         // FIXME: Remove at some point as old not official supported
         if (Object.prototype.hasOwnProperty.call(device, 'webgl2')) {
             device.isWebGL2 = device.webgl2;
+            device.isWebGL1 = !device.webgl2;
         }
 
-        // the engine always appends DEVICETYPE_WEBGL2, so WebGL 2.0 is the fallback
-        const projectDeviceType = getDeviceType(enableWebGpu, !enableWebGpu);
+        const projectDeviceType = getDeviceType(enableWebGpu, enableWebGl2, !editor.projectEngineV2);
         const paramDeviceType = Object.keys(nameMap).includes(deviceType) ? deviceType : pc.DEVICETYPE_NULL;
         const currentDeviceType = paramDeviceType === pc.DEVICETYPE_NULL ? projectDeviceType : paramDeviceType;
-        const actualDeviceType = getDeviceType(device.isWebGPU, device.isWebGL2);
+        const actualDeviceType = getDeviceType(device.isWebGPU, device.isWebGL2, device.isWebGL1);
 
         if (currentDeviceType !== actualDeviceType) {
             showTooltipMessage(

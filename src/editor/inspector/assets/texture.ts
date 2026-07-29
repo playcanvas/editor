@@ -537,6 +537,10 @@ class TextureAssetInspector extends Container {
         { size: number; vram: number; timeout?: boolean; label?: SizeLabel | undefined }
     >;
 
+    _webgl1NonPotWithMipmapsWarning: InfoBox;
+
+    _webgl1NonPotWithoutAddressClampWarning: InfoBox;
+
     _containerImportBasis: Container;
 
     _labelImportBasis: Label;
@@ -604,8 +608,10 @@ class TextureAssetInspector extends Container {
         this._handleBtnCompressBasisClick = this._handleBtnCompressBasisClick.bind(this);
         this._handleBtnCompressLegacyClick = this._handleBtnCompressLegacyClick.bind(this);
         this._handleBtnGetMetaClick = this._handleBtnGetMetaClick.bind(this);
+        this._handleAssetChangeWebGl1PotWarnings = this._handleAssetChangeWebGl1PotWarnings.bind(this);
         this._showHideLegacyUi = this._showHideLegacyUi.bind(this);
         this._updatePvrWarning = this._updatePvrWarning.bind(this);
+        this._updateWebGl1PowerOfTwoWarnings = this._updateWebGl1PowerOfTwoWarnings.bind(this);
 
         this.buildDom(DOM(this));
         this._setupCompressionSubheads();
@@ -620,6 +626,33 @@ class TextureAssetInspector extends Container {
 
         this._btnCompressLegacy.on('click', this._handleBtnCompressLegacyClick);
         this._btnCompressLegacy.enabled = false;
+
+        // Add WebGL1 warnings below the relevant settings in the inspector
+        this._webgl1NonPotWithMipmapsWarning = new InfoBox({
+            icon: 'E218',
+            title: 'Texture dimensions are not power of two (POT) and Mipmaps are enabled',
+            text: 'Only WebGL2 supports mipmap generation on non power of two textures in width and height. (E.g. 256 x 256, 512 x 1024). Visit <strong><a href="https://caniuse.com/webgl2" target="_blank">can I use webgl2</a></strong> to see current browser support. Expect browsers that only support WebGL1 to render differently. Please use textures with dimensions of POT wherever possible for best compatibility.',
+            unsafe: true
+        });
+
+        const mipmapsField = this._textureAttributesInspector.getField('data.mipmaps');
+        (mipmapsField.parent.parent as Container).appendAfter(
+            this._webgl1NonPotWithMipmapsWarning.dom,
+            mipmapsField.parent.dom
+        );
+
+        this._webgl1NonPotWithoutAddressClampWarning = new InfoBox({
+            icon: 'E218',
+            title: 'Texture dimensions are not power of two (POT) and Address UV are not clamped',
+            text: 'Only WebGL2 supports Address UV modes \'Repeat\' or \'Mirror Repeat\' on non power of two textures in width and height. (E.g. 256 x 256, 512 x 1024). Visit <strong><a href="https://caniuse.com/webgl2" target="_blank">can I use webgl2</a></strong> to see current browser support. Expect browsers that only support WebGL1 to render differently. Please use textures with dimensions of POT wherever possible for best compatibility.',
+            unsafe: true
+        });
+
+        const addressVField = this._textureAttributesInspector.getField('data.addressv');
+        (addressVField.parent.parent as Container).appendAfter(
+            this._webgl1NonPotWithoutAddressClampWarning.dom,
+            addressVField.parent.dom
+        );
 
         const srgbField = this._textureAttributesInspector.getField('data.srgb');
         const rgbmField = this._textureAttributesInspector.getField('data.rgbm');
@@ -917,6 +950,22 @@ class TextureAssetInspector extends Container {
         TextureCompressor.compress(assets, formats);
     }
 
+    _handleAssetChangeWebGl1PotWarnings(path: string) {
+        if (
+            path !== 'task' &&
+            !path.startsWith('meta.width') &&
+            !path.startsWith('meta.height') &&
+            !path.startsWith('file') &&
+            !path.startsWith('data.addressu') &&
+            !path.startsWith('data.addressv') &&
+            !path.startsWith('data.mipmaps')
+        ) {
+            return;
+        }
+
+        this._updateWebGl1PowerOfTwoWarnings();
+    }
+
     _setupBasis() {
         const BASIS_STORE_NAME = 'basis.js';
         const BASIS_WASM_FILENAME = 'basis';
@@ -1138,6 +1187,39 @@ class TextureAssetInspector extends Container {
         this._pvrWarningLabel.hidden = hidden;
     }
 
+    _updateWebGl1PowerOfTwoWarnings() {
+        this._webgl1NonPotWithoutAddressClampWarning.hidden = true;
+        this._webgl1NonPotWithMipmapsWarning.hidden = true;
+
+        // Don't show WebGL1 warnings when running in Engine v2 mode
+        if (editor.projectEngineV2) {
+            return;
+        }
+
+        const assets = this._assets;
+        // Show the warnings if any of the assets have an issue
+
+        for (let i = 0; i < assets.length; i++) {
+            const asset = assets[i];
+            if (!TextureCompressor.isPOT(asset.get('meta.width'), asset.get('meta.height'))) {
+                if (asset.get('data.mipmaps')) {
+                    this._webgl1NonPotWithMipmapsWarning.hidden = false;
+                    break;
+                }
+            }
+        }
+
+        for (let i = 0; i < assets.length; i++) {
+            const asset = assets[i];
+            if (!TextureCompressor.isPOT(asset.get('meta.width'), asset.get('meta.height'))) {
+                if (asset.get('data.addressu') !== 'clamp' || asset.get('data.addressv') !== 'clamp') {
+                    this._webgl1NonPotWithoutAddressClampWarning.hidden = false;
+                    break;
+                }
+            }
+        }
+    }
+
     link(assets: Observer[]) {
         this.unlink();
         this._assets = assets;
@@ -1181,6 +1263,7 @@ class TextureAssetInspector extends Container {
         }
         this._checkFormats();
         this._checkCompression();
+        this._updateWebGl1PowerOfTwoWarnings();
 
         // needs to be called after this._checkFormats to determine this._hasLegacy
         this._setupLegacy();
@@ -1191,6 +1274,8 @@ class TextureAssetInspector extends Container {
             // retriggers checkCompressAlpha, checkFormats, checkCompression
             this._assetEvents.push(asset.on('*:set', this._handleAssetChangeCompression));
             this._assetEvents.push(asset.on('*:unset', this._handleAssetChangeCompression));
+
+            this._assetEvents.push(asset.on('*:set', this._handleAssetChangeWebGl1PotWarnings));
 
             // show/hide Get Meta Button
             this._assetEvents.push(

@@ -10,10 +10,13 @@ editor.once('load', () => {
     let assets = false;
     let gfxCreated = false;
     let settings = false;
+    let sourcefiles = false;
     let libraries = false;
     let sceneData = null;
     let sceneSettings = null;
     let loadingScreen = false;
+    let scriptList = [];
+    const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     let canvas = undefined;
     let app = undefined;
     let scriptPrefix = undefined;
@@ -22,7 +25,16 @@ editor.once('load', () => {
 
     // try to start preload and initialization of application after load event
     const init = function () {
-        if (!done && gfxCreated && assets && hierarchy && settings && libraries && loadingScreen) {
+        if (
+            !done &&
+            gfxCreated &&
+            assets &&
+            hierarchy &&
+            settings &&
+            (!legacyScripts || sourcefiles) &&
+            libraries &&
+            loadingScreen
+        ) {
             // prevent multiple init calls during scene loading
             done = true;
 
@@ -49,6 +61,7 @@ editor.once('load', () => {
                     // clear stored loading data
                     sceneData = null;
                     sceneSettings = null;
+                    scriptList = null;
 
                     if (err) {
                         log.error(err);
@@ -71,7 +84,11 @@ editor.once('load', () => {
         // download it and execute it
         if (config.project.settings.loadingScreenScript) {
             const loadingScript = document.createElement('script');
-            loadingScript.src = `/api/assets/${config.project.settings.loadingScreenScript}/download?branchId=${config.self.branch.id}`;
+            if (config.project.settings.useLegacyScripts) {
+                loadingScript.src = `${scriptPrefix}/${config.project.settings.loadingScreenScript}`;
+            } else {
+                loadingScript.src = `/api/assets/${config.project.settings.loadingScreenScript}/download?branchId=${config.self.branch.id}`;
+            }
 
             loadingScript.onload = function () {
                 loadingScreen = true;
@@ -118,9 +135,13 @@ editor.once('load', () => {
 
     scriptPrefix = config.project.scriptPrefix;
 
-    // device types - the engine appends WEBGL2 itself when the list omits it
-    const { enableWebGpu } = editor.call('settings:project').json();
-    let deviceTypes: string[] = enableWebGpu ? [pc.DEVICETYPE_WEBGPU] : [];
+    // device types
+    const { enableWebGpu, enableWebGl2 } = editor.call('settings:project').json();
+    let deviceTypes = [
+        enableWebGpu && pc.DEVICETYPE_WEBGPU,
+        enableWebGl2 && pc.DEVICETYPE_WEBGL2,
+        pc.DEVICETYPE_WEBGL1
+    ].filter(Boolean);
 
     // device type override
     switch (queryParams.device) {
@@ -130,6 +151,9 @@ editor.once('load', () => {
         case 'webgl2':
             deviceTypes = [pc.DEVICETYPE_WEBGL2];
             break;
+        case 'webgl1':
+            deviceTypes = [pc.DEVICETYPE_WEBGL1];
+            break;
     }
 
     const powerPreference = config.project.settings.powerPreference;
@@ -137,6 +161,9 @@ editor.once('load', () => {
     // listen for project setting changes
     const projectSettings = editor.call('settings:project');
     const projectUserSettings = editor.call('settings:projectUser');
+
+    // legacy scripts
+    pc.script.legacy = projectSettings.get('useLegacyScripts');
 
     // playcanvas app
     const useMouse = projectSettings.has('useMouse') ? projectSettings.get('useMouse') : true;
@@ -172,7 +199,8 @@ editor.once('load', () => {
             pc.RenderComponentSystem,
             pc.CameraComponentSystem,
             pc.LightComponentSystem,
-            pc.ScriptComponentSystem,
+            pc.script.legacy ? pc.ScriptLegacyComponentSystem : pc.ScriptComponentSystem,
+            pc.AudioSourceComponentSystem,
             pc.SoundComponentSystem,
             pc.AudioListenerComponentSystem,
             pc.ParticleSystemComponentSystem,
@@ -614,6 +642,14 @@ editor.once('load', () => {
         sceneSettings = data.json();
         init();
     });
+
+    if (legacyScripts) {
+        editor.on('sourcefiles:load', (scripts: string[]) => {
+            scriptList = scripts;
+            sourcefiles = true;
+            init();
+        });
+    }
 
     createLoadingScreen();
 });

@@ -786,6 +786,10 @@
                 content: '\E198';
             }
 
+            &.audiosource > :is(header, .ui-header) > .title::before {
+                content: '\E197';
+            }
+
             &.sound > :is(header, .ui-header) > .title::before {
                 content: '\E197';
             }

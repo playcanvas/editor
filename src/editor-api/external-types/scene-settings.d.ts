@@ -40,6 +40,10 @@ export type SceneSettingsProps = {
          */
         fog_start?: number;
         /**
+         * The gamma correction to apply when rendering the scene. Can be one of `pc.GAMMA_NONE`, `pc.GAMMA_SRGB`.
+         */
+        gamma_correction?: number;
+        /**
          * An array of 3 numbers representing the color of the scene's ambient light.
          */
         global_ambient?: [number, number, number];
@@ -71,5 +75,9 @@ export type SceneSettingsProps = {
          * An array of 3 numbers representing the rotation of the skybox.
          */
         skyboxRotation?: [number, number, number];
+        /**
+         * The tonemapping transform to apply when writing fragments to the frame buffer. Can be: `pc.TONEMAP_LINEAR`, `pc.TONEMAP_FILMIC`, `pc.TONEMAP_HEJL`, `pc.TONEMAP_ACES`.
+         */
+        tonemapping?: number;
     };
 };

@@ -18,6 +18,9 @@ editor.once('load', () => {
 
         let title;
         switch (componentName) {
+            case 'audiosource':
+                title = 'Audio Source';
+                break;
             case 'audiolistener':
                 title = 'Audio Listener';
                 break;
@@ -130,9 +133,7 @@ editor.once('load', () => {
         return 0;
     });
 
-    // audiosource is engine v1 only. the component stays declared in the scene schema so that
-    // existing entities keep validating, but it is never offered as a component to add
-    list = list.filter((item) => !item.startsWith('$') && item !== 'audiosource');
+    list = list.filter((item) => !item.startsWith('$'));
 
     editor.method('components:convertValue', (component: string, property: string, value: unknown) => {
         let result = value;

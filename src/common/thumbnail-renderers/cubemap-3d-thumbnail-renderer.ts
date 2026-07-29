@@ -178,6 +178,8 @@ class Cubemap3dThumbnailRenderer extends ThumbnailRenderer {
             settings.render.global_ambient[1],
             settings.render.global_ambient[2]
         );
+        scene.cameraEntity.gammaCorrection = settings.render.gamma_correction;
+        scene.cameraEntity.toneMapping = settings.render.tonemapping;
         scene.scene.exposure = settings.render.exposure;
         scene.scene.skyboxIntensity =
             settings.render.skyboxIntensity === undefined ? 1 : settings.render.skyboxIntensity;
