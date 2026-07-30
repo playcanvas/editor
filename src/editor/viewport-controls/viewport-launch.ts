@@ -109,8 +109,6 @@ editor.once('load', () => {
             query.push(`use_local_engine=${params.get('use_local_engine')}`);
         } else if (releaseCandidate && launchOptions.releaseCandidate) {
             query.push(`version=${releaseCandidate}`);
-        } else if (launchOptions.force) {
-            query.push(`version=${config.engineVersions.force.version}`);
         } else {
             const engineVersion = editor.call('settings:session').get('engineVersion');
             if (engineVersion && engineVersion !== 'current') {
@@ -308,17 +306,6 @@ editor.once('load', () => {
         align: 'right',
         root: root
     }).class.add('launch-tooltip');
-
-    // force engine version
-    const force = config.engineVersions.force;
-    const optionForce = createOption('force', `Force Engine V${force.version[0]}`);
-    const tooltipForce = TooltipHandle.attach({
-        target: optionForce.parent.dom,
-        text: `Force the launcher to use v${force.version}.`,
-        align: 'right',
-        root: root
-    });
-    tooltipForce.class.add('launch-tooltip');
 
     // release-candidate
     if (releaseCandidate) {
