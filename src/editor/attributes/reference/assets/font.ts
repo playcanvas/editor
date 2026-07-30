@@ -26,14 +26,14 @@ export const fields: AttributeReference[] = [
     },
     {
         name: 'asset:font:characters',
-        title: 'CHARACTERS',
+        title: 'INCLUDED CHARACTERS',
         description:
-            'All the characters that should be included in the runtime font asset. Note that in order for a character to be included in the runtime font, it must be supported by the source font. Click Process Font after you make changes to the characters.'
+            'The final set of characters generated into the runtime font. A character must be supported by the source font. Regenerate the font assets after making changes.'
     },
     {
         name: 'asset:font:invert',
-        title: 'INVERT',
-        description: 'Enable this to invert the generated font texture. Click Process Font after changing this option.'
+        title: 'INVERT TEXTURE ATLAS',
+        description: 'Invert the generated font texture. Regenerate the font assets after changing this option.'
     },
     {
         name: 'asset:font:pxrange',

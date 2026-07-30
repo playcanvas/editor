@@ -306,6 +306,8 @@ class FontThumbnailRenderer extends ThumbnailRenderer {
 
         let width = this._canvas.width;
         let height = this._canvas.height;
+        const ctx = this._canvas.getContext('2d');
+        ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
         if (width > height) {
             width = height;
@@ -352,7 +354,7 @@ class FontThumbnailRenderer extends ThumbnailRenderer {
             } else {
                 // rest
                 text = '';
-                const chars = this._asset.get('meta.chars');
+                const chars = this._asset.get('meta.chars') || '';
                 for (let i = 0, len = chars.length; i < len && text.length < 2; i++) {
                     // skip space character
                     if (/\s/.test(chars[i])) {
@@ -412,7 +414,6 @@ class FontThumbnailRenderer extends ThumbnailRenderer {
                 device.gl.readPixels(0, 0, width, height, device.gl.RGBA, device.gl.UNSIGNED_BYTE, rt.pixels);
 
                 // render to canvas
-                const ctx = this._canvas.getContext('2d');
                 ctx.putImageData(
                     new ImageData(rt.pixelsClamped, width, height),
                     (this._canvas.width - width) / 2,

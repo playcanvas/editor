@@ -50,6 +50,129 @@ editor.once('load', () => {
             return asset ? resolve(asset) : editor.once(`assets:add[${id}]`, resolve);
         });
 
+    const updateFile = (asset: any, file: Blob, filename: string, noConvert: boolean) =>
+        new Promise<void>((resolve, reject) => {
+            editor.call(
+                'assets:uploadFile',
+                { asset, file, filename, name: asset.get('name'), type: asset.get('type'), noConvert },
+                (err: string | null) => (err ? reject(new Error(err)) : resolve())
+            );
+        });
+
+    const writeReferences = async (
+        font: any,
+        sourceId: number | string,
+        parent: any,
+        base: string,
+        data: FontDataV3,
+        textures: Uint8Array[]
+    ) => {
+        const json = font && editor.call('assets:get', font.get('data.jsonAsset'));
+        const jsonId = json
+            ? updateFile(
+                  json,
+                  new Blob([JSON.stringify(data)], { type: 'application/json' }),
+                  `${base}.json`,
+                  false
+              ).then(() => json.get('id'))
+            : createAsset({
+                  name: `${base}.json`,
+                  type: 'json',
+                  file: new Blob([JSON.stringify(data)], { type: 'application/json' }),
+                  filename: `${base}.json`,
+                  source_asset_id: `${sourceId}`,
+                  parent,
+                  preload: false
+              });
+
+        const ids = font?.get('data.textureAssets') || [];
+        const textureIds = Promise.all(
+            textures.map((bytes, i) => {
+                const asset = editor.call('assets:get', ids[i]);
+                const name = i === 0 ? `${base}.png` : `${base}${i}.png`;
+                const file = new Blob([bytes as BlobPart], { type: 'image/png' });
+                return asset
+                    ? updateFile(asset, file, asset.get('name'), true).then(() => asset.get('id'))
+                    : createAsset({
+                          name,
+                          type: 'texture',
+                          file,
+                          filename: name,
+                          source_asset_id: `${sourceId}`,
+                          parent,
+                          noConvert: true,
+                          preload: true
+                      });
+            })
+        );
+
+        const [jsonRef, textureRefs] = await Promise.all([jsonId, textureIds]);
+        await Promise.all([jsonRef, ...textureRefs].map(getObserver));
+        return { jsonAsset: jsonRef, textureAssets: textureRefs };
+    };
+
+    const pending = new Set<number>();
+    const updating = new Set<number>();
+    const reloadFont = (asset: any) => {
+        const app = editor.call('viewport:app');
+        const id = asset.get('id');
+        const engineAsset = app?.assets.get(id);
+        if (!engineAsset || updating.has(id)) {
+            return;
+        }
+        if (engineAsset.loading) {
+            if (pending.has(id)) {
+                return;
+            }
+            pending.add(id);
+            const retry = () => {
+                engineAsset.off('load', retry);
+                engineAsset.off('error', retry);
+                pending.delete(id);
+                reloadFont(asset);
+            };
+            engineAsset.once('load', retry);
+            engineAsset.once('error', retry);
+            return;
+        }
+        engineAsset._data = asset.json().data;
+        engineAsset.unload();
+        app.assets.load(engineAsset);
+    };
+
+    const watched = new Set<number>();
+    const watchFont = (asset: any) => {
+        if (asset.get('type') !== 'font' || asset.get('source') || !asset.has('data.jsonAsset')) {
+            return;
+        }
+        const id = asset.get('id');
+        if (watched.has(id)) {
+            return;
+        }
+        watched.add(id);
+
+        const app = editor.call('viewport:app');
+        if (!app) {
+            return;
+        }
+
+        let watches: any[] = [];
+        const sync = () => {
+            watches.forEach((h) => h.off());
+            watches = [asset.get('data.jsonAsset'), ...(asset.get('data.textureAssets') || [])]
+                .filter(Boolean)
+                .map((ref: number) => app.assets.on(`load:${ref}`, () => reloadFont(asset)));
+        };
+        sync();
+
+        ['data:set', 'data.jsonAsset:set', 'data.textureAssets:set', 'data.textureAssets.0:set'].forEach((evt) => {
+            asset.on(evt, () => {
+                sync();
+                reloadFont(asset);
+            });
+        });
+    };
+
     const importFont = async (file: File, folder: any) => {
         const filename = file.name; // e.g. unisans.otf
         const base = filename.replace(/\.[^.]+$/, ''); // unisans
@@ -57,54 +180,22 @@ editor.once('load', () => {
 
         const buffer = await file.arrayBuffer();
 
-        // 1) source .otf — noConvert so the server pipeline doesn't also produce a target font
-        const sourceId = await createAsset({
-            name: filename,
-            type: 'font',
-            file,
-            filename,
-            parent: folder,
-            noConvert: true,
-            preload: false
-        });
+        // 1/2) upload the source while generating the msdf json and atlas png(s)
+        const [sourceId, { data: v3, textures }] = await Promise.all([
+            createAsset({
+                name: filename,
+                type: 'font',
+                file,
+                filename,
+                parent: folder,
+                noConvert: true,
+                preload: false
+            }),
+            generate(buffer, { chars, fontName: base })
+        ]);
 
-        // 2) generate the MSDF json + atlas png(s) off the main thread
-        const { data: v3, textures } = await generate(buffer, { chars, fontName: base });
-
-        if (textures.length > 1) {
-            // ponytail: single-page only for now — multi-page needs the font's own contiguous atlas copies
-            console.warn(`font "${base}" produced ${textures.length} atlas pages; only page 0 is wired`);
-        }
-
-        // 3) JSON mirror (editable, authoring source of truth)
-        const jsonBlob = new Blob([JSON.stringify(v3)], { type: 'application/json' });
-        const jsonId = await createAsset({
-            name: `${base}.json`,
-            type: 'json',
-            file: jsonBlob,
-            filename: `${base}.json`,
-            source_asset_id: `${sourceId}`,
-            parent: folder,
-            preload: false
-        });
-
-        // 4) Texture mirror(s) — noConvert so the server texture pipeline doesn't recompress the atlas
-        const textureIds = await Promise.all(
-            textures.map((bytes, i) => {
-                const texName = i === 0 ? `${base}.png` : `${base}${i}.png`;
-                const texBlob = new Blob([bytes as BlobPart], { type: 'image/png' });
-                return createAsset({
-                    name: texName,
-                    type: 'texture',
-                    file: texBlob,
-                    filename: texName,
-                    source_asset_id: `${sourceId}`,
-                    parent: folder,
-                    noConvert: true,
-                    preload: true
-                });
-            })
-        );
+        // 3/4) json and texture mirrors (editable authoring sources)
+        const refs = await writeReferences(null, sourceId, folder, base, v3, textures);
 
         // 5) runtime font — reference-only: `data` holds just the json/texture asset ids that
         // ReferencedFontHandler resolves into a pc.Font at load time, so the atlas isn't duplicated
@@ -119,7 +210,7 @@ editor.once('load', () => {
             file: new Blob(['{}'], { type: 'application/json' }),
             filename: `${base}.json`,
             source_asset_id: `${sourceId}`,
-            data: { jsonAsset: jsonId, textureAssets: textureIds },
+            data: refs,
             meta: { chars, invert: false },
             parent: folder,
             noConvert: true,
@@ -136,20 +227,10 @@ editor.once('load', () => {
         });
     });
 
-    // update an existing mirror asset's file (assetUpdate via the upload path)
-    const updateFile = (asset: any, file: Blob, filename: string, noConvert: boolean) =>
-        new Promise<void>((resolve, reject) => {
-            editor.call(
-                'assets:uploadFile',
-                { asset, file, filename, name: asset.get('name'), type: asset.get('type'), noConvert },
-                (err: string | null) => (err ? reject(new Error(err)) : resolve())
-            );
-        });
-
-    // re-run generation with a new character set / invert and refresh the mirror assets; the mirror
-    // watch then reloads the font's engine resource
+    // generate references for old fonts or refresh them for referenced fonts
     const reprocess = async (font: any, chars: string, invert: boolean) => {
-        const source = editor.call('assets:get', font.get('source_asset_id'));
+        const sourceId = font.get('source_asset_id');
+        const source = editor.call('assets:get', sourceId);
         const url = source?.get('file.url');
         if (!url) {
             throw new Error('font source file not found');
@@ -158,31 +239,50 @@ editor.once('load', () => {
         const base = font.get('name').replace(/\.[^.]+$/, '');
 
         const { data: v3, textures } = await generate(buffer, { chars, fontName: base, invert });
-
-        // font-tools silently drops requested glyphs the source lacks; report them so the inspector can
-        // warn (referenced fonts have no server `task` for the pipeline's warning to key off)
         const missing = Array.from(chars).filter((c) => !v3.chars[c]);
-        editor.emit('fonts:reprocessed', font, missing);
+        const path = font.get('path') || [];
+        const parent = path.length ? editor.call('assets:get', path[path.length - 1]) : null;
+        const migrated = !font.has('data.jsonAsset');
+        const id = font.get('id');
 
-        const jsonAsset = editor.call('assets:get', font.get('data.jsonAsset'));
-        if (jsonAsset) {
-            await updateFile(jsonAsset, new Blob([JSON.stringify(v3)], { type: 'application/json' }), `${base}.json`, false);
-        }
+        updating.add(id);
+        await writeReferences(font, sourceId, parent, base, v3, textures)
+            .then(async (refs) => {
+                // mark the font before removing legacy data so realtime sync never publishes a partial descriptor
+                if (migrated) {
+                    font.set('data.jsonAsset', refs.jsonAsset);
+                }
+                font.set('data', refs);
+                font.set('meta', { ...(font.get('meta') || {}), chars, invert });
+                watchFont(font);
 
-        const textureIds = font.get('data.textureAssets') || [];
-        await Promise.all(
-            textures.map((bytes, i) => {
-                const tex = editor.call('assets:get', textureIds[i]);
-                return tex ? updateFile(tex, new Blob([bytes as BlobPart], { type: 'image/png' }), tex.get('name'), true) : null;
+                if (migrated) {
+                    const app = editor.call('viewport:app');
+                    const engineAsset = app?.assets.get(id);
+                    if (engineAsset) {
+                        engineAsset._data = refs;
+                    }
+                    await updateFile(
+                        font,
+                        new Blob(['{}'], { type: 'application/json' }),
+                        font.get('file.filename'),
+                        true
+                    );
+                }
             })
-        );
-
-        font.set('meta.chars', chars);
-        font.set('meta.invert', invert);
+            .then(
+                () => updating.delete(id),
+                (err) => {
+                    updating.delete(id);
+                    throw err;
+                }
+            );
+        reloadFont(font);
+        editor.emit('fonts:reprocessed', font, missing);
     };
 
     editor.method('fonts:reprocess', (font: any, chars: string, invert: boolean) => {
-        reprocess(font, chars, invert).catch((err) => {
+        return reprocess(font, chars, invert).catch((err) => {
             editor.call('status:error', `Font reprocess failed: ${err?.message ?? err}`);
         });
     });
@@ -191,55 +291,5 @@ editor.once('load', () => {
     // resource. two change sources: the font's own refs being repointed (observer data:set), and a
     // referenced mirror's file being edited/reprocessed/replaced (the mirror's engine `load`, which fires
     // once assets-registry has re-fetched it — so the mirror resource is fresh by then).
-    const watched = new Set<number>();
-    editor.on('assets:add', (asset: any) => {
-        if (asset.get('type') !== 'font' || asset.get('source') || !asset.has('data.jsonAsset')) {
-            return;
-        }
-        const fontId = asset.get('id');
-        if (watched.has(fontId)) {
-            return;
-        }
-        watched.add(fontId);
-
-        const app = editor.call('viewport:app');
-        if (!app) {
-            return; // headless (no webgl): no viewport font to keep live
-        }
-
-        // rebuild the engine font from the current refs. push the observer's data onto the engine asset
-        // first: assets-registry only syncs it on a deferred tick, so without this the handler would
-        // re-resolve the stale refs on a repoint. skip while a load is in flight (don't interrupt preload).
-        const reload = () => {
-            const engineAsset = app.assets.get(fontId);
-            if (!engineAsset || engineAsset.loading) {
-                return;
-            }
-            // update the engine asset's refs WITHOUT the public `data` setter: setting asset.data fires the
-            // text element's _onFontChange, which treats asset.data as a font descriptor and corrupts a
-            // referenced font (whose data is refs, not chars). unload/load re-runs the handler cleanly.
-            engineAsset._data = asset.json().data;
-            engineAsset.unload();
-            app.assets.load(engineAsset);
-        };
-
-        // (re)subscribe to each current mirror's engine `load` so an edit/reprocess/replace rebuilds the
-        // font once the mirror is fresh; re-run on repoint to track the new ids
-        let mirrorWatches: any[] = [];
-        const syncWatches = () => {
-            mirrorWatches.forEach((h) => h.off());
-            mirrorWatches = [asset.get('data.jsonAsset'), ...(asset.get('data.textureAssets') || [])]
-                .filter(Boolean)
-                .map((id: number) => app.assets.on(`load:${id}`, reload));
-        };
-        syncWatches();
-
-        // reload when a picker is repointed to a different asset
-        ['data.jsonAsset:set', 'data.textureAssets:set', 'data.textureAssets.0:set'].forEach((evt) => {
-            asset.on(evt, () => {
-                syncWatches();
-                reload();
-            });
-        });
-    });
+    editor.on('assets:add', watchFont);
 });

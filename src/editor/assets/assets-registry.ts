@@ -91,11 +91,10 @@ editor.once('load', () => {
 
                     const field = match[0];
 
-                    // referenced fonts (data.jsonAsset present) resolve via ReferencedFontHandler and are
-                    // reloaded by assets-font-import when their refs change. syncing their `data` into the
-                    // engine asset here fires the text element's _onFontChange, which assumes asset.data is
-                    // a font descriptor (chars/info) and corrupts/crashes the resource on refs-only data.
-                    if (field === 'data' && asset.get('type') === 'font' && asset.has('data.jsonAsset')) {
+                    // referenced fonts resolve and reload through their external assets; syncing reference
+                    // data or the ignored placeholder file corrupts or prematurely reloads live text
+                    if (asset.get('type') === 'font' && asset.has('data.jsonAsset')) {
+                        delete updatedFields[field];
                         return;
                     }
 

@@ -1,10 +1,36 @@
 import type { AppBase } from 'playcanvas';
 import { Font, FontHandler } from 'playcanvas';
 
+const EMPTY_FONT = {
+    data: {
+        version: 3,
+        info: { maps: [{ width: 1, height: 1 }] },
+        chars: {
+            ' ': {
+                map: 0,
+                width: 0,
+                height: 0,
+                x: 0,
+                y: 0,
+                xadvance: 0,
+                xoffset: 0,
+                yoffset: 0
+            }
+        }
+    },
+    textures: [null]
+};
+
 // referenced (client-imported) fonts carry a jsonAsset reference; server fonts never do.
 // field-existence, not truthiness: a cleared picker leaves jsonAsset === null but still referenced.
 export const isReferencedFont = (asset: any) =>
     !!asset && !!asset.data && Object.prototype.hasOwnProperty.call(asset.data, 'jsonAsset');
+
+class ReferencedFont extends Font {
+    destroy() {
+        // textures are external asset resources and are destroyed by their owners
+    }
+}
 
 class ReferencedFontHandler {
     handlerType = 'font';
@@ -26,12 +52,11 @@ class ReferencedFontHandler {
 
         const app = this._app;
         const jsonAsset = app.assets.get(asset.data.jsonAsset);
-        const texAssets = (asset.data.textureAssets || [])
-            .map((id: number) => app.assets.get(id))
-            .filter(Boolean);
+        const textureIds = asset.data.textureAssets || [];
+        const texAssets = textureIds.map((id: number) => app.assets.get(id)).filter(Boolean);
 
-        if (!jsonAsset || texAssets.length === 0) {
-            callback(`referenced font ${asset.id}: missing json or texture asset`);
+        if (!jsonAsset || textureIds.length === 0 || texAssets.length !== textureIds.length) {
+            callback(null, EMPTY_FONT);
             return;
         }
 
@@ -69,8 +94,14 @@ class ReferencedFontHandler {
     }
 
     open(url: any, data: any, asset?: any) {
-        if (isReferencedFont(asset) && data && data.textures) {
-            return new Font(data.textures, data.data);
+        if (isReferencedFont(asset)) {
+            const font =
+                data?.data?.chars &&
+                data.data.info?.maps?.length === data.textures?.length &&
+                data.textures.every(Boolean)
+                    ? data
+                    : EMPTY_FONT;
+            return new ReferencedFont(font.textures, font.data);
         }
         return this._stock.open(url, data, asset);
     }

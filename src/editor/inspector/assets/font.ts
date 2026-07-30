@@ -204,7 +204,7 @@ const DOM = (parent) => [
             },
             {
                 processFontButton: new Button({
-                    text: 'PROCESS FONT',
+                    text: 'REGENERATE FONT ASSETS',
                     flexGrow: 1
                 })
             },
@@ -372,6 +372,8 @@ class FontAssetInspector extends Container {
 
     _processFontButton: Button;
 
+    _processing: boolean;
+
     _processFontWarningContainer: Container;
 
     _processFontWarningItems: Table;
@@ -408,6 +410,7 @@ class FontAssetInspector extends Container {
         this._localizations = {};
         this._localizationAssets = {};
         this._contextMenus = [];
+        this._processing = false;
 
         this.buildDom(DOM(this));
 
@@ -479,7 +482,6 @@ class FontAssetInspector extends Container {
     }
 
     _onClickProcessFontButton() {
-        // Remove all the context menus if we have any
         for (const contextMenu of this._contextMenus) {
             contextMenu.destroy();
         }
@@ -487,62 +489,35 @@ class FontAssetInspector extends Container {
         this._contextMenus.length = 0;
         this._processFontWarningContainer.hidden = true;
 
-        const characterValues = this._fontAttributes.getField('characters').value;
-        this._assets.forEach((asset) => {
-            const sourceId = asset.get('source_asset_id');
-            if (!sourceId) {
-                return;
-            }
-
-            const source = editor.call('assets:get', sourceId);
-            if (!source) {
-                return;
-            }
-
-            // remove duplicate chars but keep same order
-            let unique = '';
-            const chars = {};
-            const arr = Array.from(characterValues);
-
-            for (let i = 0; i < arr.length; i++) {
-                const char = arr[i];
-                if (!Object.prototype.hasOwnProperty.call(chars, char)) {
-                    chars[char] = true;
-                    unique += char;
-                }
-            }
-
-            // client-imported (referenced) fonts regenerate in the editor, not via the server pipeline.
-            // gate on the ref field existing (not its value) so a cleared picker still uses the client path
-            if (asset.has('data.jsonAsset')) {
-                editor.call('fonts:reprocess', asset, unique, this._fontAttributes.getField('meta.invert').value);
-                return;
-            }
-
-            const task = {
-                source: parseInt(source.get('uniqueId'), 10),
-                target: parseInt(asset.get('uniqueId'), 10),
-                chars: unique,
-                invert: this._fontAttributes.getField('meta.invert').value
-            };
-
-            editor.call('realtime:send', 'pipeline', {
-                name: 'convert',
-                data: task
-            });
+        const asset = this._assets[0];
+        const chars = [...new Set(Array.from(this._fontAttributes.getField('characters').value))].join('');
+        this._processing = true;
+        this._toggleProcessFontButton(asset);
+        editor.call('fonts:reprocess', asset, chars, this._fontAttributes.getField('meta.invert').value).then(() => {
+            const referenced = asset.has('data.jsonAsset');
+            this._sourceFilesPanel.hidden = !referenced;
+            this._propertiesPanel.hidden = referenced;
+            this._processing = false;
+            this._toggleProcessFontButton(asset);
         });
     }
 
     _toggleProcessFontButton(asset: Observer) {
-        this._processFontButton.enabled = asset.get('task') !== 'running';
+        const referenced = asset.has('data.jsonAsset');
+        this._processFontButton.text = this._processing
+            ? referenced
+                ? 'REGENERATING FONT ASSETS…'
+                : 'CONVERTING TO REFERENCED FONT…'
+            : referenced
+              ? 'REGENERATE FONT ASSETS'
+              : 'CONVERT TO REFERENCED FONT';
+        this._processFontButton.enabled = !this._processing && asset.get('task') !== 'running';
     }
 
     _showUnavailableCharacters(unavailableCharacters: string[]) {
         this._processFontWarningContainer.hidden = unavailableCharacters.length === 0;
         if (unavailableCharacters.length > 0) {
-            this._processFontWarningItems.link(
-                unavailableCharacters.map((char) => new Observer({ character: char }))
-            );
+            this._processFontWarningItems.link(unavailableCharacters.map((char) => new Observer({ character: char })));
         }
     }
 
@@ -643,11 +618,13 @@ class FontAssetInspector extends Container {
                     // process font complete
                     if (v === null) {
                         const availableCharacters = asset.get('data.chars');
-                        const unavailableCharacters = this._fontAttributes
-                            .getField('characters')
-                            .value.split('')
-                            .filter((character: string) => !availableCharacters[character.charCodeAt(0)]);
-                        this._showUnavailableCharacters(unavailableCharacters);
+                        if (availableCharacters) {
+                            const unavailableCharacters = this._fontAttributes
+                                .getField('characters')
+                                .value.split('')
+                                .filter((character: string) => !availableCharacters[character.charCodeAt(0)]);
+                            this._showUnavailableCharacters(unavailableCharacters);
+                        }
                     } else {
                         this._processFontWarningContainer.hidden = true;
                     }
