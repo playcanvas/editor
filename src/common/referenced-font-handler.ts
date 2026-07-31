@@ -50,46 +50,48 @@ class ReferencedFontHandler {
             return;
         }
 
-        const app = this._app;
-        const jsonAsset = app.assets.get(asset.data.jsonAsset);
-        const textureIds = asset.data.textureAssets || [];
-        const texAssets = textureIds.map((id: number) => app.assets.get(id)).filter(Boolean);
+        queueMicrotask(() => {
+            const app = this._app;
+            const jsonAsset = app.assets.get(asset.data.jsonAsset);
+            const textureIds = asset.data.textureAssets || [];
+            const texAssets = textureIds.map((id: number) => app.assets.get(id)).filter(Boolean);
 
-        if (!jsonAsset || textureIds.length === 0 || texAssets.length !== textureIds.length) {
-            callback(null, EMPTY_FONT);
-            return;
-        }
-
-        const toLoad = [jsonAsset, ...texAssets];
-        let remaining = toLoad.length;
-        let errored = false;
-        const done = () => {
-            if (errored || --remaining > 0) {
+            if (!jsonAsset || textureIds.length === 0 || texAssets.length !== textureIds.length) {
+                callback(null, EMPTY_FONT);
                 return;
             }
-            const textures = texAssets.map((a: any) => a.resource);
-            // MSDF atlases hold linear signed-distance data, not colour; texture assets default to srgb,
-            // which corrupts the median distance reconstruction (broken corners/thin strokes). force linear,
-            // matching the stock font handler (which loads its atlas as a raw, non-srgb texture).
-            textures.forEach((t: any) => {
-                if (t) {
-                    t.srgb = false;
+
+            const toLoad = [jsonAsset, ...texAssets];
+            let remaining = toLoad.length;
+            let errored = false;
+            const done = () => {
+                if (errored || --remaining > 0) {
+                    return;
                 }
+                const textures = texAssets.map((a: any) => a.resource);
+                // MSDF atlases hold linear signed-distance data, not colour; texture assets default to srgb,
+                // which corrupts the median distance reconstruction (broken corners/thin strokes). force linear,
+                // matching the stock font handler (which loads its atlas as a raw, non-srgb texture).
+                textures.forEach((t: any) => {
+                    if (t) {
+                        t.srgb = false;
+                    }
+                });
+                callback(null, {
+                    data: jsonAsset.resource, // v3 descriptor (font-tools shape); pc.Font consumes v3 directly
+                    textures
+                });
+            };
+            toLoad.forEach((a: any) => {
+                a.ready(done);
+                a.once('error', (err: string) => {
+                    if (!errored) {
+                        errored = true;
+                        callback(`referenced font ${asset.id}: ${err}`);
+                    }
+                });
+                app.assets.load(a);
             });
-            callback(null, {
-                data: jsonAsset.resource, // v3 descriptor (font-tools shape); pc.Font consumes v3 directly
-                textures
-            });
-        };
-        toLoad.forEach((a: any) => {
-            a.ready(done);
-            a.once('error', (err: string) => {
-                if (!errored) {
-                    errored = true;
-                    callback(`referenced font ${asset.id}: ${err}`);
-                }
-            });
-            app.assets.load(a);
         });
     }
 
