@@ -69,13 +69,13 @@ declare global {
 
 // @playcanvas/font-tools ships as JSDoc-typed JS with no .d.ts — declare the subset we use
 declare module '@playcanvas/font-tools' {
-    export interface FontGlyphSource {
+    export type FontGlyphSource = {
         generateGlyph(codepoint: number, opts: { size: number; pxrange: number }): any;
         dispose?: () => void;
-    }
-    export interface FontImageBackend {
+    };
+    export type FontImageBackend = {
         composite(page: { width: number; height: number; glyphs: any[] }): Promise<Uint8Array>;
-    }
+    };
     export function generateFont(opts: {
         chars?: string | number[];
         fontName?: string;
