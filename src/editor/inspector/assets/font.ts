@@ -7,6 +7,7 @@ import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import { Table } from '@/common/pcui/element/element-table';
 import { TableCell } from '@/common/pcui/element/element-table-cell';
 import { TableRow } from '@/common/pcui/element/element-table-row';
+import { normalizeFontJson } from '@/common/referenced-font-handler';
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
 import type { History } from '@/editor-api';
 
@@ -21,6 +22,7 @@ const CLASS_CHARACTER_RANGE_BUTTON = `${CLASS_CHARACTER_RANGE}-button`;
 const CLASS_FONT = `${CLASS_ROOT}-font`;
 const CLASS_PROCESS_FONT_WARNING_MESSAGE = `${CLASS_ROOT}-process-font-warning-message`;
 const CLASS_PROCESS_FONT_WARNING_ITEMS = `${CLASS_ROOT}-process-font-warning-items`;
+const CLASS_SOURCE_FILES_WARNING = `${CLASS_ROOT}-source-files-warning`;
 
 const PROPERTIES_ATTRIBUTES: Attribute[] = [
     {
@@ -54,7 +56,9 @@ const LOCALIZATION_ATTRIBUTES: Attribute[] = [
     }
 ];
 
-// pickers for the unpacked mirror assets of a client-imported (referenced) font
+// pickers for the unpacked mirror assets of a client-imported (referenced) font. the texture list is
+// an ordered array, not a single picker: a hand-supplied atlas may pack into a different number of
+// pages than the generated one, and page order is what the descriptor's chars[].map indexes into
 const SOURCE_FILES_ATTRIBUTES: Attribute[] = [
     {
         label: 'JSON',
@@ -63,9 +67,9 @@ const SOURCE_FILES_ATTRIBUTES: Attribute[] = [
         args: { assetType: 'json' }
     },
     {
-        label: 'Texture',
-        path: 'data.textureAssets.0',
-        type: 'asset',
+        label: 'Textures',
+        path: 'data.textureAssets',
+        type: 'assets',
         args: { assetType: 'texture' }
     }
 ];
@@ -115,6 +119,13 @@ const DOM = (parent) => [
                     assets: parent._args.assets,
                     history: parent._args.history,
                     attributes: SOURCE_FILES_ATTRIBUTES
+                })
+            },
+            {
+                sourceFilesWarning: new Label({
+                    hidden: true,
+                    flexGrow: 1,
+                    class: [CLASS_ERROR, CLASS_SOURCE_FILES_WARNING]
                 })
             }
         ]
@@ -400,6 +411,8 @@ class FontAssetInspector extends Container {
 
     _sourceFilesAttributes: AttributesInspector;
 
+    _sourceFilesWarning: Label;
+
     constructor(args: FontAssetInspectorArgs = {} as FontAssetInspectorArgs) {
         args = Object.assign({}, args);
 
@@ -499,6 +512,7 @@ class FontAssetInspector extends Container {
             this._propertiesPanel.hidden = referenced;
             this._processing = false;
             this._toggleProcessFontButton(asset);
+            this._refreshSourceFilesWarning(asset);
         });
     }
 
@@ -512,6 +526,36 @@ class FontAssetInspector extends Container {
               ? 'REGENERATE FONT ASSETS'
               : 'CONVERT TO REFERENCED FONT';
         this._processFontButton.enabled = !this._processing && asset.get('task') !== 'running';
+    }
+
+    // the source-file refs are user-editable, so report the states the handler soft-fails on rather than
+    // letting the font silently render blank.
+    // ponytail: reads the json through the viewport app, so nothing is reported until that resource has
+    // loaded; refresh again once it does if that proves too quiet in practice
+    _refreshSourceFilesWarning(asset: Observer) {
+        const jsonId = asset.get('data.jsonAsset');
+        const textureIds = asset.get('data.textureAssets') || [];
+        let msg = '';
+
+        if (!jsonId) {
+            msg = 'No JSON asset referenced. The font will render blank.';
+        } else if (!textureIds.length || textureIds.some((id: number) => !id)) {
+            msg = 'No texture asset referenced. The font will render blank.';
+        } else {
+            const json = editor.call('viewport:app')?.assets.get(jsonId);
+            if (json?.resource) {
+                const [err, data] = normalizeFontJson(json.resource);
+                const maps = data?.info?.maps?.length;
+                if (err) {
+                    msg = `JSON asset is not a valid font descriptor: ${err}.`;
+                } else if (maps !== textureIds.length) {
+                    msg = `JSON asset declares ${maps} atlas page(s) but ${textureIds.length} texture(s) are referenced.`;
+                }
+            }
+        }
+
+        this._sourceFilesWarning.text = msg;
+        this._sourceFilesWarning.hidden = !msg;
     }
 
     _showUnavailableCharacters(unavailableCharacters: string[]) {
@@ -634,6 +678,18 @@ class FontAssetInspector extends Container {
 
             this._assetEvents.push(asset.on('*:set', this._refreshLocalizationsForAsset.bind(this)));
             this._assetEvents.push(asset.on('*:unset', this._refreshLocalizationsForAsset.bind(this)));
+
+            // repointing a source-file ref can invalidate the pairing (page count, descriptor shape). the
+            // observer has no mid-path wildcard, so listen on the global events and filter by path
+            ['*:set', '*:insert', '*:remove', '*:move'].forEach((evt) => {
+                this._assetEvents.push(
+                    asset.on(evt, (path: string) => {
+                        if (path === 'data' || path.startsWith('data.jsonAsset') || path.startsWith('data.textureAssets')) {
+                            this._refreshSourceFilesWarning(asset);
+                        }
+                    })
+                );
+            });
         });
 
         // client-imported (referenced) fonts have no server `task`; fonts:reprocess reports the glyphs the
@@ -658,6 +714,11 @@ class FontAssetInspector extends Container {
         // referenced fonts derive intensity from the json descriptor, not font.data.intensity — the
         // slider is inert for them, so hide the PROPERTIES panel (keep it for server-pipeline fonts)
         this._propertiesPanel.hidden = assets[0].has('data.jsonAsset');
+        if (this._sourceFilesPanel.hidden) {
+            this._sourceFilesWarning.hidden = true;
+        } else {
+            this._refreshSourceFilesWarning(assets[0]);
+        }
 
         const charactersField = this._fontAttributes.getField('characters');
         charactersField.renderChanges = false;

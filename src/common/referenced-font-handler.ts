@@ -1,5 +1,5 @@
 import type { AppBase } from 'playcanvas';
-import { Font, FontHandler } from 'playcanvas';
+import { FILTER_LINEAR, Font, FontHandler } from 'playcanvas';
 
 const EMPTY_FONT = {
     data: {
@@ -25,6 +25,30 @@ const EMPTY_FONT = {
 // field-existence, not truthiness: a cleared picker leaves jsonAsset === null but still referenced.
 export const isReferencedFont = (asset: any) =>
     !!asset && !!asset.data && Object.prototype.hasOwnProperty.call(asset.data, 'jsonAsset');
+
+// the json ref is user-editable, so the descriptor is untrusted. validate the fields the referenced
+// path actually reads, and pin the version: pc.Font's data setter rewrites info.maps from
+// info.width/height whenever version is missing or < 2, which NaNs every glyph UV of an otherwise
+// valid descriptor. returns [error] or [null, descriptor].
+export const normalizeFontJson = (json: any): [string | null, any?] => {
+    if (!json || typeof json !== 'object') {
+        return ['json asset is empty or not an object'];
+    }
+    if (!Array.isArray(json.info?.maps) || json.info.maps.length === 0) {
+        return ['json asset has no info.maps array'];
+    }
+    const keys = json.chars && typeof json.chars === 'object' ? Object.keys(json.chars) : [];
+    if (keys.length === 0) {
+        return ['json asset has no chars'];
+    }
+    // v1/v2 descriptors key chars by codepoint; the element component looks them up by letter. compare a
+    // key against its own id rather than testing for digits, so a digits-only font isn't a false positive
+    const first = json.chars[keys[0]];
+    if (typeof first?.id === 'number' && keys[0] !== String.fromCodePoint(first.id)) {
+        return ['json asset chars are keyed by codepoint, expected letters'];
+    }
+    return [null, json.version >= 2 ? json : { ...json, version: 3 }];
+};
 
 class ReferencedFont extends Font {
     destroy() {
@@ -56,7 +80,10 @@ class ReferencedFontHandler {
             const textureIds = asset.data.textureAssets || [];
             const texAssets = textureIds.map((id: number) => app.assets.get(id)).filter(Boolean);
 
+            // soft-fail to a blank font rather than erroring the load: the refs are user-editable, and
+            // an unresolvable one should leave the project usable. the inspector surfaces the reason.
             if (!jsonAsset || textureIds.length === 0 || texAssets.length !== textureIds.length) {
+                console.warn(`referenced font ${asset.id}: json or texture reference does not resolve`);
                 callback(null, EMPTY_FONT);
                 return;
             }
@@ -68,19 +95,25 @@ class ReferencedFontHandler {
                 if (errored || --remaining > 0) {
                     return;
                 }
+                const [err, data] = normalizeFontJson(jsonAsset.resource);
+                if (err) {
+                    console.warn(`referenced font ${asset.id}: ${err}`);
+                    callback(null, EMPTY_FONT);
+                    return;
+                }
                 const textures = texAssets.map((a: any) => a.resource);
-                // MSDF atlases hold linear signed-distance data, not colour; texture assets default to srgb,
-                // which corrupts the median distance reconstruction (broken corners/thin strokes). force linear,
-                // matching the stock font handler (which loads its atlas as a raw, non-srgb texture).
+                // these are plain texture assets, so they arrive with the user's own settings. re-apply what
+                // the stock font handler forces on its atlas: srgb corrupts the median distance
+                // reconstruction (broken corners/thin strokes), and mipmaps bleed glyphs together at small
+                // sizes, both of which read as "the font looks wrong" with no obvious cause.
                 textures.forEach((t: any) => {
                     if (t) {
                         t.srgb = false;
+                        t.mipmaps = false;
+                        t.minFilter = FILTER_LINEAR;
                     }
                 });
-                callback(null, {
-                    data: jsonAsset.resource, // v3 descriptor (font-tools shape); pc.Font consumes v3 directly
-                    textures
-                });
+                callback(null, { data, textures });
             };
             toLoad.forEach((a: any) => {
                 a.ready(done);
@@ -97,12 +130,18 @@ class ReferencedFontHandler {
 
     open(url: any, data: any, asset?: any) {
         if (isReferencedFont(asset)) {
-            const font =
+            // load() already validated the descriptor; this catches the page-count mismatch a
+            // hand-repointed texture list produces (n maps declared, m textures referenced)
+            const ok =
                 data?.data?.chars &&
                 data.data.info?.maps?.length === data.textures?.length &&
-                data.textures.every(Boolean)
-                    ? data
-                    : EMPTY_FONT;
+                data.textures.every(Boolean);
+            if (!ok && data !== EMPTY_FONT) {
+                console.warn(
+                    `referenced font ${asset.id}: descriptor declares ${data?.data?.info?.maps?.length} atlas page(s) but ${data?.textures?.length} texture(s) resolved`
+                );
+            }
+            const font = ok ? data : EMPTY_FONT;
             return new ReferencedFont(font.textures, font.data);
         }
         return this._stock.open(url, data, asset);

@@ -159,6 +159,9 @@ editor.once('load', () => {
         });
     };
 
+    const isRefPath = (path: string) =>
+        path === 'data' || path.startsWith('data.jsonAsset') || path.startsWith('data.textureAssets');
+
     const watched = new Set<number>();
     const watchFont = (asset: any) => {
         if (asset.get('type') !== 'font' || asset.get('source') || !asset.has('data.jsonAsset')) {
@@ -184,8 +187,14 @@ editor.once('load', () => {
         };
         sync();
 
-        ['data:set', 'data.jsonAsset:set', 'data.textureAssets:set', 'data.textureAssets.0:set'].forEach((evt) => {
-            asset.on(evt, () => {
+        // the texture list is edited as an array, so element writes, length changes and reordering all
+        // matter (chars[].map indexes into page order). the observer has no mid-path wildcard, so listen
+        // on the global events and filter by path
+        ['*:set', '*:insert', '*:remove', '*:move'].forEach((evt) => {
+            asset.on(evt, (path: string) => {
+                if (!isRefPath(path)) {
+                    return;
+                }
                 sync();
                 reloadFont(asset);
             });
