@@ -113,7 +113,8 @@ editor.once('load', () => {
 
     const pending = new Set<number>();
     const updating = new Set<number>();
-    const reloadFont = (asset: any) => {
+    const queued = new Set<number>();
+    const rebuildFont = (asset: any) => {
         const app = editor.call('viewport:app');
         const id = asset.get('id');
         const engineAsset = app?.assets.get(id);
@@ -137,7 +138,25 @@ editor.once('load', () => {
         }
         engineAsset._data = asset.json().data;
         engineAsset.unload();
+        engineAsset.file ||= asset.get('file');
+        // the placeholder file url never changes, so the loader would hand back the previously built
+        // font instead of resolving the current refs
+        app.loader.clearCache(engineAsset.getFileUrl(), 'font');
         app.assets.load(engineAsset);
+    };
+
+    // coalesce refs changed in the same tick (e.g. json + atlas repointed together) into one rebuild:
+    // two overlapping loads can otherwise resolve out of order, pairing the new json with the old atlas
+    const reloadFont = (asset: any) => {
+        const id = asset.get('id');
+        if (queued.has(id)) {
+            return;
+        }
+        queued.add(id);
+        queueMicrotask(() => {
+            queued.delete(id);
+            rebuildFont(asset);
+        });
     };
 
     const watched = new Set<number>();
@@ -218,6 +237,7 @@ editor.once('load', () => {
         });
 
         const font = await getObserver(fontId);
+        reloadFont(font);
         editor.call('selector:set', 'asset', [font]);
     };
 
@@ -253,7 +273,6 @@ editor.once('load', () => {
                     font.set('data.jsonAsset', refs.jsonAsset);
                 }
                 font.set('data', refs);
-                font.set('meta', { ...(font.get('meta') || {}), chars, invert });
                 watchFont(font);
 
                 if (migrated) {
@@ -269,6 +288,9 @@ editor.once('load', () => {
                         true
                     );
                 }
+                // last: the server nulls `meta` on any asset file update (it is normally repopulated by
+                // the conversion we skip), so writing it before the upload above would be discarded
+                font.set('meta', { ...(font.get('meta') || {}), chars, invert });
             })
             .then(
                 () => updating.delete(id),
