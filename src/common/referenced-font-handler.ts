@@ -100,7 +100,7 @@ class ReferencedFontHandler {
                     return;
                 }
                 settled = true;
-                unbind.forEach(off => off());
+                unbind.forEach((off) => off());
                 callback(err, result);
             };
             const done = () => {

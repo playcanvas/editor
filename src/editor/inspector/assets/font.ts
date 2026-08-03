@@ -704,7 +704,11 @@ class FontAssetInspector extends Container {
             ['*:set', '*:insert', '*:remove', '*:move'].forEach((evt) => {
                 this._assetEvents.push(
                     asset.on(evt, (path: string) => {
-                        if (path === 'data' || path.startsWith('data.jsonAsset') || path.startsWith('data.textureAssets')) {
+                        if (
+                            path === 'data' ||
+                            path.startsWith('data.jsonAsset') ||
+                            path.startsWith('data.textureAssets')
+                        ) {
                             this._refreshSourceFilesWarning(asset);
                         }
                     })
