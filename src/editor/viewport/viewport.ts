@@ -1,5 +1,4 @@
 import { Canvas } from '@playcanvas/pcui';
-import type { ResourceHandler } from 'playcanvas';
 import { LAYERID_DEPTH, Mouse, TouchDevice, WasmModule } from 'playcanvas';
 
 import { ReferencedFontHandler } from '@/common/referenced-font-handler';
@@ -53,9 +52,14 @@ editor.once('load', () => {
         return;
     }
 
-    // swap the stock font handler for one that also resolves client-referenced fonts
+    // swap the stock font handler for one that also resolves client-referenced fonts. this runs after
+    // the app has already called loader.enableRetry(), which only touches handlers registered at that
+    // point, so carry the retry count over or fonts alone would stop retrying a failed request
+    const stockFontHandler = app.loader.getHandler('font');
+    const fontHandler = new ReferencedFontHandler(app);
+    fontHandler.maxRetries = stockFontHandler?.maxRetries ?? 0;
     app.loader.removeHandler('font');
-    app.loader.addHandler('font', new ReferencedFontHandler(app) as unknown as ResourceHandler);
+    app.loader.addHandler('font', fontHandler);
 
     // set module configs
     config.wasmModules.forEach((m: { moduleName: string; glueUrl: string; wasmUrl: string; fallbackUrl: string }) => {

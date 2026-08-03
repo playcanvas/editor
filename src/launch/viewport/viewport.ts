@@ -236,7 +236,7 @@ editor.once('load', () => {
             pc.ShaderHandler,
             pc.HierarchyHandler,
             pc.FolderHandler,
-            ReferencedFontHandler as unknown as typeof pc.ResourceHandler,
+            ReferencedFontHandler,
             pc.BinaryHandler,
             pc.TextureAtlasHandler,
             pc.SpriteHandler,

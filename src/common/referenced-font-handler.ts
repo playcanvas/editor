@@ -2,7 +2,6 @@
 // have no build step and cannot import from here. change one, change all of them, or a font renders
 // differently in a published build than it does in the editor.
 
-import type { AppBase } from 'playcanvas';
 import { FILTER_LINEAR, Font, FontHandler } from 'playcanvas';
 
 // every soft-failed font shares this object, so it must not be mutated. `version: 3` and the present
@@ -68,26 +67,19 @@ class ReferencedFont extends Font {
     }
 }
 
-class ReferencedFontHandler {
-    handlerType = 'font';
-
-    _app: AppBase;
-
-    _stock: FontHandler;
-
-    constructor(app: AppBase) {
-        this._app = app;
-        this._stock = new FontHandler(app);
-    }
-
+// extends rather than wraps the stock handler: the loader sets maxRetries on whatever object is
+// registered, and ResourceHandler also exposes `app` and the parser registry. a wrapper silently
+// drops all three — notably leaving font loads on the stock handler's own maxRetries of 0, so a
+// transient failure would stop retrying for every font in every project.
+class ReferencedFontHandler extends FontHandler {
     load(url: any, callback: (err: string | null, result?: any) => void, asset?: any) {
         if (!isReferencedFont(asset)) {
-            this._stock.load(url, callback, asset);
+            super.load(url, callback, asset);
             return;
         }
 
         queueMicrotask(() => {
-            const app = this._app;
+            const app = this.app;
             const jsonAsset = app.assets.get(asset.data.jsonAsset);
             const textureIds = asset.data.textureAssets || [];
             const texAssets = textureIds.map((id: number) => app.assets.get(id)).filter(Boolean);
@@ -169,11 +161,7 @@ class ReferencedFontHandler {
             const font = ok ? data : EMPTY_FONT;
             return new ReferencedFont(font.textures, font.data);
         }
-        return this._stock.open(url, data, asset);
-    }
-
-    patch(asset: any, assets: any) {
-        this._stock.patch(asset, assets);
+        return super.open(url, data, asset);
     }
 }
 
