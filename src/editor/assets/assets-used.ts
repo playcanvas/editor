@@ -15,6 +15,9 @@ editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     const index: UsedIndex = {};
     const keys = {
+        font: {
+            'data.jsonAsset': true
+        },
         cubemap: {
             'data.textures.0': true,
             'data.textures.1': true,
@@ -87,6 +90,14 @@ editor.once('load', () => {
 
         return pathsCache[path];
     }
+
+    // asset refs reach here straight off the observer, and a referenced font's pickers are
+    // user-editable, so a cleared slot arrives as null and a hand-edited one as anything
+    const assetId = (value: unknown): UsedId | null => (typeof value === 'number' ? value : null);
+
+    // a referenced font's atlas page list
+    const pageRefs = (pages: unknown) =>
+        (Array.isArray(pages) ? pages : []).map(assetId).filter(id => id !== null);
 
     const updateAsset = function (referer: string, type: UsedType, oldId: UsedId | null, newId: UsedId | null = null) {
         if (oldId && index[oldId] !== undefined) {
@@ -230,6 +241,28 @@ editor.once('load', () => {
             updateAsset(this.get('id'), 'asset', valueOld, value);
         },
         font: function (path: string, value: unknown, valueOld: unknown) {
+            // a referenced font's mirrors are asset refs too, so they must count as usages —
+            // otherwise the json and atlas read as unreferenced and get cleaned up out from under it.
+            //
+            // the observer emits the leaf events for a write and then the redundant container events
+            // above them ('data.textureAssets.0', then 'data.textureAssets', then 'data'), so exactly
+            // one level may be counted or every ref is counted twice. for the page list that level is
+            // the container: a shrinking array emits no leaf event for the index it dropped.
+            if (path === 'data.textureAssets') {
+                const id = this.get('id');
+                pageRefs(valueOld).forEach(ref => updateAsset(id, 'asset', ref, null));
+                pageRefs(value).forEach(ref => updateAsset(id, 'asset', null, ref));
+                return;
+            }
+            // a 'data' write always emits its children first (and unsets the keys it drops), so the
+            // container adds nothing; the page leaves are covered by the branch above
+            if (path === 'data' || path.startsWith('data.textureAssets.')) {
+                return;
+            }
+            if (keys.font[path]) {
+                updateAsset(this.get('id'), 'asset', assetId(valueOld), assetId(value));
+                return;
+            }
             if (!path.startsWith('i18n')) {
                 return;
             }
@@ -237,6 +270,20 @@ editor.once('load', () => {
             if (parts.length === 2) {
                 updateAsset(this.get('id'), 'asset', valueOld, value);
             }
+        },
+        'font-insert': function (path: string, value: unknown) {
+            if (!path.startsWith('data.textureAssets')) {
+                return;
+            }
+
+            updateAsset(this.get('id'), 'asset', null, assetId(value));
+        },
+        'font-remove': function (path: string, value: unknown) {
+            if (!path.startsWith('data.textureAssets')) {
+                return;
+            }
+
+            updateAsset(this.get('id'), 'asset', assetId(value));
         },
         entity: function (path: string, value: unknown, valueOld: unknown) {
             if (path.startsWith('components.animation.assets.')) {
@@ -611,6 +658,12 @@ editor.once('load', () => {
                 const i18n = asset.get('i18n') || {};
                 for (const key in i18n) {
                     updateAsset(asset.get('id'), 'asset', null, i18n[key]);
+                }
+                // the atlas page list is variable length, so the fixed keys.font loop above can't
+                // seed it (that only covers data.jsonAsset)
+                const pages = asset.get('data.textureAssets') || [];
+                for (let i = 0; i < pages.length; i++) {
+                    updateAsset(asset.get('id'), 'asset', null, assetId(pages[i]));
                 }
             }
         }
