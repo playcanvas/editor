@@ -1,6 +1,16 @@
+// NOTE: this handler is deliberately duplicated, not shared. The published-build bootstraps have no
+// build step and cannot import from here, so the same logic is hand-mirrored in the monorepo at
+// pipeline/templates/start.js and pipeline/templates/esm/start.mjs. Behaviour changes below —
+// especially normalizeFontJson and the texture sampling overrides — must be applied to all three,
+// or a font renders differently in the editor than in a published build.
+
 import type { AppBase } from 'playcanvas';
 import { FILTER_LINEAR, Font, FontHandler } from 'playcanvas';
 
+// shared across every soft-failed font, so treat it as immutable. both `version: 3` and the present
+// `info` are load-bearing: pc.Font's data setter writes into whatever `data` it is given, inserting
+// `info` when absent and rewriting `info.maps` when version < 2. this shape reaches neither branch —
+// keep it that way, or every soft-failed font ends up sharing corrupted state.
 const EMPTY_FONT = {
     data: {
         version: 3,
@@ -25,6 +35,12 @@ const EMPTY_FONT = {
 // field-existence, not truthiness: a cleared picker leaves jsonAsset === null but still referenced.
 export const isReferencedFont = (asset: any) =>
     !!asset && !!asset.data && Object.prototype.hasOwnProperty.call(asset.data, 'jsonAsset');
+
+// observer paths that change which mirrors a referenced font resolves. the texture list is edited as
+// an array, so element writes, length changes and reordering all matter (chars[].map indexes into
+// page order), and a whole-`data` write covers the legacy conversion
+export const isRefPath = (path: string) =>
+    path === 'data' || path.startsWith('data.jsonAsset') || path.startsWith('data.textureAssets');
 
 // the json ref is user-editable, so the descriptor is untrusted. validate the fields the referenced
 // path actually reads, and pin the version: pc.Font's data setter rewrites info.maps from
