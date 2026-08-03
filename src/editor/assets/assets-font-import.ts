@@ -12,6 +12,9 @@ type FontDataV3 = {
     kerning?: Record<string, unknown>;
 };
 
+// how long to wait for a created asset to arrive over realtime before giving up
+const ASSET_ADD_TIMEOUT = 30000;
+
 const DEFAULT_CHARS = (() => {
     let s = '';
     for (let i = 0x20; i <= 0x7e; i++) {
@@ -45,9 +48,23 @@ editor.once('load', () => {
         });
 
     const getObserver = (id: number) =>
-        new Promise<any>((resolve) => {
+        new Promise<any>((resolve, reject) => {
             const asset = editor.call('assets:get', id);
-            return asset ? resolve(asset) : editor.once(`assets:add[${id}]`, resolve);
+            if (asset) {
+                resolve(asset);
+                return;
+            }
+            // bounded: a dropped realtime message would otherwise strand `updating`, which blocks
+            // every later rebuild of this font and leaves the inspector button disabled for good.
+            // a late 'assets:add' after the timeout is harmless — the promise is already settled
+            const timer = setTimeout(
+                () => reject(new Error(`asset ${id} was created but never arrived`)),
+                ASSET_ADD_TIMEOUT
+            );
+            editor.once(`assets:add[${id}]`, (a: any) => {
+                clearTimeout(timer);
+                resolve(a);
+            });
         });
 
     const updateFile = (asset: any, file: Blob, filename: string, noConvert: boolean) =>
@@ -86,6 +103,15 @@ editor.once('load', () => {
               });
 
         const ids = font?.get('data.textureAssets') || [];
+        // a regenerated descriptor can pack into fewer pages than before. don't delete the surplus
+        // assets — a repointed page may be a texture the user still wants — but say so, otherwise
+        // they sit in the folder unreferenced and unexplained
+        if (ids.length > textures.length) {
+            editor.call(
+                'status:text',
+                `Font now uses ${textures.length} atlas page(s); ${ids.length - textures.length} previous page asset(s) are no longer referenced.`
+            );
+        }
         const textureIds = Promise.all(
             textures.map((bytes, i) => {
                 const asset = editor.call('assets:get', ids[i]);
@@ -171,12 +197,11 @@ editor.once('load', () => {
         if (watched.has(id)) {
             return;
         }
-        watched.add(id);
-
         const app = editor.call('viewport:app');
         if (!app) {
             return;
         }
+        watched.add(id);
 
         let watches: any[] = [];
         const sync = () => {
@@ -264,7 +289,11 @@ editor.once('load', () => {
         if (!url) {
             throw new Error('font source file not found');
         }
-        const buffer = await (await fetch(url)).arrayBuffer();
+        const res = await fetch(url);
+        if (!res.ok) {
+            throw new Error(`font source file could not be read (${res.status})`);
+        }
+        const buffer = await res.arrayBuffer();
         const base = font.get('name').replace(/\.[^.]+$/, '');
 
         const { data: v3, textures } = await generate(buffer, { chars, fontName: base, invert });

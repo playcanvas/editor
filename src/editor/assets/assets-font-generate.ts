@@ -25,19 +25,24 @@ editor.once('load', () => {
         ) => {
             const client = new WorkerClient(`${config.url.frontend}js/font-generate.worker.js`);
 
+            let settled = false;
+            const settle = (err: string | null, result?: FontGenerateResult) => {
+                if (settled) {
+                    return;
+                }
+                settled = true;
+                callback(err, result);
+                client.stop();
+            };
+
+            // bind before start: a worker that 404s or throws at top level fires 'error' before
+            // 'ready', and an unreported failure leaves the caller's promise pending forever
+            client.once('error', (err) => settle(err ?? 'font generation failed'));
             client.once('ready', () => {
-                client.once('generate', (data, textures) => {
-                    callback(null, { data, textures });
-                    client.stop();
-                });
-                client.once('error', (err) => {
-                    callback(err ?? 'font generation failed');
-                    client.stop();
-                });
+                client.once('generate', (data, textures) => settle(null, { data, textures }));
                 client.with([buffer]).send('generate', config.url.frontend, buffer, options);
             });
-
-            client.start();
+            client.start().catch((err) => settle(String(err?.message ?? err)));
         }
     );
 });
