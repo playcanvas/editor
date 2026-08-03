@@ -27,6 +27,9 @@ test/editor-api/dist
 /test-suite/playwright/.cache
 /test-suite/.editor-api-types
 
+# playwright mcp scratch output (snapshots, console logs, screenshots)
+/.playwright-mcp
+
 # superpowers
 docs/
 
