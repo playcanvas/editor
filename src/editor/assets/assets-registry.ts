@@ -44,6 +44,21 @@ editor.once('load', () => {
                     type: assetJson.type
                 };
 
+                // a referenced font cannot be served from a bundle, and the engine derives a bundled
+                // font's atlas page urls from data.info.maps, which it does not have, throwing mid-index
+                // and abandoning the rest of the bundle's urls. the viewport has bundles disabled so
+                // this is currently only reached on a re-add, but keep it consistent with launch and
+                // with the export, which both drop it from the bundle too
+                if (data.type === 'bundle' && data.data && data.data.assets) {
+                    data.data = {
+                        ...data.data,
+                        assets: data.data.assets.filter((id: number) => {
+                            const member = editor.call('assets:get', id);
+                            return !(member && member.get('type') === 'font' && member.has('data.jsonAsset'));
+                        })
+                    };
+                }
+
                 // add to registry
                 // assetRegistry.createAndAddAsset(assetJson.id, data);
 

@@ -287,6 +287,18 @@ editor.once('load', () => {
 
         // create the engine asset
         const assetData = asset.json();
+
+        // a referenced font resolves its descriptor and atlas from sibling assets, so a bundle can
+        // only carry its placeholder file. worse, the engine derives a bundled font's atlas page urls
+        // from data.info.maps, which a referenced font does not have, and throws mid-index — which
+        // abandons the rest of the bundle's url index, breaking every other member too. published
+        // builds drop it from the bundle at export time; do the same for the live config here.
+        if (assetData.type === 'bundle' && assetData.data && assetData.data.assets) {
+            assetData.data.assets = assetData.data.assets.filter((id: number) => {
+                const member = editor.call('assets:get', id);
+                return !(member && member.get('type') === 'font' && member.has('data.jsonAsset'));
+            });
+        }
         const engineAsset = ((asset as Observer & { asset?: pc.Asset }).asset = new pc.Asset(
             assetData.name,
             assetData.type,
