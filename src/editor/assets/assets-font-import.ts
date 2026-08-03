@@ -3,6 +3,8 @@
 // runtime font that points at them (resolved by ReferencedFontHandler). Needs the backend noConvert
 // support.
 
+import { isRefPath } from '@/common/referenced-font-handler';
+
 type FontDataV3 = {
     version: number;
     type?: string;
@@ -55,13 +57,12 @@ editor.once('load', () => {
                 return;
             }
             // bounded: a dropped realtime message would otherwise strand `updating`, which blocks
-            // every later rebuild of this font and leaves the inspector button disabled for good.
-            // a late 'assets:add' after the timeout is harmless — the promise is already settled
-            const timer = setTimeout(
-                () => reject(new Error(`asset ${id} was created but never arrived`)),
-                ASSET_ADD_TIMEOUT
-            );
-            editor.once(`assets:add[${id}]`, (a: any) => {
+            // every later rebuild of this font and leaves the inspector button disabled for good
+            const timer = setTimeout(() => {
+                evt.unbind();
+                reject(new Error(`asset ${id} was created but never arrived`));
+            }, ASSET_ADD_TIMEOUT);
+            const evt = editor.once(`assets:add[${id}]`, (a: any) => {
                 clearTimeout(timer);
                 resolve(a);
             });
@@ -99,6 +100,8 @@ editor.once('load', () => {
                   filename: `${base}.json`,
                   source_asset_id: `${sourceId}`,
                   parent,
+                  // not preloaded: the font's own load resolves and loads this, so it arrives either
+                  // way. preloading it alongside the atlas pages would only pull the fetch earlier
                   preload: false
               });
 
@@ -185,10 +188,10 @@ editor.once('load', () => {
         });
     };
 
-    const isRefPath = (path: string) =>
-        path === 'data' || path.startsWith('data.jsonAsset') || path.startsWith('data.textureAssets');
-
-    const watched = new Set<number>();
+    // id -> teardown. without it every deleted referenced font leaks its observer handlers plus one
+    // registry handler per mirror, and keeps its id in `watched`, so any later re-add of that id
+    // (a merge, a realtime resync) would be treated as already watched and silently stop rebuilding
+    const watched = new Map<number, () => void>();
     const watchFont = (asset: any) => {
         if (asset.get('type') !== 'font' || asset.get('source') || !asset.has('data.jsonAsset')) {
             return;
@@ -201,7 +204,6 @@ editor.once('load', () => {
         if (!app) {
             return;
         }
-        watched.add(id);
 
         let watches: any[] = [];
         const sync = () => {
@@ -215,16 +217,31 @@ editor.once('load', () => {
         // the texture list is edited as an array, so element writes, length changes and reordering all
         // matter (chars[].map indexes into page order). the observer has no mid-path wildcard, so listen
         // on the global events and filter by path
-        ['*:set', '*:insert', '*:remove', '*:move'].forEach((evt) => {
+        const events = ['*:set', '*:insert', '*:remove', '*:move'].map(evt =>
             asset.on(evt, (path: string) => {
                 if (!isRefPath(path)) {
                     return;
                 }
                 sync();
                 reloadFont(asset);
-            });
+            })
+        );
+
+        watched.set(id, () => {
+            watches.forEach((h) => h.off());
+            events.forEach((e) => e.unbind());
         });
     };
+
+    editor.on('assets:remove', (asset: any) => {
+        const id = asset.get('id');
+        watched.get(id)?.();
+        watched.delete(id);
+        // the engine asset is unloaded and dropped from the registry by assets-registry, so a retry
+        // armed in rebuildFont will never fire; leaving the id here would block every later rebuild
+        pending.delete(id);
+        queued.delete(id);
+    });
 
     const importFont = async (file: File, folder: any) => {
         const filename = file.name; // e.g. unisans.otf
