@@ -7,7 +7,7 @@ import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import { Table } from '@/common/pcui/element/element-table';
 import { TableCell } from '@/common/pcui/element/element-table-cell';
 import { TableRow } from '@/common/pcui/element/element-table-row';
-import { normalizeFontJson } from '@/common/referenced-font-handler';
+import { isRefPath, normalizeFontJson } from '@/common/referenced-font-handler';
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
 import type { History } from '@/editor-api';
 
@@ -524,6 +524,12 @@ class FontAssetInspector extends Container {
         this._toggleProcessFontButton(asset);
         editor.call('fonts:reprocess', asset, chars, this._fontAttributes.getField('meta.invert').value).then(() => {
             this._processing = false;
+            // the flag is inspector-wide and this instance is reused across selections, so refresh
+            // whatever is linked now — otherwise a font selected mid-regenerate keeps a disabled
+            // button reading "REGENERATING…" until the user selects away and back
+            if (this._assets?.length) {
+                this._toggleProcessFontButton(this._assets[0]);
+            }
             // the user can select away mid-regenerate; don't write to an unlinked inspector
             if (!this._assets?.includes(asset)) {
                 return;
@@ -704,11 +710,7 @@ class FontAssetInspector extends Container {
             ['*:set', '*:insert', '*:remove', '*:move'].forEach((evt) => {
                 this._assetEvents.push(
                     asset.on(evt, (path: string) => {
-                        if (
-                            path === 'data' ||
-                            path.startsWith('data.jsonAsset') ||
-                            path.startsWith('data.textureAssets')
-                        ) {
+                        if (isRefPath(path)) {
                             this._refreshSourceFilesWarning(asset);
                         }
                     })
