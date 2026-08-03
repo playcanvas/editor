@@ -31,6 +31,18 @@ export const fields: AttributeReference[] = [
             'The final set of characters generated into the runtime font. A character must be supported by the source font. Regenerate the font assets after making changes.'
     },
     {
+        name: 'asset:font:jsonAsset',
+        title: 'JSON',
+        description:
+            'The JSON asset holding the generated MSDF character data. Repointing this rebuilds the runtime font.'
+    },
+    {
+        name: 'asset:font:textureAssets',
+        title: 'TEXTURES',
+        description:
+            'The MSDF atlas pages, in the order the JSON descriptor indexes them. These textures are reconfigured for MSDF sampling when the font loads (no sRGB, no mipmaps, linear filtering), so avoid pointing them at textures used elsewhere.'
+    },
+    {
         name: 'asset:font:invert',
         title: 'INVERT TEXTURE ATLAS',
         description: 'Invert the generated font texture. Regenerate the font assets after changing this option.'

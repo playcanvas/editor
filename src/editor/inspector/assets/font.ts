@@ -89,6 +89,7 @@ const addReferences = (attributes: Attribute[]) => {
 };
 addReferences(PROPERTIES_ATTRIBUTES);
 addReferences(FONT_ATTRIBUTES);
+addReferences(SOURCE_FILES_ATTRIBUTES);
 
 const DOM = (parent) => [
     {
@@ -503,14 +504,33 @@ class FontAssetInspector extends Container {
         this._processFontWarningContainer.hidden = true;
 
         const asset = this._assets[0];
+        // converting a legacy font rewrites data, replaces the file and drops the server-generated
+        // descriptor, none of it through history — so it cannot be undone
+        if (!asset.has('data.jsonAsset')) {
+            editor.call(
+                'picker:confirm',
+                'Converting this font replaces its data and file with references to new JSON and texture assets. This cannot be undone.',
+                () => this._reprocess(asset),
+                { yesText: 'CONVERT' }
+            );
+            return;
+        }
+        this._reprocess(asset);
+    }
+
+    _reprocess(asset: Observer) {
         const chars = [...new Set(Array.from(this._fontAttributes.getField('characters').value))].join('');
         this._processing = true;
         this._toggleProcessFontButton(asset);
         editor.call('fonts:reprocess', asset, chars, this._fontAttributes.getField('meta.invert').value).then(() => {
+            this._processing = false;
+            // the user can select away mid-regenerate; don't write to an unlinked inspector
+            if (!this._assets?.includes(asset)) {
+                return;
+            }
             const referenced = asset.has('data.jsonAsset');
             this._sourceFilesPanel.hidden = !referenced;
             this._propertiesPanel.hidden = referenced;
-            this._processing = false;
             this._toggleProcessFontButton(asset);
             this._refreshSourceFilesWarning(asset);
         });
