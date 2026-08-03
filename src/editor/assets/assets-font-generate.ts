@@ -14,6 +14,8 @@ type FontGenerateResult = {
     textures: Uint8Array[];
 };
 
+const STARTUP_FAILED = 'the font generator could not be loaded';
+
 editor.once('load', () => {
     // generate MSDF font data (json + atlas png(s)) from a font file buffer, off the main thread
     editor.method(
@@ -37,12 +39,18 @@ editor.once('load', () => {
 
             // bind before start: a worker that 404s or throws at top level fires 'error' before
             // 'ready', and an unreported failure leaves the caller's promise pending forever
-            client.once('error', (err) => settle(err ?? 'font generation failed'));
+            let ready = false;
+            client.once('error', (err) =>
+                settle(err ?? (ready ? 'font generation failed' : STARTUP_FAILED))
+            );
             client.once('ready', () => {
+                ready = true;
                 client.once('generate', (data, textures) => settle(null, { data, textures }));
                 client.with([buffer]).send('generate', config.url.frontend, buffer, options);
             });
-            client.start().catch((err) => settle(String(err?.message ?? err)));
+            // there is no server-side fallback, so a failure to load the worker or its wasm has to
+            // say what actually went wrong rather than read as a bad font file
+            client.start().catch((err) => settle(`${STARTUP_FAILED} (${err?.message ?? err})`));
         }
     );
 });

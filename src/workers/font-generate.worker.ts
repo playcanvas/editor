@@ -22,6 +22,8 @@ const median = (r: number, g: number, b: number) => Math.max(Math.min(r, g), Mat
 // msdfgen emits an inverted signed-distance field for some fonts (notably CFF/OTF winding), which
 // renders as solid blocks. a glyph's bitmap corner is always background, so if it reads "inside"
 // (high median) the field is inverted and needs negating.
+// ponytail: samples one corner pixel of the first glyph that generates. misreads when pxrange is
+// large relative to size and the spread reaches the corner; sample several corners if that shows up
 const isInverted = (glyphSource: any, size: number, pxrange: number) => {
     for (const cp of [72, 88, 65, 111, 101]) {
         const g = glyphSource.generateGlyph(cp, { size, pxrange });
@@ -52,6 +54,8 @@ const generate = async (frontendURL: string, buffer: ArrayBuffer, options: Optio
         glyphSource,
         imageBackend: createCanvasImageBackend()
     });
+    // not in a finally: a throw here reports 'error', and the client stops this worker on every
+    // settled path, so the wasm heap goes with it. keep that true if the worker is ever pooled
     glyphSource.dispose?.();
 
     workerServer.with(textures.map((t) => t.buffer as ArrayBuffer)).send('generate', data, textures);
