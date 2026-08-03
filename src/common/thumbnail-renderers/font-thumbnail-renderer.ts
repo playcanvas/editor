@@ -372,9 +372,11 @@ class FontThumbnailRenderer extends ThumbnailRenderer {
 
             // set the font texture based on which characters we chose to display
             // scene.defaultScreenSpaceTextMaterial.msdfMap = engineAsset.resource.textures[0];
-            // referenced fonts keep intensity in the json descriptor, not on the observer's data
-            const resource = engineAsset.resource as { data: { intensity: number } };
-            scene.defaultScreenSpaceTextMaterial.setParameter('font_sdfIntensity', resource.data.intensity);
+            // referenced fonts keep intensity in the json descriptor, not on the observer's data.
+            // read it off the resource, not resource.data: pc.Font normalizes data.intensity onto
+            // itself and defaults to 0, which is what a descriptor that omits the field needs
+            const resource = engineAsset.resource as { intensity: number };
+            scene.defaultScreenSpaceTextMaterial.setParameter('font_sdfIntensity', resource.intensity);
 
             if (text) {
                 const char = engineAsset.resource.data.chars[text[0]];
