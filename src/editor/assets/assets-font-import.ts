@@ -1,7 +1,7 @@
-// Client-side font import: generate MSDF (json + atlas png) in a worker, then lay the result
-// out as a GLB-style folder — source .otf + a JSON mirror + Texture mirror(s) + a reference-only
-// runtime font that points at them (resolved by ReferencedFontHandler). Needs the backend noConvert
-// support.
+// client-side font import. a worker generates the msdf descriptor and atlas, and the result is laid
+// out in one folder: the source .otf, a json asset holding the descriptor, a texture asset per atlas
+// page, and a runtime font whose `data` only references those (ReferencedFontHandler resolves it).
+// depends on the backend honouring `noConvert`, so it does not also produce a target of its own.
 
 import { isRefPath } from '@/common/referenced-font-handler';
 
@@ -250,7 +250,7 @@ editor.once('load', () => {
 
         const buffer = await file.arrayBuffer();
 
-        // 1/2) upload the source while generating the msdf json and atlas png(s)
+        // upload the source while the worker generates, since neither needs the other
         const [sourceId, { data: v3, textures }] = await Promise.all([
             createAsset({
                 name: filename,
@@ -264,16 +264,16 @@ editor.once('load', () => {
             generate(buffer, { chars, fontName: base })
         ]);
 
-        // 3/4) json and texture mirrors (editable authoring sources)
+        // the descriptor and atlas become editable assets of their own
         const refs = await writeReferences(null, sourceId, folder, base, v3, textures);
 
-        // 5) runtime font — reference-only: `data` holds just the json/texture asset ids that
-        // ReferencedFontHandler resolves into a pc.Font at load time, so the atlas isn't duplicated
-        // into a third copy. It still needs a file: AssetRegistry.load() only calls a handler's load()
-        // when asset.file is truthy, so a file-less font would skip straight to open() and the handler's
-        // async reference resolution would never run. This placeholder's contents are ignored by the
-        // handler for referenced fonts. The .json filename matters: the backend marks a font-with-file
-        // as a source asset unless its extension is a target extension, and we want a usable target font.
+        // the runtime font only references those, so the atlas is never copied a third time. two
+        // things about it are load-bearing and not obvious:
+        //   - the `{}` file is a placeholder, ignored for referenced fonts, but AssetRegistry.load()
+        //     only calls a handler's load() when asset.file is set — without it the handler would
+        //     skip to open() and never resolve the references.
+        //   - the .json extension makes the backend treat this as a target rather than a source
+        //     asset, which is what makes it usable as a font.
         const fontId = await createAsset({
             name: filename,
             type: 'font',

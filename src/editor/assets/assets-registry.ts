@@ -91,10 +91,11 @@ editor.once('load', () => {
 
                     const field = match[0];
 
-                    // referenced fonts resolve and reload through their external assets; syncing reference
-                    // data or the ignored placeholder file corrupts or prematurely reloads live text.
-                    // the delete cancels a `data` flush queued earlier in this tick, which is how a font
-                    // mid-conversion (legacy op, then the jsonAsset write) can reach here already flagged
+                    // a referenced font is rebuilt by assets-font-import once its mirrors have loaded,
+                    // so pushing `data` or the placeholder `file` at the engine asset here would
+                    // instead reload it from refs whose targets are not ready. the delete also drops a
+                    // `data` flush queued earlier in this tick, which is how a font mid-conversion
+                    // (legacy op first, then the jsonAsset write) reaches here already flagged.
                     if (asset.get('type') === 'font' && asset.has('data.jsonAsset')) {
                         delete updatedFields[field];
                         return;

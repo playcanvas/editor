@@ -69,6 +69,10 @@ declare global {
 
 // @playcanvas/font-tools ships as JSDoc-typed JS with no .d.ts — declare the subset we use
 declare module '@playcanvas/font-tools' {
+    /** default glyph cell size in px, as passed to msdfgen */
+    export const GLYPH_SIZE: number;
+    /** default msdf pixel range, as passed to msdfgen */
+    export const PXRANGE: number;
     export type FontGlyphSource = {
         generateGlyph(codepoint: number, opts: { size: number; pxrange: number }): any;
         dispose?: () => void;

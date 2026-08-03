@@ -554,10 +554,10 @@ class FontAssetInspector extends Container {
         this._processFontButton.enabled = !this._processing && asset.get('task') !== 'running';
     }
 
-    // the source-file refs are user-editable, so report the states the handler soft-fails on rather than
-    // letting the font silently render blank.
-    // ponytail: reads the json through the viewport app, so nothing is reported until that resource has
-    // loaded; refresh again once it does if that proves too quiet in practice
+    // the source-file refs are user-editable, so report the states the handler soft-fails on rather
+    // than letting the font silently render blank. the descriptor check reads the json through the
+    // viewport app, so it stays quiet until that resource has loaded — the missing-ref checks above
+    // it do not, and cover the common cases.
     _refreshSourceFilesWarning(asset: Observer) {
         const jsonId = asset.get('data.jsonAsset');
         const textureIds = asset.get('data.textureAssets') || [];

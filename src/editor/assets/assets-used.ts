@@ -15,6 +15,8 @@ editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     const index: UsedIndex = {};
     const keys = {
+        // a referenced font's json and atlas assets are real refs, so they have to count as usages —
+        // otherwise the asset panel marks them unreferenced and invites deleting them out from under it
         font: {
             'data.jsonAsset': true
         },
@@ -91,11 +93,10 @@ editor.once('load', () => {
         return pathsCache[path];
     }
 
-    // asset refs reach here straight off the observer, and a referenced font's pickers are
-    // user-editable, so a cleared slot arrives as null and a hand-edited one as anything
+    // values arrive straight off the observer, and a referenced font's asset pickers can be cleared
+    // to null, so only count a ref once it is actually an id
     const assetId = (value: unknown): UsedId | null => (typeof value === 'number' ? value : null);
 
-    // a referenced font's atlas page list
     const pageRefs = (pages: unknown) =>
         (Array.isArray(pages) ? pages : []).map(assetId).filter(id => id !== null);
 
@@ -241,13 +242,10 @@ editor.once('load', () => {
             updateAsset(this.get('id'), 'asset', valueOld, value);
         },
         font: function (path: string, value: unknown, valueOld: unknown) {
-            // a referenced font's mirrors are asset refs too, so they must count as usages —
-            // otherwise the json and atlas read as unreferenced and get cleaned up out from under it.
-            //
-            // the observer emits the leaf events for a write and then the redundant container events
-            // above them ('data.textureAssets.0', then 'data.textureAssets', then 'data'), so exactly
-            // one level may be counted or every ref is counted twice. for the page list that level is
-            // the container: a shrinking array emits no leaf event for the index it dropped.
+            // the observer emits a write's leaf events and then the container events above them
+            // ('data.textureAssets.0', then 'data.textureAssets', then 'data'), so only one level may
+            // be counted or every ref is counted twice. for the page list that level is the container,
+            // because a shrinking array emits no leaf event for the index it dropped.
             if (path === 'data.textureAssets') {
                 const id = this.get('id');
                 pageRefs(valueOld).forEach(ref => updateAsset(id, 'asset', ref, null));
