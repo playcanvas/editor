@@ -90,15 +90,27 @@ class ReferencedFontHandler {
 
             const toLoad = [jsonAsset, ...texAssets];
             let remaining = toLoad.length;
-            let errored = false;
+            let settled = false;
+            const unbind: (() => void)[] = [];
+            // unbind on every path: rebuildFont clears the loader cache and reloads under the same
+            // key, so an error handler left over from an earlier load would fail the current one —
+            // and one leaks per referenced asset per rebuild
+            const settle = (err: string | null, result?: any) => {
+                if (settled) {
+                    return;
+                }
+                settled = true;
+                unbind.forEach(off => off());
+                callback(err, result);
+            };
             const done = () => {
-                if (errored || --remaining > 0) {
+                if (settled || --remaining > 0) {
                     return;
                 }
                 const [err, data] = normalizeFontJson(jsonAsset.resource);
                 if (err) {
                     console.warn(`referenced font ${asset.id}: ${err}`);
-                    callback(null, EMPTY_FONT);
+                    settle(null, EMPTY_FONT);
                     return;
                 }
                 const textures = texAssets.map((a: any) => a.resource);
@@ -113,16 +125,17 @@ class ReferencedFontHandler {
                         t.minFilter = FILTER_LINEAR;
                     }
                 });
-                callback(null, { data, textures });
+                settle(null, { data, textures });
             };
+            // two passes: ready() fires synchronously for an already-loaded asset, so every handler
+            // must be bound before any of them can settle the load
+            toLoad.forEach((a: any) => {
+                const onError = (err: string) => settle(`referenced font ${asset.id}: ${err}`);
+                a.on('error', onError);
+                unbind.push(() => a.off('error', onError));
+            });
             toLoad.forEach((a: any) => {
                 a.ready(done);
-                a.once('error', (err: string) => {
-                    if (!errored) {
-                        errored = true;
-                        callback(`referenced font ${asset.id}: ${err}`);
-                    }
-                });
                 app.assets.load(a);
             });
         });
