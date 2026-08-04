@@ -97,8 +97,7 @@ editor.once('load', () => {
     // to null, so only count a ref once it is actually an id
     const assetId = (value: unknown): UsedId | null => (typeof value === 'number' ? value : null);
 
-    const pageRefs = (pages: unknown) =>
-        (Array.isArray(pages) ? pages : []).map(assetId).filter(id => id !== null);
+    const pageRefs = (pages: unknown) => (Array.isArray(pages) ? pages : []).map(assetId).filter((id) => id !== null);
 
     const updateAsset = function (referer: string, type: UsedType, oldId: UsedId | null, newId: UsedId | null = null) {
         if (oldId && index[oldId] !== undefined) {
@@ -248,8 +247,8 @@ editor.once('load', () => {
             // because a shrinking array emits no leaf event for the index it dropped.
             if (path === 'data.textureAssets') {
                 const id = this.get('id');
-                pageRefs(valueOld).forEach(ref => updateAsset(id, 'asset', ref, null));
-                pageRefs(value).forEach(ref => updateAsset(id, 'asset', null, ref));
+                pageRefs(valueOld).forEach((ref) => updateAsset(id, 'asset', ref, null));
+                pageRefs(value).forEach((ref) => updateAsset(id, 'asset', null, ref));
                 return;
             }
             // a 'data' write always emits its children first (and unsets the keys it drops), so the

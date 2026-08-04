@@ -217,7 +217,7 @@ editor.once('load', () => {
         // the texture list is edited as an array, so element writes, length changes and reordering all
         // matter (chars[].map indexes into page order). the observer has no mid-path wildcard, so listen
         // on the global events and filter by path
-        const events = ['*:set', '*:insert', '*:remove', '*:move'].map(evt =>
+        const events = ['*:set', '*:insert', '*:remove', '*:move'].map((evt) =>
             asset.on(evt, (path: string) => {
                 if (!isRefPath(path)) {
                     return;

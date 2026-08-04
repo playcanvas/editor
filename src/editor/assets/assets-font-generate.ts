@@ -40,9 +40,7 @@ editor.once('load', () => {
             // bind before start: a worker that 404s or throws at top level fires 'error' before
             // 'ready', and an unreported failure leaves the caller's promise pending forever
             let ready = false;
-            client.once('error', (err) =>
-                settle(err ?? (ready ? 'font generation failed' : STARTUP_FAILED))
-            );
+            client.once('error', (err) => settle(err ?? (ready ? 'font generation failed' : STARTUP_FAILED)));
             client.once('ready', () => {
                 ready = true;
                 client.once('generate', (data, textures) => settle(null, { data, textures }));

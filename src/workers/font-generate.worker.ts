@@ -47,8 +47,7 @@ const generate = async (frontendURL: string, buffer: ArrayBuffer, options: Optio
     // auto-correct winding; the caller's invert flag flips on top of the detection. probe at the same
     // settings generateFont will use, so take its defaults from font-tools rather than repeating them
     const invert =
-        isInverted(glyphSource, options.size ?? GLYPH_SIZE, options.pxrange ?? PXRANGE) !==
-        Boolean(options.invert);
+        isInverted(glyphSource, options.size ?? GLYPH_SIZE, options.pxrange ?? PXRANGE) !== Boolean(options.invert);
 
     const { data, textures } = await generateFont({
         chars: options.chars,
