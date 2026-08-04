@@ -17,6 +17,14 @@ type FontDataV3 = {
 // how long to wait for a created asset to arrive over realtime before giving up
 const ASSET_ADD_TIMEOUT = 30000;
 
+// an msdf atlas is a distance field, not colour: mipmaps and srgb both corrupt the median. set at
+// create so the texture is built right — flipping mipmaps later re-creates it on webgpu
+const MSDF_ATLAS_DATA = {
+    mipmaps: false,
+    srgb: false,
+    minfilter: 'linear'
+};
+
 const DEFAULT_CHARS = (() => {
     let s = '';
     for (let i = 0x20; i <= 0x7e; i++) {
@@ -100,9 +108,8 @@ editor.once('load', () => {
                   filename: `${base}.json`,
                   source_asset_id: `${sourceId}`,
                   parent,
-                  // not preloaded: the font's own load resolves and loads this, so it arrives either
-                  // way. preloading it alongside the atlas pages would only pull the fetch earlier
-                  preload: false
+                  // matches the font, which is created preloaded; watchFont keeps them in step after
+                  preload: true
               });
 
         const ids = font?.get('data.textureAssets') || [];
@@ -121,7 +128,14 @@ editor.once('load', () => {
                 const name = i === 0 ? `${base}.png` : `${base}${i}.png`;
                 const file = new Blob([bytes as BlobPart], { type: 'image/png' });
                 return asset
-                    ? updateFile(asset, file, asset.get('name'), true).then(() => asset.get('id'))
+                    ? updateFile(asset, file, asset.get('name'), true).then(() => {
+                          // this page may be a texture the user repointed the picker at, carrying its
+                          // own colour settings. it holds the atlas now, so it gets the atlas settings
+                          Object.entries(MSDF_ATLAS_DATA).forEach(([key, value]) => {
+                              asset.set(`data.${key}`, value);
+                          });
+                          return asset.get('id');
+                      })
                     : createAsset({
                           name,
                           type: 'texture',
@@ -130,7 +144,9 @@ editor.once('load', () => {
                           source_asset_id: `${sourceId}`,
                           parent,
                           noConvert: true,
-                          preload: true
+                          // matches the font, which is created preloaded; watchFont keeps them in step
+                          preload: true,
+                          data: MSDF_ATLAS_DATA
                       });
             })
         );
@@ -205,14 +221,31 @@ editor.once('load', () => {
             return;
         }
 
+        const mirrorIds = () =>
+            [asset.get('data.jsonAsset'), ...(asset.get('data.textureAssets') || [])].filter(Boolean);
+
         let watches: any[] = [];
         const sync = () => {
             watches.forEach((h) => h.off());
-            watches = [asset.get('data.jsonAsset'), ...(asset.get('data.textureAssets') || [])]
-                .filter(Boolean)
-                .map((ref: number) => app.assets.on(`load:${ref}`, () => reloadFont(asset)));
+            watches = mirrorIds().map((ref: number) => app.assets.on(`load:${ref}`, () => reloadFont(asset)));
         };
         sync();
+
+        // the font decides whether its descriptor and atlas are preloaded, so its flag is written
+        // through to them. their own is not user-editable, and a stale value would either waste a
+        // boot download or under-report what the loading bar is waiting on. writes only on a real
+        // difference, so this is a no-op once they agree and self-heals a repoint or a merge
+        const syncPreload = () => {
+            const preload = asset.get('preload');
+            mirrorIds().forEach((ref: number) => {
+                const mirror = editor.call('assets:get', ref);
+                if (mirror && mirror.get('preload') !== preload) {
+                    mirror.set('preload', preload);
+                }
+            });
+        };
+        syncPreload();
+        const preloadEvent = asset.on('preload:set', syncPreload);
 
         // the texture list is edited as an array, so element writes, length changes and reordering all
         // matter (chars[].map indexes into page order). the observer has no mid-path wildcard, so listen
@@ -223,6 +256,7 @@ editor.once('load', () => {
                     return;
                 }
                 sync();
+                syncPreload();
                 reloadFont(asset);
             })
         );
@@ -230,6 +264,7 @@ editor.once('load', () => {
         watched.set(id, () => {
             watches.forEach((h) => h.off());
             events.forEach((e) => e.unbind());
+            preloadEvent.unbind();
         });
     };
 
@@ -296,6 +331,19 @@ editor.once('load', () => {
         importFont(file, folder).catch((err) => {
             editor.call('status:error', `Font import failed: ${err?.message ?? err}`);
         });
+    });
+
+    // is this asset serving purely as a font's descriptor/atlas right now? keyed off live references
+    // rather than source_asset_id, so clearing a picker hands the asset back: an unreferenced page is
+    // no longer a mirror. a page shared with e.g. a material also fails, since that use is its own
+    editor.method('fonts:isMirror', (asset: any) => {
+        const type = asset?.get('type');
+        if (type !== 'json' && type !== 'texture') {
+            return false;
+        }
+        const refs = editor.call('assets:used:index')[asset.get('id')]?.ref;
+        const referers = refs ? Object.keys(refs) : [];
+        return referers.length > 0 && referers.every((id) => editor.call('assets:get', id)?.get('type') === 'font');
     });
 
     // generate references for old fonts or refresh them for referenced fonts

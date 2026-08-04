@@ -124,6 +124,8 @@ class ReferencedFontHandler extends FontHandler {
                 // the stock font handler forces on its atlas: srgb corrupts the median distance
                 // reconstruction (broken corners/thin strokes), and mipmaps bleed glyphs together at small
                 // sizes, both of which read as "the font looks wrong" with no obvious cause.
+                // a no-op for generated pages, which carry MSDF_ATLAS_DATA already; this is here for an
+                // atlas the user repointed at a texture of their own.
                 textures.forEach((t: any) => {
                     if (t) {
                         t.srgb = false;
