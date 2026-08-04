@@ -1,6 +1,8 @@
-// the published-build bootstraps carry their own hand-written copies of this handler, because they
-// have no build step and cannot import from here. change one, change all of them, or a font renders
-// differently in a published build than it does in the editor.
+// resolves a referenced (client-imported) font from the sibling json + texture assets its `data`
+// points at. only the editor viewport and the launch page need this, because they load from live
+// asset refs. published and downloaded builds don't: export-project bakes the descriptor and atlas
+// into static files next to the font (<base>.json, <base>.png, <base>1.png, ...) so the stock engine
+// FontHandler resolves them by url, which is why the build bootstraps carry no copy of this.
 
 import { FILTER_LINEAR, Font, FontHandler } from 'playcanvas';
 
