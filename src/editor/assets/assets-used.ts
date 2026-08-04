@@ -15,6 +15,11 @@ editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     const index: UsedIndex = {};
     const keys = {
+        // a referenced font's json and atlas assets are real refs, so they have to count as usages —
+        // otherwise the asset panel marks them unreferenced and invites deleting them out from under it
+        font: {
+            'data.jsonAsset': true
+        },
         cubemap: {
             'data.textures.0': true,
             'data.textures.1': true,
@@ -87,6 +92,12 @@ editor.once('load', () => {
 
         return pathsCache[path];
     }
+
+    // values arrive straight off the observer, and a referenced font's asset pickers can be cleared
+    // to null, so only count a ref once it is actually an id
+    const assetId = (value: unknown): UsedId | null => (typeof value === 'number' ? value : null);
+
+    const pageRefs = (pages: unknown) => (Array.isArray(pages) ? pages : []).map(assetId).filter((id) => id !== null);
 
     const updateAsset = function (referer: string, type: UsedType, oldId: UsedId | null, newId: UsedId | null = null) {
         if (oldId && index[oldId] !== undefined) {
@@ -230,6 +241,25 @@ editor.once('load', () => {
             updateAsset(this.get('id'), 'asset', valueOld, value);
         },
         font: function (path: string, value: unknown, valueOld: unknown) {
+            // the observer emits a write's leaf events and then the container events above them
+            // ('data.textureAssets.0', then 'data.textureAssets', then 'data'), so only one level may
+            // be counted or every ref is counted twice. for the page list that level is the container,
+            // because a shrinking array emits no leaf event for the index it dropped.
+            if (path === 'data.textureAssets') {
+                const id = this.get('id');
+                pageRefs(valueOld).forEach((ref) => updateAsset(id, 'asset', ref, null));
+                pageRefs(value).forEach((ref) => updateAsset(id, 'asset', null, ref));
+                return;
+            }
+            // a 'data' write always emits its children first (and unsets the keys it drops), so the
+            // container adds nothing; the page leaves are covered by the branch above
+            if (path === 'data' || path.startsWith('data.textureAssets.')) {
+                return;
+            }
+            if (keys.font[path]) {
+                updateAsset(this.get('id'), 'asset', assetId(valueOld), assetId(value));
+                return;
+            }
             if (!path.startsWith('i18n')) {
                 return;
             }
@@ -237,6 +267,20 @@ editor.once('load', () => {
             if (parts.length === 2) {
                 updateAsset(this.get('id'), 'asset', valueOld, value);
             }
+        },
+        'font-insert': function (path: string, value: unknown) {
+            if (!path.startsWith('data.textureAssets')) {
+                return;
+            }
+
+            updateAsset(this.get('id'), 'asset', null, assetId(value));
+        },
+        'font-remove': function (path: string, value: unknown) {
+            if (!path.startsWith('data.textureAssets')) {
+                return;
+            }
+
+            updateAsset(this.get('id'), 'asset', assetId(value));
         },
         entity: function (path: string, value: unknown, valueOld: unknown) {
             if (path.startsWith('components.animation.assets.')) {
@@ -611,6 +655,12 @@ editor.once('load', () => {
                 const i18n = asset.get('i18n') || {};
                 for (const key in i18n) {
                     updateAsset(asset.get('id'), 'asset', null, i18n[key]);
+                }
+                // the atlas page list is variable length, so the fixed keys.font loop above can't
+                // seed it (that only covers data.jsonAsset)
+                const pages = asset.get('data.textureAssets') || [];
+                for (let i = 0; i < pages.length; i++) {
+                    updateAsset(asset.get('id'), 'asset', null, assetId(pages[i]));
                 }
             }
         }

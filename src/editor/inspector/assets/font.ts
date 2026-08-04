@@ -7,6 +7,7 @@ import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import { Table } from '@/common/pcui/element/element-table';
 import { TableCell } from '@/common/pcui/element/element-table-cell';
 import { TableRow } from '@/common/pcui/element/element-table-row';
+import { isRefPath, normalizeFontJson } from '@/common/referenced-font-handler';
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
 import type { History } from '@/editor-api';
 
@@ -21,6 +22,7 @@ const CLASS_CHARACTER_RANGE_BUTTON = `${CLASS_CHARACTER_RANGE}-button`;
 const CLASS_FONT = `${CLASS_ROOT}-font`;
 const CLASS_PROCESS_FONT_WARNING_MESSAGE = `${CLASS_ROOT}-process-font-warning-message`;
 const CLASS_PROCESS_FONT_WARNING_ITEMS = `${CLASS_ROOT}-process-font-warning-items`;
+const CLASS_SOURCE_FILES_WARNING = `${CLASS_ROOT}-source-files-warning`;
 
 const PROPERTIES_ATTRIBUTES: Attribute[] = [
     {
@@ -54,6 +56,24 @@ const LOCALIZATION_ATTRIBUTES: Attribute[] = [
     }
 ];
 
+// pickers for the unpacked mirror assets of a client-imported (referenced) font. the texture list is
+// an ordered array, not a single picker: a hand-supplied atlas may pack into a different number of
+// pages than the generated one, and page order is what the descriptor's chars[].map indexes into
+const SOURCE_FILES_ATTRIBUTES: Attribute[] = [
+    {
+        label: 'JSON',
+        path: 'data.jsonAsset',
+        type: 'asset',
+        args: { assetType: 'json' }
+    },
+    {
+        label: 'Textures',
+        path: 'data.textureAssets',
+        type: 'assets',
+        args: { assetType: 'texture' }
+    }
+];
+
 /**
  * @param attributes - The attributes to add references to
  */
@@ -69,6 +89,7 @@ const addReferences = (attributes: Attribute[]) => {
 };
 addReferences(PROPERTIES_ATTRIBUTES);
 addReferences(FONT_ATTRIBUTES);
+addReferences(SOURCE_FILES_ATTRIBUTES);
 
 const DOM = (parent) => [
     {
@@ -83,6 +104,29 @@ const DOM = (parent) => [
                     assets: parent._args.assets,
                     history: parent._args.history,
                     attributes: PROPERTIES_ATTRIBUTES
+                })
+            }
+        ]
+    },
+    {
+        root: {
+            sourceFilesPanel: new Panel({
+                headerText: 'SOURCE FILES'
+            })
+        },
+        children: [
+            {
+                sourceFilesAttributes: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: SOURCE_FILES_ATTRIBUTES
+                })
+            },
+            {
+                sourceFilesWarning: new Label({
+                    hidden: true,
+                    flexGrow: 1,
+                    class: [CLASS_ERROR, CLASS_SOURCE_FILES_WARNING]
                 })
             }
         ]
@@ -172,7 +216,7 @@ const DOM = (parent) => [
             },
             {
                 processFontButton: new Button({
-                    text: 'PROCESS FONT',
+                    text: 'REGENERATE FONT ASSETS',
                     flexGrow: 1
                 })
             },
@@ -340,6 +384,8 @@ class FontAssetInspector extends Container {
 
     _processFontButton: Button;
 
+    _processing: boolean;
+
     _processFontWarningContainer: Container;
 
     _processFontWarningItems: Table;
@@ -358,7 +404,15 @@ class FontAssetInspector extends Container {
 
     _characterRangeButton: Button;
 
+    _propertiesPanel: Panel;
+
     _propertiesAttributes: AttributesInspector;
+
+    _sourceFilesPanel: Panel;
+
+    _sourceFilesAttributes: AttributesInspector;
+
+    _sourceFilesWarning: Label;
 
     constructor(args: FontAssetInspectorArgs = {} as FontAssetInspectorArgs) {
         args = Object.assign({}, args);
@@ -370,6 +424,7 @@ class FontAssetInspector extends Container {
         this._localizations = {};
         this._localizationAssets = {};
         this._contextMenus = [];
+        this._processing = false;
 
         this.buildDom(DOM(this));
 
@@ -441,54 +496,99 @@ class FontAssetInspector extends Container {
     }
 
     _onClickProcessFontButton() {
-        // Remove all the context menus if we have any
         for (const contextMenu of this._contextMenus) {
             contextMenu.destroy();
         }
 
         this._contextMenus.length = 0;
+        this._processFontWarningContainer.hidden = true;
 
-        const characterValues = this._fontAttributes.getField('characters').value;
-        this._assets.forEach((asset) => {
-            const sourceId = asset.get('source_asset_id');
-            if (!sourceId) {
+        const asset = this._assets[0];
+        // converting a legacy font rewrites data, replaces the file and drops the server-generated
+        // descriptor, none of it through history — so it cannot be undone
+        if (!asset.has('data.jsonAsset')) {
+            editor.call(
+                'picker:confirm',
+                'Converting this font replaces its data and file with references to new JSON and texture assets. This cannot be undone.',
+                () => this._reprocess(asset),
+                { yesText: 'CONVERT' }
+            );
+            return;
+        }
+        this._reprocess(asset);
+    }
+
+    _reprocess(asset: Observer) {
+        const chars = [...new Set(Array.from(this._fontAttributes.getField('characters').value))].join('');
+        this._processing = true;
+        this._toggleProcessFontButton(asset);
+        editor.call('fonts:reprocess', asset, chars, this._fontAttributes.getField('meta.invert').value).then(() => {
+            this._processing = false;
+            // the flag is inspector-wide and this instance is reused across selections, so refresh
+            // whatever is linked now — otherwise a font selected mid-regenerate keeps a disabled
+            // button reading "REGENERATING…" until the user selects away and back
+            if (this._assets?.length) {
+                this._toggleProcessFontButton(this._assets[0]);
+            }
+            // the user can select away mid-regenerate; don't write to an unlinked inspector
+            if (!this._assets?.includes(asset)) {
                 return;
             }
-
-            const source = editor.call('assets:get', sourceId);
-            if (!source) {
-                return;
-            }
-
-            // remove duplicate chars but keep same order
-            let unique = '';
-            const chars = {};
-            const arr = Array.from(characterValues);
-
-            for (let i = 0; i < arr.length; i++) {
-                const char = arr[i];
-                if (!Object.prototype.hasOwnProperty.call(chars, char)) {
-                    chars[char] = true;
-                    unique += char;
-                }
-            }
-
-            const task = {
-                source: parseInt(source.get('uniqueId'), 10),
-                target: parseInt(asset.get('uniqueId'), 10),
-                chars: unique,
-                invert: this._fontAttributes.getField('meta.invert').value
-            };
-
-            editor.call('realtime:send', 'pipeline', {
-                name: 'convert',
-                data: task
-            });
+            const referenced = asset.has('data.jsonAsset');
+            this._sourceFilesPanel.hidden = !referenced;
+            this._propertiesPanel.hidden = referenced;
+            this._toggleProcessFontButton(asset);
+            this._refreshSourceFilesWarning(asset);
         });
     }
 
     _toggleProcessFontButton(asset: Observer) {
-        this._processFontButton.enabled = asset.get('task') !== 'running';
+        const referenced = asset.has('data.jsonAsset');
+        this._processFontButton.text = this._processing
+            ? referenced
+                ? 'REGENERATING FONT ASSETS…'
+                : 'CONVERTING TO REFERENCED FONT…'
+            : referenced
+              ? 'REGENERATE FONT ASSETS'
+              : 'CONVERT TO REFERENCED FONT';
+        this._processFontButton.enabled = !this._processing && asset.get('task') !== 'running';
+    }
+
+    // the source-file refs are user-editable, so report the states the handler soft-fails on rather
+    // than letting the font silently render blank. the descriptor check reads the json through the
+    // viewport app, so it stays quiet until that resource has loaded — the missing-ref checks above
+    // it do not, and cover the common cases.
+    _refreshSourceFilesWarning(asset: Observer) {
+        const jsonId = asset.get('data.jsonAsset');
+        const textureIds = asset.get('data.textureAssets') || [];
+        let msg = '';
+
+        if (!jsonId) {
+            msg = 'No JSON asset referenced. The font will render blank.';
+        } else if (!textureIds.length || textureIds.some((id: number) => !id)) {
+            msg = 'No texture asset referenced. The font will render blank.';
+        } else {
+            const json = editor.call('viewport:app')?.assets.get(jsonId);
+            if (json?.resource) {
+                const [err, data] = normalizeFontJson(json.resource);
+                const maps = data?.info?.maps?.length;
+                if (err) {
+                    msg = `JSON asset is not a valid font descriptor: ${err}.`;
+                } else if (maps !== textureIds.length) {
+                    msg = `JSON asset declares ${maps} atlas page(s) but ${textureIds.length} texture(s) are referenced.`;
+                }
+            }
+        }
+
+        this._sourceFilesWarning.text = msg;
+        this._sourceFilesWarning.hidden = !msg;
+    }
+
+    _showUnavailableCharacters(unavailableCharacters: string[]) {
+        this._processFontWarningContainer.hidden = unavailableCharacters.length === 0;
+        if (unavailableCharacters.length > 0) {
+            this._processFontWarningItems.link(unavailableCharacters.map((char) => new Observer({ character: char })));
+        }
     }
 
     _refreshLocalizationsForAsset() {
@@ -561,6 +661,7 @@ class FontAssetInspector extends Container {
 
         // Linking
         this._propertiesAttributes.link(assets);
+        this._sourceFilesAttributes.link(assets);
         this._fontAttributes.link(assets);
         this._localizationAttributes.link(assets);
         this._refreshLocalizationsForAsset();
@@ -585,24 +686,17 @@ class FontAssetInspector extends Container {
             this._assetEvents.push(
                 asset.on('task:set', (v) => {
                     // process font complete
-                    this._processFontWarningContainer.hidden = true;
                     if (v === null) {
                         const availableCharacters = asset.get('data.chars');
-                        const unavailableCharacters = [];
-                        this._fontAttributes
-                            .getField('characters')
-                            .value.split('')
-                            .forEach((character) => {
-                                if (!availableCharacters[character.charCodeAt()]) {
-                                    unavailableCharacters.push(character);
-                                }
-                            });
-                        if (unavailableCharacters.length > 0) {
-                            this._processFontWarningContainer.hidden = false;
-                            this._processFontWarningItems.link(
-                                unavailableCharacters.map((char) => new Observer({ character: char }))
-                            );
+                        if (availableCharacters) {
+                            const unavailableCharacters = this._fontAttributes
+                                .getField('characters')
+                                .value.split('')
+                                .filter((character: string) => !availableCharacters[character.charCodeAt(0)]);
+                            this._showUnavailableCharacters(unavailableCharacters);
                         }
+                    } else {
+                        this._processFontWarningContainer.hidden = true;
                     }
                     this._toggleProcessFontButton(asset);
                 })
@@ -610,13 +704,47 @@ class FontAssetInspector extends Container {
 
             this._assetEvents.push(asset.on('*:set', this._refreshLocalizationsForAsset.bind(this)));
             this._assetEvents.push(asset.on('*:unset', this._refreshLocalizationsForAsset.bind(this)));
+
+            // repointing a source-file ref can invalidate the pairing (page count, descriptor shape). the
+            // observer has no mid-path wildcard, so listen on the global events and filter by path
+            ['*:set', '*:insert', '*:remove', '*:move'].forEach((evt) => {
+                this._assetEvents.push(
+                    asset.on(evt, (path: string) => {
+                        if (isRefPath(path)) {
+                            this._refreshSourceFilesWarning(asset);
+                        }
+                    })
+                );
+            });
         });
+
+        // client-imported (referenced) fonts have no server `task`; fonts:reprocess reports the glyphs the
+        // source didn't provide via this event, mirroring the server pipeline's warning table
+        this._assetEvents.push(
+            editor.on('fonts:reprocessed', (font: Observer, unavailableCharacters: string[]) => {
+                if (this._assets?.includes(font)) {
+                    this._showUnavailableCharacters(unavailableCharacters);
+                }
+            })
+        );
 
         // View adjustments
         this._characterRangePanel.hidden = assets.length > 1;
         this._characterPresetsPanel.hidden = assets.length > 1;
         this._fontPanel.hidden = assets.length > 1;
         this._localizationPanel.hidden = assets.length > 1;
+        // only client-imported (referenced) fonts have unpacked mirror assets. gate on the ref fields
+        // existing (not their current value) so clearing a picker doesn't hide the whole panel
+        this._sourceFilesPanel.hidden =
+            assets.length > 1 || (!assets[0].has('data.jsonAsset') && !assets[0].has('data.textureAssets'));
+        // referenced fonts derive intensity from the json descriptor, not font.data.intensity — the
+        // slider is inert for them, so hide the PROPERTIES panel (keep it for server-pipeline fonts)
+        this._propertiesPanel.hidden = assets[0].has('data.jsonAsset');
+        if (this._sourceFilesPanel.hidden) {
+            this._sourceFilesWarning.hidden = true;
+        } else {
+            this._refreshSourceFilesWarning(assets[0]);
+        }
 
         const charactersField = this._fontAttributes.getField('characters');
         charactersField.renderChanges = false;
@@ -631,6 +759,7 @@ class FontAssetInspector extends Container {
             return;
         }
         this._propertiesAttributes.unlink();
+        this._sourceFilesAttributes.unlink();
         this._fontAttributes.unlink();
         this._localizationAttributes.unlink();
         Object.keys(this._localizations).forEach((localization) => {

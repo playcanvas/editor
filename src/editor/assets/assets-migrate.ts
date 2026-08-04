@@ -397,6 +397,11 @@ editor.once('load', () => {
             return;
         }
 
+        // referenced fonts keep intensity in the json descriptor; their data holds only the refs
+        if (asset.has('data.jsonAsset')) {
+            return;
+        }
+
         if (!asset.has('data.intensity')) {
             asset.set('data.intensity', 0.0);
         }

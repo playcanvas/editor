@@ -123,6 +123,12 @@ editor.once('load', () => {
         if (INVALID_TYPES.indexOf(asset.get('type')) !== -1) {
             return false;
         }
+        // a referenced font resolves its descriptor and atlas from sibling assets, so a bundle could
+        // only ever carry its placeholder file, not the atlas. published builds get those files baked
+        // in statically, so bundling one gains nothing
+        if (asset.get('type') === 'font' && asset.has('data.jsonAsset')) {
+            return false;
+        }
 
         if (bundleAsset) {
             const existingAssetIds = bundleAsset.getRaw('data.assets');

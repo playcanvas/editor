@@ -131,6 +131,11 @@ export type AssetUpdateData = {
      * The file to add to the form
      */
     file?: File;
+
+    /**
+     * Skip server-side conversion (for assets the editor generates itself, e.g. client-side fonts)
+     */
+    noConvert?: boolean;
 };
 
 export type AssetCreateData = AssetUpdateData & {
@@ -429,6 +434,11 @@ export const assetPaste = (data: AssetPasteData) => {
 const assetUpdateFields = (form: FormData, data: AssetUpdateData, pipeline: AssetPipelineOptions) => {
     // branch
     form.append('branchId', api.branchId);
+
+    // noConvert (editor-generated assets skip server-side conversion)
+    if (data.noConvert) {
+        form.append('noConvert', 'true');
+    }
 
     // name
     if (data.name) {

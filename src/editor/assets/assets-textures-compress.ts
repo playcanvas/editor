@@ -182,7 +182,9 @@ const TextureCompressor = {
                 const sourceId = asset.get('source_asset_id');
                 if (sourceId) {
                     const sourceAsset = editor.call('assets:get', sourceId);
-                    if (sourceAsset) {
+                    // a referenced font's atlas points at the font file it was generated from, which is
+                    // not a texture source the compressor can re-derive anything from
+                    if (sourceAsset && sourceAsset.get('type') !== 'font') {
                         task.source = parseInt(sourceAsset.get('uniqueId'), 10);
                     }
                 }

@@ -810,6 +810,14 @@ editor.once('load', () => {
                             menuItemReImport.hidden = true;
                         } else if (currentAsset.get('type') === 'material' && !currentAsset.has('meta.index')) {
                             menuItemReImport.hidden = true;
+                        } else if (
+                            source.get('type') === 'font' &&
+                            (currentAsset.get('type') !== 'font' || currentAsset.has('data.jsonAsset'))
+                        ) {
+                            // a referenced font is regenerated from its inspector, and its json/texture
+                            // assets are not pipeline targets of the source font at all. re-importing
+                            // either would overwrite them with server-generated output
+                            menuItemReImport.hidden = true;
                         } else {
                             menuItemReImport.hidden = false;
                         }

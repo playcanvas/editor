@@ -66,3 +66,44 @@ declare global {
         relay: typeof relay;
     }
 }
+
+// @playcanvas/font-tools ships as JSDoc-typed JS with no .d.ts — declare the subset we use
+declare module '@playcanvas/font-tools' {
+    /** default glyph cell size in px, as passed to msdfgen */
+    export const GLYPH_SIZE: number;
+    /** default msdf pixel range, as passed to msdfgen */
+    export const PXRANGE: number;
+    export type FontGlyphSource = {
+        generateGlyph(codepoint: number, opts: { size: number; pxrange: number }): any;
+        dispose?: () => void;
+    };
+    export type FontImageBackend = {
+        composite(page: { width: number; height: number; glyphs: any[] }): Promise<Uint8Array>;
+    };
+    export function generateFont(opts: {
+        chars?: string | number[];
+        fontName?: string;
+        intensity?: number;
+        invert?: boolean;
+        glyphSource: FontGlyphSource;
+        imageBackend: FontImageBackend;
+        kerningSource?: unknown;
+        size?: number;
+        pxrange?: number;
+    }): Promise<{ data: any; textures: Uint8Array[] }>;
+}
+
+declare module '@playcanvas/font-tools/image-backend-canvas' {
+    import type { FontImageBackend } from '@playcanvas/font-tools';
+
+    export function createCanvasImageBackend(): FontImageBackend;
+}
+
+declare module '@playcanvas/font-tools/glyph-source-msdfgen' {
+    import type { FontGlyphSource } from '@playcanvas/font-tools';
+
+    export function createMsdfgenGlyphSource(
+        fontBytes: Uint8Array | ArrayBuffer,
+        opts?: { moduleOverrides?: { locateFile?: (path: string) => string } }
+    ): Promise<FontGlyphSource>;
+}
