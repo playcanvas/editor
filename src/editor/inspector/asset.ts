@@ -636,6 +636,19 @@ class AssetInspector extends Container {
         this._btnOpenInViewer.hidden = !allModel && !allTexture;
     }
 
+    // a font loads its descriptor and atlas itself, so their own preload does nothing — the font's
+    // flag is the only one that decides, as it was when a font was a single asset. shown but disabled,
+    // and it comes back as soon as the asset stops being a font's mirror
+    _updatePreloadField() {
+        const field = this._attributesInspector.getField('preload');
+        if (!field) {
+            return;
+        }
+        const isMirror = !!this._assets?.length && this._assets.every((a) => editor.call('fonts:isMirror', a));
+        field.enabled = !isMirror;
+        field.parent.class[isMirror ? 'add' : 'remove']('pcui-disabled');
+    }
+
     _updateDownloadButton() {
         let disabled = false;
         let hidden = false;
@@ -812,6 +825,9 @@ class AssetInspector extends Container {
 
         // Determine the open in viewer button state
         this._updateOpenInViewerButton();
+
+        // Determine whether preload is the font's to decide rather than this asset's
+        this._updatePreloadField();
 
         if (assets[0].get('type') === 'cubemap') {
             this._updateDownloadButton.bind(this)();
