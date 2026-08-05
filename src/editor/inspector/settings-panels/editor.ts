@@ -277,6 +277,10 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
                 {
                     v: 'cursor',
                     t: 'Cursor'
+                },
+                {
+                    v: 'antigravity-ide',
+                    t: 'Antigravity IDE'
                 }
             ]
         }
