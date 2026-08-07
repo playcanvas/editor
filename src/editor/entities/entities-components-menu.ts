@@ -34,12 +34,8 @@ editor.once('load', () => {
         return selection;
     };
 
-    const makeAddComponentMenuItem = function (
-        key: string,
-        components: Record<string, { $title: string }>,
-        logos: Record<string, string>
-    ) {
-        let title = components[key].$title;
+    const makeAddComponentMenuItem = function (key: string, logos: Record<string, string>) {
+        let title = editor.call('components:title', key);
         if (title === 'Model' || title === 'Animation') {
             title += ' (legacy)';
         }
@@ -91,16 +87,15 @@ editor.once('load', () => {
         };
 
         // fill menu with available components
-        const components = editor.call('components:schema');
         const list = editor.call('components:list');
 
         for (let i = 0; i < list.length; i++) {
             const key = list[i];
             const submenu = getSubMenu(key);
             if (submenu) {
-                items[submenu].items.push(makeAddComponentMenuItem(key, components, COMPONENT_LOGOS));
+                items[submenu].items.push(makeAddComponentMenuItem(key, COMPONENT_LOGOS));
             } else {
-                items[key] = makeAddComponentMenuItem(key, components, COMPONENT_LOGOS);
+                items[key] = makeAddComponentMenuItem(key, COMPONENT_LOGOS);
             }
         }
 

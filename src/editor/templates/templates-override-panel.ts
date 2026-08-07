@@ -717,7 +717,11 @@ class TemplateOverridesView extends Container {
                 }
             } else if (pathParts.length === 5) {
                 attributeName = pathParts[4];
-                type = editor.call('schema:getTypeForPath', config.schema.scene, `entities.$.${override.path}`);
+                type = editor.call(
+                    'schema:getTypeForPath',
+                    editor.api.globals.schema.getDocument('scene'),
+                    `entities.$.${override.path}`
+                );
             }
 
             if (attributeName) {
@@ -772,7 +776,11 @@ class TemplateOverridesView extends Container {
                 result.overrideGroups[soundSlotName].missingInSrc = true;
             }
         } else {
-            const type = editor.call('schema:getTypeForPath', config.schema.scene, `entities.$.${override.path}`);
+            const type = editor.call(
+                'schema:getTypeForPath',
+                editor.api.globals.schema.getDocument('scene'),
+                `entities.$.${override.path}`
+            );
             const field = this._prettifyName(pathParts[4]);
             result.overrideGroups[soundSlotName].properties.push(...this._createGridLine(field, type, override, false));
         }
@@ -821,7 +829,11 @@ class TemplateOverridesView extends Container {
                 result.overrideGroups[clipName].missingInSrc = true;
             }
         } else {
-            const type = editor.call('schema:getTypeForPath', config.schema.scene, `entities.$.${override.path}`);
+            const type = editor.call(
+                'schema:getTypeForPath',
+                editor.api.globals.schema.getDocument('scene'),
+                `entities.$.${override.path}`
+            );
             const field = this._prettifyName(pathParts[4]);
             result.overrideGroups[clipName].properties.push(...this._createGridLine(field, type, override, false));
         }
@@ -1030,7 +1042,11 @@ class TemplateOverridesView extends Container {
                     type = 'string';
                 } else {
                     field = parts[0];
-                    type = editor.call('schema:getTypeForPath', config.schema.scene, `entities.$.${parts[0]}`);
+                    type = editor.call(
+                        'schema:getTypeForPath',
+                        editor.api.globals.schema.getDocument('scene'),
+                        `entities.$.${parts[0]}`
+                    );
                 }
 
                 fields.properties.push(...this._createGridLine(this._prettifyName(field), type, override, false));
@@ -1060,7 +1076,7 @@ class TemplateOverridesView extends Container {
                         } else {
                             type = editor.call(
                                 'schema:getTypeForPath',
-                                config.schema.scene,
+                                editor.api.globals.schema.getDocument('scene'),
                                 `entities.$.components.${parts[1]}.${parts[2]}`
                             );
                             field = parts[2];

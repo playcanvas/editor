@@ -231,6 +231,25 @@ describe('api.Entity tests', function () {
         expect(e.has('components.testcomponent.entityRef')).to.equal(true);
     });
 
+    it('addComponent resolves runtime and legacy defaults', function () {
+        api.globals.schema = new api.Schema(structuredClone(schema));
+        const components = api.globals.schema.getFields(api.globals.schema.getComponents());
+        const fields = api.globals.schema.getFields(components.testcomponent);
+        fields.count.default = () => 7;
+        const scripts = api.globals.schema.getFields(components.script);
+        scripts.scripts.default = [];
+        delete scripts.order;
+
+        const e = api.globals.entities.create();
+        e.addComponent('testcomponent');
+        expect(e.get('components.testcomponent.count')).to.equal(7);
+        expect(api.globals.schema.components.resolvePath('testcomponent', 'count').default).to.equal(7);
+
+        const legacy = api.globals.entities.create();
+        legacy.addComponent('script');
+        expect(legacy.get('components.script')).to.deep.equal({ enabled: true, scripts: [] });
+    });
+
     it('addComponent accepts partial data', function () {
         api.globals.schema = new api.Schema(schema);
         const e = api.globals.entities.create();

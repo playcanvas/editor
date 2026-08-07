@@ -1,6 +1,8 @@
 import { deepCopy } from '@/common/utils';
 
 editor.once('load', () => {
+    const schema = editor.api.globals.schema;
+
     /**
      * Returns a JSON object that contains all of the default anim state graph data.
      *
@@ -9,19 +11,13 @@ editor.once('load', () => {
      */
     editor.method('schema:animstategraph:getDefaultData', (existingData?: object) => {
         const result = {};
-        const schema = config.schema.animstategraphData;
+        const defaults = schema.assets.getDefaultData('animstategraph') || {};
 
-        for (const key in schema) {
-            if (key.startsWith('$')) {
-                continue;
-            }
+        for (const key in schema.getFields(schema.getAssetData('animstategraph'))) {
             if (existingData && existingData[key] !== undefined) {
                 result[key] = existingData[key];
-            } else {
-                const field = schema[key];
-                if (Object.prototype.hasOwnProperty.call(field, '$default')) {
-                    result[key] = deepCopy(field.$default);
-                }
+            } else if (Object.hasOwn(defaults, key)) {
+                result[key] = deepCopy(defaults[key]);
             }
         }
 
