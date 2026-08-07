@@ -91,12 +91,18 @@ type Sentry =
           enabled: false;
       };
 
-type ModelSchema = {
-    scene: object;
-    settings: object;
-    asset: object;
-    [key: string]: object;
+type EditorSchemaCatalog = {
+    version: 1;
+    documents: {
+        asset: Record<string, unknown>;
+        scene: Record<string, unknown>;
+        settings: Record<string, unknown>;
+    };
+    assetData: Record<string, Record<string, unknown>>;
+    [key: string]: unknown;
 };
+
+type ModelSchema = EditorSchemaCatalog;
 
 type Url = {
     api: string;

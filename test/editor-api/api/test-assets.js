@@ -562,7 +562,9 @@ ${className}.prototype.update = function(dt) {
         expect(data.get('preload')).to.equal('true');
         expect(data.get('data')).to.equal(JSON.stringify({
             diffuse: [0, 0, 0],
-            opacity: 0
+            opacity: 0,
+            useLighting: false,
+            blendType: 0
         }));
     });
 

@@ -1,85 +1,43 @@
 import type { Schema } from '../schema';
 import { utils } from '../utils';
 
+type Field = Record<string, unknown>;
+
 /**
- * Provides methods to access the settings schema
+ * Provides methods to access the settings schema.
  */
 class SettingsSchema {
     private _schemaApi: Schema;
 
-    private _schema: any;
+    private _schema: Field;
 
-    /**
-     * Creates new instance of API
-     *
-     * @category Internal
-     * @param schema - The schema API
-     */
     constructor(schema: Schema) {
         this._schemaApi = schema;
-        this._schema = this._schemaApi.schema.settings;
+        this._schema = schema.getDocument('settings');
     }
 
-    _getDefaultData(obj: Record<string, any>, scope: string) {
-        const result: Record<string, any> = {};
-        for (const key in obj) {
-            if (key.startsWith('$')) {
+    _getDefaultData(schema: Field, scope: string) {
+        const result: Record<string, unknown> = {};
+        for (const [key, field] of Object.entries(this._schemaApi.getFields(schema))) {
+            const value = this._schemaApi.getDefault(field);
+            if (value.hasDefault) {
+                if (this._schemaApi.getScope(field) === scope) result[key] = utils.deepCopy(value.value);
                 continue;
             }
-            if (!(obj[key] instanceof Object)) {
-                continue;
-            }
-
-            if (Object.prototype.hasOwnProperty.call(obj[key], '$default')) {
-                if (obj[key].$scope === scope) {
-                    result[key] = utils.deepCopy(obj[key].$default);
-                }
-                continue;
-            } else {
-                const subDefaults = this._getDefaultData(obj[key], scope);
-                if (Object.keys(subDefaults).length) {
-                    result[key] = subDefaults;
-                }
-            }
+            const nested = this._getDefaultData(field as Field, scope);
+            if (Object.keys(nested).length) result[key] = nested;
         }
         return result;
     }
 
-    /**
-     * Get the default settings for the project
-     *
-     * @returns The default settings for the project
-     * @example
-     * ```javascript
-     * const projectSettings = editor.schema.settings.getDefaultProjectSettings();
-     * ```
-     */
     getDefaultProjectSettings() {
         return this._getDefaultData(this._schema, 'project');
     }
 
-    /**
-     * Get the default settings for the user
-     *
-     * @returns The default settings for the user
-     * @example
-     * ```javascript
-     * const userSettings = editor.schema.settings.getDefaultUserSettings();
-     * ```
-     */
     getDefaultUserSettings() {
         return this._getDefaultData(this._schema, 'user');
     }
 
-    /**
-     * Get the default settings for the user in the project
-     *
-     * @returns The default settings for the user in the project
-     * @example
-     * ```javascript
-     * const projectUserSettings = editor.schema.settings.getDefaultProjectUserSettings();
-     * ```
-     */
     getDefaultProjectUserSettings() {
         return this._getDefaultData(this._schema, 'projectUser');
     }

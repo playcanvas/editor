@@ -1,4 +1,6 @@
 editor.once('load', () => {
+    const schema = editor.api.globals.schema;
+
     /**
      * Gets the type of a path in the asset schema
      *
@@ -6,7 +8,7 @@ editor.once('load', () => {
      * @returns The type
      */
     editor.method('schema:asset:getType', (path: string): string => {
-        return editor.call('schema:getTypeForPath', config.schema.asset, path);
+        return editor.call('schema:getTypeForPath', schema.getDocument('asset'), path);
     });
 
     /**
@@ -17,11 +19,11 @@ editor.once('load', () => {
      * @returns The type
      */
     editor.method('schema:asset:getDataType', (assetType: string, path: string): string => {
-        const schema = config.schema[`${assetType}Data`];
-        if (schema) {
+        const data = schema.getAssetData(assetType);
+        if (data) {
             // strip data.
             path = path.substring(5);
-            return editor.call('schema:getTypeForPath', schema, path);
+            return editor.call('schema:getTypeForPath', data, path);
         }
 
         return editor.call('schema:asset:getType', path);
@@ -33,7 +35,6 @@ editor.once('load', () => {
      * @returns Array of asset type names
      */
     editor.method('schema:assets:list', (): string[] => {
-        const assetSchema = config.schema.asset as { type: { $enum: string[] } };
-        return assetSchema.type.$enum;
+        return schema.getAssetTypes();
     });
 });
