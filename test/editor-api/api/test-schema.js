@@ -3,46 +3,139 @@ describe('api.Schema tests', function () {
         api.globals.schema = null;
     });
 
-    it('components.getFieldsOfType returns fields', function () {
+    const withSchema = (callback) => {
         api.globals.schema = new api.Schema(schema);
-        const fields = api.globals.schema.components.getFieldsOfType('testcomponent', 'entity');
-        expect(fields).to.deep.equal(['entityRef', 'entityArrayRef', 'nestedEntityRef.*.entity']);
+        callback();
+    };
+
+    it('components.getFieldsOfType returns fields', function () {
+        withSchema(() => {
+            const fields = api.globals.schema.components.getFieldsOfType('testcomponent', 'entity');
+            expect(fields).to.deep.equal(['entityRef', 'entityArrayRef', 'nestedEntityRef.*.entity']);
+        });
     });
 
     it('components.resolvePath resolves fixed fields and open maps', function () {
-        api.globals.schema = new api.Schema(schema);
-        expect(api.globals.schema.components.resolvePath('testcomponent', 'entityRef')).to.include({
-            default: null,
-            hasDefault: true,
-            open: false
+        withSchema(() => {
+            expect(api.globals.schema.components.resolvePath('testcomponent', 'entityRef')).to.include({
+                default: null,
+                hasDefault: true,
+                open: false
+            });
+            expect(api.globals.schema.components.resolvePath('testcomponent', 'nestedEntityRef.item.entity')).to.include({
+                hasDefault: false,
+                open: true
+            });
+            expect(api.globals.schema.components.resolvePath('script', 'scripts.rotate.attributes.speed')).to.include({
+                open: true
+            });
+            expect(api.globals.schema.components.resolvePath('testcomponent', 'missing')).to.equal(null);
         });
-        expect(api.globals.schema.components.resolvePath('testcomponent', 'nestedEntityRef.item.entity')).to.include({
-            hasDefault: false,
-            open: true
-        });
-        expect(api.globals.schema.components.resolvePath('script', 'scripts.rotate.attributes.speed')).to.include({
-            open: true
-        });
-        expect(api.globals.schema.components.resolvePath('testcomponent', 'missing')).to.equal(null);
     });
 
     it('assets.resolvePath resolves fixed fields, arrays and open maps', function () {
-        api.globals.schema = new api.Schema(schema);
-        expect(api.globals.schema.assets.resolvePath('material', 'diffuse')).to.deep.include({
-            default: [0, 0, 0],
-            hasDefault: true,
-            open: false
+        withSchema(() => {
+            expect(api.globals.schema.assets.resolvePath('material', 'diffuse')).to.deep.include({
+                default: [0, 0, 0],
+                hasDefault: true,
+                open: false
+            });
+            expect(api.globals.schema.assets.resolvePath('model', 'mapping.0.material')).to.include({
+                hasDefault: false,
+                open: false
+            });
+            expect(api.globals.schema.assets.resolvePath('test', 'nestedAssetRef.item.asset')).to.include({
+                default: null,
+                hasDefault: true,
+                open: true
+            });
+            expect(api.globals.schema.assets.resolvePath('model', 'mapping.nope.material')).to.equal(null);
+            expect(api.globals.schema.assets.resolvePath('material', 'missing')).to.equal(null);
         });
-        expect(api.globals.schema.assets.resolvePath('model', 'mapping.0.material')).to.include({
-            hasDefault: false,
-            open: false
+    });
+
+    it('resolves open maps without value schemas and keeps typed arrays numeric-only', function () {
+        withSchema(() => {
+            expect(api.globals.schema.assets.resolvePath('font', 'kerning.anyKey')).to.deep.equal({
+                field: null,
+                default: undefined,
+                hasDefault: false,
+                open: true
+            });
+            expect(api.globals.schema.assets.resolvePath('model', 'mapping.anyKey.material')).to.equal(null);
+            expect(api.globals.schema.assets.resolvePath('model', 'mapping.-1.material')).to.equal(null);
         });
-        expect(api.globals.schema.assets.resolvePath('test', 'nestedAssetRef.item.asset')).to.include({
-            default: null,
-            hasDefault: true,
-            open: true
+    });
+
+    it('preserves falsey and nested defaults', function () {
+        withSchema(() => {
+            expect(api.globals.schema.assets.getDefaultData('material')).to.deep.equal({
+                diffuse: [0, 0, 0],
+                opacity: 1,
+                useLighting: false,
+                blendType: 0
+            });
+            expect(api.globals.schema.assets.getDefaultData('animstategraph')).to.deep.equal({ testData: 0 });
+            expect(api.globals.schema.assets.getDefaultData('missing')).to.equal(null);
+            expect(api.globals.schema.components.getDefaultData('testcomponent')).to.deep.equal({
+                enabled: false,
+                count: 0,
+                vector: [0, 0, 0],
+                nestedDefault: { enabled: false, count: 0 },
+                entityRef: null,
+                entityArrayRef: [],
+                assetRef: null,
+                assetArrayRef: []
+            });
         });
-        expect(api.globals.schema.assets.resolvePath('model', 'mapping.nope.material')).to.equal(null);
-        expect(api.globals.schema.assets.resolvePath('material', 'missing')).to.equal(null);
+    });
+
+    it('preserves scene and scoped settings defaults', function () {
+        withSchema(() => {
+            expect(api.globals.schema.scene.getDefaultPhysicsSettings()).to.deep.equal({
+                gravity: [0, -9.8, 0],
+                enabled: false
+            });
+            expect(api.globals.schema.scene.getDefaultRenderSettings()).to.deep.equal({ fog: 'none', exposure: 0 });
+            expect(api.globals.schema.settings.getDefaultProjectSettings()).to.deep.equal({ projectFlag: false });
+            expect(api.globals.schema.settings.getDefaultUserSettings()).to.deep.equal({ userCount: 0 });
+            expect(api.globals.schema.settings.getDefaultProjectUserSettings()).to.deep.equal({
+                nested: { projectUserValue: '' }
+            });
+        });
+    });
+
+    it('preserves types, metadata, lists and reference paths', function () {
+        withSchema(() => {
+            const vec2 = { type: 'array', items: { type: 'number' }, minItems: 2, maxItems: 2 };
+            expect(api.globals.schema.getType(vec2)).to.equal('vec2');
+            expect(api.globals.schema.components.list()).to.deep.equal(['script', 'testcomponent']);
+            expect(api.globals.schema.assets.getFieldsOfType('test', 'asset')).to.deep.equal([
+                'data.assetRef',
+                'data.assetArrayRef',
+                'data.nestedAssetRef.*.asset'
+            ]);
+            expect(api.globals.schema.getAssetTypes()).to.deep.equal(['material', 'model', 'font', 'test']);
+            const field = api.globals.schema.assets.resolvePath('model', 'mapping').field;
+            expect(field['x-merge-method']).to.equal('stop_and_report_conflict');
+        });
+    });
+
+    it('preserves the loose legacy Caller path separately from typed resolution', function () {
+        withSchema(() => {
+            const model = api.globals.schema.getAssetData('model');
+            expect(api.globals.schema.getTypeForPath(model, 'mapping.anyKey.material', false)).to.equal('asset');
+            expect(api.globals.schema.assets.resolvePath('model', 'mapping.anyKey.material')).to.equal(null);
+        });
+    });
+
+    it('rejects unsupported versioned payloads', function () {
+        expect(() => new api.Schema({ documents: {}, assetData: {} })).to.throw(
+            'Unsupported Editor schema version: undefined'
+        );
+        expect(() => new api.Schema({ version: 2, documents: {}, assetData: {} })).to.throw(
+            'Unsupported Editor schema version: 2'
+        );
+        expect(() => new api.Schema({ version: 1 })).to.throw('Unsupported Editor schema version: 1');
     });
 });
