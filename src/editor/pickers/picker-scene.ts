@@ -514,9 +514,7 @@ editor.once('load', () => {
     });
 
     editor.on('scene:name', (name) => {
-        const scene = scenes.find(
-            (scene) => parseInt(String(scene.id), 10) === parseInt(String(config.scene.id), 10)
-        );
+        const scene = scenes.find((scene) => parseInt(String(scene.id), 10) === parseInt(String(config.scene.id), 10));
         if (!scene) {
             return;
         }
