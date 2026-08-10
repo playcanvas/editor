@@ -4,8 +4,6 @@ import { installEllipsisTooltips } from '@/common/ellipsis-tooltip';
 import { bytesToHuman, convertDatetime, countToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
-import { diffBuilds } from './builds-data';
-
 const APP_LIMIT = 16;
 const APP_INDEX_PAGE = 128;
 const FILTER_ALL = 'all';
@@ -1601,17 +1599,14 @@ editor.once('load', () => {
     // reconcile the list so status updates only replace their row
     const refreshApps = function (previous: typeof apps) {
         destroyTooltips();
-        const diff = diffBuilds(previous, apps);
+        const prev = new Map(previous.map((app) => [app.id, JSON.stringify(app)]));
+        const changed = new Set(apps.filter((app) => prev.get(app.id) !== JSON.stringify(app)).map((app) => app.id));
         const primary = apps.find(isPrimaryBuild);
         const oldPrimary = previous.find(isPrimaryBuild);
-        if (
-            !primaryBuild.dom.firstChild ||
-            primary?.id !== oldPrimary?.id ||
-            (primary && diff.changed.has(primary.id))
-        ) {
+        if (!primaryBuild.dom.firstChild || primary?.id !== oldPrimary?.id || (primary && changed.has(primary.id))) {
             renderPrimaryBuild();
         }
-        const ids = new Set([...diff.ids].map((id) => `app-${id}`));
+        const ids = new Set(apps.map((app) => `app-${app.id}`));
         container.dom.querySelectorAll<HTMLElement>(':scope > .build-item').forEach((item) => {
             if (!ids.has(item.id)) {
                 destroyAppEvents(item);
@@ -1622,7 +1617,7 @@ editor.once('load', () => {
         let anchor = noMatchingBuilds.dom;
         apps.forEach((app) => {
             let item = document.getElementById(`app-${app.id}`);
-            if (!item || diff.changed.has(app.id)) {
+            if (!item || changed.has(app.id)) {
                 const next = createAppItem(app);
                 if (item) {
                     destroyAppEvents(item);
