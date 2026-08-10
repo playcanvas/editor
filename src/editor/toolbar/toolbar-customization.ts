@@ -1,12 +1,10 @@
-import { Button, Menu, MenuItem } from '@playcanvas/pcui';
+import { Menu, MenuItem } from '@playcanvas/pcui';
+import type { Button } from '@playcanvas/pcui';
 
 import { mergeToolbarOrder, moveToolbarItem } from './toolbar-order';
 
 const STORAGE_KEY = 'editor:toolbar';
-const EYE_ICON =
-    '<svg class="toolbar-visibility-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg>';
-const EYE_OFF_ICON =
-    '<svg class="toolbar-visibility-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 6.1A11 11 0 0 1 12 6c6.5 0 10 6 10 6a15 15 0 0 1-2.1 2.8M6.6 6.6C3.6 8.4 2 12 2 12s3.5 6 10 6a10 10 0 0 0 4.2-.9"/></svg>';
+const EYE_ICON = '\uE117';
 
 type Item = {
     id: string;
@@ -50,9 +48,7 @@ editor.once('loaded', () => {
     let moved = false;
     const toggles = new Map<string, HTMLSpanElement>();
     const menu = new Menu();
-    const done = new Button({ class: 'toolbar-edit-done', text: 'DONE', hidden: true });
     root.append(menu);
-    root.append(done);
 
     const save = () => {
         editor.call('localStorage:set', STORAGE_KEY, { hidden: [...hidden], order });
@@ -67,7 +63,8 @@ editor.once('loaded', () => {
             item.button.class.toggle('toolbar-user-hidden', isHidden);
             item.button.class.remove('push-top');
             if (toggle) {
-                toggle.innerHTML = isHidden ? EYE_OFF_ICON : EYE_ICON;
+                toggle.textContent = EYE_ICON;
+                toggle.classList.toggle('toolbar-visibility-hidden', isHidden);
                 toggle.ariaLabel = `${isHidden ? 'Show' : 'Hide'} ${item.label}`;
             }
         });
@@ -84,7 +81,7 @@ editor.once('loaded', () => {
     const setEditing = (value: boolean) => {
         editing = value;
         toolbar.class.toggle('toolbar-editing', value);
-        done.hidden = !value;
+        editor.call('toolbar:logo:editing', value);
         items.forEach((item) => {
             const toggle = toggles.get(item.id)!;
             item.button.dom.draggable = value;
@@ -96,6 +93,7 @@ editor.once('loaded', () => {
         });
         render();
     };
+    editor.method('toolbar:edit:done', () => setEditing(false));
 
     items.forEach((item) => {
         const toggle = document.createElement('span');
@@ -165,7 +163,6 @@ editor.once('loaded', () => {
     });
 
     render();
-    done.on('click', () => setEditing(false));
 
     toolbar.dom.addEventListener('dragover', (evt: DragEvent) => {
         const id = (evt.target as HTMLElement).closest<HTMLElement>('[data-toolbar-id]')?.dataset.toolbarId;

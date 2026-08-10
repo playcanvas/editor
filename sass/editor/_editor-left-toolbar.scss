@@ -34,6 +34,20 @@
             &:hover {
                 background-position: -40px 0;
             }
+
+            &.toolbar-done {
+                color: $text-primary;
+                background-color: $bcg-darkest;
+                background-image: none;
+                font-size: 20px;
+                line-height: 38px;
+                text-align: center;
+
+                &:hover,
+                &:focus {
+                    background-color: $bcg-dark;
+                }
+            }
         }
 
         &.icon,
@@ -144,37 +158,49 @@
     .toolbar-visibility {
         position: absolute;
         z-index: 1;
-        top: 3px;
-        right: 1px;
+        top: 0;
+        right: 0;
         display: none;
-        place-items: center;
+        align-items: center;
+        justify-content: center;
         box-sizing: border-box;
-        width: 17px;
-        height: 17px;
-        border: 1px solid $text-dark;
-        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        border: none;
+        border-radius: 0;
         color: $text-primary;
         background: $bcg-darkest;
-        line-height: 0;
+        font-family: pc-icon;
+        font-size: 14px;
+        line-height: 1;
         cursor: pointer;
 
-        .toolbar-visibility-icon {
-            width: 11px;
-            height: 11px;
-            pointer-events: none;
+        &:hover,
+        &:focus {
+            background: $bcg-dark;
+        }
+
+        &.toolbar-visibility-hidden {
+            color: $text-secondary;
+
+            &::after {
+                content: '';
+                position: absolute;
+                left: 3px;
+                right: 3px;
+                top: calc(50% - 1px);
+                height: 2px;
+                background: currentcolor;
+                transform: rotate(-45deg);
+                pointer-events: none;
+            }
+
+            &:hover,
+            &:focus {
+                color: $text-primary;
+            }
         }
     }
-
-    .toolbar-user-hidden .toolbar-visibility {
-        color: $text-active;
-    }
-}
-
-#layout-root > .toolbar-edit-done {
-    position: absolute;
-    z-index: 400;
-    top: 4px;
-    left: 44px;
 }
 
 #layout-toolbar.hide-items > div {
