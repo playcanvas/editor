@@ -8,6 +8,13 @@ editor.once('load', () => {
 
     const schema = config.schema.scene.entities.$of.components;
 
+    delete schema.model.castShadowsLightMap;
+    delete schema.model.lightMapped;
+    delete schema.model.lightMapSizeMultiplier;
+    delete schema.render.castShadowsLightMap;
+    delete schema.render.lightMapped;
+    delete schema.render.lightMapSizeMultiplier;
+
     let componentName;
 
     // make titles for each component
