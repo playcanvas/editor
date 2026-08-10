@@ -4,6 +4,8 @@ import { installEllipsisTooltips } from '@/common/ellipsis-tooltip';
 import { bytesToHuman, convertDatetime, countToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
+import { diffBuilds } from './builds-data';
+
 const APP_LIMIT = 16;
 const APP_INDEX_PAGE = 128;
 const FILTER_ALL = 'all';
@@ -85,7 +87,7 @@ editor.once('load', () => {
     let appList = [];
     let loadedAppIndex = false;
     let tooltips = []; // holds all tooltips
-    let events = []; // holds events that need to be destroyed
+    const events = new Map<HTMLElement, { unbind: () => void }[]>();
     let detailEvents = []; // holds detail panel events
     let openingDetail = false;
     let openingBuildForm = false;
@@ -311,6 +313,7 @@ editor.once('load', () => {
                 if (gen !== loadGen) {
                     return;
                 }
+                const previous = apps.slice();
                 const results = data.result.map(normalizeBuildJob);
                 const ids = getPublishAppIds(results);
                 if (ids.size) {
@@ -323,7 +326,7 @@ editor.once('load', () => {
                 hasMore = data.pagination
                     ? skip + results.length < data.pagination.total
                     : results.length === APP_LIMIT;
-                refreshApps();
+                refreshApps(previous);
                 fillViewport();
             });
     };
@@ -1374,6 +1377,7 @@ editor.once('load', () => {
     // create UI for single app
     const createAppItem = function (app: any, list: Container = container, options: any = {}) {
         const item = document.createElement('div');
+        const itemEvents = [];
         item.classList.add('build-item', app.task.status, app.type);
         item.id = options.summary ? `primary-app-${app.id}` : `app-${app.id}`;
 
@@ -1468,7 +1472,7 @@ editor.once('load', () => {
                 e.stopPropagation();
             };
             artifact.addEventListener('click', stop);
-            events.push({
+            itemEvents.push({
                 unbind: () => artifact.removeEventListener('click', stop)
             });
         } else {
@@ -1505,16 +1509,18 @@ editor.once('load', () => {
             openRowMenu(app, kebab);
         };
         kebab.addEventListener('click', openKebab);
-        events.push({
+        itemEvents.push({
             unbind: () => kebab.removeEventListener('click', openKebab)
         });
         row.appendChild(kebab);
 
         const onItemClick = () => openBuildDetail(app);
         item.addEventListener('click', onItemClick);
-        events.push({
+        itemEvents.push({
             unbind: () => item.removeEventListener('click', onItemClick)
         });
+
+        events.set(item, itemEvents);
 
         return item;
     };
@@ -1522,14 +1528,10 @@ editor.once('load', () => {
     // CONTROLLERS
 
     // load build job list
-    // signature of everything the list rows + primary card render from, so a
-    // background refresh can skip the full teardown/rebuild when nothing changed
-    const appsFingerprint = function () {
-        const rows = apps.map((a) => `${a.id}:${a.task?.status ?? ''}:${a.completed_at ?? ''}:${a.views ?? ''}`);
-        return `${config.project.primaryApp}|${rows.join(',')}`;
-    };
-
-    const loadApps = function (showProgress = true) {
+    const loadApps = function (showProgress = true, includeNew = false) {
+        const previous = apps.slice();
+        const loaded = previous.filter((app) => app.build_job_id).length;
+        const limit = showProgress ? APP_LIMIT : Math.max(APP_LIMIT, loaded + Number(includeNew));
         skip = 0;
         hasMore = true;
         loadingMore = false;
@@ -1540,38 +1542,30 @@ editor.once('load', () => {
         }
 
         loadAppIndex(() => {
-            editor.api.globals.rest.projects
-                .projectBuilds(APP_LIMIT, 0, getServerFilters())
-                .on('load', (status, data) => {
-                    if (gen !== loadGen) {
-                        return;
-                    }
-                    const rows = data.result.map(normalizeBuildJob);
-                    const ids = getPublishAppIds(rows);
-                    const legacy = appList.filter((app) => !ids.has(String(app.id))).map(normalizeLegacyApp);
-                    const prevSig = appsFingerprint();
-                    apps = rows.concat(legacy).sort(compareBuildDate);
-                    hasMore = data.pagination ? rows.length < data.pagination.total : data.result.length === APP_LIMIT;
+            editor.api.globals.rest.projects.projectBuilds(limit, 0, getServerFilters()).on('load', (status, data) => {
+                if (gen !== loadGen) {
+                    return;
+                }
+                const rows = data.result.map(normalizeBuildJob);
+                const ids = getPublishAppIds(rows);
+                const legacy = appList.filter((app) => !ids.has(String(app.id))).map(normalizeLegacyApp);
+                apps = rows.concat(legacy).sort(compareBuildDate);
+                hasMore = data.pagination ? rows.length < data.pagination.total : data.result.length === limit;
+                skip = Math.max(0, rows.length - APP_LIMIT);
 
-                    if (showProgress) {
-                        toggleProgress(false);
-                    }
+                if (showProgress) {
+                    toggleProgress(false);
+                }
 
-                    // explicit (progress) loads always re-render; a background refresh
-                    // only tears down + rebuilds when the data actually changed, so a
-                    // cached reopen doesn't reflow the whole list
-                    if (showProgress || appsFingerprint() !== prevSig) {
-                        refreshApps();
-                    } else {
-                        refreshFilterVisibility();
-                    }
-                    fillViewport();
-                });
+                refreshApps(previous);
+                fillViewport();
+            });
         });
     };
 
     // removes an app from the UI
     const removeApp = function (app: any) {
+        const previous = apps.slice();
         const target = apps.find((item) => isSameBuild(item, app)) || app;
         const removedDetail = detailApp && isSameBuild(detailApp, target);
 
@@ -1583,7 +1577,7 @@ editor.once('load', () => {
         if (removedDetail) {
             detailApp = null;
         }
-        refreshApps();
+        refreshApps(previous);
 
         if (removedDetail) {
             openBuildsPanel();
@@ -1599,16 +1593,47 @@ editor.once('load', () => {
         }
     };
 
-    // recreate app list UI
-    const refreshApps = function () {
+    const destroyAppEvents = function (item: HTMLElement) {
+        events.get(item)?.forEach((evt) => evt.unbind());
+        events.delete(item);
+    };
+
+    // reconcile the list so status updates only replace their row
+    const refreshApps = function (previous: typeof apps) {
         destroyTooltips();
-        destroyEvents();
-        primaryBuild.dom.innerHTML = '';
-        container.dom.innerHTML = '';
-        container.dom.appendChild(noMatchingBuilds.dom);
-        renderPrimaryBuild();
+        const diff = diffBuilds(previous, apps);
+        const primary = apps.find(isPrimaryBuild);
+        const oldPrimary = previous.find(isPrimaryBuild);
+        if (
+            !primaryBuild.dom.firstChild ||
+            primary?.id !== oldPrimary?.id ||
+            (primary && diff.changed.has(primary.id))
+        ) {
+            renderPrimaryBuild();
+        }
+        const ids = new Set([...diff.ids].map((id) => `app-${id}`));
+        container.dom.querySelectorAll<HTMLElement>(':scope > .build-item').forEach((item) => {
+            if (!ids.has(item.id)) {
+                destroyAppEvents(item);
+                item.remove();
+            }
+        });
+
+        let anchor = noMatchingBuilds.dom;
         apps.forEach((app) => {
-            createAppItem(app);
+            let item = document.getElementById(`app-${app.id}`);
+            if (!item || diff.changed.has(app.id)) {
+                const next = createAppItem(app);
+                if (item) {
+                    destroyAppEvents(item);
+                    item.replaceWith(next);
+                }
+                item = next;
+            }
+            if (anchor.nextSibling !== item) {
+                anchor.after(item);
+            }
+            anchor = item;
         });
         refreshFilterVisibility();
 
@@ -1797,10 +1822,10 @@ editor.once('load', () => {
     };
 
     const destroyEvents = function () {
-        events.forEach((evt) => {
-            evt.unbind();
+        events.forEach((items) => {
+            items.forEach((evt) => evt.unbind());
         });
-        events = [];
+        events.clear();
     };
 
     const destroyDetailEvents = function () {
@@ -1875,7 +1900,7 @@ editor.once('load', () => {
         }
 
         loadedAppIndex = false;
-        loadApps();
+        loadApps(apps.length === 0, true);
     });
 
     // handle external delete
@@ -1902,7 +1927,7 @@ editor.once('load', () => {
         }
 
         loadedAppIndex = false;
-        loadApps();
+        loadApps(apps.length === 0);
     });
 
     editor.on('messenger:job.update', (msg: any) => {
@@ -1932,7 +1957,7 @@ editor.once('load', () => {
         openingBuilds = false;
 
         if (reloadOnNextShow && !panel.hidden) {
-            loadApps(apps.length === 0);
+            loadApps(apps.length === 0, true);
             reloadOnNextShow = false;
         }
     });
@@ -1948,7 +1973,7 @@ editor.once('load', () => {
         scrollContainer?.addEventListener('scroll', onScroll);
 
         if (reloadOnNextShow || apps.length === 0) {
-            loadApps(apps.length === 0);
+            loadApps(apps.length === 0, reloadOnNextShow);
             reloadOnNextShow = false;
         } else {
             // cached (unfiltered) list is still in the DOM: show it instantly,
@@ -1956,7 +1981,7 @@ editor.once('load', () => {
             // no teardown, and the list only rebuilds if something changed
             refreshFilterVisibility();
             loadedAppIndex = false;
-            loadApps(false);
+            loadApps(false, true);
         }
 
         if (editor.call('viewport:inViewport')) {
