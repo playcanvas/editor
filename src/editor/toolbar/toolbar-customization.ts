@@ -86,7 +86,13 @@ editor.once('loaded', () => {
         toolbar.class.toggle('toolbar-editing', value);
         done.hidden = !value;
         items.forEach((item) => {
+            const toggle = toggles.get(item.id)!;
             item.button.dom.draggable = value;
+            if (value) {
+                item.button.dom.append(toggle);
+            } else {
+                toggle.remove();
+            }
         });
         render();
     };
@@ -122,7 +128,6 @@ editor.once('loaded', () => {
             evt.stopPropagation();
             toggleVisibility();
         });
-        item.button.dom.append(toggle);
         toggles.set(item.id, toggle);
 
         item.button.dom.addEventListener('mousedown', (evt) => evt.stopPropagation());
