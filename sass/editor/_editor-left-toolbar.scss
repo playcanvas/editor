@@ -21,13 +21,8 @@
             display: none !important;
         }
 
-        &[data-toolbar-id] {
-            cursor: grab;
-        }
-
         &.toolbar-dragging {
             opacity: 0.4;
-            cursor: grabbing;
         }
 
         &.logo {
@@ -132,6 +127,54 @@
             order: 6;
         }
     }
+
+    &.toolbar-editing {
+        > .pcui-button[data-toolbar-id]:not(.hidden) {
+            display: block !important;
+            position: relative;
+            overflow: visible;
+            cursor: move;
+        }
+
+        .toolbar-visibility {
+            display: grid;
+        }
+    }
+
+    .toolbar-visibility {
+        position: absolute;
+        z-index: 1;
+        top: 3px;
+        right: -8px;
+        display: none;
+        place-items: center;
+        box-sizing: border-box;
+        width: 17px;
+        height: 17px;
+        border: 1px solid $text-dark;
+        border-radius: 50%;
+        color: $text-primary;
+        background: $bcg-darkest;
+        line-height: 0;
+        cursor: pointer;
+
+        .toolbar-visibility-icon {
+            width: 11px;
+            height: 11px;
+            pointer-events: none;
+        }
+    }
+
+    .toolbar-user-hidden .toolbar-visibility {
+        color: $text-active;
+    }
+}
+
+#layout-root > .toolbar-edit-done {
+    position: absolute;
+    z-index: 400;
+    top: 4px;
+    left: 44px;
 }
 
 #layout-toolbar.hide-items > div {

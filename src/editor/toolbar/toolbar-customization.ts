@@ -1,9 +1,12 @@
-import { Menu, MenuItem } from '@playcanvas/pcui';
-import type { Button } from '@playcanvas/pcui';
+import { Button, Menu, MenuItem } from '@playcanvas/pcui';
 
 import { mergeToolbarOrder, moveToolbarItem } from './toolbar-order';
 
 const STORAGE_KEY = 'editor:toolbar';
+const EYE_ICON =
+    '<svg class="toolbar-visibility-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg>';
+const EYE_OFF_ICON =
+    '<svg class="toolbar-visibility-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 6.1A11 11 0 0 1 12 6c6.5 0 10 6 10 6a15 15 0 0 1-2.1 2.8M6.6 6.6C3.6 8.4 2 12 2 12s3.5 6 10 6a10 10 0 0 0 4.2-.9"/></svg>';
 
 type Item = {
     id: string;
@@ -42,10 +45,14 @@ editor.once('loaded', () => {
             : []
     );
     let order = mergeToolbarOrder(stored?.order, defaults);
+    let editing = false;
     let dragged: Item | null = null;
     let moved = false;
+    const toggles = new Map<string, HTMLSpanElement>();
     const menu = new Menu();
+    const done = new Button({ class: 'toolbar-edit-done', text: 'DONE', hidden: true });
     root.append(menu);
+    root.append(done);
 
     const save = () => {
         editor.call('localStorage:set', STORAGE_KEY, { hidden: [...hidden], order });
@@ -55,8 +62,14 @@ editor.once('loaded', () => {
             .map((id) => items.find((item) => item.id === id))
             .filter((item) => item?.group === 'utility');
         items.forEach((item) => {
-            item.button.class.toggle('toolbar-user-hidden', hidden.has(item.id));
+            const isHidden = hidden.has(item.id);
+            const toggle = toggles.get(item.id);
+            item.button.class.toggle('toolbar-user-hidden', isHidden);
             item.button.class.remove('push-top');
+            if (toggle) {
+                toggle.innerHTML = isHidden ? EYE_OFF_ICON : EYE_ICON;
+                toggle.ariaLabel = `${isHidden ? 'Show' : 'Hide'} ${item.label}`;
+            }
         });
         order
             .filter((id) => items.find((item) => item.id === id)?.group === 'main')
@@ -66,20 +79,68 @@ editor.once('loaded', () => {
         utilities.forEach((item, index) => {
             item.button.dom.style.order = String(index + 100);
         });
-        utilities.find((item) => !hidden.has(item.id))?.button.class.add('push-top');
+        utilities.find((item) => editing || !hidden.has(item.id))?.button.class.add('push-top');
     };
-    const show = (item: Item) => {
-        hidden.delete(item.id);
+    const setEditing = (value: boolean) => {
+        editing = value;
+        toolbar.class.toggle('toolbar-editing', value);
+        done.hidden = !value;
+        items.forEach((item) => {
+            item.button.dom.draggable = value;
+        });
         render();
-        save();
     };
-
-    render();
 
     items.forEach((item) => {
-        item.button.dom.draggable = true;
+        const toggle = document.createElement('span');
+        const toggleVisibility = () => {
+            if (hidden.has(item.id)) {
+                hidden.delete(item.id);
+            } else {
+                hidden.add(item.id);
+            }
+            render();
+            save();
+        };
+        toggle.className = 'toolbar-visibility';
+        toggle.role = 'button';
+        toggle.tabIndex = 0;
+        toggle.addEventListener('mousedown', (evt) => {
+            evt.preventDefault();
+            evt.stopPropagation();
+        });
+        toggle.addEventListener('click', (evt) => {
+            evt.preventDefault();
+            evt.stopPropagation();
+            toggleVisibility();
+        });
+        toggle.addEventListener('keydown', (evt) => {
+            if (evt.key !== 'Enter' && evt.key !== ' ') {
+                return;
+            }
+            evt.preventDefault();
+            evt.stopPropagation();
+            toggleVisibility();
+        });
+        item.button.dom.append(toggle);
+        toggles.set(item.id, toggle);
+
         item.button.dom.addEventListener('mousedown', (evt) => evt.stopPropagation());
+        item.button.dom.addEventListener(
+            'click',
+            (evt) => {
+                if (editing && !(evt.target as HTMLElement).closest('.toolbar-visibility')) {
+                    evt.preventDefault();
+                    evt.stopImmediatePropagation();
+                }
+            },
+            true
+        );
         item.button.dom.addEventListener('dragstart', (evt) => {
+            if (!editing) {
+                evt.preventDefault();
+                return;
+            }
             evt.stopPropagation();
             dragged = item;
             moved = false;
@@ -97,6 +158,9 @@ editor.once('loaded', () => {
             }
         });
     });
+
+    render();
+    done.on('click', () => setEditing(false));
 
     toolbar.dom.addEventListener('dragover', (evt: DragEvent) => {
         const id = (evt.target as HTMLElement).closest<HTMLElement>('[data-toolbar-id]')?.dataset.toolbarId;
@@ -124,48 +188,13 @@ editor.once('loaded', () => {
     toolbar.dom.addEventListener('contextmenu', (evt: MouseEvent) => {
         evt.preventDefault();
         evt.stopPropagation();
-
-        const id = (evt.target as HTMLElement).closest<HTMLElement>('[data-toolbar-id]')?.dataset.toolbarId;
-        const item = items.find((item) => item.id === id);
         menu.clear();
-
-        if (item && !hidden.has(item.id)) {
-            menu.append(
-                new MenuItem({
-                    text: `Hide ${item.label}`,
-                    icon: 'E132',
-                    onSelect: () => {
-                        hidden.add(item.id);
-                        render();
-                        save();
-                    }
-                })
-            );
-        }
-        items
-            .filter((item) => hidden.has(item.id))
-            .forEach((item) => {
-                menu.append(
-                    new MenuItem({
-                        text: `Show ${item.label}`,
-                        icon: 'E133',
-                        onSelect: () => show(item)
-                    })
-                );
-            });
-        if (hidden.size > 1) {
-            menu.append(
-                new MenuItem({
-                    text: 'Show All',
-                    icon: 'E133',
-                    onSelect: () => {
-                        hidden.clear();
-                        render();
-                        save();
-                    }
-                })
-            );
-        }
+        menu.append(
+            new MenuItem({
+                text: editing ? 'Done Editing' : 'Edit Toolbar',
+                onSelect: () => setEditing(!editing)
+            })
+        );
         if (hidden.size || order.some((id, index) => id !== defaults[index])) {
             menu.append(
                 new MenuItem({
@@ -179,9 +208,7 @@ editor.once('loaded', () => {
                 })
             );
         }
-        if (item || hidden.size) {
-            menu.hidden = false;
-            menu.position(evt.clientX + 1, evt.clientY);
-        }
+        menu.hidden = false;
+        menu.position(evt.clientX + 1, evt.clientY);
     });
 });
