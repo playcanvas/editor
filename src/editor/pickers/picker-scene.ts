@@ -513,6 +513,18 @@ editor.once('load', () => {
         editor.call('picker:project:close');
     });
 
+    editor.on('scene:name', (name) => {
+        const scene = scenes.find((scene) => parseInt(String(scene.id), 10) === parseInt(String(config.scene.id), 10));
+        if (!scene) {
+            return;
+        }
+
+        scene.name = name;
+        if (!container.hidden) {
+            refreshScenes();
+        }
+    });
+
     // subscribe to messenger scene.delete
     editor.on('messenger:scene.delete', (data) => {
         if (data.scene.branchId !== config.self.branch.id) {
