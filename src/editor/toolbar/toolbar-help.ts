@@ -10,6 +10,7 @@ editor.once('load', () => {
         icon: 'E138'
     });
     toolbar.append(button);
+    editor.call('toolbar:register', { id: 'help', label: 'How Do I...?', group: 'utility', button });
 
     button.on('click', () => {
         editor.call('help:howdoi:toggle');

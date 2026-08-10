@@ -10,6 +10,7 @@ editor.once('load', () => {
         icon: 'E119'
     });
     toolbar.append(contact);
+    editor.call('toolbar:register', { id: 'forum', label: 'Forum', group: 'utility', button: contact });
 
     TooltipHandle.attach({
         target: contact.dom,

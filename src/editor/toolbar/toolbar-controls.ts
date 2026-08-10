@@ -10,6 +10,7 @@ editor.once('load', () => {
         icon: 'E136'
     });
     toolbar.append(button);
+    editor.call('toolbar:register', { id: 'controls', label: 'Controls', group: 'utility', button });
 
     button.on('click', () => {
         editor.call('help:controls');

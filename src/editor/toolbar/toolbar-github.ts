@@ -10,6 +10,7 @@ editor.once('load', () => {
         icon: 'E259'
     });
     toolbar.append(button);
+    editor.call('toolbar:register', { id: 'github', label: 'GitHub', group: 'utility', button });
 
     button.on('click', () => {
         window.open('https://github.com/playcanvas/editor/issues', '_blank');

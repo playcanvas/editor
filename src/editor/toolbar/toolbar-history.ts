@@ -15,6 +15,7 @@ editor.once('load', () => {
         icon: 'E114'
     });
     toolbar.append(buttonUndo);
+    editor.call('toolbar:register', { id: 'undo', label: 'Undo', group: 'main', button: buttonUndo });
 
     history.on('canUndo', (state) => {
         buttonUndo.enabled = state;
@@ -46,6 +47,7 @@ editor.once('load', () => {
         icon: 'E115'
     });
     toolbar.append(buttonRedo);
+    editor.call('toolbar:register', { id: 'redo', label: 'Redo', group: 'main', button: buttonRedo });
 
     history.on('canRedo', (state) => {
         buttonRedo.enabled = state;

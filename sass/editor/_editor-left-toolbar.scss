@@ -17,6 +17,19 @@
             display: none;
         }
 
+        &.toolbar-user-hidden {
+            display: none !important;
+        }
+
+        &[data-toolbar-id] {
+            cursor: grab;
+        }
+
+        &.toolbar-dragging {
+            opacity: 0.4;
+            cursor: grabbing;
+        }
+
         &.logo {
             background-image: url('https://playcanvas.com/static-assets/images/editor_logo.png');
             background-size: 80px 40px;

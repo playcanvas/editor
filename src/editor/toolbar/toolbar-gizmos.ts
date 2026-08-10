@@ -56,6 +56,12 @@ editor.once('load', () => {
         });
 
         toolbar.append(button);
+        editor.call('toolbar:register', {
+            id: `gizmo-${item.op}`,
+            label: item.tooltip,
+            group: 'main',
+            button
+        });
 
         button.tooltip = TooltipHandle.attach({
             target: button.dom,
@@ -79,6 +85,7 @@ editor.once('load', () => {
         icon: 'E118'
     });
     toolbar.append(buttonWorld);
+    editor.call('toolbar:register', { id: 'gizmo-space', label: 'World / Local', group: 'main', button: buttonWorld });
 
     buttonWorld.on('click', () => {
         if (buttonWorld.class.contains('active')) {
@@ -116,6 +123,7 @@ editor.once('load', () => {
         editor.call('gizmo:snap', buttonSnap.class.contains('active'));
     });
     toolbar.append(buttonSnap);
+    editor.call('toolbar:register', { id: 'gizmo-snap', label: 'Snap', group: 'main', button: buttonSnap });
 
     const tooltipSnap = TooltipHandle.attach({
         target: buttonSnap.dom,
@@ -144,6 +152,7 @@ editor.once('load', () => {
         editor.call('viewport:focus');
     });
     toolbar.append(buttonFocus);
+    editor.call('toolbar:register', { id: 'gizmo-focus', label: 'Focus', group: 'main', button: buttonFocus });
 
     editor.on('attributes:clear', () => {
         buttonFocus.enabled = false;

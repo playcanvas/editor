@@ -289,6 +289,7 @@ import './chat/chat-system';
 import './chat/chat-notifications';
 
 // toolbar
+import './toolbar/toolbar-customization';
 import './toolbar/toolbar-logo';
 import './toolbar/toolbar-editor-settings';
 import './toolbar/toolbar-controls';
