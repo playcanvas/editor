@@ -19,6 +19,9 @@ class AssetsSchema {
 
     /**
      * Gets default data for asset type.
+     *
+     * @param type - The asset type
+     * @returns The default data
      */
     getDefaultData(type: string) {
         const schema = this._schemaApi.getAssetData(type);
@@ -44,6 +47,14 @@ class AssetsSchema {
 
     /**
      * Gets a list of fields of a particular type for an asset type.
+     *
+     * @param assetType - The type of the asset.
+     * @param type - The desired type
+     * @returns A list of fields
+     * @example
+     * ```javascript
+     * const materialAssetPaths = editor.schema.assets.getFieldsOfType('material', 'asset');
+     * ```
      */
     getFieldsOfType(assetType: string, type: string) {
         const result: string[] = [];

@@ -11,6 +11,12 @@ class SettingsSchema {
 
     private _schema: Field;
 
+    /**
+     * Creates new instance of API.
+     *
+     * @category Internal
+     * @param schema - The schema API
+     */
     constructor(schema: Schema) {
         this._schemaApi = schema;
         this._schema = schema.getDocument('settings');
@@ -30,14 +36,41 @@ class SettingsSchema {
         return result;
     }
 
+    /**
+     * Get the default settings for the project.
+     *
+     * @returns The default settings for the project
+     * @example
+     * ```javascript
+     * const projectSettings = editor.schema.settings.getDefaultProjectSettings();
+     * ```
+     */
     getDefaultProjectSettings() {
         return this._getDefaultData(this._schema, 'project');
     }
 
+    /**
+     * Get the default settings for the user.
+     *
+     * @returns The default settings for the user
+     * @example
+     * ```javascript
+     * const userSettings = editor.schema.settings.getDefaultUserSettings();
+     * ```
+     */
     getDefaultUserSettings() {
         return this._getDefaultData(this._schema, 'user');
     }
 
+    /**
+     * Get the default settings for the user in the project.
+     *
+     * @returns The default settings for the user in the project
+     * @example
+     * ```javascript
+     * const projectUserSettings = editor.schema.settings.getDefaultProjectUserSettings();
+     * ```
+     */
     getDefaultProjectUserSettings() {
         return this._getDefaultData(this._schema, 'projectUser');
     }

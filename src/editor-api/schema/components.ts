@@ -15,6 +15,7 @@ class ComponentSchema {
      * Creates new instance of API.
      *
      * @category Internal
+     * @param schema - The schema API
      */
     constructor(schema: Schema) {
         this._schemaApi = schema;
@@ -29,6 +30,13 @@ class ComponentSchema {
 
     /**
      * Gets default data for a component.
+     *
+     * @param component - The component name
+     * @returns The default data
+     * @example
+     * ```javascript
+     * const modelData = editor.schema.components.getDefaultData('model');
+     * ```
      */
     getDefaultData(component: string) {
         const result: Record<string, unknown> = {};
@@ -52,6 +60,14 @@ class ComponentSchema {
 
     /**
      * Gets a list of fields of a particular type for a component.
+     *
+     * @param component - The component name
+     * @param type - The desired type
+     * @returns A list of fields
+     * @example
+     * ```javascript
+     * const buttonEntityFields = editor.schema.components.getFieldsOfType('button', 'entity');
+     * ```
      */
     getFieldsOfType(component: string, type: string) {
         const result: string[] = [];
@@ -76,6 +92,8 @@ class ComponentSchema {
 
     /**
      * Gets a list of all the available components.
+     *
+     * @returns The components
      */
     list() {
         const result = Object.keys(this._schemaApi.getFields(this._schema)).sort();
