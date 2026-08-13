@@ -11,6 +11,7 @@ editor.once('load', () => {
         icon: 'E134'
     });
     toolbar.append(button);
+    editor.call('toolbar:register', { id: 'settings', label: 'Settings', group: 'utility', button });
 
     button.on('click', () => {
         editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);

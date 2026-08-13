@@ -10,6 +10,7 @@ editor.once('load', () => {
         icon: 'E237'
     });
     toolbar.append(button);
+    editor.call('toolbar:register', { id: 'publish', label: 'Publish / Download', group: 'main', button });
 
     button.on('click', () => {
         editor.call('picker:builds-publish');

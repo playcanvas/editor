@@ -15,6 +15,7 @@ editor.once('load', () => {
 
     const publishButton = toolbar.dom.querySelector('.publish-download');
     toolbar.appendBefore(button, publishButton);
+    editor.call('toolbar:register', { id: 'code-editor', label: 'Code Editor', group: 'main', button });
 
     button.on('click', (e: MouseEvent) => {
         editor.call('picker:codeeditor', undefined, undefined, e.shiftKey);

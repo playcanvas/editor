@@ -16,6 +16,7 @@ editor.once('load', () => {
         icon: 'E191'
     });
     toolbar.append(buttonBake);
+    editor.call('toolbar:register', { id: 'lightmapper', label: 'Bake Lightmaps', group: 'main', button: buttonBake });
 
     buttonBake.on('click', () => {
         editor.call('lightmapper:bake');

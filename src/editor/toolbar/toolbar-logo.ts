@@ -3,6 +3,8 @@ import { Button, Menu } from '@playcanvas/pcui';
 import { TooltipHandle } from '@/common/tooltips';
 import { formatShortcut } from '@/common/utils';
 
+const DONE_ICON = '\uE133';
+
 editor.once('load', () => {
     const root = editor.call('layout.root');
     const toolbar = editor.call('layout.toolbar');
@@ -451,7 +453,25 @@ editor.once('load', () => {
         tooltip.disabled = false;
     });
 
+    let editing = false;
+    editor.method('toolbar:logo:editing', (value: boolean) => {
+        const label = value ? 'Done editing toolbar' : 'Menu';
+        editing = value;
+        logo.class.toggle('toolbar-done', value);
+        if (value) {
+            logo.dom.dataset.icon = DONE_ICON;
+        } else {
+            delete logo.dom.dataset.icon;
+        }
+        logo.dom.ariaLabel = label;
+        tooltip.text = label;
+    });
+
     logo.on('click', () => {
-        menu.hidden = false;
+        if (editing) {
+            editor.call('toolbar:edit:done');
+        } else {
+            menu.hidden = false;
+        }
     });
 });

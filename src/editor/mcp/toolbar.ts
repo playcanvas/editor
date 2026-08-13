@@ -16,6 +16,7 @@ editor.once('load', () => {
     const button = new Button({ class: ['pc-icon', 'mcp'] });
     button.dom.appendChild(new DOMParser().parseFromString(MCP_ICON, 'image/svg+xml').documentElement);
     toolbar.append(button);
+    editor.call('toolbar:register', { id: 'mcp', label: 'MCP Server', group: 'main', button });
 
     const tooltip = TooltipHandle.attach({
         target: button.dom,

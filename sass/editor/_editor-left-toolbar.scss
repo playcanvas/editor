@@ -17,6 +17,14 @@
             display: none;
         }
 
+        &.toolbar-user-hidden {
+            display: none !important;
+        }
+
+        &.toolbar-dragging {
+            opacity: 0.4;
+        }
+
         &.logo {
             background-image: url('https://playcanvas.com/static-assets/images/editor_logo.png');
             background-size: 80px 40px;
@@ -25,6 +33,20 @@
 
             &:hover {
                 background-position: -40px 0;
+            }
+
+            &.toolbar-done {
+                color: $text-primary;
+                background-color: $bcg-darkest;
+                background-image: none;
+                font-size: 20px;
+                line-height: 38px;
+                text-align: center;
+
+                &:hover,
+                &:focus {
+                    background-color: $bcg-dark;
+                }
             }
         }
 
@@ -117,6 +139,66 @@
 
         &.editor-settings {
             order: 6;
+        }
+    }
+
+    &.toolbar-editing {
+        > .pcui-button[data-toolbar-id]:not(.hidden) {
+            display: block !important;
+            position: relative;
+            overflow: visible;
+            cursor: move;
+        }
+
+        .toolbar-visibility {
+            display: grid;
+        }
+    }
+
+    .toolbar-visibility {
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        right: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        width: 20px;
+        height: 20px;
+        border: none;
+        border-radius: 0;
+        color: $text-primary;
+        background: $bcg-darkest;
+        font-family: pc-icon;
+        font-size: 14px;
+        line-height: 1;
+        cursor: pointer;
+
+        &:hover,
+        &:focus {
+            background: $bcg-dark;
+        }
+
+        &.toolbar-visibility-hidden {
+            color: $text-secondary;
+
+            &::after {
+                content: '';
+                position: absolute;
+                left: 3px;
+                right: 3px;
+                top: calc(50% - 1px);
+                height: 2px;
+                background: currentcolor;
+                transform: rotate(-45deg);
+                pointer-events: none;
+            }
+
+            &:hover,
+            &:focus {
+                color: $text-primary;
+            }
         }
     }
 }

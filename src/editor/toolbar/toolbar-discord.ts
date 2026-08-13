@@ -35,6 +35,7 @@ editor.once('load', () => {
         class: ['pc-icon', 'discord', 'bottom']
     });
     toolbar.append(button);
+    editor.call('toolbar:register', { id: 'discord', label: 'Discord', group: 'utility', button });
 
     // Append the discord svg to the button
     const color = '#9ba1a3';
