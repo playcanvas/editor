@@ -12,6 +12,7 @@ describe('api.Schema tests', function () {
         withSchema(() => {
             const fields = api.globals.schema.components.getFieldsOfType('testcomponent', 'entity');
             expect(fields).to.deep.equal(['entityRef', 'entityArrayRef', 'nestedEntityRef.*.entity']);
+            expect(api.globals.schema.components.getFieldsOfType('model', 'asset')).to.deep.equal(['mapping.*']);
         });
     });
 
@@ -109,7 +110,7 @@ describe('api.Schema tests', function () {
         withSchema(() => {
             const vec2 = { type: 'array', items: { type: 'number' }, minItems: 2, maxItems: 2 };
             expect(api.globals.schema.getType(vec2)).to.equal('vec2');
-            expect(api.globals.schema.components.list()).to.deep.equal(['script', 'testcomponent']);
+            expect(api.globals.schema.components.list()).to.deep.equal(['model', 'script', 'testcomponent']);
             expect(api.globals.schema.assets.getFieldsOfType('test', 'asset')).to.deep.equal([
                 'data.assetRef',
                 'data.assetArrayRef',
@@ -121,7 +122,7 @@ describe('api.Schema tests', function () {
         });
     });
 
-    it('preserves the loose legacy Caller path separately from typed resolution', function () {
+    it('preserves the loose caller path separately from typed resolution', function () {
         withSchema(() => {
             const model = api.globals.schema.getAssetData('model');
             expect(api.globals.schema.getTypeForPath(model, 'mapping.anyKey.material', false)).to.equal('asset');
@@ -135,6 +136,9 @@ describe('api.Schema tests', function () {
         );
         expect(() => new api.Schema({ version: 2, documents: {}, assetData: {} })).to.throw(
             'Unsupported Editor schema version: 2'
+        );
+        expect(() => new api.Schema({ version: 0, documents: {}, assetData: {} })).to.throw(
+            'Unsupported Editor schema version: 0'
         );
         expect(() => new api.Schema({ version: 1 })).to.throw('Unsupported Editor schema version: 1');
     });

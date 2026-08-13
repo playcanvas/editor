@@ -81,7 +81,14 @@ class ComponentSchema {
                     continue;
                 }
                 const map = this._schemaApi.getMapValue(field);
-                if (fieldType === 'object' && map) recurse(map as Field, `${current}.*`);
+                if (fieldType === 'object' && map) {
+                    const mapType = this._schemaApi.getType(map);
+                    if (mapType === type || mapType === `array:${type}`) {
+                        result.push(`${current}.*`);
+                    } else {
+                        recurse(map as Field, `${current}.*`);
+                    }
+                }
             }
         };
 

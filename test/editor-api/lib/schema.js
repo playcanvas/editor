@@ -21,6 +21,9 @@ const nullable = (field, data = {}) => ({
 
 const entity = object({
     components: object({
+        model: object({
+            mapping: nullable(map(nullable({ type: 'number' }, { 'x-editor-type': 'asset' })))
+        }),
         testcomponent: object({
             enabled: { type: 'boolean', default: false },
             count: { type: 'number', default: 0 },
@@ -60,7 +63,7 @@ const entity = object({
 });
 
 window.schema = {
-    version: 0,
+    version: 1,
     documents: {
         scene: object({
             settings: object({

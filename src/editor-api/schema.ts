@@ -41,7 +41,7 @@ class Schema {
             throw new Error('Invalid Editor schema payload');
         }
 
-        if (schema.version !== 0 || !isObject(schema.documents) || !isObject(schema.assetData)) {
+        if (schema.version !== 1 || !isObject(schema.documents) || !isObject(schema.assetData)) {
             throw new Error(`Unsupported Editor schema version: ${String(schema.version)}`);
         }
 
@@ -106,7 +106,8 @@ class Schema {
 
     getMapValue(field: unknown) {
         if (!isObject(field)) return null;
-        if (isObject(field.additionalProperties)) return field.additionalProperties;
+        const value = jsonValue(field);
+        if (isObject(value) && isObject(value.additionalProperties)) return value.additionalProperties;
         return null;
     }
 

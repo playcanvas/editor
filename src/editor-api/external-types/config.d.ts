@@ -92,7 +92,7 @@ type Sentry =
       };
 
 type EditorSchemaCatalog = {
-    version: 0;
+    version: 1;
     documents: {
         asset: Record<string, unknown>;
         scene: Record<string, unknown>;

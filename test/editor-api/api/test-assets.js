@@ -60,6 +60,22 @@ ${className}.prototype.update = function(dt) {
         expect(assets.getUnique(2)).to.equal(asset);
     });
 
+    it('replace updates model material mappings', function () {
+        api.globals.schema = new api.Schema(schema);
+        api.globals.entities = new api.Entities();
+        const root = api.globals.entities.create();
+        const entity = api.globals.entities.create({ parent: root });
+        entity.addComponent('model', { mapping: { 0: 1 } });
+
+        const oldAsset = new api.Asset({ type: 'material', id: 1 });
+        const newAsset = new api.Asset({ type: 'material', id: 2 });
+        assets.add(oldAsset);
+        assets.add(newAsset);
+        oldAsset.replace(newAsset, { history: false });
+
+        expect(entity.get('components.model.mapping.0')).to.equal(2);
+    });
+
     it('add does not add duplicate asset', function () {
         const asset = new api.Asset({ type: 'material', id: 1 });
         assets.add(asset);
