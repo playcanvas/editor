@@ -11,11 +11,13 @@ import {
 } from 'playcanvas';
 
 import { unsetLocal } from '@/common/observer-unset';
+import { migrateGlslShaderTranspilation } from '@/common/project-settings';
 import { deepCopy, formatter as f, insert, remove, set, unset } from '@/common/utils';
 import { config } from '@/editor/config';
 
 editor.once('load', () => {
     const schema = editor.api.globals.schema;
+    const migrateGlsl = migrateGlslShaderTranspilation(config.project.settings);
     const projectSettings = Object.assign(schema.settings.getDefaultProjectSettings(), config.project.settings);
 
     const settings = editor.call('settings:create', {
@@ -47,7 +49,7 @@ editor.once('load', () => {
     });
 
     // migrations
-    editor.on('settings:project:load', () => {
+    editor.on('settings:project:load', (data) => {
         const history = settings.history.enabled;
         const sync = settings.sync.enabled;
 
@@ -103,6 +105,10 @@ editor.once('load', () => {
             }
 
             editor.call('console:log:settings', settings, msg);
+        }
+
+        if (migrateGlsl?.(data)) {
+            settings.set('enableGlslShaderTranspilation', !!settings.get('enableWebGpu'), undefined, undefined, true);
         }
 
         if (!settings.get('batchGroups')) {
