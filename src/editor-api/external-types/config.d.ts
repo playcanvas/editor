@@ -17,6 +17,7 @@ type ProjectSettings = {
     height: number;
     use3dPhysics: boolean;
     enableWebGpu: boolean;
+    enableGlslShaderTranspilation: boolean;
     enableWebGl2: boolean;
     powerPreference: string;
     preserveDrawingBuffer: boolean;
