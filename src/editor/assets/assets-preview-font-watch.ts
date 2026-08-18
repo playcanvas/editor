@@ -123,6 +123,8 @@ editor.once('load', () => {
                 watch.engineAsset = asset;
                 loadFont(watch, asset);
             }
+        } else if (args.autoLoad) {
+            app.assets.get(watch.asset.get('id'))?.ready(args.callback);
         }
 
         return watch.ind;

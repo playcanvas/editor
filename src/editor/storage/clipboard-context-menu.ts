@@ -3,9 +3,6 @@ import { Color } from 'playcanvas';
 
 const colorA = new Color();
 
-// list of asset types
-const assetTypes = config.schema.asset.type.$enum;
-
 // supported types for a context menu
 const types = new Set([
     'boolean',
@@ -31,12 +28,6 @@ const types = new Set([
     'assets',
     'array:asset'
 ]);
-
-// add support for specific asset types
-for (const type of assetTypes) {
-    types.add(`asset:${type}`);
-    types.add(`array:asset:${type}`);
-}
 
 // converts string to vector (2-4 components)
 // these formats supported:
@@ -586,93 +577,99 @@ const convertTypes = new Map<string, (n: unknown, o: unknown) => unknown>([
     ]
 ]);
 
-// additional assets conversions
-for (const type of assetTypes) {
-    convertTypes.set(`asset:${type}-asset`, (n: unknown, o: unknown) => {
-        return n;
-    });
+const addAssetTypes = () => {
+    for (const type of editor.api.globals.schema.getAssetTypes()) {
+        types.add(`asset:${type}`);
+        types.add(`array:asset:${type}`);
 
-    convertTypes.set(`asset-asset:${type}`, (n: unknown, o: unknown) => {
-        if (!n) {
-            return null;
-        }
-
-        const assetType = editor.call('assets:get', n)?.get('type');
-        if (!assetType) {
-            return o;
-        }
-
-        if (assetType === type) {
+        convertTypes.set(`asset:${type}-asset`, (n: unknown, o: unknown) => {
             return n;
-        }
+        });
 
-        return o;
-    });
-
-    convertTypes.set(`asset-array:asset:${type}`, (n: unknown, o: unknown) => {
-        if (!n) {
-            return [];
-        }
-
-        if (Array.isArray(n)) {
-            const items = [];
-            for (let i = 0; i < n.length; i++) {
-                const id = n[i];
-                const assetType = editor.call('assets:get', id)?.get('type');
-
-                if (!assetType) {
-                    continue;
-                }
-
-                if (assetType === type) {
-                    items.push(id);
-                }
+        convertTypes.set(`asset-asset:${type}`, (n: unknown, o: unknown) => {
+            if (!n) {
+                return null;
             }
 
-            if (items.length) {
-                return items;
-            }
-
-            return o;
-        } else if (n) {
             const assetType = editor.call('assets:get', n)?.get('type');
-
             if (!assetType) {
                 return o;
             }
 
             if (assetType === type) {
-                return [n];
+                return n;
             }
-        }
 
-        return o;
-    });
+            return o;
+        });
 
-    convertTypes.set(`array:asset:${type}-array:asset`, (n: unknown, o: unknown) => {
-        return n;
-    });
+        convertTypes.set(`asset-array:asset:${type}`, (n: unknown, o: unknown) => {
+            if (!n) {
+                return [];
+            }
 
-    convertTypes.set(`number-asset:${type}`, (n: unknown, o: unknown) => {
-        if (!n) {
+            if (Array.isArray(n)) {
+                const items = [];
+                for (let i = 0; i < n.length; i++) {
+                    const id = n[i];
+                    const assetType = editor.call('assets:get', id)?.get('type');
+
+                    if (!assetType) {
+                        continue;
+                    }
+
+                    if (assetType === type) {
+                        items.push(id);
+                    }
+                }
+
+                if (items.length) {
+                    return items;
+                }
+
+                return o;
+            } else if (n) {
+                const assetType = editor.call('assets:get', n)?.get('type');
+
+                if (!assetType) {
+                    return o;
+                }
+
+                if (assetType === type) {
+                    return [n];
+                }
+            }
+
             return o;
-        }
-        const asset = editor.call('assets:get', n);
-        if (!asset) {
-            return o;
-        }
-        if (asset.get('type') !== type) {
-            return o;
-        }
-        return n;
-    });
-}
+        });
+
+        convertTypes.set(`array:asset:${type}-array:asset`, (n: unknown, o: unknown) => {
+            return n;
+        });
+
+        convertTypes.set(`number-asset:${type}`, (n: unknown, o: unknown) => {
+            if (!n) {
+                return o;
+            }
+            const asset = editor.call('assets:get', n);
+            if (!asset) {
+                return o;
+            }
+            if (asset.get('type') !== type) {
+                return o;
+            }
+            return n;
+        });
+    }
+};
 
 editor.method('clipboard:types', () => {
     return types;
 });
 
 editor.once('load', () => {
+    addAssetTypes();
+
     const root = editor.call('layout.root');
     const hasWriteAccess = () => editor.call('permissions:write');
 

@@ -406,7 +406,6 @@ class EntityInspector extends Container {
     // add component menu
     _createAddComponentMenu() {
         let menu = null;
-        const componentsSchema = editor.call('components:schema');
         const components = editor.call('components:list');
 
         // Create empty menu with sub-menus
@@ -460,7 +459,7 @@ class EntityInspector extends Container {
         const hiddenComponents = new Set(['audiosource']);
 
         components.forEach((component) => {
-            let title = componentsSchema[component].$title;
+            let title = editor.call('components:title', component);
             if (title === 'Model' || title === 'Animation') {
                 title += ' (legacy)';
             }
@@ -530,7 +529,7 @@ class EntityInspector extends Container {
 
                 const submenu = getSubMenu(component);
                 if (submenu) {
-                    let title = componentsSchema[component].$title;
+                    let title = editor.call('components:title', component);
                     if (title === 'Model' || title === 'Animation') {
                         title += ' (legacy)';
                     }

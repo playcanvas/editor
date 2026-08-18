@@ -1,8 +1,8 @@
 import type { Entity } from '../entity';
 import { globals as api } from '../globals';
+import { utils } from '../utils';
 
 let ASSET_PATHS: string[] = null;
-const REGEX_CONTAINS_STAR = /\.\*\./;
 
 /**
  * Stores asset paths in the assets dictionary by converting the array of
@@ -79,40 +79,10 @@ function gatherDependencies(entity: Entity, data: Record<string, any>) {
     // and store their path + name
     for (let i = 0; i < ASSET_PATHS.length; i++) {
         const path = ASSET_PATHS[i];
-        // handle paths that contain a '*' as a wildcard
-        if (REGEX_CONTAINS_STAR.test(path)) {
-            const parts = path.split('.*.');
-            if (!entity.has(parts[0])) {
-                continue;
-            }
-
-            const obj = entity.get(parts[0]);
-            if (!obj) {
-                continue;
-            }
-
-            for (const key in obj) {
-                const fullKey = `${parts[0]}.${key}.${parts[1]}`;
-                if (!entity.has(fullKey)) {
-                    continue;
-                }
-
-                const assets = entity.get(fullKey);
-                if (!assets) {
-                    continue;
-                }
-
-                storeAssetPaths(assets, data.assets);
-            }
-        } else if (entity.has(path)) {
-            // handle path without '*'
+        utils.expandPath(entity, path, (entity, path) => {
             const assets = entity.get(path);
-            if (!assets) {
-                continue;
-            }
-
-            storeAssetPaths(assets, data.assets);
-        }
+            if (assets) storeAssetPaths(assets, data.assets);
+        });
     }
 
     // gather script attributes

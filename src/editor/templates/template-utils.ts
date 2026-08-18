@@ -259,7 +259,7 @@ editor.once('load', () => {
 
             const s = TemplateUtils.pathToStr(path);
 
-            const m = editor.call('schema:getMergeMethodForPath', config.schema.scene, s);
+            const m = editor.call('schema:getMergeMethodForPath', editor.api.globals.schema.getDocument('scene'), s);
 
             return m === method;
         },

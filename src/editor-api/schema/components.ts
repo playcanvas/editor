@@ -1,40 +1,35 @@
 import type { Schema } from '../schema';
 import { utils } from '../utils';
 
+type Field = Record<string, unknown>;
+
 /**
- * Provides methods to access the components schema
+ * Provides methods to access the components schema.
  */
 class ComponentSchema {
     private _schemaApi: Schema;
 
-    private _schema: any;
+    private _schema: Field;
 
     /**
-     * Creates new instance of API
+     * Creates new instance of API.
      *
      * @category Internal
      * @param schema - The schema API
      */
     constructor(schema: Schema) {
         this._schemaApi = schema;
-        this._schema = this._schemaApi.schema.scene.entities.$of.components;
+        this._schema = schema.getComponents();
     }
 
-    _resolveLazyDefaults(defaults: Record<string, any>) {
-        // Any functions in the default property set are used to provide
-        // lazy resolution, to handle cases where the values are not known
-        // at startup time.
-        Object.keys(defaults).forEach((key: string) => {
-            const value = defaults[key];
-
-            if (typeof value === 'function') {
-                defaults[key] = value();
-            }
-        });
+    _resolveLazyDefaults(defaults: Record<string, unknown>) {
+        for (const [key, value] of Object.entries(defaults)) {
+            if (typeof value === 'function') defaults[key] = value();
+        }
     }
 
     /**
-     * Gets default data for a component
+     * Gets default data for a component.
      *
      * @param component - The component name
      * @returns The default data
@@ -44,66 +39,29 @@ class ComponentSchema {
      * ```
      */
     getDefaultData(component: string) {
-        const result: Record<string, any> = {};
-        for (const fieldName in this._schema[component]) {
-            if (fieldName.startsWith('$')) {
-                continue;
-            }
-            const field = this._schema[component][fieldName];
-            if (Object.prototype.hasOwnProperty.call(field, '$default')) {
-                result[fieldName] = utils.deepCopy(field.$default);
-            }
+        const result: Record<string, unknown> = {};
+        const schema = this._schemaApi.getFields(this._schema)[component];
+        for (const [name, field] of Object.entries(this._schemaApi.getFields(schema))) {
+            const value = this._schemaApi.getDefault(field);
+            if (value.hasDefault) result[name] = utils.deepCopy(value.value);
         }
-
         this._resolveLazyDefaults(result);
-
         return result;
     }
 
     resolvePath(component: string, path: string) {
-        let field = this._schema[component];
-        let open = false;
-
-        if (!field) {
-            return null;
+        const schema = this._schemaApi.getFields(this._schema)[component];
+        const result = schema ? this._schemaApi.resolvePath(schema, path) : null;
+        if (result?.hasDefault) {
+            result.default = typeof result.default === 'function' ? result.default() : utils.deepCopy(result.default);
         }
-        for (const part of path.split('.')) {
-            if (!part) {
-                return null;
-            }
-            if (field.$type === 'map' || field.$type === 'mixed') {
-                open = true;
-                if (!field.$of) {
-                    return { field: null, default: undefined, hasDefault: false, open };
-                }
-                field = field.$of;
-            } else if (Array.isArray(field.$type)) {
-                if (!Number.isInteger(Number(part)) || Number(part) < 0) {
-                    return null;
-                }
-                field = field.$type[0];
-            } else if (Object.hasOwn(field, part)) {
-                field = field[part];
-                continue;
-            } else {
-                return null;
-            }
-        }
-
-        const hasDefault = Object.hasOwn(field, '$default');
-        const value = hasDefault ? field.$default : undefined;
-        return {
-            field,
-            default: hasDefault ? (typeof value === 'function' ? value() : utils.deepCopy(value)) : undefined,
-            hasDefault,
-            open
-        };
+        return result;
     }
 
     /**
-     * Gets a list of fields of a particular type for a component
+     * Gets a list of fields of a particular type for a component.
      *
-     * @param componentName - The component name
+     * @param component - The component name
      * @param type - The desired type
      * @returns A list of fields
      * @example
@@ -111,54 +69,43 @@ class ComponentSchema {
      * const buttonEntityFields = editor.schema.components.getFieldsOfType('button', 'entity');
      * ```
      */
-    getFieldsOfType(componentName: string, type: string) {
+    getFieldsOfType(component: string, type: string) {
         const result: string[] = [];
 
-        const recurse = (schemaField: Record<string, any>, path: string) => {
-            if (!schemaField) {
-                return;
-            }
-
-            if (schemaField.$editorType === type || schemaField.$editorType === `array:${type}`) {
-                result.push(path);
-                return;
-            }
-
-            for (const field in schemaField) {
-                if (field.startsWith('$')) {
+        const recurse = (schema: Field, path: string) => {
+            for (const [name, field] of Object.entries(this._schemaApi.getFields(schema))) {
+                const current = (path ? `${path}.` : '') + name;
+                const fieldType = this._schemaApi.getType(field);
+                if (fieldType === type || fieldType === `array:${type}`) {
+                    result.push(current);
                     continue;
                 }
-
-                const p = (path ? `${path}.` : '') + field;
-                const fieldType = this._schemaApi.getType(schemaField[field]);
-                if (fieldType === type || fieldType === `array:${type}`) {
-                    result.push(p);
-                } else if (fieldType === 'object' && schemaField[field].$of) {
-                    recurse(schemaField[field].$of, `${p}.*`);
+                const map = this._schemaApi.getMapValue(field);
+                if (fieldType === 'object' && map) {
+                    const mapType = this._schemaApi.getType(map);
+                    if (mapType === type || mapType === `array:${type}`) {
+                        result.push(`${current}.*`);
+                    } else {
+                        recurse(map as Field, `${current}.*`);
+                    }
                 }
             }
         };
 
-        recurse(this._schema[componentName], '');
-
+        const schema = this._schemaApi.getFields(this._schema)[component];
+        if (schema) recurse(schema as Field, '');
         return result;
     }
 
     /**
-     * Gets a list of all the available components
+     * Gets a list of all the available components.
      *
      * @returns The components
      */
     list() {
-        const result = Object.keys(this._schema);
-        result.sort();
-
-        // filter out zone (which is not really supported)
-        const idx = result.indexOf('zone');
-        if (idx !== -1) {
-            result.splice(idx, 1);
-        }
-
+        const result = Object.keys(this._schemaApi.getFields(this._schema)).sort();
+        const index = result.indexOf('zone');
+        if (index !== -1) result.splice(index, 1);
         return result;
     }
 }

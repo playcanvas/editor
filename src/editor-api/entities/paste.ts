@@ -4,10 +4,10 @@ import type { EventHandle } from '@playcanvas/observer';
 import type { Entity } from '../entity';
 import { globals as api } from '../globals';
 import { Guid } from '../guid';
+import { utils } from '../utils';
 
 const USE_BACKEND_LIMIT = 500;
 const TIME_WAIT_ENTITIES = 5000;
-const REGEX_CONTAINS_STAR = /\.\*\./;
 
 let ASSET_PATHS: any[];
 let evtMessenger: EventHandle;
@@ -103,42 +103,9 @@ function mapValue(value: string, mapping: Record<string, any>, sameProject: bool
 }
 
 function remapField(entity: Entity, path: string, mapping: Record<string, any>, sameProject: boolean) {
-    if (REGEX_CONTAINS_STAR.test(path)) {
-        const parts = path.split('.*.');
-        if (!entity.has(parts[0])) {
-            return;
-        }
-
-        const obj = entity.get(parts[0]);
-        if (!obj) {
-            return;
-        }
-
-        for (const key in obj) {
-            const fullKey = `${parts[0]}.${key}.${parts[1]}`;
-            if (!entity.has(fullKey)) {
-                continue;
-            }
-
-            const value = entity.get(fullKey);
-            if (!value) {
-                continue;
-            }
-
-            if (value instanceof Array) {
-                for (let j = 0; j < value.length; j++) {
-                    value[j] = mapValue(value[j], mapping, sameProject);
-                }
-                entity.set(fullKey, value);
-            } else {
-                entity.set(fullKey, mapValue(value, mapping, sameProject));
-            }
-        }
-    } else if (entity.has(path)) {
+    utils.expandPath(entity, path, (entity, path) => {
         const value = entity.get(path);
-        if (!value) {
-            return;
-        }
+        if (!value) return;
 
         if (value instanceof Array) {
             for (let j = 0; j < value.length; j++) {
@@ -148,7 +115,7 @@ function remapField(entity: Entity, path: string, mapping: Record<string, any>, 
         } else {
             entity.set(path, mapValue(value, mapping, sameProject));
         }
-    }
+    });
 }
 
 function remapScriptAttribute(

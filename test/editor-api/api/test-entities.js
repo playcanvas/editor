@@ -1377,6 +1377,29 @@ describe('api.Entities tests', function () {
         }));
     });
 
+    it('copy and cross-project paste preserve model material mappings', async function () {
+        prepareCopyTest();
+
+        const source = new api.Asset({ id: 1, type: 'material', path: [], name: 'mat' });
+        api.globals.assets.add(source);
+        const root = api.globals.entities.create();
+        const e = api.globals.entities.create({ parent: root });
+        e.addComponent('model', { mapping: { 0: source.get('id') } });
+
+        api.globals.entities.copyToClipboard([e]);
+        expect(api.globals.clipboard.value.assets).to.deep.equal({
+            1: { path: ['mat'], type: 'material' }
+        });
+
+        api.globals.projectId = 2;
+        api.globals.assets.remove(source);
+        const target = new api.Asset({ id: 2, type: 'material', path: [], name: 'mat' });
+        api.globals.assets.add(target);
+
+        const pasted = await api.globals.entities.pasteFromClipboard(root);
+        expect(pasted[0].get('components.model.mapping.0')).to.equal(target.get('id'));
+    });
+
     it('copy picks up assets from script attributes', function () {
         prepareCopyTest();
 
