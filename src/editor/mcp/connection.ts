@@ -3,6 +3,9 @@ import { Events } from '@playcanvas/observer';
 import { handleRequest } from './request';
 
 const DEFAULT_PORT = 52000;
+
+// dial the address the server binds, not `localhost` (resolves to ::1 first on windows)
+const HOST = '127.0.0.1';
 const RETRY_TIMEOUT = 1000;
 const PROTOCOL_VERSION = 1;
 
@@ -63,7 +66,7 @@ class MCPConnection extends Events {
         this._forceClosed = false;
 
         this._setStatus('connecting');
-        log(`Connecting to ws://localhost:${port}`);
+        log(`Connecting to ws://${HOST}:${port}`);
 
         if (this._connectTimeout) {
             clearTimeout(this._connectTimeout);
@@ -77,7 +80,7 @@ class MCPConnection extends Events {
      * Open a single WebSocket and wire up auto-reconnect on unexpected close.
      */
     private _open() {
-        const ws = new WebSocket(`ws://localhost:${this._port}`);
+        const ws = new WebSocket(`ws://${HOST}:${this._port}`);
         this._ws = ws;
 
         ws.onopen = () => {
