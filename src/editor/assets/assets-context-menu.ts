@@ -583,6 +583,15 @@ editor.once('load', () => {
     });
     menu.append(menuItemEditCursor);
 
+    const menuItemEditAntigravity = new MenuItem({
+        text: `${writeLabel} in Antigravity IDE`,
+        icon: ICONS.EDIT,
+        onSelect: () => {
+            editor.call('assets:edit', currentAsset, 'antigravity-ide');
+        }
+    });
+    menu.append(menuItemEditAntigravity);
+
     // duplicate
     const menuItemDuplicate = new MenuItem({
         text: 'Duplicate',
@@ -738,6 +747,7 @@ editor.once('load', () => {
                 menuItemEditWeb.hidden = true;
                 menuItemEditVSCode.hidden = true;
                 menuItemEditCursor.hidden = true;
+                menuItemEditAntigravity.hidden = true;
                 if (editor.call('selector:type') === 'asset') {
                     const items = editor.call('selector:items');
                     menuItemDuplicate.hidden = items.length > 1 && items.indexOf(currentAsset) !== -1;
@@ -759,15 +769,18 @@ editor.once('load', () => {
                     menuItemEditWeb.hidden = editHidden;
                     menuItemEditVSCode.hidden = editHidden;
                     menuItemEditCursor.hidden = editHidden;
+                    menuItemEditAntigravity.hidden = editHidden;
                 } else {
                     menuItemEditWeb.hidden = false;
                     menuItemEditVSCode.hidden = false;
                     menuItemEditCursor.hidden = false;
+                    menuItemEditAntigravity.hidden = false;
                 }
             } else {
                 menuItemEditWeb.hidden = true;
                 menuItemEditVSCode.hidden = true;
                 menuItemEditCursor.hidden = true;
+                menuItemEditAntigravity.hidden = true;
             }
 
             // create atlas
@@ -959,6 +972,7 @@ editor.once('load', () => {
             menuItemEditWeb.hidden = true;
             menuItemEditVSCode.hidden = true;
             menuItemEditCursor.hidden = true;
+            menuItemEditAntigravity.hidden = true;
             menuItemDelete.hidden = true;
             menuItemReferences.hidden = true;
             menuItemReplace.hidden = true;
