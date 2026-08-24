@@ -9,11 +9,9 @@ const HOST = '127.0.0.1';
 const RETRY_TIMEOUT = 1000;
 const PROTOCOL_VERSION = 1;
 
-// Chromium gates a public page's connection to loopback behind a local access permission
-// (Chrome 142+, websockets from 147), granted per origin. A blocked socket is
-// indistinguishable from "nothing is listening", so probe the permission whenever we never
-// reach 'open' and tell the user which toggle to flip. The Permissions API name changed with
-// the Chrome 145 loopback/LAN split, so try each and use the first the browser recognises.
+// A blocked socket is indistinguishable from "nothing is listening", so probe the permission
+// when we never reach 'open'. The name changed with the Chrome 145 loopback/LAN split, so try
+// each and use the first the browser recognises.
 const LOCAL_ACCESS_PERMISSIONS = ['loopback-network', 'local-network', 'local-network-access'];
 
 type Status = 'connecting' | 'connected' | 'disconnected';
@@ -24,11 +22,9 @@ type Method = (...args: any[]) => MethodResult | Promise<MethodResult>;
 const log = (msg: string) => console.log(`[MCP] ${msg}`);
 const error = (msg: unknown) => console.error(`[MCP] ${msg}`);
 
-// 'denied' or 'prompt' when the permission may be why we can't connect, null when it can't
-// be (already granted, or the browser doesn't gate local access at all). A never-asked site
-// reads 'prompt', which is also what a missing server looks like — hence the two states.
-// the server's opening frame advertises its capabilities; tool requests always carry an id.
-// an older server sends nothing, which is the signal to dial from the launch page instead
+// 'denied' or 'prompt' when the permission may be the cause, null when it can't be. A
+// never-asked site reads 'prompt', which is also what a missing server looks like.
+// the server's opening frame advertises its capabilities; tool requests always carry an id
 const greetingOf = (data: unknown) => {
     if (typeof data !== 'string' || !data.includes('"hello"')) {
         return null;
@@ -86,8 +82,8 @@ class MCPConnection extends Events {
     }
 
     /**
-     * Whether the connected server can route `runtime:*` calls through this page, letting the
-     * launch window relay over postMessage instead of opening a socket of its own.
+     * Whether the server can route `runtime:*` through this page instead of the launch page
+     * opening its own socket.
      */
     get serverRelay() {
         return this._serverRelay;
@@ -230,8 +226,7 @@ class MCPConnection extends Events {
     }
 
     /**
-     * Send a raw frame to the server, outside the request/response flow. Used for relay
-     * announcements, which the server treats as state rather than as a reply.
+     * Send a raw frame outside the request/response flow, for relay announcements.
      *
      * @param msg - The frame to send; dropped if the socket isn't open.
      */
@@ -242,8 +237,8 @@ class MCPConnection extends Events {
     }
 
     /**
-     * Register a handler for methods this page doesn't implement itself. Returning null
-     * declines, leaving the caller with the usual unknown-method error.
+     * Handle methods this page doesn't implement. Returning null declines, leaving the caller
+     * with the usual unknown-method error.
      *
      * @param fn - The handler, called with the method name and its arguments.
      */

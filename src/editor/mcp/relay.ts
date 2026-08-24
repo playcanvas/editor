@@ -3,14 +3,9 @@ import { config } from '@/editor/config';
 import { mcp, PROTOCOL_VERSION } from './connection';
 
 /**
- * Editor half of the runtime relay. The launch page is a different origin, so reaching the
- * MCP server itself would need its own local network access grant (Chrome 142+, websockets
- * from 147). Instead the editor holds the only socket and forwards `runtime:*` frames to the
- * launch window over postMessage, unchanged.
- *
- * First contact must come from the editor: the launch window's `opener` is severed, so it has
- * no handle to post to until it receives one. After that it keeps announcing itself, which is
- * what lets a reloaded editor re-adopt a still-running app.
+ * Editor half of the runtime relay: the editor holds the only socket and forwards `runtime:*`
+ * to the launch window over postMessage, so that origin needs no local access grant of its
+ * own. The editor must make first contact — the launch window's `opener` is severed.
  */
 
 const LAUNCH_ORIGIN = new URL(config.url.launch).origin;
@@ -38,8 +33,7 @@ let id = 0;
 const pending = new Map<number, (res: Reply) => void>();
 const waiters = new Set<(peer: Peer | null) => void>();
 
-// tell the server whether a launch page is reachable through us; the frame is sent even when
-// empty so the server knows this editor relays at all
+// sent even when empty, so the server knows this editor relays at all
 const announce = () => {
     mcp.send({
         runtime: peer ? { protocolVersion: PROTOCOL_VERSION, methods: peer.methods } : null
@@ -89,8 +83,7 @@ window.addEventListener('message', (evt: MessageEvent) => {
     const msg = evt.data;
 
     if (msg.mcp === 'ready') {
-        // only adopt launch pages from the project this editor has open — the user may well
-        // have another project's app running in a second window
+        // the user may have another project's app running in a second window
         if (config.project?.id !== undefined && msg.projectId !== config.project.id) {
             return;
         }
@@ -132,14 +125,12 @@ window.addEventListener('message', (evt: MessageEvent) => {
     }
 });
 
-// re-announce after a reconnect (or a takeover by another MCP client instance), since the
-// server tracks the relay per connection
+// the server tracks the relay per connection, so re-announce after a reconnect
 mcp.on('status', (status: string) => status === 'connected' && announce());
 
 const relay = {
     /**
-     * Start offering the relay to a launch window. Safe to call repeatedly; the newest
-     * window wins.
+     * Offer the relay to a launch window. Repeat calls are safe; the newest window wins.
      *
      * @param win - The launch window to adopt.
      */
@@ -198,11 +189,10 @@ const relay = {
     },
 
     /**
-     * Ask the launch page to close itself and wait for it to go. A window whose opener we
-     * severed can't always be closed from here — after an editor reload it never can — so the
-     * page does it and we confirm rather than assume.
+     * Ask the launch page to close itself and confirm it went: a window whose opener we
+     * severed can't be closed from here.
      *
-     * @returns True once the window is gone, false if it outlived the request.
+     * @returns True once the window is gone.
      */
     async close() {
         const win = peer?.window;
@@ -250,10 +240,10 @@ const relay = {
     }
 };
 
-// the server only routes `runtime:*` here, but be explicit: everything else is not ours
+// everything else is not ours
 mcp.fallback((name, args) => (name.startsWith('runtime:') ? relay.call(name, args) : null));
 
-// the editor's own Launch button opens windows too, and hands them over here
+// the Launch button hands its windows over here
 editor.method('mcp:relay:attach', (win: Window) => relay.attach(win));
 editor.method('mcp:relay:peer', () => !!peer && !peer.window.closed);
 

@@ -14,10 +14,8 @@ const CLOSE_ATTEMPTS = 10;
 let runtimeWindow: Window | null = null;
 
 /**
- * Close whichever launch window is current — ours, or one the editor's Launch button opened
- * and handed to the relay — and confirm it actually went. Asking the page to close itself
- * comes first: a window whose opener we severed, or that a previous editor document opened,
- * can't always be closed from here.
+ * Close the current launch window — ours, or one handed to the relay by the Launch button —
+ * and confirm it went. The page closes itself where we can't.
  *
  * @returns True if a window was open and is now closed.
  */
@@ -50,8 +48,7 @@ mcp.method('launch:start', async (options: any = {}) => {
     if (!sceneId || !base) {
         return { error: 'No scene loaded, or launch URL unavailable. Load a scene in the editor and retry.' };
     }
-    // when the caller asked for nothing specific, adopt an app that is already running rather
-    // than throwing away a session in progress
+    // with no options requested, adopt a running app instead of restarting the session
     if (mcp.serverRelay && !Object.keys(options).length) {
         const running = relay.peer && !relay.peer.window.closed ? relay.peer : null;
         if (running?.sceneId === sceneId) {
@@ -66,7 +63,7 @@ mcp.method('launch:start', async (options: any = {}) => {
                 log('Adopted the app launched from the editor');
                 return { data: { url: adopted.url, sceneId, adopted: true } };
             }
-            // a different scene, or a build without the relay: leave it alone and relaunch
+            // different scene, or a build without the relay: leave it and relaunch
             relay.detach();
         }
     }
@@ -93,8 +90,7 @@ mcp.method('launch:start', async (options: any = {}) => {
         params.set('ministats', 'true');
     }
 
-    // carry the dev overrides the editor itself was loaded with, so a local build launches
-    // the local launch page (the editor's own Launch button does the same)
+    // a local build must launch the local launch page, as the Launch button does
     const search = new URLSearchParams(location.search);
     for (const flag of ['use_local_frontend', 'use_local_engine']) {
         if (search.has(flag)) {
@@ -102,16 +98,14 @@ mcp.method('launch:start', async (options: any = {}) => {
         }
     }
 
-    // a relaying server reaches the launch page through this one, so the page needs no port
-    // of its own; older servers still route to a socket the launch page opens itself
+    // only older servers route to a socket the launch page opens itself
     if (!mcp.serverRelay) {
         params.set('mcp_port', String(mcp.port));
     }
     const url = `${base}${sceneId}?${params.toString()}`;
 
     await closeCurrent();
-    // open blank first so the opener can be severed before the page loads: it runs project
-    // scripts, and with the relay it never needs a handle back into the editor
+    // open blank so the opener can be severed before the page loads
     runtimeWindow = window.open('', '_blank');
     if (!runtimeWindow) {
         return {
@@ -119,9 +113,8 @@ mcp.method('launch:start', async (options: any = {}) => {
         };
     }
     if (mcp.serverRelay) {
-        // the launch page runs project scripts and, with the relay, never needs a handle back
-        // into the editor. Severing the opener also makes the window unclosable from here, so
-        // only do it where closing goes through the page itself (see closeCurrent).
+        // project scripts get no handle into the editor. This also makes the window unclosable
+        // from here, so only sever where closing goes through the page (see closeCurrent).
         runtimeWindow.opener = null;
     }
     runtimeWindow.location = url;

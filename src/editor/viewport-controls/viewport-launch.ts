@@ -97,9 +97,7 @@ editor.once('load', () => {
             query.push('ministats=true');
         }
 
-        // if the editor is connected to an MCP server, bridge the launch page to it: a
-        // relaying server is reached through this page, older ones need the port in the URL
-        // so the launch page can dial them itself
+        // bridge the launch page to MCP: through this page, or via a port older servers need
         const withMcp = editor.call('mcp:status') === 'connected';
         const relayed = withMcp && editor.call('mcp:relay');
         if (withMcp && !relayed) {
@@ -140,8 +138,7 @@ editor.once('load', () => {
 
     editor.method('launch:window', () => lastLaunch);
 
-    // MCP launches go through editor/mcp/launch.ts, which records its window here so the
-    // relay and the MCP popover see a single source of truth
+    // MCP launches record their window here too, so there is one source of truth
     editor.method('launch:window:track', (win: Window, withMcp: boolean) => {
         lastLaunch = { window: win, mcp: withMcp };
     });

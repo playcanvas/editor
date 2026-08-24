@@ -13,8 +13,7 @@ const LOG_CAP = 1000;
 // legacy: servers without relay support hand us a port to dial ourselves
 const port = new URLSearchParams(location.search).get('mcp_port');
 
-// how often we re-announce ourselves to the editor once it has made contact, so an editor
-// reload can re-adopt this still-running app
+// re-announce so an editor reload can re-adopt this still-running app
 const ANNOUNCE_INTERVAL = 5000;
 
 type LogEntry = { time: number; level: string; text: string };
@@ -431,10 +430,8 @@ mcp.method('runtime:input', async (payload: any = {}) => {
     return { data: { dispatched } };
 });
 
-// Relay: the editor holds the only socket and forwards `runtime:*` calls here over
-// postMessage, so this page needs no local network access of its own. First contact has to
-// come from the editor — our opener is severed — after which we keep announcing ourselves so
-// a reloaded editor can re-adopt us.
+// The editor forwards `runtime:*` here over postMessage, so this page needs no local network
+// access. It makes first contact (our opener is severed); we then keep announcing ourselves.
 const EDITOR_ORIGIN = new URL(config.url.home).origin;
 
 let editorWindow: Window | null = null;
@@ -467,7 +464,7 @@ window.addEventListener('message', async (evt: MessageEvent) => {
         return;
     }
     if (msg.mcp === 'close') {
-        // only this page can reliably close itself: the editor severed our opener
+        // the editor severed our opener, so only we can close this window
         window.close();
         return;
     }
