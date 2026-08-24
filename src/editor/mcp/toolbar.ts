@@ -67,8 +67,13 @@ editor.once('load', () => {
         // the launch page dials the server itself) still needs a relaunch to pick up the port
         const last = editor.call('launch:window');
         hint.text = RELAUNCH_HINT;
-        hint.hidden = !(editor.call('mcp:status') === 'connected' && !editor.call('mcp:relay') &&
-            last && !last.window.closed && !last.mcp);
+        hint.hidden = !(
+            editor.call('mcp:status') === 'connected' &&
+            !editor.call('mcp:relay') &&
+            last &&
+            !last.window.closed &&
+            !last.mcp
+        );
     };
 
     const render = (state: string) => {

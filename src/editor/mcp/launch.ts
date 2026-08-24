@@ -32,7 +32,7 @@ const closeCurrent = async () => {
     if (!closed) {
         target.close();
         for (let i = 0; i < CLOSE_ATTEMPTS && !target.closed; i++) {
-            await new Promise(resolve => setTimeout(resolve, CLOSE_POLL));
+            await new Promise((resolve) => setTimeout(resolve, CLOSE_POLL));
         }
         closed = target.closed;
     }

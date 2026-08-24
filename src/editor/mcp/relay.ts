@@ -47,7 +47,7 @@ const announce = () => {
 };
 
 const settle = (value: Peer | null) => {
-    waiters.forEach(resolve => resolve(value));
+    waiters.forEach((resolve) => resolve(value));
     waiters.clear();
 };
 
@@ -56,7 +56,7 @@ const drop = (reason: string) => {
         return;
     }
     peer = null;
-    pending.forEach(resolve => resolve({ error: 'The launched app disconnected mid-call. Run launch_start again.' }));
+    pending.forEach((resolve) => resolve({ error: 'The launched app disconnected mid-call. Run launch_start again.' }));
     pending.clear();
     if (pollTimer) {
         clearInterval(pollTimer);
@@ -97,7 +97,9 @@ window.addEventListener('message', (evt: MessageEvent) => {
         const known = peer?.window === evt.source;
         peer = {
             window: evt.source as Window,
-            methods: (msg.methods ?? []).filter((name: unknown) => typeof name === 'string' && name.startsWith('runtime:')),
+            methods: (msg.methods ?? []).filter(
+                (name: unknown) => typeof name === 'string' && name.startsWith('runtime:')
+            ),
             sceneId: msg.sceneId,
             projectId: msg.projectId,
             url: msg.url
@@ -209,7 +211,7 @@ const relay = {
         }
         win.postMessage({ mcp: 'close' }, LAUNCH_ORIGIN);
         for (let i = 0; i < CLOSE_ATTEMPTS && !win.closed; i++) {
-            await new Promise(resolve => setTimeout(resolve, CLOSE_POLL));
+            await new Promise((resolve) => setTimeout(resolve, CLOSE_POLL));
         }
         if (win.closed) {
             drop('closed on request');
@@ -235,7 +237,9 @@ const relay = {
         return new Promise<Reply>((resolve) => {
             const timer = setTimeout(() => {
                 pending.delete(callId);
-                resolve({ error: `Timed out after ${CALL_TIMEOUT}ms waiting for the launched app to handle '${name}'.` });
+                resolve({
+                    error: `Timed out after ${CALL_TIMEOUT}ms waiting for the launched app to handle '${name}'.`
+                });
             }, CALL_TIMEOUT);
             pending.set(callId, (res) => {
                 clearTimeout(timer);

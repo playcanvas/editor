@@ -42,8 +42,10 @@ const greetingOf = (data: unknown) => {
 
 const localAccessState = async () => {
     for (const name of LOCAL_ACCESS_PERMISSIONS) {
-        const state = await navigator.permissions?.query({ name: name as PermissionName })
-            .then(status => status.state, () => null);
+        const state = await navigator.permissions?.query({ name: name as PermissionName }).then(
+            (status) => status.state,
+            () => null
+        );
         if (state) {
             return state === 'granted' ? null : state;
         }
@@ -114,9 +116,13 @@ class MCPConnection extends Events {
         }
         this._blocked = state;
         if (state === 'denied') {
-            error('The browser is blocking this page from reaching the MCP server. Allow local access for this site in its site settings ("Apps on device" in Chrome), then reconnect.');
+            error(
+                'The browser is blocking this page from reaching the MCP server. Allow local access for this site in its site settings ("Apps on device" in Chrome), then reconnect.'
+            );
         } else if (state === 'prompt') {
-            error('This page has not been allowed to reach local servers yet. Accept the browser prompt, or allow local access for this site in its site settings ("Apps on device" in Chrome). Otherwise check that the MCP server is running.');
+            error(
+                'This page has not been allowed to reach local servers yet. Accept the browser prompt, or allow local access for this site in its site settings ("Apps on device" in Chrome). Otherwise check that the MCP server is running.'
+            );
         }
         this.emit('blocked', state);
     }
@@ -194,7 +200,7 @@ class MCPConnection extends Events {
                 return;
             }
             if (!opened) {
-                localAccessState().then(state => this._setBlocked(state));
+                localAccessState().then((state) => this._setBlocked(state));
             }
             this._setStatus('connecting');
             log('Disconnected; reconnecting');
@@ -265,8 +271,11 @@ class MCPConnection extends Events {
     call(name: string, ...args: any[]): MethodResult | Promise<MethodResult> {
         const fn = this._methods.get(name);
         if (!fn) {
-            return this._fallback?.(name, args) ??
-                { error: `Unknown method: ${name}. The editor may be outdated; reload the page and reconnect.` };
+            return (
+                this._fallback?.(name, args) ?? {
+                    error: `Unknown method: ${name}. The editor may be outdated; reload the page and reconnect.`
+                }
+            );
         }
         return fn(...args);
     }

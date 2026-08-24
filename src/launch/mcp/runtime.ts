@@ -441,14 +441,17 @@ let editorWindow: Window | null = null;
 let announceTimer: ReturnType<typeof setInterval> | null = null;
 
 const announce = () => {
-    editorWindow?.postMessage({
-        mcp: 'ready',
-        protocolVersion: PROTOCOL_VERSION,
-        projectId: config.project?.id,
-        sceneId: (config as { scene?: { id: number } }).scene?.id,
-        url: location.href,
-        methods: mcp.methodNames.filter(name => name.startsWith('runtime:'))
-    }, EDITOR_ORIGIN);
+    editorWindow?.postMessage(
+        {
+            mcp: 'ready',
+            protocolVersion: PROTOCOL_VERSION,
+            projectId: config.project?.id,
+            sceneId: (config as { scene?: { id: number } }).scene?.id,
+            url: location.href,
+            methods: mcp.methodNames.filter((name) => name.startsWith('runtime:'))
+        },
+        EDITOR_ORIGIN
+    );
 };
 
 window.addEventListener('message', async (evt: MessageEvent) => {
