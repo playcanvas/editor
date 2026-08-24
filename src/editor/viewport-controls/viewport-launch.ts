@@ -97,10 +97,12 @@ editor.once('load', () => {
             query.push('ministats=true');
         }
 
-        // if the editor is connected to an MCP server, hand the port to the launch
-        // page so it connects back as the runtime peer
+        // if the editor is connected to an MCP server, bridge the launch page to it: a
+        // relaying server is reached through this page, older ones need the port in the URL
+        // so the launch page can dial them itself
         const withMcp = editor.call('mcp:status') === 'connected';
-        if (withMcp) {
+        const relayed = withMcp && editor.call('mcp:relay');
+        if (withMcp && !relayed) {
             query.push(`mcp_port=${editor.call('mcp:port')}`);
         }
 
@@ -130,10 +132,19 @@ editor.once('load', () => {
             launcher.opener = null;
             launcher.location = url;
             lastLaunch = { window: launcher, mcp: withMcp };
+            if (relayed) {
+                editor.call('mcp:relay:attach', launcher);
+            }
         }
     };
 
     editor.method('launch:window', () => lastLaunch);
+
+    // MCP launches go through editor/mcp/launch.ts, which records its window here so the
+    // relay and the MCP popover see a single source of truth
+    editor.method('launch:window:track', (win: Window, withMcp: boolean) => {
+        lastLaunch = { window: win, mcp: withMcp };
+    });
 
     buttonLaunch.on('click', (e: MouseEvent) => launchApp({}, e.shiftKey));
 

@@ -1,4 +1,4 @@
-import { mcp } from '@/editor/mcp/connection';
+import { mcp, PROTOCOL_VERSION } from '@/editor/mcp/connection';
 
 /**
  * MCP "runtime" peer for the launch page (ported from the former Chrome extension's
@@ -9,7 +9,13 @@ import { mcp } from '@/editor/mcp/connection';
  */
 
 const LOG_CAP = 1000;
+
+// legacy: servers without relay support hand us a port to dial ourselves
 const port = new URLSearchParams(location.search).get('mcp_port');
+
+// how often we re-announce ourselves to the editor once it has made contact, so an editor
+// reload can re-adopt this still-running app
+const ANNOUNCE_INTERVAL = 5000;
 
 type LogEntry = { time: number; level: string; text: string };
 
@@ -46,20 +52,18 @@ const push = (level: string, args: any[], stack?: string) => {
     }
 };
 
-if (port) {
-    (['log', 'info', 'warn', 'error', 'debug'] as const).forEach((level) => {
-        console[level] = (...args: any[]) => {
-            push(level, args);
-            original[level](...args);
-        };
-    });
-    window.addEventListener('error', (e) => {
-        push('error', [e.message], e.error?.stack || `${e.filename}:${e.lineno}:${e.colno}`);
-    });
-    window.addEventListener('unhandledrejection', (e) => {
-        push('error', [`Unhandled promise rejection: ${e.reason?.message ?? e.reason}`], e.reason?.stack);
-    });
-}
+(['log', 'info', 'warn', 'error', 'debug'] as const).forEach((level) => {
+    console[level] = (...args: any[]) => {
+        push(level, args);
+        original[level](...args);
+    };
+});
+window.addEventListener('error', (e) => {
+    push('error', [e.message], e.error?.stack || `${e.filename}:${e.lineno}:${e.colno}`);
+});
+window.addEventListener('unhandledrejection', (e) => {
+    push('error', [`Unhandled promise rejection: ${e.reason?.message ?? e.reason}`], e.reason?.stack);
+});
 
 mcp.method('runtime:ping', () => ({ data: 'pong' }));
 
@@ -427,13 +431,56 @@ mcp.method('runtime:input', async (payload: any = {}) => {
     return { data: { dispatched } };
 });
 
-// connect automatically when opened via the editor's launch:start (which appends
-// mcp_port); otherwise stay idle
+// Relay: the editor holds the only socket and forwards `runtime:*` calls here over
+// postMessage, so this page needs no local network access of its own. First contact has to
+// come from the editor — our opener is severed — after which we keep announcing ourselves so
+// a reloaded editor can re-adopt us.
+const EDITOR_ORIGIN = new URL(config.url.home).origin;
+
+let editorWindow: Window | null = null;
+let announceTimer: ReturnType<typeof setInterval> | null = null;
+
+const announce = () => {
+    editorWindow?.postMessage({
+        mcp: 'ready',
+        protocolVersion: PROTOCOL_VERSION,
+        projectId: config.project?.id,
+        sceneId: (config as { scene?: { id: number } }).scene?.id,
+        url: location.href,
+        methods: mcp.methodNames.filter(name => name.startsWith('runtime:'))
+    }, EDITOR_ORIGIN);
+};
+
+window.addEventListener('message', async (evt: MessageEvent) => {
+    if (evt.origin !== EDITOR_ORIGIN || !evt.data || !evt.source) {
+        return;
+    }
+    const msg = evt.data;
+    if (msg.mcp === 'offer') {
+        editorWindow = evt.source as Window;
+        log('Relay attached');
+        announce();
+        announceTimer ??= setInterval(announce, ANNOUNCE_INTERVAL);
+        return;
+    }
+    if (msg.mcp === 'close') {
+        // only this page can reliably close itself: the editor severed our opener
+        window.close();
+        return;
+    }
+    if (msg.mcp === 'call') {
+        const res = await mcp.call(msg.name, ...(msg.args ?? []));
+        (evt.source as Window).postMessage({ mcp: 'res', id: msg.id, res }, EDITOR_ORIGIN);
+    }
+});
+
+// legacy: dial the server directly when it can't relay (older MCP server versions)
 if (port) {
     mcp.connect(parseInt(port, 10), 'runtime');
 }
 
 window.addEventListener('beforeunload', () => {
+    editorWindow?.postMessage({ mcp: 'gone' }, EDITOR_ORIGIN);
     if (mcp.status !== 'disconnected') {
         mcp.disconnect();
     }
