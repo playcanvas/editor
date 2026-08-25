@@ -142,4 +142,90 @@ describe('api.Schema tests', function () {
         );
         expect(() => new api.Schema({ version: 1 })).to.throw('Unsupported Editor schema version: 1');
     });
+
+    it('getFields sees through a nullability wrapper', function () {
+        const schema = new api.Schema({
+            version: 1,
+            documents: {
+                asset: { type: 'object', properties: {} },
+                scene: { type: 'object', properties: {} },
+                settings: {
+                    type: 'object',
+                    properties: {
+                        editor: {
+                            default: null,
+                            anyOf: [
+                                { type: 'object', properties: { gizmoSize: { type: 'number', default: 1 } } },
+                                { type: 'null' }
+                            ]
+                        }
+                    }
+                }
+            },
+            assetData: {}
+        });
+
+        const editorField = schema.getDocument('settings').properties.editor;
+        expect(Object.keys(schema.getFields(editorField))).to.deep.equal(['gizmoSize']);
+    });
+
+    it('getAssetTypes sees through a nullability wrapper', function () {
+        const schema = new api.Schema({
+            version: 1,
+            documents: {
+                asset: {
+                    type: 'object',
+                    properties: { type: { anyOf: [{ type: 'string', enum: ['material', 'texture'] }, { type: 'null' }] } }
+                },
+                scene: { type: 'object', properties: {} },
+                settings: { type: 'object', properties: {} }
+            },
+            assetData: {}
+        });
+
+        expect(schema.getAssetTypes()).to.deep.equal(['material', 'texture']);
+    });
+
+    it('getFieldsOfType finds references inside a nullability wrapper', function () {
+        const schema = new api.Schema({
+            version: 1,
+            documents: {
+                asset: { type: 'object', properties: {} },
+                scene: {
+                    type: 'object',
+                    properties: {
+                        entities: {
+                            'x-open-map': true,
+                            additionalProperties: {
+                                type: 'object',
+                                properties: {
+                                    components: {
+                                        default: null,
+                                        anyOf: [
+                                            {
+                                                type: 'object',
+                                                properties: {
+                                                    model: {
+                                                        type: 'object',
+                                                        properties: {
+                                                            materialAsset: { type: 'number', 'x-editor-type': 'asset' }
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            { type: 'null' }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                settings: { type: 'object', properties: {} }
+            },
+            assetData: {}
+        });
+
+        expect(schema.components.getFieldsOfType('model', 'asset')).to.deep.equal(['materialAsset']);
+    });
 });

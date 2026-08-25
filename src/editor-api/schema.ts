@@ -101,7 +101,8 @@ class Schema {
 
     getFields(field: unknown) {
         if (!isObject(field)) return {};
-        return isObject(field.properties) ? field.properties : {};
+        const value = jsonValue(field);
+        return isObject(value) && isObject(value.properties) ? value.properties : {};
     }
 
     getMapValue(field: unknown) {
@@ -129,9 +130,10 @@ class Schema {
     }
 
     getAssetTypes() {
-        const asset = this.getDocument('asset');
-        const type = (asset.properties as Field)?.type;
-        return ((type as Field)?.enum as string[]) || [];
+        const asset = jsonValue(this.getDocument('asset'));
+        if (!isObject(asset) || !isObject(asset.properties)) return [];
+        const type = jsonValue(asset.properties.type);
+        return isObject(type) && Array.isArray(type.enum) ? (type.enum as string[]) : [];
     }
 
     resolvePath(root: unknown, path: string | readonly (string | number)[], strictArrays = true) {
