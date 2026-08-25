@@ -7,6 +7,8 @@ import type { AssetObserver } from '@/editor-api';
 
 import { formatShortcut } from '../../common/utils';
 
+import { isImportedMaterial } from './asset-flags';
+
 editor.once('load', () => {
     let currentAsset = null;
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
@@ -808,7 +810,7 @@ editor.once('load', () => {
                             !source.get('meta.animation.available')
                         ) {
                             menuItemReImport.hidden = true;
-                        } else if (currentAsset.get('type') === 'material' && !currentAsset.has('meta.index')) {
+                        } else if (currentAsset.get('type') === 'material' && !isImportedMaterial(currentAsset)) {
                             menuItemReImport.hidden = true;
                         } else if (
                             source.get('type') === 'font' &&
