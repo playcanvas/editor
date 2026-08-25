@@ -24,18 +24,6 @@ const error = (msg: unknown) => console.error(`[MCP] ${msg}`);
 
 // 'denied' or 'prompt' when the permission may be the cause, null when it can't be. A
 // never-asked site reads 'prompt', which is also what a missing server looks like.
-// the server's opening frame advertises its capabilities; tool requests always carry an id
-const greetingOf = (data: unknown) => {
-    if (typeof data !== 'string' || !data.includes('"hello"')) {
-        return null;
-    }
-    try {
-        return JSON.parse(data)?.hello ?? null;
-    } catch {
-        return null;
-    }
-};
-
 const localAccessState = async () => {
     for (const name of LOCAL_ACCESS_PERMISSIONS) {
         const state = await navigator.permissions?.query({ name: name as PermissionName }).then(
@@ -73,20 +61,10 @@ class MCPConnection extends Events {
 
     private _blocked: string | null = null;
 
-    private _serverRelay = false;
-
     private _fallback: ((name: string, args: any[]) => MethodResult | Promise<MethodResult> | null) | null = null;
 
     get status() {
         return this._status;
-    }
-
-    /**
-     * Whether the server can route `runtime:*` through this page instead of the launch page
-     * opening its own socket.
-     */
-    get serverRelay() {
-        return this._serverRelay;
     }
 
     get methodNames() {
@@ -153,7 +131,6 @@ class MCPConnection extends Events {
     private _open() {
         const ws = new WebSocket(`ws://${HOST}:${this._port}`);
         this._ws = ws;
-        this._serverRelay = false;
         let opened = false;
 
         ws.onopen = () => {
@@ -170,13 +147,6 @@ class MCPConnection extends Events {
             log('Connected');
         };
         ws.onmessage = async (event) => {
-            const greeting = greetingOf(event.data);
-            if (greeting) {
-                this._serverRelay = !!greeting.relay;
-                log(`Server relay ${this._serverRelay ? 'available' : 'unavailable'}`);
-                this.emit('hello');
-                return;
-            }
             const msg = await handleRequest(event.data, (name, ...args) => this.call(name, ...args));
             if ('id' in msg) {
                 ws.send(JSON.stringify(msg));
@@ -283,7 +253,6 @@ editor.method('mcp:disconnect', () => mcp.disconnect());
 editor.method('mcp:status', () => mcp.status);
 editor.method('mcp:port', () => mcp.port);
 editor.method('mcp:blocked', () => mcp.blocked);
-editor.method('mcp:relay', () => mcp.serverRelay);
 mcp.on('status', (status: Status) => editor.emit('mcp:status', status));
 mcp.on('blocked', (state: string | null) => editor.emit('mcp:blocked', state));
 

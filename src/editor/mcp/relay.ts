@@ -49,7 +49,12 @@ const drop = (reason: string) => {
     if (!peer) {
         return;
     }
+    const win = peer.window;
     peer = null;
+    // a still-open window we're dropping should restore its console and stop announcing
+    if (!win.closed) {
+        win.postMessage({ mcp: 'detach' }, LAUNCH_ORIGIN);
+    }
     pending.forEach((resolve) => resolve({ error: 'The launched app disconnected mid-call. Run launch_start again.' }));
     pending.clear();
     if (pollTimer) {

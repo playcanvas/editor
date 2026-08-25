@@ -49,7 +49,7 @@ mcp.method('launch:start', async (options: any = {}) => {
         return { error: 'No scene loaded, or launch URL unavailable. Load a scene in the editor and retry.' };
     }
     // with no options requested, adopt a running app instead of restarting the session
-    if (mcp.serverRelay && !Object.keys(options).length) {
+    if (!Object.keys(options).length) {
         const running = relay.peer && !relay.peer.window.closed ? relay.peer : null;
         if (running?.sceneId === sceneId) {
             log('Adopted the running app');
@@ -98,10 +98,6 @@ mcp.method('launch:start', async (options: any = {}) => {
         }
     }
 
-    // only older servers route to a socket the launch page opens itself
-    if (!mcp.serverRelay) {
-        params.set('mcp_port', String(mcp.port));
-    }
     const url = `${base}${sceneId}?${params.toString()}`;
 
     await closeCurrent();
@@ -112,16 +108,12 @@ mcp.method('launch:start', async (options: any = {}) => {
             error: 'Could not open the launch window (popup blocked). Allow popups for the editor origin and retry.'
         };
     }
-    if (mcp.serverRelay) {
-        // project scripts get no handle into the editor. This also makes the window unclosable
-        // from here, so only sever where closing goes through the page (see closeCurrent).
-        runtimeWindow.opener = null;
-    }
+    // project scripts get no handle into the editor; also makes the window unclosable from
+    // here, so we only close through the page (see closeCurrent)
+    runtimeWindow.opener = null;
     runtimeWindow.location = url;
-    editor.call('launch:window:track', runtimeWindow, true);
-    if (mcp.serverRelay) {
-        relay.attach(runtimeWindow);
-    }
+    editor.call('launch:window:track', runtimeWindow);
+    relay.attach(runtimeWindow);
     log(`Launched runtime for scene(${sceneId})`);
     return { data: { url, sceneId, adopted: false } };
 });

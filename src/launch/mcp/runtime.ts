@@ -2,16 +2,11 @@ import { mcp, PROTOCOL_VERSION } from '@/editor/mcp/connection';
 
 /**
  * MCP "runtime" peer for the launch page (ported from the former Chrome extension's
- * launch content script). Captures console output early, screenshots the *running* app,
- * and answers `runtime:*` calls from the MCP server. Connects automatically when the
- * page is opened with `?mcp_port=<port>` (appended by the editor's `launch:start`
- * MCP method), registering as the 'runtime' peer; otherwise stays idle.
+ * launch content script). Captures console output while an MCP session owns the page,
+ * and answers `runtime:*` calls the editor relays here over postMessage — no socket of its own.
  */
 
 const LOG_CAP = 1000;
-
-// legacy: servers without relay support hand us a port to dial ourselves
-const port = new URLSearchParams(location.search).get('mcp_port');
 
 // re-announce so an editor reload can re-adopt this still-running app
 const ANNOUNCE_INTERVAL = 5000;
@@ -21,16 +16,17 @@ type LogEntry = { time: number; level: string; text: string };
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const logs: LogEntry[] = [];
-const original = {
-    log: console.log.bind(console),
-    info: console.info.bind(console),
-    warn: console.warn.bind(console),
-    error: console.error.bind(console),
-    debug: console.debug.bind(console)
+const LEVELS = ['log', 'info', 'warn', 'error', 'debug'] as const;
+const native = {
+    log: console.log,
+    info: console.info,
+    warn: console.warn,
+    error: console.error,
+    debug: console.debug
 };
 
-// use the original console to avoid buffering our own output into runtime:logs
-const log = (msg: string) => original.log(`[MCP] ${msg}`);
+// our own logging always uses the native console, so it never buffers into runtime:logs
+const log = (msg: string) => native.log.call(console, `[MCP] ${msg}`);
 
 const push = (level: string, args: any[], stack?: string) => {
     const text = args
@@ -51,17 +47,42 @@ const push = (level: string, args: any[], stack?: string) => {
     }
 };
 
-(['log', 'info', 'warn', 'error', 'debug'] as const).forEach((level) => {
-    console[level] = (...args: any[]) => {
-        push(level, args);
-        original[level](...args);
-    };
-});
+// wrapping console moves every call site to this file, so we only do it while relaying (the
+// 'offer'); a plain Launch keeps native stack traces. Restored on 'detach'.
+let capturing = false;
+
+const startCapture = () => {
+    if (capturing) {
+        return;
+    }
+    capturing = true;
+    LEVELS.forEach((level) => {
+        console[level] = (...args: any[]) => {
+            push(level, args);
+            native[level].apply(console, args);
+        };
+    });
+};
+
+const stopCapture = () => {
+    if (!capturing) {
+        return;
+    }
+    capturing = false;
+    LEVELS.forEach((level) => {
+        console[level] = native[level];
+    });
+};
+
 window.addEventListener('error', (e) => {
-    push('error', [e.message], e.error?.stack || `${e.filename}:${e.lineno}:${e.colno}`);
+    if (capturing) {
+        push('error', [e.message], e.error?.stack || `${e.filename}:${e.lineno}:${e.colno}`);
+    }
 });
 window.addEventListener('unhandledrejection', (e) => {
-    push('error', [`Unhandled promise rejection: ${e.reason?.message ?? e.reason}`], e.reason?.stack);
+    if (capturing) {
+        push('error', [`Unhandled promise rejection: ${e.reason?.message ?? e.reason}`], e.reason?.stack);
+    }
 });
 
 mcp.method('runtime:ping', () => ({ data: 'pong' }));
@@ -458,9 +479,19 @@ window.addEventListener('message', async (evt: MessageEvent) => {
     const msg = evt.data;
     if (msg.mcp === 'offer') {
         editorWindow = evt.source as Window;
+        startCapture();
         log('Relay attached');
         announce();
         announceTimer ??= setInterval(announce, ANNOUNCE_INTERVAL);
+        return;
+    }
+    if (msg.mcp === 'detach') {
+        if (announceTimer) {
+            clearInterval(announceTimer);
+            announceTimer = null;
+        }
+        editorWindow = null;
+        stopCapture();
         return;
     }
     if (msg.mcp === 'close') {
@@ -474,14 +505,6 @@ window.addEventListener('message', async (evt: MessageEvent) => {
     }
 });
 
-// legacy: dial the server directly when it can't relay (older MCP server versions)
-if (port) {
-    mcp.connect(parseInt(port, 10), 'runtime');
-}
-
 window.addEventListener('beforeunload', () => {
     editorWindow?.postMessage({ mcp: 'gone' }, EDITOR_ORIGIN);
-    if (mcp.status !== 'disconnected') {
-        mcp.disconnect();
-    }
 });

@@ -52,9 +52,8 @@ editor.once('load', () => {
 
     const launchOptions = {};
 
-    // last manually launched window and whether its URL carried mcp_port, so the
-    // MCP popover can hint that an already-open app needs a relaunch to connect
-    let lastLaunch: { window: Window; mcp: boolean } | null = null;
+    // the last launched window, so launch:start can adopt an already-open app
+    let lastLaunch: { window: Window } | null = null;
 
     const launchApp = (
         deviceOptions: {
@@ -97,12 +96,8 @@ editor.once('load', () => {
             query.push('ministats=true');
         }
 
-        // bridge the launch page to MCP: through this page, or via a port older servers need
+        // the editor relays the launch page to MCP, so it opens no socket of its own
         const withMcp = editor.call('mcp:status') === 'connected';
-        const relayed = withMcp && editor.call('mcp:relay');
-        if (withMcp && !relayed) {
-            query.push(`mcp_port=${editor.call('mcp:port')}`);
-        }
 
         const params = new URLSearchParams(location.search);
         if (params.has('use_local_engine')) {
@@ -129,8 +124,8 @@ editor.once('load', () => {
         if (launcher) {
             launcher.opener = null;
             launcher.location = url;
-            lastLaunch = { window: launcher, mcp: withMcp };
-            if (relayed) {
+            lastLaunch = { window: launcher };
+            if (withMcp) {
                 editor.call('mcp:relay:attach', launcher);
             }
         }
@@ -139,8 +134,8 @@ editor.once('load', () => {
     editor.method('launch:window', () => lastLaunch);
 
     // MCP launches record their window here too, so there is one source of truth
-    editor.method('launch:window:track', (win: Window, withMcp: boolean) => {
-        lastLaunch = { window: win, mcp: withMcp };
+    editor.method('launch:window:track', (win: Window) => {
+        lastLaunch = { window: win };
     });
 
     buttonLaunch.on('click', (e: MouseEvent) => launchApp({}, e.shiftKey));
