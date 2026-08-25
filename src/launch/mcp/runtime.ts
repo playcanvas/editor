@@ -25,7 +25,7 @@ const native = {
     debug: console.debug
 };
 
-// our own logging always uses the native console, so it never buffers into runtime:logs
+// our own logging uses the native console, so it never buffers into runtime:logs
 const log = (msg: string) => native.log.call(console, `[MCP] ${msg}`);
 
 const push = (level: string, args: any[], stack?: string) => {
@@ -47,8 +47,8 @@ const push = (level: string, args: any[], stack?: string) => {
     }
 };
 
-// wrapping console moves every call site to this file, so we only do it while relaying (the
-// 'offer'); a plain Launch keeps native stack traces. Restored on 'detach'.
+// wrapping console reassigns every call site here, so only while relaying (offer → detach);
+// a plain Launch keeps native stack traces
 let capturing = false;
 
 const startCapture = () => {
@@ -253,7 +253,8 @@ mcp.method('runtime:state', (options: any = {}) => {
             (n: any) => typeof n.getGuid === 'function' && n.name && n.name.toLowerCase().includes(q)
         );
     } else {
-        // no filter: return every entity (paginated). Excludes the root.
+
+        // no filter: every entity (paginated), minus the root
         entities = app.root.find((n: any) => typeof n.getGuid === 'function' && n !== app.root);
     }
 
@@ -339,8 +340,7 @@ const dispatchKey = (kind: string, info: { key: string; code: string; keyCode: n
         view: window
     });
 
-    // keyCode/which are read-only and not settable via the constructor, but
-    // PlayCanvas' keyboard handler reads them — so back them with getters
+    // keyCode/which are read-only in the ctor but PlayCanvas reads them, so back them with getters
     Object.defineProperty(e, 'keyCode', { get: () => info.keyCode });
     Object.defineProperty(e, 'which', { get: () => info.keyCode });
     window.dispatchEvent(e);
@@ -451,8 +451,8 @@ mcp.method('runtime:input', async (payload: any = {}) => {
     return { data: { dispatched } };
 });
 
-// The editor forwards `runtime:*` here over postMessage, so this page needs no local network
-// access. It makes first contact (our opener is severed); we then keep announcing ourselves.
+// the editor relays `runtime:*` here over postMessage; it makes first contact (opener severed),
+// then we keep announcing ourselves
 const EDITOR_ORIGIN = new URL(config.url.home).origin;
 
 let editorWindow: Window | null = null;
@@ -495,6 +495,7 @@ window.addEventListener('message', async (evt: MessageEvent) => {
         return;
     }
     if (msg.mcp === 'close') {
+
         // the editor severed our opener, so only we can close this window
         window.close();
         return;

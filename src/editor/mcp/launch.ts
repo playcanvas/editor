@@ -5,12 +5,12 @@ import { relay } from './relay';
 
 const log = (msg: string) => console.log(`[MCP] ${msg}`);
 
-// how long an already-open launch window gets to answer the relay offer before we relaunch
+// how long a running window has to answer the relay offer before we relaunch
 const ADOPT_TIMEOUT = 5000;
 const CLOSE_POLL = 100;
 const CLOSE_ATTEMPTS = 10;
 
-// remember a handle to the launched runtime window so we can stop it later
+// handle to the launched window, so we can stop it later
 let runtimeWindow: Window | null = null;
 
 /**
@@ -48,7 +48,8 @@ mcp.method('launch:start', async (options: any = {}) => {
     if (!sceneId || !base) {
         return { error: 'No scene loaded, or launch URL unavailable. Load a scene in the editor and retry.' };
     }
-    // with no options requested, adopt a running app instead of restarting the session
+
+    // no options: adopt a running app instead of restarting the session
     if (!Object.keys(options).length) {
         const running = relay.peer && !relay.peer.window.closed ? relay.peer : null;
         if (running?.sceneId === sceneId) {
@@ -63,6 +64,7 @@ mcp.method('launch:start', async (options: any = {}) => {
                 log('Adopted the app launched from the editor');
                 return { data: { url: adopted.url, sceneId, adopted: true } };
             }
+
             // different scene, or a build without the relay: leave it and relaunch
             relay.detach();
         }
@@ -90,7 +92,7 @@ mcp.method('launch:start', async (options: any = {}) => {
         params.set('ministats', 'true');
     }
 
-    // a local build must launch the local launch page, as the Launch button does
+    // a local build must launch the local page, like the Launch button
     const search = new URLSearchParams(location.search);
     for (const flag of ['use_local_frontend', 'use_local_engine']) {
         if (search.has(flag)) {
@@ -101,6 +103,7 @@ mcp.method('launch:start', async (options: any = {}) => {
     const url = `${base}${sceneId}?${params.toString()}`;
 
     await closeCurrent();
+
     // open blank so the opener can be severed before the page loads
     runtimeWindow = window.open('', '_blank');
     if (!runtimeWindow) {
@@ -108,8 +111,8 @@ mcp.method('launch:start', async (options: any = {}) => {
             error: 'Could not open the launch window (popup blocked). Allow popups for the editor origin and retry.'
         };
     }
-    // project scripts get no handle into the editor; also makes the window unclosable from
-    // here, so we only close through the page (see closeCurrent)
+
+    // sever the opener: project scripts get no editor handle, and we close via the page (closeCurrent)
     runtimeWindow.opener = null;
     runtimeWindow.location = url;
     editor.call('launch:window:track', runtimeWindow);

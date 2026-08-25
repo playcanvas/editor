@@ -18,7 +18,7 @@ editor.once('load', () => {
     const root = editor.call('layout.root');
     const toolbar = editor.call('layout.toolbar');
 
-    // toolbar button, placed below the publish button (last item in the top group)
+    // toolbar button, below publish (last in the top group)
     const button = new Button({ class: ['pc-icon', 'mcp'] });
     button.dom.appendChild(new DOMParser().parseFromString(MCP_ICON, 'image/svg+xml').documentElement);
     toolbar.append(button);
@@ -87,7 +87,7 @@ editor.once('load', () => {
         }
     });
 
-    // toggle popover, centered vertically on the button, close on outside click
+    // toggle popover (centered on the button), close on outside click
     const onOutside = (evt: MouseEvent) => {
         const target = evt.target as Node;
         if (popover.dom.contains(target) || button.dom.contains(target)) {
@@ -107,7 +107,8 @@ editor.once('load', () => {
         popover.dom.style.top = `${Math.max(4, top)}px`;
     });
     popover.on('show', () => {
-        // suppress the hover tooltip while open so its arrow doesn't poke out from under the popover
+
+        // hide the hover tooltip while open so its arrow doesn't poke through
         tooltip.detach();
         tooltip.hidden = true;
         updateHint();
@@ -118,8 +119,7 @@ editor.once('load', () => {
         window.removeEventListener('mousedown', onOutside);
     });
 
-    // reconnect automatically if the user was connected before a page reload
-    // (branch switch / checkpoint restore reload the editor and drop the socket)
+    // auto-reconnect if connected before a reload (branch switch / checkpoint restore drop the socket)
     if (editor.call('localStorage:get', 'editor:mcp:connected')) {
         const port = editor.call('localStorage:get', 'editor:mcp:port') || DEFAULT_PORT;
         portField.value = String(port);

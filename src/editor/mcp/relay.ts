@@ -51,6 +51,7 @@ const drop = (reason: string) => {
     }
     const win = peer.window;
     peer = null;
+
     // a still-open window we're dropping should restore its console and stop announcing
     if (!win.closed) {
         win.postMessage({ mcp: 'detach' }, LAUNCH_ORIGIN);
@@ -88,6 +89,7 @@ window.addEventListener('message', (evt: MessageEvent) => {
     const msg = evt.data;
 
     if (msg.mcp === 'ready') {
+
         // the user may have another project's app running in a second window
         if (config.project?.id !== undefined && msg.projectId !== config.project.id) {
             return;
@@ -108,6 +110,7 @@ window.addEventListener('message', (evt: MessageEvent) => {
                 clearTimeout(offerTimer);
                 offerTimer = null;
             }
+
             // the launch window can be closed by the user at any point
             pollTimer ??= setInterval(() => peer?.window.closed && drop('window closed'), WINDOW_POLL);
             announce();

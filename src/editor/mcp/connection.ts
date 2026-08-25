@@ -4,14 +4,13 @@ import { handleRequest } from './request';
 
 const DEFAULT_PORT = 52000;
 
-// dial the address the server binds, not `localhost` (resolves to ::1 first on windows)
+// use 127.0.0.1, not localhost (resolves to ::1 first on windows)
 const HOST = '127.0.0.1';
 const RETRY_TIMEOUT = 1000;
 const PROTOCOL_VERSION = 1;
 
-// A blocked socket is indistinguishable from "nothing is listening", so probe the permission
-// when we never reach 'open'. The name changed with the Chrome 145 loopback/LAN split, so try
-// each and use the first the browser recognises.
+// a blocked socket looks like "nothing listening"; probe the permission on a failed open.
+// the name changed across the Chrome 145 loopback/LAN split, so try each, first match wins.
 const LOCAL_ACCESS_PERMISSIONS = ['loopback-network', 'local-network', 'local-network-access'];
 
 type Status = 'connecting' | 'connected' | 'disconnected';
@@ -22,8 +21,7 @@ type Method = (...args: any[]) => MethodResult | Promise<MethodResult>;
 const log = (msg: string) => console.log(`[MCP] ${msg}`);
 const error = (msg: unknown) => console.error(`[MCP] ${msg}`);
 
-// 'denied' or 'prompt' when the permission may be the cause, null when it can't be. A
-// never-asked site reads 'prompt', which is also what a missing server looks like.
+// 'denied'/'prompt' when the permission might be blocking, null when not ('prompt' also = no server yet)
 const localAccessState = async () => {
     for (const name of LOCAL_ACCESS_PERMISSIONS) {
         const state = await navigator.permissions?.query({ name: name as PermissionName }).then(
@@ -156,11 +154,12 @@ class MCPConnection extends Events {
             }
         };
         ws.onerror = () => {
-            // a socket error is always followed by a close event, which drives the
-            // reconnect below; swallow it here so it isn't surfaced as unhandled
+
+            // swallowed: the close event that follows drives the reconnect
         };
         ws.onclose = (evt) => {
             this._methods.get('files:transfer:clear')?.();
+
             // a deliberate disconnect() (FORCE) must never reconnect
             if (this._forceClosed || evt?.reason === 'FORCE') {
                 return;
