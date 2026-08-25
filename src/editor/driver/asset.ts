@@ -2,6 +2,7 @@ import { config } from '@/editor/config';
 
 import { driver } from './driver';
 import { api, log, rest, entitySummary, paginate, validatePath, writeError } from './shared';
+import { resolveUnset } from './unset';
 
 const MAX_FILE_BYTES = 20 * 1024 * 1024;
 const MAX_CHUNK_BYTES = 1024 * 1024;
@@ -301,9 +302,6 @@ const modifyAssets = async (edits: any[]) => {
         if (op === 'unset' && ['name', 'tags', 'preload', 'exclude'].includes(root)) {
             throw new Error(`Asset path ${edit.path} cannot be unset.`);
         }
-        if (op === 'unset' && root === 'data' && !resolved.hasDefault && !resolved.open) {
-            throw new Error(`Asset path ${edit.path} cannot be unset.`);
-        }
         if (asset.get('type') === 'animstategraph' && edit.path.startsWith('data.')) {
             throw new Error(
                 'Anim state graph data requires modify_anim_state_graph. Generic leaf writes can be ignored by the editor.'
@@ -360,8 +358,10 @@ const modifyAssets = async (edits: any[]) => {
                 value.splice(edit.to, 0, value.splice(edit.index, 1)[0]);
             }
         }
-        const nextOp = op === 'unset' && resolved?.hasDefault ? 'set' : op;
-        const value = op === 'unset' && resolved?.hasDefault ? resolved.default : edit.value;
+        const unsetOp =
+            op === 'unset' ? resolveUnset(resolved ?? { hasDefault: false, default: undefined, open: false }) : null;
+        const nextOp = unsetOp ? unsetOp.op : op;
+        const value = unsetOp?.op === 'set' ? unsetOp.value : edit.value;
         if (nextOp === 'set' && Array.isArray(value)) {
             arrays.set(`${edit.id}:${edit.path}`, structuredClone(value));
         } else if (nextOp === 'unset') {

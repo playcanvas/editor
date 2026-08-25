@@ -1,5 +1,6 @@
 import { driver } from './driver';
 import { api, log, entitySummary, paginate, validatePath, writeError } from './shared';
+import { resolveUnset } from './unset';
 
 const ENTITY_TOP_LEVEL_PATHS = ['name', 'enabled', 'position', 'rotation', 'scale', 'tags'];
 
@@ -155,11 +156,10 @@ driver.method('entities:modify', (edits) => {
         const resolved = path.startsWith('components.')
             ? api.schema.components.resolvePath(path.split('.')[1], path.split('.').slice(2).join('.'))
             : null;
-        if (op === 'unset' && !resolved?.hasDefault && !resolved?.open) {
-            throw new Error(`Component path ${path} cannot be unset.`);
-        }
-        const nextOp = op === 'unset' && resolved?.hasDefault ? 'set' : op;
-        const value = nextOp === 'set' && op === 'unset' ? resolved.default : edit.value;
+        const unsetOp =
+            op === 'unset' ? resolveUnset(resolved ?? { hasDefault: false, default: undefined, open: false }) : null;
+        const nextOp = unsetOp ? unsetOp.op : op;
+        const value = unsetOp?.op === 'set' ? unsetOp.value : edit.value;
         return {
             entity,
             id,
