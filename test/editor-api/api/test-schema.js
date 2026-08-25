@@ -228,4 +228,28 @@ describe('api.Schema tests', function () {
 
         expect(schema.components.getFieldsOfType('model', 'asset')).to.deep.equal(['materialAsset']);
     });
+
+    it('reads metadata from the inner branch when it is not hoisted', function () {
+        const schema = new api.Schema({
+            version: 1,
+            documents: {
+                asset: { type: 'object', properties: {} },
+                scene: { type: 'object', properties: {} },
+                settings: {
+                    type: 'object',
+                    properties: {
+                        loadingScreenScript: {
+                            default: null,
+                            anyOf: [{ type: 'string', 'x-scope': 'project' }, { type: 'null' }]
+                        }
+                    }
+                }
+            },
+            assetData: {}
+        });
+
+        const settings = schema.getDocument('settings');
+        expect(schema.getScope(settings.properties.loadingScreenScript)).to.equal('project');
+        expect(schema.getScopeForPath(settings, 'loadingScreenScript')).to.equal('project');
+    });
 });

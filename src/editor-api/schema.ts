@@ -125,8 +125,11 @@ class Schema {
     }
 
     getScope(field: unknown) {
-        if (!isObject(field)) return undefined;
-        return field['x-scope'] as string | undefined;
+        if (isObject(field) && typeof field['x-scope'] === 'string') return field['x-scope'];
+        const value = jsonValue(field);
+        return isObject(value) && typeof value['x-scope'] === 'string'
+            ? (value['x-scope'] as string)
+            : undefined;
     }
 
     getAssetTypes() {
@@ -203,14 +206,17 @@ class Schema {
 
     getMergeMethodForPath(root: unknown, path: string, strictArrays = true) {
         const field = this.resolvePath(root, path, strictArrays)?.field;
-        if (!isObject(field)) return undefined;
-        return field['x-merge-method'] as string | undefined;
+        if (isObject(field) && typeof field['x-merge-method'] === 'string') {
+            return field['x-merge-method'];
+        }
+        const value = jsonValue(field);
+        return isObject(value) && typeof value['x-merge-method'] === 'string'
+            ? (value['x-merge-method'] as string)
+            : undefined;
     }
 
     getScopeForPath(root: unknown, path: string, strictArrays = true) {
-        const field = this.resolvePath(root, path, strictArrays)?.field;
-        if (!isObject(field)) return undefined;
-        return field['x-scope'] as string | undefined;
+        return this.getScope(this.resolvePath(root, path, strictArrays)?.field);
     }
 }
 
