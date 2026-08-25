@@ -13,7 +13,7 @@ import {
 import { formatter as f } from '@/common/utils';
 
 const LIGHTMAP_COMPONENTS = ['model', 'render'];
-const LEGACY_LIGHTMAP_PROPERTIES = ['castShadowsLightMap', 'lightMapped', 'lightMapSizeMultiplier'];
+const LEGACY_LIGHTMAP_PROPERTIES = ['castShadowsLightMap', 'lightMapped', 'lightMapSizeMultiplier', 'static'];
 const MIGRATION_BATCH_SIZE = 100;
 
 editor.once('load', () => {
