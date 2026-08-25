@@ -1,3 +1,5 @@
+import { isUnsetPriorityScripts } from '@/editor/scene-settings/priority-scripts';
+
 import {
     createButton,
     createLabel,
@@ -6,6 +8,7 @@ import {
     createOverlay,
     createPanel
 } from '../../attributes/attributes-pcui';
+
 
 editor.once('load', () => {
     if (!editor.call('settings:project').get('useLegacyScripts')) {
@@ -110,7 +113,7 @@ editor.once('load', () => {
             const value = asset.get('filename');
             if (priorityScripts.indexOf(value) < 0) {
                 priorityScripts.push(value);
-                if (sceneSettings.has('priority_scripts')) {
+                if (!isUnsetPriorityScripts(sceneSettings.get('priority_scripts'))) {
                     sceneSettings.insert('priority_scripts', value);
                 } else {
                     sceneSettings.set('priority_scripts', priorityScripts);

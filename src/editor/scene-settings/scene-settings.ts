@@ -4,6 +4,8 @@ import { GAMMA_NONE, GAMMA_SRGB } from 'playcanvas';
 import { ObserverSync } from '@/common/observer-sync';
 import { formatter as f } from '@/common/utils';
 
+import { isUnsetPriorityScripts } from './priority-scripts';
+
 editor.once('load', () => {
     const schema = editor.api.globals.schema;
     const sceneSettings = {
@@ -27,7 +29,7 @@ editor.once('load', () => {
 
         // remove priority_scripts
         if (
-            editor.api.globals.realtime.scenes.current.data.settings.priority_scripts === undefined &&
+            isUnsetPriorityScripts(editor.api.globals.realtime.scenes.current.data.settings.priority_scripts) &&
             settings.has('priority_scripts')
         ) {
             settings.unset('priority_scripts');
