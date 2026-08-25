@@ -25,13 +25,15 @@ class SettingsSchema {
     _getDefaultData(schema: Field, scope: string) {
         const result: Record<string, unknown> = {};
         for (const [key, field] of Object.entries(this._schemaApi.getFields(schema))) {
-            const value = this._schemaApi.getDefault(field);
-            if (value.hasDefault) {
-                if (this._schemaApi.getScope(field) === scope) result[key] = utils.deepCopy(value.value);
+            const nested = this._getDefaultData(field as Field, scope);
+            if (Object.keys(nested).length) {
+                result[key] = nested;
                 continue;
             }
-            const nested = this._getDefaultData(field as Field, scope);
-            if (Object.keys(nested).length) result[key] = nested;
+            const value = this._schemaApi.getDefault(field);
+            if (value.hasDefault && this._schemaApi.getScope(field) === scope) {
+                result[key] = utils.deepCopy(value.value);
+            }
         }
         return result;
     }

@@ -252,4 +252,41 @@ describe('api.Schema tests', function () {
         expect(schema.getScope(settings.properties.loadingScreenScript)).to.equal('project');
         expect(schema.getScopeForPath(settings, 'loadingScreenScript')).to.equal('project');
     });
+
+    it('materializes children even when the container carries a default', function () {
+        const schema = new api.Schema({
+            version: 1,
+            documents: {
+                asset: { type: 'object', properties: {} },
+                scene: { type: 'object', properties: {} },
+                settings: {
+                    type: 'object',
+                    properties: {
+                        editor: {
+                            default: null,
+                            type: 'object',
+                            properties: {
+                                gizmoSize: { type: 'number', default: 1, 'x-scope': 'user' },
+                                iconSize: { type: 'number', default: 2, 'x-scope': 'user' }
+                            }
+                        }
+                    }
+                }
+            },
+            assetData: {}
+        });
+
+        expect(schema.settings.getDefaultUserSettings()).to.deep.equal({
+            editor: { gizmoSize: 1, iconSize: 2 }
+        });
+    });
+
+    it('produces unchanged settings seeds for a container-default-free catalog', function () {
+        // the karma fixture has no container defaults, so the merge refactor must
+        // reproduce today's per-scope seeds byte-for-byte
+        const s = new api.Schema(schema);
+        expect(s.settings.getDefaultProjectSettings()).to.deep.equal({ projectFlag: false });
+        expect(s.settings.getDefaultUserSettings()).to.deep.equal({ userCount: 0 });
+        expect(s.settings.getDefaultProjectUserSettings()).to.deep.equal({ nested: { projectUserValue: '' } });
+    });
 });
