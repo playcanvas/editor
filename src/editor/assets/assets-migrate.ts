@@ -2,6 +2,7 @@ import type { Observer } from '@playcanvas/observer';
 
 import { deepEqual, formatter as f } from '@/common/utils';
 import { LOAD_SCRIPT_AS_ASSET } from '@/core/constants';
+import { isReferencedFont } from '@/editor/inspector/assets/font-mode';
 
 const LEGACY_TINT_PROPERTIES = [
     ['data.diffuseMapTint', 'data.diffuseTint'],
@@ -398,7 +399,7 @@ editor.once('load', () => {
         }
 
         // referenced fonts keep intensity in the json descriptor; their data holds only the refs
-        if (asset.has('data.jsonAsset')) {
+        if (isReferencedFont(asset)) {
             return;
         }
 

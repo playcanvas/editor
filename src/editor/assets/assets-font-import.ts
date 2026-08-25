@@ -4,6 +4,7 @@
 // depends on the backend honouring `noConvert`, so it does not also produce a target of its own.
 
 import { isRefPath } from '@/common/referenced-font-handler';
+import { isReferencedFont } from '@/editor/inspector/assets/font-mode';
 
 type FontDataV3 = {
     version: number;
@@ -365,7 +366,7 @@ editor.once('load', () => {
         const missing = Array.from(chars).filter((c) => !v3.chars[c]);
         const path = font.get('path') || [];
         const parent = path.length ? editor.call('assets:get', path[path.length - 1]) : null;
-        const migrated = !font.has('data.jsonAsset');
+        const migrated = !isReferencedFont(font);
         const id = font.get('id');
 
         updating.add(id);
