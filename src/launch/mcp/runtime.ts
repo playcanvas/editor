@@ -1,31 +1,32 @@
-import { mcp } from '@/editor/mcp/connection';
+import { mcp, PROTOCOL_VERSION } from '@/editor/mcp/connection';
 
 /**
  * MCP "runtime" peer for the launch page (ported from the former Chrome extension's
- * launch content script). Captures console output early, screenshots the *running* app,
- * and answers `runtime:*` calls from the MCP server. Connects automatically when the
- * page is opened with `?mcp_port=<port>` (appended by the editor's `launch:start`
- * MCP method), registering as the 'runtime' peer; otherwise stays idle.
+ * launch content script). Captures console output while an MCP session owns the page,
+ * and answers `runtime:*` calls the editor relays here over postMessage — no socket of its own.
  */
 
 const LOG_CAP = 1000;
-const port = new URLSearchParams(location.search).get('mcp_port');
+
+// re-announce so an editor reload can re-adopt this still-running app
+const ANNOUNCE_INTERVAL = 5000;
 
 type LogEntry = { time: number; level: string; text: string };
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const logs: LogEntry[] = [];
-const original = {
-    log: console.log.bind(console),
-    info: console.info.bind(console),
-    warn: console.warn.bind(console),
-    error: console.error.bind(console),
-    debug: console.debug.bind(console)
+const LEVELS = ['log', 'info', 'warn', 'error', 'debug'] as const;
+const native = {
+    log: console.log,
+    info: console.info,
+    warn: console.warn,
+    error: console.error,
+    debug: console.debug
 };
 
-// use the original console to avoid buffering our own output into runtime:logs
-const log = (msg: string) => original.log(`[MCP] ${msg}`);
+// our own logging uses the native console, so it never buffers into runtime:logs
+const log = (msg: string) => native.log.call(console, `[MCP] ${msg}`);
 
 const push = (level: string, args: any[], stack?: string) => {
     const text = args
@@ -46,20 +47,43 @@ const push = (level: string, args: any[], stack?: string) => {
     }
 };
 
-if (port) {
-    (['log', 'info', 'warn', 'error', 'debug'] as const).forEach((level) => {
+// wrapping console reassigns every call site here, so only while relaying (offer → detach);
+// a plain Launch keeps native stack traces
+let capturing = false;
+
+const startCapture = () => {
+    if (capturing) {
+        return;
+    }
+    capturing = true;
+    LEVELS.forEach((level) => {
         console[level] = (...args: any[]) => {
             push(level, args);
-            original[level](...args);
+            native[level].apply(console, args);
         };
     });
-    window.addEventListener('error', (e) => {
+};
+
+const stopCapture = () => {
+    if (!capturing) {
+        return;
+    }
+    capturing = false;
+    LEVELS.forEach((level) => {
+        console[level] = native[level];
+    });
+};
+
+window.addEventListener('error', (e) => {
+    if (capturing) {
         push('error', [e.message], e.error?.stack || `${e.filename}:${e.lineno}:${e.colno}`);
-    });
-    window.addEventListener('unhandledrejection', (e) => {
+    }
+});
+window.addEventListener('unhandledrejection', (e) => {
+    if (capturing) {
         push('error', [`Unhandled promise rejection: ${e.reason?.message ?? e.reason}`], e.reason?.stack);
-    });
-}
+    }
+});
 
 mcp.method('runtime:ping', () => ({ data: 'pong' }));
 
@@ -229,7 +253,7 @@ mcp.method('runtime:state', (options: any = {}) => {
             (n: any) => typeof n.getGuid === 'function' && n.name && n.name.toLowerCase().includes(q)
         );
     } else {
-        // no filter: return every entity (paginated). Excludes the root.
+        // no filter: every entity (paginated), minus the root
         entities = app.root.find((n: any) => typeof n.getGuid === 'function' && n !== app.root);
     }
 
@@ -315,8 +339,7 @@ const dispatchKey = (kind: string, info: { key: string; code: string; keyCode: n
         view: window
     });
 
-    // keyCode/which are read-only and not settable via the constructor, but
-    // PlayCanvas' keyboard handler reads them — so back them with getters
+    // keyCode/which are read-only in the ctor but PlayCanvas reads them, so back them with getters
     Object.defineProperty(e, 'keyCode', { get: () => info.keyCode });
     Object.defineProperty(e, 'which', { get: () => info.keyCode });
     window.dispatchEvent(e);
@@ -427,14 +450,60 @@ mcp.method('runtime:input', async (payload: any = {}) => {
     return { data: { dispatched } };
 });
 
-// connect automatically when opened via the editor's launch:start (which appends
-// mcp_port); otherwise stay idle
-if (port) {
-    mcp.connect(parseInt(port, 10), 'runtime');
-}
+// the editor relays `runtime:*` here over postMessage; it makes first contact (opener severed),
+// then we keep announcing ourselves
+const EDITOR_ORIGIN = new URL(config.url.home).origin;
+
+let editorWindow: Window | null = null;
+let announceTimer: ReturnType<typeof setInterval> | null = null;
+
+const announce = () => {
+    editorWindow?.postMessage(
+        {
+            mcp: 'ready',
+            protocolVersion: PROTOCOL_VERSION,
+            projectId: config.project?.id,
+            sceneId: (config as { scene?: { id: number } }).scene?.id,
+            url: location.href,
+            methods: mcp.methodNames.filter((name) => name.startsWith('runtime:'))
+        },
+        EDITOR_ORIGIN
+    );
+};
+
+window.addEventListener('message', async (evt: MessageEvent) => {
+    if (evt.origin !== EDITOR_ORIGIN || !evt.data || !evt.source) {
+        return;
+    }
+    const msg = evt.data;
+    if (msg.mcp === 'offer') {
+        editorWindow = evt.source as Window;
+        startCapture();
+        log('Relay attached');
+        announce();
+        announceTimer ??= setInterval(announce, ANNOUNCE_INTERVAL);
+        return;
+    }
+    if (msg.mcp === 'detach') {
+        if (announceTimer) {
+            clearInterval(announceTimer);
+            announceTimer = null;
+        }
+        editorWindow = null;
+        stopCapture();
+        return;
+    }
+    if (msg.mcp === 'close') {
+        // the editor severed our opener, so only we can close this window
+        window.close();
+        return;
+    }
+    if (msg.mcp === 'call') {
+        const res = await mcp.call(msg.name, ...(msg.args ?? []));
+        (evt.source as Window).postMessage({ mcp: 'res', id: msg.id, res }, EDITOR_ORIGIN);
+    }
+});
 
 window.addEventListener('beforeunload', () => {
-    if (mcp.status !== 'disconnected') {
-        mcp.disconnect();
-    }
+    editorWindow?.postMessage({ mcp: 'gone' }, EDITOR_ORIGIN);
 });
