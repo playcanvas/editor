@@ -107,7 +107,6 @@ editor.once('load', () => {
         popover.dom.style.top = `${Math.max(4, top)}px`;
     });
     popover.on('show', () => {
-
         // hide the hover tooltip while open so its arrow doesn't poke through
         tooltip.detach();
         tooltip.hidden = true;

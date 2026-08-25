@@ -253,7 +253,6 @@ mcp.method('runtime:state', (options: any = {}) => {
             (n: any) => typeof n.getGuid === 'function' && n.name && n.name.toLowerCase().includes(q)
         );
     } else {
-
         // no filter: every entity (paginated), minus the root
         entities = app.root.find((n: any) => typeof n.getGuid === 'function' && n !== app.root);
     }
@@ -495,7 +494,6 @@ window.addEventListener('message', async (evt: MessageEvent) => {
         return;
     }
     if (msg.mcp === 'close') {
-
         // the editor severed our opener, so only we can close this window
         window.close();
         return;

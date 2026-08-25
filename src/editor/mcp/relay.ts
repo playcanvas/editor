@@ -89,7 +89,6 @@ window.addEventListener('message', (evt: MessageEvent) => {
     const msg = evt.data;
 
     if (msg.mcp === 'ready') {
-
         // the user may have another project's app running in a second window
         if (config.project?.id !== undefined && msg.projectId !== config.project.id) {
             return;

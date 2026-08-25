@@ -154,7 +154,6 @@ class MCPConnection extends Events {
             }
         };
         ws.onerror = () => {
-
             // swallowed: the close event that follows drives the reconnect
         };
         ws.onclose = (evt) => {
