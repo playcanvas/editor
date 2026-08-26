@@ -127,9 +127,7 @@ class Schema {
     getScope(field: unknown) {
         if (isObject(field) && typeof field['x-scope'] === 'string') return field['x-scope'];
         const value = jsonValue(field);
-        return isObject(value) && typeof value['x-scope'] === 'string'
-            ? (value['x-scope'] as string)
-            : undefined;
+        return isObject(value) && typeof value['x-scope'] === 'string' ? (value['x-scope'] as string) : undefined;
     }
 
     getAssetTypes() {

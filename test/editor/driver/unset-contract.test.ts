@@ -13,7 +13,10 @@ describe('resolveUnset', () => {
     });
 
     it('resets a fixed field to its default', () => {
-        expect(resolveUnset({ hasDefault: true, default: null, open: false })).to.deep.equal({ op: 'set', value: null });
+        expect(resolveUnset({ hasDefault: true, default: null, open: false })).to.deep.equal({
+            op: 'set',
+            value: null
+        });
     });
 
     it('deletes a fixed field that has no default', () => {

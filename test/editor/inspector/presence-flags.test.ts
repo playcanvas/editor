@@ -5,9 +5,10 @@ import { isImportedMaterial, hasUv1 } from '../../../src/editor/assets/asset-fla
 import { hasCustomAabb } from '../../../src/editor/inspector/components/aabb-utils';
 
 describe('hasCustomAabb', () => {
-    const entity = (value: unknown) => ({
-        get: (path: string) => (path === 'components.render.aabbCenter' ? value : undefined)
-    }) as any;
+    const entity = (value: unknown) =>
+        ({
+            get: (path: string) => (path === 'components.render.aabbCenter' ? value : undefined)
+        }) as any;
 
     it('is false when the field is null', () => {
         expect(hasCustomAabb(entity(null), 'render')).to.equal(false);
@@ -27,10 +28,11 @@ describe('hasCustomAabb', () => {
 });
 
 describe('asset presence flags', () => {
-    const asset = (map: Record<string, unknown>) => ({
-        get: (p: string) => map[p],
-        has: (p: string) => Object.hasOwn(map, p)
-    }) as any;
+    const asset = (map: Record<string, unknown>) =>
+        ({
+            get: (p: string) => map[p],
+            has: (p: string) => Object.hasOwn(map, p)
+        }) as any;
 
     it('treats a zero attribute count as no UV1', () => {
         expect(hasUv1(asset({ 'meta.attributes.texCoord1': 0 }))).to.equal(false);
@@ -43,7 +45,7 @@ describe('asset presence flags', () => {
     });
 
     it('distinguishes an imported material from a hand-made one', () => {
-        expect(isImportedMaterial(asset({ 'meta.index': 0 }))).to.equal(true);  // index 0 is valid
+        expect(isImportedMaterial(asset({ 'meta.index': 0 }))).to.equal(true); // index 0 is valid
         expect(isImportedMaterial(asset({ 'meta.index': null }))).to.equal(false);
         expect(isImportedMaterial(asset({}))).to.equal(false);
     });

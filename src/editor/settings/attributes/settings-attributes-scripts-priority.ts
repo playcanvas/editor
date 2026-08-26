@@ -9,7 +9,6 @@ import {
     createPanel
 } from '../../attributes/attributes-pcui';
 
-
 editor.once('load', () => {
     if (!editor.call('settings:project').get('useLegacyScripts')) {
         return;

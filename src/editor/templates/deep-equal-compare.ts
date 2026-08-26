@@ -53,9 +53,12 @@ class DeepEqual {
         const a1 = this.node1 as unknown[];
         const a2 = this.node2 as unknown[];
         const sameLen = a1.length === a2.length;
-        return sameLen && a1.every((v1, index) => {
-            return new DeepEqual(v1, a2[index]).run();
-        });
+        return (
+            sameLen &&
+            a1.every((v1, index) => {
+                return new DeepEqual(v1, a2[index]).run();
+            })
+        );
     }
 
     areBothMaps(): boolean {

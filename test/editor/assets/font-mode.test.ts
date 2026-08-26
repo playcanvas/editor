@@ -4,9 +4,10 @@ import { describe, it } from 'mocha';
 import { isReferencedFont } from '../../../src/editor/inspector/assets/font-mode';
 
 describe('isReferencedFont', () => {
-    const asset = (value: unknown) => ({
-        get: (path: string) => (path === 'data.jsonAsset' ? value : undefined)
-    }) as any;
+    const asset = (value: unknown) =>
+        ({
+            get: (path: string) => (path === 'data.jsonAsset' ? value : undefined)
+        }) as any;
 
     it('is false for a legacy font with an explicit null', () => {
         expect(isReferencedFont(asset(null))).to.equal(false);
