@@ -35,6 +35,7 @@ editor.once('load', () => {
         coordSystem = system;
 
         editor.emit('gizmo:coordSystem', system);
+        editor.call('viewport:render');
     });
 
     const checkSnap = function () {
