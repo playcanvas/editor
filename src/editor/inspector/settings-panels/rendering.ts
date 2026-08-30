@@ -470,6 +470,13 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
     },
     {
         observer: 'projectSettings',
+        label: 'Enable GLSL Shader Transpilation',
+        type: 'boolean',
+        reference: 'settings:project:enableGlslShaderTranspilation',
+        path: 'enableGlslShaderTranspilation'
+    },
+    {
+        observer: 'projectSettings',
         label: 'Enable WebGL 2.0',
         type: 'boolean',
         reference: 'settings:project:enableWebGl2',
@@ -701,9 +708,11 @@ class RenderingSettingsPanel extends BaseSettingsPanel {
         const deviceOrder = this._attributesInspector.getField('deviceOrder');
 
         const enableWebGpu = this._attributesInspector.getField('enableWebGpu');
+        const enableGlslShaderTranspilation = this._attributesInspector.getField('enableGlslShaderTranspilation');
         const enableWebGl2 = this._attributesInspector.getField('enableWebGl2');
 
         const onDeviceChange = () => {
+            enableGlslShaderTranspilation.parent.hidden = !enableWebGpu.value;
             (deviceOrder as Label).text = [
                 enableWebGpu.value ? `WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}` : '',
                 enableWebGl2.value ? 'WebGL 2.0' : '',
