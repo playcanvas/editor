@@ -234,11 +234,9 @@ editor.once('load', () => {
                 };
 
                 iframe.onload = () => {
-                    iframe.contentWindow?.postMessage(
-                        { workerSource, engine, script, port: channel.port2 },
-                        '*',
-                        [channel.port2]
-                    );
+                    iframe.contentWindow?.postMessage({ workerSource, engine, script, port: channel.port2 }, '*', [
+                        channel.port2
+                    ]);
                 };
 
                 document.body.appendChild(iframe);
