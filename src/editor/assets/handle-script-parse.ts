@@ -2,7 +2,7 @@ import { buildQueryUrl } from '@/common/utils';
 import { WorkerClient } from '@/core/worker/worker-client';
 import { SANDBOX_PERMISSIONS, buildSandboxSrcdoc } from '@/workers/classic-parse-sandbox';
 
-const CLASSIC_WORKER_URL = '/editor/scene/js/classic-script.worker.js';
+const CLASSIC_WORKER_URL = `${config.url.frontend}js/classic-script.worker.js`;
 const CLASSIC_PARSE_TIMEOUT = 60000;
 
 editor.once('load', () => {
