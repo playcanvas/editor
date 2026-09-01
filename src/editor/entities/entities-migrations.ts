@@ -10,6 +10,7 @@ import {
     SHADOWUPDATE_REALTIME
 } from 'playcanvas';
 
+import { unsetLocal } from '@/common/observer-unset';
 import { formatter as f } from '@/common/utils';
 
 const LIGHTMAP_COMPONENTS = ['model', 'render'];
@@ -91,7 +92,7 @@ editor.once('load', () => {
                 // affectLightmapped
                 if (entity.has('components.light.affectLightMapped')) {
                     entity.set('components.light.affectLightmapped', entity.get('components.light.affectLightMapped'));
-                    entity.unset('components.light.affectLightMapped');
+                    unsetLocal(entity, 'components.light.affectLightMapped');
                 } else if (!entity.has('components.light.affectLightmapped')) {
                     entity.set('components.light.affectLightmapped', false);
                 }

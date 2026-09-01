@@ -1,6 +1,7 @@
 const object = (properties, data = {}) => ({
     type: 'object',
     properties,
+    required: Object.keys(properties),
     additionalProperties: false,
     ...data
 });
@@ -59,7 +60,7 @@ const entity = object({
             scripts: map({}, { default: {} })
         }),
         zone: object({ enabled: { type: 'boolean', default: true } })
-    })
+    }, { required: [] })
 });
 
 window.schema = {
@@ -84,9 +85,14 @@ window.schema = {
         settings: object({
             projectFlag: { type: 'boolean', default: false, 'x-scope': 'project' },
             userCount: { type: 'number', default: 0, 'x-scope': 'user' },
-            nested: object({
-                projectUserValue: { type: 'string', default: '', 'x-scope': 'projectUser' }
-            })
+            batchGroups: map(object({ maxAabbSize: { type: 'number', default: 100 } })),
+            nested: object(
+                {
+                    projectUserValue: { type: 'string', default: '', 'x-scope': 'projectUser' },
+                    optionalValue: { type: 'string' }
+                },
+                { required: ['projectUserValue'] }
+            )
         }),
         asset: object({
             type: { type: 'string', enum: ['material', 'model', 'font', 'test'] }

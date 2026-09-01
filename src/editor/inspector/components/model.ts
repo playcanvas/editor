@@ -256,7 +256,7 @@ class AssetElementToObserversBinding extends BindingElementToObservers {
                     const mapping = latest.get('components.model.mapping');
                     if (mapping) {
                         entry.mapping = mapping;
-                        latest.unset('components.model.mapping');
+                        latest.set('components.model.mapping', {});
                     }
                 }
 

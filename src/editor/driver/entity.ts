@@ -154,10 +154,15 @@ driver.method('entities:modify', (edits) => {
             throw new Error('Only component properties can be unset; set top-level entity properties explicitly.');
         }
         const resolved = path.startsWith('components.')
-            ? api.schema.components.resolvePath(path.split('.')[1], path.split('.').slice(2).join('.'))
+            ? api.schema.resolvePath(api.schema.getDocument('scene'), ['entities', '*', ...path.split('.')])
             : null;
         const unsetOp =
-            op === 'unset' ? resolveUnset(resolved ?? { hasDefault: false, default: undefined, open: false }) : null;
+            op === 'unset'
+                ? resolveUnset(resolved ?? { hasDefault: false, default: undefined, open: false, optional: false })
+                : null;
+        if (op === 'unset' && !unsetOp) {
+            throw new Error(`Component path ${path} cannot be unset.`);
+        }
         const nextOp = unsetOp ? unsetOp.op : op;
         const value = unsetOp?.op === 'set' ? unsetOp.value : edit.value;
         return {

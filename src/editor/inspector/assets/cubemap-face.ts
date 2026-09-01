@@ -107,7 +107,7 @@ class CubemapFace extends Container {
         if (allHdr) {
             this._asset.set('data.rgbm', true);
         } else {
-            this._asset.unset('data.rgbm');
+            this._asset.set('data.rgbm', false);
         }
     }
 

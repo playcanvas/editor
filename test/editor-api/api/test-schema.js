@@ -21,14 +21,17 @@ describe('api.Schema tests', function () {
             expect(api.globals.schema.components.resolvePath('testcomponent', 'entityRef')).to.include({
                 default: null,
                 hasDefault: true,
-                open: false
+                open: false,
+                optional: false
             });
             expect(api.globals.schema.components.resolvePath('testcomponent', 'nestedEntityRef.item.entity')).to.include({
                 hasDefault: false,
-                open: true
+                open: false,
+                optional: false
             });
             expect(api.globals.schema.components.resolvePath('script', 'scripts.rotate.attributes.speed')).to.include({
-                open: true
+                open: true,
+                optional: true
             });
             expect(api.globals.schema.components.resolvePath('testcomponent', 'missing')).to.equal(null);
         });
@@ -39,16 +42,24 @@ describe('api.Schema tests', function () {
             expect(api.globals.schema.assets.resolvePath('material', 'diffuse')).to.deep.include({
                 default: [0, 0, 0],
                 hasDefault: true,
-                open: false
+                open: false,
+                optional: false
             });
             expect(api.globals.schema.assets.resolvePath('model', 'mapping.0.material')).to.include({
                 hasDefault: false,
-                open: false
+                open: false,
+                optional: false
             });
             expect(api.globals.schema.assets.resolvePath('test', 'nestedAssetRef.item.asset')).to.include({
                 default: null,
                 hasDefault: true,
-                open: true
+                open: false,
+                optional: false
+            });
+            expect(api.globals.schema.assets.resolvePath('test', 'nestedAssetRef.item')).to.include({
+                hasDefault: false,
+                open: true,
+                optional: true
             });
             expect(api.globals.schema.assets.resolvePath('model', 'mapping.nope.material')).to.equal(null);
             expect(api.globals.schema.assets.resolvePath('material', 'missing')).to.equal(null);
@@ -61,10 +72,42 @@ describe('api.Schema tests', function () {
                 field: null,
                 default: undefined,
                 hasDefault: false,
-                open: true
+                open: true,
+                optional: true
             });
             expect(api.globals.schema.assets.resolvePath('model', 'mapping.anyKey.material')).to.equal(null);
             expect(api.globals.schema.assets.resolvePath('model', 'mapping.-1.material')).to.equal(null);
+        });
+    });
+
+    it('only marks the final dynamic map segment as open', function () {
+        withSchema(() => {
+            const root = api.globals.schema.getDocument('settings');
+            expect(api.globals.schema.resolvePath(root, 'batchGroups.group')).to.include({
+                hasDefault: false,
+                open: true,
+                optional: true
+            });
+            expect(api.globals.schema.resolvePath(root, 'batchGroups.group.maxAabbSize')).to.include({
+                default: 100,
+                hasDefault: true,
+                open: false,
+                optional: false
+            });
+        });
+    });
+
+    it('marks only fields omitted from the parent required list as optional', function () {
+        withSchema(() => {
+            const root = api.globals.schema.getDocument('settings');
+            expect(api.globals.schema.resolvePath(root, 'nested.projectUserValue')).to.include({ optional: false });
+            expect(api.globals.schema.resolvePath(root, 'nested.optionalValue')).to.include({ optional: true });
+
+            const scene = api.globals.schema.getDocument('scene');
+            expect(api.globals.schema.resolvePath(scene, 'entities.item.components.model')).to.include({
+                open: false,
+                optional: true
+            });
         });
     });
 

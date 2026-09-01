@@ -73,8 +73,8 @@ editor.once('load', () => {
 
                 const history = entity.history.enabled;
                 entity.history.enabled = false;
-                entity.unset('template_id');
-                entity.unset('template_ent_ids');
+                entity.set('template_id', null);
+                entity.set('template_ent_ids', null);
                 entity.history.enabled = history;
             });
         }

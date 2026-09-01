@@ -11,6 +11,18 @@ const MAX_TRANSFERS = 1;
 const MAX_BASE64_LENGTH = Math.ceil(MAX_FILE_BYTES / 3) * 4;
 const TRANSFER_TIMEOUT = 60_000;
 const TEXT_TYPES = ['css', 'html', 'json', 'script', 'shader', 'text'];
+const META_DEFAULTS: Record<string, unknown> = {
+    'meta.compress.alpha': false,
+    'meta.compress.normals': false,
+    'meta.compress.etc1': false,
+    'meta.compress.etc2': false,
+    'meta.compress.dxt': false,
+    'meta.compress.pvr': false,
+    'meta.compress.pvrBpp': 4,
+    'meta.compress.basis': false,
+    'meta.compress.quality': 128,
+    'meta.compress.compressionMode': 'etc'
+};
 const MIME_TYPES: Record<string, string> = {
     css: 'text/css',
     html: 'text/html',
@@ -359,7 +371,29 @@ const modifyAssets = async (edits: any[]) => {
             }
         }
         const unsetOp =
-            op === 'unset' ? resolveUnset(resolved ?? { hasDefault: false, default: undefined, open: false }) : null;
+            op === 'unset'
+                ? resolveUnset(
+                      resolved ??
+                          (['texture', 'textureatlas'].includes(asset.get('type')) &&
+                          Object.hasOwn(META_DEFAULTS, edit.path)
+                              ? {
+                                    hasDefault: true,
+                                    default: META_DEFAULTS[edit.path],
+                                    open: false,
+                                    optional: false
+                                }
+                              : {
+                                    hasDefault: false,
+                                    default: undefined,
+                                    open: root === 'i18n',
+                                    optional:
+                                        root === 'i18n' || (asset.get('type') === 'font' && edit.path === 'meta.invert')
+                                })
+                  )
+                : null;
+        if (op === 'unset' && !unsetOp) {
+            throw new Error(`Asset path ${edit.path} cannot be unset.`);
+        }
         const nextOp = unsetOp ? unsetOp.op : op;
         const value = unsetOp?.op === 'set' ? unsetOp.value : edit.value;
         if (nextOp === 'set' && Array.isArray(value)) {

@@ -141,36 +141,41 @@ class Schema {
         const parts = typeof path === 'string' ? path.split('.') : path;
         let field = root;
         let open = false;
+        let optional = false;
 
         for (const part of parts) {
             if (part === '' || !isObject(field)) return null;
 
             field = jsonValue(field);
             if (!isObject(field)) return null;
+            open = false;
 
             if (field['x-open-map'] === true || isObject(field.additionalProperties)) {
                 open = true;
                 if (!isObject(field.additionalProperties)) {
-                    return { field: null, default: undefined, hasDefault: false, open };
+                    return { field: null, default: undefined, hasDefault: false, open, optional: true };
                 }
                 field = field.additionalProperties;
+                optional = true;
             } else if (field.type === 'array') {
                 if (strictArrays && (!Number.isInteger(Number(part)) || Number(part) < 0)) return null;
                 if (!isObject(field.items)) return null;
                 field = field.items;
+                optional = false;
             } else if (isObject(field.properties) && Object.hasOwn(field.properties, part)) {
+                optional = !Array.isArray(field.required) || !field.required.includes(part);
                 field = field.properties[part];
                 continue;
             } else if (!field.type && !field.properties && !field.items && !field.anyOf) {
                 open = true;
-                return { field: null, default: undefined, hasDefault: false, open };
+                return { field: null, default: undefined, hasDefault: false, open, optional: true };
             } else {
                 return null;
             }
         }
 
         const result = this.getDefault(field);
-        return { field, default: result.value, hasDefault: result.hasDefault, open };
+        return { field, default: result.value, hasDefault: result.hasDefault, open, optional };
     }
 
     /**
