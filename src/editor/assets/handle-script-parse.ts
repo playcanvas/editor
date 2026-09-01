@@ -1,7 +1,6 @@
 import { buildQueryUrl } from '@/common/utils';
 import { WorkerClient } from '@/core/worker/worker-client';
 
-const CLASSIC_WORKER_URL = `${config.url.frontend}js/classic-script.worker.js`;
 const CLASSIC_PARSE_TIMEOUT = 60000;
 
 editor.once('load', () => {
@@ -189,7 +188,7 @@ editor.once('load', () => {
             };
 
             try {
-                workerSourcePromise ??= fetchText(CLASSIC_WORKER_URL);
+                workerSourcePromise ??= fetchText(`${config.url.frontend}js/classic-script.worker.js`);
                 enginePromise ??= fetchText(config.url.engine);
                 const [workerSource, engine, script] = await Promise.all([
                     workerSourcePromise,
