@@ -128,6 +128,17 @@ describe('api.Schema tests', function () {
         });
     });
 
+    it('limits null-default equivalence to fixed nullable fields', function () {
+        withSchema(() => {
+            const scene = api.globals.schema.getDocument('scene');
+            const isNullDefault = (path) => api.globals.schema.isNullDefault(scene, path);
+            expect(isNullDefault('entities.entity.components.testcomponent.entityRef')).to.equal(true);
+            expect(isNullDefault('entities.entity.components.testcomponent.nestedAssetRef.item.asset')).to.equal(true);
+            expect(isNullDefault('entities.entity.components.script.scripts.rotate.attributes.target')).to.equal(false);
+            expect(isNullDefault('entities.entity.components.testcomponent.enabled')).to.equal(false);
+        });
+    });
+
     it('preserves falsey and nested defaults', function () {
         withSchema(() => {
             expect(api.globals.schema.assets.getDefaultData('material')).to.deep.equal({

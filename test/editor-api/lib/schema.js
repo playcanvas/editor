@@ -50,7 +50,10 @@ const entity = object({
             assetArrayRef: { type: 'string', default: [], 'x-editor-type': 'array:asset' },
             nestedAssetRef: map(
                 object({
-                    asset: { type: 'number', default: null, 'x-editor-type': 'asset' }
+                    asset: nullable(
+                        { type: 'number' },
+                        { default: null, 'x-editor-type': 'asset' }
+                    )
                 })
             )
         }),

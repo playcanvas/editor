@@ -183,6 +183,19 @@ class Schema {
         return { field, default: result.value, hasDefault: result.hasDefault, open, optional };
     }
 
+    isNullDefault(root: unknown, path: string | readonly (string | number)[]) {
+        const resolved = this.resolvePath(root, path);
+        return (
+            !!resolved &&
+            !resolved.open &&
+            resolved.hasDefault &&
+            resolved.default === null &&
+            isObject(resolved.field) &&
+            Array.isArray(resolved.field.anyOf) &&
+            resolved.field.anyOf.some((item) => isObject(item) && item.type === 'null')
+        );
+    }
+
     /**
      * Converts the specified schema field to a type recursively.
      *
