@@ -2,10 +2,10 @@ self.window = self;
 self.global = self;
 
 onmessage = (evt: MessageEvent) => {
-    const { url, engine } = evt.data ?? {};
+    const { engine, script } = evt.data ?? {};
 
-    // import engine
-    importScripts(engine);
+    // run engine + user code from source text via blob: urls, never a network url
+    importScripts(URL.createObjectURL(new Blob([engine], { type: 'text/javascript' })));
 
     const __results = {
         scriptsInvalid: [],
@@ -452,8 +452,7 @@ onmessage = (evt: MessageEvent) => {
         );
     };
 
-    // import script
-    importScripts(url);
+    importScripts(URL.createObjectURL(new Blob([script], { type: 'text/javascript' })));
 
     // send results back
     postMessage(__results);

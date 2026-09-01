@@ -1,5 +1,9 @@
 import { buildQueryUrl } from '@/common/utils';
 import { WorkerClient } from '@/core/worker/worker-client';
+import { SANDBOX_PERMISSIONS, buildSandboxSrcdoc } from '@/workers/classic-parse-sandbox';
+
+const CLASSIC_WORKER_URL = '/editor/scene/js/classic-script.worker.js';
+const CLASSIC_PARSE_TIMEOUT = 60000;
 
 editor.once('load', () => {
     const genGUID = () => {
@@ -169,29 +173,78 @@ editor.once('load', () => {
             return [scripts.filter((script) => !!script), deletedFiles];
         };
 
-        const classicParse = (asset, inEditor, callback) => {
-            const worker = new Worker('/editor/scene/js/classic-script.worker.js');
-            worker.onmessage = (evt) => {
-                worker.terminate();
-                const res = evt.data;
-                const guid = genGUID();
-                handleParseResult(guid, res, asset, callback, inEditor);
-            };
+        const fetchText = async (url: string) => (await fetch(url)).text();
 
-            worker.onerror = (err) => {
+        let workerSourcePromise: Promise<string> | undefined;
+        let enginePromise: Promise<string> | undefined;
+
+        // parse untrusted classic scripts in an opaque-origin, network-less sandbox iframe
+        const classicParse = async (asset, inEditor, callback) => {
+            logStartParse(asset, inEditor);
+
+            const fail = (err) => {
                 if (inEditor) {
                     editor.call('status:error', 'There was an error while parsing a script');
                 }
-                console.log('worker onerror', err);
                 callback?.(err, undefined);
             };
 
-            logStartParse(asset, inEditor);
+            try {
+                workerSourcePromise ??= fetchText(CLASSIC_WORKER_URL);
+                enginePromise ??= fetchText(config.url.engine);
+                const [workerSource, engine, script] = await Promise.all([
+                    workerSourcePromise,
+                    enginePromise,
+                    fetchText(postUrl(asset))
+                ]);
 
-            worker.postMessage({
-                url: inEditor ? asset.get('file.url') : postUrl(asset),
-                engine: config.url.engine
-            });
+                const iframe = document.createElement('iframe');
+                iframe.setAttribute('sandbox', SANDBOX_PERMISSIONS);
+                iframe.style.display = 'none';
+                iframe.srcdoc = buildSandboxSrcdoc(genGUID());
+
+                const channel = new MessageChannel();
+                let settled = false;
+                const cleanup = () => {
+                    settled = true;
+                    channel.port1.close();
+                    iframe.remove();
+                };
+
+                const timer = setTimeout(() => {
+                    if (settled) {
+                        return;
+                    }
+                    cleanup();
+                    fail(new Error('Timed out while parsing a script'));
+                }, CLASSIC_PARSE_TIMEOUT);
+
+                channel.port1.onmessage = (evt) => {
+                    if (settled) {
+                        return;
+                    }
+                    clearTimeout(timer);
+                    cleanup();
+                    const { result, error } = evt.data;
+                    if (error) {
+                        fail(new Error(error));
+                        return;
+                    }
+                    handleParseResult(genGUID(), result, asset, callback, inEditor);
+                };
+
+                iframe.onload = () => {
+                    iframe.contentWindow?.postMessage(
+                        { workerSource, engine, script, port: channel.port2 },
+                        '*',
+                        [channel.port2]
+                    );
+                };
+
+                document.body.appendChild(iframe);
+            } catch (err) {
+                fail(err);
+            }
         };
 
         editor.method('scripts:handleParse', async (asset, inEditor, callback) => {
