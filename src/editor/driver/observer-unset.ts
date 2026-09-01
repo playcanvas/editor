@@ -13,9 +13,12 @@ export const unsetObserver = (item: Item, path: string) => {
     if (item.has('resource_id')) {
         resolved = schema.resolvePath(schema.getDocument('scene'), ['entities', '*', ...path.split('.')]);
     } else if (item.has('type')) {
+        const type = String(item.get('type'));
         resolved = path.startsWith('data.')
-            ? schema.assets.resolvePath(String(item.get('type')), path.slice(5))
-            : schema.resolvePath(schema.getDocument('asset'), path);
+            ? schema.assets.resolvePath(type, path.slice(5))
+            : path.startsWith('meta.')
+              ? schema.assets.resolveMetaPath(type, path.slice(5))
+              : schema.resolvePath(schema.getDocument('asset'), path);
     } else {
         const scene = item.has('physics') || item.has('render');
         resolved = schema.resolvePath(

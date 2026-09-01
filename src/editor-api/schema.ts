@@ -95,6 +95,11 @@ class Schema {
         return (this._schema.assetData as Field)[type.toLowerCase()] as Field | undefined;
     }
 
+    getAssetMeta(type: string) {
+        if (!isObject(this._schema.assetMeta)) return undefined;
+        return this._schema.assetMeta[type.toLowerCase()] as Field | undefined;
+    }
+
     getComponents() {
         return this.resolvePath(this.getDocument('scene'), 'entities.*.components', false)?.field as Field;
     }

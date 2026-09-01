@@ -45,6 +45,15 @@ class AssetsSchema {
         return result;
     }
 
+    resolveMetaPath(type: string, path: string) {
+        const schema = this._schemaApi.getAssetMeta(type);
+        const result = schema ? this._schemaApi.resolvePath(schema, path) : null;
+        if (result?.hasDefault) {
+            result.default = typeof result.default === 'function' ? result.default() : utils.deepCopy(result.default);
+        }
+        return result;
+    }
+
     /**
      * Gets a list of fields of a particular type for an asset type.
      *

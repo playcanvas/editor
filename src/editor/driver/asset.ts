@@ -11,18 +11,6 @@ const MAX_TRANSFERS = 1;
 const MAX_BASE64_LENGTH = Math.ceil(MAX_FILE_BYTES / 3) * 4;
 const TRANSFER_TIMEOUT = 60_000;
 const TEXT_TYPES = ['css', 'html', 'json', 'script', 'shader', 'text'];
-const META_DEFAULTS: Record<string, unknown> = {
-    'meta.compress.alpha': false,
-    'meta.compress.normals': false,
-    'meta.compress.etc1': false,
-    'meta.compress.etc2': false,
-    'meta.compress.dxt': false,
-    'meta.compress.pvr': false,
-    'meta.compress.pvrBpp': 4,
-    'meta.compress.basis': false,
-    'meta.compress.quality': 128,
-    'meta.compress.compressionMode': 'etc'
-};
 const MIME_TYPES: Record<string, string> = {
     css: 'text/css',
     html: 'text/html',
@@ -294,8 +282,14 @@ const modifyAssets = async (edits: any[]) => {
                 `Invalid asset path: ${edit.path}. Use name, tags, preload, exclude, i18n.*, data.*, meta.compress.*, or meta.invert.`
             );
         }
-        const resolved = root === 'data' ? api.schema.assets.resolvePath(asset.get('type'), edit.path.slice(5)) : null;
-        if (root === 'data' && !resolved) {
+        const type = String(asset.get('type'));
+        const resolved =
+            root === 'data'
+                ? api.schema.assets.resolvePath(type, edit.path.slice(5))
+                : root === 'meta'
+                  ? api.schema.assets.resolveMetaPath(type, edit.path.slice(5))
+                  : null;
+        if ((root === 'data' || (root === 'meta' && api.schema.getAssetMeta(type))) && !resolved) {
             throw new Error(`Unknown ${asset.get('type')} asset path: ${edit.path}.`);
         }
         if (
@@ -373,22 +367,12 @@ const modifyAssets = async (edits: any[]) => {
         const unsetOp =
             op === 'unset'
                 ? resolveUnset(
-                      resolved ??
-                          (['texture', 'textureatlas'].includes(asset.get('type')) &&
-                          Object.hasOwn(META_DEFAULTS, edit.path)
-                              ? {
-                                    hasDefault: true,
-                                    default: META_DEFAULTS[edit.path],
-                                    open: false,
-                                    optional: false
-                                }
-                              : {
-                                    hasDefault: false,
-                                    default: undefined,
-                                    open: root === 'i18n',
-                                    optional:
-                                        root === 'i18n' || (asset.get('type') === 'font' && edit.path === 'meta.invert')
-                                })
+                      resolved ?? {
+                          hasDefault: false,
+                          default: undefined,
+                          open: root === 'i18n',
+                          optional: root === 'i18n'
+                      }
                   )
                 : null;
         if (op === 'unset' && !unsetOp) {

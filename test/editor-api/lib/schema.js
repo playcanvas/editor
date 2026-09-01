@@ -98,6 +98,17 @@ window.schema = {
             type: { type: 'string', enum: ['material', 'model', 'font', 'test'] }
         })
     },
+    assetMeta: {
+        font: object({ invert: { type: 'boolean' } }, { required: [] }),
+        texture: object({
+            compress: object({
+                alpha: { type: 'boolean', default: false },
+                pvrBpp: { type: 'number', default: 4 },
+                quality: { type: 'number', default: 128 },
+                compressionMode: { type: 'string', default: 'etc' }
+            })
+        })
+    },
     assetData: {
         animstategraph: object({ testData: { type: 'number', default: 0 } }),
         material: object({

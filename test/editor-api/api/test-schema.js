@@ -97,6 +97,23 @@ describe('api.Schema tests', function () {
         });
     });
 
+    it('resolves type-specific asset metadata defaults', function () {
+        withSchema(() => {
+            expect(api.globals.schema.assets.resolveMetaPath('texture', 'compress.quality')).to.deep.include({
+                default: 128,
+                hasDefault: true,
+                open: false,
+                optional: false
+            });
+            expect(api.globals.schema.assets.resolveMetaPath('font', 'invert')).to.include({
+                hasDefault: false,
+                open: false,
+                optional: true
+            });
+            expect(api.globals.schema.assets.resolveMetaPath('material', 'compress.quality')).to.equal(null);
+        });
+    });
+
     it('marks only fields omitted from the parent required list as optional', function () {
         withSchema(() => {
             const root = api.globals.schema.getDocument('settings');

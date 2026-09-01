@@ -36,8 +36,8 @@ describe('fixed-field reset contract', () => {
         }
         expect(project).to.include('api.schema.resolvePath(root, path)');
         expect(project).to.include('resolveUnset(');
-        expect(asset).to.include("'meta.compress.compressionMode': 'etc'");
-        expect(asset).to.include('Object.hasOwn(META_DEFAULTS, edit.path)');
+        expect(asset).to.include('api.schema.assets.resolveMetaPath(type, edit.path.slice(5))');
+        expect(asset).not.to.include('META_DEFAULTS');
         expect(entity).to.include("api.schema.getDocument('scene')");
         expect(overrides).to.include('unsetObserver(entity, override.path)');
         expect(drop).to.include('unsetObserver(item, undo.path)');
