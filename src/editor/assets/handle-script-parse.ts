@@ -1,6 +1,5 @@
 import { buildQueryUrl } from '@/common/utils';
 import { WorkerClient } from '@/core/worker/worker-client';
-import { SANDBOX_PERMISSIONS, buildSandboxSrcdoc } from '@/workers/classic-parse-sandbox';
 
 const CLASSIC_WORKER_URL = `${config.url.frontend}js/classic-script.worker.js`;
 const CLASSIC_PARSE_TIMEOUT = 60000;
@@ -198,10 +197,30 @@ editor.once('load', () => {
                     fetchText(postUrl(asset))
                 ]);
 
+                // allow scripts but omit allow-same-origin, so the sandbox runs on an opaque origin
                 const iframe = document.createElement('iframe');
-                iframe.setAttribute('sandbox', SANDBOX_PERMISSIONS);
+                iframe.setAttribute('sandbox', 'allow-scripts');
                 iframe.style.display = 'none';
-                iframe.srcdoc = buildSandboxSrcdoc(genGUID());
+
+                // connect-src 'none' blocks exfil; script-src carries no host, so code can only
+                // load the blob: urls we build, never a remote collector
+                const nonce = genGUID();
+                const csp = `default-src 'none'; script-src 'nonce-${nonce}' 'unsafe-eval' blob:; worker-src blob:; connect-src 'none'`;
+
+                // spawn the parser worker from source text (never a url) and relay its result out
+                iframe.srcdoc = /* html */ `<!DOCTYPE html><html><head>
+<meta http-equiv="Content-Security-Policy" content="${csp}">
+</head><body><script nonce="${nonce}">
+onmessage = (e) => {
+    const { workerSource, engine, script, port } = e.data;
+    const url = URL.createObjectURL(new Blob([workerSource], { type: 'text/javascript' }));
+    const worker = new Worker(url);
+    URL.revokeObjectURL(url);
+    worker.onmessage = (ev) => { port.postMessage({ result: ev.data }); worker.terminate(); };
+    worker.onerror = (ev) => { port.postMessage({ error: ev.message || 'parse error' }); worker.terminate(); };
+    worker.postMessage({ engine, script });
+};
+</script></body></html>`;
 
                 const channel = new MessageChannel();
                 let settled = false;
