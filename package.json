@@ -62,7 +62,7 @@
         "@types/sharedb": "3.3.13",
         "autoprefixer": "10.4.27",
         "chai": "5.3.3",
-        "concurrently": "10.0.3",
+        "concurrently": "10.0.5",
         "cross-env": "7.0.3",
         "dexie": "4.3.0",
         "esbuild": "0.28.1",
