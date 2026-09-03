@@ -26,7 +26,7 @@ editor.once('load', () => {
         (asset?: Observer, options?: Record<string, unknown>, popup?: boolean, ideOverride?: string) => {
             // open the code editor external editor
             const ide = ideOverride || projectUserSettings.get('editor.codeEditor');
-            if (ide === 'vscode' || ide === 'cursor') {
+            if (ide === 'vscode' || ide === 'cursor' || ide === 'antigravity-ide') {
                 if (asset) {
                     window.open(editor.call('assets:idePath', ide, asset));
                     return;
