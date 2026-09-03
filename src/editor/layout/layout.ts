@@ -1,6 +1,7 @@
-import { Container, Panel } from '@playcanvas/pcui';
+import { Button, Container, Panel } from '@playcanvas/pcui';
 
 import { Tooltip } from '@/common/pcui/element/element-tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 
 import { AssetPanel } from '../assets/asset-panel';
 
@@ -35,36 +36,148 @@ const createHierarchyPanel = () => {
     return hierarchyPanel;
 };
 
-const createAssetPanel = () => {
+type AssetPanelArgs = ConstructorParameters<typeof AssetPanel>[0];
+
+const createAssetPanel = (args: Partial<AssetPanelArgs>, viewModeKey: string) => {
     const assetsPanel = new AssetPanel({
-        id: 'layout-assets',
         class: 'assets',
         panelType: 'normal',
-        collapsible: true,
-        collapsed: editor.call('localStorage:get', 'editor:layout:assets:collapse') || window.innerHeight <= 480,
-        height: editor.call('localStorage:get', 'editor:layout:assets:height') || 212,
-        resizable: 'top',
-        resizeMin: 106,
-        resizeMax: 106 * 6,
-        viewMode: editor.call('localStorage:get', 'editor:assets:viewMode')
-    });
+        viewMode: editor.call('localStorage:get', viewModeKey),
+        ...args
+    } as AssetPanelArgs);
 
     // save changes to viewmode to localStorage
     assetsPanel.on('viewMode', (value) => {
-        editor.call('localStorage:set', 'editor:assets:viewMode', value);
-    });
-
-    assetsPanel.on('resize', () => {
-        editor.call('localStorage:set', 'editor:layout:assets:height', assetsPanel.height);
-    });
-    assetsPanel.on('collapse', () => {
-        editor.call('localStorage:set', 'editor:layout:assets:collapse', true);
-    });
-    assetsPanel.on('expand', () => {
-        editor.call('localStorage:set', 'editor:layout:assets:collapse', false);
+        editor.call('localStorage:set', viewModeKey, value);
     });
 
     return assetsPanel;
+};
+
+// below this window width the split view has no room to be useful, so it is disabled
+const SPLIT_MIN_WINDOW_WIDTH = 1280;
+
+/**
+ * Creates the container that fills the assets area of the layout grid. It holds the primary
+ * asset panel and a secondary one, so that two folders can be browsed side by side.
+ */
+const createAssetDock = () => {
+    const dock = new Container({
+        id: 'layout-assets-dock',
+        flex: true,
+        flexDirection: 'row'
+    });
+
+    // the primary panel drives the height and the collapsed state of the whole dock
+    const assetsPanel = createAssetPanel(
+        {
+            id: 'layout-assets',
+            collapsible: true,
+            collapsed: editor.call('localStorage:get', 'editor:layout:assets:collapse') || window.innerHeight <= 480,
+            height: editor.call('localStorage:get', 'editor:layout:assets:height') || 212,
+            resizable: 'top',
+            resizeMin: 106,
+            resizeMax: 106 * 6
+        },
+        'editor:assets:viewMode'
+    );
+    dock.append(assetsPanel);
+
+    // the secondary panel is only shown when the split view is turned on
+    const assetsPanelSecondary = createAssetPanel(
+        {
+            id: 'layout-assets-secondary',
+            collapsible: false,
+            hidden: true,
+            showStoreButton: false,
+            resizable: 'left',
+            resizeMin: 200,
+            resizeMax: 1200
+        },
+        'editor:assets:viewMode:secondary'
+    );
+    dock.append(assetsPanelSecondary);
+
+    // button that toggles the split view
+    const btnSplit = new Button({
+        text: 'SPLIT',
+        class: ['pcui-asset-panel-btn-split', 'pcui-asset-panel-hide-on-collapse']
+    });
+    assetsPanel.containerControls.appendBefore(btnSplit, assetsPanel.dropdownType);
+
+    const tooltip = TooltipHandle.make({
+        text: 'Split View',
+        align: 'bottom',
+        class: 'pcui-tooltip-clipboard',
+        root: editor.call('layout.root')
+    });
+    tooltip.hidden = true;
+    btnSplit.on('hover', () => {
+        tooltip.attach(btnSplit.dom);
+        tooltip.text = btnSplit.enabled ?
+            'Browse two folders side by side' :
+            `Split view needs a window at least ${SPLIT_MIN_WINDOW_WIDTH}px wide`;
+        tooltip.class.toggle('inactive', !btnSplit.enabled);
+    });
+
+    let split = !!editor.call('localStorage:get', 'editor:layout:assets:split');
+    let assetsHeight = editor.call('localStorage:get', 'editor:layout:assets:height') || 212;
+    let secondaryWidth = editor.call('localStorage:get', 'editor:layout:assets-secondary:width') || 400;
+
+    const refreshSplit = () => {
+        // on a narrow window there is not enough room for two panels, so the split view is
+        // turned off without forgetting the preference - it comes back on a wider window
+        const canSplit = window.innerWidth >= SPLIT_MIN_WINDOW_WIDTH;
+        btnSplit.enabled = canSplit;
+        btnSplit.class.toggle('pcui-asset-panel-btn-active', split && canSplit);
+
+        assetsPanelSecondary.hidden = !split || !canSplit || assetsPanel.collapsed;
+        dock.class.toggle('assets-split', !assetsPanelSecondary.hidden);
+
+        if (assetsPanelSecondary.hidden) {
+            // the hidden panel must never stay the active one
+            editor.call('assets:panel:active', assetsPanel);
+            return;
+        }
+
+        // the height of the dock comes from the primary panel. Without an explicit height the
+        // secondary panel would grow to fit all of its assets and cover the viewport
+        assetsPanelSecondary.height = assetsHeight;
+
+        // never let the secondary panel take more than half of the window
+        assetsPanelSecondary.width = Math.min(secondaryWidth, Math.round(window.innerWidth / 2));
+    };
+
+    btnSplit.on('click', () => {
+        split = !split;
+        editor.call('localStorage:set', 'editor:layout:assets:split', split);
+        refreshSplit();
+    });
+
+    assetsPanel.on('resize', () => {
+        assetsHeight = assetsPanel.height;
+        editor.call('localStorage:set', 'editor:layout:assets:height', assetsHeight);
+        assetsPanelSecondary.height = assetsHeight;
+    });
+    assetsPanel.on('collapse', () => {
+        editor.call('localStorage:set', 'editor:layout:assets:collapse', true);
+        refreshSplit();
+    });
+    assetsPanel.on('expand', () => {
+        editor.call('localStorage:set', 'editor:layout:assets:collapse', false);
+        refreshSplit();
+    });
+
+    assetsPanelSecondary.on('resize', () => {
+        secondaryWidth = assetsPanelSecondary.width;
+        editor.call('localStorage:set', 'editor:layout:assets-secondary:width', secondaryWidth);
+    });
+
+    window.addEventListener('resize', refreshSplit);
+
+    refreshSplit();
+
+    return { dock, assetsPanel, assetsPanelSecondary };
 };
 
 const createAttributesPanel = () => {
@@ -237,10 +350,16 @@ editor.on('load', () => {
     });
 
     // assets
-    const assetsPanel = createAssetPanel();
-    root.append(assetsPanel);
+    const { dock: assetsDock, assetsPanel, assetsPanelSecondary } = createAssetDock();
+    root.append(assetsDock);
     editor.method('layout.assets', () => {
         return assetsPanel;
+    });
+    editor.method('layout.assets.secondary', () => {
+        return assetsPanelSecondary;
+    });
+    editor.method('layout.assets.dock', () => {
+        return assetsDock;
     });
 
     // attributes
