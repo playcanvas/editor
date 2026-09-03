@@ -1061,9 +1061,7 @@ const ENVIRONMENT_ATTRIBUTES: (Attribute | Divider)[] = [
         type: 'slider',
         args: {
             precision: 3,
-            step: 0.01,
-            min: 0,
-            sliderMax: 8
+            step: 0.01
         },
         reference: 'asset:material:reflectivity'
     },
@@ -1481,7 +1479,13 @@ const DOM = (parent) => [
                 envInspector: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
-                    attributes: ENVIRONMENT_ATTRIBUTES
+                    attributes: ENVIRONMENT_ATTRIBUTES.map((attr) => {
+                        if (!('path' in attr) || attr.path !== 'data.reflectivity') {
+                            return attr;
+                        }
+                        const { min, max } = editor.call('schema:asset:getDataBounds', 'material', attr.path);
+                        return { ...attr, args: { ...attr.args, min, max, sliderMin: min, sliderMax: max } };
+                    })
                 })
             }
         ]

@@ -129,6 +129,15 @@ class Schema {
         return { value: hasDefault ? field.default : undefined, hasDefault };
     }
 
+    getBounds(field: unknown) {
+        const value = jsonValue(field);
+        if (!isObject(value)) return { min: undefined, max: undefined };
+        return {
+            min: typeof value.minimum === 'number' ? value.minimum : undefined,
+            max: typeof value.maximum === 'number' ? value.maximum : undefined
+        };
+    }
+
     getScope(field: unknown) {
         if (isObject(field) && typeof field['x-scope'] === 'string') return field['x-scope'];
         const value = jsonValue(field);
