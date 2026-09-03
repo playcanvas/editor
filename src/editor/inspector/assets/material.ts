@@ -1191,6 +1191,35 @@ const OTHER_ATTRIBUTES: (Attribute | Divider)[] = [
     }
 ];
 
+/**
+ * Injects server-schema numeric bounds (min/max) onto material `data.*` controls so the
+ * schema catalog is the single source of truth for ranges. Controls the schema does not
+ * bound are returned unchanged, keeping any editor-supplied fallback range.
+ *
+ * @param attributes - The attribute list to augment.
+ * @returns The attribute list with schema bounds applied.
+ */
+const withSchemaBounds = (attributes: (Attribute | Divider)[]) =>
+    attributes.map((attr) => {
+        if (!('path' in attr) || typeof attr.path !== 'string' || !attr.path.startsWith('data.')) {
+            return attr;
+        }
+        const { min, max } = editor.call('schema:asset:getDataBounds', 'material', attr.path);
+        if (min === undefined && max === undefined) {
+            return attr;
+        }
+        const args = { ...attr.args };
+        if (min !== undefined) {
+            args.min = min;
+            args.sliderMin = min;
+        }
+        if (max !== undefined) {
+            args.max = max;
+            args.sliderMax = max;
+        }
+        return { ...attr, args };
+    });
+
 const DOM = (parent) => [
     {
         root: {
@@ -1203,7 +1232,7 @@ const DOM = (parent) => [
                 materialInspector: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
-                    attributes: MATERIAL_ATTRIBUTES
+                    attributes: withSchemaBounds(MATERIAL_ATTRIBUTES)
                 })
             }
         ]
@@ -1221,7 +1250,7 @@ const DOM = (parent) => [
                 offsetTilingInspector: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
-                    attributes: TEXTURE_TRANFORM_ATTRIBUTES
+                    attributes: withSchemaBounds(TEXTURE_TRANFORM_ATTRIBUTES)
                 })
             }
         ]
@@ -1239,7 +1268,7 @@ const DOM = (parent) => [
                 ambientInspector: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
-                    attributes: AMBIENT_ATTRIBUTES
+                    attributes: withSchemaBounds(AMBIENT_ATTRIBUTES)
                 })
             }
         ]
@@ -1257,7 +1286,7 @@ const DOM = (parent) => [
                 diffuseInspector: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
-                    attributes: DIFFUSE_ATTRIBUTES
+                    attributes: withSchemaBounds(DIFFUSE_ATTRIBUTES)
                 })
             }
         ]
@@ -1275,28 +1304,28 @@ const DOM = (parent) => [
                 specularInspector: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
-                    attributes: SPECULAR_ATTRIBUTES
+                    attributes: withSchemaBounds(SPECULAR_ATTRIBUTES)
                 })
             },
             {
                 metalnessWorkflowInspector: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
-                    attributes: METALNESS_WORKFLOW_ATTRIBUTES
+                    attributes: withSchemaBounds(METALNESS_WORKFLOW_ATTRIBUTES)
                 })
             },
             {
                 specularWorkflowInspector: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
-                    attributes: SPECULAR_WORKFLOW_ATTRIBUTES
+                    attributes: withSchemaBounds(SPECULAR_WORKFLOW_ATTRIBUTES)
                 })
             },
             {
                 glossInspector: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
-                    attributes: GLOSS_ATTRIBUTES
+                    attributes: withSchemaBounds(GLOSS_ATTRIBUTES)
                 })
             }
         ]
@@ -1314,7 +1343,7 @@ const DOM = (parent) => [
                 emissiveInspector: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
-                    attributes: EMISSIVE_ATTRIBUTES
+                    attributes: withSchemaBounds(EMISSIVE_ATTRIBUTES)
                 })
             }
         ]
@@ -1332,7 +1361,7 @@ const DOM = (parent) => [
                 opacityInspector: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
-                    attributes: OPACITY_ATTRIBUTES
+                    attributes: withSchemaBounds(OPACITY_ATTRIBUTES)
                 })
             }
         ]
@@ -1350,7 +1379,7 @@ const DOM = (parent) => [
                 normalsInspector: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
-                    attributes: NORMALS_ATTRIBUTES
+                    attributes: withSchemaBounds(NORMALS_ATTRIBUTES)
                 })
             }
         ]
@@ -1368,7 +1397,7 @@ const DOM = (parent) => [
                 parallaxInspector: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
-                    attributes: PARALLAX_ATTRIBUTES
+                    attributes: withSchemaBounds(PARALLAX_ATTRIBUTES)
                 })
             }
         ]
@@ -1386,28 +1415,28 @@ const DOM = (parent) => [
                 clearCoatFactorInspector: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
-                    attributes: CLEARCOAT_FACTOR_ATTRIBUTES
+                    attributes: withSchemaBounds(CLEARCOAT_FACTOR_ATTRIBUTES)
                 })
             },
             {
                 clearCoatInspector: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
-                    attributes: CLEARCOAT_ATTRIBUTES
+                    attributes: withSchemaBounds(CLEARCOAT_ATTRIBUTES)
                 })
             },
             {
                 clearCoatGlossInspector: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
-                    attributes: CLEARCOAT_GLOSS_ATTRIBUTES
+                    attributes: withSchemaBounds(CLEARCOAT_GLOSS_ATTRIBUTES)
                 })
             },
             {
                 clearCoatNormalInspector: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
-                    attributes: CLEARCOAT_NORMAL_ATTRIBUTES
+                    attributes: withSchemaBounds(CLEARCOAT_NORMAL_ATTRIBUTES)
                 })
             }
         ]
@@ -1425,7 +1454,7 @@ const DOM = (parent) => [
                 sheenInspector: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
-                    attributes: SHEEN_ATTRIBUTES
+                    attributes: withSchemaBounds(SHEEN_ATTRIBUTES)
                 })
             }
         ]
@@ -1443,7 +1472,7 @@ const DOM = (parent) => [
                 refractionInspector: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
-                    attributes: REFRACTION_ATTRIBUTES
+                    attributes: withSchemaBounds(REFRACTION_ATTRIBUTES)
                 })
             }
         ]
@@ -1461,7 +1490,7 @@ const DOM = (parent) => [
                 iridescenceInspector: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
-                    attributes: IRIDESCENCE_ATTRIBUTES
+                    attributes: withSchemaBounds(IRIDESCENCE_ATTRIBUTES)
                 })
             }
         ]
@@ -1479,13 +1508,7 @@ const DOM = (parent) => [
                 envInspector: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
-                    attributes: ENVIRONMENT_ATTRIBUTES.map((attr) => {
-                        if (!('path' in attr) || attr.path !== 'data.reflectivity') {
-                            return attr;
-                        }
-                        const { min, max } = editor.call('schema:asset:getDataBounds', 'material', attr.path);
-                        return { ...attr, args: { ...attr.args, min, max, sliderMin: min, sliderMax: max } };
-                    })
+                    attributes: withSchemaBounds(ENVIRONMENT_ATTRIBUTES)
                 })
             }
         ]
@@ -1503,7 +1526,7 @@ const DOM = (parent) => [
                 lightmapInspector: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
-                    attributes: LIGHTMAP_ATTRIBUTES
+                    attributes: withSchemaBounds(LIGHTMAP_ATTRIBUTES)
                 })
             }
         ]
@@ -1521,7 +1544,7 @@ const DOM = (parent) => [
                 otherInspector: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
-                    attributes: OTHER_ATTRIBUTES
+                    attributes: withSchemaBounds(OTHER_ATTRIBUTES)
                 })
             }
         ]
