@@ -240,6 +240,43 @@ describe('api.Schema tests', function () {
         expect(Object.keys(schema.getFields(editorField))).to.deep.equal(['gizmoSize']);
     });
 
+    it('reads numeric min/max bounds, including through a nullability wrapper', function () {
+        const schema = new api.Schema({
+            version: 1,
+            documents: {
+                asset: { type: 'object', properties: {} },
+                scene: { type: 'object', properties: {} },
+                settings: { type: 'object', properties: {} }
+            },
+            assetData: {
+                material: {
+                    type: 'object',
+                    properties: {
+                        reflectivity: { type: 'number', minimum: 0, maximum: 8, default: 1 },
+                        alphaDither: {
+                            default: null,
+                            anyOf: [{ type: 'number', minimum: 0, maximum: 1 }, { type: 'null' }]
+                        },
+                        name: { type: 'string' }
+                    }
+                }
+            }
+        });
+
+        expect(schema.getBounds(schema.assets.resolvePath('material', 'reflectivity').field)).to.deep.equal({
+            min: 0,
+            max: 8
+        });
+        expect(schema.getBounds(schema.assets.resolvePath('material', 'alphaDither').field)).to.deep.equal({
+            min: 0,
+            max: 1
+        });
+        expect(schema.getBounds(schema.assets.resolvePath('material', 'name').field)).to.deep.equal({
+            min: undefined,
+            max: undefined
+        });
+    });
+
     it('getAssetTypes sees through a nullability wrapper', function () {
         const schema = new api.Schema({
             version: 1,
