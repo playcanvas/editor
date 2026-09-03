@@ -10,6 +10,7 @@ import {
     script
 } from 'playcanvas';
 
+import { unsetLocal } from '@/common/observer-unset';
 import { deepCopy, formatter as f, insert, remove, set, unset } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -73,7 +74,7 @@ editor.once('load', () => {
             const enableWebGl2 = settings.get('preferWebGl2');
             const oldEnableWebGl2 = settings.get('enableWebGl2');
             settings.set('enableWebGl2', enableWebGl2);
-            settings.unset('preferWebGl2');
+            unsetLocal(settings, 'preferWebGl2');
             let msg = `The ${f.path('preferWebGl2')} project setting has been removed`;
             if (oldEnableWebGl2 !== enableWebGl2) {
                 msg += `. Setting project setting ${f.path('enableWebGl2')} from ${f.value(oldEnableWebGl2)} to ${f.value(enableWebGl2)}`;
@@ -82,7 +83,7 @@ editor.once('load', () => {
         }
         if (settings.has('deviceTypes')) {
             const deviceTypes = settings.get('deviceTypes');
-            settings.unset('deviceTypes');
+            unsetLocal(settings, 'deviceTypes');
             let msg = `The ${f.path('deviceTypes')} project setting has been removed`;
 
             if (deviceTypes.length) {
@@ -202,7 +203,7 @@ editor.once('load', () => {
         }
         if (settings.has('useLegacyAudio')) {
             const useLegacyAudio = settings.get('useLegacyAudio');
-            settings.unset('useLegacyAudio');
+            unsetLocal(settings, 'useLegacyAudio');
             if (useLegacyAudio) {
                 const msg = `The ${f.path('useLegacyAudio')} project setting has been removed`;
                 editor.call('console:log:settings', settings, msg);

@@ -1,5 +1,6 @@
 import type { ObserverList } from '@playcanvas/observer';
 
+import { unsetObserver } from '@/editor/driver/observer-unset';
 import type { AssetObserver, EntityObserver } from '@/editor-api';
 
 type TemplateOverride = Record<string, unknown>;
@@ -120,7 +121,7 @@ editor.once('load', () => {
             const history = entity.history.enabled;
             entity.history.enabled = false;
 
-            entity.unset(override.path);
+            unsetObserver(entity, override.path);
             previousIndex = entity.get('components.script.order').indexOf(scriptName);
             entity.removeValue('components.script.order', scriptName);
 
@@ -532,7 +533,7 @@ editor.once('load', () => {
                 } else if (override.path === 'template_id') {
                     revertNewTemplateId(entity, override);
                 } else {
-                    entity.unset(override.path);
+                    unsetObserver(entity, override.path);
                 }
             }
         } else {
