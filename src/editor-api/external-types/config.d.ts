@@ -99,6 +99,7 @@ type EditorSchemaCatalog = {
         settings: Record<string, unknown>;
     };
     assetData: Record<string, Record<string, unknown>>;
+    assetMeta?: Record<string, Record<string, unknown>>;
     [key: string]: unknown;
 };
 

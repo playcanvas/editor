@@ -348,7 +348,10 @@ class AnimStateGraphParameters extends Panel {
                                 conditions[transitionKey] = {};
                             }
                             conditions[transitionKey][conditionKey] = condition;
-                            asset.unset(`data.transitions.${transitionKey}.conditions.${conditionKey}.parameterName`);
+                            asset.set(
+                                `data.transitions.${transitionKey}.conditions.${conditionKey}.parameterName`,
+                                null
+                            );
                         }
                     });
                 }

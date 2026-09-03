@@ -14,6 +14,8 @@ import type { History } from '@/editor-api';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+import { isReferencedFont } from './font-mode';
+
 const CLASS_ROOT = 'asset-font-inspector';
 const CLASS_LOCALE_PANEL = `${CLASS_ROOT}-locale-panel`;
 const CLASS_CHARACTER_RANGE = `${CLASS_ROOT}-character-range`;
@@ -506,7 +508,7 @@ class FontAssetInspector extends Container {
         const asset = this._assets[0];
         // converting a legacy font rewrites data, replaces the file and drops the server-generated
         // descriptor, none of it through history — so it cannot be undone
-        if (!asset.has('data.jsonAsset')) {
+        if (!isReferencedFont(asset)) {
             editor.call(
                 'picker:confirm',
                 'Converting this font replaces its data and file with references to new JSON and texture assets. This cannot be undone.',
@@ -534,7 +536,7 @@ class FontAssetInspector extends Container {
             if (!this._assets?.includes(asset)) {
                 return;
             }
-            const referenced = asset.has('data.jsonAsset');
+            const referenced = isReferencedFont(asset);
             this._sourceFilesPanel.hidden = !referenced;
             this._propertiesPanel.hidden = referenced;
             this._toggleProcessFontButton(asset);
@@ -543,7 +545,7 @@ class FontAssetInspector extends Container {
     }
 
     _toggleProcessFontButton(asset: Observer) {
-        const referenced = asset.has('data.jsonAsset');
+        const referenced = isReferencedFont(asset);
         this._processFontButton.text = this._processing
             ? referenced
                 ? 'REGENERATING FONT ASSETS…'
@@ -736,10 +738,10 @@ class FontAssetInspector extends Container {
         // only client-imported (referenced) fonts have unpacked mirror assets. gate on the ref fields
         // existing (not their current value) so clearing a picker doesn't hide the whole panel
         this._sourceFilesPanel.hidden =
-            assets.length > 1 || (!assets[0].has('data.jsonAsset') && !assets[0].has('data.textureAssets'));
+            assets.length > 1 || (!isReferencedFont(assets[0]) && !assets[0].has('data.textureAssets'));
         // referenced fonts derive intensity from the json descriptor, not font.data.intensity — the
         // slider is inert for them, so hide the PROPERTIES panel (keep it for server-pipeline fonts)
-        this._propertiesPanel.hidden = assets[0].has('data.jsonAsset');
+        this._propertiesPanel.hidden = isReferencedFont(assets[0]);
         if (this._sourceFilesPanel.hidden) {
             this._sourceFilesWarning.hidden = true;
         } else {

@@ -95,13 +95,19 @@ class Schema {
         return (this._schema.assetData as Field)[type.toLowerCase()] as Field | undefined;
     }
 
+    getAssetMeta(type: string) {
+        if (!isObject(this._schema.assetMeta)) return undefined;
+        return this._schema.assetMeta[type.toLowerCase()] as Field | undefined;
+    }
+
     getComponents() {
         return this.resolvePath(this.getDocument('scene'), 'entities.*.components', false)?.field as Field;
     }
 
     getFields(field: unknown) {
         if (!isObject(field)) return {};
-        return isObject(field.properties) ? field.properties : {};
+        const value = jsonValue(field);
+        return isObject(value) && isObject(value.properties) ? value.properties : {};
     }
 
     getMapValue(field: unknown) {
@@ -124,50 +130,70 @@ class Schema {
     }
 
     getScope(field: unknown) {
-        if (!isObject(field)) return undefined;
-        return field['x-scope'] as string | undefined;
+        if (isObject(field) && typeof field['x-scope'] === 'string') return field['x-scope'];
+        const value = jsonValue(field);
+        return isObject(value) && typeof value['x-scope'] === 'string' ? (value['x-scope'] as string) : undefined;
     }
 
     getAssetTypes() {
-        const asset = this.getDocument('asset');
-        const type = (asset.properties as Field)?.type;
-        return ((type as Field)?.enum as string[]) || [];
+        const asset = jsonValue(this.getDocument('asset'));
+        if (!isObject(asset) || !isObject(asset.properties)) return [];
+        const type = jsonValue(asset.properties.type);
+        return isObject(type) && Array.isArray(type.enum) ? (type.enum as string[]) : [];
     }
 
     resolvePath(root: unknown, path: string | readonly (string | number)[], strictArrays = true) {
         const parts = typeof path === 'string' ? path.split('.') : path;
         let field = root;
         let open = false;
+        let optional = false;
 
         for (const part of parts) {
             if (part === '' || !isObject(field)) return null;
 
             field = jsonValue(field);
             if (!isObject(field)) return null;
+            open = false;
 
             if (field['x-open-map'] === true || isObject(field.additionalProperties)) {
                 open = true;
                 if (!isObject(field.additionalProperties)) {
-                    return { field: null, default: undefined, hasDefault: false, open };
+                    return { field: null, default: undefined, hasDefault: false, open, optional: true };
                 }
                 field = field.additionalProperties;
+                optional = true;
             } else if (field.type === 'array') {
                 if (strictArrays && (!Number.isInteger(Number(part)) || Number(part) < 0)) return null;
                 if (!isObject(field.items)) return null;
                 field = field.items;
+                optional = false;
             } else if (isObject(field.properties) && Object.hasOwn(field.properties, part)) {
+                optional = !Array.isArray(field.required) || !field.required.includes(part);
                 field = field.properties[part];
                 continue;
             } else if (!field.type && !field.properties && !field.items && !field.anyOf) {
                 open = true;
-                return { field: null, default: undefined, hasDefault: false, open };
+                return { field: null, default: undefined, hasDefault: false, open, optional: true };
             } else {
                 return null;
             }
         }
 
         const result = this.getDefault(field);
-        return { field, default: result.value, hasDefault: result.hasDefault, open };
+        return { field, default: result.value, hasDefault: result.hasDefault, open, optional };
+    }
+
+    isNullDefault(root: unknown, path: string | readonly (string | number)[]) {
+        const resolved = this.resolvePath(root, path);
+        return (
+            !!resolved &&
+            !resolved.open &&
+            resolved.hasDefault &&
+            resolved.default === null &&
+            isObject(resolved.field) &&
+            Array.isArray(resolved.field.anyOf) &&
+            resolved.field.anyOf.some((item) => isObject(item) && item.type === 'null')
+        );
     }
 
     /**
@@ -201,14 +227,17 @@ class Schema {
 
     getMergeMethodForPath(root: unknown, path: string, strictArrays = true) {
         const field = this.resolvePath(root, path, strictArrays)?.field;
-        if (!isObject(field)) return undefined;
-        return field['x-merge-method'] as string | undefined;
+        if (isObject(field) && typeof field['x-merge-method'] === 'string') {
+            return field['x-merge-method'];
+        }
+        const value = jsonValue(field);
+        return isObject(value) && typeof value['x-merge-method'] === 'string'
+            ? (value['x-merge-method'] as string)
+            : undefined;
     }
 
     getScopeForPath(root: unknown, path: string, strictArrays = true) {
-        const field = this.resolvePath(root, path, strictArrays)?.field;
-        if (!isObject(field)) return undefined;
-        return field['x-scope'] as string | undefined;
+        return this.getScope(this.resolvePath(root, path, strictArrays)?.field);
     }
 }
 

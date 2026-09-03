@@ -367,7 +367,7 @@ class AnimStateGraphView {
                     }
                     if (state.defaultState) {
                         state.defaultState = undefined;
-                        this._assets[0].unset(`data.states.${stateKey}.defaultState`);
+                        this._assets[0].set(`data.states.${stateKey}.defaultState`, false);
                     }
                     break;
             }

@@ -1,5 +1,6 @@
 import { driver } from './driver';
 import { api, log, iterateObject, validatePath, writeError } from './shared';
+import { resolveUnset } from './unset';
 
 const WRITE_SCOPES = new Set(['project', 'projectPrivate', 'scene']);
 
@@ -45,7 +46,14 @@ const modifySettings = (scope: string, edits: any[]) => {
         if (op === 'set' && !Object.hasOwn(edit, 'value')) {
             throw new Error(`Missing value for settings path: ${edit.path}.`);
         }
-        return { ...edit, op };
+        if (op !== 'unset') return { ...edit, op };
+
+        const root = api.schema.getDocument(scope === 'scene' ? 'scene' : 'settings');
+        const path = scope === 'scene' ? `settings.${edit.path}` : edit.path;
+        const resolved = api.schema.resolvePath(root, path);
+        const unset = resolveUnset(resolved ?? { hasDefault: false, default: undefined, open: false, optional: false });
+        if (!unset) throw new Error(`Settings path ${edit.path} cannot be unset.`);
+        return { ...edit, op: unset.op, value: unset.op === 'set' ? structuredClone(unset.value) : undefined };
     });
     for (let i = 0; i < prepared.length; i++) {
         const { path, op, value } = prepared[i];

@@ -1,7 +1,9 @@
 import type { Observer } from '@playcanvas/observer';
 
+import { unsetLocal } from '@/common/observer-unset';
 import { deepEqual, formatter as f } from '@/common/utils';
 import { LOAD_SCRIPT_AS_ASSET } from '@/core/constants';
+import { isReferencedFont } from '@/editor/inspector/assets/font-mode';
 
 const LEGACY_TINT_PROPERTIES = [
     ['data.diffuseMapTint', 'data.diffuseTint'],
@@ -68,7 +70,7 @@ editor.once('load', () => {
                     ].join(' ');
                     editor.call('console:log:asset', asset, msg);
                 }
-                asset.unset(oldPath);
+                unsetLocal(asset, oldPath);
             }
         }
 
@@ -131,7 +133,7 @@ editor.once('load', () => {
 
         if (asset.has('data.useGamma')) {
             const tonemap: boolean = asset.get('data.useGamma') ?? true;
-            asset.unset('data.useGamma');
+            unsetLocal(asset, 'data.useGamma');
             asset.set('data.useTonemap', tonemap);
             const msg = [
                 `The ${f.path('data.useGamma')} properties of material ${f.asset(asset)} is`,
@@ -296,7 +298,7 @@ editor.once('load', () => {
         // remove fresnelModel since it is now always set to schlick
         if (asset.has('data.fresnelModel')) {
             const fresnelModel = asset.get('data.fresnelModel');
-            asset.unset('data.fresnelModel');
+            unsetLocal(asset, 'data.fresnelModel');
             if (fresnelModel !== 2) {
                 const msg = [
                     `The ${f.path('data.fresnelModel')} property of material ${f.asset(asset)}`,
@@ -398,7 +400,7 @@ editor.once('load', () => {
         }
 
         // referenced fonts keep intensity in the json descriptor; their data holds only the refs
-        if (asset.has('data.jsonAsset')) {
+        if (isReferencedFont(asset)) {
             return;
         }
 

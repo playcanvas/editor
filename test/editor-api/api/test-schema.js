@@ -21,14 +21,17 @@ describe('api.Schema tests', function () {
             expect(api.globals.schema.components.resolvePath('testcomponent', 'entityRef')).to.include({
                 default: null,
                 hasDefault: true,
-                open: false
+                open: false,
+                optional: false
             });
             expect(api.globals.schema.components.resolvePath('testcomponent', 'nestedEntityRef.item.entity')).to.include({
                 hasDefault: false,
-                open: true
+                open: false,
+                optional: false
             });
             expect(api.globals.schema.components.resolvePath('script', 'scripts.rotate.attributes.speed')).to.include({
-                open: true
+                open: true,
+                optional: true
             });
             expect(api.globals.schema.components.resolvePath('testcomponent', 'missing')).to.equal(null);
         });
@@ -39,16 +42,24 @@ describe('api.Schema tests', function () {
             expect(api.globals.schema.assets.resolvePath('material', 'diffuse')).to.deep.include({
                 default: [0, 0, 0],
                 hasDefault: true,
-                open: false
+                open: false,
+                optional: false
             });
             expect(api.globals.schema.assets.resolvePath('model', 'mapping.0.material')).to.include({
                 hasDefault: false,
-                open: false
+                open: false,
+                optional: false
             });
             expect(api.globals.schema.assets.resolvePath('test', 'nestedAssetRef.item.asset')).to.include({
                 default: null,
                 hasDefault: true,
-                open: true
+                open: false,
+                optional: false
+            });
+            expect(api.globals.schema.assets.resolvePath('test', 'nestedAssetRef.item')).to.include({
+                hasDefault: false,
+                open: true,
+                optional: true
             });
             expect(api.globals.schema.assets.resolvePath('model', 'mapping.nope.material')).to.equal(null);
             expect(api.globals.schema.assets.resolvePath('material', 'missing')).to.equal(null);
@@ -61,10 +72,70 @@ describe('api.Schema tests', function () {
                 field: null,
                 default: undefined,
                 hasDefault: false,
-                open: true
+                open: true,
+                optional: true
             });
             expect(api.globals.schema.assets.resolvePath('model', 'mapping.anyKey.material')).to.equal(null);
             expect(api.globals.schema.assets.resolvePath('model', 'mapping.-1.material')).to.equal(null);
+        });
+    });
+
+    it('only marks the final dynamic map segment as open', function () {
+        withSchema(() => {
+            const root = api.globals.schema.getDocument('settings');
+            expect(api.globals.schema.resolvePath(root, 'batchGroups.group')).to.include({
+                hasDefault: false,
+                open: true,
+                optional: true
+            });
+            expect(api.globals.schema.resolvePath(root, 'batchGroups.group.maxAabbSize')).to.include({
+                default: 100,
+                hasDefault: true,
+                open: false,
+                optional: false
+            });
+        });
+    });
+
+    it('resolves type-specific asset metadata defaults', function () {
+        withSchema(() => {
+            expect(api.globals.schema.assets.resolveMetaPath('texture', 'compress.quality')).to.deep.include({
+                default: 128,
+                hasDefault: true,
+                open: false,
+                optional: false
+            });
+            expect(api.globals.schema.assets.resolveMetaPath('font', 'invert')).to.include({
+                hasDefault: false,
+                open: false,
+                optional: true
+            });
+            expect(api.globals.schema.assets.resolveMetaPath('material', 'compress.quality')).to.equal(null);
+        });
+    });
+
+    it('marks only fields omitted from the parent required list as optional', function () {
+        withSchema(() => {
+            const root = api.globals.schema.getDocument('settings');
+            expect(api.globals.schema.resolvePath(root, 'nested.projectUserValue')).to.include({ optional: false });
+            expect(api.globals.schema.resolvePath(root, 'nested.optionalValue')).to.include({ optional: true });
+
+            const scene = api.globals.schema.getDocument('scene');
+            expect(api.globals.schema.resolvePath(scene, 'entities.item.components.model')).to.include({
+                open: false,
+                optional: true
+            });
+        });
+    });
+
+    it('limits null-default equivalence to fixed nullable fields', function () {
+        withSchema(() => {
+            const scene = api.globals.schema.getDocument('scene');
+            const isNullDefault = (path) => api.globals.schema.isNullDefault(scene, path);
+            expect(isNullDefault('entities.entity.components.testcomponent.entityRef')).to.equal(true);
+            expect(isNullDefault('entities.entity.components.testcomponent.nestedAssetRef.item.asset')).to.equal(true);
+            expect(isNullDefault('entities.entity.components.script.scripts.rotate.attributes.target')).to.equal(false);
+            expect(isNullDefault('entities.entity.components.testcomponent.enabled')).to.equal(false);
         });
     });
 
@@ -141,5 +212,152 @@ describe('api.Schema tests', function () {
             'Unsupported Editor schema version: 0'
         );
         expect(() => new api.Schema({ version: 1 })).to.throw('Unsupported Editor schema version: 1');
+    });
+
+    it('getFields sees through a nullability wrapper', function () {
+        const schema = new api.Schema({
+            version: 1,
+            documents: {
+                asset: { type: 'object', properties: {} },
+                scene: { type: 'object', properties: {} },
+                settings: {
+                    type: 'object',
+                    properties: {
+                        editor: {
+                            default: null,
+                            anyOf: [
+                                { type: 'object', properties: { gizmoSize: { type: 'number', default: 1 } } },
+                                { type: 'null' }
+                            ]
+                        }
+                    }
+                }
+            },
+            assetData: {}
+        });
+
+        const editorField = schema.getDocument('settings').properties.editor;
+        expect(Object.keys(schema.getFields(editorField))).to.deep.equal(['gizmoSize']);
+    });
+
+    it('getAssetTypes sees through a nullability wrapper', function () {
+        const schema = new api.Schema({
+            version: 1,
+            documents: {
+                asset: {
+                    type: 'object',
+                    properties: { type: { anyOf: [{ type: 'string', enum: ['material', 'texture'] }, { type: 'null' }] } }
+                },
+                scene: { type: 'object', properties: {} },
+                settings: { type: 'object', properties: {} }
+            },
+            assetData: {}
+        });
+
+        expect(schema.getAssetTypes()).to.deep.equal(['material', 'texture']);
+    });
+
+    it('getFieldsOfType finds references inside a nullability wrapper', function () {
+        const schema = new api.Schema({
+            version: 1,
+            documents: {
+                asset: { type: 'object', properties: {} },
+                scene: {
+                    type: 'object',
+                    properties: {
+                        entities: {
+                            'x-open-map': true,
+                            additionalProperties: {
+                                type: 'object',
+                                properties: {
+                                    components: {
+                                        default: null,
+                                        anyOf: [
+                                            {
+                                                type: 'object',
+                                                properties: {
+                                                    model: {
+                                                        type: 'object',
+                                                        properties: {
+                                                            materialAsset: { type: 'number', 'x-editor-type': 'asset' }
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            { type: 'null' }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                settings: { type: 'object', properties: {} }
+            },
+            assetData: {}
+        });
+
+        expect(schema.components.getFieldsOfType('model', 'asset')).to.deep.equal(['materialAsset']);
+    });
+
+    it('reads metadata from the inner branch when it is not hoisted', function () {
+        const schema = new api.Schema({
+            version: 1,
+            documents: {
+                asset: { type: 'object', properties: {} },
+                scene: { type: 'object', properties: {} },
+                settings: {
+                    type: 'object',
+                    properties: {
+                        loadingScreenScript: {
+                            default: null,
+                            anyOf: [{ type: 'string', 'x-scope': 'project' }, { type: 'null' }]
+                        }
+                    }
+                }
+            },
+            assetData: {}
+        });
+
+        const settings = schema.getDocument('settings');
+        expect(schema.getScope(settings.properties.loadingScreenScript)).to.equal('project');
+        expect(schema.getScopeForPath(settings, 'loadingScreenScript')).to.equal('project');
+    });
+
+    it('materializes children even when the container carries a default', function () {
+        const schema = new api.Schema({
+            version: 1,
+            documents: {
+                asset: { type: 'object', properties: {} },
+                scene: { type: 'object', properties: {} },
+                settings: {
+                    type: 'object',
+                    properties: {
+                        editor: {
+                            default: null,
+                            type: 'object',
+                            properties: {
+                                gizmoSize: { type: 'number', default: 1, 'x-scope': 'user' },
+                                iconSize: { type: 'number', default: 2, 'x-scope': 'user' }
+                            }
+                        }
+                    }
+                }
+            },
+            assetData: {}
+        });
+
+        expect(schema.settings.getDefaultUserSettings()).to.deep.equal({
+            editor: { gizmoSize: 1, iconSize: 2 }
+        });
+    });
+
+    it('produces unchanged settings seeds for a container-default-free catalog', function () {
+        // the karma fixture has no container defaults, so the merge refactor must
+        // reproduce today's per-scope seeds byte-for-byte
+        const s = new api.Schema(schema);
+        expect(s.settings.getDefaultProjectSettings()).to.deep.equal({ projectFlag: false });
+        expect(s.settings.getDefaultUserSettings()).to.deep.equal({ userCount: 0 });
+        expect(s.settings.getDefaultProjectUserSettings()).to.deep.equal({ nested: { projectUserValue: '' } });
     });
 });

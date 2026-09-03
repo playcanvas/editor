@@ -1,5 +1,6 @@
 import { SHADOWUPDATE_THISFRAME } from 'playcanvas';
 
+import { hasUv1 } from '@/editor/assets/asset-flags';
 import type { EntityObserver } from '@/editor-api';
 
 editor.once('load', () => {
@@ -49,7 +50,7 @@ editor.once('load', () => {
             }
 
             // check if asset has uv1
-            const uv1 = asset.has('meta.attributes.texCoord1');
+            const uv1 = hasUv1(asset);
             if (!uv1) {
                 // uv1 might be missing
                 if (!uv1MissingAssets[assetId]) {
