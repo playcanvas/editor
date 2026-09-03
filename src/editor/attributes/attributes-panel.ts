@@ -1,6 +1,7 @@
 import type { Observer } from '@playcanvas/observer';
 
 import { toLinkedFieldValue } from '@/common/pcui/compat-utils';
+import { unsetObserver } from '@/editor/driver/observer-unset';
 
 import {
     createAssetInput,
@@ -271,7 +272,7 @@ editor.once('load', () => {
 
                             historyState(item, false);
                             if (items[i].value === undefined) {
-                                item.unset(path);
+                                unsetObserver(item, path);
                             } else {
                                 item.set(path, items[i].value);
                             }
@@ -294,11 +295,10 @@ editor.once('load', () => {
 
                             historyState(item, false);
                             if (value === undefined) {
-                                item.unset(path);
+                                unsetObserver(item, path);
                             } else {
                                 item.set(path, value);
                             }
-                            item.set(path, value);
                             historyState(item, true);
                         }
 

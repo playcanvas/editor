@@ -1,5 +1,7 @@
 import { Overlay } from '@playcanvas/pcui';
 
+import { unsetObserver } from '@/editor/driver/observer-unset';
+
 import { ModelAssetInspectorMeshInstances } from '../inspector/assets/model-mesh-instances';
 
 import { addSidePanelOverlayClose } from './side-panel-overlay';
@@ -105,7 +107,7 @@ editor.once('load', () => {
                     item.history.enabled = false;
 
                     if (actions[i].undo === undefined) {
-                        item.unset(actions[i].path);
+                        unsetObserver(item, actions[i].path);
                     } else {
                         item.set(actions[i].path, actions[i].undo);
                     }

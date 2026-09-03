@@ -117,7 +117,7 @@ editor.once('load', () => {
                     if (property === 'aabbCenter' || property === 'aabbHalfExtents') {
                         const aabbCenter = obj.get(`components.${component}.aabbCenter`);
                         const aabbHalfExtents = obj.get(`components.${component}.aabbHalfExtents`);
-                        if (aabbCenter && aabbHalfExtents) {
+                        if (Array.isArray(aabbCenter) && Array.isArray(aabbHalfExtents)) {
                             entity[component].customAabb = new pc.BoundingBox(
                                 new pc.Vec3(aabbCenter),
                                 new pc.Vec3(aabbHalfExtents)

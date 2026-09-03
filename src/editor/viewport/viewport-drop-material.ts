@@ -2,6 +2,7 @@ import { MeshInstance } from 'playcanvas';
 import type { Entity } from 'playcanvas';
 
 import { config } from '@/editor/config';
+import { unsetObserver } from '@/editor/driver/observer-unset';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');
@@ -291,7 +292,7 @@ editor.once('load', () => {
                                 item.history.enabled = false;
 
                                 if (undo.value === undefined) {
-                                    item.unset(undo.path);
+                                    unsetObserver(item, undo.path);
                                 } else {
                                     item.set(undo.path, undo.value);
                                 }
@@ -307,7 +308,7 @@ editor.once('load', () => {
                                 const history = item.history.enabled;
                                 item.history.enabled = false;
                                 if (redo.value === undefined) {
-                                    item.unset(redo.path);
+                                    unsetObserver(item, redo.path);
                                 } else {
                                     item.set(redo.path, redo.value);
                                 }

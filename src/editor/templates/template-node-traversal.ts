@@ -1,5 +1,7 @@
 import { guid } from 'playcanvas';
 
+import { isSchemaDeepEqual } from './deep-equal-compare';
+
 editor.once('load', () => {
     const bothTypes = ['src', 'dst'];
 
@@ -138,7 +140,14 @@ editor.once('load', () => {
         }
 
         areNodesEqual() {
-            return editor.call('assets:isDeepEqual', this.data.node1, this.data.node2);
+            const schema = editor.api.globals.schema;
+            return isSchemaDeepEqual(
+                this.data.node1,
+                this.data.node2,
+                schema,
+                schema.getDocument('scene'),
+                this.fullPath
+            );
         }
 
         areBothNodesMaps() {

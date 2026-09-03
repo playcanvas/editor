@@ -1,3 +1,4 @@
+import { hasUv1 } from '@/editor/assets/asset-flags';
 import { TextureCompressor } from '@/editor/assets/assets-textures-compress';
 import type { Asset } from '@/editor-api';
 
@@ -106,7 +107,13 @@ driver.method('lightmapper:bake', async (ids?: string[]) => {
     const targets = entities || api.entities.list().filter((entity) => entity.get('components.model.lightmapped'));
     const missing = targets
         .map((entity) => entity.get('components.model.asset'))
-        .filter((id) => id && !api.assets.get(id)?.has('meta.attributes.texCoord1'));
+        .filter((id) => {
+            if (!id) {
+                return false;
+            }
+            const asset = api.assets.get(id);
+            return !asset || !hasUv1(asset);
+        });
     let event: any;
     const [error] = await bounded(
         (done) => {

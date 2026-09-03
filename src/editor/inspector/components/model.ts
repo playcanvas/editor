@@ -6,9 +6,11 @@ import { CLASS_ERROR } from '@/common/pcui/constants';
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import type { Assets, EntityObserver } from '@/editor-api';
 
+import { hasUv1 } from '../../assets/asset-flags';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+import { hasCustomAabb } from './aabb-utils';
 import { ComponentInspector } from './component';
 import type { ComponentInspectorArgs } from './component';
 
@@ -254,7 +256,7 @@ class AssetElementToObserversBinding extends BindingElementToObservers {
                     const mapping = latest.get('components.model.mapping');
                     if (mapping) {
                         entry.mapping = mapping;
-                        latest.unset('components.model.mapping');
+                        latest.set('components.model.mapping', {});
                     }
                 }
 
@@ -576,7 +578,7 @@ class ModelComponentInspector extends ComponentInspector {
         this._suppressCustomAabb = true;
         this._suppressToggleFields = true;
 
-        const customAabbs = this._entities.map((e) => e.has('components.model.aabbCenter'));
+        const customAabbs = this._entities.map((e) => hasCustomAabb(e, 'model'));
         this._field('customAabb').values = customAabbs;
 
         this._suppressCustomAabb = false;
@@ -627,7 +629,7 @@ class ModelComponentInspector extends ComponentInspector {
             if (e.has('components.model') && e.get('components.model.type') === 'asset') {
                 const assetId = e.get('components.model.asset');
                 const asset = assetId && this._assets.get(assetId);
-                if (asset && !asset.has('meta.attributes.texCoord1') && !asset.has('meta.attributes.TEXCOORD_1')) {
+                if (asset && !hasUv1(asset)) {
                     return true;
                 }
             }
@@ -692,20 +694,20 @@ class ModelComponentInspector extends ComponentInspector {
                 const history = e.history.enabled;
                 e.history.enabled = false;
                 if (value) {
-                    if (!e.has('components.model.aabbCenter')) {
+                    if (!hasCustomAabb(e, 'model')) {
                         prev[e.get('resource_id')] = {};
                         e.set('components.model.aabbCenter', [0, 0, 0]);
                         e.set('components.model.aabbHalfExtents', [0.5, 0.5, 0.5]);
                     }
                 } else {
-                    if (e.has('components.model.aabbCenter')) {
+                    if (hasCustomAabb(e, 'model')) {
                         prev[e.get('resource_id')] = {
                             center: e.get('components.model.aabbCenter'),
                             halfExtents: e.get('components.model.aabbHalfExtents')
                         };
 
-                        e.unset('components.model.aabbCenter');
-                        e.unset('components.model.aabbHalfExtents');
+                        e.set('components.model.aabbCenter', null);
+                        e.set('components.model.aabbHalfExtents', null);
                     }
                 }
                 e.history.enabled = history;
@@ -729,13 +731,13 @@ class ModelComponentInspector extends ComponentInspector {
                 if (previous.center) {
                     e.set('components.model.aabbCenter', previous.center);
                 } else {
-                    e.unset('components.model.aabbCenter');
+                    e.set('components.model.aabbCenter', null);
                 }
 
                 if (previous.halfExtents) {
                     e.set('components.model.aabbHalfExtents', previous.halfExtents);
                 } else {
-                    e.unset('components.model.aabbHalfExtents');
+                    e.set('components.model.aabbHalfExtents', null);
                 }
                 e.history.enabled = history;
             });
@@ -805,7 +807,7 @@ class ModelComponentInspector extends ComponentInspector {
                 })
             );
 
-            customAabbValues.push(e.has('components.model.aabbCenter'));
+            customAabbValues.push(hasCustomAabb(e, 'model'));
 
             this._entityEvents.push(e.on('components.model.aabbCenter:set', this._refreshCustomAabb.bind(this)));
             this._entityEvents.push(e.on('components.model.aabbCenter:unset', this._refreshCustomAabb.bind(this)));

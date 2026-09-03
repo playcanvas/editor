@@ -9,6 +9,7 @@ import type { EntityObserver } from '@/editor-api';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+import { hasCustomAabb } from './aabb-utils';
 import { ComponentInspector } from './component';
 import type { ComponentInspectorArgs } from './component';
 
@@ -413,20 +414,20 @@ class RenderComponentInspector extends ComponentInspector {
                 const history = e.history.enabled;
                 e.history.enabled = false;
                 if (value) {
-                    if (!e.has('components.render.aabbCenter')) {
+                    if (!hasCustomAabb(e, 'render')) {
                         prev[e.get('resource_id')] = {};
                         e.set('components.render.aabbCenter', [0, 0, 0]);
                         e.set('components.render.aabbHalfExtents', [0.5, 0.5, 0.5]);
                     }
                 } else {
-                    if (e.has('components.render.aabbCenter')) {
+                    if (hasCustomAabb(e, 'render')) {
                         prev[e.get('resource_id')] = {
                             center: e.get('components.render.aabbCenter'),
                             halfExtents: e.get('components.render.aabbHalfExtents')
                         };
 
-                        e.unset('components.render.aabbCenter');
-                        e.unset('components.render.aabbHalfExtents');
+                        e.set('components.render.aabbCenter', null);
+                        e.set('components.render.aabbHalfExtents', null);
                     }
                 }
                 e.history.enabled = history;
@@ -450,13 +451,13 @@ class RenderComponentInspector extends ComponentInspector {
                 if (previous.center) {
                     e.set('components.render.aabbCenter', previous.center);
                 } else {
-                    e.unset('components.render.aabbCenter');
+                    e.set('components.render.aabbCenter', null);
                 }
 
                 if (previous.halfExtents) {
                     e.set('components.render.aabbHalfExtents', previous.halfExtents);
                 } else {
-                    e.unset('components.render.aabbHalfExtents');
+                    e.set('components.render.aabbHalfExtents', null);
                 }
                 e.history.enabled = history;
             });
@@ -481,7 +482,7 @@ class RenderComponentInspector extends ComponentInspector {
         this._suppressCustomAabb = true;
         this._suppressToggleFields = true;
 
-        const customAabbs = this._entities.map((e) => e.has('components.render.aabbCenter'));
+        const customAabbs = this._entities.map((e) => hasCustomAabb(e, 'render'));
         this._field('customAabb').values = customAabbs;
 
         this._suppressCustomAabb = false;
@@ -497,7 +498,7 @@ class RenderComponentInspector extends ComponentInspector {
 
         super.link(entities);
 
-        const customAabbs = this._entities.map((e) => e.has('components.render.aabbCenter'));
+        const customAabbs = this._entities.map((e) => hasCustomAabb(e, 'render'));
         this._field('customAabb').values = customAabbs;
 
         entities.forEach((e) => {

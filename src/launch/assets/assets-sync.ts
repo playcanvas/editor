@@ -1,6 +1,7 @@
 import { Observer } from '@playcanvas/observer';
 
 import { ObserverSync } from '@/common/observer-sync';
+import { isReferencedFont } from '@/editor/inspector/assets/font-mode';
 import type { LaunchConfig } from '@/editor-api/external-types/config';
 
 editor.once('load', () => {
@@ -296,7 +297,7 @@ editor.once('load', () => {
         if (assetData.type === 'bundle' && assetData.data && assetData.data.assets) {
             assetData.data.assets = assetData.data.assets.filter((id: number) => {
                 const member = editor.call('assets:get', id);
-                return !(member && member.get('type') === 'font' && member.has('data.jsonAsset'));
+                return !(member && member.get('type') === 'font' && isReferencedFont(member));
             });
         }
         const engineAsset = ((asset as Observer & { asset?: pc.Asset }).asset = new pc.Asset(

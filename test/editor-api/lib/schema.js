@@ -1,6 +1,7 @@
 const object = (properties, data = {}) => ({
     type: 'object',
     properties,
+    required: Object.keys(properties),
     additionalProperties: false,
     ...data
 });
@@ -49,7 +50,10 @@ const entity = object({
             assetArrayRef: { type: 'string', default: [], 'x-editor-type': 'array:asset' },
             nestedAssetRef: map(
                 object({
-                    asset: { type: 'number', default: null, 'x-editor-type': 'asset' }
+                    asset: nullable(
+                        { type: 'number' },
+                        { default: null, 'x-editor-type': 'asset' }
+                    )
                 })
             )
         }),
@@ -59,7 +63,7 @@ const entity = object({
             scripts: map({}, { default: {} })
         }),
         zone: object({ enabled: { type: 'boolean', default: true } })
-    })
+    }, { required: [] })
 });
 
 window.schema = {
@@ -84,12 +88,28 @@ window.schema = {
         settings: object({
             projectFlag: { type: 'boolean', default: false, 'x-scope': 'project' },
             userCount: { type: 'number', default: 0, 'x-scope': 'user' },
-            nested: object({
-                projectUserValue: { type: 'string', default: '', 'x-scope': 'projectUser' }
-            })
+            batchGroups: map(object({ maxAabbSize: { type: 'number', default: 100 } })),
+            nested: object(
+                {
+                    projectUserValue: { type: 'string', default: '', 'x-scope': 'projectUser' },
+                    optionalValue: { type: 'string' }
+                },
+                { required: ['projectUserValue'] }
+            )
         }),
         asset: object({
             type: { type: 'string', enum: ['material', 'model', 'font', 'test'] }
+        })
+    },
+    assetMeta: {
+        font: object({ invert: { type: 'boolean' } }, { required: [] }),
+        texture: object({
+            compress: object({
+                alpha: { type: 'boolean', default: false },
+                pvrBpp: { type: 'number', default: 4 },
+                quality: { type: 'number', default: 128 },
+                compressionMode: { type: 'string', default: 'etc' }
+            })
         })
     },
     assetData: {
