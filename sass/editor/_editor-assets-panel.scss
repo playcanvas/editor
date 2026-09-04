@@ -613,21 +613,45 @@
 
 // split view - two asset panels side by side
 #layout-assets-dock.assets-split {
-    #layout-assets {
-        border-right: 1px solid $bcg-darkest;
+    // pcui indents every panel header by 10px, which would leave a gap between the divider
+    // and the marker below. Just clear the divider instead
+    #layout-assets-secondary > .pcui-panel-header {
+        padding-left: 4px;
     }
 
-    // make it obvious which of the two panels new assets and hotkeys apply to
-    .pcui-asset-panel-active > .pcui-panel-content::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        left: 0;
-        height: 2px;
+    // the secondary view does not repeat the panel title. The slot it leaves behind is
+    // what marks the view that menu actions apply to - the main view needs no marker
+    #layout-assets-secondary > .pcui-panel-header > .pcui-panel-header-title {
+        width: 6px;
+        padding: 0;
+        margin: 0;
+        font-size: 0;
+    }
+
+    #layout-assets-secondary.pcui-asset-panel-active > .pcui-panel-header > .pcui-panel-header-title {
         background-color: $text-active;
-        pointer-events: none;
-        z-index: 1;
+    }
+
+    // the resize handle doubles as the divider between the views, so keep it visible
+    #layout-assets-secondary > .pcui-resizable-handle {
+        width: 4px;
+        border-left: 0;
+        background-color: $bcg-darkest;
+        opacity: 1;
+
+        // grip marks in the middle, so the divider reads as draggable
+        &::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 14px;
+            transform: translateY(-50%);
+            background-image: radial-gradient(circle, $text-darkest 1px, transparent 1px);
+            background-position: center;
+            background-size: 4px 5px;
+        }
     }
 }
 

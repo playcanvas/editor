@@ -54,8 +54,10 @@ const createAssetPanel = (args: Partial<AssetPanelArgs>, viewModeKey: string) =>
     return assetsPanel;
 };
 
-// below this window width the split view has no room to be useful, so it is disabled
-const SPLIT_MIN_WINDOW_WIDTH = 1280;
+// below this width of the assets area the split view has no room to be useful, so it turns
+// itself off. Measured on the dock, not the window, because collapsing or widening the
+// hierarchy and inspector changes the room available without the window changing at all
+const SPLIT_MIN_DOCK_WIDTH = 900;
 
 /**
  * Creates the container that fills the assets area of the layout grid. It holds the primary
@@ -116,7 +118,7 @@ const createAssetDock = () => {
         tooltip.attach(btnSplit.dom);
         tooltip.text = btnSplit.enabled ?
             'Browse two folders side by side' :
-            `Split view needs a window at least ${SPLIT_MIN_WINDOW_WIDTH}px wide`;
+            'Not enough room for a split view';
         tooltip.class.toggle('inactive', !btnSplit.enabled);
     });
 
@@ -124,10 +126,15 @@ const createAssetDock = () => {
     let assetsHeight = editor.call('localStorage:get', 'editor:layout:assets:height') || 212;
     let secondaryWidth = editor.call('localStorage:get', 'editor:layout:assets-secondary:width') || 400;
 
+    // the width last written to the secondary panel, so that the resize observer below does
+    // not write the same value back and drive itself in a loop
+    let appliedWidth = -1;
+
     const refreshSplit = () => {
-        // on a narrow window there is not enough room for two panels, so the split view is
-        // turned off without forgetting the preference - it comes back on a wider window
-        const canSplit = window.innerWidth >= SPLIT_MIN_WINDOW_WIDTH;
+        // when the assets area is too narrow the split view turns itself off without
+        // forgetting the preference - it comes back as soon as there is room again
+        const dockWidth = dock.dom.clientWidth;
+        const canSplit = dockWidth >= SPLIT_MIN_DOCK_WIDTH;
         btnSplit.enabled = canSplit;
         btnSplit.class.toggle('pcui-asset-panel-btn-active', split && canSplit);
 
@@ -144,8 +151,12 @@ const createAssetDock = () => {
         // secondary panel would grow to fit all of its assets and cover the viewport
         assetsPanelSecondary.height = assetsHeight;
 
-        // never let the secondary panel take more than half of the window
-        assetsPanelSecondary.width = Math.min(secondaryWidth, Math.round(window.innerWidth / 2));
+        // never let the secondary panel take more than half of the assets area
+        const width = Math.min(secondaryWidth, Math.round(dockWidth / 2));
+        if (width !== appliedWidth) {
+            appliedWidth = width;
+            assetsPanelSecondary.width = width;
+        }
     };
 
     btnSplit.on('click', () => {
@@ -170,10 +181,13 @@ const createAssetDock = () => {
 
     assetsPanelSecondary.on('resize', () => {
         secondaryWidth = assetsPanelSecondary.width;
+        appliedWidth = secondaryWidth;
         editor.call('localStorage:set', 'editor:layout:assets-secondary:width', secondaryWidth);
     });
 
-    window.addEventListener('resize', refreshSplit);
+    // the assets area changes width when the window resizes, but also when the hierarchy or
+    // the inspector is resized or collapsed, so watch the dock itself rather than the window
+    new ResizeObserver(refreshSplit).observe(dock.dom);
 
     refreshSplit();
 
