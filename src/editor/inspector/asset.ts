@@ -60,7 +60,7 @@ assetInspectors.set('shader', ShaderAssetInspector);
 assetInspectors.set('sprite', SpriteAssetInspector);
 assetInspectors.set('text', TextAssetInspector);
 assetInspectors.set('texture', TextureAssetInspector);
-assetInspectors.set('textureAtlas', TextureAssetInspector);
+assetInspectors.set('textureatlas', TextureAssetInspector);
 assetInspectors.set('wasm', WasmAssetInspector);
 
 const sourceAssetInspectors = new Map<string, new (...args: any[]) => any>();
@@ -78,7 +78,7 @@ assetInspectorPreviews.set('render', RenderAssetInspectorPreview);
 assetInspectorPreviews.set('sprite', SpriteAssetInspectorPreview);
 assetInspectorPreviews.set('texture', TextureAssetInspectorPreview);
 assetInspectorPreviews.set('template', TemplateAssetInspectorPreview);
-assetInspectorPreviews.set('textureAtlas', TextureAssetInspectorPreview);
+assetInspectorPreviews.set('textureatlas', TextureAssetInspectorPreview);
 
 const CLASS_ROOT = 'asset-inspector';
 
@@ -337,7 +337,7 @@ class AssetInspector extends Container {
         this._projectSettings = args.projectSettings as Observer;
         this._editableTypes = args.editableTypes as Record<string, boolean>;
 
-        this._assetTypes = editor.call('schema:assets:list');
+        this._assetTypes = editor.call('schema:assets:list').map((type) => type.toLowerCase());
         this._attributesInspector = new AttributesInspector({
             history: args.history,
             attributes: ATTRIBUTES

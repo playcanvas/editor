@@ -1,10 +1,15 @@
 import { guid } from 'playcanvas';
 
+type EntityData = {
+    get: (key: string) => string;
+    json: () => Record<string, unknown>;
+};
+
 editor.once('load', () => {
     class NewTemplateData {
-        root: { get: (key: string) => unknown };
+        root: EntityData;
 
-        srcEnts: { get: (key: string) => unknown }[];
+        srcEnts: EntityData[];
 
         dstEnts: Record<string, unknown>[];
 
@@ -14,7 +19,7 @@ editor.once('load', () => {
 
         scriptAttrs: Record<string, unknown>;
 
-        constructor(root: { get: (key: string) => unknown }, srcEnts: { get: (key: string) => unknown }[]) {
+        constructor(root: EntityData, srcEnts: EntityData[]) {
             this.root = root;
 
             this.srcEnts = srcEnts;
@@ -40,7 +45,7 @@ editor.once('load', () => {
             this.srcEnts.forEach(this.handleSrcEnt, this);
         }
 
-        handleSrcEnt(srcEnt: { get: (key: string) => unknown; json: () => Record<string, unknown> }): void {
+        handleSrcEnt(srcEnt: EntityData) {
             const srcId = srcEnt.get('resource_id');
 
             const dstId = guid.create();
@@ -48,6 +53,9 @@ editor.once('load', () => {
             const dstEnt = srcEnt.json();
 
             dstEnt.resource_id = dstId;
+            dstEnt.template ??= null;
+            dstEnt.template_id ??= null;
+            dstEnt.template_ent_ids ??= null;
 
             this.dstEnts.push(dstEnt);
 
@@ -56,9 +64,9 @@ editor.once('load', () => {
             if (srcId === this.rootId) {
                 dstEnt.parent = null;
 
-                // remove template fields if this is a template root
-                delete dstEnt.template_id;
-                delete dstEnt.template_ent_ids;
+                // unlink the root from its source template
+                dstEnt.template_id = null;
+                dstEnt.template_ent_ids = null;
             }
         }
 
@@ -90,13 +98,7 @@ editor.once('load', () => {
      * asset, it has the format { entities: <guid to entity map> }), and 'srcToDst' (a map from
      * original to new guids).
      */
-    editor.method(
-        'template:newTemplateData',
-        (
-            root: unknown,
-            sceneEnts: unknown[]
-        ): { assetData: { entities: Record<string, unknown> }; srcToDst: Record<string, string> } => {
-            return new NewTemplateData(root, sceneEnts).run();
-        }
-    );
+    editor.method('template:newTemplateData', (root: EntityData, sceneEnts: EntityData[]) => {
+        return new NewTemplateData(root, sceneEnts).run();
+    });
 });

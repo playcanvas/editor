@@ -2,10 +2,18 @@ import { Observer } from '@playcanvas/observer';
 
 import { ObserverSync } from '@/common/observer-sync';
 
+const ENVELOPE_KEYS = new Set(['_id', 'name', 'user', 'project', 'item_id', 'branch_id', 'checkpoint_id']);
+
+type SettingsObserver = Observer & {
+    id: string;
+    reload: (...args: unknown[]) => void;
+    disconnect: () => void;
+};
+
 editor.once('load', () => {
     editor.method('settings:create', (args) => {
         // settings observer
-        const settings = new Observer(args.data);
+        const settings = new Observer(args.data) as SettingsObserver;
         settings.id = args.id;
 
         // Get settings
@@ -33,7 +41,7 @@ editor.once('load', () => {
 
                 // load settings
                 doc.on('load', () => {
-                    const data = doc.data;
+                    const data = { ...doc.data };
 
                     // remove unnecessary fields
                     delete data._id;
@@ -47,7 +55,7 @@ editor.once('load', () => {
                     if (!settings.sync) {
                         settings.sync = new ObserverSync({
                             item: settings,
-                            paths: Object.keys(settings._data)
+                            paths: Object.keys(settings.json())
                         });
 
                         // local -> server
@@ -62,7 +70,7 @@ editor.once('load', () => {
                     if (history) {
                         settings.history.enabled = false;
                     }
-                    settings.sync._enabled = false;
+                    settings.sync.enabled = false;
 
                     const set = (key, data) => {
                         if (Array.isArray(data)) {
@@ -77,7 +85,7 @@ editor.once('load', () => {
                     };
                     set('', data);
 
-                    settings.sync._enabled = true;
+                    settings.sync.enabled = true;
                     if (history) {
                         settings.history.enabled = true;
                     }
@@ -94,7 +102,7 @@ editor.once('load', () => {
                         }
                         for (let i = 0; i < ops.length; i++) {
                             const op = ops[i];
-                            settings.sync.write(op);
+                            if (!ENVELOPE_KEYS.has(String(op.p[0]))) settings.sync.write(op);
                         }
                         if (history) {
                             settings.history.enabled = true;

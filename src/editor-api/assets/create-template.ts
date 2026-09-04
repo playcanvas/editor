@@ -17,12 +17,11 @@ function createTemplate(rootEntity: Entity) {
         const json = entity.json() as any;
         json.resource_id = newId;
 
-        // delete template_id and template_ent_ids
-        // from root
+        // unlink the root from its source template
         if (id === rootId) {
             json.parent = null;
-            delete json.template_id;
-            delete json.template_ent_ids;
+            json.template_id = null;
+            json.template_ent_ids = null;
         }
 
         // if we have any missing references in template_ent_ids
