@@ -97,21 +97,9 @@ window.schema = {
                 { required: ['projectUserValue'] }
             )
         }),
-        user_data: object({
-            cameras: object({ perspective: object({ focus: array({ type: 'number' }, { default: [0, 0, 0] }) }) })
-        }),
         asset: object({
             type: { type: 'string', enum: ['material', 'model', 'font', 'test'] }
         })
-    },
-    settingsData: {
-        project: object({ projectFlag: { type: 'boolean', default: false } }),
-        'project-user': object({
-            branch: { type: 'string' },
-            nested: object({ projectUserValue: { type: 'string', default: '' } })
-        }),
-        user: object({ userCount: { type: 'number', default: 0 } }),
-        'project-private': object({})
     },
     assetMeta: {
         font: object({ invert: { type: 'boolean' } }, { required: [] }),

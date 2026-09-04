@@ -91,7 +91,7 @@ editor.once('start', () => {
     });
 
     // write scene operations
-    editor.method('realtime:scene:op', (op: unknown) => {
+    editor.method('realtime:scene:op', (op: object) => {
         if (!editor.call('permissions:write') || !realtime.scenes.current) {
             return;
         }

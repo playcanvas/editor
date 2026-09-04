@@ -1,7 +1,8 @@
 import { Observer } from '@playcanvas/observer';
 
 import { ObserverSync } from '@/common/observer-sync';
-import type { JsonOp } from '@/common/realtime-schema-repair';
+
+type Op = Parameters<ObserverSync['write']>[0];
 
 editor.once('load', () => {
     const userdata = new Observer();
@@ -14,7 +15,7 @@ editor.once('load', () => {
             });
 
             // client > server
-            userdata.sync.on('op', (op: JsonOp) => {
+            userdata.sync.on('op', (op: Op) => {
                 if (op.oi === null) {
                     void log.error`tried to send invalid userdata op: ${op}`;
                     return;
@@ -31,7 +32,7 @@ editor.once('load', () => {
         editor.emit('userdata:load', userdata);
     });
 
-    editor.on(`realtime:userdata:${config.self.id}:op:cameras`, (op: JsonOp) => {
+    editor.on(`realtime:userdata:${config.self.id}:op:cameras`, (op: Op) => {
         userdata.sync?.write(op);
     });
 

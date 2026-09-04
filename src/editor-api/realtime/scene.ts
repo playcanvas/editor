@@ -1,9 +1,6 @@
 import { Events } from '@playcanvas/observer';
 
-import { RealtimeSchemaRepair, planSchemaRepair } from '../../common/realtime-schema-repair';
-import type { JsonOp } from '../../common/realtime-schema-repair';
 import type { Entity } from '../entity';
-import { globals as api } from '../globals';
 import type { Realtime } from '../realtime';
 
 import type { RealtimeConnection } from './connection';
@@ -25,8 +22,6 @@ class RealtimeScene extends Events {
     private _loaded: boolean;
 
     private _evtConnection: any;
-
-    private _repair: RealtimeSchemaRepair;
 
     /**
      * Constructor
@@ -57,13 +52,6 @@ class RealtimeScene extends Events {
         this._document = this._connection.getDocument('scenes', this._uniqueId);
         this._document.on('error', this._onError.bind(this));
         this._document.on('load', this._onLoad.bind(this));
-        const doc = this._document;
-        this._repair = new RealtimeSchemaRepair(
-            doc,
-            () => planSchemaRepair(api.schema, 'scene', doc.data),
-            (ops) => this._onOp(ops, false),
-            (err) => this._onError(err)
-        );
 
         this._evtConnection = this._realtime.on('disconnect', this.unload.bind(this));
 
@@ -119,13 +107,13 @@ class RealtimeScene extends Events {
      *
      * @param op - The operation
      */
-    submitOp(op: JsonOp) {
+    submitOp(op: object) {
         if (!this._loaded) {
             return;
         }
 
         try {
-            void this._repair.submit(op);
+            this._document.submitOp([op]);
         } catch (err) {
             console.error(err);
             this._realtime.emit('error:scene', err, this._uniqueId);
@@ -155,7 +143,7 @@ class RealtimeScene extends Events {
         this.emit('load');
     }
 
-    private _onOp(ops: JsonOp[], local: boolean) {
+    private _onOp(ops: any, local: boolean) {
         if (local) {
             return;
         }

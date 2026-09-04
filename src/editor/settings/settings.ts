@@ -1,7 +1,6 @@
 import { Observer } from '@playcanvas/observer';
 
 import { ObserverSync } from '@/common/observer-sync';
-import { RealtimeSchemaRepair, planSchemaRepair } from '@/common/realtime-schema-repair';
 
 const ENVELOPE_KEYS = new Set(['_id', 'name', 'user', 'project', 'item_id', 'branch_id', 'checkpoint_id']);
 
@@ -23,7 +22,6 @@ editor.once('load', () => {
         });
 
         let doc;
-        let repair: RealtimeSchemaRepair;
 
         settings.reload = function () {
             const connection = editor.call('realtime:connection');
@@ -40,20 +38,6 @@ editor.once('load', () => {
                     log.error(err);
                     editor.emit(`settings:${args.name}:error`, err);
                 });
-
-                const current = doc;
-                repair = new RealtimeSchemaRepair(
-                    current,
-                    () => planSchemaRepair(editor.api.globals.schema, 'settings', current.data, args.name),
-                    (ops) =>
-                        ops
-                            .filter((op) => !ENVELOPE_KEYS.has(String(op.p[0])))
-                            .forEach((op) => settings.sync.write(op)),
-                    (err) => {
-                        log.error(err);
-                        editor.emit(`settings:${args.name}:error`, err);
-                    }
-                );
 
                 // load settings
                 doc.on('load', () => {
@@ -77,7 +61,7 @@ editor.once('load', () => {
                         // local -> server
                         settings.sync.on('op', (op) => {
                             if (doc) {
-                                void repair.submit(op);
+                                doc.submitOp([op]);
                             }
                         });
                     }

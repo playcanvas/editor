@@ -177,20 +177,6 @@ describe('api.Schema tests', function () {
         });
     });
 
-    it('exposes user data and exact settings document schemas', function () {
-        withSchema(() => {
-            expect(api.globals.schema.getDocument('user_data')).to.equal(schema.documents.user_data);
-            expect(api.globals.schema.getSettingsDocument('projectUser')).to.equal(
-                schema.settingsData['project-user']
-            );
-            expect(api.globals.schema.getSettingsDocument('project-private')).to.equal(
-                schema.settingsData['project-private']
-            );
-            expect(api.globals.schema.getSettingsDocument('missing')).to.equal(undefined);
-            expect(api.globals.schema.isSkipped({ type: 'object', 'x-skip-validation': true })).to.equal(true);
-        });
-    });
-
     it('preserves types, metadata, lists and reference paths', function () {
         withSchema(() => {
             const vec2 = { type: 'array', items: { type: 'number' }, minItems: 2, maxItems: 2 };
@@ -252,7 +238,6 @@ describe('api.Schema tests', function () {
 
         const editorField = schema.getDocument('settings').properties.editor;
         expect(Object.keys(schema.getFields(editorField))).to.deep.equal(['gizmoSize']);
-        expect(schema.getRequired(editorField)).to.deep.equal([]);
     });
 
     it('reads numeric min/max bounds, including through a nullability wrapper', function () {

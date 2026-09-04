@@ -1,5 +1,3 @@
-import { RealtimeSchemaRepair, planSchemaRepair } from '@/common/realtime-schema-repair';
-import type { JsonOp } from '@/common/realtime-schema-repair';
 import { config } from '@/editor/config';
 
 editor.once('load', () => {
@@ -14,17 +12,6 @@ editor.once('load', () => {
     editor.method('realtime:subscribe:userdata', (sceneId, userId) => {
         const connection = editor.call('realtime:connection');
         const data = connection.get('user_data', `${sceneId}_${userId}`);
-        const apply = (ops: JsonOp[]) => {
-            for (const op of ops) {
-                if (op.p[0]) editor.emit(`realtime:userdata:${userId}:op:${op.p[0]}`, op);
-            }
-        };
-        data.repair = new RealtimeSchemaRepair(
-            data,
-            () => planSchemaRepair(editor.api.globals.schema, 'user_data', data.data),
-            apply,
-            (err) => editor.emit('realtime:userdata:error', err)
-        );
 
         // error
         data.on('error', (err: unknown) => {
@@ -37,7 +24,12 @@ editor.once('load', () => {
                 return;
             }
 
-            apply(ops);
+            for (let i = 0; i < ops.length; i++) {
+                const op = ops[i];
+                if (op.p[0]) {
+                    editor.emit(`realtime:userdata:${userId}:op:${op.p[0]}`, op);
+                }
+            }
         });
 
         // ready to sync
@@ -65,7 +57,7 @@ editor.once('load', () => {
             return;
         }
 
-        void userData.repair.submit(op);
+        userData.submitOp([op]);
     });
 
     // subscribe to permission changes for userdata
