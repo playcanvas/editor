@@ -425,6 +425,12 @@ class AssetPanel extends Panel {
 
     validateAssetsFn?: (asset: AssetObserver) => boolean;
 
+    /**
+     * Suffix appended to the global hotkey names so that more than one asset panel can
+     * register its own bindings without overwriting the other's
+     */
+    private _hotkeySuffix: string;
+
     constructor(
         args: PanelArgs & {
             dropManager: any;
@@ -432,6 +438,7 @@ class AssetPanel extends Panel {
                 typeof AssetPanel.VIEW_LARGE_GRID | typeof AssetPanel.VIEW_SMALL_GRID | typeof AssetPanel.VIEW_DETAILS;
             writePermissions?: boolean;
             assets?: ObserverList;
+            showStoreButton?: boolean;
         }
     ) {
         args = Object.assign(
@@ -610,19 +617,22 @@ class AssetPanel extends Panel {
         this._btnClearSearch.parent = this._searchInput;
         this._btnClearSearch.on('click', this._onClickClearSearch.bind(this));
 
-        // Show asset store
-        const btnStore = new Button({
-            text: 'ASSET STORE',
-            icon: 'E244',
-            class: [CLASS_BTN_STORE, CLASS_HIDE_ON_COLLAPSE]
-        });
-        btnStore.on('click', this._onClickStore.bind(this));
-        btnStore.on('hover', () => {
-            tooltip.attach(btnStore.dom);
-            tooltip.text = 'Open Store';
-            tooltip.class.remove('inactive');
-        });
-        this._containerControls.append(btnStore);
+        // Show asset store. A secondary asset panel does not get one, the store is opened
+        // from the main panel only
+        if (args.showStoreButton !== false) {
+            const btnStore = new Button({
+                text: 'ASSET STORE',
+                icon: 'E244',
+                class: [CLASS_BTN_STORE, CLASS_HIDE_ON_COLLAPSE]
+            });
+            btnStore.on('click', this._onClickStore.bind(this));
+            btnStore.on('hover', () => {
+                tooltip.attach(btnStore.dom);
+                tooltip.text = 'Open Store';
+                tooltip.class.remove('inactive');
+            });
+            this._containerControls.append(btnStore);
+        }
 
         // resizable container for a scrollable folders container
         this._containerLeft = new Container({
@@ -812,39 +822,73 @@ class AssetPanel extends Panel {
             this.assets = args.assets;
         }
 
+        this._hotkeySuffix = args.id ? `:${args.id}` : '';
+
         this.on('showToRoot', () => {
-            // register hotkeys
+            // register hotkeys - the names are unique per panel so that each visible asset
+            // panel keeps its own binding and only the active one acts on it
 
             // copy
-            editor.call('hotkey:register', 'asset:copy', {
+            editor.call('hotkey:register', `asset:copy${this._hotkeySuffix}`, {
                 key: 'c',
                 ctrl: true,
                 skipPreventDefault: true,
-                callback: this._onCopyAssets.bind(this)
+                callback: () => {
+                    if (this._isActivePanel()) {
+                        this._onCopyAssets();
+                    }
+                }
             });
 
             // paste
-            editor.call('hotkey:register', 'asset:paste', {
+            editor.call('hotkey:register', `asset:paste${this._hotkeySuffix}`, {
                 key: 'v',
                 ctrl: true,
-                callback: () => this._onPasteAssets()
+                callback: () => {
+                    if (this._isPasteTarget()) {
+                        this._onPasteAssets();
+                    }
+                }
             });
 
             // paste (keep folder structure)
-            editor.call('hotkey:register', 'asset:paste:keepFolderStructure', {
+            editor.call('hotkey:register', `asset:paste:keepFolderStructure${this._hotkeySuffix}`, {
                 key: 'v',
                 ctrl: true,
                 shift: true,
-                callback: () => this._onPasteAssets(true)
+                callback: () => {
+                    if (this._isPasteTarget()) {
+                        this._onPasteAssets(true);
+                    }
+                }
             });
         });
 
         this.on('hideToRoot', () => {
             // unregister hotkeys
-            editor.call('hotkey:unregister', 'asset:copy');
-            editor.call('hotkey:unregister', 'asset:paste');
-            editor.call('hotkey:unregister', 'asset:paste:keepFolderStructure');
+            editor.call('hotkey:unregister', `asset:copy${this._hotkeySuffix}`);
+            editor.call('hotkey:unregister', `asset:paste${this._hotkeySuffix}`);
+            editor.call('hotkey:unregister', `asset:paste:keepFolderStructure${this._hotkeySuffix}`);
         });
+    }
+
+    /**
+     * Whether this is the asset panel that global asset actions apply to. When more than one
+     * asset panel is visible only the active (last interacted with) one responds.
+     */
+    _isActivePanel() {
+        const active = editor.call('assets:panel:active');
+        return !active || active === this;
+    }
+
+    /**
+     * Whether this is the asset panel a paste should land in. Pasting is resolved from the
+     * pointer rather than from the active panel, so that the folder under the mouse is the
+     * one that receives the assets.
+     */
+    _isPasteTarget() {
+        const target = editor.call('assets:panel:pasteTarget');
+        return !target || target === this;
     }
 
     _onCopyAssets() {
@@ -2738,6 +2782,10 @@ class AssetPanel extends Panel {
 
     get dropManager() {
         return this._dropManager;
+    }
+
+    get containerControls() {
+        return this._containerControls;
     }
 
     get detailsView() {
