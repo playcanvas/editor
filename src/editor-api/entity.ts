@@ -61,8 +61,9 @@ class Entity extends Events {
             rotation: number[];
             scale: number[];
             components: object;
-            template_id?: number;
-            template_ent_ids?: Record<string, string>;
+            template: number | null;
+            template_id: number | null;
+            template_ent_ids: Record<string, string> | null;
         } = {
             name: name,
             tags: data.tags || [],
@@ -73,15 +74,11 @@ class Entity extends Events {
             position: data.position || [0, 0, 0],
             rotation: data.rotation || [0, 0, 0],
             scale: data.scale || [1, 1, 1],
-            components: {}
+            components: {},
+            template: data.template !== undefined ? data.template : null,
+            template_id: data.template_id !== undefined ? data.template_id : null,
+            template_ent_ids: data.template_ent_ids !== undefined ? data.template_ent_ids : null
         };
-
-        if (data.template_id) {
-            observerData.template_id = data.template_id;
-        }
-        if (data.template_ent_ids) {
-            observerData.template_ent_ids = data.template_ent_ids;
-        }
 
         this._observer = new Observer(observerData) as EntityObserver;
 

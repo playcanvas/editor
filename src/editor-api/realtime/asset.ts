@@ -1,5 +1,8 @@
 import { Events } from '@playcanvas/observer';
 
+import { RealtimeSchemaRepair, planSchemaRepair } from '../../common/realtime-schema-repair';
+import type { JsonOp } from '../../common/realtime-schema-repair';
+import { globals as api } from '../globals';
 import type { Realtime } from '../realtime';
 
 import type { RealtimeConnection } from './connection';
@@ -21,6 +24,8 @@ class RealtimeAsset extends Events {
     private _loaded: boolean;
 
     private _evtConnection: any;
+
+    private _repair: RealtimeSchemaRepair;
 
     /**
      * Constructor
@@ -52,6 +57,13 @@ class RealtimeAsset extends Events {
         this._document = this._connection.getDocument('assets', this._uniqueId);
         this._document.on('error', this._onError.bind(this));
         this._document.on('load', this._onLoad.bind(this));
+        const doc = this._document;
+        this._repair = new RealtimeSchemaRepair(
+            doc,
+            () => planSchemaRepair(api.schema, 'asset', doc.data),
+            (ops) => this._onOp(ops, false),
+            (err) => this._onError(err as string)
+        );
 
         this._evtConnection = this._realtime.on('disconnect', this.unload.bind(this));
 
@@ -82,13 +94,13 @@ class RealtimeAsset extends Events {
      * @param op - The operation
      * @param callback - The callback
      */
-    submitOp(op: object, callback?: (...args: any[]) => unknown) {
+    submitOp(op: JsonOp, callback?: (...args: any[]) => unknown) {
         if (!this._loaded) {
             return;
         }
 
         try {
-            this._document.submitOp([op], callback);
+            void this._repair.submit(op, callback);
         } catch (err) {
             console.error(err);
             this._realtime.emit('error:asset', err, this._uniqueId);
@@ -131,7 +143,7 @@ class RealtimeAsset extends Events {
         this.emit('load');
     }
 
-    _onOp(ops: any, local: boolean) {
+    _onOp(ops: JsonOp[], local: boolean) {
         if (local || !this._loaded) {
             return;
         }

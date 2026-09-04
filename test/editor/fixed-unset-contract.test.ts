@@ -17,6 +17,8 @@ describe('fixed-field reset contract', () => {
         const overrides = fs.readFileSync('src/editor/templates/revert-overrides.ts', 'utf8');
         const drop = fs.readFileSync('src/editor/viewport/viewport-drop-material.ts', 'utf8');
         const picker = fs.readFileSync('src/editor/pickers/picker-node.ts', 'utf8');
+        const apiTemplate = fs.readFileSync('src/editor-api/assets/create-template.ts', 'utf8');
+        const template = fs.readFileSync('src/editor/templates/new-template-data.ts', 'utf8');
 
         expect(cubemap).to.include("this._asset.set('data.rgbm', false)");
         expect(cubemap).not.to.include("this._asset.unset('data.rgbm')");
@@ -45,5 +47,16 @@ describe('fixed-field reset contract', () => {
         expect(picker).to.include("path: 'components.model.mapping'");
         expect(picker).to.include('path: `components.model.mapping.${index}`');
         expect(picker).to.include('unsetObserver(item, actions[i].path)');
+        expect(apiTemplate).to.include('json.template_id = null');
+        expect(apiTemplate).to.include('json.template_ent_ids = null');
+        expect(apiTemplate).not.to.include('delete json.template_id');
+        expect(apiTemplate).not.to.include('delete json.template_ent_ids');
+        for (const field of ['template', 'template_id', 'template_ent_ids']) {
+            expect(template).to.include(`dstEnt.${field} ??= null`);
+        }
+        expect(template).to.include('dstEnt.template_id = null');
+        expect(template).to.include('dstEnt.template_ent_ids = null');
+        expect(template).not.to.include('delete dstEnt.template_id');
+        expect(template).not.to.include('delete dstEnt.template_ent_ids');
     });
 });

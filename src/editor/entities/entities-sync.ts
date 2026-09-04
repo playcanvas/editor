@@ -12,6 +12,7 @@ editor.once('load', () => {
         'rotation',
         'scale',
         'enabled',
+        'template',
         'template_id',
         'template_ent_ids',
         'components'

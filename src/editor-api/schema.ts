@@ -5,6 +5,15 @@ import { SettingsSchema } from './schema/settings';
 
 type Field = Record<string, unknown>;
 
+const SETTINGS_NAMES: Record<string, string> = {
+    project: 'project',
+    projectUser: 'project-user',
+    'project-user': 'project-user',
+    user: 'user',
+    projectPrivate: 'project-private',
+    'project-private': 'project-private'
+};
+
 const isObject = (value: unknown): value is Field => {
     return !!value && typeof value === 'object' && !Array.isArray(value);
 };
@@ -87,8 +96,13 @@ class Schema {
         return this._settingsSchema;
     }
 
-    getDocument(name: 'asset' | 'scene' | 'settings') {
+    getDocument(name: 'asset' | 'scene' | 'settings' | 'user_data') {
         return (this._schema.documents as Field)[name] as Field;
+    }
+
+    getSettingsDocument(name: string) {
+        if (!isObject(this._schema.settingsData)) return undefined;
+        return this._schema.settingsData[SETTINGS_NAMES[name]] as Field | undefined;
     }
 
     getAssetData(type: string) {
@@ -108,6 +122,11 @@ class Schema {
         if (!isObject(field)) return {};
         const value = jsonValue(field);
         return isObject(value) && isObject(value.properties) ? value.properties : {};
+    }
+
+    getRequired(field: unknown) {
+        const value = jsonValue(field);
+        return isObject(value) && Array.isArray(value.required) ? value.required : [];
     }
 
     getMapValue(field: unknown) {
@@ -142,6 +161,12 @@ class Schema {
         if (isObject(field) && typeof field['x-scope'] === 'string') return field['x-scope'];
         const value = jsonValue(field);
         return isObject(value) && typeof value['x-scope'] === 'string' ? (value['x-scope'] as string) : undefined;
+    }
+
+    isSkipped(field: unknown) {
+        if (isObject(field) && field['x-skip-validation'] === true) return true;
+        const value = jsonValue(field);
+        return isObject(value) && value['x-skip-validation'] === true;
     }
 
     getAssetTypes() {
