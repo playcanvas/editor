@@ -49,6 +49,25 @@ describe('api.Entity tests', function () {
         expect(e.get('position')).to.deep.equal([0, 0, 0]);
     });
 
+    it('serializes fixed template fields', function () {
+        const json = new api.Entity().json();
+        for (const field of ['template', 'template_id', 'template_ent_ids']) {
+            expect(json).to.have.own.property(field, null);
+        }
+    });
+
+    it('preserves fixed template fields', function () {
+        const fields = {
+            template: 0,
+            template_id: 0,
+            template_ent_ids: { instance: 'source' }
+        };
+        const json = new api.Entity(fields).json();
+        for (const field in fields) {
+            expect(json).to.have.own.property(field).that.deep.equals(fields[field]);
+        }
+    });
+
     it('set sets value', function () {
         const e = new api.Entity();
         e.set('position', [1, 2, 3]);

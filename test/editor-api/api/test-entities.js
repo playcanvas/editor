@@ -1249,6 +1249,11 @@ describe('api.Entities tests', function () {
         const e = api.globals.entities.create();
         api.globals.entities.copyToClipboard([e]);
 
+        const json = api.globals.clipboard.value.hierarchy[e.get('resource_id')];
+        for (const field of ['template', 'template_id', 'template_ent_ids']) {
+            expect(json).to.have.own.property(field, null);
+        }
+
         expect(JSON.stringify(api.globals.clipboard.value)).to.equal(JSON.stringify({
             project: api.globals.projectId,
             scene: 1,
