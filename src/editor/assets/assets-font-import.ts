@@ -77,6 +77,23 @@ editor.once('load', () => {
             });
         });
 
+    const waitForFile = (asset: any) =>
+        new Promise<void>((resolve, reject) => {
+            if (asset.get('file.url')) {
+                resolve();
+                return;
+            }
+            const timer = setTimeout(() => {
+                evt.unbind();
+                reject(new Error(`asset ${asset.get('id')} file never arrived`));
+            }, ASSET_ADD_TIMEOUT);
+            const evt = asset.once('file.url:set', () => {
+                clearTimeout(timer);
+                evt.unbind();
+                resolve();
+            });
+        });
+
     const updateFile = (asset: any, file: Blob, filename: string, noConvert: boolean) =>
         new Promise<void>((resolve, reject) => {
             editor.call(
@@ -410,6 +427,51 @@ editor.once('load', () => {
     editor.method('fonts:reprocess', (font: any, chars: string, invert: boolean) => {
         return reprocess(font, chars, invert).catch((err) => {
             editor.call('status:error', `Font reprocess failed: ${err?.message ?? err}`);
+        });
+    });
+
+    // unpack a raw font cloned from a legacy store item without duplicating its source asset
+    const unpackFont = async (sourceId: number) => {
+        const source = await getObserver(sourceId);
+        await waitForFile(source);
+
+        const target = editor.call(
+            'assets:find',
+            (asset: any) =>
+                asset.get('type') === 'font' &&
+                !asset.get('source') &&
+                `${asset.get('source_asset_id')}` === `${sourceId}`
+        )[0];
+        if (target) {
+            if (!isReferencedFont(target)) {
+                await reprocess(target, DEFAULT_CHARS, false);
+            }
+            return target;
+        }
+
+        const filename = source.get('name');
+        const base = filename.replace(/\.[^.]+$/, '');
+        const path = source.get('path') || [];
+        const parent = path.length ? await getObserver(path[path.length - 1]) : null;
+        const fontId = await createAsset({
+            name: filename,
+            type: 'font',
+            file: new Blob(['{}'], { type: 'application/json' }),
+            filename: `${base}.json`,
+            source_asset_id: `${sourceId}`,
+            parent,
+            noConvert: true,
+            preload: true
+        });
+        const font = await getObserver(fontId);
+        await reprocess(font, DEFAULT_CHARS, false);
+        editor.call('selector:set', 'asset', [font]);
+        return font;
+    };
+
+    editor.method('fonts:unpack', (sourceId: number) => {
+        return unpackFont(sourceId).catch((err) => {
+            editor.call('status:error', `Font unpack failed: ${err?.message ?? err}`);
         });
     });
 
