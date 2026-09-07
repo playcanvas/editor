@@ -104,9 +104,8 @@ editor.once('load', () => {
     });
 
     editor.method('assets:panel:currentFolder', (asset) => {
-        // both directions follow the panel the user clicked last: reading asks which folder an
-        // action should target, writing navigates a panel to show a folder. Keeping them on
-        // the same panel is the whole rule - there is no separate answer per action
+        // reading asks which folder an action should target, so it follows the active panel -
+        // the one the user clicked last
         if (asset === undefined) {
             // special case for legacy scripts
             if (
@@ -120,7 +119,10 @@ editor.once('load', () => {
             return activePanel.currentFolder;
         }
 
-        activePanel.currentFolder = asset;
+        // writing is auto-navigation, which is sticky on the main panel. Following the active
+        // panel instead would pull the secondary panel away from the folder the user staged
+        // there, every time a selection navigates somewhere else
+        assetsPanel.currentFolder = asset;
     });
 
     editor.method('assets:progress', (progress) => {
