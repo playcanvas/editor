@@ -1,3 +1,7 @@
+type StoreCloneResponse = {
+    fontSources?: number[];
+};
+
 editor.once('load', () => {
     // Loads all the store's items
     editor.method('store:list', (search, skip, limit, selectedFilter, tags, sortPolicy, sortDescending) => {
@@ -111,7 +115,11 @@ editor.once('load', () => {
                     license: license
                 })
                 .on('load', (_status: number, response: unknown) => {
-                    resolve(response);
+                    const data = response as StoreCloneResponse;
+                    Promise.all((data.fontSources || []).map((id) => editor.call('fonts:unpack', id))).then(
+                        () => resolve(response),
+                        reject
+                    );
                 })
                 .on('error', (_status: number, error: unknown) => {
                     reject(error);

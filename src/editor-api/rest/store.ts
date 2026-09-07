@@ -139,8 +139,7 @@ export const storeClone = (storeId: number | string, data: StoreCloneData) => {
     return Ajax.post({
         url: `${api.apiUrl}/store/${storeId}/clone`,
         auth: true,
-        data,
-        notJson: true
+        data
     });
 };
 
