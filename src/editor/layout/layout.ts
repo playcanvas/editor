@@ -116,9 +116,7 @@ const createAssetDock = () => {
     tooltip.hidden = true;
     btnSplit.on('hover', () => {
         tooltip.attach(btnSplit.dom);
-        tooltip.text = btnSplit.enabled ?
-            'Browse two folders side by side' :
-            'Not enough room for a split view';
+        tooltip.text = btnSplit.enabled ? 'Browse two folders side by side' : 'Not enough room for a split view';
         tooltip.class.toggle('inactive', !btnSplit.enabled);
     });
 
