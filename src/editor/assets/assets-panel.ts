@@ -42,25 +42,6 @@ editor.once('load', () => {
         setActivePanel(panel);
     });
 
-    // Pasting targets the panel the mouse is over, so that the folder under the pointer is
-    // the one that receives the assets. With the pointer anywhere else - the hierarchy, the
-    // inspector, the viewport - it falls back to the main panel.
-    let hoveredPanel = null;
-    panels.forEach((panel) => {
-        panel.dom.addEventListener('mouseenter', () => {
-            hoveredPanel = panel;
-        });
-        panel.dom.addEventListener('mouseleave', () => {
-            if (hoveredPanel === panel) {
-                hoveredPanel = null;
-            }
-        });
-    });
-
-    editor.method('assets:panel:pasteTarget', () => {
-        return hoveredPanel && !hoveredPanel.hidden ? hoveredPanel : assetsPanel;
-    });
-
     editor.once('assets:load', () => {
         // attach contextmenu in assets:load so that
         // we make sure that the context menu code has been
@@ -123,8 +104,9 @@ editor.once('load', () => {
     });
 
     editor.method('assets:panel:currentFolder', (asset) => {
-        // reading this asks which folder an action should target, so it follows the panel the
-        // user last interacted with - creating an asset from a panel lands in that panel
+        // both directions follow the panel the user clicked last: reading asks which folder an
+        // action should target, writing navigates a panel to show a folder. Keeping them on
+        // the same panel is the whole rule - there is no separate answer per action
         if (asset === undefined) {
             // special case for legacy scripts
             if (
@@ -138,9 +120,7 @@ editor.once('load', () => {
             return activePanel.currentFolder;
         }
 
-        // writing it navigates a panel to show a folder, and that is always the main panel so
-        // that the secondary panel holds whatever the user put there
-        assetsPanel.currentFolder = asset;
+        activePanel.currentFolder = asset;
     });
 
     editor.method('assets:progress', (progress) => {

@@ -845,7 +845,7 @@ class AssetPanel extends Panel {
                 key: 'v',
                 ctrl: true,
                 callback: () => {
-                    if (this._isPasteTarget()) {
+                    if (this._isActivePanel()) {
                         this._onPasteAssets();
                     }
                 }
@@ -857,7 +857,7 @@ class AssetPanel extends Panel {
                 ctrl: true,
                 shift: true,
                 callback: () => {
-                    if (this._isPasteTarget()) {
+                    if (this._isActivePanel()) {
                         this._onPasteAssets(true);
                     }
                 }
@@ -874,21 +874,12 @@ class AssetPanel extends Panel {
 
     /**
      * Whether this is the asset panel that global asset actions apply to. When more than one
-     * asset panel is visible only the active (last interacted with) one responds.
+     * asset panel is visible, every action targets the active one - the panel the user
+     * clicked last - so that there is a single rule to learn rather than one per action.
      */
     _isActivePanel() {
         const active = editor.call('assets:panel:active');
         return !active || active === this;
-    }
-
-    /**
-     * Whether this is the asset panel a paste should land in. Pasting is resolved from the
-     * pointer rather than from the active panel, so that the folder under the mouse is the
-     * one that receives the assets.
-     */
-    _isPasteTarget() {
-        const target = editor.call('assets:panel:pasteTarget');
-        return !target || target === this;
     }
 
     _onCopyAssets() {

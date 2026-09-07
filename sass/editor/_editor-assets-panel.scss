@@ -619,8 +619,8 @@
         padding-left: 4px;
     }
 
-    // the secondary view does not repeat the panel title. The slot it leaves behind is
-    // what marks the view that menu actions apply to - the main view needs no marker
+    // the secondary view does not repeat the panel title, and the slot it leaves behind is
+    // where its marker goes
     #layout-assets-secondary > .pcui-panel-header > .pcui-panel-header-title {
         width: 6px;
         padding: 0;
@@ -628,8 +628,21 @@
         font-size: 0;
     }
 
+    // every action targets the active view, so both views carry the marker - the main view
+    // has a title in the way, so its marker sits in the header indent instead of a slot
     #layout-assets-secondary.pcui-asset-panel-active > .pcui-panel-header > .pcui-panel-header-title {
         background-color: $text-active;
+    }
+
+    #layout-assets.pcui-asset-panel-active > .pcui-panel-header::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 6px;
+        background-color: $text-active;
+        pointer-events: none;
     }
 
     // the resize handle doubles as the divider between the views, so keep it visible
