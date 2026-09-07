@@ -459,6 +459,8 @@ editor.once('load', () => {
             file: new Blob(['{}'], { type: 'application/json' }),
             filename: `${base}.json`,
             source_asset_id: `${sourceId}`,
+            // keep the placeholder on the referenced-font path until refs are generated
+            data: { jsonAsset: null, textureAssets: [] },
             parent,
             noConvert: true,
             preload: true
