@@ -5,7 +5,7 @@ import { version } from '../../package.json';
 
 import type { FingerprintedError } from './error';
 
-const SENTRY_DSN = 'https://0defef72baf64d99bf53b92a23d5bd14@sentry.sc-prod.net/87';
+const SENTRY_DSN = 'https://58fa45ef9143da0100d89bee06e47707@sentry.sc-prod.net/331';
 const BREADCRUMBS_INTEGRATION = 'Breadcrumbs';
 
 const SANITIZE_KEYS =
