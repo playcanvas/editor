@@ -4,6 +4,14 @@ import { resolveUnset } from './unset';
 
 const WRITE_SCOPES = new Set(['project', 'projectPrivate', 'scene']);
 
+const LEGACY_AMMO_PATHS = new Set(['use3dPhysics', 'useLegacyAmmoPhysics']);
+const LEGACY_AMMO_MODULE_ERROR =
+    'use3dPhysics enables the LEGACY asm.js Ammo loader, which is loaded after the imported Ammo WASM module and overrides it. Physics is already enabled by the Ammo module; leave use3dPhysics false (or remove the module first).';
+const LEGACY_AMMO_WARNING =
+    'Legacy Ammo flag set: the launch page loads the legacy asm.js Ammo build after the WASM modules, so it overrides an imported Ammo module. Import the Ammo module instead for WASM physics.';
+
+const isLegacyAmmoEdit = ({ path, op, value }: any) => op === 'set' && LEGACY_AMMO_PATHS.has(path) && !!value;
+
 const getSettings = (scope: string) => {
     if (scope === 'scene') {
         if (!api.realtime.scenes.current?.data) {
@@ -55,6 +63,10 @@ const modifySettings = (scope: string, edits: any[]) => {
         if (!unset) throw new Error(`Settings path ${edit.path} cannot be unset.`);
         return { ...edit, op: unset.op, value: unset.op === 'set' ? structuredClone(unset.value) : undefined };
     });
+    const legacyAmmo = scope === 'project' ? prepared.filter(isLegacyAmmoEdit) : [];
+    if (legacyAmmo.some(({ path }) => path === 'use3dPhysics') && editor.call('project:module:hasModule', 'ammo')) {
+        return { error: LEGACY_AMMO_MODULE_ERROR };
+    }
     for (let i = 0; i < prepared.length; i++) {
         const { path, op, value } = prepared[i];
         if (op === 'unset') {
@@ -64,7 +76,9 @@ const modifySettings = (scope: string, edits: any[]) => {
         }
     }
     log(`Modified ${scope} settings: ${prepared.map(({ path }) => path).join(', ')}`);
-    return { data: settings.json() };
+    return legacyAmmo.length
+        ? { data: settings.json(), meta: { warning: LEGACY_AMMO_WARNING } }
+        : { data: settings.json() };
 };
 
 driver.method('settings:query', querySettings);

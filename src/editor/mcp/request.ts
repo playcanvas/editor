@@ -1,6 +1,9 @@
 type Result = { data?: unknown; error?: string; meta?: Record<string, unknown> };
 
 const message = (err: any) => {
+    if (err === null || err === undefined) {
+        return 'Unknown error (no reason provided).';
+    }
     if (err instanceof Error || (typeof ErrorEvent !== 'undefined' && err instanceof ErrorEvent)) {
         return err.message;
     }
@@ -31,4 +34,4 @@ const handleRequest = async (data: string, call: (name: string, ...args: unknown
     }
 };
 
-export { handleRequest };
+export { handleRequest, message };

@@ -1,6 +1,7 @@
 import { config } from '@/editor/config';
 
 import { mcp } from './connection';
+import { defaultEngineVersion, engineChannels, resolveEngineVersion } from './engine-version';
 import { relay } from './relay';
 
 const log = (msg: string) => console.log(`[MCP] ${msg}`);
@@ -12,6 +13,13 @@ const CLOSE_ATTEMPTS = 10;
 
 // handle to the launched window, so we can stop it later
 let runtimeWindow: Window | null = null;
+
+// MCP must launch the engine the Launch button would, so read the same two inputs
+const launchState = (requested?: string) => ({
+    requested,
+    releaseCandidate: editor.call('launch:options')?.releaseCandidate,
+    sessionKey: editor.call('settings:session')?.get('engineVersion')
+});
 
 /**
  * Close the current launch window — ours, or one handed to the relay by the Launch button —
@@ -54,7 +62,7 @@ mcp.method('launch:start', async (options: any = {}) => {
         const running = relay.peer && !relay.peer.window.closed ? relay.peer : null;
         if (running?.sceneId === sceneId) {
             log('Adopted the running app');
-            return { data: { url: running.url, sceneId, adopted: true } };
+            return { data: { url: running.url, sceneId, adopted: true, engineVersion: null, device: null } };
         }
         const last = editor.call('launch:window');
         if (!running && last?.window && !last.window.closed) {
@@ -62,12 +70,17 @@ mcp.method('launch:start', async (options: any = {}) => {
             const adopted = await relay.ready(ADOPT_TIMEOUT);
             if (adopted?.sceneId === sceneId) {
                 log('Adopted the app launched from the editor');
-                return { data: { url: adopted.url, sceneId, adopted: true } };
+                return { data: { url: adopted.url, sceneId, adopted: true, engineVersion: null, device: null } };
             }
 
             // different scene, or a build without the relay: leave it and relaunch
             relay.detach();
         }
+    }
+
+    const engine = resolveEngineVersion(config.engineVersions, launchState(options.engineVersion));
+    if ('error' in engine) {
+        return { error: engine.error };
     }
 
     const params = new URLSearchParams();
@@ -76,8 +89,10 @@ mcp.method('launch:start', async (options: any = {}) => {
     if (options.device) {
         params.set('device', options.device);
     }
-    if (options.engineVersion) {
-        params.set('version', options.engineVersion);
+
+    // like the Launch button, only pin the engine when it differs from current
+    if (engine.version !== config.engineVersions.current?.version) {
+        params.set('version', engine.version);
     }
     if (options.profiler) {
         params.set('profile', 'true');
@@ -118,8 +133,16 @@ mcp.method('launch:start', async (options: any = {}) => {
     editor.call('launch:window:track', runtimeWindow);
     relay.attach(runtimeWindow);
     log(`Launched runtime for scene(${sceneId})`);
-    return { data: { url, sceneId, adopted: false } };
+    return {
+        data: { url, sceneId, adopted: false, engineVersion: engine.version, device: options.device ?? null }
+    };
 });
+mcp.method('launch:versions', () => ({
+    data: {
+        available: engineChannels(config.engineVersions),
+        launchDefault: defaultEngineVersion(config.engineVersions, launchState())
+    }
+}));
 mcp.method('launch:stop', async () => {
     const wasOpen = !!(runtimeWindow && !runtimeWindow.closed) || !!relay.peer;
     const closed = await closeCurrent();

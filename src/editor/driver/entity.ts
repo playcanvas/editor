@@ -1,3 +1,5 @@
+import { message } from '@/editor/mcp/request';
+
 import { driver } from './driver';
 import { api, log, entitySummary, paginate, validatePath, writeError } from './shared';
 import { resolveUnset } from './unset';
@@ -53,8 +55,19 @@ const addScripts = async ({ entityIds, script, attributes, index }: any) => {
             return { error: `Invalid script index ${index} for entity ${entity.get('resource_id')}.` };
         }
     }
-    await api.entities.addScript(entities, script, { attributes, index });
+    const [err] = await api.entities.addScript(entities, script, { attributes, index }).then(
+        () => [null],
+        (error: unknown) => [error]
+    );
     log(`Added script(${script}) to entities(${entityIds.join(', ')})`);
+
+    // the script, attributes and order are already applied; only the backend defaults failed
+    if (err) {
+        return {
+            data: entities.map(entitySummary),
+            meta: { warning: `Script attached, but default attribute values could not be fetched: ${message(err)}` }
+        };
+    }
     return { data: entities.map(entitySummary) };
 };
 

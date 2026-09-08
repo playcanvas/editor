@@ -58,11 +58,13 @@ async function addScript(
         });
 
         // start job
-        const jobId = api.jobs.start((result: { status: string }) => {
+        const jobId = api.jobs.start((result: { status: string; message?: string; error?: string }) => {
             if (result.status === 'success') {
                 deferred.resolve();
             } else {
-                deferred.reject();
+                deferred.reject(
+                    new Error(result.message || result.error || 'Setting default script attribute values failed.')
+                );
             }
         });
 
