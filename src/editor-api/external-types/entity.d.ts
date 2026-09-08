@@ -49,13 +49,18 @@ export type EntityProps = {
      */
     tags: string[];
     /**
+     * The template identifier.
+     * @default null
+     */
+    template: number | null;
+    /**
      * A dictionary of <`resource_id`, `resource_id`> pairs that maps the entity (and its children) to the respective Entities in the template asset.
      */
-    template_ent_ids: Record<string, string>;
+    template_ent_ids: Record<string, string> | null;
     /**
      * The `id` of the Template asset that this entity is linked to.
      */
-    template_id: number;
+    template_id: number | null;
     /**
      * A dictionary that contains the components of the entity and their data.
      */

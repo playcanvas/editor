@@ -763,6 +763,13 @@ ${className}.prototype.update = function(dt) {
         expect(data.get('parent')).to.equal('10');
         expect(data.get('preload')).to.equal('true');
 
+        const entities = Object.values(JSON.parse(data.get('data')).entities);
+        for (const entity of entities) {
+            for (const field of ['template', 'template_id', 'template_ent_ids']) {
+                expect(entity).to.have.own.property(field, null);
+            }
+        }
+
         const expected = { entities: {} };
 
         expected.entities[guids[0]] = root.json();
@@ -961,7 +968,7 @@ ${className}.prototype.update = function(dt) {
         expected.entities[guids[0]] = root.json();
         expected.entities[guids[0]].resource_id = guids[0];
         expected.entities[guids[0]].children = [guids[1]];
-        delete expected.entities[guids[0]].template_ent_ids;
+        expected.entities[guids[0]].template_ent_ids = null;
 
         expected.entities[guids[1]] = child.json();
         expected.entities[guids[1]].resource_id = guids[1];
