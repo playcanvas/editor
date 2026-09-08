@@ -1,6 +1,10 @@
 import type { EventHandle } from '@playcanvas/observer';
 import { Button, Container, Label, Panel } from '@playcanvas/pcui';
 
+import { createLog } from '@/common/sentry';
+
+const log = createLog('editor/pickers/sprite-editor');
+
 const BUTTON_TEXT = 'UPLOAD TEXTURE PACKER JSON';
 
 type TexturePackerFrame = {

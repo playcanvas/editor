@@ -1,6 +1,9 @@
 import { Container, Button, TextInput, Label } from '@playcanvas/pcui';
 
+import { createLog } from '@/common/sentry';
 import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
+
+const log = createLog('code-editor/pickers');
 
 editor.once('load', () => {
     const parent = editor.call('layout.center');

@@ -3,11 +3,14 @@ import { Panel, Container } from '@playcanvas/pcui';
 import * as pc from 'playcanvas';
 
 import { CLASS_MULTIPLE_VALUES } from '@/common/pcui/constants';
+import { createLog } from '@/common/sentry';
 import { pathExists } from '@/common/utils';
 import type { History } from '@/editor-api';
 
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
+
+const log = createLog('editor/inspector/assets');
 
 const TextureTypes = {
     Normal: 'Normal',

@@ -1,3 +1,7 @@
+import { createLog } from '@/common/sentry';
+
+const log = createLog('launch/viewport');
+
 editor.once('load', () => {
     const icon = document.createElement('img');
     icon.classList.add('connecting');

@@ -1,15 +1,21 @@
 import { BrowserClient, defaultStackParser, getDefaultIntegrations, makeFetchTransport, Scope } from '@sentry/browser';
+import type { Breadcrumb } from '@sentry/browser';
 import { getIntegrationsToSetup } from '@sentry/core';
 
 import { version } from '../../package.json';
 
 import type { FingerprintedError } from './error';
+import { redactText, sanitize } from './redact';
 
 const SENTRY_DSN = 'https://58fa45ef9143da0100d89bee06e47707@sentry.sc-prod.net/331';
-const BREADCRUMBS_INTEGRATION = 'Breadcrumbs';
 
-const SANITIZE_KEYS =
-    /password|token|secret|passwd|authorization|api_key|apikey|sentry_dsn|access_token|stripetoken|mysql_pwd|credentials/i;
+// must match the release name the build uploads sourcemaps under (see vite.config.mjs)
+const RELEASE = `playcanvas-editor@${version}`;
+const BREADCRUMBS_INTEGRATION = 'Breadcrumbs';
+const MAX_BREADCRUMBS = 100;
+
+// frames from user-authored asset scripts are their bugs, not editor bugs
+const USER_SCRIPT_PATH = '/api/assets/';
 
 type SentryConfig =
     | {
@@ -25,6 +31,8 @@ type SentryConfig =
           enabled: false;
       };
 
+type TagValue = string | number | boolean | undefined;
+
 let scope: Scope | null = null;
 
 const getSentryIntegrations = (disableBreadcrumbs: boolean) =>
@@ -35,35 +43,93 @@ const getSentryIntegrations = (disableBreadcrumbs: boolean) =>
         integrations: []
     });
 
-const sanitize = (obj: unknown, memo = new WeakSet()): unknown => {
-    if (Array.isArray(obj)) {
-        if (memo.has(obj)) {
-            return '[Circular]';
-        }
-        memo.add(obj);
-        const result = obj.map((v) => sanitize(v, memo));
-        memo.delete(obj);
-        return result;
+// keep the whole trail leading up to an error but strip anything secret-looking from it
+const scrubBreadcrumb = (b: Breadcrumb): Breadcrumb => {
+    if (b.message) {
+        b.message = redactText(b.message);
     }
-    if (obj && typeof obj === 'object') {
-        const proto = Object.getPrototypeOf(obj);
-        if (proto !== Object.prototype && proto !== null) {
-            return obj;
+    if (b.data) {
+        b.data = sanitize(b.data) as Record<string, unknown>;
+        if (typeof b.data.url === 'string') {
+            b.data.url = redactText(b.data.url);
         }
-        if (memo.has(obj)) {
-            return '[Circular]';
-        }
-        memo.add(obj);
-        const record = obj as Record<string, unknown>;
-        const result: Record<string, unknown> = {};
-        for (const key of Object.keys(record)) {
-            result[key] = SANITIZE_KEYS.test(key) ? '********' : sanitize(record[key], memo);
-        }
-        memo.delete(obj);
-        return result;
     }
-    return obj;
+    return b;
 };
+
+const captureException = (error: Error, source?: string, extra?: Record<string, unknown>) => {
+    if (!scope) {
+        return;
+    }
+    const s = source || extra ? scope.clone() : scope;
+    if (source) {
+        s.setTag('source', source);
+    }
+    if (extra) {
+        s.setExtras(extra);
+    }
+    s.captureException(error);
+};
+
+const captureMessage = (message: string, level: 'warning' | 'error' = 'error', source?: string) => {
+    if (!scope) {
+        return;
+    }
+    const s = source ? scope.clone() : scope;
+    if (source) {
+        s.setTag('source', source);
+    }
+    s.captureMessage(message, level);
+};
+
+const setSentryTags = (tags: Record<string, TagValue>) => {
+    if (!scope) {
+        return;
+    }
+    for (const [key, value] of Object.entries(tags)) {
+        if (value !== undefined) {
+            scope.setTag(key, String(value));
+        }
+    }
+};
+
+// a first-class user lets sentry count users affected per issue, which tags alone cannot
+const setSentryUser = (id: number | null | undefined) => {
+    if (!scope || id === null || id === undefined) {
+        return;
+    }
+    scope.setUser({ id: String(id) });
+};
+
+// shared log.error implementation
+// supports both normal calls and tagged templates:
+//   log.error(err)                    — existing Error
+//   log.error('message')              — string wrapped in Error
+//   log.error`missing asset ${id}`    — fingerprinted Error for grouping
+const logError = (source: string | undefined, args: any[]) => {
+    const first = args[0];
+    if (Array.isArray(first) && 'raw' in first) {
+        const strings = first as unknown as TemplateStringsArray;
+        const values = args.slice(1);
+        const e = new Error(String.raw(strings, ...values)) as FingerprintedError;
+        e.fingerprint = strings.join('{}');
+        e.context = values;
+        console.error(e);
+        captureException(e, source);
+        return;
+    }
+    console.error(...args);
+    const err = args.find((a) => a?.stack);
+    captureException(err ?? new Error(args.map(String).join(' ')), source);
+};
+
+/**
+ * Creates a `log` bound to a source such as `editor/assets` so every event it reports carries a
+ * `source` tag naming the module it came from. Shadow the global `log` with it at module scope.
+ */
+const createLog = (source: string): typeof window.log => ({
+    error: (...args: any[]) => logError(source, args)
+});
 
 // self-initialize from window.config.sentry (injected by backend)
 const sentryConfig = config.sentry as SentryConfig;
@@ -79,18 +145,17 @@ if (sentryConfig.enabled) {
         transport: makeFetchTransport,
         stackParser: defaultStackParser,
         environment: sentryConfig.env,
-        release: version,
+        release: RELEASE,
+        maxBreadcrumbs: MAX_BREADCRUMBS,
         attachStacktrace: true,
         sendDefaultPii: true,
         integrations: getSentryIntegrations(sentryConfig.disable_breadcrumbs),
+        beforeBreadcrumb: scrubBreadcrumb,
         beforeSend: (event, hint) => {
-            // filter errors from user code (asset scripts)
             const frames = event.exception?.values?.[0]?.stacktrace?.frames;
-            if (frames?.length) {
-                const last = frames[frames.length - 1];
-                if (last.filename && last.filename.includes('/api/assets/')) {
-                    return null;
-                }
+            const top = frames?.[frames.length - 1];
+            if (top?.filename?.includes(USER_SCRIPT_PATH)) {
+                return null;
             }
 
             // set fingerprint for tagged template errors
@@ -107,20 +172,6 @@ if (sentryConfig.enabled) {
                 };
             }
 
-            // auto-categorize by source module from stack trace
-            if (frames?.length) {
-                const top = frames[frames.length - 1];
-                if (top.filename) {
-                    const m = top.filename.match(/\/(?:editor|code-editor|launch|common)\/(.+)\.[^.]+$/);
-                    if (m) {
-                        const parts = m[1].split('/');
-                        // use directory path for nested files, filename for top-level files
-                        const source = parts.length > 1 ? parts.slice(0, -1).join('/') : parts[0];
-                        event.tags = { ...event.tags, source };
-                    }
-                }
-            }
-
             // report error count to graphene metrics
             if (window.metrics) {
                 metrics.increment({
@@ -135,68 +186,16 @@ if (sentryConfig.enabled) {
     scope = new Scope();
     scope.setClient(client);
     scope.setTag('page', sentryConfig.page);
+
+    // deploy sha injected by the backend; distinguishes builds that share a package version
+    if (sentryConfig.version) {
+        scope.setTag('dist', sentryConfig.version);
+    }
     client.init();
 
-    // capture errors via sentry
-    // supports both normal calls and tagged templates:
-    //   log.error(err)                    — existing Error
-    //   log.error('message')              — string wrapped in Error
-    //   log.error`missing asset ${id}`    — fingerprinted Error for grouping
-    window.log.error = (...args: any[]) => {
-        const first = args[0];
-        if (Array.isArray(first) && 'raw' in first) {
-            const strings = first as unknown as TemplateStringsArray;
-            const values = args.slice(1);
-            const e = new Error(String.raw(strings, ...values)) as FingerprintedError;
-            e.fingerprint = strings.join('{}');
-            e.context = values;
-            console.error(e);
-            captureException(e);
-            return;
-        }
-        console.error(...args);
-        const err = args.find((a) => a?.stack);
-        if (err) {
-            captureException(err);
-        } else {
-            captureException(new Error(args.map(String).join(' ')));
-        }
-    };
+    window.log.error = (...args: any[]) => logError(undefined, args);
 } else {
     window.log.error = (...args: any[]) => console.error(...args);
 }
 
-const captureException = (error: Error, source?: string) => {
-    if (!scope) {
-        return;
-    }
-    const s = source ? scope.clone() : scope;
-    if (source) {
-        s.setTag('source', source);
-    }
-    s.captureException(error);
-};
-
-const captureMessage = (message: string, level: 'warning' | 'error' = 'error', source?: string) => {
-    if (!scope) {
-        return;
-    }
-    const s = source ? scope.clone() : scope;
-    if (source) {
-        s.setTag('source', source);
-    }
-    s.captureMessage(message, level);
-};
-
-const setSentryTags = (tags: Record<string, string | number | undefined>) => {
-    if (!scope) {
-        return;
-    }
-    for (const [key, value] of Object.entries(tags)) {
-        if (value !== undefined) {
-            scope.setTag(key, String(value));
-        }
-    }
-};
-
-export { captureException, captureMessage, setSentryTags };
+export { captureException, captureMessage, createLog, setSentryTags, setSentryUser };

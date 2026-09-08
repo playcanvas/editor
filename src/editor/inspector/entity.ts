@@ -2,6 +2,7 @@ import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
 import type { TextInput, VectorInput } from '@playcanvas/pcui';
 import { Container, Button, Menu } from '@playcanvas/pcui';
 
+import { createLog } from '@/common/sentry';
 import { COMPONENT_LOGOS } from '@/core/constants';
 import { LocalStorage } from '@/editor-api';
 import type { EntityObserver, History } from '@/editor-api';
@@ -35,6 +36,8 @@ import { ScrollviewComponentInspector } from './components/scrollview';
 import { SoundComponentInspector } from './components/sound';
 import { SpriteComponentInspector } from './components/sprite';
 import { ZoneComponentInspector } from './components/zone';
+
+const log = createLog('editor/inspector');
 
 const componentToConstructor = new Map<string, new (...args: any[]) => any>();
 componentToConstructor.set('anim', AnimComponentInspector);

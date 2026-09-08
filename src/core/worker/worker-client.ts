@@ -1,3 +1,5 @@
+import { captureException } from '@/common/sentry';
+
 class WorkerClient {
     _transfer: (ArrayBuffer | MessagePort | ImageBitmap)[] = [];
 
@@ -41,6 +43,17 @@ class WorkerClient {
      * @param event - The error event.
      */
     private _onError(event: ErrorEvent) {
+        // uncaught worker exceptions surface only here and the worker stack does not cross realms,
+        // so report them with the worker name and the throw location before notifying listeners
+        const name = this.url.split('/').pop()?.replace(/\.js$/, '') || this.url;
+        const err = event.error instanceof Error ? event.error : new Error(event.message || `${name} worker error`);
+        console.error(err);
+        captureException(err, `worker/${name}`, {
+            worker: this.url,
+            filename: event.filename,
+            lineno: event.lineno,
+            colno: event.colno
+        });
         this._fireCallback('error', event.message);
     }
 

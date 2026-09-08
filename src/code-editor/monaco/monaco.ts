@@ -1,6 +1,9 @@
+import { createLog } from '@/common/sentry';
 import { THEMES } from '@/core/constants';
 
 import { jsRules } from './tokenizer-rules';
+
+const log = createLog('code-editor/monaco');
 
 editor.once('load', () => {
     const settings = editor.call('editor:settings');

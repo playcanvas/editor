@@ -1,3 +1,7 @@
+import { createLog } from '@/common/sentry';
+
+const log = createLog('editor/store');
+
 type StoreCloneResponse = {
     fontSources?: number[];
 };

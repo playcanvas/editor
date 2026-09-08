@@ -1,6 +1,7 @@
 import { Button, Container, Overlay } from '@playcanvas/pcui';
 
 import { installEllipsisTooltips } from '@/common/ellipsis-tooltip';
+import { createLog } from '@/common/sentry';
 import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -11,6 +12,8 @@ import { setVcDialogHost, showVcDialog } from './dialogs';
 import { createChangesPanel } from './panel-changes';
 import { createDetailPanel } from './panel-detail';
 import { createHistoryPanel } from './panel-history';
+
+const log = createLog('editor/pickers/version-control');
 
 // sidebar width bounds — these caps suit the small 1060px box; fullscreen lifts the
 // max (derived from the viewport so the main pane keeps room), reverting clamps back

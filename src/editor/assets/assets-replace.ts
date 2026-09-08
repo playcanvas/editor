@@ -1,3 +1,7 @@
+import { createLog } from '@/common/sentry';
+
+const log = createLog('editor/assets');
+
 editor.once('load', () => {
     editor.method('assets:replace', (asset, replacement) => {
         asset.apiAsset.replace(replacement.apiAsset);

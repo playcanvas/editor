@@ -1,6 +1,9 @@
 import type * as Monaco from 'monaco-editor';
 
+import { createLog } from '@/common/sentry';
 import { handleCallback } from '@/common/utils';
+
+const log = createLog('code-editor/monaco');
 
 const MODES: Record<string, string> = {
     script: 'javascript',

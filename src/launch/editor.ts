@@ -1,7 +1,7 @@
 import { Editor } from '@/common/editor';
 import type { EditorMethods } from '@/common/editor';
 import { Messenger } from '@/common/messenger';
-import { setSentryTags } from '@/common/sentry';
+import { setSentryTags, setSentryUser } from '@/common/sentry';
 import * as api from '@/editor-api';
 
 import { config } from './config';
@@ -23,9 +23,13 @@ class LaunchEditor extends Editor<EditorMethods> {
 // editor
 window.editor = new LaunchEditor();
 
+setSentryUser(config.self?.id);
 setSentryTags({
     user_id: config.self?.id,
     project_id: config.project?.id,
     scene_id: config.scene?.id || -1,
-    branch_id: config.self?.branch?.id
+    branch_id: config.self?.branch?.id,
+    engine_version: config.engineVersions?.current?.version,
+    engine_url: config.url?.engine,
+    frontend_url: config.url?.frontend
 });

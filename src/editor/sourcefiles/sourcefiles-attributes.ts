@@ -1,3 +1,7 @@
+import { createLog } from '@/common/sentry';
+
+const log = createLog('editor/sourcefiles');
+
 type ScriptAttribute = {
     name: string;
     type?: string;

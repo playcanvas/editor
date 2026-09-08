@@ -1,5 +1,6 @@
 import { Button, Container, Overlay, Panel, SelectInput, TextInput, TreeView, TreeViewItem } from '@playcanvas/pcui';
 
+import { createLog } from '@/common/sentry';
 import { config } from '@/editor/config';
 
 import { arrayFieldKind, buildNameIndex, indexTemplateEntities } from './vc-diff-data';
@@ -21,6 +22,8 @@ import {
     summarizeDiff,
     typeLabel
 } from './vc-helpers';
+
+const log = createLog('editor/pickers/version-control');
 
 const SUB_RE = /^(?<kind>Script|Sound slot|Clip): (?<name>.+)$/;
 const SETTINGS_ROOT_RE = /^(?:scene |project )?settings$/i;

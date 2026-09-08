@@ -1,5 +1,8 @@
 // TODO: Remove this file when the legacy scripts are removed
+import { createLog } from '@/common/sentry';
 import { config } from '@/launch/config';
+
+const log = createLog('launch/sourcefiles');
 
 editor.once('load', () => {
     if (!editor.call('settings:project').get('useLegacyScripts')) {

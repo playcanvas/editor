@@ -35,6 +35,10 @@
 
 import type { Observer } from '@playcanvas/observer';
 
+import { createLog } from '@/common/sentry';
+
+const log = createLog('code-editor/documents');
+
 editor.once('load', () => {
     const documentsIndex = {};
 

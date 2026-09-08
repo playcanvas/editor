@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
+import { sentryEsbuildPlugin } from '@sentry/esbuild-plugin';
 import autoprefixer from 'autoprefixer';
 import { context } from 'esbuild';
 import { polyfillNode } from 'esbuild-plugin-polyfill-node';
@@ -12,6 +13,18 @@ import { defineConfig } from 'vite';
 /** @import { Plugin } from 'vite' */
 
 const production = process.env.NODE_ENV === 'production';
+
+const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+
+// must match the release the sentry client reports under (see src/common/sentry.ts)
+const SENTRY_RELEASE = `playcanvas-editor@${pkg.version}`;
+
+// sourcemap upload is only attempted for production builds that carry the full sentry target
+// (url, org, project, token) in the environment, so local and watch builds never contact sentry.
+// telemetry is off so the plugin never reports to sentry.io
+const SENTRY_UPLOAD =
+    production &&
+    ['SENTRY_URL', 'SENTRY_ORG', 'SENTRY_PROJECT', 'SENTRY_AUTH_TOKEN'].every((k) => Boolean(process.env[k]));
 
 // rollup requires an input — these let us feed it an empty module so esbuild does the real work
 const VIRTUAL_INPUT = 'virtual:empty';
@@ -62,7 +75,12 @@ const color = {
      * @param {string} s - Text to wrap.
      * @returns {string} Green ANSI string.
      */
-    green: (s) => `\x1b[32m${s}\x1b[39m`
+    green: (s) => `\x1b[32m${s}\x1b[39m`,
+    /**
+     * @param {string} s - Text to wrap.
+     * @returns {string} Yellow ANSI string.
+     */
+    yellow: (s) => `\x1b[33m${s}\x1b[39m`
 };
 
 /**
@@ -221,6 +239,45 @@ const watchLogPlugin = (input, output) => ({
         });
     }
 });
+
+/**
+ * Adds the sentry plugin to an esbuild config so its output gets a debug id and its js + sourcemap
+ * are uploaded, letting sentry resolve minified frames back to src. Scoped to the target's own
+ * output so each build uploads only its files.
+ *
+ * @param {BuildOptions} config - The esbuild config.
+ * @returns {BuildOptions} The config with the sentry plugin appended when uploading is enabled.
+ */
+const withSentry = (config) => {
+    if (!SENTRY_UPLOAD) {
+        return config;
+    }
+    const assets = config.outfile ? [config.outfile, `${config.outfile}.map`] : [`${config.outdir}/**`];
+    const plugin = sentryEsbuildPlugin({
+        url: process.env.SENTRY_URL,
+        org: process.env.SENTRY_ORG,
+        project: process.env.SENTRY_PROJECT,
+        authToken: process.env.SENTRY_AUTH_TOKEN,
+        telemetry: false,
+        debug: Boolean(process.env.SENTRY_DEBUG),
+        release: {
+            name: SENTRY_RELEASE,
+            dist: process.env.SENTRY_DIST || undefined,
+            setCommits: false,
+            deploy: false
+        },
+        sourcemaps: { assets },
+        // a sentry outage must not block an editor release
+        errorHandler: (err) => console.warn(color.yellow(`sentry upload failed for ${assets[0]}: ${err.message}`))
+    });
+    // the plugin wraps each entry in a debug-id proxy module that re-exports a default our entries never
+    // define; esbuild warns about it on every target, so silence just that rule
+    return {
+        ...config,
+        plugins: [...(config.plugins || []), plugin],
+        logOverride: { ...(config.logOverride || {}), 'import-is-undefined': 'silent' }
+    };
+};
 
 const stubNodeBuiltins = emptyNodeModulesPlugin(STUBBED_NODE_MODULES);
 const stubWorkerNodeBuiltins = emptyNodeModulesPlugin(WORKER_STUBBED_NODE_MODULES);
@@ -430,7 +487,7 @@ const esbuildBundlePlugin = () => {
                     }
 
                     // production: one-shot build then dispose
-                    const ctx = await context(config);
+                    const ctx = await context(withSentry(config));
                     console.log(color.cyan(`${color.bold(input)} \u2192 ${color.bold(output)}...`));
                     const bt = performance.now();
                     await ctx.rebuild();
