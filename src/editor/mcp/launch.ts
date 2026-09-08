@@ -90,8 +90,9 @@ mcp.method('launch:start', async (options: any = {}) => {
         params.set('device', options.device);
     }
 
-    // like the Launch button, only pin the engine when it differs from current
-    if (engine.version !== config.engineVersions.current?.version) {
+    // like the Launch button: a local engine wins, otherwise only pin a non-current version
+    const search = new URLSearchParams(location.search);
+    if (!search.has('use_local_engine') && engine.version !== config.engineVersions.current?.version) {
         params.set('version', engine.version);
     }
     if (options.profiler) {
@@ -108,7 +109,6 @@ mcp.method('launch:start', async (options: any = {}) => {
     }
 
     // a local build must launch the local page, like the Launch button
-    const search = new URLSearchParams(location.search);
     for (const flag of ['use_local_frontend', 'use_local_engine']) {
         if (search.has(flag)) {
             params.set(flag, search.get(flag) ?? '');
