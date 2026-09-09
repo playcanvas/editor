@@ -133,6 +133,9 @@ editor.once('load', () => {
 
     editor.method('launch:window', () => lastLaunch);
 
+    // MCP reads the tick-box state so launch_start picks the same engine as the button
+    editor.method('launch:options', () => ({ ...launchOptions }));
+
     // MCP launches record their window here too, so there is one source of truth
     editor.method('launch:window:track', (win: Window) => {
         lastLaunch = { window: win };
