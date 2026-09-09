@@ -1,15 +1,23 @@
 import type { ElementArgs } from '@playcanvas/pcui';
-import { BooleanInput, Container, Element, Label } from '@playcanvas/pcui';
+import { Container, Element, SelectInput } from '@playcanvas/pcui';
 import { SHADOW_CASCADE_0, SHADOW_CASCADE_1, SHADOW_CASCADE_2, SHADOW_CASCADE_3, SHADOW_CASCADE_ALL } from 'playcanvas';
 
 const CASCADES = [SHADOW_CASCADE_0, SHADOW_CASCADE_1, SHADOW_CASCADE_2, SHADOW_CASCADE_3];
+const CASCADE_MASK = CASCADES.reduce((mask, bit) => mask | bit, 0);
+const CASCADE_OPTIONS = CASCADES.map((v, i) => ({ v, t: `Cascade ${i}` }));
 
 type ShadowCascadeMaskInputArgs = ElementArgs & {
     renderChanges?: boolean;
 };
 
+class CascadeSelectInput extends SelectInput {
+    get selections() {
+        return (this._values ?? [this.value]).map((values) => values?.slice() ?? []);
+    }
+}
+
 class ShadowCascadeMaskInput extends Container {
-    private _inputs: BooleanInput[];
+    private _input: CascadeSelectInput;
 
     private _values: number[];
 
@@ -18,37 +26,33 @@ class ShadowCascadeMaskInput extends Container {
     private _renderChanges = false;
 
     constructor(args: ShadowCascadeMaskInputArgs = {}) {
-        super({
-            ...args,
-            flex: true,
-            flexDirection: 'row',
-            alignItems: 'center'
-        });
+        super(args);
 
         this._values = [SHADOW_CASCADE_ALL];
         this._renderChanges = args.renderChanges ?? false;
-        this._inputs = CASCADES.map((bit, i) => {
-            const input = new BooleanInput();
-            const group = new Container({ flex: true, flexDirection: 'row', alignItems: 'center' });
-            group.append(new Label({ text: `${i}` }));
-            group.append(input);
-            this.append(group);
+        this._input = new CascadeSelectInput({
+            multiSelect: true,
+            options: CASCADE_OPTIONS,
+            type: 'number'
+        });
+        this._input.style.width = '100%';
+        this.append(this._input);
 
-            input.on('change', (value: boolean | null) => {
-                if (this._updating || value === null) {
-                    return;
-                }
+        this._input.on('change', () => {
+            if (this._updating) {
+                return;
+            }
 
-                const values = this._values.map((mask) => (value ? mask | bit : mask & ~bit));
-                this._setValues(values);
-                if (this._renderChanges) {
-                    this.flash();
-                }
-                this.emit('change', values[0]);
-                this._binding?.setValues(values);
-            });
-
-            return input;
+            const selections = this._input.selections;
+            const values = this._values.map((mask, i) =>
+                (selections[i] ?? selections[0]).reduce((value, bit) => value | bit, mask & ~CASCADE_MASK)
+            );
+            this._setValues(values);
+            if (this._renderChanges) {
+                this.flash();
+            }
+            this.emit('change', values[0]);
+            this._binding?.setValues(values);
         });
 
         this.value = SHADOW_CASCADE_ALL;
@@ -57,9 +61,7 @@ class ShadowCascadeMaskInput extends Container {
     private _setValues(values: number[]) {
         this._values = values;
         this._updating = true;
-        this._inputs.forEach((input, i) => {
-            input.values = values.map((mask) => !!(mask & CASCADES[i]));
-        });
+        this._input.values = values.map((mask) => CASCADES.filter((bit) => mask & bit));
         this._updating = false;
     }
 
