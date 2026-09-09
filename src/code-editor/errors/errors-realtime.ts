@@ -1,6 +1,6 @@
 import { createLog } from '@/common/sentry';
 
-const log = createLog('code-editor/errors');
+const log = createLog('<PATH>');
 
 editor.once('load', () => {
     let hasError = false;

@@ -10,7 +10,7 @@ import type { History } from '@/editor-api';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
-const log = createLog('editor/inspector/assets');
+const log = createLog('<PATH>');
 
 const TextureTypes = {
     Normal: 'Normal',

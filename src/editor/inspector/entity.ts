@@ -37,7 +37,7 @@ import { SoundComponentInspector } from './components/sound';
 import { SpriteComponentInspector } from './components/sprite';
 import { ZoneComponentInspector } from './components/zone';
 
-const log = createLog('editor/inspector');
+const log = createLog('<PATH>');
 
 const componentToConstructor = new Map<string, new (...args: any[]) => any>();
 componentToConstructor.set('anim', AnimComponentInspector);

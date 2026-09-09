@@ -3,7 +3,7 @@ import { Button, Container, Label, Panel } from '@playcanvas/pcui';
 
 import { createLog } from '@/common/sentry';
 
-const log = createLog('editor/pickers/sprite-editor');
+const log = createLog('<PATH>');
 
 const BUTTON_TEXT = 'UPLOAD TEXTURE PACKER JSON';
 

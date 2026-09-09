@@ -9,7 +9,7 @@ import type { History } from '@/editor-api';
 
 import { getMap, searchItems } from '../search/search-advanced';
 
-const log = createLog('editor/entities');
+const log = createLog('<PATH>');
 
 const CLASS_ROOT = 'entities-treeview';
 const CLASS_COMPONENT_ICON = 'component-icon-postfix';

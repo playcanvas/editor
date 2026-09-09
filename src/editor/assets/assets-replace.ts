@@ -1,6 +1,6 @@
 import { createLog } from '@/common/sentry';
 
-const log = createLog('editor/assets');
+const log = createLog('<PATH>');
 
 editor.once('load', () => {
     editor.method('assets:replace', (asset, replacement) => {

@@ -7,7 +7,7 @@ import { bytesToHuman } from '@/common/utils';
 
 import { BaseStore, EMPTY_THUMBNAIL_IMAGE_LARGE, STORE_ITEM_PAGE_SIZE } from './baseStore';
 
-const log = createLog('editor/store');
+const log = createLog('<PATH>');
 
 const md = Markdown({});
 

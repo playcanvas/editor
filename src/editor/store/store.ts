@@ -1,6 +1,6 @@
 import { createLog } from '@/common/sentry';
 
-const log = createLog('editor/store');
+const log = createLog('<PATH>');
 
 type StoreCloneResponse = {
     fontSources?: number[];

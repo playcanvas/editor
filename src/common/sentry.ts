@@ -149,6 +149,8 @@ const logError = (source: string | undefined, args: any[]) => {
 /**
  * Creates a `log` bound to a source such as `editor/assets` so every event it reports carries a
  * `source` tag naming the module it came from. Shadow the global `log` with it at module scope.
+ * Pass `'<PATH>'` and the build fills in the file's directory relative to src (see vite.config.mjs);
+ * a literal `<PATH>` reaching sentry means the rewrite did not run for that file.
  */
 const createLog = (source: string): typeof window.log => ({
     error: (...args: any[]) => logError(source, args)

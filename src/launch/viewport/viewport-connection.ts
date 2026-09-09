@@ -1,6 +1,6 @@
 import { createLog } from '@/common/sentry';
 
-const log = createLog('launch/viewport');
+const log = createLog('<PATH>');
 
 editor.once('load', () => {
     const icon = document.createElement('img');

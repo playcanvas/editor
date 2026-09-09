@@ -4,7 +4,7 @@ import { Button, Container, Label, Menu, MenuItem } from '@playcanvas/pcui';
 import { createLog } from '@/common/sentry';
 import { handleCallback } from '@/common/utils';
 
-const log = createLog('editor/pickers/conflict-manager/ui');
+const log = createLog('<PATH>');
 
 /**
  * Contains the UI for showing text conflicts using an i-framed code editor. Also contains buttons

@@ -6,7 +6,7 @@ import { config } from '@/editor/config';
 
 import { applyUserThumbnail, formatDayGroup, formatRelativeDate, hashChip } from './vc-helpers';
 
-const log = createLog('editor/pickers/version-control');
+const log = createLog('<PATH>');
 
 const PAGE_SIZE = 50;
 const MAX_COMPARE = 2;

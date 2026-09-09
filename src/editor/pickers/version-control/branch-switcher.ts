@@ -4,7 +4,7 @@ import { createLog } from '@/common/sentry';
 import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
 
-const log = createLog('editor/pickers/version-control');
+const log = createLog('<PATH>');
 
 const PAGE_SIZE = 50;
 

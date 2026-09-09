@@ -26,6 +26,12 @@ const SENTRY_UPLOAD =
     production &&
     ['SENTRY_URL', 'SENTRY_ORG', 'SENTRY_PROJECT', 'SENTRY_AUTH_TOKEN'].every((k) => Boolean(process.env[k]));
 
+// createLog('<PATH>') in page source is filled at bundle time with the file's directory relative to
+// src (e.g. editor/pickers/version-control), so modules never hand-write their own sentry source tag
+const SRC_DIR = path.resolve('src');
+const SOURCE_PLACEHOLDER = '<PATH>';
+const SOURCE_PLACEHOLDER_RE = new RegExp(`createLog\\((['"])${SOURCE_PLACEHOLDER}\\1\\)`, 'g');
+
 // rollup requires an input — these let us feed it an empty module so esbuild does the real work
 const VIRTUAL_INPUT = 'virtual:empty';
 const VIRTUAL_RESOLVED = '\0virtual:empty';
@@ -155,8 +161,9 @@ const emptyNodeModulesPlugin = (modules) => ({
 });
 
 /**
- * Replaces `.font-regular` with `.font-regular-disabled` in source files
- * to prevent PCUI font loading during bundling.
+ * Bundle-time source rewrites for page code: swaps `.font-regular` for `.font-regular-disabled` to
+ * prevent PCUI font loading, and fills `createLog('<PATH>')` with the file's directory relative to
+ * src so each module's sentry `source` tag tracks its location instead of being hand-written.
  *
  * @returns {object} An esbuild plugin.
  */
@@ -174,11 +181,14 @@ const replacePlugin = () => ({
                 return;
             }
             const src = await fs.promises.readFile(args.path, 'utf8');
-            if (!src.includes('.font-regular')) {
+            if (!src.includes('.font-regular') && !src.includes(SOURCE_PLACEHOLDER)) {
                 return;
             }
+            const dir = path.dirname(path.relative(SRC_DIR, args.path)).split(path.sep).join('/');
             return {
-                contents: src.replaceAll('.font-regular', '.font-regular-disabled'),
+                contents: src
+                    .replaceAll('.font-regular', '.font-regular-disabled')
+                    .replace(SOURCE_PLACEHOLDER_RE, `createLog('${dir}')`),
                 loader: path.extname(args.path).slice(1)
             };
         });

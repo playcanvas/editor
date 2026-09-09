@@ -3,7 +3,7 @@ import type Graph from '@playcanvas/pcui-graph';
 
 import { createLog } from '@/common/sentry';
 
-const log = createLog('editor/vc/graph');
+const log = createLog('<PATH>');
 
 editor.once('load', () => {
     const graphCache: Record<string, { data?: Record<string, unknown>; promise?: Promise<Record<string, unknown>> }> =

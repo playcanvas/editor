@@ -13,7 +13,7 @@ import { createChangesPanel } from './panel-changes';
 import { createDetailPanel } from './panel-detail';
 import { createHistoryPanel } from './panel-history';
 
-const log = createLog('editor/pickers/version-control');
+const log = createLog('<PATH>');
 
 // sidebar width bounds — these caps suit the small 1060px box; fullscreen lifts the
 // max (derived from the viewport so the main pane keeps room), reverting clamps back

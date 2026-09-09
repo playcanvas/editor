@@ -3,7 +3,7 @@ import { Observer } from '@playcanvas/observer';
 import { ObserverSync } from '@/common/observer-sync';
 import { createLog } from '@/common/sentry';
 
-const log = createLog('editor/settings');
+const log = createLog('<PATH>');
 
 const ENVELOPE_KEYS = new Set(['_id', 'name', 'user', 'project', 'item_id', 'branch_id', 'checkpoint_id']);
 

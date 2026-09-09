@@ -5,7 +5,7 @@ import { config } from '@/editor/config';
 
 import { createButton, createPanel } from './attributes-pcui';
 
-const log = createLog('editor/attributes');
+const log = createLog('<PATH>');
 
 editor.once('load', () => {
     if (!editor.call('settings:project').get('useLegacyScripts')) {

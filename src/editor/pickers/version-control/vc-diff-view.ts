@@ -23,7 +23,7 @@ import {
     typeLabel
 } from './vc-helpers';
 
-const log = createLog('editor/pickers/version-control');
+const log = createLog('<PATH>');
 
 const SUB_RE = /^(?<kind>Script|Sound slot|Clip): (?<name>.+)$/;
 const SETTINGS_ROOT_RE = /^(?:scene |project )?settings$/i;

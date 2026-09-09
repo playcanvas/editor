@@ -3,7 +3,7 @@ import { THEMES } from '@/core/constants';
 
 import { jsRules } from './tokenizer-rules';
 
-const log = createLog('code-editor/monaco');
+const log = createLog('<PATH>');
 
 editor.once('load', () => {
     const settings = editor.call('editor:settings');

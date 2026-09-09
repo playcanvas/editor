@@ -5,7 +5,7 @@ import { ReferencedFontHandler } from '@/common/referenced-font-handler';
 import { createLog } from '@/common/sentry';
 import { config } from '@/launch/config';
 
-const log = createLog('launch/viewport');
+const log = createLog('<PATH>');
 
 editor.once('load', () => {
     // Wait for assets, hierarchy and settings to load before initializing application and starting.

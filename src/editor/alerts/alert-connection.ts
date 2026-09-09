@@ -3,7 +3,7 @@ import { Overlay } from '@playcanvas/pcui';
 import { createLog } from '@/common/sentry';
 import { config } from '@/editor/config';
 
-const log = createLog('editor/alerts');
+const log = createLog('<PATH>');
 
 editor.once('load', () => {
     let timeout;

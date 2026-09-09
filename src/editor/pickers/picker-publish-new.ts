@@ -16,7 +16,7 @@ import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
 import { convertDatetime } from '@/common/utils';
 import { config } from '@/editor/config';
 
-const log = createLog('editor/pickers');
+const log = createLog('<PATH>');
 
 const DOWNLOAD_FORMAT_STATIC = 'static';
 const DOWNLOAD_FORMAT_WEB_LENS = 'web_lens';

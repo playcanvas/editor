@@ -3,7 +3,7 @@ import { Observer } from '@playcanvas/observer';
 import { ObserverSync } from '@/common/observer-sync';
 import { createLog } from '@/common/sentry';
 
-const log = createLog('editor/userdata');
+const log = createLog('<PATH>');
 
 type Op = Parameters<ObserverSync['write']>[0];
 

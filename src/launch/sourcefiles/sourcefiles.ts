@@ -2,7 +2,7 @@
 import { createLog } from '@/common/sentry';
 import { config } from '@/launch/config';
 
-const log = createLog('launch/sourcefiles');
+const log = createLog('<PATH>');
 
 editor.once('load', () => {
     if (!editor.call('settings:project').get('useLegacyScripts')) {

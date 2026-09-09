@@ -12,7 +12,7 @@ import type { TemplateOverrideInspector } from '../templates/templates-override-
 
 import type { Attribute, Divider } from './attribute.type.d';
 
-const log = createLog('editor/inspector');
+const log = createLog('<PATH>');
 
 type AttributesInspectorArgs = {
     history?: History;
