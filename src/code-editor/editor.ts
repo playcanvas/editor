@@ -1,7 +1,7 @@
 import { Editor } from '@/common/editor';
 import type { EditorMethods } from '@/common/editor';
 import { Messenger } from '@/common/messenger';
-import { setSentryTags, setSentryUser } from '@/common/sentry';
+import { setSentrySource, setSentryTags, setSentryUser } from '@/common/sentry';
 import * as api from '@/editor-api';
 
 import { config } from './config';
@@ -48,10 +48,10 @@ setSentryTags({
     project_id: config.project?.id,
     branch_id: config.self?.branch?.id,
     branch_name: config.self?.branch?.name,
-    merge_in_progress: !!config.self?.branch?.merge,
-    engine_url: config.url?.engine,
-    frontend_url: config.url?.frontend
+    merge_in_progress: !!config.self?.branch?.merge
 });
+
+setSentrySource(config.url?.engine, config.url?.frontend);
 
 // set window name if necessary
 if (!window.name) {

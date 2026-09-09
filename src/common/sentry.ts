@@ -17,6 +17,11 @@ const MAX_BREADCRUMBS = 100;
 // frames from user-authored asset scripts are their bugs, not editor bugs
 const USER_SCRIPT_PATH = '/api/assets/';
 
+// standard hosts the editor loads its engine and frontend from; anything else is a user override
+// (a custom build) whose errors we can't fix. matches the console's "local engine/frontend" checks
+const DEFAULT_ENGINE_URL_PREFIX = 'https://code.playcanvas.com/playcanvas-';
+const DEFAULT_FRONTEND_URL_PREFIX = '/editor/scene';
+
 type SentryConfig =
     | {
           enabled: true;
@@ -101,6 +106,24 @@ const setSentryUser = (id: number | null | undefined) => {
     scope.setUser({ id: String(id) });
 };
 
+// flags whether the engine or frontend is a user override so unfixable errors can be triaged out.
+// the urls stay off tags (unbounded cardinality) and go to context only when non-standard
+const setSentrySource = (engineUrl?: string, frontendUrl?: string) => {
+    if (!scope) {
+        return;
+    }
+    const customEngine = Boolean(engineUrl && !engineUrl.startsWith(DEFAULT_ENGINE_URL_PREFIX));
+    const customFrontend = Boolean(frontendUrl && !frontendUrl.startsWith(DEFAULT_FRONTEND_URL_PREFIX));
+    scope.setTag('custom_engine', String(customEngine));
+    scope.setTag('custom_frontend', String(customFrontend));
+    if (customEngine || customFrontend) {
+        scope.setContext('overrides', {
+            ...(customEngine ? { engine_url: engineUrl } : {}),
+            ...(customFrontend ? { frontend_url: frontendUrl } : {})
+        });
+    }
+};
+
 // shared log.error implementation
 // supports both normal calls and tagged templates:
 //   log.error(err)                    — existing Error
@@ -163,13 +186,33 @@ if (sentryConfig.enabled) {
             if (original instanceof Error && 'fingerprint' in original) {
                 const fe = original as FingerprintedError;
                 event.fingerprint = [fe.fingerprint];
-                // stringify non-primitive context values so class instances don't
-                // bypass sanitize() and leak sensitive fields into event.extra
-                const context = (fe.context || []).map((v) => (v !== null && typeof v === 'object' ? String(v) : v));
+                // stringify non-primitive context values so class instances don't bypass sanitize()
+                // and leak sensitive fields into event.extra, then scrub tokens out of the text
+                const context = (fe.context || []).map((v) => {
+                    const s = v !== null && typeof v === 'object' ? String(v) : v;
+                    return typeof s === 'string' ? redactText(s) : s;
+                });
                 event.extra = {
                     ...(event.extra || {}),
-                    metadata: { message: fe.message, context }
+                    metadata: { message: redactText(fe.message), context }
                 };
+            }
+
+            // sanitize() only masks by key name; free text that can embed a token needs redactText too
+            if (event.message) {
+                event.message = redactText(event.message);
+            }
+            for (const v of event.exception?.values || []) {
+                if (v.value) {
+                    v.value = redactText(v.value);
+                }
+            }
+            if (event.request?.url) {
+                event.request.url = redactText(event.request.url);
+            }
+            const headers = event.request?.headers;
+            if (headers?.Referer) {
+                headers.Referer = redactText(headers.Referer);
             }
 
             // report error count to graphene metrics
@@ -198,4 +241,4 @@ if (sentryConfig.enabled) {
     window.log.error = (...args: any[]) => console.error(...args);
 }
 
-export { captureException, captureMessage, createLog, setSentryTags, setSentryUser };
+export { captureException, captureMessage, createLog, setSentrySource, setSentryTags, setSentryUser };
