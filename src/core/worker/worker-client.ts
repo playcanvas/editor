@@ -49,10 +49,7 @@ class WorkerClient {
         const err = event.error instanceof Error ? event.error : new Error(event.message || `${name} worker error`);
         console.error(err);
         captureException(err, `worker/${name}`, {
-            worker: this.url,
-            filename: event.filename,
-            lineno: event.lineno,
-            colno: event.colno
+            worker: { filename: event.filename, lineno: event.lineno, colno: event.colno }
         });
         this._fireCallback('error', event.message);
     }

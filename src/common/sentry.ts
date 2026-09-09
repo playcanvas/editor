@@ -62,16 +62,16 @@ const scrubBreadcrumb = (b: Breadcrumb): Breadcrumb => {
     return b;
 };
 
-const captureException = (error: Error, source?: string, extra?: Record<string, unknown>) => {
+const captureException = (error: Error, source?: string, contexts?: Record<string, Record<string, unknown>>) => {
     if (!scope) {
         return;
     }
-    const s = source || extra ? scope.clone() : scope;
+    const s = source || contexts ? scope.clone() : scope;
     if (source) {
         s.setTag('source', source);
     }
-    if (extra) {
-        s.setExtras(extra);
+    for (const [name, data] of Object.entries(contexts || {})) {
+        s.setContext(name, data);
     }
     s.captureException(error);
 };
