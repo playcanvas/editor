@@ -22,6 +22,7 @@ const types = new Set([
     'gradient',
     'batchgroup',
     'layers',
+    'shadow-cascade-mask',
     'entity',
     'array:entity',
     'asset',

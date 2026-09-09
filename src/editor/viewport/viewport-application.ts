@@ -16,7 +16,7 @@ class ViewportApplication extends Application {
 
         this._inTools = true;
         for (const system of this.systems.list) {
-            system._inTools = true;
+            (system as { _inTools: boolean })._inTools = true;
         }
 
         this.setEditorSettings(options.editorSettings);

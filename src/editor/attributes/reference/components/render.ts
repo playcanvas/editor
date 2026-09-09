@@ -48,6 +48,14 @@ export const fields: AttributeReference[] = [
         url: 'https://api.playcanvas.com/engine/classes/RenderComponent.html#castshadows'
     },
     {
+        name: 'render:shadowCascadeMask',
+        title: 'shadowCascadeMask',
+        subTitle: '{Number}',
+        description:
+            'Selects which directional-light shadow cascades receive this render component. Extra cascades are ignored.',
+        url: 'https://api.playcanvas.com/engine/classes/RenderComponent.html#shadowcascademask'
+    },
+    {
         name: 'render:receiveShadows',
         title: 'receiveShadows',
         subTitle: '{Boolean}',

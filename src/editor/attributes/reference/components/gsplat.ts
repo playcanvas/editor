@@ -31,18 +31,25 @@ export const fields: AttributeReference[] = [
         url: 'https://api.playcanvas.com/engine/classes/GSplatComponent.html#castshadows'
     },
     {
-        name: 'gsplat:lodBaseDistance',
-        title: 'lodBaseDistance',
+        name: 'gsplat:lodRangeMin',
+        title: 'lodRangeMin',
         subTitle: '{Number}',
-        description:
-            'Distance of the first LOD transition (LOD 0 to LOD 1). Closer objects use the highest quality LOD.',
-        url: 'https://api.playcanvas.com/engine/classes/GSplatComponent.html#lodbasedistance'
+        description: 'Lowest LOD level used when rendering this Gaussian splat.',
+        url: 'https://api.playcanvas.com/engine/classes/GSplatComponent.html#lodrangemin'
     },
     {
-        name: 'gsplat:lodMultiplier',
-        title: 'lodMultiplier',
+        name: 'gsplat:lodRangeMax',
+        title: 'lodRangeMax',
         subTitle: '{Number}',
-        description: 'Geometric multiplier between successive LOD distance thresholds.',
-        url: 'https://api.playcanvas.com/engine/classes/GSplatComponent.html#lodmultiplier'
+        description: 'Highest LOD level used when rendering this Gaussian splat.',
+        url: 'https://api.playcanvas.com/engine/classes/GSplatComponent.html#lodrangemax'
+    },
+    {
+        name: 'gsplat:lodFalloff',
+        title: 'lodFalloff',
+        subTitle: '{Number}',
+        description:
+            'Controls how strongly detail is concentrated near the camera within the global splat budget. 0 spreads detail evenly.',
+        url: 'https://api.playcanvas.com/engine/classes/GSplatComponent.html#lodfalloff'
     }
 ];

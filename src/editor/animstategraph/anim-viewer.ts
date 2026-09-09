@@ -142,8 +142,11 @@ class Skeleton {
         const axis = new Vec3().cross(new Vec3(0, 1, 0), boneDirection).normalize();
         Skeleton._rotationMatrix.setFromAxisAngle(axis, angle);
 
-        const vertexData = new Float32Array(this._mesh.vertexBuffer.lock());
-        const colorData = new Uint32Array(this._mesh.vertexBuffer.lock());
+        const data = this._mesh.vertexBuffer.lock();
+        const buffer = ArrayBuffer.isView(data) ? data.buffer : data;
+        const offset = ArrayBuffer.isView(data) ? data.byteOffset : 0;
+        const vertexData = new Float32Array(buffer, offset, data.byteLength / 4);
+        const colorData = new Uint32Array(buffer, offset, data.byteLength / 4);
 
         for (let i = 0; i < verticesPerBone; i++) {
             let boneVertex = Skeleton._boneVertex.set(...Skeleton._unitBone[i]);

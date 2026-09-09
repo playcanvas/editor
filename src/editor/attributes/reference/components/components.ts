@@ -9,6 +9,7 @@ import { fields as camera } from './camera';
 import { fields as collision } from './collision';
 import { fields as element } from './element';
 import { fields as gsplat } from './gsplat';
+import { fields as joint } from './joint';
 import { fields as layoutchild } from './layoutchild';
 import { fields as layoutgroup } from './layoutgroup';
 import { fields as light } from './light';
@@ -37,6 +38,7 @@ editor.once('load', () => {
         ...collision,
         ...element,
         ...gsplat,
+        ...joint,
         ...layoutchild,
         ...layoutgroup,
         ...light,

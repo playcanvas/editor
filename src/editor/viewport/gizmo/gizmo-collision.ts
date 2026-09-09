@@ -895,7 +895,12 @@ void main(void)
 
             const vertexCount = positions.length / 3;
             const vertexBuffer = new VertexBuffer(app.graphicsDevice, vertexFormat, vertexCount);
-            const vertexData = new Float32Array(vertexBuffer.lock());
+            const vertexStorage = vertexBuffer.lock();
+            const vertexData = new Float32Array(
+                ArrayBuffer.isView(vertexStorage) ? vertexStorage.buffer : vertexStorage,
+                ArrayBuffer.isView(vertexStorage) ? vertexStorage.byteOffset : 0,
+                vertexStorage.byteLength / 4
+            );
 
             for (let i = 0; i < vertexCount; i++) {
                 const offset = i * 7;
@@ -912,7 +917,12 @@ void main(void)
             mesh.vertexBuffer = vertexBuffer;
 
             const indexBuffer = new IndexBuffer(app.graphicsDevice, INDEXFORMAT_UINT16, indices.length);
-            const indexData = new Uint16Array(indexBuffer.lock());
+            const indexStorage = indexBuffer.lock();
+            const indexData = new Uint16Array(
+                ArrayBuffer.isView(indexStorage) ? indexStorage.buffer : indexStorage,
+                ArrayBuffer.isView(indexStorage) ? indexStorage.byteOffset : 0,
+                indexStorage.byteLength / 2
+            );
             indexData.set(indices);
             indexBuffer.unlock();
 

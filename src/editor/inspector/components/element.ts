@@ -254,6 +254,12 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
         type: 'boolean'
     },
     {
+        label: 'Justify',
+        path: 'components.element.justify',
+        reference: 'element:justify',
+        type: 'boolean'
+    },
+    {
         label: 'Max Lines',
         path: 'components.element.maxLines',
         reference: 'element:maxLines',
@@ -857,6 +863,8 @@ class ElementComponentInspector extends ComponentInspector {
 
         this._field('fontAsset').hidden = !isText;
         this._field('maxLines').parent.hidden = !isText || !this._field('wrapLines').value;
+        this._field('justify').parent.hidden =
+            !isText || !this._field('wrapLines').value || this._field('autoWidth').value;
         this._field('localized').parent.hidden = !isText;
         this._field('text').parent.hidden =
             !isText || this._field('localized').value || this._field('localized').class.contains(CLASS_MULTIPLE_VALUES);

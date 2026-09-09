@@ -23,23 +23,35 @@ const ATTRIBUTES: Attribute[] = [
         type: 'boolean'
     },
     {
-        label: 'LOD Base Distance',
-        path: 'components.gsplat.lodBaseDistance',
-        reference: 'gsplat:lodBaseDistance',
+        label: 'LOD Range Min',
+        path: 'components.gsplat.lodRangeMin',
+        reference: 'gsplat:lodRangeMin',
         type: 'number',
         args: {
-            min: 0.1,
-            step: 0.1,
-            precision: 2
+            min: 0,
+            step: 1,
+            precision: 0
         }
     },
     {
-        label: 'LOD Multiplier',
-        path: 'components.gsplat.lodMultiplier',
-        reference: 'gsplat:lodMultiplier',
+        label: 'LOD Range Max',
+        path: 'components.gsplat.lodRangeMax',
+        reference: 'gsplat:lodRangeMax',
         type: 'number',
         args: {
-            min: 1.2,
+            min: 0,
+            step: 1,
+            precision: 0
+        }
+    },
+    {
+        label: 'LOD Falloff',
+        path: 'components.gsplat.lodFalloff',
+        reference: 'gsplat:lodFalloff',
+        type: 'slider',
+        args: {
+            min: 0,
+            max: 8,
             step: 0.1,
             precision: 2
         }
