@@ -260,6 +260,7 @@ class JointComponentInspector extends ComponentInspector {
             templateOverridesInspector: this._templateOverridesInspector
         });
         this.append(this._attributesInspector);
+        this._field('breakImpulse').parent.style.marginBottom = '6px';
 
         [
             'type',
