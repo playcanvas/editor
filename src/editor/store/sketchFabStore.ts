@@ -2,9 +2,12 @@ import type { Container } from '@playcanvas/pcui';
 import filenamify from 'filenamify/browser';
 import Markdown from 'markdown-it';
 
+import { createLog } from '@/common/sentry';
 import { bytesToHuman } from '@/common/utils';
 
 import { BaseStore, EMPTY_THUMBNAIL_IMAGE_LARGE, STORE_ITEM_PAGE_SIZE } from './baseStore';
+
+const log = createLog('<PATH>');
 
 const md = Markdown({});
 

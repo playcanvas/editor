@@ -1,5 +1,6 @@
 import { Container, TextAreaInput } from '@playcanvas/pcui';
 
+import { createLog } from '@/common/sentry';
 import { config } from '@/editor/config';
 
 import { diffCreate } from '../../messenger/jobs';
@@ -20,6 +21,8 @@ import {
     typeLabel
 } from './vc-helpers';
 import type { DiffSummary } from './vc-helpers';
+
+const log = createLog('<PATH>');
 
 // composer height bounds — drag the top edge to resize; persisted per browser.
 // the min keeps the textarea usable above the Create button + tip chrome

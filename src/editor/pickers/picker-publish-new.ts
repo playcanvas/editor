@@ -11,9 +11,12 @@ import {
     TextInput
 } from '@playcanvas/pcui';
 
+import { createLog } from '@/common/sentry';
 import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
 import { convertDatetime } from '@/common/utils';
 import { config } from '@/editor/config';
+
+const log = createLog('<PATH>');
 
 const DOWNLOAD_FORMAT_STATIC = 'static';
 const DOWNLOAD_FORMAT_WEB_LENS = 'web_lens';

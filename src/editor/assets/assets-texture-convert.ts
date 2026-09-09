@@ -1,4 +1,7 @@
+import { createLog } from '@/common/sentry';
 import { WorkerClient } from '@/core/worker/worker-client';
+
+const log = createLog('<PATH>');
 
 editor.once('load', () => {
     const SUPPORTED_FORMATS = ['avif', 'jpeg', 'png', 'webp'];

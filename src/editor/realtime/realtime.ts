@@ -1,4 +1,7 @@
+import { createLog } from '@/common/sentry';
 import { config } from '@/editor/config';
+
+const log = createLog('<PATH>');
 
 editor.once('start', () => {
     const realtime = editor.api.globals.realtime;

@@ -1,9 +1,12 @@
 import { Container } from '@playcanvas/pcui';
 
+import { createLog } from '@/common/sentry';
 import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
 
 import { applyUserThumbnail, formatDayGroup, formatRelativeDate, hashChip } from './vc-helpers';
+
+const log = createLog('<PATH>');
 
 const PAGE_SIZE = 50;
 const MAX_COMPARE = 2;

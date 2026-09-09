@@ -1,7 +1,10 @@
 import { Container, Menu, MenuItem, SelectInput, TextInput } from '@playcanvas/pcui';
 
+import { createLog } from '@/common/sentry';
 import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
+
+const log = createLog('<PATH>');
 
 const PAGE_SIZE = 50;
 

@@ -2,6 +2,9 @@ import type { EventHandle, Observer } from '@playcanvas/observer';
 import { Button, Label, Container, BindingTwoWay } from '@playcanvas/pcui';
 
 import { AssetThumbnail } from '@/common/pcui/element/element-asset-thumbnail';
+import { createLog } from '@/common/sentry';
+
+const log = createLog('<PATH>');
 
 const CLASS_ROOT = 'pcui-cubemap-asset-inspector';
 const CLASS_FACE = `${CLASS_ROOT}-face`;

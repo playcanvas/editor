@@ -1,3 +1,7 @@
+import { createLog } from '@/common/sentry';
+
+const log = createLog('<PATH>');
+
 editor.once('load', () => {
     // Creates new texture atlas asset from texture asset
     editor.method('assets:textureToAtlas', (asset, callback) => {

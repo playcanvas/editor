@@ -3,6 +3,7 @@ import { Element, Container, LabelGroup, Panel, Button, ArrayInput, BindingTwoWa
 import type { IBindable, ContainerArgs } from '@playcanvas/pcui';
 
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
+import { createLog } from '@/common/sentry';
 import { tooltip, tooltipRefItem, TooltipHandle } from '@/common/tooltips';
 import type { History } from '@/editor-api';
 
@@ -10,6 +11,8 @@ import '../storage/clipboard-context-menu';
 import type { TemplateOverrideInspector } from '../templates/templates-override-inspector.js';
 
 import type { Attribute, Divider } from './attribute.type.d';
+
+const log = createLog('<PATH>');
 
 type AttributesInspectorArgs = {
     history?: History;

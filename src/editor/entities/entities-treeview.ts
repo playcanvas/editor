@@ -4,9 +4,12 @@ import type { TreeViewArgs, ReparentedItem } from '@playcanvas/pcui';
 
 import type { DropManager } from '@/common/pcui/element/element-drop-manager';
 import type { DropTarget } from '@/common/pcui/element/element-drop-target';
+import { createLog } from '@/common/sentry';
 import type { History } from '@/editor-api';
 
 import { getMap, searchItems } from '../search/search-advanced';
+
+const log = createLog('<PATH>');
 
 const CLASS_ROOT = 'entities-treeview';
 const CLASS_COMPONENT_ICON = 'component-icon-postfix';

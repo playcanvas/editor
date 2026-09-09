@@ -1,8 +1,11 @@
 import { Observer } from '@playcanvas/observer';
 
 import { ObserverSync } from '@/common/observer-sync';
+import { createLog } from '@/common/sentry';
 import { isReferencedFont } from '@/editor/inspector/assets/font-mode';
 import type { LaunchConfig } from '@/editor-api/external-types/config';
+
+const log = createLog('<PATH>');
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');
