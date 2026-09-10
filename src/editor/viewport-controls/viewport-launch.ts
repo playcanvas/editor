@@ -179,7 +179,9 @@ editor.once('load', () => {
     };
 
     const createOption = (name: string, title: string) => {
-        const panel = new Container();
+        const panel = new Container({
+            class: `launch-option-${name}`
+        });
         panelOptions.append(panel);
 
         const option = new BooleanInput({
