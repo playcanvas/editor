@@ -1,13 +1,14 @@
 import { test as setup } from '@playwright/test';
 
-import { deleteAllProjects } from '../lib/common';
+import { deleteProjectsByPrefix } from '../lib/common';
 import { editorBlankUrl } from '../lib/config';
 import { middleware } from '../lib/middleware';
 
 setup('removing old projects', async ({ page }) => {
     await middleware(page.context());
 
-    // delete all projects
-    await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
-    await deleteAllProjects(page);
+    // delete projects left behind by earlier runs
+    await page.goto(editorBlankUrl());
+    await page.locator('.picker-project-cms').waitFor();
+    await deleteProjectsByPrefix(page, 'e2e-');
 });

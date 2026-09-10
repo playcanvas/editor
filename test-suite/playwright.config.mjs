@@ -2,6 +2,9 @@ import { defineConfig } from '@playwright/test';
 
 import { AUTH_STATES } from './lib/config';
 
+// stamp the run so every entity a worker creates is traceable and collision free
+process.env.E2E_RUN_ID ??= process.env.GITHUB_RUN_ID ?? Date.now().toString(36);
+
 const CHROME_ARGS = [
     '--disable-web-security',
     '--ignore-gpu-blocklist',
@@ -15,13 +18,15 @@ const CHROME_ARGS = [
 export default defineConfig({
     timeout: 2 * 60 * 1000,
     testDir: './test',
-    fullyParallel: false, // FIXME: Enable once account per worker is implemented
+    fullyParallel: false, // tests in a file share the worker project fixture
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 2 : 0,
-    workers: 1, // FIXME: Enable once account per worker is implemented
-    reporter: process.env.CI ? 'list' : 'html',
+    workers: AUTH_STATES.length, // one account per worker
+    reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : [['list'], ['html']],
     use: {
-        trace: 'on-first-retry'
+        trace: 'retain-on-failure',
+        video: 'retain-on-failure',
+        screenshot: 'only-on-failure'
     },
     projects: [
         {

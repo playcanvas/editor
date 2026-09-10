@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import type { BrowserContextOptions } from '@playwright/test';
 
-type SearchParams = Record<string, string | number | boolean>;
+export type SearchParams = Record<string, string | number | boolean>;
 
 export const HOST = process.env.PC_HOST ?? 'playcanvas.com';
 export const LOGIN_HOST = process.env.PC_LOGIN_HOST ?? 'login.playcanvas.com';

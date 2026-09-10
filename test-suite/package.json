@@ -24,8 +24,8 @@
   },
   "scripts": {
     "codegen": "playwright codegen --load-storage .auth/state.json",
-    "lint": "eslint src test eslint.config.mjs",
-    "lint:fix": "eslint src test eslint.config.mjs --fix",
+    "lint": "eslint lib src test eslint.config.mjs",
+    "lint:fix": "eslint lib src test eslint.config.mjs --fix",
     "publint": "publint",
     "start": "tsx src/index.ts",
     "report": "playwright show-report",

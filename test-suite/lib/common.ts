@@ -1,5 +1,7 @@
 import { type Page } from '@playwright/test';
 
+import { JOB_TIMEOUT } from './constants';
+
 export interface EsmBuildOptions {
     scripts_concatenate?: boolean;
     scripts_minify?: boolean;
@@ -48,7 +50,15 @@ export const checkCaptchaFound = async (page: Page) => {
  * @returns The data result.
  */
 export const createProject = async (page: Page, projectName: string, masterProjectId?: number) => {
-    const projectId: number = await page.evaluate(async ({ name, fork_from }) => {
+    const projectId: number = await page.evaluate(async ({ name, fork_from, jobTimeout }) => {
+        let handle: { unbind(): void } | null = null;
+        const timeout = (what: string) => new Promise<never>((_, reject) => {
+            setTimeout(() => {
+                handle?.unbind();
+                reject(new Error(`timed out waiting for ${what}`));
+            }, jobTimeout);
+        });
+
         const res: any = await window.editor.api.globals.rest.projects.projectCreate({
             name,
             fork_from
@@ -57,10 +67,10 @@ export const createProject = async (page: Page, projectName: string, masterProje
         // check if not forked (no job created)
         if (!fork_from && res.id) {
             // wait for pipeline job to complete (version control documents)
-            await new Promise<void>((resolve, reject) => {
-                const handle = window.editor.api.globals.messenger.on('message', (name: string, data: any) => {
+            await Promise.race([new Promise<void>((resolve, reject) => {
+                handle = window.editor.api.globals.messenger.on('message', (name: string, data: any) => {
                     if (name === 'project.create' && data.project_id === res.id) {
-                        handle.unbind();
+                        handle?.unbind();
                         if (data.status === 'success') {
                             resolve();
                         } else {
@@ -68,21 +78,21 @@ export const createProject = async (page: Page, projectName: string, masterProje
                         }
                     }
                 });
-            });
+            }), timeout('project.create')]);
 
             // return project id
             return res.id;
         }
 
         // wait for job to complete
-        const job = await new Promise<any>((resolve) => {
-            const handle = window.editor.api.globals.messenger.on('message', async (name: string, data: any) => {
+        const job = await Promise.race([new Promise<any>((resolve) => {
+            handle = window.editor.api.globals.messenger.on('message', async (name: string, data: any) => {
                 if (name === 'job.update' && data.job.id === res.id) {
-                    handle.unbind();
+                    handle?.unbind();
                     resolve(await window.editor.api.globals.rest.jobs.jobGet({ jobId: data.job.id }).promisify());
                 }
             });
-        });
+        }), timeout('project fork job.update')]);
 
         // check for errors
         if (job.error) {
@@ -91,7 +101,7 @@ export const createProject = async (page: Page, projectName: string, masterProje
 
         // return project id
         return job.data?.forked_id ?? 0;
-    }, { name: projectName, fork_from: masterProjectId });
+    }, { name: projectName, fork_from: masterProjectId, jobTimeout: JOB_TIMEOUT });
     return projectId;
 };
 
@@ -109,25 +119,19 @@ export const deleteProject = async (page: Page, projectId: number) => {
 };
 
 /**
- * Delete all projects.
+ * Delete every project of the current user whose name starts with the given prefix.
  *
  * @param page - The page.
+ * @param prefix - The project name prefix.
  */
-export const deleteAllProjects = async (page: Page) => {
-    const projects = await page.evaluate(async () => {
+export const deleteProjectsByPrefix = async (page: Page, prefix: string) => {
+    const projects = await page.evaluate(async (prefix) => {
         const res: any = await window.editor.api.globals.rest.users.userProjects(window.config.self.id, '').promisify();
-        return res.result ?? [];
-    });
-    let deletePromise = Promise.resolve();
+        return (res.result ?? []).filter((project: any) => project.name?.startsWith(prefix)) as { id: number }[];
+    }, prefix);
     for (const project of projects) {
-        deletePromise = deletePromise.then(async () => {
-            await page.evaluate((projectId) => {
-                return window.editor.api.globals.rest.projects.projectDelete({ projectId }).promisify();
-            }, project.id);
-        });
+        await deleteProject(page, project.id);
     }
-
-    await deletePromise;
 };
 
 /**
@@ -140,7 +144,15 @@ export const deleteAllProjects = async (page: Page) => {
 export const importProject = async (page: Page, importPath: string) => {
     // import project
     const fileChooserPromise = page.waitForEvent('filechooser');
-    const importProjectPromise = page.evaluate(async () => {
+    const importProjectPromise = page.evaluate(async (jobTimeout) => {
+        let handle: { unbind(): void } | null = null;
+        const timeout = (what: string) => new Promise<never>((_, reject) => {
+            setTimeout(() => {
+                handle?.unbind();
+                reject(new Error(`timed out waiting for ${what}`));
+            }, jobTimeout);
+        });
+
         const filePicker = document.createElement('input');
         filePicker.id = 'file-picker';
         filePicker.type = 'file';
@@ -241,15 +253,15 @@ export const importProject = async (page: Page, importPath: string) => {
         }).promisify();
 
         // wait for job to complete
-        return await new Promise<any>((resolve) => {
-            const handle = window.editor.api.globals.messenger.on('message', async (name: string, data: any) => {
+        return await Promise.race([new Promise<any>((resolve) => {
+            handle = window.editor.api.globals.messenger.on('message', async (name: string, data: any) => {
                 if (name === 'job.update' && data.job.id === job.id) {
-                    handle.unbind();
+                    handle?.unbind();
                     resolve(await window.editor.api.globals.rest.jobs.jobGet({ jobId: data.job.id }).promisify());
                 }
             });
-        });
-    });
+        }), timeout('import job.update')]);
+    }, JOB_TIMEOUT);
     const fileChooser = await fileChooserPromise;
     await fileChooser.setFiles(importPath);
     const job = await importProjectPromise;
@@ -266,21 +278,29 @@ export const importProject = async (page: Page, importPath: string) => {
  * @param projectId - The project id.
  */
 export const exportProject = async (page: Page, projectId: number) => {
-    await page.evaluate(async (projectId) => {
+    await page.evaluate(async ({ projectId, jobTimeout }) => {
+        let handle: { unbind(): void } | null = null;
+        const timeout = (what: string) => new Promise<never>((_, reject) => {
+            setTimeout(() => {
+                handle?.unbind();
+                reject(new Error(`timed out waiting for ${what}`));
+            }, jobTimeout);
+        });
+
         const job: any = await window.editor.api.globals.rest.projects.projectExport({ projectId }).promisify();
         if (job.error) {
             throw new Error(`Export error: ${job.error}`);
         }
 
         // wait for job to complete
-        const res = await new Promise<any>((resolve) => {
-            const handle = window.editor.api.globals.messenger.on('message', async (name: string, data: any) => {
+        const res = await Promise.race([new Promise<any>((resolve) => {
+            handle = window.editor.api.globals.messenger.on('message', async (name: string, data: any) => {
                 if (name === 'job.update' && data.job.id === job.id) {
-                    handle.unbind();
+                    handle?.unbind();
                     resolve(await window.editor.api.globals.rest.jobs.jobGet({ jobId: data.job.id }).promisify());
                 }
             });
-        });
+        }), timeout('export job.update')]);
 
         // check for errors
         if (res.error) {
@@ -293,7 +313,7 @@ export const exportProject = async (page: Page, projectId: number) => {
         document.body.appendChild(download);
         download.click();
         document.body.removeChild(download);
-    }, projectId);
+    }, { projectId, jobTimeout: JOB_TIMEOUT });
 };
 
 /**
@@ -305,7 +325,15 @@ export const exportProject = async (page: Page, projectId: number) => {
  * @returns The errors.
  */
 export const downloadApp = async (page: Page, sceneId: number, esmOptions?: EsmBuildOptions): Promise<{ download_url: string }> => {
-    const job = await page.evaluate(async ({ sceneId, esmOptions }) => {
+    const job = await page.evaluate(async ({ sceneId, esmOptions, jobTimeout }) => {
+        let handle: { unbind(): void } | null = null;
+        const timeout = (what: string) => new Promise<never>((_, reject) => {
+            setTimeout(() => {
+                handle?.unbind();
+                reject(new Error(`timed out waiting for ${what}`));
+            }, jobTimeout);
+        });
+
         // order scenes so that the scene with the given id is first
         const { result: scenes = [] } = await window.editor.api.globals.rest.projects.projectScenes().promisify() as any;
         if (!scenes.length) {
@@ -332,15 +360,15 @@ export const downloadApp = async (page: Page, sceneId: number, esmOptions?: EsmB
         const job: any = await window.editor.api.globals.rest.apps.appDownload(data).promisify();
 
         // wait for job to complete
-        return await new Promise<any>((resolve) => {
-            const handle = window.editor.api.globals.messenger.on('message', async (name: string, data: any) => {
+        return await Promise.race([new Promise<any>((resolve) => {
+            handle = window.editor.api.globals.messenger.on('message', async (name: string, data: any) => {
                 if (name === 'job.update' && data.job.id === job.id) {
-                    handle.unbind();
+                    handle?.unbind();
                     resolve(await window.editor.api.globals.rest.jobs.jobGet({ jobId: data.job.id }).promisify());
                 }
             });
-        });
-    }, { sceneId, esmOptions });
+        }), timeout('download job.update')]);
+    }, { sceneId, esmOptions, jobTimeout: JOB_TIMEOUT });
     if (job.error) {
         throw new Error(`Download error: ${job.error}`);
     }
@@ -358,7 +386,15 @@ export const downloadApp = async (page: Page, sceneId: number, esmOptions?: EsmB
  * @returns The errors.
  */
 export const publishApp = async (page: Page, sceneId: number, esmOptions?: EsmBuildOptions): Promise<{ id: number; url: string }> => {
-    const app: any = await page.evaluate(async ({ sceneId, esmOptions }) => {
+    const app: any = await page.evaluate(async ({ sceneId, esmOptions, jobTimeout }) => {
+        let handle: { unbind(): void } | null = null;
+        const timeout = (what: string) => new Promise<never>((_, reject) => {
+            setTimeout(() => {
+                handle?.unbind();
+                reject(new Error(`timed out waiting for ${what}`));
+            }, jobTimeout);
+        });
+
         // order scenes so that the scene with the given id is first
         const { result: scenes = [] } = await window.editor.api.globals.rest.projects.projectScenes().promisify() as any;
         if (!scenes.length) {
@@ -385,15 +421,15 @@ export const publishApp = async (page: Page, sceneId: number, esmOptions?: EsmBu
         const app: any = await window.editor.api.globals.rest.apps.appCreate(data).promisify();
 
         // wait for app to complete
-        return await new Promise<any>((resolve) => {
-            const handle = window.editor.api.globals.messenger.on('message', async (name: string, data: any) => {
+        return await Promise.race([new Promise<any>((resolve) => {
+            handle = window.editor.api.globals.messenger.on('message', async (name: string, data: any) => {
                 if (name === 'app.update' && data.app.id === app.id) {
-                    handle.unbind();
+                    handle?.unbind();
                     resolve(await window.editor.api.globals.rest.apps.appGet(data.app.id).promisify());
                 }
             });
-        });
-    }, { sceneId, esmOptions });
+        }), timeout('app.update')]);
+    }, { sceneId, esmOptions, jobTimeout: JOB_TIMEOUT });
     if (app.task.error) {
         throw new Error(`Publish error: ${app.task.error}`);
     }
