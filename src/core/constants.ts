@@ -35,6 +35,7 @@ export const COMPONENT_LOGOS = {
     model: 'E188',
     particlesystem: 'E199',
     rigidbody: 'E189',
+    joint: 'E426',
     physics: 'E426',
     capsule: 'E421',
     cone: 'E422',

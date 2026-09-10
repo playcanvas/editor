@@ -15,6 +15,7 @@ const reservedScriptNames = new Set([
     '_scripts',
     '_scriptsIndex',
     '_scriptsData',
+    '_declarationOrder',
     'enabled',
     '_oldState',
     'onEnable',

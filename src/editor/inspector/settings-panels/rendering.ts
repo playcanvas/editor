@@ -1,4 +1,6 @@
-import { Button, Label, Overlay } from '@playcanvas/pcui';
+import type { Container } from '@playcanvas/pcui';
+import { Button, Label, Overlay, Panel } from '@playcanvas/pcui';
+import { GSPLATDATA_COMPACT, GSPLATDATA_LARGE, GSPLAT_LODMODE_DISTANCE, GSPLAT_LODMODE_ERROR } from 'playcanvas';
 
 import { TONEMAPPING } from '@/core/constants';
 
@@ -191,6 +193,18 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
     },
     {
         observer: 'sceneSettings',
+        label: 'Max Lights',
+        path: 'render.lightingMaxLights',
+        reference: 'settings:lightingMaxLights',
+        type: 'number',
+        args: {
+            min: 1,
+            step: 1,
+            precision: 0
+        }
+    },
+    {
+        observer: 'sceneSettings',
         label: 'Cookies Enabled',
         type: 'boolean',
         path: 'render.lightingCookiesEnabled',
@@ -257,6 +271,175 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
         type: 'boolean',
         path: 'render.lightingAreaLightsEnabled',
         reference: 'settings:lightingAreaLightsEnabled'
+    },
+    {
+        type: 'divider'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Radial Sorting',
+        path: 'render.gsplatRadialSorting',
+        reference: 'settings:gsplatRadialSorting',
+        type: 'boolean'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'LOD Update Distance',
+        path: 'render.gsplatLodUpdateDistance',
+        reference: 'settings:gsplatLodUpdateDistance',
+        type: 'number'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'LOD Update Angle',
+        path: 'render.gsplatLodUpdateAngle',
+        reference: 'settings:gsplatLodUpdateAngle',
+        type: 'number'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'LOD Behind Penalty',
+        path: 'render.gsplatLodBehindPenalty',
+        reference: 'settings:gsplatLodBehindPenalty',
+        type: 'number'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'LOD Underfill Limit',
+        path: 'render.gsplatLodUnderfillLimit',
+        reference: 'settings:gsplatLodUnderfillLimit',
+        type: 'number',
+        args: {
+            step: 1,
+            precision: 0
+        }
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Splat Budget',
+        path: 'render.gsplatSplatBudget',
+        reference: 'settings:gsplatSplatBudget',
+        type: 'number',
+        args: {
+            step: 1000,
+            precision: 0
+        }
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Alpha Clip',
+        path: 'render.gsplatAlphaClip',
+        reference: 'settings:gsplatAlphaClip',
+        type: 'number'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Forward Alpha Clip',
+        path: 'render.gsplatAlphaClipForward',
+        reference: 'settings:gsplatAlphaClipForward',
+        type: 'number'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Min Pixel Size',
+        path: 'render.gsplatMinPixelSize',
+        reference: 'settings:gsplatMinPixelSize',
+        type: 'number'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Min Contribution',
+        path: 'render.gsplatMinContribution',
+        reference: 'settings:gsplatMinContribution',
+        type: 'number'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Foveation Strength',
+        path: 'render.gsplatFoveationStrength',
+        reference: 'settings:gsplatFoveationStrength',
+        type: 'number'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Foveation Center',
+        path: 'render.gsplatFoveationCenter',
+        reference: 'settings:gsplatFoveationCenter',
+        type: 'number'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Anti-Alias',
+        path: 'render.gsplatAntiAlias',
+        reference: 'settings:gsplatAntiAlias',
+        type: 'boolean'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Use Fog',
+        path: 'render.gsplatUseFog',
+        reference: 'settings:gsplatUseFog',
+        type: 'boolean'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Use Tonemapping',
+        path: 'render.gsplatUseTonemap',
+        reference: 'settings:gsplatUseTonemap',
+        type: 'boolean'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Color Update Angle',
+        path: 'render.gsplatColorUpdateAngle',
+        reference: 'settings:gsplatColorUpdateAngle',
+        type: 'number'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Cooldown Ticks',
+        path: 'render.gsplatCooldownTicks',
+        reference: 'settings:gsplatCooldownTicks',
+        type: 'number',
+        args: {
+            step: 1,
+            precision: 0
+        }
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Data Format',
+        path: 'render.gsplatDataFormat',
+        reference: 'settings:gsplatDataFormat',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [
+                { v: GSPLATDATA_COMPACT, t: 'Compact' },
+                { v: GSPLATDATA_LARGE, t: 'Large' }
+            ]
+        }
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Enable IDs',
+        path: 'render.gsplatEnableIds',
+        reference: 'settings:gsplatEnableIds',
+        type: 'boolean'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'LOD Mode',
+        path: 'render.gsplatLodMode',
+        reference: 'settings:gsplatLodMode',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [
+                { v: GSPLAT_LODMODE_ERROR, t: 'Error' },
+                { v: GSPLAT_LODMODE_DISTANCE, t: 'Distance' }
+            ]
+        }
     },
     {
         type: 'divider'
@@ -571,6 +754,12 @@ class RenderingSettingsPanel extends BaseSettingsPanel {
 
         this.class.add('rendering');
 
+        const firstSplat = this._attributesInspector.getField('render.gsplatRadialSorting');
+        (firstSplat.parent.parent as Container).appendBefore(
+            new Panel({ headerText: 'Gaussian Splatting', class: 'rendering-settings-section' }),
+            firstSplat.parent
+        );
+
         const fogAttribute = this._attributesInspector.getField('render.fog');
         const fogChangeEvt = fogAttribute.on('change', (value) => {
             switch (value) {
@@ -627,6 +816,7 @@ class RenderingSettingsPanel extends BaseSettingsPanel {
         const cookieResolution = this._attributesInspector.getField('render.lightingCookieAtlasResolution');
         const cells = this._attributesInspector.getField('render.lightingCells');
         const lightsPerCell = this._attributesInspector.getField('render.lightingMaxLightsPerCell');
+        const maxLights = this._attributesInspector.getField('render.lightingMaxLights');
         const clusteredEnabled = this._attributesInspector.getField('render.clusteredLightingEnabled');
 
         const sceneSettings = editor.call('sceneSettings');
@@ -668,6 +858,8 @@ class RenderingSettingsPanel extends BaseSettingsPanel {
             cells.parent.hidden = !value;
             lightsPerCell.hidden = !value;
             lightsPerCell.parent.hidden = !value;
+            maxLights.hidden = !value;
+            maxLights.parent.hidden = !value;
 
             const shadows = shadowsEnabled.value && value;
             shadowsEnabled.hidden = !value;

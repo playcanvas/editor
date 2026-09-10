@@ -10,7 +10,7 @@ editor.once('load', () => {
         ) {
             return 'ui-sub-menu';
         }
-        if (['rigidbody', 'collision'].indexOf(key) >= 0) {
+        if (['rigidbody', 'collision', 'joint'].indexOf(key) >= 0) {
             return 'physics-sub-menu';
         }
 

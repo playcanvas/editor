@@ -642,6 +642,19 @@ const NORMALS_ATTRIBUTES: (Attribute | Divider)[] = [
 const PARALLAX_ATTRIBUTES: (Attribute | Divider)[] = [
     ...createTextureAttribute('Heightmap', 'height', TextureTypes.Scalar),
     {
+        label: 'Mode',
+        path: 'data.parallaxMode',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [
+                { v: pc.PARALLAX_OFFSET, t: 'Offset' },
+                { v: pc.PARALLAX_OCCLUSION, t: 'Occlusion' }
+            ]
+        },
+        reference: 'asset:material:parallaxMode'
+    },
+    {
         label: 'Strength',
         path: 'data.heightMapFactor',
         type: 'slider',
@@ -652,6 +665,42 @@ const PARALLAX_ATTRIBUTES: (Attribute | Divider)[] = [
             max: 2
         },
         reference: 'asset:material:heightMapFactor'
+    },
+    {
+        label: 'Base',
+        path: 'data.heightMapBase',
+        type: 'slider',
+        args: {
+            min: 0,
+            max: 1,
+            step: 0.01,
+            precision: 2
+        },
+        reference: 'asset:material:heightMapBase'
+    },
+    {
+        label: 'Samples',
+        path: 'data.parallaxSamples',
+        type: 'number',
+        args: {
+            min: 4,
+            max: 64,
+            step: 1,
+            precision: 0
+        },
+        reference: 'asset:material:parallaxSamples'
+    },
+    {
+        label: 'Self Shadow',
+        path: 'data.parallaxShadowSamples',
+        type: 'number',
+        args: {
+            min: 0,
+            max: 32,
+            step: 1,
+            precision: 0
+        },
+        reference: 'asset:material:parallaxShadowSamples'
     }
 ];
 
@@ -1809,6 +1858,7 @@ class MaterialAssetInspector extends Container {
         this._sheenInspector.getField('data.useSheen').on('change', toggleFields);
         this._refractionInspector.getField('data.useDynamicRefraction').on('change', toggleFields);
         this._iridescenceInspector.getField('data.useIridescence').on('change', toggleFields);
+        this._parallaxInspector.getField('data.parallaxMode').on('change', toggleFields);
 
         for (const map in MAPS) {
             const inspectors = MAPS[map];
@@ -1982,6 +2032,11 @@ class MaterialAssetInspector extends Container {
 
         const heightMap = this._parallaxInspector.getField('data.heightMap').value;
         this._parallaxInspector.getField('data.heightMapFactor').parent.hidden = !heightMap;
+        this._parallaxInspector.getField('data.parallaxMode').parent.hidden = !heightMap;
+        this._parallaxInspector.getField('data.heightMapBase').parent.hidden = !heightMap;
+        const parallaxOcclusion = this._parallaxInspector.getField('data.parallaxMode').value === pc.PARALLAX_OCCLUSION;
+        this._parallaxInspector.getField('data.parallaxSamples').parent.hidden = !heightMap || !parallaxOcclusion;
+        this._parallaxInspector.getField('data.parallaxShadowSamples').parent.hidden = !heightMap || !parallaxOcclusion;
 
         const cubeMapField = this._envInspector.getField('data.cubeMap');
         const sphereMapField = this._envInspector.getField('data.sphereMap');

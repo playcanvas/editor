@@ -6,6 +6,24 @@ import type { BaseSettingsPanelArgs } from './base';
 const ATTRIBUTES: Attribute[] = [
     {
         observer: 'projectSettings',
+        label: 'Asset Credentials',
+        path: 'withCredentials',
+        type: 'boolean',
+        reference: 'settings:project:withCredentials'
+    },
+    {
+        observer: 'projectSettings',
+        label: 'Max Concurrent Requests',
+        path: 'maxConcurrentRequests',
+        type: 'number',
+        reference: 'settings:project:maxConcurrentRequests',
+        args: {
+            min: 0,
+            precision: 0
+        }
+    },
+    {
+        observer: 'projectSettings',
         label: 'Asset Retries',
         path: 'maxAssetRetries',
         type: 'number',
