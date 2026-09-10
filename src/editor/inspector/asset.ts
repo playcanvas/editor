@@ -417,6 +417,11 @@ class AssetInspector extends Container {
                     text: `${writeLabel} in Cursor`,
                     icon: 'E130',
                     onSelect: () => editor.call('assets:edit', this._assets[0], 'cursor')
+                },
+                {
+                    text: `${writeLabel} in Antigravity IDE`,
+                    icon: 'E130',
+                    onSelect: () => editor.call('assets:edit', this._assets[0], 'antigravity-ide')
                 }
             ]
         });

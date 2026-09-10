@@ -124,7 +124,7 @@ editor.once('load', () => {
     });
 
     // get asset ide path
-    editor.method('assets:idePath', (ide: 'cursor' | 'vscode', asset?: AssetObserver) => {
+    editor.method('assets:idePath', (ide: 'cursor' | 'vscode' | 'antigravity-ide', asset?: AssetObserver) => {
         const assetPath = asset ? `/asset/${asset.get('id')}` : '';
         return `${ide}://playcanvas.playcanvas/project/${config.project.id}${assetPath}`;
     });

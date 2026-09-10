@@ -86,7 +86,7 @@ editor.once('load', () => {
     });
 
     // get asset ide path
-    editor.method('assets:idePath', (ide: 'cursor' | 'vscode', asset) => {
+    editor.method('assets:idePath', (ide: 'cursor' | 'vscode' | 'antigravity-ide', asset) => {
         return `${ide}://playcanvas.playcanvas/project/${config.project.id}/asset/${asset.get('id')}`;
     });
 });
