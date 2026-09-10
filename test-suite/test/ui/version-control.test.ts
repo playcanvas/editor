@@ -1,135 +1,43 @@
-import type { Observer } from '@playcanvas/observer';
-import { expect, test, type Page } from '@playwright/test';
+import type { BrowserContext, Page } from '@playwright/test';
 
-import { capture } from '../../lib/capture';
-import {
-    checkCookieAccept,
-    createProject,
-    deleteProject
-} from '../../lib/common';
+import { checkCookieAccept, createProject, deleteProject } from '../../lib/common';
 import { editorBlankUrl, editorUrl } from '../../lib/config';
+import { JOB_TIMEOUT } from '../../lib/constants';
+import { expect, test } from '../../lib/fixtures';
 import { middleware } from '../../lib/middleware';
-import { uniqueName, wait } from '../../lib/utils';
+import {
+    armReload,
+    branchIds,
+    branchMenuAction,
+    completeMerge,
+    createBranchFromCheckpoint,
+    createCheckpoint,
+    createCheckpointApi,
+    dialogConfirm,
+    dialogInput,
+    diffOverlay,
+    mergeOverlay,
+    openSwitcher,
+    openVc,
+    selectCheckpoint,
+    setBranchFilter,
+    toggleDialogCheck,
+    waitReload
+} from '../../lib/pages/version-control';
+import { waitForEditor } from '../../lib/ready';
+import { uniqueName } from '../../lib/utils';
 
 test.describe.configure({
     mode: 'serial'
 });
 
-// the version control picker was rewritten (#2098/#2099/#2100): a branch
-// switcher dropdown, Changes/History tabs, a detail pane, an inline checkpoint
-// composer, compare mode + dedicated diff/merge overlays, and vc-dialog dialogs.
-
-// the main vc panel (`picker-version-control` is shared with the graph panel)
-const VC_PANEL = '.picker-vc';
-
-// vc operations reload the editor via an async, ~1s-delayed messenger event
-// (branch.createEnded / branch.switch / merge / restore). a fixed wait races
-// that reload; instead mark the document, trigger the op, then wait for a fresh
-// document with the editor reloaded.
-const armReload = (page: Page) => page.evaluate(() => {
-    (window as any).__vcReload = true;
-});
-const waitReload = async (page: Page) => {
-    await page.waitForFunction(() => {
-        const w = window as any;
-        return w.__vcReload === undefined && !!w.editor?.api?.globals?.branchId;
-    }, undefined, { timeout: 90000 });
-    await page.waitForLoadState('networkidle');
-};
-
-/** open the version control picker via the project logo menu (idempotent) */
-const openVc = async (page: Page) => {
-    if (await page.locator(VC_PANEL).isVisible().catch(() => false)) {
-        return;
-    }
-    await page.locator('.pcui-element.font-regular.logo').click();
-    await page.locator('span').filter({ hasText: /^Version Control$/ }).first().click();
-    await page.locator(VC_PANEL).waitFor({ state: 'visible' });
-};
-
-/** open the branch switcher dropdown */
-const openSwitcher = async (page: Page) => {
-    await page.locator('.vc-branch-button').click();
-    await page.locator('.vc-branch-panel').waitFor({ state: 'visible' });
-};
-
-/** change the branch list filter (Open / Favorites / Closed) */
-const setBranchFilter = async (page: Page, label: 'Open' | 'Favorites' | 'Closed') => {
-    await page.locator('.vc-branch-filter .pcui-select-input-value').click();
-    await page.locator('.vc-branch-filter .pcui-select-input-list').getByText(label, { exact: true }).click();
-};
-
-/** run a kebab-menu action on a branch row (row actions are hover-revealed) */
-const branchMenuAction = async (page: Page, branchId: string, action: RegExp) => {
-    const row = page.locator(`#branch-${branchId}`);
-    await row.waitFor({ state: 'visible' });
-    await row.hover();
-    await row.locator('.kebab').click();
-    await page.locator('.pcui-menu-item').filter({ hasText: action }).first().click();
-};
-
-/** select a checkpoint in the History list and wait for its detail pane */
-const selectCheckpoint = async (page: Page, checkpointId: string) => {
-    const row = page.locator(`#checkpoint-${checkpointId}`);
-    await row.waitFor({ state: 'visible' });
-    await row.click();
-    await page.locator('.vc-detail-actions').first().waitFor({ state: 'visible' });
-};
-
-/** branch from a checkpoint via the detail pane; resolves to the new branch id */
-const createBranchFromCheckpoint = async (page: Page, checkpointId: string, name: string) => {
-    await selectCheckpoint(page, checkpointId);
-    await page.locator('.vc-detail-actions').getByText('New Branch', { exact: true }).click();
-    await page.locator('.vc-dialog').waitFor({ state: 'visible' });
-    await dialogInput(page).fill(name);
-    await armReload(page);
-    await dialogConfirm(page).click();
-    // branch create switches to the new branch via the delayed reload
-    await waitReload(page);
-    return page.evaluate(() => window.editor.api.globals.branchId);
-};
-
-const dialogConfirm = (page: Page) => page.locator('.vc-dialog .pcui-button.confirm');
-const dialogInput = (page: Page) => page.locator('.vc-dialog input');
-const toggleDialogCheck = (page: Page, label: string) => page.locator('.vc-dialog').getByLabel(label).click();
-const diffOverlay = (page: Page) => page.locator('.vc-diff-overlay:not(.vc-merge)');
-const mergeOverlay = (page: Page) => page.locator('.vc-diff-overlay.vc-merge');
-const mergeDiffOverlay = (page: Page) => page.locator('.vc-diff-overlay.vc-merge.diff');
-const mergeFooterButton = (page: Page, text: RegExp) => mergeOverlay(page).locator('.vc-diff-sidebar-foot .pcui-button:not(.pcui-disabled)').filter({ hasText: text });
-const completeMerge = async (page: Page) => {
-    await mergeOverlay(page).waitFor({ state: 'visible' });
-    const step = await Promise.race([
-        mergeDiffOverlay(page).waitFor({ state: 'visible' }).then(() => 'complete'),
-        mergeFooterButton(page, /^Review merge$/).waitFor({ state: 'visible' }).then(() => 'review')
-    ]);
-    if (step === 'review') {
-        await mergeFooterButton(page, /^Review merge$/).click();
-    }
-    await mergeDiffOverlay(page).waitFor({ state: 'visible' });
-    await armReload(page);
-    await mergeFooterButton(page, /^Complete merge$/).click();
-};
-
-/** create a checkpoint via the inline composer and confirm it lands in history */
-const createCheckpoint = async (page: Page, description: string) => {
-    await page.locator('.vc-top-actions').getByText('Checkpoint', { exact: true }).click();
-    const textarea = page.locator('.vc-checkpoint-form textarea');
-    await textarea.waitFor({ state: 'visible' });
-    // pcui's keyChange input re-gates the Create button on keyup, which fill()
-    // does not emit; type the value so the button enables
-    await textarea.click();
-    await textarea.pressSequentially(description);
-    await page.locator('.vc-create-checkpoint').click();
-    // the new row lands in History via messenger; switch tabs to confirm it
-    await page.locator('.vc-tab').filter({ hasText: /^History$/ }).click();
-    await page.locator('.vc-history').getByText(description, { exact: true }).waitFor({ state: 'visible' });
-};
-
 test.describe('branch/checkpoint/diff/merge', () => {
     const projectName = uniqueName('ui-vc');
+    let context: BrowserContext;
+    let setup: Page;
     let projectId: number;
-    let page: Page;
     let materialId: number;
+    let baseDiffuse: number[];
 
     let mainBranchId: string;
     let mainCheckpointId: string;
@@ -139,304 +47,292 @@ test.describe('branch/checkpoint/diff/merge', () => {
     let greenBranchId: string;
     let greenCheckpointId: string;
 
-    test.describe.configure({
-        mode: 'serial'
-    });
-
-    test.beforeAll(async ({ browser }) => {
-        page = await browser.newPage();
-        await middleware(page.context());
-
-        // create a temporary project
-        await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
-        await checkCookieAccept(page);
-        projectId = await createProject(page, projectName);
+    // the vc flow mutates branches and hard resets history, so it owns its project
+    test.beforeAll(async ({ browser, authState }) => {
+        context = await browser.newContext({ storageState: authState });
+        await middleware(context);
+        setup = await context.newPage();
+        await setup.goto(editorBlankUrl());
+        await setup.locator('.picker-project-cms').waitFor();
+        await checkCookieAccept(setup);
+        projectId = await createProject(setup, projectName);
     });
 
     test.afterAll(async () => {
-        // delete temporary project
-        await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
-        await deleteProject(page, projectId);
-
-        await page.close();
+        await deleteProject(setup, projectId);
+        await context.close();
     });
 
-    test('create base checkpoint', async () => {
-        expect(await capture('editor', page, async () => {
-            await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
+    const open = async (page: Page) => {
+        await page.goto(editorUrl(projectId, { disableBubbles: true }));
+        await waitForEditor(page);
+    };
 
-            [materialId, mainBranchId, mainCheckpointId] = await page.evaluate(async () => {
-                const createCheckpoint = async (description: string) => {
-                    const jobDeferred: PromiseWithResolvers<any> = Promise.withResolvers();
-                    const checkpointPromise = new Promise<any>((resolve, reject) => {
-                        const handle = window.editor.api.globals.messenger.on('message', async (name: string, data: any) => {
-                            const job = await jobDeferred.promise;
-                            if (name !== 'job.update' || data.job.id !== job.id) {
-                                return;
-                            }
-                            handle.unbind();
-                            const completed = await window.editor.api.globals.rest.jobs.jobGet({ jobId: job.id }).promisify();
-                            if (completed.status === 'error') {
-                                reject(new Error(completed.messages?.[0] ?? 'Checkpoint create failed'));
-                                return;
-                            }
-                            resolve(completed.data);
-                        });
-                    });
+    const diffuse = (page: Page) => page.evaluate((id) => {
+        return window.editor.api.globals.assets.get(id)?.get('data.diffuse') as number[];
+    }, materialId);
 
-                    const job = await window.editor.api.globals.rest.checkpoints.checkpointCreate({
-                        projectId: window.editor.api.globals.projectId,
-                        branchId: window.editor.api.globals.branchId,
-                        description
-                    }).promisify();
-                    jobDeferred.resolve(job);
-                    return checkpointPromise;
-                };
+    test('create base checkpoint', async ({ page }) => {
+        await open(page);
 
-                // setup material
-                const material = await window.editor.api.globals.assets.createMaterial({ name: 'TEST_MATERIAL' });
+        materialId = await page.evaluate(async () => {
+            const material = await window.editor.api.globals.assets.createMaterial({ name: 'TEST_MATERIAL' });
+            return material.get('id') as number;
+        });
+        baseDiffuse = await diffuse(page);
 
-                // create checkpoint
-                const checkpoint = await createCheckpoint('BASE');
+        const checkpoint = await createCheckpointApi(page, 'BASE');
+        mainCheckpointId = checkpoint.id;
+        mainBranchId = await page.evaluate(() => window.editor.api.globals.branchId);
 
-                return [
-                    material.get('id'),
-                    window.editor.api.globals.branchId,
-                    checkpoint.id
-                ];
-            });
-        })).toStrictEqual([]);
+        expect(materialId).toBeGreaterThan(0);
+        expect(mainCheckpointId).toMatch(/^[0-9a-f-]{36}$/);
     });
 
-    test('create red branch', async () => {
-        expect(await capture('editor', page, async () => {
-            // open version control and branch from the base checkpoint of main
-            await openVc(page);
-            redBranchId = await createBranchFromCheckpoint(page, mainCheckpointId, 'red');
+    test('create red branch', async ({ page }) => {
+        await open(page);
 
-            // set material color RED
-            await page.evaluate(async (materialId) => {
-                const material = await window.editor.api.globals.assets.findOne((asset: Observer) => asset.get('id') === materialId);
-                material.set('data.diffuse', [1, 0, 0]);
-            }, materialId);
+        // open version control and branch from the base checkpoint of main
+        await openVc(page);
+        redBranchId = await createBranchFromCheckpoint(page, mainCheckpointId, 'red');
+        expect(redBranchId).not.toBe(mainBranchId);
 
-            // create checkpoint
-            await openVc(page);
-            await createCheckpoint(page, 'RED');
-        })).toStrictEqual([]);
+        // set material color RED
+        await page.evaluate((materialId) => {
+            window.editor.api.globals.assets.get(materialId)!.set('data.diffuse', [1, 0, 0]);
+        }, materialId);
+
+        // create checkpoint
+        await openVc(page);
+        await createCheckpoint(page, 'RED');
+
+        expect(await page.evaluate(() => window.editor.api.globals.branchId)).toBe(redBranchId);
     });
 
-    test('create green branch', async () => {
-        expect(await capture('editor', page, async () => {
-            // open version control (currently on the red branch)
-            await openVc(page);
+    test('create green branch', async ({ page }) => {
+        await open(page);
 
-            // view main and branch green from its base checkpoint too
-            await openSwitcher(page);
-            await setBranchFilter(page, 'Open');
-            await page.locator(`#branch-${mainBranchId} .name`).click();
-            greenBranchId = await createBranchFromCheckpoint(page, mainCheckpointId, 'green');
+        // open version control (currently on the red branch)
+        await openVc(page);
 
-            // set material color GREEN
-            await page.evaluate(async (materialId) => {
-                const material = await window.editor.api.globals.assets.findOne((asset: Observer) => asset.get('id') === materialId);
-                material.set('data.diffuse', [0, 1, 0]);
-            }, materialId);
+        // view main and branch green from its base checkpoint too
+        await openSwitcher(page);
+        await setBranchFilter(page, 'Open');
+        await page.locator(`#branch-${mainBranchId} .name`).click();
+        greenBranchId = await createBranchFromCheckpoint(page, mainCheckpointId, 'green');
+        expect(greenBranchId).not.toBe(redBranchId);
 
-            // create checkpoint
-            await openVc(page);
-            await createCheckpoint(page, 'GREEN');
+        // set material color GREEN
+        await page.evaluate((materialId) => {
+            window.editor.api.globals.assets.get(materialId)!.set('data.diffuse', [0, 1, 0]);
+        }, materialId);
 
-            // capture green checkpoint id
-            greenCheckpointId = await page.evaluate(async () => {
-                const checkpoints = await window.editor.api.globals.rest.branches.branchCheckpoints({
-                    branchId: window.editor.api.globals.branchId,
-                    limit: 1
-                }).promisify();
-                return checkpoints.result[0].id;
-            });
-        })).toStrictEqual([]);
+        // create checkpoint
+        await openVc(page);
+        await createCheckpoint(page, 'GREEN');
+
+        // capture green checkpoint id
+        greenCheckpointId = await page.evaluate(async () => {
+            const checkpoints = await window.editor.api.globals.rest.branches.branchCheckpoints({
+                branchId: window.editor.api.globals.branchId,
+                limit: 1
+            }).promisify();
+            return checkpoints.result[0].id;
+        });
+        expect(greenCheckpointId).not.toBe(mainCheckpointId);
     });
 
-    test('diff between green and main branch', async () => {
-        expect(await capture('editor', page, async () => {
-            // open version control (currently on the green branch)
-            await openVc(page);
+    test('diff between green and main branch', async ({ page }) => {
+        await open(page);
 
-            // enter compare mode and pick the green checkpoint (slot A)
-            await page.locator('.vc-top-actions').getByText('Compare', { exact: true }).click();
-            await page.locator(`#checkpoint-${greenCheckpointId}`).click();
+        // open version control (currently on the green branch)
+        await openVc(page);
 
-            // view main and pick its base checkpoint (slot B)
-            await openSwitcher(page);
-            await setBranchFilter(page, 'Open');
-            await page.locator(`#branch-${mainBranchId} .name`).click();
-            await page.locator(`#checkpoint-${mainCheckpointId}`).waitFor({ state: 'visible' });
-            await page.locator(`#checkpoint-${mainCheckpointId}`).click();
+        // enter compare mode and pick the green checkpoint (slot A)
+        await page.locator('.vc-top-actions').getByText('Compare', { exact: true }).click();
+        await page.locator(`#checkpoint-${greenCheckpointId}`).click();
 
-            // compare
-            await page.locator('.vc-compare-bar .pcui-button:not(.pcui-disabled)').click();
+        // view main and pick its base checkpoint (slot B)
+        await openSwitcher(page);
+        await setBranchFilter(page, 'Open');
+        await page.locator(`#branch-${mainBranchId} .name`).click();
+        await page.locator(`#checkpoint-${mainCheckpointId}`).waitFor({ state: 'visible' });
+        await page.locator(`#checkpoint-${mainCheckpointId}`).click();
 
-            // wait for the diff overlay to load
-            const overlay = diffOverlay(page);
-            await overlay.waitFor({ state: 'visible' });
-            await overlay.locator('.vc-diff-sidebar .vc-diff-row').first().waitFor({ state: 'visible' });
+        // compare
+        await page.locator('.vc-compare-bar .pcui-button:not(.pcui-disabled)').click();
 
-            // close diff viewer
-            await overlay.locator('.vc-diff-close').click();
-            await overlay.waitFor({ state: 'hidden' });
-        })).toStrictEqual([]);
+        // the diff lists the material changed on green
+        const overlay = diffOverlay(page);
+        await overlay.waitFor({ state: 'visible' });
+        await expect(overlay.locator('.vc-diff-sidebar .vc-diff-row').first()).toBeVisible();
+
+        // close diff viewer
+        await overlay.locator('.vc-diff-close').click();
+        await expect(overlay).toBeHidden();
     });
 
-    test('switch to main branch', async () => {
-        expect(await capture('editor', page, async () => {
-            // open version control (currently on the green branch)
-            await openVc(page);
+    test('switch to main branch', async ({ page }) => {
+        await open(page);
 
-            // switch to main via the branch row action
-            await openSwitcher(page);
-            await setBranchFilter(page, 'Open');
-            const mainRow = page.locator(`#branch-${mainBranchId}`);
-            await mainRow.waitFor({ state: 'visible' });
-            await mainRow.hover();
-            await armReload(page);
-            await mainRow.locator('.switch').click();
+        // open version control (currently on the green branch)
+        await openVc(page);
 
-            // wait for the editor to reload onto main
-            await waitReload(page);
-        })).toStrictEqual([]);
+        // switch to main via the branch row action
+        await openSwitcher(page);
+        await setBranchFilter(page, 'Open');
+        const mainRow = page.locator(`#branch-${mainBranchId}`);
+        await mainRow.waitFor({ state: 'visible' });
+        await mainRow.hover();
+        await armReload(page);
+        await mainRow.locator('.switch').click();
+
+        // wait for the editor to reload onto main
+        await waitReload(page);
+        expect(await page.evaluate(() => window.editor.api.globals.branchId)).toBe(mainBranchId);
     });
 
-    test('merge red branch', async () => {
-        expect(await capture('editor', page, async () => {
-            // open version control (currently on the main branch)
-            await openVc(page);
+    test('merge red branch', async ({ page }) => {
+        await open(page);
 
-            // start merge of red into main
-            await openSwitcher(page);
-            await setBranchFilter(page, 'Open');
-            await branchMenuAction(page, redBranchId, /^Merge Into Current Branch$/);
+        // open version control (currently on the main branch)
+        await openVc(page);
 
-            // skip pre-merge checkpoints and close the source branch after merging
-            await page.locator('.vc-dialog').waitFor({ state: 'visible' });
-            await toggleDialogCheck(page, 'Take a checkpoint of red');
-            await toggleDialogCheck(page, 'Take a checkpoint of main');
-            await toggleDialogCheck(page, 'Close red after merging');
-            await dialogConfirm(page).click();
+        // start merge of red into main
+        await openSwitcher(page);
+        await setBranchFilter(page, 'Open');
+        await branchMenuAction(page, redBranchId, /^Merge Into Current Branch$/);
 
-            await completeMerge(page);
+        // skip pre-merge checkpoints and close the source branch after merging
+        await page.locator('.vc-dialog').waitFor({ state: 'visible' });
+        await toggleDialogCheck(page, 'Take a checkpoint of red');
+        await toggleDialogCheck(page, 'Take a checkpoint of main');
+        await toggleDialogCheck(page, 'Close red after merging');
+        await dialogConfirm(page).click();
 
-            // wait for the editor to reload
-            await waitReload(page);
-        })).toStrictEqual([]);
+        await completeMerge(page);
+
+        // wait for the editor to reload with red's material color on main
+        await waitReload(page);
+        expect(await diffuse(page)).toStrictEqual([1, 0, 0]);
     });
 
-    test('merge green branch', async () => {
-        expect(await capture('editor', page, async () => {
-            // open version control (currently on the main branch)
-            await openVc(page);
+    test('merge green branch', async ({ page }) => {
+        await open(page);
 
-            // start merge of green into main
-            await openSwitcher(page);
-            await setBranchFilter(page, 'Open');
-            await branchMenuAction(page, greenBranchId, /^Merge Into Current Branch$/);
+        // open version control (currently on the main branch)
+        await openVc(page);
 
-            // skip pre-merge checkpoints
-            await page.locator('.vc-dialog').waitFor({ state: 'visible' });
-            await toggleDialogCheck(page, 'Take a checkpoint of green');
-            await toggleDialogCheck(page, 'Take a checkpoint of main');
-            await dialogConfirm(page).click();
+        // start merge of green into main
+        await openSwitcher(page);
+        await setBranchFilter(page, 'Open');
+        await branchMenuAction(page, greenBranchId, /^Merge Into Current Branch$/);
 
-            // review conflicts (material color conflicts with the merged red change)
-            await mergeOverlay(page).waitFor({ state: 'visible' });
-            await mergeOverlay(page).getByRole('radio', { name: /Source/ }).click();
-            await mergeOverlay(page).locator('.vc-merge-resolve .pcui-button:not(.pcui-disabled)').filter({ hasText: /^Resolve$/ }).click();
-            await completeMerge(page);
+        // skip pre-merge checkpoints
+        await page.locator('.vc-dialog').waitFor({ state: 'visible' });
+        await toggleDialogCheck(page, 'Take a checkpoint of green');
+        await toggleDialogCheck(page, 'Take a checkpoint of main');
+        await dialogConfirm(page).click();
 
-            // wait for the editor to reload
-            await waitReload(page);
-        })).toStrictEqual([]);
+        // review conflicts (material color conflicts with the merged red change)
+        await mergeOverlay(page).waitFor({ state: 'visible' });
+        await mergeOverlay(page).getByRole('radio', { name: /Source/ }).click();
+        await mergeOverlay(page).locator('.vc-merge-resolve .pcui-button:not(.pcui-disabled)').filter({ hasText: /^Resolve$/ }).click();
+        await completeMerge(page);
+
+        // the resolved conflict takes green's material color
+        await waitReload(page);
+        expect(await diffuse(page)).toStrictEqual([0, 1, 0]);
     });
 
-    test('restore checkpoint', async () => {
-        expect(await capture('editor', page, async () => {
-            // open version control (currently on the main branch)
-            await openVc(page);
+    test('restore checkpoint', async ({ page }) => {
+        await open(page);
 
-            // start restore of the base checkpoint
-            await selectCheckpoint(page, mainCheckpointId);
-            await page.locator('.vc-detail-actions').getByText('Restore', { exact: true }).click();
+        // open version control (currently on the main branch)
+        await openVc(page);
 
-            // skip the pre-restore checkpoint and restore
-            await page.locator('.vc-dialog').waitFor({ state: 'visible' });
-            await toggleDialogCheck(page, 'Take a checkpoint of the current state first');
-            await armReload(page);
-            await dialogConfirm(page).click();
+        // start restore of the base checkpoint
+        await selectCheckpoint(page, mainCheckpointId);
+        await page.locator('.vc-detail-actions').getByText('Restore', { exact: true }).click();
 
-            // wait for the editor to reload
-            await waitReload(page);
-        })).toStrictEqual([]);
+        // skip the pre-restore checkpoint and restore
+        await page.locator('.vc-dialog').waitFor({ state: 'visible' });
+        await toggleDialogCheck(page, 'Take a checkpoint of the current state first');
+        await armReload(page);
+        await dialogConfirm(page).click();
+
+        // wait for the editor to reload with the base material color back
+        await waitReload(page);
+        expect(await diffuse(page)).toStrictEqual(baseDiffuse);
     });
 
-    test('hard reset checkpoint', async () => {
-        expect(await capture('editor', page, async () => {
-            // open version control (currently on the main branch)
-            await openVc(page);
+    test('hard reset checkpoint', async ({ page }) => {
+        await open(page);
 
-            // start hard reset of the base checkpoint
-            await selectCheckpoint(page, mainCheckpointId);
-            await page.locator('.vc-detail-actions').getByText('Hard Reset', { exact: false }).click();
+        // open version control (currently on the main branch)
+        await openVc(page);
 
-            // confirm by typing the checkpoint id (first 7 chars), then hard reset
-            await page.locator('.vc-dialog').waitFor({ state: 'visible' });
-            await dialogInput(page).fill(mainCheckpointId.substring(0, 7));
-            await armReload(page);
-            await dialogConfirm(page).click();
+        // start hard reset of the base checkpoint
+        await selectCheckpoint(page, mainCheckpointId);
+        await page.locator('.vc-detail-actions').getByText('Hard Reset', { exact: false }).click();
 
-            // wait for the editor to reload
-            await waitReload(page);
-        })).toStrictEqual([]);
+        // confirm by typing the checkpoint id (first 7 chars), then hard reset
+        await page.locator('.vc-dialog').waitFor({ state: 'visible' });
+        await dialogInput(page).fill(mainCheckpointId.substring(0, 7));
+        await armReload(page);
+        await dialogConfirm(page).click();
+
+        // wait for the editor to reload with base as the branch head
+        await waitReload(page);
+        const head = await page.evaluate(async () => {
+            const checkpoints = await window.editor.api.globals.rest.branches.branchCheckpoints({
+                branchId: window.editor.api.globals.branchId,
+                limit: 1
+            }).promisify();
+            return checkpoints.result[0].id;
+        });
+        expect(head).toBe(mainCheckpointId);
     });
 
-    test('delete red branch', async () => {
-        expect(await capture('editor', page, async () => {
-            // open version control (currently on the main branch)
-            await openVc(page);
+    test('delete red branch', async ({ page }) => {
+        await open(page);
 
-            // red was closed during merge -> find it under the Closed filter
-            await openSwitcher(page);
-            await setBranchFilter(page, 'Closed');
-            await branchMenuAction(page, redBranchId, /^Delete This Branch$/);
+        // open version control (currently on the main branch)
+        await openVc(page);
 
-            // confirm by typing the branch name, then delete
-            await page.locator('.vc-dialog').waitFor({ state: 'visible' });
-            await dialogInput(page).fill('red');
-            await dialogConfirm(page).click();
+        // red was closed during merge -> find it under the Closed filter
+        await openSwitcher(page);
+        await setBranchFilter(page, 'Closed');
+        await branchMenuAction(page, redBranchId, /^Delete This Branch$/);
 
-            // branch delete updates the list in place (no reload); let the job settle
-            await page.locator('.vc-dialog').waitFor({ state: 'hidden' });
-            await wait(2000);
-        })).toStrictEqual([]);
+        // confirm by typing the branch name, then delete
+        await page.locator('.vc-dialog').waitFor({ state: 'visible' });
+        await dialogInput(page).fill('red');
+        await dialogConfirm(page).click();
+
+        // branch delete updates the list in place (no reload); poll until the job lands
+        await expect(page.locator('.vc-dialog')).toBeHidden();
+        await expect.poll(() => branchIds(page, true), { timeout: JOB_TIMEOUT }).not.toContain(redBranchId);
     });
 
-    test('delete green branch', async () => {
-        expect(await capture('editor', page, async () => {
-            // open version control (currently on the main branch)
-            await openVc(page);
+    test('delete green branch', async ({ page }) => {
+        await open(page);
 
-            // green is still open -> find it under the Open filter
-            await openSwitcher(page);
-            await setBranchFilter(page, 'Open');
-            await branchMenuAction(page, greenBranchId, /^Delete This Branch$/);
+        // open version control (currently on the main branch)
+        await openVc(page);
 
-            // confirm by typing the branch name, then delete
-            await page.locator('.vc-dialog').waitFor({ state: 'visible' });
-            await dialogInput(page).fill('green');
-            await dialogConfirm(page).click();
+        // green is still open -> find it under the Open filter
+        await openSwitcher(page);
+        await setBranchFilter(page, 'Open');
+        await branchMenuAction(page, greenBranchId, /^Delete This Branch$/);
 
-            // branch delete updates the list in place (no reload); let the job settle
-            await page.locator('.vc-dialog').waitFor({ state: 'hidden' });
-            await wait(2000);
-        })).toStrictEqual([]);
+        // confirm by typing the branch name, then delete
+        await page.locator('.vc-dialog').waitFor({ state: 'visible' });
+        await dialogInput(page).fill('green');
+        await dialogConfirm(page).click();
+
+        // branch delete updates the list in place (no reload); poll until the job lands
+        await expect(page.locator('.vc-dialog')).toBeHidden();
+        await expect.poll(() => branchIds(page), { timeout: JOB_TIMEOUT }).not.toContain(greenBranchId);
     });
 });

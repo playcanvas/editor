@@ -1,10 +1,12 @@
 import type { Observer } from '@playcanvas/observer';
-import { expect, test, type Page } from '@playwright/test';
+import type { BrowserContext, Page } from '@playwright/test';
 
-import { capture } from '../../lib/capture';
 import { checkCookieAccept, deleteProject, importProject } from '../../lib/common';
 import { editorBlankUrl, editorUrl } from '../../lib/config';
+import { JOB_TIMEOUT } from '../../lib/constants';
+import { expect, test } from '../../lib/fixtures';
 import { middleware } from '../../lib/middleware';
+import { waitForEditor } from '../../lib/ready';
 
 const IN_PATH = 'test/fixtures/projects/texture-blank.zip';
 const TEXTURE_NAME = 'TEST_TEXTURE';
@@ -17,37 +19,36 @@ test.describe.configure({
 test.describe('migrations', () => {
     test.skip(true, 'Cannot update legacy paths on frontend');
 
+    let context: BrowserContext;
+    let setup: Page;
     let projectId: number;
-    let page: Page;
     let materialId: number;
     let textureId: number;
 
-    test.describe.configure({
-        mode: 'serial'
-    });
-
-    test.beforeAll(async ({ browser }) => {
-        page = await browser.newPage();
-        await middleware(page.context());
-
-        // import project containing textures
-        await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
-        await checkCookieAccept(page);
-        projectId = await importProject(page, IN_PATH);
+    // migrations run on load, so this spec imports and owns a legacy project
+    test.beforeAll(async ({ browser, authState }) => {
+        test.setTimeout(JOB_TIMEOUT);
+        context = await browser.newContext({ storageState: authState });
+        await middleware(context);
+        setup = await context.newPage();
+        await setup.goto(editorBlankUrl());
+        await setup.locator('.picker-project-cms').waitFor();
+        await checkCookieAccept(setup);
+        projectId = await importProject(setup, IN_PATH);
     });
 
     test.afterAll(async () => {
-        // delete temporary project
-        await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
-        await deleteProject(page, projectId);
-
-        await page.close();
+        await deleteProject(setup, projectId);
+        await context.close();
     });
 
-    test('prepare project', async () => {
-        expect(await capture('editor', page, async () => {
-            await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
-        })).toStrictEqual([]);
+    const open = async (page: Page) => {
+        await page.goto(editorUrl(projectId, { disableBubbles: true }));
+        await waitForEditor(page);
+    };
+
+    test('prepare project', async ({ page }) => {
+        await open(page);
 
         [textureId, materialId] = await page.evaluate(async (textureName) => {
             // fetch Texture
@@ -94,58 +95,67 @@ test.describe('migrations', () => {
 
             return [texture.get('id'), material.get('id')];
         }, TEXTURE_NAME);
+
+        expect(textureId).toBeGreaterThan(0);
+        expect(materialId).toBeGreaterThan(0);
     });
 
-    test('check migrations', async () => {
-        expect(await capture('editor', page, async () => {
-            await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
+    test('check migrations', async ({ page, errors }) => {
+        // the sRGB conflict is the behaviour under test here
+        errors.allow(/sRGB set to false/);
 
-            // check project settings migration
-            const projectSettings = await page.evaluate(() => {
-                return (window.editor.call('settings:project') as Observer).json();
-            });
-            expect(projectSettings.hasOwnProperty('deviceTypes')).toBe(false);
-            expect(projectSettings.hasOwnProperty('preferWebGl2')).toBe(false);
-            expect(projectSettings.hasOwnProperty('useLegacyAudio')).toBe(false);
-            expect(projectSettings.engineV2).toBe(true);
-            expect(projectSettings.useLegacyScripts).toBe(false);
-            expect(projectSettings.enableWebGpu).toBe(true);
-            expect(projectSettings.enableWebGl2).toBe(false);
+        await open(page);
 
-            // check material migration
-            const material = await page.evaluate((id) => {
-                return window.editor.api.globals.assets.findOne((asset: Observer) => asset.get('id') === id).json();
-            }, materialId);
-            expect(material.data.hasOwnProperty('fresnelModel')).toBe(false);
-            expect(material.data.ambientTint).toBe(true);
-            expect(material.data.ambient).toStrictEqual([1, 1, 1]);
-            expect(material.data.diffuseTint).toBe(true);
-            expect(material.data.diffuse).toStrictEqual([0, 0, 0]);
-            expect(material.data.emissiveTint).toBe(true);
-            expect(material.data.emissive).toStrictEqual([1, 1, 1]);
-            expect(material.data.metalnessTint).toBe(true);
-            expect(material.data.sheenTint).toBe(true);
-            expect(material.data.sheenGlossTint).toBe(true);
-            expect(material.data.useGammaTonemap).toBe(false);
-            expect(material.data.useTonemap).toBe(false);
-            expect(material.data.shader).toBe('blinn');
+        // check project settings migration
+        const projectSettings = await page.evaluate(() => {
+            return (window.editor.call('settings:project') as Observer).json();
+        });
+        expect(projectSettings.hasOwnProperty('deviceTypes')).toBe(false);
+        expect(projectSettings.hasOwnProperty('preferWebGl2')).toBe(false);
+        expect(projectSettings.hasOwnProperty('useLegacyAudio')).toBe(false);
+        expect(projectSettings.engineV2).toBe(true);
+        expect(projectSettings.useLegacyScripts).toBe(false);
+        expect(projectSettings.enableWebGpu).toBe(true);
+        expect(projectSettings.enableWebGl2).toBe(false);
 
-            // check texture migration
-            const texture = await page.evaluate((id) => {
-                return window.editor.api.globals.assets.findOne((asset: Observer) => asset.get('id') === id).json();
-            }, textureId);
-            expect(texture.data.hasOwnProperty('srgb')).toBe(true);
+        // check material migration
+        const material = await page.evaluate((id) => {
+            return window.editor.api.globals.assets.findOne((asset: Observer) => asset.get('id') === id).json();
+        }, materialId);
+        expect(material.data.hasOwnProperty('fresnelModel')).toBe(false);
+        expect(material.data.ambientTint).toBe(true);
+        expect(material.data.ambient).toStrictEqual([1, 1, 1]);
+        expect(material.data.diffuseTint).toBe(true);
+        expect(material.data.diffuse).toStrictEqual([0, 0, 0]);
+        expect(material.data.emissiveTint).toBe(true);
+        expect(material.data.emissive).toStrictEqual([1, 1, 1]);
+        expect(material.data.metalnessTint).toBe(true);
+        expect(material.data.sheenTint).toBe(true);
+        expect(material.data.sheenGlossTint).toBe(true);
+        expect(material.data.useGammaTonemap).toBe(false);
+        expect(material.data.useTonemap).toBe(false);
+        expect(material.data.shader).toBe('blinn');
 
-            // check entity migration
-            const root = await page.evaluate(() => {
-                return window.editor.api.globals.entities.root.json();
-            });
-            expect(root.components.light.shadowType).toBe(2); // VSM16
-            expect(root.components.camera.gammaCorrection).toBe(1); // 2.2
-        })).toContain(TEXTURE_ERROR);
+        // check texture migration
+        const texture = await page.evaluate((id) => {
+            return window.editor.api.globals.assets.findOne((asset: Observer) => asset.get('id') === id).json();
+        }, textureId);
+        expect(texture.data.hasOwnProperty('srgb')).toBe(true);
+
+        // check entity migration
+        const root = await page.evaluate(() => {
+            return window.editor.api.globals.entities.root.json();
+        });
+        expect(root.components.light.shadowType).toBe(2); // VSM16
+        expect(root.components.camera.gammaCorrection).toBe(1); // 2.2
+
+        // the colour map still points at a non-sRGB texture, so the editor reports it
+        expect(errors.list.some(m => m.includes(TEXTURE_ERROR))).toBe(true);
     });
 
-    test('fix sRGB conflicts', async () => {
+    test('fix sRGB conflicts', async ({ page, errors }) => {
+        await open(page);
+
         await page.evaluate((textureId) => {
             // remove texture from particlesystem normalMapAsset
             const root = window.editor.api.globals.entities.root;
@@ -156,34 +166,41 @@ test.describe('migrations', () => {
             texture.set('data.srgb', true);
         }, textureId);
 
-        // check for errors
-        expect(await capture('editor', page, async () => {
-            await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
-        })).toStrictEqual([]);
+        // reloading with the conflict fixed reports nothing
+        await open(page);
+        expect(errors.unexpected).toStrictEqual([]);
     });
 });
 
 test.describe('engine v1 migration', () => {
+    let context: BrowserContext;
+    let setup: Page;
     let projectId: number;
-    let page: Page;
 
-    test.beforeAll(async ({ browser }) => {
-        page = await browser.newPage();
-        await middleware(page.context());
-
-        await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
-        await checkCookieAccept(page);
-        projectId = await importProject(page, IN_PATH);
+    test.beforeAll(async ({ browser, authState }) => {
+        test.setTimeout(JOB_TIMEOUT);
+        context = await browser.newContext({ storageState: authState });
+        await middleware(context);
+        setup = await context.newPage();
+        await setup.goto(editorBlankUrl());
+        await setup.locator('.picker-project-cms').waitFor();
+        await checkCookieAccept(setup);
+        projectId = await importProject(setup, IN_PATH);
     });
 
     test.afterAll(async () => {
-        await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
-        await deleteProject(page, projectId);
-        await page.close();
+        await deleteProject(setup, projectId);
+        await context.close();
     });
 
-    test('prepare engine v1 project', async () => {
-        await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
+    const open = async (page: Page) => {
+        await page.goto(editorUrl(projectId, { disableBubbles: true }));
+        await waitForEditor(page);
+    };
+
+    test('prepare engine v1 project', async ({ page }) => {
+        await open(page);
+
         await page.evaluate(() => {
             const settings = window.editor.call('settings:project') as Observer;
             settings.set('engineV2', false);
@@ -199,10 +216,15 @@ test.describe('engine v1 migration', () => {
             root.set('components.camera.gammaCorrection', 0);
             root.set('components.camera.toneMapping', 0);
         });
+
+        // the ops must reach the server before this page closes, or the next
+        // test loads the unmigrated project and nothing migrates
+        await page.waitForFunction(() => !window.editor.api.globals.realtime.connection.sharedb.hasPending());
+        expect(await page.evaluate(() => (window.editor.call('settings:project') as Observer).get('engineV2'))).toBe(false);
     });
 
-    test('automatically migrates to engine v2', async () => {
-        await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
+    test('automatically migrates to engine v2', async ({ page }) => {
+        await open(page);
         await page.waitForFunction(
             () => (window.editor.call('settings:project') as Observer).get('engineV2') === true
         );

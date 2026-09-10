@@ -1,14 +1,16 @@
-import { expect, test, type Page } from '@playwright/test';
+import type { BrowserContext, Page } from '@playwright/test';
 
-import { capture } from '../../lib/capture';
 import { checkCookieAccept, deleteProject, importProject } from '../../lib/common';
 import { editorBlankUrl, editorUrl } from '../../lib/config';
+import { JOB_TIMEOUT } from '../../lib/constants';
+import { expect, test } from '../../lib/fixtures';
 import { middleware } from '../../lib/middleware';
+import { waitForEditor } from '../../lib/ready';
 
 type Asset = Exclude<ReturnType<typeof window.editor.api.globals.assets.get>, null>;
 
 const IN_PATH = 'test/fixtures/projects/texture-blank.zip';
-const TEXTURE_NAME = 'TEST_TEXTURE.png';
+const TEXTURE_NAME = 'TEST_TEXTURE';
 const FORMAT_LABELS: Record<string, string> = {
     webp: 'WebP',
     avif: 'AVIF',
@@ -21,32 +23,33 @@ test.describe.configure({
 });
 
 test.describe('texture-convert', () => {
+    let context: BrowserContext;
+    let setup: Page;
     let projectId: number;
-    let page: Page;
-    let currentAssetId: number;
 
-    test.describe.configure({
-        mode: 'serial'
-    });
-
-    test.beforeAll(async ({ browser }) => {
-        page = await browser.newPage();
-        await middleware(page.context());
-
-        // import project containing test texture
-        await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
-        await checkCookieAccept(page);
-        projectId = await importProject(page, IN_PATH);
+    // the fixture project ships the source texture, so this spec owns its project
+    test.beforeAll(async ({ browser, authState }) => {
+        test.setTimeout(JOB_TIMEOUT);
+        context = await browser.newContext({ storageState: authState });
+        await middleware(context);
+        setup = await context.newPage();
+        await setup.goto(editorBlankUrl());
+        await setup.locator('.picker-project-cms').waitFor();
+        await checkCookieAccept(setup);
+        projectId = await importProject(setup, IN_PATH);
     });
 
     test.afterAll(async () => {
-        // delete temporary project
-        await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
-        await deleteProject(page, projectId);
-        await page.close();
+        await deleteProject(setup, projectId);
+        await context.close();
     });
 
-    const convertTextureViaUI = async (sourceAssetId: number, targetFormat: string): Promise<number> => {
+    const open = async (page: Page) => {
+        await page.goto(editorUrl(projectId, { disableBubbles: true }));
+        await waitForEditor(page);
+    };
+
+    const convertTextureViaUI = async (page: Page, sourceAssetId: number, targetFormat: string): Promise<number> => {
         // right-click the asset grid item
         const assetName = await page.evaluate((id) => {
             const asset = window.editor.api.globals.assets.get(id);
@@ -111,20 +114,21 @@ test.describe('texture-convert', () => {
         return await createPromise;
     };
 
-    test('prepare project', async () => {
-        expect(await capture('editor', page, async () => {
-            await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
-        })).toStrictEqual([]);
+    // each conversion consumes the asset the previous one produced, found by extension
+    const textureId = (page: Page, ext: string) => page.evaluate(({ name, ext }) => {
+        const asset = window.editor.api.globals.assets.findOne((a: Asset) => {
+            const assetName = a.get('name') as string;
+            return assetName.startsWith(name) && assetName.endsWith(`.${ext}`);
+        });
+        if (!asset) {
+            throw new Error(`Asset "${name}.${ext}" not found`);
+        }
+        return asset.get('id') as number;
+    }, { name: TEXTURE_NAME, ext });
 
-        currentAssetId = await page.evaluate((name) => {
-            const asset = window.editor.api.globals.assets.findOne((a: Asset) => (a.get('name') as string).startsWith(name));
-            if (!asset) {
-                throw new Error(`Asset "${name}" not found`);
-            }
-            return asset.get('id') as number;
-        }, TEXTURE_NAME);
-
-        expect(currentAssetId).toBeGreaterThan(0);
+    test('prepare project', async ({ page }) => {
+        await open(page);
+        expect(await textureId(page, 'png')).toBeGreaterThan(0);
     });
 
     for (const { source, target } of [
@@ -133,14 +137,10 @@ test.describe('texture-convert', () => {
         { source: 'avif', target: 'jpeg' },
         { source: 'jpeg', target: 'png' }
     ]) {
-        test(`convert ${source.toUpperCase()} to ${target.toUpperCase()}`, async () => {
-            test.setTimeout(2 * 60 * 1000);
+        test(`convert ${source.toUpperCase()} to ${target.toUpperCase()}`, async ({ page }) => {
+            await open(page);
 
-            let newAssetId = 0;
-            expect(await capture(`convert-${source}-to-${target}`, page, async () => {
-                newAssetId = await convertTextureViaUI(currentAssetId, target);
-            })).toStrictEqual([]);
-
+            const newAssetId = await convertTextureViaUI(page, await textureId(page, source), target);
             const newAsset = await page.evaluate((id) => {
                 const asset = window.editor.api.globals.assets.get(id);
                 if (!asset) {
@@ -154,8 +154,6 @@ test.describe('texture-convert', () => {
 
             expect(newAsset.name).toContain(`.${target}`);
             expect(newAsset.type).toBe('texture');
-
-            currentAssetId = newAssetId;
         });
     }
 });
