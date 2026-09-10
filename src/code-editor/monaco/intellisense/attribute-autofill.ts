@@ -1,7 +1,10 @@
 import type { Observer } from '@playcanvas/observer';
 import type * as Monaco from 'monaco-editor';
 
+import { createLog } from '@/common/sentry';
 import { WorkerClient } from '@/core/worker/worker-client';
+
+const log = createLog('<PATH>');
 
 export type Fix = Monaco.languages.TextEdit & {
     title?: string;

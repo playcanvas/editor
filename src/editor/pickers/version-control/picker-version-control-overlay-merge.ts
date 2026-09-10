@@ -1,6 +1,9 @@
 import { Button, Container, Label, SelectInput } from '@playcanvas/pcui';
 
+import { createLog } from '@/common/sentry';
 import { handleCallback } from '@/common/utils';
+
+const log = createLog('<PATH>');
 
 editor.once('load', () => {
     const overlay = editor.call('picker:versioncontrol:createOverlay', {

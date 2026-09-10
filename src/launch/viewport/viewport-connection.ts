@@ -1,3 +1,7 @@
+import { createLog } from '@/common/sentry';
+
+const log = createLog('<PATH>');
+
 editor.once('load', () => {
     const icon = document.createElement('img');
     icon.classList.add('connecting');

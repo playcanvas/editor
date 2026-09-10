@@ -1,6 +1,6 @@
 {
     "name": "@playcanvas/editor",
-    "version": "2.31.6",
+    "version": "2.31.8",
     "description": "The PlayCanvas Editor Frontend",
     "keywords": [
         "editor",
@@ -58,6 +58,7 @@
         "@rollup/plugin-node-resolve": "15.3.1",
         "@rollup/plugin-swc": "0.4.0",
         "@sentry/browser": "^10.48.0",
+        "@sentry/esbuild-plugin": "^5.4.0",
         "@swc/core": "1.15.18",
         "@types/sharedb": "3.3.13",
         "autoprefixer": "10.4.27",

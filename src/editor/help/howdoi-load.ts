@@ -1,3 +1,7 @@
+import { createLog } from '@/common/sentry';
+
+const log = createLog('<PATH>');
+
 editor.once('load', () => {
     fetch(`${config.url.frontend}static/json/howdoi.json`)
         .then((res) => res.json())

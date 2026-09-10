@@ -1,6 +1,9 @@
 import { Observer } from '@playcanvas/observer';
 
 import { ObserverSync } from '@/common/observer-sync';
+import { createLog } from '@/common/sentry';
+
+const log = createLog('<PATH>');
 
 editor.once('load', () => {
     const syncPaths = ['name', 'file', 'data'];

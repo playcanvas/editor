@@ -11,6 +11,9 @@ const LOG_CAP = 1000;
 // re-announce so an editor reload can re-adopt this still-running app
 const ANNOUNCE_INTERVAL = 5000;
 
+// one identity per page load, so the agent can tell a reload from a re-adopt
+const sessionId = crypto.randomUUID();
+
 type LogEntry = { time: number; level: string; text: string };
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -28,19 +31,36 @@ const native = {
 // our own logging uses the native console, so it never buffers into runtime:logs
 const log = (msg: string) => native.log.call(console, `[MCP] ${msg}`);
 
+/**
+ * Render a console argument as text. Errors matter most: the engine's script component logs
+ * the exception object itself, which JSON.stringify flattens to `{}`.
+ *
+ * @param a - The console argument.
+ * @returns The rendered text.
+ */
+const format = (a: any) => {
+    if (typeof a === 'string') {
+        return a;
+    }
+
+    // Error, DOMException and error-like objects all carry a string message
+    if (a instanceof Error || typeof a?.message === 'string') {
+        const head = `${a.name ?? 'Error'}: ${a.message}`;
+        const stack = typeof a.stack === 'string' ? a.stack : '';
+        if (!stack) {
+            return head;
+        }
+        return stack.startsWith(head) ? stack : `${head}\n${stack}`;
+    }
+    try {
+        return JSON.stringify(a) ?? String(a);
+    } catch {
+        return String(a);
+    }
+};
+
 const push = (level: string, args: any[], stack?: string) => {
-    const text = args
-        .map((a) => {
-            if (typeof a === 'string') {
-                return a;
-            }
-            try {
-                return JSON.stringify(a);
-            } catch {
-                return String(a);
-            }
-        })
-        .join(' ');
+    const text = args.map(format).join(' ');
     logs.push({ time: Date.now(), level, text: stack ? `${text}\n${stack}` : text });
     if (logs.length > LOG_CAP) {
         logs.shift();
@@ -81,11 +101,26 @@ window.addEventListener('error', (e) => {
 });
 window.addEventListener('unhandledrejection', (e) => {
     if (capturing) {
-        push('error', [`Unhandled promise rejection: ${e.reason?.message ?? e.reason}`], e.reason?.stack);
+        push('error', [`Unhandled promise rejection: ${format(e.reason)}`]);
     }
 });
 
 mcp.method('runtime:ping', () => ({ data: 'pong' }));
+
+mcp.method('runtime:info', () => {
+    const app = editor.call('viewport:app');
+    return {
+        data: {
+            engineVersion: pc.version,
+            engineRevision: pc.revision ?? null,
+            deviceType: app?.graphicsDevice?.deviceType ?? null,
+            sessionId,
+            sceneId: (config as { scene?: { id: number } }).scene?.id ?? null,
+            projectId: config.project?.id ?? null,
+            url: location.href
+        }
+    };
+});
 
 mcp.method(
     'runtime:capture',
@@ -99,35 +134,15 @@ mcp.method(
                 return;
             }
             const device = app.graphicsDevice;
-            const gl = device.gl;
-            if (!gl) {
-                resolve({ error: 'WebGL context not found on the runtime app.' });
-                return;
-            }
 
-            // read the backbuffer at the end of a frame, while it is still valid
+            // copy the canvas at the end of a frame, before it is presented: unlike readPixels
+            // this works on both WebGL and WebGPU
             const onEnd = () => {
                 app.off('frameend', onEnd);
                 try {
-                    const width = device.width;
-                    const height = device.height;
-
-                    const pixels = new Uint8Array(width * height * 4);
-                    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-                    gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-
-                    // flip vertically (WebGL reads bottom-to-top)
-                    const flipped = new Uint8Array(width * height * 4);
-                    const rowSize = width * 4;
-                    for (let y = 0; y < height; y++) {
-                        flipped.set(pixels.subarray((height - 1 - y) * rowSize, (height - y) * rowSize), y * rowSize);
-                    }
-
-                    const srcCanvas = document.createElement('canvas');
-                    srcCanvas.width = width;
-                    srcCanvas.height = height;
-                    const srcCtx = srcCanvas.getContext('2d')!;
-                    srcCtx.putImageData(new ImageData(new Uint8ClampedArray(flipped.buffer), width, height), 0, 0);
+                    const canvas = device.canvas;
+                    const width = canvas.width;
+                    const height = canvas.height;
 
                     const maxWidth = 800;
                     let dstWidth = width;
@@ -140,11 +155,19 @@ mcp.method(
                     const dstCanvas = document.createElement('canvas');
                     dstCanvas.width = dstWidth;
                     dstCanvas.height = dstHeight;
-                    dstCanvas.getContext('2d')!.drawImage(srcCanvas, 0, 0, dstWidth, dstHeight);
+                    dstCanvas.getContext('2d')!.drawImage(canvas, 0, 0, dstWidth, dstHeight);
 
                     const base64 = dstCanvas.toDataURL('image/webp', 0.8).split(',')[1];
                     log(`Captured runtime screenshot (${dstWidth}x${dstHeight})`);
-                    resolve({ data: base64, meta: { mimeType: 'image/webp', width: dstWidth, height: dstHeight } });
+                    resolve({
+                        data: base64,
+                        meta: {
+                            mimeType: 'image/webp',
+                            width: dstWidth,
+                            height: dstHeight,
+                            deviceType: device.deviceType
+                        }
+                    });
                 } catch (e: any) {
                     resolve({ error: `Failed to capture runtime: ${e.message}` });
                 }
@@ -346,11 +369,40 @@ const dispatchKey = (kind: string, info: { key: string; code: string; keyCode: n
     document.dispatchEvent(e);
 };
 
+// the engine's input sources (camera-controls, first-person-controller) listen for pointer
+// events, which the browser fires before the matching mouse/touch event
+const POINTER_KINDS: Record<string, string> = {
+    mousedown: 'pointerdown',
+    mousemove: 'pointermove',
+    mouseup: 'pointerup',
+    touchstart: 'pointerdown',
+    touchmove: 'pointermove',
+    touchend: 'pointerup',
+    touchcancel: 'pointercancel'
+};
+
+const dispatchPointer = (kind: string, canvas: HTMLCanvasElement, init: PointerEventInit) => {
+    const pointerKind = POINTER_KINDS[kind];
+    if (!pointerKind || typeof PointerEvent === 'undefined') {
+        return;
+    }
+    canvas.dispatchEvent(new PointerEvent(pointerKind, { ...init, bubbles: true, cancelable: true, view: window }));
+};
+
 const dispatchMouse = (kind: string, canvas: HTMLCanvasElement, x?: number, y?: number, button?: number) => {
     const rect = canvas.getBoundingClientRect();
     const clientX = rect.left + (x || 0);
     const clientY = rect.top + (y || 0);
     const buttons = kind === 'mousedown' ? (button === 2 ? 2 : button === 1 ? 4 : 1) : 0;
+    dispatchPointer(kind, canvas, {
+        clientX,
+        clientY,
+        button: button || 0,
+        buttons,
+        pointerType: 'mouse',
+        pointerId: 1,
+        isPrimary: true
+    });
     canvas.dispatchEvent(
         new MouseEvent(kind, {
             clientX,
@@ -368,6 +420,13 @@ const dispatchTouch = (kind: string, canvas: HTMLCanvasElement, x?: number, y?: 
     const rect = canvas.getBoundingClientRect();
     const clientX = rect.left + (x || 0);
     const clientY = rect.top + (y || 0);
+    dispatchPointer(kind, canvas, {
+        clientX,
+        clientY,
+        pointerType: 'touch',
+        pointerId: 2 + (id || 0),
+        isPrimary: !id
+    });
     const touch = new Touch({
         identifier: id || 0,
         target: canvas,

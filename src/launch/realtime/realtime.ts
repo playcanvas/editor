@@ -1,4 +1,7 @@
+import { createLog } from '@/common/sentry';
 import { share } from '@/common/sharedb';
+
+const log = createLog('<PATH>');
 
 editor.once('load', () => {
     let auth = false;
