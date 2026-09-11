@@ -460,12 +460,13 @@ export const deleteApp = async (page: Page, appId: number) => {
  *
  * @param page - The page.
  * @param filename - The script filename (e.g. 'test-esm.mjs').
+ * @param text - The script contents. Leave undefined for the ESM boilerplate.
  * @returns The asset id.
  */
-export const createEsmScript = async (page: Page, filename: string, attempts = 3): Promise<number> => {
+export const createEsmScript = async (page: Page, filename: string, text?: string, attempts = 3): Promise<number> => {
     let lastError = '';
     for (let attempt = 0; attempt < attempts; attempt++) {
-        const result = await page.evaluate(async (filename) => {
+        const result = await page.evaluate(async ({ filename, text }) => {
             const assets = window.editor.api.globals.assets;
 
             // reuse a script left by a prior partial attempt — the upload succeeds even
@@ -485,7 +486,7 @@ export const createEsmScript = async (page: Page, filename: string, attempts = 3
                 });
             }
 
-            return assets.createScript({ filename }).then(async (asset: any) => {
+            return assets.createScript({ filename, text }).then(async (asset: any) => {
                 if (!asset.get('file')) {
                     await new Promise<void>((resolve) => {
                         asset.once('file:set', () => resolve());
@@ -495,7 +496,7 @@ export const createEsmScript = async (page: Page, filename: string, attempts = 3
             }).catch((err: any) => {
                 return { error: err?.message ?? String(err) };
             });
-        }, filename);
+        }, { filename, text });
 
         if ('id' in result) {
             return result.id;
