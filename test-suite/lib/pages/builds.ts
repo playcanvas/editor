@@ -36,7 +36,7 @@ export const deleteBuild = async (page: Page, kind: Kind) => {
     await buildRow(page, kind).locator('.kebab').click();
     await page.locator('.picker-builds-menu .pcui-menu-item').filter({ hasText: /^Delete$/ }).first().click();
     await new EditorShell(page).confirm.yes.click();
-    await expect(page.locator(`.build-item.${kind}`)).toHaveCount(0);
+    await expect(page.locator(`.build-item.${kind}`)).toHaveCount(0, { timeout: JOB_TIMEOUT });
 };
 
 /** dismiss the project dialog hosting the builds panel */

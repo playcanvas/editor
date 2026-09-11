@@ -28,6 +28,12 @@ test.afterEach(async ({ editorPage }) => {
     }
     if (await settings.sceneSetting(CLUSTERED) !== snapshot.clustered) {
         await settings.setSceneSetting(CLUSTERED, snapshot.clustered);
+
+        // scene settings ride the scene sharedb doc, not the project settings doc, so flush that
+        // one too or the next spec in this worker opens the scene with clustered lighting still on
+        await editorPage.evaluate(() => new Promise<void>((resolve) => {
+            window.editor.api.globals.realtime.scenes.current.whenNothingPending(resolve);
+        }));
     }
     await settings.flushProjectSettings();
 });
@@ -103,7 +109,8 @@ test('RENDERING Clustered Lighting asks for a restart without reloading', async 
     await expect(settings.restartModal).toBeVisible();
     await expect(settings.restartModal.locator('.pcui-button')).toHaveText('RELOAD');
 
-    // the toggle writes through before the modal opens: the binding runs after the change event
+    // rendering.ts compares the observer against the new value, so the change handler opens the
+    // modal first and the binding writes the value through after it
     await expect.poll(() => settings.sceneSetting(CLUSTERED)).toBe(!before);
 
     // the modal only offers RELOAD, so drop it ourselves rather than let it reload the page

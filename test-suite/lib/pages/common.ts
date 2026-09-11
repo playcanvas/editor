@@ -8,9 +8,11 @@ export class EditorShell {
         await this.page.locator('.pcui-menu:not(.pcui-hidden) span').filter({ hasText: item }).first().click();
     }
 
+    // a pcui MenuItem content holds two labels, the text then the shortcut, and a shortcut can
+    // repeat the item name (Delete), so skip the shortcut label to keep the match single
     menuItem(text: string | RegExp) {
         const re = typeof text === 'string' ? new RegExp(`^${text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`) : text;
-        return this.page.locator('.pcui-menu:not(.pcui-hidden) .pcui-menu-item-content > .pcui-label').filter({ hasText: re });
+        return this.page.locator('.pcui-menu:not(.pcui-hidden) .pcui-menu-item-content > .pcui-label:not(.pcui-menu-item-shortcut)').filter({ hasText: re });
     }
 
     get confirm() {

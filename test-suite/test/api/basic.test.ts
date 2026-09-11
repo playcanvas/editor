@@ -22,7 +22,9 @@ import { middleware } from '../../lib/middleware';
 import { waitForCodeEditor, waitForEditor } from '../../lib/ready';
 import { uniqueName } from '../../lib/utils';
 
-const BUILD_TIMEOUT = 4 * 60_000;
+// job-backed tests need a budget longer than JOB_TIMEOUT so the poll fails with the
+// job diagnostic instead of the 2 min default test timeout
+const TEST_TIMEOUT = 4 * 60_000;
 
 test.describe.configure({
     mode: 'serial'
@@ -47,20 +49,22 @@ test.describe('create/delete', () => {
     });
 
     test('fork project', async ({ blankPage }) => {
-        test.setTimeout(BUILD_TIMEOUT);
+        test.setTimeout(TEST_TIMEOUT);
         forkedProjectId = await createProject(blankPage, forkedProjectName, projectId);
         expect(forkedProjectId).not.toBe(projectId);
         expect(await projectIds(blankPage)).toContain(forkedProjectId);
     });
 
     test('delete forked project', async ({ blankPage }) => {
+        test.setTimeout(TEST_TIMEOUT);
         await deleteProject(blankPage, forkedProjectId);
-        await expect.poll(() => projectIds(blankPage)).not.toContain(forkedProjectId);
+        await expect.poll(() => projectIds(blankPage), { timeout: JOB_TIMEOUT }).not.toContain(forkedProjectId);
     });
 
     test('delete project', async ({ blankPage }) => {
+        test.setTimeout(TEST_TIMEOUT);
         await deleteProject(blankPage, projectId);
-        await expect.poll(() => projectIds(blankPage)).not.toContain(projectId);
+        await expect.poll(() => projectIds(blankPage), { timeout: JOB_TIMEOUT }).not.toContain(projectId);
     });
 });
 
@@ -90,7 +94,7 @@ test.describe('export/import', () => {
     });
 
     test('export project', async ({ blankPage }) => {
-        test.setTimeout(BUILD_TIMEOUT);
+        test.setTimeout(TEST_TIMEOUT);
         const downloadPromise = blankPage.waitForEvent('download');
         await exportProject(blankPage, projectId);
         const download = await downloadPromise;
@@ -99,7 +103,7 @@ test.describe('export/import', () => {
     });
 
     test('import project', async ({ blankPage }) => {
-        test.setTimeout(BUILD_TIMEOUT);
+        test.setTimeout(TEST_TIMEOUT);
         importedProjectId = await importProject(blankPage, exportPath);
         expect(importedProjectId).toBeGreaterThan(0);
         expect(importedProjectId).not.toBe(projectId);
@@ -107,8 +111,9 @@ test.describe('export/import', () => {
     });
 
     test('delete imported project', async ({ blankPage }) => {
+        test.setTimeout(TEST_TIMEOUT);
         await deleteProject(blankPage, importedProjectId);
-        await expect.poll(() => projectIds(blankPage)).not.toContain(importedProjectId);
+        await expect.poll(() => projectIds(blankPage), { timeout: JOB_TIMEOUT }).not.toContain(importedProjectId);
     });
 });
 
@@ -232,7 +237,7 @@ test.describe('publish/download', () => {
         }
 
         test(`download app (scripts: ${scripts})`, async ({ page }) => {
-            test.setTimeout(BUILD_TIMEOUT);
+            test.setTimeout(TEST_TIMEOUT);
             await open(page);
 
             const job = await downloadApp(page, sceneId);
@@ -240,7 +245,7 @@ test.describe('publish/download', () => {
         });
 
         test(`publish app (scripts: ${scripts})`, async ({ page }) => {
-            test.setTimeout(BUILD_TIMEOUT);
+            test.setTimeout(TEST_TIMEOUT);
             await open(page);
 
             // publish app
@@ -255,7 +260,7 @@ test.describe('publish/download', () => {
             // delete app
             await open(page);
             await deleteApp(page, app.id);
-            await expect.poll(() => appIds(page)).not.toContain(app.id);
+            await expect.poll(() => appIds(page), { timeout: JOB_TIMEOUT }).not.toContain(app.id);
         });
     }
 });
