@@ -56,6 +56,8 @@ type ProjectSettings = {
     useTouch?: boolean;
     useGamepads?: boolean;
     maxAssetRetries: number;
+    withCredentials: boolean;
+    maxConcurrentRequests: number;
 };
 
 type Project = {

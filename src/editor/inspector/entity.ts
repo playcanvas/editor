@@ -22,6 +22,7 @@ import { CollisionComponentInspector } from './components/collision';
 import type { ComponentInspector } from './components/component';
 import { ElementComponentInspector } from './components/element';
 import { GSplatComponentInspector } from './components/gsplat';
+import { JointComponentInspector } from './components/joint';
 import { LayoutchildComponentInspector } from './components/layoutchild';
 import { LayoutgroupComponentInspector } from './components/layoutgroup';
 import { LightComponentInspector } from './components/light';
@@ -63,6 +64,7 @@ componentToConstructor.set('sound', SoundComponentInspector);
 componentToConstructor.set('sprite', SpriteComponentInspector);
 componentToConstructor.set('zone', ZoneComponentInspector);
 componentToConstructor.set('gsplat', GSplatComponentInspector);
+componentToConstructor.set('joint', JointComponentInspector);
 
 const CLASS_ROOT = 'entity-inspector';
 const CLASS_NO_COMPONENTS = `${CLASS_ROOT}-no-components`;
@@ -125,6 +127,7 @@ const getSubMenu = function (key: string) {
 
         case 'rigidbody':
         case 'collision':
+        case 'joint':
             return 'physics-sub-menu';
 
         case 'light':

@@ -75,6 +75,12 @@ const ATTRIBUTES: Attribute[] = [
         type: 'boolean'
     },
     {
+        label: 'Shadow Cascades',
+        path: 'components.render.shadowCascadeMask',
+        reference: 'render:shadowCascadeMask',
+        type: 'shadow-cascade-mask'
+    },
+    {
         label: 'Cast Lightmap Shadows',
         path: 'components.render.castShadowsLightmap',
         reference: 'render:castShadowsLightmap',
@@ -198,7 +204,7 @@ class RenderComponentInspector extends ComponentInspector {
         this._labelUv1Missing.style.marginLeft = 'auto';
         this._field('lightmapped').parent.append(this._labelUv1Missing);
 
-        ['type', 'asset', 'lightmapped', 'lightmapSizeMultiplier', 'customAabb'].forEach((field) => {
+        ['type', 'asset', 'castShadows', 'lightmapped', 'lightmapSizeMultiplier', 'customAabb'].forEach((field) => {
             this._field(field).on('change', this._toggleFields.bind(this));
         });
 
@@ -374,6 +380,7 @@ class RenderComponentInspector extends ComponentInspector {
         this._field('lightmapSizeMultiplier').parent.hidden = fieldLightmapSize.parent.hidden;
 
         this._field('asset').hidden = this._field('type').value !== 'asset';
+        this._field('shadowCascadeMask').parent.hidden = !this._field('castShadows').value;
 
         // Show Root Bone only if all selected entities have a skinned render asset
         const showRootBone =

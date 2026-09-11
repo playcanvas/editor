@@ -234,6 +234,13 @@ export const fields: AttributeReference[] = [
         url: 'https://api.playcanvas.com/engine/classes/ElementComponent.html#wraplines'
     },
     {
+        name: 'element:justify',
+        title: 'justify',
+        subTitle: '{Boolean}',
+        description: 'Stretch wrapped text lines to both edges by widening the spaces between words.',
+        url: 'https://api.playcanvas.com/engine/classes/ElementComponent.html#justify'
+    },
+    {
         name: 'element:maxLines',
         title: 'maxLines',
         subTitle: '{Number}',

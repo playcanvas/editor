@@ -188,6 +188,8 @@ editor.once('load', () => {
     };
 
     app = new pc.AppBase(canvas);
+    app.loader.withCredentials = projectSettings.get('withCredentials');
+    app.loader.maxConcurrentRequests = projectSettings.get('maxConcurrentRequests');
 
     pc.createGraphicsDevice(canvas, gfxOptions).then((device) => {
         const createOptions = new pc.AppOptions();
@@ -480,6 +482,14 @@ editor.once('load', () => {
             } else {
                 app.loader.disableRetry();
             }
+        });
+
+        projectSettings.on('withCredentials:set', (value: boolean) => {
+            app.loader.withCredentials = value;
+        });
+
+        projectSettings.on('maxConcurrentRequests:set', (value: number) => {
+            app.loader.maxConcurrentRequests = value;
         });
 
         // locale change

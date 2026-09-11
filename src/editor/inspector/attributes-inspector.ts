@@ -226,6 +226,9 @@ class AttributesInspector extends Container {
                     if (type === 'slider') {
                         type = 'number';
                     }
+                    if (type === 'shadow-cascade-mask') {
+                        type = 'number';
+                    }
                     if ((type === 'asset' || type === 'array:asset') && attr.args?.assetType) {
                         type += `:${attr.args.assetType}`;
                     }

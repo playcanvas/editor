@@ -390,6 +390,37 @@ export const fields: AttributeReference[] = [
         url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#heightmapfactor'
     },
     {
+        name: 'asset:material:parallaxMode',
+        title: 'parallaxMode',
+        subTitle: '{String}',
+        description:
+            'Selects a single height-map offset or ray-marched parallax occlusion. The mesh silhouette and depth buffer remain unchanged.',
+        url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#parallaxmode'
+    },
+    {
+        name: 'asset:material:heightMapBase',
+        title: 'heightMapBase',
+        subTitle: '{Number}',
+        description:
+            'Height-map value that sits at the original surface. Use 1 for depth maps where white represents the flat surface.',
+        url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#heightmapbase'
+    },
+    {
+        name: 'asset:material:parallaxSamples',
+        title: 'parallaxSamples',
+        subTitle: '{Number}',
+        description: 'Maximum height-map samples used by parallax occlusion. Higher values increase rendering cost.',
+        url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#parallaxsamples'
+    },
+    {
+        name: 'asset:material:parallaxShadowSamples',
+        title: 'parallaxShadowSamples',
+        subTitle: '{Number}',
+        description:
+            'Maximum samples used to self-shadow parallax relief for each directional light. Set to 0 to disable it.',
+        url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#parallaxshadowsamples'
+    },
+    {
         name: 'asset:material:heightMapOffset',
         title: 'heightMapOffset',
         subTitle: '{pc.Vec2}',
