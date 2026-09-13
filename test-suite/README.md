@@ -21,9 +21,8 @@ backend (`dev.playcanvas.com`) while loading the frontend bundles from your loca
   | `PC_LOGIN_HOST` | login host |
   | `PC_COOKIE_NAME` / `PC_COOKIE_VALUE` | session cookie of a `testSuite`-flagged account |
   | `PC_HEADER_NAME` / `PC_HEADER_VALUE` | CloudFront header injected by `lib/middleware.ts` |
-
-  `PC_LOCAL_FRONTEND=true` is **not** in the template — add it yourself to load the frontends
-  from `localhost:3487`. Without it the suite tests the deployed frontend.
+  | `PC_LOCAL_FRONTEND` | `true` loads the frontends from `localhost:3487`; unset tests the deployed frontend |
+  | `PC_COLLAB_USERNAME` | username of the second account, needed by `test/ui/team.test.ts` |
 
   The account behind `PC_COOKIE_VALUE` must have the `testSuite` flag; `test/auth.setup.ts`
   fails fast with `test suite flag not present on account` otherwise.
@@ -90,6 +89,20 @@ PC_COOKIE_VALUE=<cookie-a>,<cookie-b>
 `test/ui/team.test.ts` invites a second account by username, which cookies cannot supply, so it
 needs `PC_COLLAB_USERNAME=<username of the second account>` and skips the whole file without it.
 
+## Specs restore the shared project
+
+The `project` fixture is worker-scoped, so every spec in a run edits the same project and has to
+hand it back the way it was given. Take a baseline in `beforeEach` and drop the delta in
+`afterEach` with the shared helper — `EditorShell.snapshot()` returns the entity and asset ids the
+project holds, `EditorShell.restore(snapshot)` deletes everything added since (entities with
+`history: false`, assets through the backend, polled until the registry drops them) and never
+touches the project's stock entities or assets. Leaving state behind is not a private matter:
+`test/ui/inspector.test.ts` used to leave a 1x1 png texture in the project and it later failed
+`test/ui/smoke.test.ts` 'launch page runs', because the launch page loaded that texture and the
+console capture saw the decode error. A spec that owns its own project instead (version control,
+texture convert, migrations, `test/ui/basic.test.ts`) creates it in `beforeAll` and deletes it in
+`afterAll`.
+
 ## Console errors
 
 Every test gets the auto `errors` fixture: `lib/console.ts` attaches to the context (and to
@@ -130,14 +143,15 @@ raise its own budget past it:
 
 ```ts
 test('delete project', async ({ blankPage }) => {
-    test.setTimeout(4 * 60 * 1000);
+    test.setTimeout(JOB_TEST_TIMEOUT);
     await deleteProject(blankPage, projectId);
     await expect.poll(() => projectIds(blankPage), { timeout: JOB_TIMEOUT }).not.toContain(projectId);
 });
 ```
 
-Without the `test.setTimeout`, the 2-minute default test timeout fires first and you lose the
-job-specific failure message. Playwright's own 5-second default on `expect.poll` /
+`JOB_TEST_TIMEOUT` (4 minutes) is in `lib/constants.ts` for exactly this; a `beforeAll` that
+waits on a job needs the same `test.setTimeout` inside the hook. Without it, the 2-minute default
+test timeout fires first and you lose the job-specific failure message. Playwright's own 5-second default on `expect.poll` /
 `toHaveCount` is far too short for a job.
 
 ## Lint and types

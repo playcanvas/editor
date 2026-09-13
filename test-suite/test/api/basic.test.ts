@@ -16,19 +16,11 @@ import {
     publishApp
 } from '../../lib/common';
 import { codeEditorUrl, editorBlankUrl, editorSceneUrl, editorUrl } from '../../lib/config';
-import { JOB_TIMEOUT } from '../../lib/constants';
+import { JOB_TEST_TIMEOUT, JOB_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { middleware } from '../../lib/middleware';
 import { waitForCodeEditor, waitForEditor } from '../../lib/ready';
 import { uniqueName } from '../../lib/utils';
-
-// job-backed tests need a budget longer than JOB_TIMEOUT so the poll fails with the
-// job diagnostic instead of the 2 min default test timeout
-const TEST_TIMEOUT = 4 * 60_000;
-
-test.describe.configure({
-    mode: 'serial'
-});
 
 /** ids of every project owned by the current user */
 const projectIds = (page: Page) => page.evaluate(async () => {
@@ -37,38 +29,43 @@ const projectIds = (page: Page) => page.evaluate(async () => {
 });
 
 test.describe('create/delete', () => {
+    test.describe.configure({ mode: 'serial' });
+
     const projectName = uniqueName('api-project');
     const forkedProjectName = uniqueName('api-project');
     let projectId: number;
     let forkedProjectId: number;
 
     test('create project', async ({ blankPage }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
         projectId = await createProject(blankPage, projectName);
         expect(projectId).toBeGreaterThan(0);
         expect(await projectIds(blankPage)).toContain(projectId);
     });
 
     test('fork project', async ({ blankPage }) => {
-        test.setTimeout(TEST_TIMEOUT);
+        test.setTimeout(JOB_TEST_TIMEOUT);
         forkedProjectId = await createProject(blankPage, forkedProjectName, projectId);
         expect(forkedProjectId).not.toBe(projectId);
         expect(await projectIds(blankPage)).toContain(forkedProjectId);
     });
 
     test('delete forked project', async ({ blankPage }) => {
-        test.setTimeout(TEST_TIMEOUT);
+        test.setTimeout(JOB_TEST_TIMEOUT);
         await deleteProject(blankPage, forkedProjectId);
         await expect.poll(() => projectIds(blankPage), { timeout: JOB_TIMEOUT }).not.toContain(forkedProjectId);
     });
 
     test('delete project', async ({ blankPage }) => {
-        test.setTimeout(TEST_TIMEOUT);
+        test.setTimeout(JOB_TEST_TIMEOUT);
         await deleteProject(blankPage, projectId);
         await expect.poll(() => projectIds(blankPage), { timeout: JOB_TIMEOUT }).not.toContain(projectId);
     });
 });
 
 test.describe('export/import', () => {
+    test.describe.configure({ mode: 'serial' });
+
     const projectName = uniqueName('api-export');
     const exportPath = `${tmpdir()}/${uniqueName('exported-project')}.zip`;
     let context: BrowserContext;
@@ -77,6 +74,7 @@ test.describe('export/import', () => {
     let importedProjectId: number;
 
     test.beforeAll(async ({ browser, authState }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
         context = await browser.newContext({ storageState: authState });
         await middleware(context);
         setup = await context.newPage();
@@ -88,13 +86,13 @@ test.describe('export/import', () => {
 
     test.afterAll(async () => {
         // the import copies the name, so clear both projects by prefix
-        test.setTimeout(JOB_TIMEOUT);
+        test.setTimeout(JOB_TEST_TIMEOUT);
         await deleteProjectsByPrefix(setup, projectName);
         await context.close();
     });
 
     test('export project', async ({ blankPage }) => {
-        test.setTimeout(TEST_TIMEOUT);
+        test.setTimeout(JOB_TEST_TIMEOUT);
         const downloadPromise = blankPage.waitForEvent('download');
         await exportProject(blankPage, projectId);
         const download = await downloadPromise;
@@ -103,7 +101,7 @@ test.describe('export/import', () => {
     });
 
     test('import project', async ({ blankPage }) => {
-        test.setTimeout(TEST_TIMEOUT);
+        test.setTimeout(JOB_TEST_TIMEOUT);
         importedProjectId = await importProject(blankPage, exportPath);
         expect(importedProjectId).toBeGreaterThan(0);
         expect(importedProjectId).not.toBe(projectId);
@@ -111,7 +109,7 @@ test.describe('export/import', () => {
     });
 
     test('delete imported project', async ({ blankPage }) => {
-        test.setTimeout(TEST_TIMEOUT);
+        test.setTimeout(JOB_TEST_TIMEOUT);
         await deleteProject(blankPage, importedProjectId);
         await expect.poll(() => projectIds(blankPage), { timeout: JOB_TIMEOUT }).not.toContain(importedProjectId);
     });
@@ -126,6 +124,7 @@ test.describe('navigation', () => {
     let engineVersions: typeof window.config.engineVersions;
 
     test.beforeAll(async ({ browser, authState }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
         context = await browser.newContext({ storageState: authState });
         await middleware(context);
         setup = await context.newPage();
@@ -142,6 +141,7 @@ test.describe('navigation', () => {
     });
 
     test.afterAll(async () => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
         await deleteProject(setup, projectId);
         await context.close();
     });
@@ -184,6 +184,8 @@ test.describe('navigation', () => {
 });
 
 test.describe('publish/download', () => {
+    test.describe.configure({ mode: 'serial' });
+
     const projectName = uniqueName('api-apps');
     let context: BrowserContext;
     let setup: Page;
@@ -191,6 +193,7 @@ test.describe('publish/download', () => {
     let sceneId: number;
 
     test.beforeAll(async ({ browser, authState }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
         context = await browser.newContext({ storageState: authState });
         await middleware(context);
         setup = await context.newPage();
@@ -205,6 +208,7 @@ test.describe('publish/download', () => {
     });
 
     test.afterAll(async () => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
         await deleteProject(setup, projectId);
         await context.close();
     });
@@ -237,7 +241,7 @@ test.describe('publish/download', () => {
         }
 
         test(`download app (scripts: ${scripts})`, async ({ page }) => {
-            test.setTimeout(TEST_TIMEOUT);
+            test.setTimeout(JOB_TEST_TIMEOUT);
             await open(page);
 
             const job = await downloadApp(page, sceneId);
@@ -245,7 +249,7 @@ test.describe('publish/download', () => {
         });
 
         test(`publish app (scripts: ${scripts})`, async ({ page }) => {
-            test.setTimeout(TEST_TIMEOUT);
+            test.setTimeout(JOB_TEST_TIMEOUT);
             await open(page);
 
             // publish app

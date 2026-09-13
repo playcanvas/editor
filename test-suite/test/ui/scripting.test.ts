@@ -1,16 +1,15 @@
 import type { Page } from '@playwright/test';
 
 import { createEsmScript } from '../../lib/common';
+import { JOB_TEST_TIMEOUT, JOB_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { AssetsPanel } from '../../lib/pages/assets';
+import { EditorShell, type ProjectState } from '../../lib/pages/common';
 import { HierarchyPanel } from '../../lib/pages/hierarchy';
 import { Inspector } from '../../lib/pages/inspector';
 import { waitForEditor } from '../../lib/ready';
 import { uniqueName } from '../../lib/utils';
 
-// a parse runs through a worker, the backend pipeline and a messenger round trip
-const SCRIPT_TEST_TIMEOUT = 4 * 60 * 1000;
-const PARSE_TIMEOUT = 90_000;
 // scripts:handleParse is registered only once the script worker has finished init
 const WORKER_INIT_TIMEOUT = 30_000;
 
@@ -83,8 +82,19 @@ const addScript = (page: Page, entityId: string, name: string) => {
     }, [entityId, name] as const);
 };
 
+// the worker project is shared by the whole run, so hand back what we were given
+let baseline: ProjectState;
+
+test.beforeEach(async ({ editorPage }) => {
+    baseline = await new EditorShell(editorPage).snapshot();
+});
+
+test.afterEach(async ({ editorPage }) => {
+    await new EditorShell(editorPage).restore(baseline);
+});
+
 test('creates an esm script and shows its attributes in the asset inspector', async ({ editorPage }) => {
-    test.setTimeout(SCRIPT_TEST_TIMEOUT);
+    test.setTimeout(JOB_TEST_TIMEOUT);
     const assets = new AssetsPanel(editorPage);
     const name = uniqueName('esm');
     const filename = `${name}.mjs`;
@@ -93,7 +103,7 @@ test('creates an esm script and shows its attributes in the asset inspector', as
 
     expect(await assets.field(id, 'type')).toBe('script');
     expect(await assets.field(id, 'name')).toBe(filename);
-    await expect.poll(() => assets.field(id, `data.scripts.${name}.attributes.speed.type`), { timeout: PARSE_TIMEOUT }).toBe('number');
+    await expect.poll(() => assets.field(id, `data.scripts.${name}.attributes.speed.type`), { timeout: JOB_TIMEOUT }).toBe('number');
 
     await assets.select(filename);
     const inspector = assetScripts(editorPage);
@@ -103,7 +113,7 @@ test('creates an esm script and shows its attributes in the asset inspector', as
 });
 
 test('creates a classic script from the new asset menu and parses its attributes', async ({ editorPage }) => {
-    test.setTimeout(SCRIPT_TEST_TIMEOUT);
+    test.setTimeout(JOB_TEST_TIMEOUT);
     const assets = new AssetsPanel(editorPage);
     const name = uniqueName('classic');
     const filename = `${name}.js`;
@@ -125,7 +135,7 @@ test('creates a classic script from the new asset menu and parses its attributes
 
     // the boilerplate declares a script but no attributes, so the rows only appear
     // once the file carries one and the asset inspector re-parses it
-    await expect.poll(() => assets.field(asset.id, 'data.scripts'), { timeout: PARSE_TIMEOUT }).not.toEqual({});
+    await expect.poll(() => assets.field(asset.id, 'data.scripts'), { timeout: JOB_TIMEOUT }).not.toEqual({});
     await setText(editorPage, asset.id, classic(name));
 
     await assets.select(filename);
@@ -133,13 +143,13 @@ test('creates a classic script from the new asset menu and parses its attributes
     await expect(inspector).toBeVisible();
     await inspector.locator('.pcui-panel-header .pcui-button', { hasText: 'PARSE' }).click();
 
-    await expect(inspector.locator('.script-asset-inspector-attribute')).toHaveText(['speed'], { timeout: PARSE_TIMEOUT });
+    await expect(inspector.locator('.script-asset-inspector-attribute')).toHaveText(['speed'], { timeout: JOB_TIMEOUT });
     await expect(inspector.locator('.script-asset-inspector-script')).toHaveText([name]);
     expect(await assets.field(asset.id, `data.scripts.${name}.attributes.speed.type`)).toBe('number');
 });
 
 test('reports an invalid jsdoc attribute type in the asset inspector', async ({ editorPage, errors }) => {
-    test.setTimeout(SCRIPT_TEST_TIMEOUT);
+    test.setTimeout(JOB_TEST_TIMEOUT);
     errors.allow(/There was an error while parsing script asset/);
     const assets = new AssetsPanel(editorPage);
     const name = uniqueName('invalid');
@@ -148,7 +158,7 @@ test('reports an invalid jsdoc attribute type in the asset inspector', async ({ 
     // an invalid parse result is never sent to the backend, so the script has to be
     // created valid and then broken, otherwise createScript times out waiting for it
     const id = await createScript(editorPage, filename, esm(name));
-    await expect.poll(() => assets.field(id, `data.scripts.${name}.attributes.speed`), { timeout: PARSE_TIMEOUT }).toBeTruthy();
+    await expect.poll(() => assets.field(id, `data.scripts.${name}.attributes.speed`), { timeout: JOB_TIMEOUT }).toBeTruthy();
     const parsed = await assets.field(id, 'data.scripts');
     await setText(editorPage, id, esm(name, '/**\n     * @attribute\n     * @type {Function}\n     */', ''));
 
@@ -158,7 +168,7 @@ test('reports an invalid jsdoc attribute type in the asset inspector', async ({ 
     await inspector.locator('.pcui-panel-header .pcui-button', { hasText: 'PARSE' }).click();
 
     const errorContainer = inspector.locator('.script-asset-inspector-attribute-error-container');
-    await expect(errorContainer).toBeVisible({ timeout: PARSE_TIMEOUT });
+    await expect(errorContainer).toBeVisible({ timeout: JOB_TIMEOUT });
     await expect(errorContainer.locator('.pcui-error').first()).toHaveText('This script contains invalid attributes:');
     await expect(errorContainer.locator('.pcui-error').filter({ hasText: /is not a valid attribute type/ })).toHaveCount(1);
     await expect(inspector.locator('.script-asset-inspector-attribute')).toHaveCount(0);
@@ -168,7 +178,7 @@ test('reports an invalid jsdoc attribute type in the asset inspector', async ({ 
 });
 
 test('adds and removes a script through the component inspector', async ({ editorPage }) => {
-    test.setTimeout(SCRIPT_TEST_TIMEOUT);
+    test.setTimeout(JOB_TEST_TIMEOUT);
     const hierarchy = new HierarchyPanel(editorPage);
     const inspector = new Inspector(editorPage);
     const name = uniqueName('attach');
@@ -185,7 +195,7 @@ test('adds and removes a script through the component inspector', async ({ edito
     await select.locator('.pcui-select-input-textinput input').click();
     await select.locator(`.pcui-select-input-list > [id="${name}"]`).click();
 
-    await expect.poll(() => hierarchy.get(entityId, 'components.script.order'), { timeout: PARSE_TIMEOUT }).toEqual([name]);
+    await expect.poll(() => hierarchy.get(entityId, 'components.script.order'), { timeout: JOB_TIMEOUT }).toEqual([name]);
     const panel = inspector.component('script').locator(SCRIPTS_CONTAINER).locator(SCRIPT_PANEL);
     await expect(panel.locator('.pcui-panel-header-title').first()).toHaveText(name);
     expect(await hierarchy.get(entityId, `components.script.scripts.${name}.enabled`)).toBe(true);
@@ -196,14 +206,14 @@ test('adds and removes a script through the component inspector', async ({ edito
     await expect(panel).toHaveCount(0);
 
     await inspector.shell.undo();
-    await expect.poll(() => hierarchy.get(entityId, 'components.script.order'), { timeout: PARSE_TIMEOUT }).toEqual([name]);
+    await expect.poll(() => hierarchy.get(entityId, 'components.script.order'), { timeout: JOB_TIMEOUT }).toEqual([name]);
     await expect(inspector.component('script').locator(SCRIPTS_CONTAINER).locator(SCRIPT_PANEL)).toHaveCount(1);
 
     await hierarchy.remove([entityId]);
 });
 
 test('reorders two scripts by dragging and keeps the order after a reload', async ({ editorPage }) => {
-    test.setTimeout(SCRIPT_TEST_TIMEOUT);
+    test.setTimeout(JOB_TEST_TIMEOUT);
     const hierarchy = new HierarchyPanel(editorPage);
     const inspector = new Inspector(editorPage);
     const first = uniqueName('first');
@@ -248,7 +258,7 @@ test('reorders two scripts by dragging and keeps the order after a reload', asyn
 });
 
 test('registers the parse method after the script worker starts', async ({ editorPage }) => {
-    test.setTimeout(SCRIPT_TEST_TIMEOUT);
+    test.setTimeout(JOB_TEST_TIMEOUT);
     const assets = new AssetsPanel(editorPage);
 
     // the parse path is registered from the worker init callback, and a Caller.call for
@@ -260,5 +270,5 @@ test('registers the parse method after the script worker starts', async ({ edito
     const id = await createEsmScript(editorPage, filename);
 
     expect(await assets.field(id, 'type')).toBe('script');
-    await expect.poll(async () => Object.keys((await assets.field(id, 'data.scripts')) ?? {}), { timeout: PARSE_TIMEOUT }).not.toEqual([]);
+    await expect.poll(async () => Object.keys((await assets.field(id, 'data.scripts')) ?? {}), { timeout: JOB_TIMEOUT }).not.toEqual([]);
 });

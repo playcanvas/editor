@@ -1,6 +1,7 @@
 import type { Page } from '@playwright/test';
 
 import { createEsmScript } from '../../lib/common';
+import { JOB_TEST_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { uniqueName } from '../../lib/utils';
 
@@ -62,6 +63,7 @@ test('device=webgl2 creates a webgl2 device', async ({ project, openLaunch }) =>
     expect(gd.isWebGL2).toBe(true);
 
     const tooltip = launch.locator('#application-tooltips .tooltip');
+    await expect(tooltip).toHaveCount(1);
     await expect(tooltip).toHaveText(/currently using the graphics device: WebGL 2\.0/);
     await expect(launch.locator('#application-tooltips .tooltip', { hasText: 'not supported' })).toHaveCount(0);
 });
@@ -80,7 +82,7 @@ test('device=webgpu creates a webgpu device', async ({ project, openLaunch }) =>
 });
 
 test('a script that throws on update surfaces in the application console', async ({ context, editorPage, project, openLaunch, errors }) => {
-    test.setTimeout(4 * 60 * 1000);
+    test.setTimeout(JOB_TEST_TIMEOUT);
     errors.allow(new RegExp(THROW_MSG));
 
     // the registry name is the class's static scriptName, which must be an identifier,

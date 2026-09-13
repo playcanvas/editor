@@ -28,11 +28,11 @@ const identity = async (context: BrowserContext) => {
 };
 
 // the invitee field is `user`, as the editor's own picker sends it (picker-team-management.ts:310,
-// 442-449); the declared ProjectCollabCreateData names it `username`, which alone answers
-// 400 "user: missing value", so send both
+// 418-421); the declared ProjectCollabCreateData names it `username`, which alone answers
+// 400 "user: missing value"
 const grant = (page: Page, projectId: number, username: string, level: string) => {
     return page.evaluate(({ projectId, username, level }) => {
-        const collab = { user: username, username, access_level: level } as any;
+        const collab = { user: username, access_level: level } as any;
         return window.editor.api.globals.rest.projects.projectCollabCreate(projectId, collab).promisify();
     }, { projectId, username, level });
 };

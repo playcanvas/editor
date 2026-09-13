@@ -2,7 +2,7 @@ import type { BrowserContext, Page } from '@playwright/test';
 
 import { checkCookieAccept, createProject, deleteProject } from '../../lib/common';
 import { editorBlankUrl, editorUrl } from '../../lib/config';
-import { JOB_TIMEOUT } from '../../lib/constants';
+import { JOB_TEST_TIMEOUT, JOB_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { middleware } from '../../lib/middleware';
 import {
@@ -295,6 +295,7 @@ test.describe('branch/checkpoint/diff/merge', () => {
     });
 
     test('delete red branch', async ({ page }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
         await open(page);
 
         // open version control (currently on the main branch)
@@ -316,6 +317,7 @@ test.describe('branch/checkpoint/diff/merge', () => {
     });
 
     test('delete green branch', async ({ page }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
         await open(page);
 
         // open version control (currently on the main branch)

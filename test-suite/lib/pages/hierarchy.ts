@@ -51,8 +51,8 @@ export class HierarchyPanel {
         return this.tree.locator(RENAME_INPUT);
     }
 
-    // a menu item renders its shortcut as a second .pcui-label, and shortcuts like "Delete" repeat
-    // the item text, so always take the first match: the text label is appended first
+    // the header menu and a row's context menu can both be in the dom at once, so take the
+    // first match; the shared helper already skips the shortcut label
     private menuLabel(text: string | RegExp) {
         return this.shell.menuItem(text).first();
     }

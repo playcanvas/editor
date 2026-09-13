@@ -2,7 +2,7 @@ import type { Locator, Page } from '@playwright/test';
 
 import { expect, test } from '../../lib/fixtures';
 import { AssetsPanel } from '../../lib/pages/assets';
-import { EditorShell } from '../../lib/pages/common';
+import { EditorShell, type ProjectState } from '../../lib/pages/common';
 import { Inspector } from '../../lib/pages/inspector';
 import { uniqueName } from '../../lib/utils';
 
@@ -19,6 +19,17 @@ const openGraph = async (page: Page, root: Locator) => {
     await expect(page.locator(CLOSE_BUTTON)).toBeVisible();
     await expect(page.locator(GRAPH)).toBeVisible();
 };
+
+// the worker project is shared by the whole run, so hand back what we were given
+let baseline: ProjectState;
+
+test.beforeEach(async ({ editorPage }) => {
+    baseline = await new EditorShell(editorPage).snapshot();
+});
+
+test.afterEach(async ({ editorPage }) => {
+    await new EditorShell(editorPage).restore(baseline);
+});
 
 test('creates an anim state graph and opens and closes the graph editor', async ({ editorPage }) => {
     const assets = new AssetsPanel(editorPage);

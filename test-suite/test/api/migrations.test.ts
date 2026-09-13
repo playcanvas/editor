@@ -3,7 +3,7 @@ import type { BrowserContext, Page } from '@playwright/test';
 
 import { checkCookieAccept, deleteProject, importProject } from '../../lib/common';
 import { editorBlankUrl, editorUrl } from '../../lib/config';
-import { JOB_TIMEOUT } from '../../lib/constants';
+import { JOB_TEST_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { middleware } from '../../lib/middleware';
 import { waitForEditor } from '../../lib/ready';
@@ -27,7 +27,7 @@ test.describe('migrations', () => {
 
     // migrations run on load, so this spec imports and owns a legacy project
     test.beforeAll(async ({ browser, authState }) => {
-        test.setTimeout(JOB_TIMEOUT);
+        test.setTimeout(JOB_TEST_TIMEOUT);
         context = await browser.newContext({ storageState: authState });
         await middleware(context);
         setup = await context.newPage();
@@ -178,7 +178,7 @@ test.describe('engine v1 migration', () => {
     let projectId: number;
 
     test.beforeAll(async ({ browser, authState }) => {
-        test.setTimeout(JOB_TIMEOUT);
+        test.setTimeout(JOB_TEST_TIMEOUT);
         context = await browser.newContext({ storageState: authState });
         await middleware(context);
         setup = await context.newPage();

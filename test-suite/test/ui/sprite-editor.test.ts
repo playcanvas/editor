@@ -2,15 +2,14 @@ import { readFileSync } from 'node:fs';
 
 import type { Page } from '@playwright/test';
 
-import { JOB_TIMEOUT } from '../../lib/constants';
+import { JOB_TEST_TIMEOUT, JOB_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { AssetsPanel } from '../../lib/pages/assets';
+import { EditorShell, type ProjectState } from '../../lib/pages/common';
 import { Inspector } from '../../lib/pages/inspector';
 import { uniqueName } from '../../lib/utils';
 
 const PNG = readFileSync(new URL('../fixtures/files/test.png', import.meta.url));
-// the atlas is produced by a pipeline duplicate, so this test budget has to clear JOB_TIMEOUT
-const JOB_TEST_TIMEOUT = 4 * 60 * 1000;
 const EDITOR = '#sprite-editor';
 
 const keys = (data: unknown) => Object.keys((data ?? {}) as Record<string, unknown>);
@@ -35,6 +34,17 @@ const createAtlas = async (page: Page) => {
 
     return { texture, atlas, item: page.locator(`.pcui-asset-grid-view-item.type-textureatlas:has(> .pcui-gridview-item-text:text-is("${atlas.name}"))`) };
 };
+
+// the worker project is shared by the whole run, so hand back what we were given
+let baseline: ProjectState;
+
+test.beforeEach(async ({ editorPage }) => {
+    baseline = await new EditorShell(editorPage).snapshot();
+});
+
+test.afterEach(async ({ editorPage }) => {
+    await new EditorShell(editorPage).restore(baseline);
+});
 
 test('creates a texture atlas from a texture and opens the sprite editor', async ({ editorPage }) => {
     test.setTimeout(JOB_TEST_TIMEOUT);

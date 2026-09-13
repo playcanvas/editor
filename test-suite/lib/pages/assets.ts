@@ -118,26 +118,16 @@ export class AssetsPanel {
         return this.root.locator('.pcui-asset-grid-view-item').filter({ visible: true });
     }
 
-    /**
-     * An entry of whichever menu is open. Unlike the shared helper this skips the
-     * shortcut label, which otherwise collides for entries such as "Delete"
-     * whose shortcut text matches their own.
-     */
-    menuItem(text: string | RegExp) {
-        const re = typeof text === 'string' ? new RegExp(`^${text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`) : text;
-        return this.page.locator('.pcui-menu:not(.pcui-hidden) .pcui-menu-item:not(.pcui-hidden) > .pcui-menu-item-content > .pcui-label:not(.pcui-menu-item-shortcut)').filter({ hasText: re });
-    }
-
     /** Opens the "+" menu and picks one of its create entries. */
     async newAsset(item: string) {
         await this.newButton.click();
-        await this.menuItem(item).click();
+        await this.shell.menuItem(item).click();
     }
 
     /** Right-clicks an asset by name and picks a top-level context menu entry. */
     async contextMenu(name: string, item: string | RegExp) {
         await this.gridItem(name).click({ button: 'right' });
-        await this.menuItem(item).click();
+        await this.shell.menuItem(item).click();
     }
 
     viewMode() {

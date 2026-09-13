@@ -1,20 +1,30 @@
 import { readFileSync } from 'node:fs';
 
-import { JOB_TIMEOUT } from '../../lib/constants';
+import { JOB_TEST_TIMEOUT, JOB_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { AssetsPanel, VIEW_DETAILS } from '../../lib/pages/assets';
+import { EditorShell, type ProjectState } from '../../lib/pages/common';
 import { uniqueName } from '../../lib/utils';
 
 const PNG = readFileSync(new URL('../fixtures/files/test.png', import.meta.url));
 const PNG_SIZE = `${PNG.length.toPrecision(3)} B`;
-// job-backed tests wait up to JOB_TIMEOUT, so their own budget has to be larger
-const JOB_TEST_TIMEOUT = 4 * 60 * 1000;
 const HIGHLIGHTED = /pcui-asset-panel-highlighted-asset/;
 const SELECTED = /pcui-gridview-item-selected/;
 // selection is the only asset action that reaches the history stack
 const SELECTION_ACTION = /^(select|deselect)$/;
 
 const txt = () => `${uniqueName('txt')}.txt`;
+
+// the worker project is shared by the whole run, so hand back what we were given
+let baseline: ProjectState;
+
+test.beforeEach(async ({ editorPage }) => {
+    baseline = await new EditorShell(editorPage).snapshot();
+});
+
+test.afterEach(async ({ editorPage }) => {
+    await new EditorShell(editorPage).restore(baseline);
+});
 
 test('creates a folder from the new asset menu', async ({ editorPage }) => {
     const assets = new AssetsPanel(editorPage);

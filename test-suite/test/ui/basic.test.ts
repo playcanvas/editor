@@ -11,7 +11,7 @@ import {
     deleteProjectsByPrefix
 } from '../../lib/common';
 import { editorBlankUrl, editorSceneUrl, editorUrl } from '../../lib/config';
-import { JOB_TIMEOUT } from '../../lib/constants';
+import { JOB_TEST_TIMEOUT, JOB_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { middleware } from '../../lib/middleware';
 import { buildArtifact, closeBuilds, deleteBuild, openBuilds, startBuild } from '../../lib/pages/builds';
@@ -19,15 +19,11 @@ import { EditorShell } from '../../lib/pages/common';
 import { waitForCodeEditor, waitForEditor, waitForLaunch } from '../../lib/ready';
 import { uniqueName } from '../../lib/utils';
 
-const BUILD_TIMEOUT = 4 * 60_000;
 const TICKED = /pcui-boolean-input-ticked/;
 
-test.describe.configure({
-    mode: 'serial'
-});
-
-// three modals share the .picker-modal-confirmation class, so match the button text
-const continueBrowsing = (page: Page) => page.locator('.picker-modal-confirmation .positive-action-button').filter({ hasText: 'Continue Browsing' });
+// three .picker-modal-confirmation modals sit in the dom from load, so match the button by name
+// and by role, which never binds a hidden node
+const continueBrowsing = (page: Page) => page.getByRole('button', { name: 'Continue Browsing' });
 
 /** the cms grid row of a project, matched on its name label */
 const cmsRow = (page: Page, name: string) => page.locator(`.project-container:has(.project-name:text-is("${name}"))`);
@@ -52,23 +48,38 @@ const setTick = async (input: Locator, value: boolean) => {
 };
 
 test.describe('create/delete', () => {
+    test.describe.configure({ mode: 'serial' });
+
     const projectName = uniqueName('ui-project');
 
     test('create project', async ({ blankPage }) => {
-        test.setTimeout(JOB_TIMEOUT);
+        test.setTimeout(JOB_TEST_TIMEOUT);
 
         await blankPage.locator('.new-project-button').click();
         await blankPage.locator('.modal-new-project-form-content input[type="text"]').first().fill(projectName);
-        await blankPage.locator('.picker-project-new .create-btn').click();
 
-        // creation ends in a confirmation modal; keep browsing the cms
-        await continueBrowsing(blankPage).click();
+        const created = blankPage.waitForResponse(res => res.request().method() === 'POST' && res.url().endsWith('/api/projects'));
+        await blankPage.locator('.picker-project-new .create-btn').click();
+        expect((await created).status()).toBe(201);
+
+        // the dialog subscribes to messenger project.create only after a follow-up projects/<id>
+        // GET, so the message can beat it and the confirmation modal then never opens; the cms
+        // refreshes its list off the same message from a listener bound at load, so that is the
+        // signal the create landed
         await expect(cmsRow(blankPage, projectName)).toBeVisible({ timeout: JOB_TIMEOUT });
+
+        // the refreshed row proves the message was delivered, so the modal has settled by now
+        if (await continueBrowsing(blankPage).isVisible()) {
+            await continueBrowsing(blankPage).click();
+            await expect(continueBrowsing(blankPage)).toBeHidden();
+        }
     });
 
     // FIXME: Forking not supported in Editor UI
 
     test('delete project', async ({ blankPage }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
+
         await cmsRow(blankPage, projectName).click();
         await deleteOpenProject(blankPage, projectName);
         await expect(cmsRow(blankPage, projectName)).toHaveCount(0, { timeout: JOB_TIMEOUT });
@@ -76,6 +87,8 @@ test.describe('create/delete', () => {
 });
 
 test.describe('export/import', () => {
+    test.describe.configure({ mode: 'serial' });
+
     const projectName = uniqueName('ui-export');
     const exportPath = `${tmpdir()}/${uniqueName('exported-project')}.zip`;
     let context: BrowserContext;
@@ -83,6 +96,7 @@ test.describe('export/import', () => {
     let projectId: number;
 
     test.beforeAll(async ({ browser, authState }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
         context = await browser.newContext({ storageState: authState });
         await middleware(context);
         setup = await context.newPage();
@@ -94,13 +108,13 @@ test.describe('export/import', () => {
 
     test.afterAll(async () => {
         // the import copies the name, so clear both projects by prefix
-        test.setTimeout(JOB_TIMEOUT);
+        test.setTimeout(JOB_TEST_TIMEOUT);
         await deleteProjectsByPrefix(setup, projectName);
         await context.close();
     });
 
     test('export project', async ({ blankPage }) => {
-        test.setTimeout(BUILD_TIMEOUT);
+        test.setTimeout(JOB_TEST_TIMEOUT);
 
         // open project dialog
         await cmsRow(blankPage, projectName).click();
@@ -118,7 +132,7 @@ test.describe('export/import', () => {
     });
 
     test('import project', async ({ blankPage }) => {
-        test.setTimeout(BUILD_TIMEOUT);
+        test.setTimeout(JOB_TEST_TIMEOUT);
 
         // import project
         const fileChooserPromise = blankPage.waitForEvent('filechooser');
@@ -127,14 +141,14 @@ test.describe('export/import', () => {
         await fileChooser.setFiles(exportPath);
 
         // the import ends in the same confirmation modal as a create
-        await continueBrowsing(blankPage).click({ timeout: BUILD_TIMEOUT });
+        await continueBrowsing(blankPage).click({ timeout: JOB_TEST_TIMEOUT });
 
         // the import keeps the exported name, so the cms now lists it twice
-        await expect(cmsRow(blankPage, projectName)).toHaveCount(2, { timeout: BUILD_TIMEOUT });
+        await expect(cmsRow(blankPage, projectName)).toHaveCount(2, { timeout: JOB_TEST_TIMEOUT });
     });
 
     test('delete imported project', async ({ blankPage }) => {
-        test.setTimeout(BUILD_TIMEOUT);
+        test.setTimeout(JOB_TEST_TIMEOUT);
 
         await expect(cmsRow(blankPage, projectName)).toHaveCount(2);
         await cmsRow(blankPage, projectName).first().click();
@@ -153,6 +167,7 @@ test.describe('navigation', () => {
     let webgpuLabel: string;
 
     test.beforeAll(async ({ browser, authState }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
         context = await browser.newContext({ storageState: authState });
         await middleware(context);
         setup = await context.newPage();
@@ -173,6 +188,7 @@ test.describe('navigation', () => {
     });
 
     test.afterAll(async () => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
         await deleteProject(setup, projectId);
         await context.close();
     });
@@ -273,6 +289,8 @@ test.describe('navigation', () => {
 });
 
 test.describe('publish/download', () => {
+    test.describe.configure({ mode: 'serial' });
+
     const projectName = uniqueName('ui-apps');
     let context: BrowserContext;
     let setup: Page;
@@ -280,6 +298,7 @@ test.describe('publish/download', () => {
     let sceneId: number;
 
     test.beforeAll(async ({ browser, authState }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
         context = await browser.newContext({ storageState: authState });
         await middleware(context);
         setup = await context.newPage();
@@ -294,6 +313,7 @@ test.describe('publish/download', () => {
     });
 
     test.afterAll(async () => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
         await deleteProject(setup, projectId);
         await context.close();
     });
@@ -311,7 +331,7 @@ test.describe('publish/download', () => {
     for (const scripts of ['classic', 'esm'] as const) {
         if (scripts === 'esm') {
             test('create ESM script', async ({ page }) => {
-                test.setTimeout(BUILD_TIMEOUT);
+                test.setTimeout(JOB_TEST_TIMEOUT);
                 await open(page);
 
                 const assetId = await createEsmScript(page, 'test-esm.mjs');
@@ -320,7 +340,7 @@ test.describe('publish/download', () => {
         }
 
         test(`download app (scripts: ${scripts})`, async ({ page }) => {
-            test.setTimeout(BUILD_TIMEOUT);
+            test.setTimeout(JOB_TEST_TIMEOUT);
             await open(page);
 
             await openBuilds(page);
@@ -340,7 +360,7 @@ test.describe('publish/download', () => {
         });
 
         test(`publish app (scripts: ${scripts})`, async ({ page }) => {
-            test.setTimeout(BUILD_TIMEOUT);
+            test.setTimeout(JOB_TEST_TIMEOUT);
             await open(page);
 
             await openBuilds(page);

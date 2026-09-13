@@ -1,6 +1,7 @@
 import type { Page } from '@playwright/test';
 
 import { expect, test } from '../../lib/fixtures';
+import { EditorShell, type ProjectState } from '../../lib/pages/common';
 import { Inspector } from '../../lib/pages/inspector';
 import { uniqueName } from '../../lib/utils';
 
@@ -66,6 +67,17 @@ const hierarchyRow = (page: Page, name: string) => {
         `#layout-hierarchy .pcui-treeview-item:has(> .pcui-treeview-item-contents > .pcui-treeview-item-text:text-is("${name}"))`
     );
 };
+
+// the worker project is shared by the whole run, so hand back what we were given
+let baseline: ProjectState;
+
+test.beforeEach(async ({ editorPage }) => {
+    baseline = await new EditorShell(editorPage).snapshot();
+});
+
+test.afterEach(async ({ editorPage }) => {
+    await new EditorShell(editorPage).restore(baseline);
+});
 
 test('selecting an entity inspects it', async ({ editorPage }) => {
     const inspector = new Inspector(editorPage);

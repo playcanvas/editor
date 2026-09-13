@@ -1,13 +1,13 @@
 import type { Locator } from '@playwright/test';
 
-import { JOB_TIMEOUT } from '../../lib/constants';
+import { JOB_TEST_TIMEOUT, JOB_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { AssetsPanel } from '../../lib/pages/assets';
+import { EditorShell, type ProjectState } from '../../lib/pages/common';
 import { uniqueName } from '../../lib/utils';
 
 // the store list comes from an external service and an import runs a backend job
 const STORE_TIMEOUT = 60_000;
-const JOB_TEST_TIMEOUT = 4 * 60 * 1000;
 const SEARCH = 'cube';
 
 const STORE = '.picker-store-cms';
@@ -42,14 +42,28 @@ const search = async (store: Locator, text: string) => {
 
     const input = store.locator('.search-store input');
     await input.click();
+
+    // arm before typing: the debounced request can be answered before a later wait is registered
+    const response = page.waitForResponse(r => r.url().includes('/api/store?') && r.url().includes(`search=${text}`), { timeout: STORE_TIMEOUT });
     await input.pressSequentially(text);
     await expect(input).toHaveValue(text);
 
-    await page.waitForResponse(r => r.url().includes('/api/store?') && r.url().includes(`search=${text}`), { timeout: STORE_TIMEOUT });
+    await response;
     if (stale) {
         await page.waitForFunction(el => !el.isConnected, stale, { timeout: STORE_TIMEOUT });
     }
 };
+
+// the worker project is shared by the whole run, so hand back what we were given
+let baseline: ProjectState;
+
+test.beforeEach(async ({ editorPage }) => {
+    baseline = await new EditorShell(editorPage).snapshot();
+});
+
+test.afterEach(async ({ editorPage }) => {
+    await new EditorShell(editorPage).restore(baseline);
+});
 
 test('searches the asset store', async ({ editorPage }) => {
     test.setTimeout(JOB_TEST_TIMEOUT);
