@@ -159,7 +159,7 @@ export class HierarchyPanel {
 
     ids() {
         return this.page.evaluate(() => {
-            return window.editor.api.globals.entities.list().map(e => e.get('resource_id')) as string[];
+            return window.editor.api.globals.entities.list().map((e: any) => e.get('resource_id')) as string[];
         });
     }
 
