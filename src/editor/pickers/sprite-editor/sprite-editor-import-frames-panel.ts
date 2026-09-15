@@ -129,8 +129,7 @@ editor.once('load', () => {
                 let data: TexturePackerData;
                 try {
                     data = JSON.parse(text);
-                } catch (err) {
-                    log.error(err);
+                } catch {
                     showError(
                         'File is not valid JSON. Please ensure the file is a properly formatted TexturePacker export.'
                     );
@@ -139,7 +138,10 @@ editor.once('load', () => {
                 }
 
                 try {
-                    importFramesFromTexturePacker(data);
+                    const error = importFramesFromTexturePacker(data);
+                    if (error) {
+                        showError(error);
+                    }
                 } catch (err) {
                     log.error(err);
                     showError(
@@ -191,16 +193,16 @@ editor.once('load', () => {
             };
         };
 
-        const importFramesFromTexturePacker = (data: TexturePackerData): void => {
+        const importFramesFromTexturePacker = (data: TexturePackerData) => {
             // Validate TexturePacker JSON structure
             if (!data?.meta?.size?.w || !data?.meta?.size?.h || !data?.frames) {
-                throw new Error('Invalid TexturePacker JSON format: missing required meta.size or frames data');
+                return 'Invalid TexturePacker JSON format: missing required meta.size or frames data';
             }
 
             // Check for empty frames
             const frameKeys = Object.keys(data.frames);
             if (frameKeys.length === 0) {
-                throw new Error('No frames found in TexturePacker file');
+                return 'No frames found in TexturePacker file';
             }
 
             // Validate individual frame data
@@ -213,7 +215,7 @@ editor.once('load', () => {
                     typeof frameData.frame.w !== 'number' ||
                     typeof frameData.frame.h !== 'number'
                 ) {
-                    throw new Error(`Invalid frame data for "${key}": missing required frame coordinates (x, y, w, h)`);
+                    return `Invalid frame data for "${key}": missing required frame coordinates (x, y, w, h)`;
                 }
             }
 

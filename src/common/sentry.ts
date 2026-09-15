@@ -16,6 +16,7 @@ const MAX_BREADCRUMBS = 100;
 
 // frames from user-authored asset scripts are their bugs, not editor bugs
 const USER_SCRIPT_PATH = '/api/assets/';
+const EXTENSION_URL = /^(?:chrome|moz|safari-web)-extension:\/\//;
 
 // standard hosts the editor loads its engine and frontend from; anything else is a user override
 // (a custom build) whose errors we can't fix. matches the console's "local engine/frontend" checks
@@ -177,10 +178,24 @@ if (sentryConfig.enabled) {
         integrations: getSentryIntegrations(sentryConfig.disable_breadcrumbs),
         beforeBreadcrumb: scrubBreadcrumb,
         beforeSend: (event, hint) => {
+            if (location.protocol === 'file:') {
+                return null;
+            }
+
             const frames = event.exception?.values?.[0]?.stacktrace?.frames;
             const top = frames?.[frames.length - 1];
             if (top?.filename?.includes(USER_SCRIPT_PATH)) {
                 return null;
+            }
+
+            if (frames?.some((frame) => EXTENSION_URL.test(frame.filename || ''))) {
+                event.tags = { ...event.tags, external_caller: 'extension' };
+            } else if (
+                frames?.some(
+                    (frame) => frame.filename?.startsWith('pptr:') || frame.function === 'UtilityScript.evaluate'
+                )
+            ) {
+                event.tags = { ...event.tags, external_caller: 'automation' };
             }
 
             // set fingerprint for tagged template errors
