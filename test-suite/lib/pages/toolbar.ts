@@ -72,17 +72,15 @@ export class Toolbar {
         await this.render();
     }
 
-    /**
-     * Requests a frame from the render-on-demand viewport and waits for it to be drawn: the
-     * app's tick is itself driven by requestAnimationFrame, so the redraw lands on the next one.
-     */
+    /** Requests a frame and waits for the viewport to finish drawing it. */
     async render() {
+        const rendered = await arm(this.page, () => ({ done: new Promise<void>((resolve) => {
+            window.editor.once('viewport:postRender', () => resolve());
+        }) }));
         await this.page.evaluate(() => {
             window.editor.call('viewport:render');
-            return new Promise<void>((resolve) => {
-                requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
-            });
         });
+        await rendered();
     }
 
     /**
@@ -138,12 +136,23 @@ export class Toolbar {
 
     /** Waits for the gizmo of the current type to be attached to the selection. */
     async waitForGizmo() {
-        // the gizmos are rebuilt from the viewport render loop and nothing is emitted when one
-        // attaches, so the scene graph is the only signal
-        await this.page.waitForFunction(() => {
+        const attached = await arm(this.page, () => {
             const app = window.editor.call('viewport:app') as any;
-            return !!app?.root.findByName(`gizmo:${window.editor.call('gizmo:type')}`)?.enabled;
+            const ready = () => !!app?.root.findByName(`gizmo:${window.editor.call('gizmo:type')}`)?.enabled;
+            if (ready()) {
+                return { done: Promise.resolve() };
+            }
+            return { done: new Promise<void>((resolve) => {
+                const evt = window.editor.on('viewport:postRender', () => {
+                    if (ready()) {
+                        evt.unbind();
+                        resolve();
+                    }
+                });
+            }) };
         });
+        await this.page.evaluate(() => window.editor.call('viewport:render'));
+        await attached();
     }
 
     // the bottom right canvas corner: with the camera reset, nothing in a new project's scene

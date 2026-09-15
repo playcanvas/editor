@@ -7,6 +7,7 @@ import { expect, test } from '../../lib/fixtures';
 import { AssetsPanel } from '../../lib/pages/assets';
 import { EditorShell, type ProjectState } from '../../lib/pages/common';
 import { Inspector } from '../../lib/pages/inspector';
+import { waitForEditor } from '../../lib/ready';
 import { uniqueName } from '../../lib/utils';
 
 const PNG = readFileSync(new URL('../fixtures/files/test.png', import.meta.url));
@@ -84,9 +85,20 @@ test.describe('sprite-editor', () => {
         const before = keys(await assets.field(atlas.id, 'data.frames'));
         expect(before).toEqual([]);
 
+        const generated = await inspector.shell.arm((id: number) => {
+            const asset = window.editor.api.globals.assets.get(id);
+            if (!asset) {
+                throw new Error(`atlas ${id} is missing`);
+            }
+            return { done: new Promise<void>((resolve) => {
+                const evt = asset.on('data.frames:set', () => {
+                    evt.unbind();
+                    resolve();
+                });
+            }) };
+        }, atlas.id);
         await panel.locator('.pcui-button', { hasText: 'GENERATE FRAMES' }).click();
-
-        await expect.poll(async () => keys(await assets.field(atlas.id, 'data.frames')).length).toBe(before.length + 1);
+        await generated();
         const frames = (await assets.field(atlas.id, 'data.frames')) as Record<string, { rect: number[]; pivot: number[] }>;
         const added = Object.keys(frames).filter(key => !before.includes(key));
         expect(added).toHaveLength(1);
@@ -96,7 +108,25 @@ test.describe('sprite-editor', () => {
         expect(frames[added[0]].pivot).toEqual([0.5, 0.5]);
         expect(await inspector.shell.history()).toMatchObject({ canUndo: true, last: 'slice' });
 
+        const undone = await assets.armField(atlas.id, 'data.frames', {});
         await inspector.shell.undo();
-        await expect.poll(async () => keys(await assets.field(atlas.id, 'data.frames'))).toEqual(before);
+        await undone();
+        expect(keys(await assets.field(atlas.id, 'data.frames'))).toEqual(before);
+        expect(await inspector.shell.history()).toMatchObject({ canRedo: true });
+
+        const redone = await inspector.shell.arm((id: number) => ({ done: new Promise<void>((resolve) => {
+            window.editor.api.globals.assets.get(id)!.once('data.frames:set', () => resolve());
+        }) }), atlas.id);
+        await inspector.shell.redo();
+        await redone();
+        expect(await assets.field(atlas.id, 'data.frames')).toEqual(frames);
+        await editor.locator('.root-panel > .pcui-panel-header > .close').click();
+        await assets.flush(atlas.id);
+        await editorPage.reload();
+        await waitForEditor(editorPage);
+        expect(await assets.field(atlas.id, 'data.frames')).toEqual(frames);
+        await item.dblclick();
+        await expect(editor).toBeVisible();
+        await expect(editor.locator('.left-panel .frame')).toHaveCount(1);
     });
 });

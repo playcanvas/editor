@@ -1,5 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 
+import { JOB_TIMEOUT } from '../constants';
 import { AssetsPanel } from './assets';
 import { EditorShell } from './common';
 import { HierarchyPanel } from './hierarchy';
@@ -46,15 +47,22 @@ export class Templates {
         await this.shell.menuItem(item).first().click();
     }
 
+    unlink(entityName: string) {
+        return this.openMenu(entityName, 'Unlink From Template');
+    }
+
     /**
      * Templates an entity from the hierarchy context menu. New Template needs the entity to be
      * the only selection, and it names the asset after the entity.
      */
     async create(entityName: string) {
         await this.hierarchy.select(entityName);
+        const [id] = (await this.hierarchy.selection()).ids;
         await this.assets.armAdd({ name: entityName, type: 'template' });
         await this.openMenu(entityName, 'New Template');
-        return this.assets.awaitAdd({ name: entityName, type: 'template' });
+        const asset = await this.assets.awaitAdd({ name: entityName, type: 'template' });
+        await (await this.hierarchy.armField(id, 'template_id', asset.id))();
+        return asset;
     }
 
     /**
@@ -63,11 +71,30 @@ export class Templates {
      */
     async addInstance(parentName: string, assetName: string) {
         await this.hierarchy.select(parentName);
+        const [id] = (await this.hierarchy.selection()).ids;
+        const added = await this.shell.arm((parent: string) => {
+            const entity = window.editor.api.globals.entities.get(parent);
+            if (!entity) {
+                throw new Error(`template parent ${parent} is missing`);
+            }
+            const before = [...entity.get('children')] as string[];
+            return { done: new Promise<string>((resolve) => {
+                const check = () => {
+                    const child = (entity.get('children') as string[]).find(id => !before.includes(id));
+                    if (child) {
+                        evts.forEach(e => e.unbind());
+                        resolve(child);
+                    }
+                };
+                const evts = ['children:insert', 'children:set'].map(event => entity.on(event, check));
+            }) };
+        }, id, { what: 'the template instance to be added', timeout: JOB_TIMEOUT });
         await this.openMenu(parentName, 'Add Instance');
 
         const picker = this.page.locator(PICKER);
         await picker.waitFor();
         await this.assets.gridItem(assetName).click();
         await picker.waitFor({ state: 'hidden' });
+        return added();
     }
 }

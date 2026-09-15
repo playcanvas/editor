@@ -3,6 +3,9 @@
 Playwright tests for the Editor, Code Editor and Launch, using a real backend with
 local or deployed frontend bundles.
 
+See [coverage contracts](COVERAGE.md) for the user journeys, backend boundary and release
+completion rules.
+
 ## Setup
 
 Use Node >= 22. From the repository root:
@@ -24,14 +27,16 @@ Configure `.env`:
 - `PC_HEADER_NAME`, `PC_HEADER_VALUE`: access header, if required by the environment.
 - `PC_LOCAL_FRONTEND=true`: load local bundles. Playwright serves `dist/` on port 3487
   and can reuse an existing local server. Unset to test deployed bundles.
-- `PC_COLLAB_USERNAME`: second account's username for team tests, if available.
+- `PC_EMAILS`: comma-separated account emails, in the same order as `PC_COOKIE_VALUE`.
+  Authentication verifies every email matches its cookie and every account has `testSuite`.
 
 ## Run
 
 Run these commands from `test-suite/`:
 
 ```sh
-npm test                         # full E2E suite; use before a rollout
+npm test                         # full E2E suite, including optional capabilities
+npm run test:release             # strict candidate rollout check; no skips or retries accepted
 CI=true npm test                 # CI behaviour locally
 npm run test:gate                # faster @gate subset, excluding @slow
 npm test -- test/ui/hierarchy.test.ts # one spec, including authentication
@@ -41,12 +46,18 @@ npm run lint
 npm run type:check
 ```
 
-The gate omits script editing, collaboration, permissions, publishing and most launcher
-combinations. Use the full suite for rollout checks and review skipped tests.
+The fast gate omits script editing, collaboration, permissions, publishing and most launcher
+combinations. Use `test:release` for rollout checks. It requires at least two accounts,
+matching email/cookie lists, the candidate `dist/` with `PC_LOCAL_FRONTEND=true`, and all
+tested capabilities enabled. Missing capabilities block release, including unavailable
+engine versions, component flags, graphics devices and store content. It keeps browser
+security and certificate verification enabled and starts its own frontend server; stop
+any existing server on port 3487 first. Filters, shards, skips and retries cannot pass.
 
 Each worker uses one account and reuses its Editor page and project. Comma-separated
-cookies in `PC_COOKIE_VALUE` enable additional workers and collaboration tests; team tests
-also need `PC_COLLAB_USERNAME`. To measure with one worker, use `npm test -- --workers=1`.
+cookies in `PC_COOKIE_VALUE` enable additional workers and collaboration tests. Configure
+matching emails in `PC_EMAILS` for team invitations; usernames are resolved from the
+authenticated accounts. To measure with one worker, use `npm test -- --workers=1`.
 
 Tests delete their own projects during teardown. The separate clean config authenticates
 and deletes `e2e-` projects from other runs older than two hours, preserving projects with
@@ -62,10 +73,14 @@ For overlapping runs, give each a distinct `--output` directory and set separate
 `PLAYWRIGHT_HTML_OUTPUT_DIR` and `PLAYWRIGHT_JSON_OUTPUT_FILE` paths to prevent overwrites.
 
 [Test Suite / CI](../.github/workflows/test-suite-ci.yml) runs lint and types.
-[Test Suite / Run](../.github/workflows/test-suite-run.yml) runs the full E2E suite and
+[Test Suite / Run](../.github/workflows/test-suite-run.yml) runs the strict release suite and
 uploads reports, including on failure. A deployment workflow can call it with `env` and
 an optional `artifact` containing the candidate `dist/` contents; otherwise it builds the
-frontend. PROD promotion still needs to depend on this check and use the tested artifact.
+frontend. `test-results/release.json` records the candidate SHA-256, suite checkout revision,
+target hosts and blocking reasons; a candidate changed during the run fails verification.
+The suite revision is not the source revision of a separately supplied frontend artifact.
+PROD promotion still needs to depend on this check and use the tested
+artifact; the Editor repository cannot enforce a deployment owned by another repository.
 
 ## Writing tests
 

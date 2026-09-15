@@ -133,7 +133,7 @@ export const test = base.extend<EditorFixtures, WorkerFixtures>({
         await Promise.all(opened.filter(page => !page.isClosed()).map(page => page.close()));
     },
 
-    collaborator: async ({ browser }, use, testInfo) => {
+    collaborator: async ({ browser, errors }, use, testInfo) => {
         if (AUTH_STATES.length < 2) {
             await use(null);
             return;
@@ -143,8 +143,12 @@ export const test = base.extend<EditorFixtures, WorkerFixtures>({
         const next = (testInfo.parallelIndex + 1) % AUTH_STATES.length;
         const context = await browser.newContext({ storageState: AUTH_STATES[next] });
         await middleware(context);
+        const log: string[] = [];
+        const detach = attachConsoleCapture(context, errors, log);
         await use(context);
         await context.close();
+        detach();
+        await testInfo.attach('collaborator-console.log', { body: log.join('\n'), contentType: 'text/plain' });
     }
 });
 

@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+import type { Frame, Page } from '@playwright/test';
 
 import { arm } from './arm';
 import { READY_TIMEOUT } from './constants';
@@ -11,7 +11,7 @@ export const waitForCodeEditor = async (page: Page) => {
     await page.locator('body.code-editor-ready').waitFor({ state: 'attached', timeout: READY_TIMEOUT });
 };
 
-export const waitForLaunch = async (page: Page) => {
+export const waitForLaunch = async (page: Page | Frame) => {
     // nothing announces the engine global, which only appears once the launch bundle has booted,
     // so the app itself has to be waited for before its events can be armed
     await page.waitForFunction(() => !!(window as any).pc?.app, null, { timeout: READY_TIMEOUT });

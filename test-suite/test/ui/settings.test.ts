@@ -1,4 +1,5 @@
 import { expect, test } from '../../lib/fixtures';
+import { EditorShell } from '../../lib/pages/common';
 import { SettingsDialog } from '../../lib/pages/settings';
 import { waitForEditor } from '../../lib/ready';
 
@@ -54,8 +55,9 @@ test.describe('settings', () => {
 
         await expect(settings.root).toBeVisible();
         await settings.expand('INPUT');
+        const changed = await settings.armSetting('project', 'useTouch', !before);
         await settings.toggle('INPUT', 'Touch');
-        await expect.poll(() => settings.projectSetting('useTouch')).toBe(!before);
+        await changed();
 
         // the change has to reach the server before the reload reads it back
         await settings.flushProjectSettings();
@@ -72,14 +74,17 @@ test.describe('settings', () => {
         await settings.expand('EXTERNAL SCRIPTS');
         const urls = settings.field('EXTERNAL SCRIPTS', 'Number of URLs');
 
+        const added = await settings.armSetting('project', 'externalScripts', [...before, URL_ONE]);
         await settings.setArraySize(urls, before.length + 1);
         await settings.setArrayItem(urls, before.length, URL_ONE);
-        await expect.poll(() => settings.projectSetting('externalScripts')).toEqual([...before, URL_ONE]);
+        await added();
 
+        const removed = await settings.armSetting('project', 'externalScripts', before);
         await settings.removeArrayItem(urls, before.length);
+        await removed();
 
         await expect(settings.arrayItem(urls, before.length)).toHaveCount(0);
-        await expect.poll(() => settings.projectSetting('externalScripts')).toEqual(before);
+        expect(await settings.projectSetting('externalScripts')).toEqual(before);
     });
 
     test('switch engine version', async ({ editorPage }) => {
@@ -93,10 +98,12 @@ test.describe('settings', () => {
         test.skip(!versions.previous, 'this deployment exposes no previous engine version');
 
         // the afterEach puts the session choice back; the worker's page outlives this test
+        const changed = await settings.armSetting('session', 'engineVersion', 'previous');
         await settings.selectOption(settings.engineVersion, versions.previous!.description);
+        await changed();
 
         await expect(settings.engineVersion.locator('.pcui-select-input-value')).toHaveText(versions.previous!.description);
-        await expect.poll(() => settings.sessionSetting('engineVersion')).toBe('previous');
+        expect(await settings.sessionSetting('engineVersion')).toBe('previous');
     });
 
     test('toggle clustered lighting', async ({ editorPage, errors }) => {
@@ -112,6 +119,7 @@ test.describe('settings', () => {
         await settings.expand('RENDERING');
         await settings.mark();
 
+        const changed = await settings.armSetting('scene', CLUSTERED, !before);
         await settings.toggle('RENDERING', 'Clustered Lighting');
 
         await expect(settings.restartModal).toBeVisible();
@@ -119,12 +127,17 @@ test.describe('settings', () => {
 
         // rendering.ts compares the observer against the new value, so the change handler opens the
         // modal first and the binding writes the value through after it
-        await expect.poll(() => settings.sceneSetting(CLUSTERED)).toBe(!before);
+        await changed();
 
-        // the modal only offers RELOAD, so drop it ourselves rather than let it reload the page
-        await settings.dismissRestartModal();
+        await new EditorShell(editorPage).flushScene();
+        await Promise.all([
+            editorPage.waitForEvent('domcontentloaded'),
+            settings.restartModal.locator('.pcui-button').click()
+        ]);
+        await waitForEditor(editorPage);
 
         await expect(settings.restartModal).toHaveCount(0);
-        expect(await settings.marked()).toBe(true);
+        expect(await settings.marked()).toBe(false);
+        expect(await settings.sceneSetting(CLUSTERED)).toBe(!before);
     });
 });

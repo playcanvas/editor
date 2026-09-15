@@ -4,6 +4,7 @@ import { expect, test } from '../../lib/fixtures';
 import { AssetsPanel } from '../../lib/pages/assets';
 import { EditorShell, type ProjectState } from '../../lib/pages/common';
 import { Inspector } from '../../lib/pages/inspector';
+import { waitForEditor } from '../../lib/ready';
 import { uniqueName } from '../../lib/utils';
 
 const INSPECTOR = '.asset-animstategraph-inspector:not(.pcui-hidden)';
@@ -54,7 +55,7 @@ test.describe('animstategraph', () => {
         await editorPage.keyboard.press('Escape');
         await expect(editorPage.locator(CLOSE_BUTTON)).toHaveCount(0);
         await expect(editorPage.locator(GRAPH)).toBeHidden();
-        await expect.poll(() => assets.selectedIds()).toEqual([]);
+        expect(await assets.selectedIds()).toEqual([]);
     });
 
     test('add state', async ({ editorPage }) => {
@@ -80,13 +81,23 @@ test.describe('animstategraph', () => {
         await editorPage.mouse.click(box.x + box.width * 0.6, box.y + box.height * 0.6, { button: 'right' });
         await new EditorShell(editorPage).menuItem('Add new state').first().click();
 
-        await expect.poll(async () => keys(await assets.field(asset.id, 'data.states')).length).toBe(keys(before).length + 1);
+        await expect(editorPage.locator(GRAPH).getByText(/^New state/)).toHaveCount(1);
 
         const states = (await assets.field(asset.id, 'data.states')) as Record<string, { name: string }>;
         const added = Object.keys(states).filter(key => !(key in (before as Record<string, unknown>)));
         expect(added).toHaveLength(1);
         expect(states[added[0]].name).toMatch(/^New state/);
         expect(await assets.field(asset.id, 'data.layers.0.states')).toContain(Number(added[0]));
+        expect(Object.keys(states)).toHaveLength(keys(before).length + 1);
+
+        const data = await assets.field(asset.id, 'data');
+        await assets.flush(asset.id);
+        await editorPage.reload();
+        await waitForEditor(editorPage);
+        expect(await assets.field(asset.id, 'data')).toEqual(data);
+        await assets.select(asset.name);
+        await openGraph(editorPage, root);
+        await expect(editorPage.locator(GRAPH).getByText(states[added[0]].name, { exact: true })).toHaveCount(1);
     });
 
     test('add parameter', async ({ editorPage }) => {
@@ -99,16 +110,34 @@ test.describe('animstategraph', () => {
         await openGraph(editorPage, root);
 
         const before = keys(await assets.field(asset.id, 'data.parameters'));
+        const key = before.length ? Math.max(...before.map(Number)) + 1 : 0;
         const panel = inspector.panel(root, 'PARAMETERS');
         await expect(panel).toBeVisible();
+        const created = await assets.armField(asset.id, `data.parameters.${key}.name`, `New Parameter ${key}`);
         await panel.locator('.pcui-panel-header .pcui-button', { hasText: 'PARAMETER' }).click();
-
-        await expect.poll(async () => keys(await assets.field(asset.id, 'data.parameters')).length).toBe(before.length + 1);
+        await created();
 
         const params = (await assets.field(asset.id, 'data.parameters')) as Record<string, { name: string; type: string }>;
         const added = Object.keys(params).filter(key => !before.includes(key));
         expect(added).toHaveLength(1);
         expect(params[added[0]].name).toBe(`New Parameter ${added[0]}`);
         await expect(inspector.field(panel, 'Name').locator('input')).toHaveValue(params[added[0]].name);
+
+        const name = uniqueName('parameter');
+        const renamed = await assets.armField(asset.id, `data.parameters.${key}.name`, name);
+        await inspector.setText(panel, 'Name', name);
+        await renamed();
+        const undone = await assets.armField(asset.id, `data.parameters.${key}.name`, params[added[0]].name);
+        await inspector.shell.undo();
+        await undone();
+        await expect(inspector.field(panel, 'Name').locator('input')).toHaveValue(params[added[0]].name);
+
+        const redone = await assets.armField(asset.id, `data.parameters.${key}.name`, name);
+        await inspector.shell.redo();
+        await redone();
+        await assets.flush(asset.id);
+        await editorPage.reload();
+        await waitForEditor(editorPage);
+        expect(await assets.field(asset.id, `data.parameters.${key}.name`)).toBe(name);
     });
 });

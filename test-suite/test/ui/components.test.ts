@@ -59,23 +59,29 @@ test.describe('components', () => {
             await hierarchy.setSelection([id]);
             await expect(inspector.entity).toBeVisible();
             await inspector.recordHistory();
+            const added = await hierarchy.armField(id, `components.${name}.enabled`, true);
             await inspector.addComponent(path);
+            await added();
 
             const panel = inspector.component(name);
             await expect(panel).toBeVisible();
             await expect(inspector.componentEnabled(name).locator('.pcui-label')).toHaveText('ON');
-            await expect.poll(() => inspector.read(id, `components.${name}.enabled`)).toBe(true);
+            expect(await inspector.read(id, `components.${name}.enabled`)).toBe(true);
             expect(await inspector.historyActions()).toEqual([`entities.${name}`]);
 
+            const removed = await hierarchy.armField(id, `components.${name}`, null);
             await inspector.componentMenu(name, 'Remove Component');
+            await removed();
 
             await expect(panel).toBeHidden();
-            await expect.poll(() => inspector.has(id, `components.${name}`)).toBe(false);
+            expect(await inspector.has(id, `components.${name}`)).toBe(false);
 
+            const restored = await hierarchy.armField(id, `components.${name}.enabled`, true);
             await inspector.shell.undo();
+            await restored();
 
             await expect(panel).toBeVisible();
-            await expect.poll(() => inspector.read(id, `components.${name}.enabled`)).toBe(true);
+            expect(await inspector.read(id, `components.${name}.enabled`)).toBe(true);
         });
     }
 
@@ -94,10 +100,12 @@ test.describe('components', () => {
 
         await hierarchy.setSelection([target]);
         await expect(inspector.component('light')).toBeHidden();
+        const pasted = await hierarchy.armField(target, 'components.light.intensity', 3);
         await inspector.entityMenu('Paste Component');
+        await pasted();
 
         await expect(inspector.component('light')).toBeVisible();
-        await expect.poll(() => inspector.read(target, 'components.light.intensity')).toBe(3);
+        expect(await inspector.read(target, 'components.light.intensity')).toBe(3);
         expect((await inspector.shell.history()).last).toBe('entities.paste[components.light]');
     });
 
@@ -110,14 +118,14 @@ test.describe('components', () => {
         const enabled = inspector.componentEnabled('light');
         await expect(enabled.locator('.pcui-label')).toHaveText('ON');
 
+        const disabled = await hierarchy.armField(id, 'components.light.enabled', false);
         await inspector.toggleComponent('light');
-
-        await expect.poll(() => inspector.read(id, 'components.light.enabled')).toBe(false);
+        await disabled();
         await expect(enabled.locator('.pcui-label')).toHaveText('OFF');
 
+        const restored = await hierarchy.armField(id, 'components.light.enabled', true);
         await inspector.toggleComponent('light');
-
-        await expect.poll(() => inspector.read(id, 'components.light.enabled')).toBe(true);
+        await restored();
         await expect(enabled.locator('.pcui-label')).toHaveText('ON');
     });
 
@@ -133,14 +141,17 @@ test.describe('components', () => {
         const before = await inspector.read(id, 'components.light.intensity');
         expect(before).not.toBe(5);
 
+        const changed = await hierarchy.armField(id, 'components.light.intensity', 5);
         await inspector.setSlider(light, 'Intensity', 5);
-        await expect.poll(() => inspector.read(id, 'components.light.intensity')).toBe(5);
+        await changed();
 
+        const undone = await hierarchy.armField(id, 'components.light.intensity', before);
         await inspector.shell.undo();
-        await expect.poll(() => inspector.read(id, 'components.light.intensity')).toBe(before);
+        await undone();
 
+        const redone = await hierarchy.armField(id, 'components.light.intensity', 5);
         await inspector.shell.redo();
-        await expect.poll(() => inspector.read(id, 'components.light.intensity')).toBe(5);
+        await redone();
     });
 
     test('edit component on multi select', async ({ editorPage }) => {
@@ -161,14 +172,15 @@ test.describe('components', () => {
         const render = inspector.component('render');
         await expect(inspector.field(render, 'Type').locator('.pcui-select-input')).toHaveClass(/pcui-multiple-values/);
 
+        const changed = await Promise.all([first, second].map(id => hierarchy.armField(id, 'components.render.type', 'capsule')));
         await inspector.setSelect(render, 'Type', 'Capsule');
+        await Promise.all(changed.map(done => done()));
 
-        await expect.poll(() => inspector.read(first, 'components.render.type')).toBe('capsule');
-        await expect.poll(() => inspector.read(second, 'components.render.type')).toBe('capsule');
-
+        const undone = await Promise.all([
+            hierarchy.armField(first, 'components.render.type', 'box'),
+            hierarchy.armField(second, 'components.render.type', 'sphere')
+        ]);
         await inspector.shell.undo();
-
-        await expect.poll(() => inspector.read(first, 'components.render.type')).toBe('box');
-        await expect.poll(() => inspector.read(second, 'components.render.type')).toBe('sphere');
+        await Promise.all(undone.map(done => done()));
     });
 });

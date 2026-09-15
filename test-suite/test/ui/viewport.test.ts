@@ -84,14 +84,13 @@ test.describe('viewport', () => {
         const { id } = await makeBox(editorPage, hierarchy, CLEAR_A);
         await toolbar.render();
 
+        const selected = await hierarchy.armSelection([id]);
         await toolbar.clickViewport(await toolbar.screenPointOf(id));
+        await selected();
 
-        // the pick is a GPU render plus a readPixels, which is slow under ANGLE
-        await expect.poll(async () => (await hierarchy.selection()).ids).toEqual([id]);
-
+        const cleared = await hierarchy.armSelection([]);
         await toolbar.clickViewport(await toolbar.emptyPoint());
-
-        await expect.poll(async () => (await hierarchy.selection()).count).toBe(0);
+        await cleared();
     });
 
     test('box select', async ({ editorPage }) => {
@@ -102,21 +101,24 @@ test.describe('viewport', () => {
         await toolbar.render();
 
         const pointA = await toolbar.screenPointOf(a.id);
+        const selected = await hierarchy.armSelection([a.id]);
         await toolbar.clickViewport(pointA);
-        await expect.poll(async () => (await hierarchy.selection()).ids).toEqual([a.id]);
+        await selected();
 
+        const multiple = await hierarchy.armSelection([a.id, b.id]);
         await toolbar.clickViewport(await toolbar.screenPointOf(b.id), ['ControlOrMeta']);
-        await expect.poll(async () => [...(await hierarchy.selection()).ids].sort()).toEqual([a.id, b.id].sort());
+        await multiple();
 
         // a box that only covers A; it starts far enough out that the gizmo (on the midpoint of
         // the two boxes) cannot swallow the drag
+        const boxed = await hierarchy.armSelection([a.id]);
         await toolbar.dragViewport(
             { x: pointA.x - 60, y: pointA.y - 60 },
             { x: pointA.x + 60, y: pointA.y + 60 },
             ['ControlOrMeta']
         );
 
-        await expect.poll(async () => (await hierarchy.selection()).ids).toEqual([a.id]);
+        await boxed();
     });
 
     test('switch gizmo type', async ({ editorPage }) => {
@@ -130,14 +132,14 @@ test.describe('viewport', () => {
 
         for (const [key, type] of [['2', 'rotate'], ['3', 'scale'], ['1', 'translate']]) {
             await editorPage.keyboard.press(key);
-            await expect.poll(() => toolbar.gizmoType()).toBe(type);
             await expectActiveGizmo(toolbar, type);
+            expect(await toolbar.gizmoType()).toBe(type);
         }
 
         await toolbar.button('gizmo-rotate').click();
 
-        await expect.poll(() => toolbar.gizmoType()).toBe('rotate');
         await expectActiveGizmo(toolbar, 'rotate');
+        expect(await toolbar.gizmoType()).toBe('rotate');
     });
 
     test('toggle gizmo space', async ({ editorPage }) => {
@@ -150,13 +152,13 @@ test.describe('viewport', () => {
 
         await editorPage.keyboard.press('l');
 
-        await expect.poll(() => toolbar.coordSystem()).toBe('local');
         await expect(space).not.toHaveClass(ACTIVE);
+        expect(await toolbar.coordSystem()).toBe('local');
 
         await space.click();
 
-        await expect.poll(() => toolbar.coordSystem()).toBe('world');
         await expect(space).toHaveClass(ACTIVE);
+        expect(await toolbar.coordSystem()).toBe('world');
     });
 
     test('translate with snap', async ({ editorPage }) => {
@@ -177,13 +179,15 @@ test.describe('viewport', () => {
         const centre = await toolbar.screenPointOf(id);
         const handle = await toolbar.gizmoHandlePoint('x');
         const length = Math.hypot(handle.x - centre.x, handle.y - centre.y);
+        const translated = await hierarchy.armAction('entities.translate');
         await toolbar.dragViewport(handle, {
             x: handle.x + ((handle.x - centre.x) / length) * 150,
             y: handle.y + ((handle.y - centre.y) / length) * 150
         });
 
-        await expect.poll(async () => (await toolbar.transform(id)).position[0]).not.toBe(0);
+        await translated();
         const moved = await toolbar.transform(id);
+        expect(moved.position[0]).not.toBe(0);
         const steps = moved.position[0] / increment;
         expect(Math.abs(steps - Math.round(steps))).toBeLessThan(1e-6);
         expect(moved.position[1]).toBe(0);
@@ -191,9 +195,10 @@ test.describe('viewport', () => {
         expect((await shell.history()).last).toBe('entities.translate');
         await expect(toolbar.status).toHaveText('entities.translate');
 
+        const undone = await hierarchy.armField(id, 'position', [0, 0, 0]);
         await shell.undo();
-
-        await expect.poll(async () => (await toolbar.transform(id)).position).toEqual([0, 0, 0]);
+        await undone();
+        expect((await toolbar.transform(id)).position).toEqual([0, 0, 0]);
     });
 
     test('focus selection', async ({ editorPage }) => {
@@ -203,19 +208,22 @@ test.describe('viewport', () => {
         const { name } = await makeBox(editorPage, hierarchy, CLEAR_A);
         await toolbar.render();
 
+        const cleared = await hierarchy.armSelection([]);
         await toolbar.clickViewport(await toolbar.emptyPoint());
-        await expect.poll(async () => (await hierarchy.selection()).count).toBe(0);
+        await cleared();
         await expect(focus).toHaveClass(DISABLED);
 
         await hierarchy.select(name);
         await expect(focus).not.toHaveClass(DISABLED);
 
-        await toolbar.watch('camera:focus:end');
+        const focused = await hierarchy.shell.arm(() => ({ done: new Promise<void>((resolve) => {
+            window.editor.once('camera:focus:end', () => resolve());
+        }) }));
         const before = await toolbar.camera();
         await editorPage.keyboard.press('f');
 
         // focus is a multi frame fly, so wait for the editor to say it finished
-        await expect.poll(() => toolbar.fired('camera:focus:end')).toBeGreaterThan(0);
+        await focused();
         const after = await toolbar.camera();
         expect(after.name).toBe('perspective');
         expect(after.position).not.toEqual(before.position);
@@ -227,27 +235,27 @@ test.describe('viewport', () => {
 
         await editorPage.keyboard.press(' ');
 
-        await expect.poll(() => toolbar.expandState()).toBe(true);
         await expect(toolbar.panel('hierarchy')).toBeHidden();
+        expect(await toolbar.expandState()).toBe(true);
         await expect(toolbar.panel('assets')).toBeHidden();
         await expect(toolbar.panel('attributes')).toBeHidden();
         await expect(toolbar.expand).toHaveClass(ACTIVE);
 
         await editorPage.keyboard.press(' ');
 
-        await expect.poll(() => toolbar.expandState()).toBe(false);
         await expect(toolbar.panel('hierarchy')).toBeVisible();
+        expect(await toolbar.expandState()).toBe(false);
         await expect(toolbar.expand).not.toHaveClass(ACTIVE);
 
         await toolbar.expand.click();
 
-        await expect.poll(() => toolbar.expandState()).toBe(true);
         await expect(toolbar.panel('attributes')).toBeHidden();
+        expect(await toolbar.expandState()).toBe(true);
 
         await toolbar.expand.click();
 
-        await expect.poll(() => toolbar.expandState()).toBe(false);
         await expect(toolbar.panel('assets')).toBeVisible();
+        expect(await toolbar.expandState()).toBe(false);
     });
 
     test('undo and redo buttons', async ({ editorPage }) => {
@@ -269,21 +277,22 @@ test.describe('viewport', () => {
         await expect(undo).not.toHaveClass(DISABLED);
         await expect(redo).toHaveClass(DISABLED);
 
+        const deleted = await hierarchy.armAction('delete entities');
         await deleteEntity(editorPage, id);
-        await hierarchy.waitForAction('delete entities');
+        await deleted();
 
         expect(await hierarchy.exists(id)).toBe(false);
         await expect(undo).not.toHaveClass(DISABLED);
 
+        const undone = await hierarchy.armField(id, 'resource_id', id);
         await undo.click();
-
-        await expect.poll(() => hierarchy.exists(id)).toBe(true);
+        await undone();
         expect((await shell.history()).canRedo).toBe(true);
         await expect(redo).not.toHaveClass(DISABLED);
 
+        const redone = await hierarchy.armField(id, 'resource_id', undefined);
         await redo.click();
-
-        await expect.poll(() => hierarchy.exists(id)).toBe(false);
+        await redone();
         expect(await shell.history()).toMatchObject({ canUndo: true, canRedo: false });
         await expect(redo).toHaveClass(DISABLED);
     });

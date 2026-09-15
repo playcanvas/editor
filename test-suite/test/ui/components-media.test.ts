@@ -67,10 +67,12 @@ test.describe('components-media', () => {
         // a fresh sound component already ships one slot, keyed "1"
         await expect(sound.locator(SLOT_PANEL)).toHaveCount(1);
 
+        const added = await hierarchy.armField(id, 'components.sound.slots.2.name', 'Slot 2');
         await sound.locator('button', { hasText: 'ADD SLOT' }).click();
+        await added();
 
         await expect(sound.locator(SLOT_PANEL)).toHaveCount(2);
-        await expect.poll(() => inspector.read(id, 'components.sound.slots.2.name')).toBe('Slot 2');
+        expect(await inspector.read(id, 'components.sound.slots.2.name')).toBe('Slot 2');
     });
 
     test('edit slot volume', async ({ editorPage }) => {
@@ -85,9 +87,10 @@ test.describe('components-media', () => {
         const slot = sound.locator(SLOT_PANEL);
         await expect(slot).toBeVisible();
 
+        const changed = await hierarchy.armField(id, 'components.sound.slots.1.volume', 0.4);
         await inspector.setSlider(slot, 'Volume', 0.4);
-
-        await expect.poll(() => inspector.read(id, 'components.sound.slots.1.volume')).toBe(0.4);
+        await changed();
+        expect(await inspector.read(id, 'components.sound.slots.1.volume')).toBe(0.4);
         expect(await inspector.read(id, 'components.sound.volume')).toBe(1);
     });
 
@@ -107,9 +110,10 @@ test.describe('components-media', () => {
         const slot = inspector.component('sound').locator(SLOT_PANEL);
         await expect(inspector.assetSlot(slot, 'Asset')).toBeVisible();
 
+        const changed = await hierarchy.armField(id, 'components.sound.slots.1.asset', audio.id);
         await inspector.assignAsset(slot, 'Asset', audio.name);
-
-        await expect.poll(() => inspector.read(id, 'components.sound.slots.1.asset')).toBe(audio.id);
+        await changed();
+        expect(await inspector.read(id, 'components.sound.slots.1.asset')).toBe(audio.id);
     });
 
     test('assign state graph shows layers', async ({ editorPage }) => {
@@ -124,9 +128,10 @@ test.describe('components-media', () => {
         await expect(inspector.assetSlot(anim, 'State Graph')).toBeVisible();
         await expect(anim.locator(LAYER_PANEL)).toHaveCount(0);
 
+        const changed = await hierarchy.armField(id, 'components.anim.stateGraphAsset', graph.id);
         await inspector.assignAsset(anim, 'State Graph', graph.name);
-
-        await expect.poll(() => inspector.read(id, 'components.anim.stateGraphAsset')).toBe(graph.id);
+        await changed();
+        expect(await inspector.read(id, 'components.anim.stateGraphAsset')).toBe(graph.id);
 
         // one collapsible panel per layer of the graph, headed "Layer: <name>"
         await expect(anim.locator(LAYER_PANEL).first()).toBeVisible();
@@ -142,12 +147,15 @@ test.describe('components-media', () => {
         const anim = inspector.component('anim');
         await expect(anim).toBeVisible();
 
+        const changed = await hierarchy.armField(id, 'components.anim.speed', 0.5);
         await inspector.setSlider(anim, 'Speed', 0.5);
+        await changed();
+        expect(await inspector.read(id, 'components.anim.speed')).toBe(0.5);
 
-        await expect.poll(() => inspector.read(id, 'components.anim.speed')).toBe(0.5);
-
+        const undone = await hierarchy.armField(id, 'components.anim.speed', 1);
         await inspector.shell.undo();
-        await expect.poll(() => inspector.read(id, 'components.anim.speed')).toBe(1);
+        await undone();
+        expect(await inspector.read(id, 'components.anim.speed')).toBe(1);
     });
 
     for (const { type, item } of SPRITE_TYPES) {
@@ -158,11 +166,13 @@ test.describe('components-media', () => {
 
             await hierarchy.setSelection([id]);
             await expect(inspector.entity).toBeVisible();
+            const added = await hierarchy.armField(id, 'components.sprite.type', type);
             await inspector.addComponent(['2D', item]);
+            await added();
 
             const sprite = inspector.component('sprite');
             await expect(sprite).toBeVisible();
-            await expect.poll(() => inspector.read(id, 'components.sprite.type')).toBe(type);
+            expect(await inspector.read(id, 'components.sprite.type')).toBe(type);
 
             // an animated sprite plays clips, so it drops the single frame and sprite slot
             expect(await inspector.fieldVisible(sprite, 'Frame')).toBe(type === 'simple');
@@ -181,12 +191,15 @@ test.describe('components-media', () => {
         const sprite = inspector.component('sprite');
         await expect(inspector.assetSlot(sprite, 'Sprite')).toBeVisible();
 
+        const changed = await hierarchy.armField(id, 'components.sprite.spriteAsset', asset.id);
         await inspector.assignAsset(sprite, 'Sprite', asset.name);
+        await changed();
+        expect(await inspector.read(id, 'components.sprite.spriteAsset')).toBe(asset.id);
 
-        await expect.poll(() => inspector.read(id, 'components.sprite.spriteAsset')).toBe(asset.id);
-
+        const cleared = await hierarchy.armField(id, 'components.sprite.spriteAsset', null);
         await inspector.clearAsset(sprite, 'Sprite');
-        await expect.poll(() => inspector.read(id, 'components.sprite.spriteAsset')).toBeNull();
+        await cleared();
+        expect(await inspector.read(id, 'components.sprite.spriteAsset')).toBeNull();
     });
 
     test('edit sprite colour', async ({ editorPage }) => {
@@ -202,7 +215,7 @@ test.describe('components-media', () => {
         await inspector.setColorChannel('b', 32);
         await inspector.closeColorPicker();
 
-        await expect.poll(async () => (await inspector.read(id, 'components.sprite.color'))[2]).toBeCloseTo(32 / 255, 5);
+        expect((await inspector.read(id, 'components.sprite.color'))[2]).toBeCloseTo(32 / 255, 5);
     });
 
     test('add animation clip', async ({ editorPage }) => {
@@ -218,14 +231,18 @@ test.describe('components-media', () => {
         await expect(sprite).toBeVisible();
         await expect(sprite.locator(CLIP_PANEL)).toHaveCount(0);
 
+        const added = await hierarchy.armField(id, 'components.sprite.clips.0.name', 'Clip 1');
         await sprite.locator('button', { hasText: 'ADD CLIP' }).click();
+        await added();
 
         await expect(sprite.locator(CLIP_PANEL)).toHaveCount(1);
-        await expect.poll(() => inspector.read(id, 'components.sprite.clips.0.name')).toBe('Clip 1');
+        expect(await inspector.read(id, 'components.sprite.clips.0.name')).toBe('Clip 1');
 
         const clip = sprite.locator(CLIP_PANEL);
+        const changed = await hierarchy.armField(id, 'components.sprite.clips.0.fps', 12);
         await inspector.setNumber(clip, 'Frames Per Second', 12);
-        await expect.poll(() => inspector.read(id, 'components.sprite.clips.0.fps')).toBe(12);
+        await changed();
+        expect(await inspector.read(id, 'components.sprite.clips.0.fps')).toBe(12);
     });
 
     test('edit script attribute value', async ({ editorPage }) => {
@@ -247,13 +264,16 @@ test.describe('components-media', () => {
         await expect(panel).toBeVisible();
 
         // the attribute label is the declared name, since the script gives no title
-        await expect.poll(() => inspector.fieldVisible(panel, 'speed'), { timeout: JOB_TIMEOUT }).toBe(true);
+        await expect(inspector.field(panel, 'speed')).toBeVisible({ timeout: JOB_TIMEOUT });
 
+        const changed = await hierarchy.armField(id, `components.script.scripts.${name}.attributes.speed`, 9);
         await inspector.setNumber(panel, 'speed', 9);
+        await changed();
+        expect(await inspector.read(id, `components.script.scripts.${name}.attributes.speed`)).toBe(9);
 
-        await expect.poll(() => inspector.read(id, `components.script.scripts.${name}.attributes.speed`)).toBe(9);
-
+        const undone = await hierarchy.armField(id, `components.script.scripts.${name}.attributes.speed`, 1);
         await inspector.shell.undo();
-        await expect.poll(() => inspector.read(id, `components.script.scripts.${name}.attributes.speed`)).toBe(1);
+        await undone();
+        expect(await inspector.read(id, `components.script.scripts.${name}.attributes.speed`)).toBe(1);
     });
 });

@@ -1,11 +1,14 @@
 import { readFileSync } from 'node:fs';
 
+import { JOB_TEST_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
+import { AssetWorkflows } from '../../lib/pages/asset-workflows';
 import { AssetsPanel } from '../../lib/pages/assets';
 import { EditorShell, type ProjectState } from '../../lib/pages/common';
 import { HierarchyPanel } from '../../lib/pages/hierarchy';
 import { Inspector } from '../../lib/pages/inspector';
 import { uniqueName } from '../../lib/utils';
+import { model, splat } from '../fixtures/assets';
 
 const PNG = readFileSync(new URL('../fixtures/files/test.png', import.meta.url));
 
@@ -40,7 +43,7 @@ test.describe('components-3d', () => {
 
             const light = inspector.component('light');
             await expect(light).toBeVisible();
-            await expect.poll(() => inspector.read(id, 'components.light.type')).toBe(type);
+            expect(await inspector.read(id, 'components.light.type')).toBe(type);
 
             // range and the cone angles only make sense for the types that have them
             expect(await inspector.fieldVisible(light, 'Range')).toBe(type !== 'directional');
@@ -61,7 +64,7 @@ test.describe('components-3d', () => {
         await inspector.openColorPicker(light, 'Color');
         await inspector.setColorChannel('g', 64);
 
-        await expect.poll(async () => (await inspector.read(id, 'components.light.color'))[1]).toBeCloseTo(64 / 255, 5);
+        expect((await inspector.read(id, 'components.light.color'))[1]).toBeCloseTo(64 / 255, 5);
         expect((await inspector.shell.history()).last).toMatch(/components\.light\.color/);
     });
 
@@ -82,7 +85,7 @@ test.describe('components-3d', () => {
 
         await inspector.toggle(light, 'Cast Shadows');
 
-        await expect.poll(() => inspector.read(id, 'components.light.castShadows')).toBe(true);
+        expect(await inspector.read(id, 'components.light.castShadows')).toBe(true);
         await expect(inspector.field(light, 'Distance')).toBeVisible();
         await expect(inspector.field(light, 'Shadow Intensity')).toBeVisible();
         await expect(inspector.field(light, 'Cascades')).toBeVisible();
@@ -101,12 +104,12 @@ test.describe('components-3d', () => {
 
         await inspector.setSelect(camera, 'Projection', 'Orthographic');
 
-        await expect.poll(() => inspector.read(id, 'components.camera.projection')).toBe(1);
+        expect(await inspector.read(id, 'components.camera.projection')).toBe(1);
         await expect(inspector.field(camera, 'Ortho Height')).toBeVisible();
         await expect(inspector.field(camera, 'Field Of View')).toBeHidden();
 
         await inspector.setNumber(camera, 'Ortho Height', 7);
-        await expect.poll(() => inspector.read(id, 'components.camera.orthoHeight')).toBe(7);
+        expect(await inspector.read(id, 'components.camera.orthoHeight')).toBe(7);
     });
 
     test('edit clear colour', async ({ editorPage }) => {
@@ -121,12 +124,12 @@ test.describe('components-3d', () => {
         await inspector.openColorPicker(camera, 'Clear Color');
         await inspector.setColorChannel('r', 200);
 
-        await expect.poll(async () => (await inspector.read(id, 'components.camera.clearColor'))[0]).toBeCloseTo(200 / 255, 5);
+        expect((await inspector.read(id, 'components.camera.clearColor'))[0]).toBeCloseTo(200 / 255, 5);
         await inspector.closeColorPicker();
 
         // the buffer toggle owns the colour field, so turning it off hides the picker
         await inspector.toggle(camera, 'Clear Color Buffer');
-        await expect.poll(() => inspector.read(id, 'components.camera.clearColorBuffer')).toBe(false);
+        expect(await inspector.read(id, 'components.camera.clearColorBuffer')).toBe(false);
         await expect(inspector.field(camera, 'Clear Color')).toBeHidden();
     });
 
@@ -141,10 +144,10 @@ test.describe('components-3d', () => {
 
         await inspector.setNumber(camera, 'Priority', 3);
 
-        await expect.poll(() => inspector.read(id, 'components.camera.priority')).toBe(3);
+        expect(await inspector.read(id, 'components.camera.priority')).toBe(3);
 
         await inspector.shell.undo();
-        await expect.poll(() => inspector.read(id, 'components.camera.priority')).toBe(0);
+        expect(await inspector.read(id, 'components.camera.priority')).toBe(0);
     });
 
     test('switch render type', async ({ editorPage }) => {
@@ -159,7 +162,7 @@ test.describe('components-3d', () => {
 
         await inspector.setSelect(render, 'Type', 'Sphere');
 
-        await expect.poll(() => inspector.read(id, 'components.render.type')).toBe('sphere');
+        expect(await inspector.read(id, 'components.render.type')).toBe('sphere');
 
         // the render asset slot belongs to the asset type only
         await expect(inspector.assetSlot(render, 'Asset')).toBeHidden();
@@ -183,7 +186,7 @@ test.describe('components-3d', () => {
 
         await inspector.assignAsset(render, 'Material #0', material.name);
 
-        await expect.poll(() => inspector.read(id, 'components.render.materialAssets')).toEqual([material.id]);
+        expect(await inspector.read(id, 'components.render.materialAssets')).toEqual([material.id]);
     });
 
     test('clear material slot', async ({ editorPage }) => {
@@ -203,7 +206,7 @@ test.describe('components-3d', () => {
 
         await inspector.clearAsset(render, 'Material #0');
 
-        await expect.poll(() => inspector.read(id, 'components.render.materialAssets')).toEqual([null]);
+        expect(await inspector.read(id, 'components.render.materialAssets')).toEqual([null]);
         await expect(slot.locator('.pcui-asset-input-asset').first()).toHaveText('Empty');
     });
 
@@ -219,7 +222,7 @@ test.describe('components-3d', () => {
 
         await inspector.toggle(render, 'Cast Shadows');
 
-        await expect.poll(() => inspector.read(id, 'components.render.castShadows')).toBe(false);
+        expect(await inspector.read(id, 'components.render.castShadows')).toBe(false);
         await expect(inspector.field(render, 'Shadow Cascades')).toBeHidden();
     });
 
@@ -236,18 +239,21 @@ test.describe('components-3d', () => {
 
         await inspector.setSelect(collision, 'Type', 'Sphere');
 
-        await expect.poll(() => inspector.read(id, 'components.collision.type')).toBe('sphere');
+        expect(await inspector.read(id, 'components.collision.type')).toBe('sphere');
         await expect(inspector.field(collision, 'Radius')).toBeVisible();
         await expect(inspector.field(collision, 'Half Extents')).toBeHidden();
 
         await inspector.setNumber(collision, 'Radius', 2);
-        await expect.poll(() => inspector.read(id, 'components.collision.radius')).toBe(2);
+        expect(await inspector.read(id, 'components.collision.radius')).toBe(2);
     });
 
     test('assign mesh asset', async ({ editorPage }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
         const inspector = new Inspector(editorPage);
         const hierarchy = new HierarchyPanel(editorPage);
-        const id = await hierarchy.createEntity({ name: uniqueName('ent'), components: { collision: {} } });
+        const workflows = new AssetWorkflows(editorPage);
+        const [asset] = await workflows.upload({ name: `${uniqueName('mesh')}.glb`, mimeType: 'model/gltf-binary', buffer: model() }, ['render', 'container', 'animation']);
+        const id = await hierarchy.createEntity({ name: uniqueName('ent'), components: { collision: {}, render: {} } });
 
         await hierarchy.setSelection([id]);
         const collision = inspector.component('collision');
@@ -255,13 +261,29 @@ test.describe('components-3d', () => {
 
         await inspector.setSelect(collision, 'Type', 'Mesh');
 
-        await expect.poll(() => inspector.read(id, 'components.collision.type')).toBe('mesh');
+        expect(await inspector.read(id, 'components.collision.type')).toBe('mesh');
         await expect(inspector.assetSlot(collision, 'Render Asset')).toBeVisible();
         await expect(inspector.assetSlot(collision, 'Model Asset')).toBeVisible();
 
-        // a render asset only comes out of a model import pipeline, which no editor-api
-        // create method covers, so the project has nothing to pick
-        test.skip(true, 'a render asset needs a model import the test project cannot author');
+        await inspector.assignAsset(collision, 'Render Asset', asset.name);
+        expect(await inspector.read(id, 'components.collision.renderAsset')).toBe(asset.id);
+        await inspector.assignAsset(inspector.component('render'), 'Asset', asset.name);
+        expect(await inspector.read(id, 'components.render.asset')).toBe(asset.id);
+
+        const launch = await workflows.launch();
+        const state = await launch.evaluate(({ id, asset }) => {
+            const app = (window as any).pc.app;
+            const entity = app.root.findByGuid(id);
+            const resource = app.assets.get(asset).resource;
+            return {
+                collision: entity.collision.renderAsset,
+                render: entity.render.asset,
+                meshes: resource.meshes.length,
+                vertices: entity.render.meshInstances[0].mesh.vertexBuffer.numVertices
+            };
+        }, { id, asset: asset.id });
+        expect(state).toEqual({ collision: asset.id, render: asset.id, meshes: 1, vertices: 3 });
+        await launch.close();
     });
 
     test('switch body type', async ({ editorPage }) => {
@@ -276,7 +298,7 @@ test.describe('components-3d', () => {
 
         await inspector.setSelect(rigidbody, 'Type', 'Dynamic');
 
-        await expect.poll(() => inspector.read(id, 'components.rigidbody.type')).toBe('dynamic');
+        expect(await inspector.read(id, 'components.rigidbody.type')).toBe('dynamic');
         await expect(inspector.field(rigidbody, 'Mass')).toBeVisible();
         await expect(inspector.field(rigidbody, 'Linear Damping')).toBeVisible();
     });
@@ -295,10 +317,10 @@ test.describe('components-3d', () => {
 
         await inspector.setNumber(rigidbody, 'Mass', 12);
 
-        await expect.poll(() => inspector.read(id, 'components.rigidbody.mass')).toBe(12);
+        expect(await inspector.read(id, 'components.rigidbody.mass')).toBe(12);
 
         await inspector.shell.undo();
-        await expect.poll(() => inspector.read(id, 'components.rigidbody.mass')).toBe(1);
+        expect(await inspector.read(id, 'components.rigidbody.mass')).toBe(1);
     });
 
     test('edit friction', async ({ editorPage }) => {
@@ -312,7 +334,7 @@ test.describe('components-3d', () => {
 
         await inspector.setSlider(rigidbody, 'Friction', 0.25);
 
-        await expect.poll(() => inspector.read(id, 'components.rigidbody.friction')).toBe(0.25);
+        expect(await inspector.read(id, 'components.rigidbody.friction')).toBe(0.25);
     });
 
     test('edit particle count', async ({ editorPage }) => {
@@ -330,7 +352,7 @@ test.describe('components-3d', () => {
 
         await inspector.setNumber(particles, 'Particle Count', 12);
 
-        await expect.poll(() => inspector.read(id, 'components.particlesystem.numParticles')).toBe(12);
+        expect(await inspector.read(id, 'components.particlesystem.numParticles')).toBe(12);
     });
 
     test('switch emitter shape', async ({ editorPage }) => {
@@ -349,7 +371,7 @@ test.describe('components-3d', () => {
 
         await inspector.setSelect(particles, 'Emitter Shape', 'Sphere');
 
-        await expect.poll(() => inspector.read(id, 'components.particlesystem.emitterShape')).toBe(1);
+        expect(await inspector.read(id, 'components.particlesystem.emitterShape')).toBe(1);
         await expect(inspector.field(particles, 'Emitter Radius')).toBeVisible();
         await expect(inspector.field(particles, 'Emitter Extents')).toBeHidden();
     });
@@ -375,7 +397,7 @@ test.describe('components-3d', () => {
 
         await inspector.assignAsset(particles, 'Color Map', texture.name);
 
-        await expect.poll(() => inspector.read(id, 'components.particlesystem.colorMapAsset')).toBe(texture.id);
+        expect(await inspector.read(id, 'components.particlesystem.colorMapAsset')).toBe(texture.id);
     });
 
     test('edit zone size', async ({ editorPage }) => {
@@ -394,12 +416,15 @@ test.describe('components-3d', () => {
 
         await inspector.setVector(zone, 'Size', [3, 4, 5]);
 
-        await expect.poll(() => inspector.read(id, 'components.zone.size')).toEqual([3, 4, 5]);
+        expect(await inspector.read(id, 'components.zone.size')).toEqual([3, 4, 5]);
     });
 
     test('assign splat asset', async ({ editorPage }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
         const inspector = new Inspector(editorPage);
         const hierarchy = new HierarchyPanel(editorPage);
+        const workflows = new AssetWorkflows(editorPage);
+        const [asset] = await workflows.upload({ name: `${uniqueName('splat')}.ply`, mimeType: 'application/octet-stream', buffer: splat() }, ['gsplat']);
         const id = await hierarchy.createEntity({ name: uniqueName('ent'), components: { gsplat: {} } });
 
         await hierarchy.setSelection([id]);
@@ -408,8 +433,18 @@ test.describe('components-3d', () => {
         await expect(inspector.assetSlot(gsplat, 'Asset')).toBeVisible();
         expect(await inspector.read(id, 'components.gsplat.asset')).toBeNull();
 
-        // a gsplat asset only comes out of a ply import pipeline, which no editor-api create
-        // method covers, so the project has nothing to pick
-        test.skip(true, 'a gsplat asset needs a ply import the test project cannot author');
+        await inspector.assignAsset(gsplat, 'Asset', asset.name);
+        expect(await inspector.read(id, 'components.gsplat.asset')).toBe(asset.id);
+        await inspector.shell.undo();
+        expect(await inspector.read(id, 'components.gsplat.asset')).toBeNull();
+        await inspector.shell.redo();
+        expect(await inspector.read(id, 'components.gsplat.asset')).toBe(asset.id);
+
+        const launch = await workflows.launch();
+        expect(await launch.evaluate(({ id, asset }) => {
+            const app = (window as any).pc.app;
+            return { asset: app.root.findByGuid(id).gsplat.asset, splats: app.assets.get(asset).resource.numSplats };
+        }, { id, asset: asset.id })).toEqual({ asset: asset.id, splats: 9 });
+        await launch.close();
     });
 });

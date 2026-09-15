@@ -1,7 +1,10 @@
 import { statSync } from 'fs';
+import { execFile } from 'node:child_process';
+import { resolve, sep } from 'node:path';
+import { promisify } from 'node:util';
 import { tmpdir } from 'os';
 
-import type { BrowserContext, Locator, Page } from '@playwright/test';
+import type { BrowserContext, Frame, Locator, Page } from '@playwright/test';
 
 import {
     checkCookieAccept,
@@ -13,8 +16,10 @@ import { editorBlankUrl, editorSceneUrl, editorUrl } from '../../lib/config';
 import { JOB_TEST_TIMEOUT, JOB_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { middleware } from '../../lib/middleware';
+import { AssetsPanel } from '../../lib/pages/assets';
 import { buildArtifact, closeBuilds, deleteBuild, openBuilds, startBuild } from '../../lib/pages/builds';
 import { EditorShell } from '../../lib/pages/common';
+import { HierarchyPanel } from '../../lib/pages/hierarchy';
 import { waitForCodeEditor, waitForEditor, waitForLaunch } from '../../lib/ready';
 import { uniqueName } from '../../lib/utils';
 
@@ -24,6 +29,40 @@ const TICKED = /pcui-boolean-input-ticked/;
 // copies exist for the settings, launch-option and builds ui, which one combo exercises
 const LAUNCH_COMBO = { version: 'current', type: 'debug', device: 'webgl2' };
 const BUILD_SCRIPTS = 'classic';
+const DELIVERY_PARENT = 'Delivery Parent';
+const DELIVERY_BOX = 'Delivery Box';
+const DELIVERY_MATERIAL = 'Delivery Material';
+const DOWNLOAD_ORIGIN = 'http://download.test';
+
+/** Populates delivery projects with a hierarchy and an asset reference to preserve. */
+const populate = async (page: Page) => {
+    const material = await new AssetsPanel(page).create('createMaterial', {
+        name: DELIVERY_MATERIAL,
+        data: { diffuse: [1, 0, 0] }
+    });
+    const hierarchy = new HierarchyPanel(page);
+    const parent = await hierarchy.createEntity({ name: DELIVERY_PARENT });
+    await hierarchy.createEntity({
+        name: DELIVERY_BOX,
+        parent,
+        components: { render: { type: 'box', materialAssets: [material.id] } }
+    });
+    await new EditorShell(page).flushScene();
+};
+
+/** Checks the delivered scene, hierarchy and resolved material inside the running app. */
+const verifyDelivery = async (page: Page | Frame) => {
+    await waitForLaunch(page);
+    expect(await page.evaluate((box) => {
+        const entity = (window as any).pc.app.root.findByName(box);
+        const material = entity?.render?.meshInstances[0]?.material;
+        return {
+            parent: entity?.parent?.name,
+            type: entity?.render?.type,
+            color: material ? [material.diffuse.r, material.diffuse.g, material.diffuse.b] : null
+        };
+    }, DELIVERY_BOX)).toEqual({ parent: DELIVERY_PARENT, type: 'box', color: [1, 0, 0] });
+};
 
 // three .picker-modal-confirmation modals sit in the dom from load, so match the button by name
 // and by role, which never binds a hidden node
@@ -108,6 +147,9 @@ test.describe('export/import', () => {
         await setup.locator('.picker-project-cms').waitFor();
         await checkCookieAccept(setup);
         projectId = await createProject(setup, projectName);
+        await setup.goto(editorUrl(projectId, { disableBubbles: true }));
+        await waitForEditor(setup);
+        await populate(setup);
     });
 
     test.afterAll(async () => {
@@ -154,6 +196,23 @@ test.describe('export/import', () => {
 
         // the import keeps the exported name, so the cms now lists it twice
         await expect(cmsRow(blankPage, projectName)).toHaveCount(2, { timeout: JOB_TEST_TIMEOUT });
+
+        const imported = await blankPage.evaluate(async ({ name, source }) => {
+            const res: any = await window.editor.api.globals.rest.users.userProjects(window.config.self.id, '').promisify();
+            return Number(res.result.find((project: any) => project.name === name && Number(project.id) !== source)?.id);
+        }, { name: projectName, source: projectId });
+        expect(imported).toBeGreaterThan(0);
+        await blankPage.goto(editorUrl(imported, { disableBubbles: true }));
+        await waitForEditor(blankPage);
+        const hierarchy = new HierarchyPanel(blankPage);
+        await expect(hierarchy.childRow(DELIVERY_PARENT, DELIVERY_BOX)).toHaveCount(1);
+
+        const [launch] = await Promise.all([
+            blankPage.waitForEvent('popup'),
+            blankPage.locator('.control-strip.top-right > .launch > .control-strip-btn').click()
+        ]);
+        await verifyDelivery(launch);
+        await launch.close();
     });
 
     test('delete imported project', async ({ blankPage }) => {
@@ -314,6 +373,7 @@ test.describe('publish/download', () => {
         await setup.goto(editorUrl(projectId, { disableBubbles: true }));
         await waitForEditor(setup);
         sceneId = parseInt(await setup.evaluate(() => window.config.scene.id), 10);
+        await populate(setup);
     });
 
     test.afterAll(async () => {
@@ -332,7 +392,7 @@ test.describe('publish/download', () => {
         expect(await page.evaluate(() => window.config.project.id)).toBe(projectId);
     });
 
-    test(`download app (scripts: ${BUILD_SCRIPTS})`, async ({ page }) => {
+    test(`download app (scripts: ${BUILD_SCRIPTS})`, async ({ page }, testInfo) => {
         test.setTimeout(JOB_TEST_TIMEOUT);
         await open(page);
 
@@ -346,10 +406,62 @@ test.describe('publish/download', () => {
         await downloadPagePromise;
         const download = await downloadPromise;
         expect(download.suggestedFilename()).toMatch(/\.zip$/);
+        const archive = testInfo.outputPath('app.zip');
+        await download.saveAs(archive);
+        const appPage = await page.context().newPage();
+        const directory = testInfo.outputPath('app');
+        await promisify(execFile)('unzip', ['-q', archive, '-d', directory]);
+        await appPage.route(`${DOWNLOAD_ORIGIN}/**`, async (route) => {
+            const pathname = decodeURIComponent(new URL(route.request().url()).pathname);
+            const file = resolve(directory, `.${pathname === '/' ? '/index.html' : pathname}`);
+            if (!file.startsWith(`${resolve(directory)}${sep}`)) {
+                await route.abort();
+                return;
+            }
+            await route.fulfill({ path: file });
+        });
+        await appPage.goto(DOWNLOAD_ORIGIN);
+        await verifyDelivery(appPage);
+        await appPage.close();
 
         // delete the build so a rerun starts with an empty download history
         await deleteBuild(page, 'download');
         await closeBuilds(page);
+    });
+
+    test('preserve build options when switching download formats', async ({ page }) => {
+        await open(page);
+        await openBuilds(page);
+        const scenes = page.waitForResponse(/\/api\/projects\/\d+\/scenes/);
+        await page.locator('.builds-toolbar > .download').click();
+        await scenes;
+        const form = page.locator('.picker-publish-new');
+        const dropdown = form.locator('.download-format-dropdown');
+        const options = form.locator('.options').filter({ has: page.getByText('Options', { exact: true }) });
+        const sourcemaps = options.locator('.field').filter({ hasText: 'Generate Source Maps' }).locator('.pcui-boolean-input');
+        await setTick(sourcemaps, true);
+
+        await dropdown.locator('.pcui-select-input-value').click();
+        await dropdown.locator('[id="npm"]').click();
+        await expect(options).toBeHidden();
+        await expect(form.locator('.web-download')).not.toHaveClass(/pcui-disabled/);
+
+        await dropdown.locator('.pcui-select-input-value').click();
+        const lens = dropdown.locator('[id="web_lens"]');
+        if (await page.evaluate(() => !!window.config.self.flags.superUser)) {
+            await expect(lens).toBeVisible();
+            await lens.click();
+            await expect(options).toBeVisible();
+            await expect(sourcemaps).toHaveClass(TICKED);
+            await dropdown.locator('.pcui-select-input-value').click();
+        } else {
+            await expect(lens).toHaveCount(0);
+        }
+        await dropdown.locator('[id="static"]').click();
+        await expect(options).toBeVisible();
+        await expect(sourcemaps).toHaveClass(TICKED);
+        await page.keyboard.press('Escape');
+        await expect(form).toBeHidden();
     });
 
     test(`publish app (scripts: ${BUILD_SCRIPTS})`, async ({ page }) => {
@@ -364,7 +476,10 @@ test.describe('publish/download', () => {
             page.waitForEvent('popup'),
             buildArtifact(page, 'publish').click()
         ]);
-        await appPage.waitForLoadState();
+        const iframe = await appPage.locator('iframe').elementHandle();
+        const frame = await iframe!.contentFrame();
+        expect(frame).not.toBeNull();
+        await verifyDelivery(frame!);
         expect(appPage.url()).toMatch(/\/b\//);
         await appPage.close();
 

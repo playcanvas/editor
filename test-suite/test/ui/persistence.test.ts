@@ -1,6 +1,5 @@
 import type { Page } from '@playwright/test';
 
-import { JOB_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { AssetsPanel } from '../../lib/pages/assets';
 import { EditorShell, type ProjectState } from '../../lib/pages/common';
@@ -66,7 +65,7 @@ test.describe('persistence', { tag: '@gate' }, () => {
 
         await reload(editorPage);
 
-        await expect.poll(() => assets.exists(asset.id), { timeout: JOB_TIMEOUT }).toBe(false);
+        expect(await assets.exists(asset.id)).toBe(false);
         await expect(assets.gridItem(asset.name)).toHaveCount(0);
     });
 
@@ -98,10 +97,14 @@ test.describe('persistence', { tag: '@gate' }, () => {
         await expect(assets.gridItem(moved.name)).toBeVisible();
         await assets.dragToFolder(moved.name, folder.name);
         await assets.waitForParent(moved.id, folder.id);
+        await editorPage.evaluate(id => new Promise<void>((resolve) => {
+            const globals = window.editor.api.globals;
+            globals.realtime.assets.get(globals.assets.get(id)!.get('uniqueId')).whenNothingPending(resolve);
+        }), moved.id);
 
         await reload(editorPage);
 
-        await expect.poll(() => assets.field(moved.id, 'path'), { timeout: JOB_TIMEOUT }).toEqual([folder.id]);
+        expect(await assets.field(moved.id, 'path')).toEqual([folder.id]);
         expect(await assets.childrenOf(folder.id)).toEqual([
             expect.objectContaining({ id: moved.id, name: moved.name })
         ]);

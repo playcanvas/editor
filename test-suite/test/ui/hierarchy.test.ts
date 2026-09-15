@@ -1,6 +1,7 @@
 import { expect, test } from '../../lib/fixtures';
 import { EditorShell } from '../../lib/pages/common';
 import { HierarchyPanel } from '../../lib/pages/hierarchy';
+import { waitForEditor } from '../../lib/ready';
 import { uniqueName } from '../../lib/utils';
 
 const RENDER_ICON = '.pcui-treeview-item-icon.component-icon-postfix.type-render';
@@ -26,10 +27,12 @@ test.describe('hierarchy', { tag: '@gate' }, () => {
         const before = await hierarchy.row('New Entity').count();
 
         await hierarchy.select(await hierarchy.rootName());
+        const selected = await hierarchy.armSelected('New Entity');
         await editorPage.keyboard.press('ControlOrMeta+E');
+        await selected();
 
         await expect(hierarchy.row('New Entity')).toHaveCount(before + 1);
-        await expect.poll(async () => (await hierarchy.selection()).names).toEqual(['New Entity']);
+        expect((await hierarchy.selection()).names).toEqual(['New Entity']);
         const { ids } = await hierarchy.selection();
         expect(await hierarchy.get(ids[0], 'parent')).toBe(rootId);
         expect((await shell.history()).last).toMatch(/^new entity /);
@@ -41,12 +44,14 @@ test.describe('hierarchy', { tag: '@gate' }, () => {
         const parentId = await hierarchy.createEntity({ name: parent });
         await hierarchy.select(parent);
 
+        const selected = await hierarchy.armSelected('Box');
         await hierarchy.add('3D', 'Box');
+        await selected();
 
         const box = hierarchy.childRow(parent, 'Box');
         await expect(box).toHaveCount(1);
         await expect(box.locator(RENDER_ICON)).toHaveCount(1);
-        await expect.poll(async () => (await hierarchy.selection()).names).toEqual(['Box']);
+        expect((await hierarchy.selection()).names).toEqual(['Box']);
         const { ids } = await hierarchy.selection();
         expect(await hierarchy.get(ids[0], 'parent')).toBe(parentId);
         expect(await hierarchy.get(ids[0], 'components.render.type')).toBe('box');
@@ -58,11 +63,12 @@ test.describe('hierarchy', { tag: '@gate' }, () => {
         const name = uniqueName('ent');
         const id = await hierarchy.createEntity({ name });
 
+        const deleted = await hierarchy.armAction('delete entities');
         await hierarchy.contextMenu(name, 'Delete');
+        await deleted();
 
         await expect(hierarchy.row(name)).toHaveCount(0);
         expect(await hierarchy.exists(id)).toBe(false);
-        await hierarchy.waitForAction('delete entities');
 
         await shell.undo();
         await expect(hierarchy.row(name)).toHaveCount(1);
@@ -99,8 +105,9 @@ test.describe('hierarchy', { tag: '@gate' }, () => {
         const before = (await hierarchy.get(rootId, 'children')).length;
 
         await hierarchy.select(name);
+        const duplicated = await hierarchy.armAction('duplicate entities');
         await editorPage.keyboard.press('ControlOrMeta+D');
-        await hierarchy.waitForAction('duplicate entities');
+        await duplicated();
 
         expect((await hierarchy.get(rootId, 'children')).length).toBe(before + 1);
         const selection = await hierarchy.selection();
@@ -108,8 +115,9 @@ test.describe('hierarchy', { tag: '@gate' }, () => {
         expect(selection.ids[0]).not.toBe(id);
         expect(await hierarchy.get(selection.ids[0], 'parent')).toBe(rootId);
 
+        const removed = await hierarchy.armField(selection.ids[0], 'resource_id', undefined);
         await shell.undo();
-        await expect.poll(() => hierarchy.exists(selection.ids[0])).toBe(false);
+        await removed();
         expect((await hierarchy.get(rootId, 'children')).length).toBe(before);
     });
 
@@ -122,17 +130,28 @@ test.describe('hierarchy', { tag: '@gate' }, () => {
         const aId = await hierarchy.createEntity({ name: a });
         const bId = await hierarchy.createEntity({ name: b });
 
+        const reparented = await hierarchy.armAction('reparent entities');
         await hierarchy.dragInto(a, b);
-        await hierarchy.waitForAction('reparent entities');
+        await reparented();
 
         expect(await hierarchy.get(aId, 'parent')).toBe(bId);
         expect(await hierarchy.get(bId, 'children')).toEqual([aId]);
         await expect(hierarchy.childRow(b, a)).toHaveCount(1);
         await expect(hierarchy.row(b)).not.toHaveClass(/pcui-treeview-item-empty/);
 
+        const undone = await hierarchy.armField(aId, 'parent', rootId);
         await shell.undo();
-        await expect.poll(() => hierarchy.get(aId, 'parent')).toBe(rootId);
+        await undone();
         expect(await hierarchy.get(bId, 'children')).toEqual([]);
+
+        const redone = await hierarchy.armField(aId, 'parent', bId);
+        await shell.redo();
+        await redone();
+        await shell.flushScene();
+        await editorPage.reload();
+        await waitForEditor(editorPage);
+        expect(await hierarchy.get(aId, 'parent')).toBe(bId);
+        expect(await hierarchy.get(bId, 'children')).toEqual([aId]);
     });
 
     test('rename entity', async ({ editorPage }) => {
@@ -194,8 +213,9 @@ test.describe('hierarchy', { tag: '@gate' }, () => {
         expect(type).toBe('entity');
 
         await hierarchy.select(b);
+        const pasted = await hierarchy.armAction('paste entities');
         await editorPage.keyboard.press('ControlOrMeta+V');
-        await hierarchy.waitForAction('paste entities');
+        await pasted();
 
         const children = await hierarchy.get(bId, 'children');
         expect(children).toHaveLength(1);
@@ -224,8 +244,8 @@ test.describe('hierarchy', { tag: '@gate' }, () => {
         await editorPage.keyboard.press('ControlOrMeta+A');
 
         const total = (await hierarchy.ids()).length;
-        await expect.poll(async () => (await hierarchy.selection()).count).toBe(total);
         await expect(hierarchy.selectedRows()).toHaveCount(total);
+        expect((await hierarchy.selection()).count).toBe(total);
     });
     test('delete parent and undo', async ({ editorPage }) => {
         const hierarchy = new HierarchyPanel(editorPage);
@@ -235,8 +255,9 @@ test.describe('hierarchy', { tag: '@gate' }, () => {
         const parentId = await hierarchy.createEntity({ name: parent });
         const childId = await hierarchy.createEntity({ name: child, parent: parentId });
 
+        const deleted = await hierarchy.armAction('delete entities');
         await hierarchy.contextMenu(parent, 'Delete');
-        await hierarchy.waitForAction('delete entities');
+        await deleted();
 
         // deleting a parent takes its whole subtree with it
         expect(await hierarchy.exists(parentId)).toBe(false);
@@ -249,5 +270,60 @@ test.describe('hierarchy', { tag: '@gate' }, () => {
         await expect(hierarchy.childRow(parent, child)).toHaveCount(1);
         expect(await hierarchy.get(childId, 'parent')).toBe(parentId);
         expect(await hierarchy.get(parentId, 'children')).toEqual([childId]);
+
+        const redone = await hierarchy.armField(parentId, 'resource_id', undefined);
+        await shell.redo();
+        await redone();
+        expect(await hierarchy.exists(childId)).toBe(false);
+        await shell.flushScene();
+        await editorPage.reload();
+        await waitForEditor(editorPage);
+        expect(await hierarchy.exists(parentId)).toBe(false);
+        expect(await hierarchy.exists(childId)).toBe(false);
+    });
+
+    test('duplicate subtree remaps internal references and preserves the source', async ({ editorPage }) => {
+        const hierarchy = new HierarchyPanel(editorPage);
+        const shell = new EditorShell(editorPage);
+        const name = uniqueName('tree');
+        const source = await hierarchy.createEntity({ name });
+        const image = await hierarchy.createEntity({ parent: source, name: uniqueName('image'), components: { element: { type: 'image' } } });
+        const button = await hierarchy.createEntity({ parent: source, name: uniqueName('button'), components: { button: { imageEntity: image } } });
+        const before = await hierarchy.get(source, 'children');
+
+        await hierarchy.select(name);
+        const duplicated = await hierarchy.armAction('duplicate entities');
+        await editorPage.keyboard.press('ControlOrMeta+D');
+        await duplicated();
+
+        const { ids } = await hierarchy.selection();
+        const copy = ids[0];
+        const children = await hierarchy.get(copy, 'children');
+        expect(copy).not.toBe(source);
+        expect(children).toHaveLength(2);
+        expect(children).not.toContain(image);
+        expect(children).not.toContain(button);
+        expect(await hierarchy.get(children[1], 'components.button.imageEntity')).toBe(children[0]);
+        expect(await hierarchy.get(children[0], 'parent')).toBe(copy);
+        expect(await hierarchy.get(children[1], 'parent')).toBe(copy);
+        expect(await hierarchy.get(source, 'children')).toEqual(before);
+        expect(await hierarchy.get(button, 'components.button.imageEntity')).toBe(image);
+
+        const undone = await hierarchy.armField(copy, 'resource_id', undefined);
+        await shell.undo();
+        await undone();
+        expect(await hierarchy.exists(children[0])).toBe(false);
+        expect(await hierarchy.exists(children[1])).toBe(false);
+        expect(await hierarchy.get(source, 'children')).toEqual(before);
+
+        const redone = await hierarchy.armField(children[1], 'components.button.imageEntity', children[0]);
+        await shell.redo();
+        await redone();
+        await shell.flushScene();
+        await editorPage.reload();
+        await waitForEditor(editorPage);
+        expect(await hierarchy.get(copy, 'children')).toEqual(children);
+        expect(await hierarchy.get(children[1], 'components.button.imageEntity')).toBe(children[0]);
+        expect(await hierarchy.get(button, 'components.button.imageEntity')).toBe(image);
     });
 });

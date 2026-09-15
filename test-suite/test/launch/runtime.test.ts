@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test';
 
 import { createEsmScript } from '../../lib/common';
-import { JOB_TEST_TIMEOUT } from '../../lib/constants';
+import { JOB_TEST_TIMEOUT, READY_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { waitForFrame } from '../../lib/ready';
 import { uniqueName } from '../../lib/utils';
@@ -96,13 +96,15 @@ test.describe('runtime', () => {
             }, { guid, script });
 
             // the throw lands on the first frame, so listen before the page is created
-            const raised: string[] = [];
-            context.on('page', p => p.on('pageerror', err => raised.push(err.message)));
+            const raised = context.waitForEvent('weberror', {
+                predicate: error => error.error().message.includes(THROW_MSG),
+                timeout: READY_TIMEOUT
+            });
 
             const launch = await openLaunch(project.sceneId);
 
             await expect(launch.locator('#application-console:not(.hidden) p.error').first()).toContainText(THROW_MSG);
-            await expect.poll(() => raised.some(m => m.includes(THROW_MSG))).toBe(true);
+            expect((await raised).error().message).toContain(THROW_MSG);
             expect(errors.list.some(m => m.includes(THROW_MSG))).toBe(true);
 
             // the throw must not stall the tick loop

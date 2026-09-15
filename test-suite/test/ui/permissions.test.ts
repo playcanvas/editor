@@ -1,9 +1,12 @@
 import type { BrowserContext, Page } from '@playwright/test';
 
+import { arm } from '../../lib/arm';
 import { HOST, editorSceneUrl } from '../../lib/config';
 import { expect, test, type Project } from '../../lib/fixtures';
+import { EditorShell } from '../../lib/pages/common';
 import { HierarchyPanel } from '../../lib/pages/hierarchy';
 import { waitForEditor } from '../../lib/ready';
+import { uniqueName } from '../../lib/utils';
 
 const ATTRIBUTES = '#layout-attributes';
 const DISABLED = /pcui-disabled/;
@@ -11,6 +14,7 @@ const SKIP = 'needs a second testSuite account cookie';
 
 // the worker project is shared by the whole run, so hand back the team we were given
 let guestId: number | null = null;
+let baseline: string[] = [];
 
 /** Reads the account behind a context's cookie; a collaborator's id is never known up front. */
 const identity = async (context: BrowserContext) => {
@@ -79,7 +83,13 @@ const setSelfPermission = (page: Page, permission: 'read' | 'write') => {
 };
 
 test.describe('permissions', () => {
+    test.beforeEach(async ({ editorPage }) => {
+        baseline = await new HierarchyPanel(editorPage).ids();
+    });
+
     test.afterEach(async ({ editorPage, project }) => {
+        const hierarchy = new HierarchyPanel(editorPage);
+        await hierarchy.remove((await hierarchy.ids()).filter(id => !baseline.includes(id)));
         const guest = guestId;
         guestId = null;
         if (guest !== null) {
@@ -114,9 +124,92 @@ test.describe('permissions', () => {
 
         await expect(addButton).toBeVisible();
         await expect(guest.page.locator(ATTRIBUTES)).not.toHaveClass(DISABLED);
-        await expect.poll(() => canWrite(guest.page)).toBe(true);
+        expect(await canWrite(guest.page)).toBe(true);
         expect(await permissionIds(guest.page, 'write')).toContain(String(guest.id));
         expect(await guest.page.evaluate(() => (window as any).probe)).toBe('kept');
+
+        const hierarchy = new HierarchyPanel(guest.page);
+        await hierarchy.add('Entity');
+        const { ids } = await hierarchy.selection();
+        await new EditorShell(guest.page).flushScene();
+        await editorPage.reload();
+        await waitForEditor(editorPage);
+        expect(await new HierarchyPanel(editorPage).exists(ids[0])).toBe(true);
+    });
+
+    test('downgrade an active writer and resume editing after promotion', async ({ editorPage, collaborator, project }) => {
+        test.skip(!collaborator, SKIP);
+        const guest = await join(editorPage, collaborator, project, 'write');
+        const host = new HierarchyPanel(editorPage);
+        const hierarchy = new HierarchyPanel(guest.page);
+        const name = uniqueName('permission');
+        const renamed = uniqueName('permitted');
+        const id = await host.createEntity({ name });
+        await expect(hierarchy.row(name)).toBeVisible();
+        await hierarchy.select(name);
+
+        const changed = await arm(guest.page, () => ({ done: new Promise<void>((resolve) => {
+            window.editor.once('permissions:set', () => resolve());
+        }) }));
+        await update(editorPage, project.id, guest.id, 'read');
+        await changed();
+        await expect(guest.page.locator(ATTRIBUTES)).toHaveClass(DISABLED);
+        await expect(hierarchy.addButton()).toBeHidden();
+        expect(await canWrite(guest.page)).toBe(false);
+
+        await guest.page.keyboard.press('Delete');
+        await hierarchy.openContextMenu(name);
+        await expect(hierarchy.menuItem('Delete')).toBeHidden();
+        await guest.page.keyboard.press('Escape');
+        expect(await hierarchy.exists(id)).toBe(true);
+        expect(await host.get(id, 'name')).toBe(name);
+
+        const promoted = await arm(guest.page, () => ({ done: new Promise<void>((resolve) => {
+            window.editor.once('permissions:set', () => resolve());
+        }) }));
+        await update(editorPage, project.id, guest.id, 'write');
+        await promoted();
+        await expect(guest.page.locator(ATTRIBUTES)).not.toHaveClass(DISABLED);
+        await hierarchy.rename(name, renamed);
+        await expect(host.row(renamed)).toBeVisible();
+        await new EditorShell(guest.page).flushScene();
+        await guest.page.reload();
+        await waitForEditor(guest.page);
+        expect(await hierarchy.get(id, 'name')).toBe(renamed);
+    });
+
+    test('revoke an active collaborator without losing saved work', async ({ editorPage, collaborator, project, errors }) => {
+        test.skip(!collaborator, SKIP);
+        const guest = await join(editorPage, collaborator, project, 'write');
+        const hierarchy = new HierarchyPanel(guest.page);
+        await hierarchy.add('Entity');
+        const { ids } = await hierarchy.selection();
+        await new EditorShell(guest.page).flushScene();
+        const privateProject = await guest.page.evaluate(() => window.config.project.private);
+
+        if (privateProject) {
+            errors.allow(/^Failed to load resource: the server responded with a status of 404 /);
+            const denied = guest.page.waitForResponse(response => response.request().isNavigationRequest() && response.frame() === guest.page.mainFrame());
+            await revoke(editorPage, project.id, guest.id);
+            expect((await denied).status()).toBe(404);
+            await guest.page.waitForLoadState('domcontentloaded');
+            await expect(guest.page.locator('body.editor-ready')).toHaveCount(0);
+        } else {
+            const changed = await arm(guest.page, () => ({ done: new Promise<void>((resolve) => {
+                window.editor.once('permissions:set', () => resolve());
+            }) }));
+            await revoke(editorPage, project.id, guest.id);
+            await changed();
+            await expect(guest.page.locator(ATTRIBUTES)).toHaveClass(DISABLED);
+            await expect(hierarchy.addButton()).toBeHidden();
+            expect(await canWrite(guest.page)).toBe(false);
+        }
+        guestId = null;
+
+        await editorPage.reload();
+        await waitForEditor(editorPage);
+        expect(await new HierarchyPanel(editorPage).exists(ids[0])).toBe(true);
+        expect(await permissionIds(editorPage, 'write')).not.toContain(String(guest.id));
     });
 
     test('apply permission message', async ({ editorPage }) => {

@@ -81,8 +81,8 @@ jobs:
                   PC_COOKIE_VALUE: ${{ secrets.PC_COOKIE_VALUE }}
                   PC_HEADER_NAME: ${{ secrets.PC_HEADER_NAME }}
                   PC_HEADER_VALUE: ${{ secrets.PC_HEADER_VALUE }}
-                  PC_COLLAB_USERNAME: ${{ secrets.PC_COLLAB_USERNAME }}
-              run: npm test
+                  PC_EMAILS: ${{ secrets.PC_EMAILS }}
+              run: npm run test:release
 
             - name: Upload test results
               uses: actions/upload-artifact@v7

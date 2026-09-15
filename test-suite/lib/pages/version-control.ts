@@ -1,5 +1,6 @@
-import type { Page } from '@playwright/test';
+import type { Frame, Page } from '@playwright/test';
 
+import { arm } from '../arm';
 import { JOB_TIMEOUT, READY_TIMEOUT } from '../constants';
 import { waitForEditor } from '../ready';
 import { EditorShell } from './common';
@@ -10,22 +11,27 @@ import { EditorShell } from './common';
 
 // the main vc panel (`picker-version-control` is shared with the graph panel)
 const VC_PANEL = '.picker-vc';
+const RELOADS = new WeakMap<Page, Promise<Frame>>();
 
-// vc operations reload the editor via an async, ~1s-delayed messenger event
-// (branch.createEnded / branch.switch / merge / restore). a fixed wait races
-// that reload; instead mark the document, trigger the op, then wait for a fresh
-// document with the editor reloaded.
-export const armReload = (page: Page) => page.evaluate(() => {
-    (window as any).__vcReload = true;
-});
+/** Arms browser navigation before a version control action requests an Editor reload. */
+export const armReload = (page: Page) => {
+    const reloaded = page.waitForEvent('framenavigated', {
+        predicate: frame => frame === page.mainFrame(),
+        timeout: READY_TIMEOUT
+    });
+
+    // keep action failures from leaving an unhandled navigation rejection
+    reloaded.catch(() => undefined);
+    RELOADS.set(page, reloaded);
+};
 
 export const waitReload = async (page: Page) => {
-    // a reload replaces the page, so no in-page subscription survives it; the mark going
-    // missing is the only signal that the new document is the one running
-    await page.waitForFunction(() => {
-        const w = window as any;
-        return w.__vcReload === undefined && !!w.editor?.api?.globals?.branchId;
-    }, undefined, { timeout: READY_TIMEOUT });
+    const reloaded = RELOADS.get(page);
+    if (!reloaded) {
+        throw new Error('armReload must precede the version control action');
+    }
+    await reloaded;
+    RELOADS.delete(page);
     await waitForEditor(page);
 };
 
@@ -145,7 +151,23 @@ export const createCheckpointApi = (page: Page, description: string) => page.eva
     return done;
 }, { description, jobTimeout: JOB_TIMEOUT });
 
-/** ids of the project's branches, so branch state can be polled without the UI */
+/** Subscribes before deletion so branch state can be checked after messenger completion. */
+export const armBranchDeleted = (page: Page, id: string) => arm(page, id => ({
+    done: new Promise<void>((resolve, reject) => {
+        const event = window.editor.on('messenger:branch.deleteEnded', (data: any) => {
+            if (data.branch_id === id) {
+                event.unbind();
+                if (data.status === 'success') {
+                    resolve();
+                } else {
+                    reject(new Error(data.message ?? 'branch deletion failed'));
+                }
+            }
+        });
+    })
+}), id, { what: 'branch deletion', timeout: JOB_TIMEOUT });
+
+/** Reads the project's branch ids after a completed operation. */
 export const branchIds = (page: Page, closed = false) => page.evaluate(async (closed) => {
     const res: any = await window.editor.api.globals.rest.projects.projectBranches({ limit: 100, closed }).promisify();
     return (res.result ?? []).map((branch: any) => branch.id as string);

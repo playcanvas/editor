@@ -1,6 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 
-import { JOB_TEST_TIMEOUT, JOB_TIMEOUT } from '../../lib/constants';
+import { JOB_TEST_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { AssetsPanel } from '../../lib/pages/assets';
 import { EditorShell, type ProjectState } from '../../lib/pages/common';
@@ -113,7 +113,8 @@ test.describe('store', () => {
         // a clone targets the folder the assets panel is in, which keeps the import verifiable
         const folder = await assets.create('createFolder', { name: uniqueName('store') });
         await assets.gridItem(folder.name).dblclick();
-        await expect.poll(() => assets.currentFolderId()).toBe(folder.id);
+        await expect(assets.folderTreeItem(folder.name)).toHaveClass(/pcui-asset-panel-current-folder/);
+        expect(await assets.currentFolderId()).toBe(folder.id);
 
         const store = await openStore(assets);
         const items = store.locator('.grid-item');
@@ -148,7 +149,8 @@ test.describe('store', () => {
 
         const added = await assets.awaitAdd({});
         expect(await assets.exists(added.id)).toBe(true);
-        await expect.poll(() => assets.childrenOf(folder.id), { timeout: JOB_TIMEOUT }).not.toEqual([]);
+        await assets.waitForParent(added.id, folder.id);
+        expect(await assets.childrenOf(folder.id)).not.toEqual([]);
 
         // the return button stays disabled until the clone request settles
         const returnButton = item.locator('.return-button');

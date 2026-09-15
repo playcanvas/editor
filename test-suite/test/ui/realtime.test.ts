@@ -1,8 +1,9 @@
-import type { BrowserContext, Page } from '@playwright/test';
+import type { BrowserContext, Page, WebSocketRoute } from '@playwright/test';
 
 import { arm } from '../../lib/arm';
 import { HOST, editorSceneUrl } from '../../lib/config';
 import { expect, test, type Project } from '../../lib/fixtures';
+import { EditorShell } from '../../lib/pages/common';
 import { HierarchyPanel } from '../../lib/pages/hierarchy';
 import { waitForEditor } from '../../lib/ready';
 import { uniqueName } from '../../lib/utils';
@@ -128,7 +129,7 @@ test.describe('realtime', () => {
         await host.contextMenu(name, 'Delete');
 
         await expect(hierarchy.row(name)).toHaveCount(0);
-        await expect.poll(() => hierarchy.exists(id)).toBe(false);
+        expect(await hierarchy.exists(id)).toBe(false);
     });
 
     test('sync selection', async ({ editorPage, collaborator, project }) => {
@@ -157,39 +158,65 @@ test.describe('realtime', () => {
         test.skip(!collaborator, SKIP);
         // the strip lists this account too, so a lone editor settles on one avatar; a collaborator
         // from the previous test can still be leaving the room, so wait for that before measuring
-        await expect.poll(() => onlineIds(editorPage)).toHaveLength(1);
+        await expect(editorPage.locator(WHOIS)).toHaveCount(1);
         const before = await onlineIds(editorPage);
 
         const guest = await join(editorPage, collaborator, project, 'write');
 
         expect(before).not.toContain(guest.id);
-        await expect.poll(() => onlineIds(editorPage)).toContain(guest.id);
+        await expect(editorPage.locator(`${WHOIS}[style*="/users/${guest.id}/"]`)).toBeVisible();
         expect(await onlineIds(editorPage)).toHaveLength(2);
 
         await guest.page.close();
 
-        await expect.poll(() => onlineIds(editorPage)).not.toContain(guest.id);
+        await expect(editorPage.locator(`${WHOIS}[style*="/users/${guest.id}/"]`)).toHaveCount(0);
         expect(await onlineIds(editorPage)).toHaveLength(1);
     });
 
-    test('reconnect after disconnect', async ({ editorPage, collaborator, project }) => {
+    test('reconnect and preserve edits from both collaborators', async ({ editorPage, collaborator, project }) => {
         test.skip(!collaborator, SKIP);
 
-        // run this on the collaborator, whose context is not console-captured: a dropped socket goes
-        // through realtime.on('error') -> log.error -> console.error and would fail the errors fixture
+        const url = await editorPage.evaluate(() => window.config.url.realtime.http);
+        const sockets: WebSocketRoute[] = [];
+        let blocked = false;
+        let release: () => void;
+        const resume = new Promise<void>((resolve) => {
+            release = resolve;
+        });
+
+        // offline emulation leaves established websockets open, so interrupt only realtime
+        await collaborator!.routeWebSocket(url, async (socket) => {
+            if (blocked) {
+                await resume;
+            }
+            sockets.push(socket, socket.connectToServer());
+        });
         const guest = await join(editorPage, collaborator, project, 'write');
-        const context = guest.page.context();
+        const host = new HierarchyPanel(editorPage);
+        const hierarchy = new HierarchyPanel(guest.page);
+        const name = uniqueName('reconnect');
+        const renamed = uniqueName('remote');
+        const resumed = uniqueName('resumed');
+        const id = await host.createEntity({ name });
+        await expect(hierarchy.row(name)).toBeVisible();
+        await new EditorShell(editorPage).flushScene();
         const overlay = guest.page.locator(OVERLAY);
         await expect(overlay).toBeHidden();
 
-        await context.setOffline(true);
+        blocked = true;
+        await Promise.all(sockets.map(socket => socket.close({ code: 1012, reason: 'test connection interruption' })));
 
         await expect(overlay).toBeVisible();
         await expect(overlay.locator('.connection-icon.error')).toHaveCount(1);
         await expect(overlay.locator('.connection-content')).toContainText(/disconnected/i);
-        await expect.poll(() => {
-            return guest.page.evaluate(() => window.editor.api.globals.realtime.connection.connected);
-        }).toBe(false);
+        expect(await guest.page.evaluate(() => window.editor.api.globals.realtime.connection.connected)).toBe(false);
+
+        await host.rename(name, renamed);
+        await new EditorShell(editorPage).flushScene();
+
+        // disconnected editors unload entities until the scene is fetched again
+        expect(await hierarchy.exists(id)).toBe(false);
+        await expect(hierarchy.row(renamed)).toHaveCount(0);
 
         const reauthenticated = await arm(guest.page, () => {
             const connection = window.editor.api.globals.realtime.connection;
@@ -200,9 +227,22 @@ test.describe('realtime', () => {
                 window.editor.once('realtime:authenticated', () => resolve());
             }) };
         }, undefined, { what: 'the guest to reauthenticate', timeout: RECONNECT_TIMEOUT });
-        await context.setOffline(false);
+        release!();
 
         await expect(overlay).toBeHidden({ timeout: RECONNECT_TIMEOUT });
         await reauthenticated();
+        await expect(hierarchy.row(renamed)).toBeVisible();
+        expect(await hierarchy.get(id, 'name')).toBe(renamed);
+
+        await hierarchy.rename(renamed, resumed);
+        await expect(host.row(resumed)).toBeVisible();
+        await new EditorShell(guest.page).flushScene();
+
+        await Promise.all([editorPage.reload(), guest.page.reload()]);
+        await Promise.all([waitForEditor(editorPage), waitForEditor(guest.page)]);
+        expect(await host.get(id, 'name')).toBe(resumed);
+        expect(await hierarchy.get(id, 'name')).toBe(resumed);
+        expect(await host.get(id, 'parent')).toBe(await host.rootId());
+        expect(await hierarchy.get(id, 'parent')).toBe(await hierarchy.rootId());
     });
 });

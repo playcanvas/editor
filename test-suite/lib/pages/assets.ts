@@ -271,7 +271,7 @@ export class AssetsPanel {
             if (!asset) {
                 throw new Error(`asset ${assetId} not found`);
             }
-            const hit = () => !asset.get('task') && !!asset.get('file.size');
+            const hit = () => !asset.get('task') && !!asset.get('file.hash');
             if (hit()) {
                 return { done: Promise.resolve() };
             }
@@ -289,6 +289,41 @@ export class AssetsPanel {
             }) };
         }, id, { what: `the pipeline task of asset ${id}`, timeout });
         await done();
+    }
+
+    /** Arms an exact observer value before the action that changes it. */
+    armField(id: number, path: string, value: unknown) {
+        return this.shell.arm(({ id, path, value }) => {
+            const asset = window.editor.api.globals.assets.get(id);
+            if (!asset) throw new Error(`asset ${id} not found`);
+            const matches = () => JSON.stringify(asset.get(path)) === JSON.stringify(value);
+            if (matches()) return { done: Promise.resolve() };
+            const events: { unbind(): void }[] = [];
+            const dispose = () => events.forEach(event => event.unbind());
+            const done = new Promise<void>((resolve) => {
+                for (const name of ['*:set', '*:unset', '*:insert', '*:remove', '*:move']) {
+                    events.push(asset.on(name, () => {
+                        if (!matches()) return;
+                        dispose();
+                        resolve();
+                    }));
+                }
+            });
+            return { done, dispose };
+        }, { id, path, value });
+    }
+
+    /** Waits for the asset's submitted operations before a reload. */
+    flush(id: number) {
+        return this.page.evaluate(assetId => new Promise<void>((resolve, reject) => {
+            const asset = window.editor.api.globals.assets.get(assetId);
+            const doc = asset && window.editor.api.globals.realtime.assets.get(asset.get('uniqueId'));
+            if (!doc) {
+                reject(new Error(`asset ${assetId} has no realtime document`));
+                return;
+            }
+            doc.whenNothingPending(resolve);
+        }), id);
     }
 
     /** A field of an asset, read straight from the registry. */

@@ -1,11 +1,11 @@
 import type { Locator, Page } from '@playwright/test';
 
+import { arm } from '../../lib/arm';
+import { EMAILS, HOST } from '../../lib/config';
 import { expect, test } from '../../lib/fixtures';
 import { EditorShell } from '../../lib/pages/common';
 
-const USERNAME = process.env.PC_COLLAB_USERNAME ?? '';
-
-test.skip(!USERNAME, 'set PC_COLLAB_USERNAME to the username of a second account');
+test.skip(EMAILS.length < 2, 'set PC_EMAILS and PC_COOKIE_VALUE to matching lists of dedicated accounts');
 
 const TEAM = '.picker-team-management';
 const ROLE_MENU = '.team-role-menu';
@@ -37,10 +37,27 @@ const openTeam = async (page: Page) => {
 
     // the label is written when the collaborator list lands and every collaborator then
     // gets a row, so rows can only lag the count while the list is still rendering
-    await expect.poll(async () => {
-        const count = parseInt((await team.locator('.members-count').innerText()).split('/')[0], 10);
-        return count > 0 && (await team.locator('.collaborator-container').count()) >= count;
-    }, { timeout: FETCH_TIMEOUT }).toBe(true);
+    const rendered = await arm(page, (selector) => {
+        const panel = document.querySelector(selector)!;
+        const complete = () => {
+            const count = parseInt(panel.querySelector('.members-count')!.textContent!.split('/')[0], 10);
+            return count > 0 && panel.querySelectorAll('.collaborator-container').length >= count;
+        };
+        return { done: new Promise<void>((resolve) => {
+            const observer = new MutationObserver(() => {
+                if (complete()) {
+                    observer.disconnect();
+                    resolve();
+                }
+            });
+            observer.observe(panel, { childList: true, subtree: true, characterData: true });
+            if (complete()) {
+                observer.disconnect();
+                resolve();
+            }
+        }) };
+    }, TEAM, { what: 'team members to render', timeout: FETCH_TIMEOUT });
+    await rendered();
 
     return team;
 };
@@ -50,12 +67,15 @@ const closeTeam = async (page: Page) => {
     await expect(page.locator('.picker-project')).toBeHidden();
 };
 
-const invite = async (team: Locator, username: string) => {
+const invite = async (team: Locator, email: string) => {
     const input = team.locator('.invite-input input');
     await input.click();
-    await input.pressSequentially(username);
-    await expect(input).toHaveValue(username);
+    await input.pressSequentially(email);
+    await expect(input).toHaveValue(email);
+    const response = team.page().waitForResponse(response => response.request().method() === 'POST' &&
+        /\/api\/projects\/\d+\/collaborators$/.test(new URL(response.url()).pathname), { timeout: FETCH_TIMEOUT });
     await team.locator('.invite-submit').click();
+    expect((await response).ok(), 'team invitation request succeeded').toBe(true);
 };
 
 const remove = async (page: Page, username: string) => {
@@ -65,31 +85,37 @@ const remove = async (page: Page, username: string) => {
 };
 
 test.describe('team', () => {
-    test('invite collaborator', async ({ editorPage }) => {
+    test('invite collaborator', async ({ editorPage, collaborator: context }, info) => {
+        const identity = await (await context!.request.get(`https://${HOST}/api/id`)).json();
+        const { username } = await (await context!.request.get(`https://${HOST}/api/users/${identity.id}`)).json();
+        const email = EMAILS[(info.parallelIndex + 1) % EMAILS.length];
         const team = await openTeam(editorPage);
-        const collaborator = row(editorPage, USERNAME);
+        const collaborator = row(editorPage, username);
 
         // the worker project is shared between tests, so start from a known state
         if (await collaborator.count()) {
-            await remove(editorPage, USERNAME);
+            await remove(editorPage, username);
         }
 
-        await invite(team, USERNAME);
+        await invite(team, email);
 
         await expect(collaborator).toBeVisible();
         await expect(collaborator.locator('.role-select')).toHaveText('Read Only');
         await expect(collaborator.locator('.team-pill')).toHaveText('Member');
 
-        await remove(editorPage, USERNAME);
+        await remove(editorPage, username);
         await closeTeam(editorPage);
     });
 
-    test('change role and remove', async ({ editorPage }) => {
+    test('change role and remove', async ({ editorPage, collaborator: context }, info) => {
+        const identity = await (await context!.request.get(`https://${HOST}/api/id`)).json();
+        const { username } = await (await context!.request.get(`https://${HOST}/api/users/${identity.id}`)).json();
+        const email = EMAILS[(info.parallelIndex + 1) % EMAILS.length];
         const team = await openTeam(editorPage);
-        const collaborator = row(editorPage, USERNAME);
+        const collaborator = row(editorPage, username);
 
         if (!(await collaborator.count())) {
-            await invite(team, USERNAME);
+            await invite(team, email);
             await expect(collaborator).toBeVisible();
         }
 
@@ -104,8 +130,8 @@ test.describe('team', () => {
         await openTeam(editorPage);
         await expect(collaborator.locator('.role-select')).toHaveText('Read & Write');
 
-        await remove(editorPage, USERNAME);
-        await expect(row(editorPage, USERNAME)).toHaveCount(0);
+        await remove(editorPage, username);
+        await expect(row(editorPage, username)).toHaveCount(0);
         await closeTeam(editorPage);
     });
 });

@@ -124,7 +124,7 @@ export class Inspector {
         await this.assetSlot(scope, label).locator('.pcui-asset-input-edit').click();
         const picker = this.page.locator(ASSET_PICKER);
         await picker.waitFor();
-        await this.page.locator(`${ASSET_GRID_ITEM}:has(> .pcui-gridview-item-text:text-is("${assetName}"))`).click();
+        await this.page.locator(`${ASSET_GRID_ITEM}:has(> .pcui-gridview-item-text:text-is("${assetName}"))`).filter({ visible: true }).click();
         await picker.waitFor({ state: 'hidden' });
     }
 

@@ -5,7 +5,7 @@ import { editorBlankUrl, editorUrl } from '../../lib/config';
 import { JOB_TEST_TIMEOUT, JOB_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { middleware } from '../../lib/middleware';
-import { armReload, branchIds, createCheckpointApi, waitReload } from '../../lib/pages/version-control';
+import { armBranchDeleted, armReload, branchIds, createCheckpointApi, waitReload } from '../../lib/pages/version-control';
 import { waitForEditor } from '../../lib/ready';
 import { uniqueName } from '../../lib/utils';
 
@@ -312,22 +312,26 @@ test.describe('branch/checkpoint/diff/merge', () => {
         test.setTimeout(JOB_TEST_TIMEOUT);
         await open(page);
 
+        const deleted = await armBranchDeleted(page, redBranchId);
         await page.evaluate((redBranchId) => {
             return window.editor.api.globals.rest.branches.branchDelete({ branchId: redBranchId }).promisify();
         }, redBranchId);
 
         // red was closed by its merge, so it drops out of the closed list
-        await expect.poll(() => branchIds(page, true), { timeout: JOB_TIMEOUT }).not.toContain(redBranchId);
+        await deleted();
+        expect(await branchIds(page, true)).not.toContain(redBranchId);
     });
 
     test('delete green branch', async ({ page }) => {
         test.setTimeout(JOB_TEST_TIMEOUT);
         await open(page);
 
+        const deleted = await armBranchDeleted(page, greenBranchId);
         await page.evaluate((greenBranchId) => {
             return window.editor.api.globals.rest.branches.branchDelete({ branchId: greenBranchId }).promisify();
         }, greenBranchId);
 
-        await expect.poll(() => branchIds(page), { timeout: JOB_TIMEOUT }).not.toContain(greenBranchId);
+        await deleted();
+        expect(await branchIds(page)).not.toContain(greenBranchId);
     });
 });

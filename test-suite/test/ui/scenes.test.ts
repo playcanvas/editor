@@ -88,10 +88,11 @@ test.describe('scenes', { tag: '@gate' }, () => {
 
         expect(await named()).toBe(renamed);
         expect(await picker.stripName()).toBe(renamed);
+        await new EditorShell(editorPage).flushScene();
         await picker.open();
         await expect(picker.row(created.id).locator('.name')).toHaveText(renamed);
         const listed = expect.objectContaining({ id: created.id, name: renamed });
-        await expect.poll(() => sceneList(editorPage)).toContainEqual(listed);
+        expect(await sceneList(editorPage)).toContainEqual(listed);
     });
 
     test('delete scene', async ({ editorPage }) => {
@@ -110,7 +111,7 @@ test.describe('scenes', { tag: '@gate' }, () => {
         await shell.confirm.yes.click();
 
         await expect(picker.row(created.id)).toHaveCount(0);
-        await expect.poll(() => sceneList(editorPage).then(list => list.map(s => s.id))).not.toContain(created.id);
+        expect((await sceneList(editorPage)).map(scene => scene.id)).not.toContain(created.id);
     });
     test('switch scene', async ({ editorPage, project }) => {
         const picker = new ScenePicker(editorPage);
@@ -143,10 +144,11 @@ test.describe('scenes', { tag: '@gate' }, () => {
         await settings.open();
         await settings.expand('PHYSICS');
         const gravity = settings.field('PHYSICS', 'Gravity').locator('.pcui-numeric-input input');
+        const changed = await settings.armSetting('scene', 'physics.gravity', [before[0], -5, before[2]]);
         await gravity.nth(1).fill('-5');
         await gravity.nth(1).press('Enter');
-
-        await expect.poll(async () => (await settings.sceneSetting('physics.gravity'))[1]).toBe(-5);
+        await changed();
+        expect((await settings.sceneSetting('physics.gravity'))[1]).toBe(-5);
 
         // scene settings ride the scene sharedb doc, so flush it before the reload reads back
         await shell.flushScene();

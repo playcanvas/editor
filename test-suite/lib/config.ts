@@ -9,13 +9,17 @@ export const LAUNCH_HOST = process.env.PC_LAUNCH_HOST ?? 'launch.playcanvas.com'
 export const LOCAL_FRONTEND = process.env.PC_LOCAL_FRONTEND === 'true';
 export const HEADER_NAME = process.env.PC_HEADER_NAME ?? '';
 export const HEADER_VALUE = process.env.PC_HEADER_VALUE ?? '';
+export const EMAILS = (process.env.PC_EMAILS ?? '').split(',').map(email => email.trim()).filter(Boolean);
 
 export const AUTH_STATES: BrowserContextOptions['storageState'][] = (() => {
     const parts = HOST.split('.');
     if (parts.length < 2) {
         throw new Error(`Invalid HOST: ${HOST}`);
     }
-    const cookies = (process.env.PC_COOKIE_VALUE ?? '').split(',');
+    const cookies = (process.env.PC_COOKIE_VALUE ?? '').split(',').map(value => value.trim());
+    if (EMAILS.length && EMAILS.length !== cookies.length) {
+        throw new Error('PC_EMAILS and PC_COOKIE_VALUE must have the same number of entries, in matching order');
+    }
     return cookies.map((value) => {
         return {
             cookies: [{

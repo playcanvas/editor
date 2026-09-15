@@ -16,7 +16,7 @@ import {
     publishApp
 } from '../../lib/common';
 import { codeEditorUrl, editorBlankUrl, editorSceneUrl, editorUrl } from '../../lib/config';
-import { JOB_TEST_TIMEOUT, JOB_TIMEOUT } from '../../lib/constants';
+import { JOB_TEST_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { middleware } from '../../lib/middleware';
 import { waitForCodeEditor, waitForEditor } from '../../lib/ready';
@@ -56,13 +56,13 @@ test.describe('create/delete', () => {
     test('delete forked project', async ({ blankPage }) => {
         test.setTimeout(JOB_TEST_TIMEOUT);
         await deleteProject(blankPage, forkedProjectId);
-        await expect.poll(() => projectIds(blankPage), { timeout: JOB_TIMEOUT }).not.toContain(forkedProjectId);
+        expect(await projectIds(blankPage)).not.toContain(forkedProjectId);
     });
 
     test('delete project', async ({ blankPage }) => {
         test.setTimeout(JOB_TEST_TIMEOUT);
         await deleteProject(blankPage, projectId);
-        await expect.poll(() => projectIds(blankPage), { timeout: JOB_TIMEOUT }).not.toContain(projectId);
+        expect(await projectIds(blankPage)).not.toContain(projectId);
     });
 });
 
@@ -113,7 +113,7 @@ test.describe('export/import', () => {
     test('delete imported project', async ({ blankPage }) => {
         test.setTimeout(JOB_TEST_TIMEOUT);
         await deleteProject(blankPage, importedProjectId);
-        await expect.poll(() => projectIds(blankPage), { timeout: JOB_TIMEOUT }).not.toContain(importedProjectId);
+        expect(await projectIds(blankPage)).not.toContain(importedProjectId);
     });
 });
 
@@ -268,7 +268,7 @@ test.describe('publish/download', () => {
             // delete app
             await open(page);
             await deleteApp(page, app.id);
-            await expect.poll(() => appIds(page), { timeout: JOB_TIMEOUT }).not.toContain(app.id);
+            expect(await appIds(page)).not.toContain(app.id);
         });
     }
 });

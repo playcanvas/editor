@@ -58,7 +58,8 @@ test.describe('assets', { tag: '@gate' }, () => {
 
         await expect(assets.gridItem(folder.name)).toHaveClass(/type-folder/);
         await expect(assets.folderTreeItem(folder.name)).toBeVisible();
-        await expect.poll(async () => (await assets.visibleNames()).length).toBe(before + 1);
+        await expect(assets.visibleGridItems).toHaveCount(before + 1);
+        expect((await assets.visibleNames()).length).toBe(before + 1);
     });
 
     test('navigate folders', async ({ editorPage }) => {
@@ -70,15 +71,15 @@ test.describe('assets', { tag: '@gate' }, () => {
         await expect(assets.gridItem(json.name)).toBeHidden();
 
         await assets.gridItem(folder.name).dblclick();
-        await expect.poll(() => assets.currentFolderId()).toBe(folder.id);
-        await expect.poll(() => assets.visibleNames()).toEqual([json.name]);
         await expect(assets.gridItem(json.name)).toBeVisible();
         await expect(assets.folderTreeItem(folder.name)).toHaveClass(/pcui-asset-panel-current-folder/);
+        expect(await assets.currentFolderId()).toBe(folder.id);
+        expect(await assets.visibleNames()).toEqual([json.name]);
 
         await assets.backButton.click();
-        await expect.poll(() => assets.currentFolderId()).toBe(null);
         await expect(assets.gridItem(folder.name)).toBeVisible();
         await expect(assets.gridItem(json.name)).toBeHidden();
+        expect(await assets.currentFolderId()).toBe(null);
     });
 
     test('delete asset', async ({ editorPage }) => {
@@ -87,7 +88,8 @@ test.describe('assets', { tag: '@gate' }, () => {
         const kept = await assets.create('createText', { name: txt(), text: 'keep me' });
 
         await assets.select(doomed.name);
-        await expect.poll(() => assets.selectedIds()).toEqual([doomed.id]);
+        await expect(assets.gridItem(doomed.name)).toHaveClass(SELECTED);
+        expect(await assets.selectedIds()).toEqual([doomed.id]);
         await assets.deleteButton.click();
         await expect(assets.shell.confirm.text).toHaveText(`Permanently delete asset '${doomed.name}'?`);
         await assets.shell.confirm.yes.click();
@@ -114,7 +116,7 @@ test.describe('assets', { tag: '@gate' }, () => {
         await assets.addToSelection(second.name);
         await expect(assets.gridItem(first.name)).toHaveClass(SELECTED);
         await expect(assets.gridItem(second.name)).toHaveClass(SELECTED);
-        await expect.poll(async () => (await assets.selectedIds()).sort()).toEqual([first.id, second.id].sort());
+        expect((await assets.selectedIds()).sort()).toEqual([first.id, second.id].sort());
 
         await assets.contextMenu(second.name, 'Delete');
         await expect(assets.shell.confirm.text).toHaveText('Permanently delete 2 assets?');
@@ -140,7 +142,7 @@ test.describe('assets', { tag: '@gate' }, () => {
         expect(await assets.field(moved.id, 'path')).toEqual([folder.id]);
         await expect(assets.gridItem(moved.name)).toBeHidden();
         await expect(assets.folderTreeItem(folder.name)).not.toHaveClass(HIGHLIGHTED);
-        await expect.poll(() => assets.visibleNames()).not.toContain(moved.name);
+        expect(await assets.visibleNames()).not.toContain(moved.name);
     });
 
     test('rename asset', async ({ editorPage }) => {
@@ -152,8 +154,10 @@ test.describe('assets', { tag: '@gate' }, () => {
         await expect(assets.nameField).toHaveValue(asset.name);
 
         const renamed = txt();
+        const named = await assets.armField(asset.id, 'name', renamed);
         await assets.rename(renamed);
-        await expect.poll(() => assets.field(asset.id, 'name')).toBe(renamed);
+        await named();
+        expect(await assets.field(asset.id, 'name')).toBe(renamed);
         await expect(assets.gridItem(renamed)).toBeVisible();
         await expect(assets.gridItem(asset.name)).toHaveCount(0);
         expect(await assets.shell.history()).toMatchObject({ canUndo: true, last: 'asset rename' });
@@ -167,8 +171,10 @@ test.describe('assets', { tag: '@gate' }, () => {
         // escape leaves the name field so the undo hotkey reaches the editor
         await assets.nameField.press('Escape');
         expect(await assets.shell.history()).toMatchObject({ last: 'asset rename' });
+        const restored = await assets.armField(asset.id, 'name', asset.name);
         await assets.shell.undo();
-        await expect.poll(() => assets.field(asset.id, 'name')).toBe(asset.name);
+        await restored();
+        expect(await assets.field(asset.id, 'name')).toBe(asset.name);
         await expect(assets.gridItem(asset.name)).toBeVisible();
     });
 
@@ -183,21 +189,24 @@ test.describe('assets', { tag: '@gate' }, () => {
         const baseline = (await assets.visibleNames()).length;
 
         await assets.typeSearch(`[${tag}]`);
-        await expect.poll(() => assets.visibleNames()).toEqual([tagged.name]);
-        await expect.poll(() => assets.visibleGridItems.count()).toBe(1);
+        await expect(assets.visibleGridItems).toHaveCount(1);
+        await expect(assets.gridItem(tagged.name)).toBeVisible();
+        expect(await assets.visibleNames()).toEqual([tagged.name]);
 
         await assets.clearSearch.click();
-        await expect.poll(async () => (await assets.visibleNames()).length).toBe(baseline);
+        await expect(assets.visibleGridItems).toHaveCount(baseline);
+        expect((await assets.visibleNames()).length).toBe(baseline);
 
         await assets.filterType('material');
-        await expect.poll(() => assets.visibleNames()).toContain(material.name);
-        await expect.poll(async () => (await assets.visibleNames()).length).toBe(await assets.countOfType('material'));
-        await expect.poll(() => assets.visibleGridItems.count()).toBe(await assets.countOfType('material'));
+        await expect(assets.gridItem(material.name)).toBeVisible();
+        await expect(assets.visibleGridItems).toHaveCount(await assets.countOfType('material'));
+        expect(await assets.visibleNames()).toContain(material.name);
+        expect((await assets.visibleNames()).length).toBe(await assets.countOfType('material'));
         expect(await assets.visibleNames()).not.toContain(tagged.name);
 
         await assets.filterType('all');
-        await expect.poll(async () => (await assets.visibleNames()).length).toBe(baseline);
-        await expect.poll(() => assets.visibleGridItems.count()).toBe(baseline);
+        await expect(assets.visibleGridItems).toHaveCount(baseline);
+        expect((await assets.visibleNames()).length).toBe(baseline);
     });
 
     test('upload png', async ({ editorPage }) => {
@@ -231,14 +240,18 @@ test.describe('assets', { tag: '@gate' }, () => {
 
         await assets.select(material.name);
         await editorPage.keyboard.press('ControlOrMeta+C');
-        await expect.poll(() => assets.clipboardAssetIds()).toEqual([material.id]);
+        expect(await assets.clipboardAssetIds()).toEqual([material.id]);
 
         await assets.gridItem(folder.name).dblclick();
-        await expect.poll(() => assets.currentFolderId()).toBe(folder.id);
+        await expect(assets.folderTreeItem(folder.name)).toHaveClass(/pcui-asset-panel-current-folder/);
+        expect(await assets.currentFolderId()).toBe(folder.id);
         expect(await assets.childrenOf(folder.id)).toEqual([]);
 
+        await assets.armAdd({ type: 'material' });
         await editorPage.keyboard.press('ControlOrMeta+V');
-        await expect.poll(() => assets.childrenOf(folder.id), { timeout: JOB_TIMEOUT }).toHaveLength(1);
+        const added = await assets.awaitAdd({ type: 'material' });
+        await assets.waitForParent(added.id, folder.id);
+        expect(await assets.childrenOf(folder.id)).toHaveLength(1);
 
         const [pasted] = await assets.childrenOf(folder.id);
         expect(pasted.id).not.toBe(material.id);
@@ -246,7 +259,8 @@ test.describe('assets', { tag: '@gate' }, () => {
         // a paste into another folder has no name to dodge, so the copy keeps it
         expect(pasted.name).toBe(material.name);
         expect(await assets.field(pasted.id, 'path')).toEqual([folder.id]);
-        await expect.poll(() => assets.visibleNames()).toEqual([material.name]);
+        await expect(assets.visibleGridItems).toHaveCount(1);
+        expect(await assets.visibleNames()).toEqual([material.name]);
     });
 
     test('duplicate material', async ({ editorPage }) => {
@@ -264,7 +278,8 @@ test.describe('assets', { tag: '@gate' }, () => {
         await expect(assets.gridItem(copyName)).toBeVisible();
 
         await assets.select(copyName);
-        await expect.poll(() => assets.selectedIds()).toEqual([copy.id]);
+        await expect(assets.gridItem(copyName)).toHaveClass(SELECTED);
+        expect(await assets.selectedIds()).toEqual([copy.id]);
         await editorPage.keyboard.press('Delete');
         await expect(assets.shell.confirm.text).toHaveText(`Permanently delete asset '${copyName}'?`);
         await assets.shell.confirm.yes.click();
@@ -295,13 +310,15 @@ test.describe('assets', { tag: '@gate' }, () => {
             expect(await assets.field(asset.id, 'type')).toBe(type);
             expect(await assets.field(asset.id, 'path')).toEqual([]);
             await expect(assets.gridItem(asset.name)).toHaveClass(new RegExp(`type-${type}`));
-            await expect.poll(async () => (await assets.visibleNames()).length).toBe(before + 1);
+            await expect(assets.visibleGridItems).toHaveCount(before + 1);
+            expect((await assets.visibleNames()).length).toBe(before + 1);
 
             // the panel creates through a fire-and-forget api call, so the asset is in the
             // registry before its create request has answered; deleting it in the cleanup
             // before then answers 400 "Document does not exist" to the request still in flight
             if (!FILELESS_ASSETS.includes(type)) {
-                await expect.poll(() => assets.field(asset.id, 'file.hash')).toBeTruthy();
+                await assets.waitForTask(asset.id, JOB_TIMEOUT);
+                expect(await assets.field(asset.id, 'file.hash')).toBeTruthy();
             }
         });
     }
@@ -327,7 +344,7 @@ test.describe('assets', { tag: '@gate' }, () => {
                 file: new Blob([JSON.stringify({ e2e: value })], { type: 'application/json' })
             });
         }, [asset.id, token] as const);
-        await expect.poll(() => assets.field(asset.id, 'file.filename')).toBeTruthy();
+        expect(await assets.field(asset.id, 'file.filename')).toBeTruthy();
 
         // the code block only fetches on link, so reselect the asset to make it refetch
         await assets.gridItem(asset.name).click();
@@ -370,11 +387,14 @@ test.describe('assets', { tag: '@gate' }, () => {
         const input = tags.locator('.pcui-select-input-textinput input');
         await input.click();
         await input.pressSequentially(tag);
+        const tagged = await assets.armField(asset.id, 'tags', [tag]);
         await input.press('Enter');
-
-        await expect.poll(() => assets.field(asset.id, 'tags')).toEqual([tag]);
+        await tagged();
+        expect(await assets.field(asset.id, 'tags')).toEqual([tag]);
 
         await assets.typeSearch(`[${tag}]`);
-        await expect.poll(() => assets.visibleNames()).toEqual([asset.name]);
+        await expect(assets.visibleGridItems).toHaveCount(1);
+        await expect(assets.gridItem(asset.name)).toBeVisible();
+        expect(await assets.visibleNames()).toEqual([asset.name]);
     });
 });

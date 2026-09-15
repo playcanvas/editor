@@ -5,7 +5,10 @@ import { editorBlankUrl, editorUrl } from '../../lib/config';
 import { JOB_TEST_TIMEOUT, JOB_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { middleware } from '../../lib/middleware';
+import { EditorShell } from '../../lib/pages/common';
+import { HierarchyPanel } from '../../lib/pages/hierarchy';
 import {
+    armBranchDeleted,
     armReload,
     branchIds,
     branchMenuAction,
@@ -38,6 +41,9 @@ test.describe('branch/checkpoint/diff/merge', { tag: '@gate' }, () => {
     let projectId: number;
     let materialId: number;
     let baseDiffuse: number[];
+    let parentId: string;
+    let redEntityId: string;
+    let greenEntityId: string;
 
     let mainBranchId: string;
     let mainCheckpointId: string;
@@ -80,6 +86,8 @@ test.describe('branch/checkpoint/diff/merge', { tag: '@gate' }, () => {
             return material.get('id') as number;
         });
         baseDiffuse = await diffuse(page);
+        parentId = await new HierarchyPanel(page).createEntity({ name: 'Versioned Parent' });
+        await new EditorShell(page).flushScene();
 
         const checkpoint = await createCheckpointApi(page, 'BASE');
         mainCheckpointId = checkpoint.id;
@@ -101,6 +109,15 @@ test.describe('branch/checkpoint/diff/merge', { tag: '@gate' }, () => {
         await page.evaluate((materialId) => {
             window.editor.api.globals.assets.get(materialId)!.set('data.diffuse', [1, 0, 0]);
         }, materialId);
+
+        const hierarchy = new HierarchyPanel(page);
+        await hierarchy.select('Versioned Parent');
+        await hierarchy.add('3D', 'Box');
+        await hierarchy.childRow('Versioned Parent', 'Box').locator('.pcui-treeview-item-text').dblclick();
+        await hierarchy.renameInput().fill('Red Child');
+        await hierarchy.renameInput().press('Enter');
+        redEntityId = (await hierarchy.selection()).ids[0];
+        await new EditorShell(page).flushScene();
 
         // create checkpoint
         await openVc(page);
@@ -126,6 +143,16 @@ test.describe('branch/checkpoint/diff/merge', { tag: '@gate' }, () => {
         await page.evaluate((materialId) => {
             window.editor.api.globals.assets.get(materialId)!.set('data.diffuse', [0, 1, 0]);
         }, materialId);
+
+        const hierarchy = new HierarchyPanel(page);
+        expect(await hierarchy.exists(redEntityId)).toBe(false);
+        await hierarchy.select('Versioned Parent');
+        await hierarchy.add('3D', 'Sphere');
+        await hierarchy.childRow('Versioned Parent', 'Sphere').locator('.pcui-treeview-item-text').dblclick();
+        await hierarchy.renameInput().fill('Green Child');
+        await hierarchy.renameInput().press('Enter');
+        greenEntityId = (await hierarchy.selection()).ids[0];
+        await new EditorShell(page).flushScene();
 
         // create checkpoint
         await openVc(page);
@@ -190,6 +217,8 @@ test.describe('branch/checkpoint/diff/merge', { tag: '@gate' }, () => {
         // wait for the editor to reload onto main
         await waitReload(page);
         expect(await page.evaluate(() => window.editor.api.globals.branchId)).toBe(mainBranchId);
+        expect(await new HierarchyPanel(page).exists(redEntityId)).toBe(false);
+        expect(await new HierarchyPanel(page).exists(greenEntityId)).toBe(false);
     });
 
     test('merge red branch', async ({ page }) => {
@@ -215,6 +244,10 @@ test.describe('branch/checkpoint/diff/merge', { tag: '@gate' }, () => {
         // wait for the editor to reload with red's material color on main
         await waitReload(page);
         expect(await diffuse(page)).toStrictEqual([1, 0, 0]);
+        const hierarchy = new HierarchyPanel(page);
+        expect(await hierarchy.get(redEntityId, 'parent')).toBe(parentId);
+        expect(await hierarchy.get(redEntityId, 'components.render.type')).toBe('box');
+        await expect(hierarchy.childRow('Versioned Parent', 'Red Child')).toHaveCount(1);
     });
 
     test('merge green branch', async ({ page }) => {
@@ -243,6 +276,12 @@ test.describe('branch/checkpoint/diff/merge', { tag: '@gate' }, () => {
         // the resolved conflict takes green's material color
         await waitReload(page);
         expect(await diffuse(page)).toStrictEqual([0, 1, 0]);
+        const hierarchy = new HierarchyPanel(page);
+        expect(await hierarchy.get(redEntityId, 'parent')).toBe(parentId);
+        expect(await hierarchy.get(greenEntityId, 'parent')).toBe(parentId);
+        expect(await hierarchy.get(greenEntityId, 'components.render.type')).toBe('sphere');
+        await expect(hierarchy.childRow('Versioned Parent', 'Red Child')).toHaveCount(1);
+        await expect(hierarchy.childRow('Versioned Parent', 'Green Child')).toHaveCount(1);
     });
 
     test('restore checkpoint', async ({ page }) => {
@@ -264,6 +303,11 @@ test.describe('branch/checkpoint/diff/merge', { tag: '@gate' }, () => {
         // wait for the editor to reload with the base material color back
         await waitReload(page);
         expect(await diffuse(page)).toStrictEqual(baseDiffuse);
+        const hierarchy = new HierarchyPanel(page);
+        expect(await hierarchy.exists(parentId)).toBe(true);
+        expect(await hierarchy.get(parentId, 'children')).toEqual([]);
+        expect(await hierarchy.exists(redEntityId)).toBe(false);
+        expect(await hierarchy.exists(greenEntityId)).toBe(false);
     });
 
     test('hard reset checkpoint', async ({ page }) => {
@@ -309,11 +353,15 @@ test.describe('branch/checkpoint/diff/merge', { tag: '@gate' }, () => {
         // confirm by typing the branch name, then delete
         await page.locator('.vc-dialog').waitFor({ state: 'visible' });
         await dialogInput(page).fill('red');
+        const deleted = await armBranchDeleted(page, redBranchId);
         await dialogConfirm(page).click();
 
-        // branch delete updates the list in place (no reload); poll until the job lands
+        await deleted();
         await expect(page.locator('.vc-dialog')).toBeHidden();
-        await expect.poll(() => branchIds(page, true), { timeout: JOB_TIMEOUT }).not.toContain(redBranchId);
+        await openSwitcher(page);
+        await setBranchFilter(page, 'Closed');
+        await expect(page.locator(`#branch-${redBranchId}`)).toHaveCount(0, { timeout: JOB_TIMEOUT });
+        expect(await branchIds(page, true)).not.toContain(redBranchId);
     });
 
     test('delete green branch', async ({ page }) => {
@@ -331,10 +379,14 @@ test.describe('branch/checkpoint/diff/merge', { tag: '@gate' }, () => {
         // confirm by typing the branch name, then delete
         await page.locator('.vc-dialog').waitFor({ state: 'visible' });
         await dialogInput(page).fill('green');
+        const deleted = await armBranchDeleted(page, greenBranchId);
         await dialogConfirm(page).click();
 
-        // branch delete updates the list in place (no reload); poll until the job lands
+        await deleted();
         await expect(page.locator('.vc-dialog')).toBeHidden();
-        await expect.poll(() => branchIds(page), { timeout: JOB_TIMEOUT }).not.toContain(greenBranchId);
+        await openSwitcher(page);
+        await setBranchFilter(page, 'Open');
+        await expect(page.locator(`#branch-${greenBranchId}`)).toHaveCount(0, { timeout: JOB_TIMEOUT });
+        expect(await branchIds(page)).not.toContain(greenBranchId);
     });
 });

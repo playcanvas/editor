@@ -150,6 +150,25 @@ export class CodeEditor {
         }, [String(id), path]);
     }
 
+    /** The tree renames optimistically; await the asset observer's confirmed value. */
+    armAssetField(id: number, path: string, value: unknown) {
+        return this.shell.arm(({ id: i, path: p, value: expected }) => {
+            const asset = window.editor.call('assets:get', String(i)) as any;
+            const hit = () => JSON.stringify(asset.get(p)) === JSON.stringify(expected);
+            if (hit()) {
+                return { done: Promise.resolve() };
+            }
+            return { done: new Promise<void>((resolve) => {
+                const evt = asset.on('*:set', () => {
+                    if (hit()) {
+                        evt.unbind();
+                        resolve();
+                    }
+                });
+            }) };
+        }, { id, path, value });
+    }
+
     assetNames() {
         return this.page.evaluate(() => {
             return (window.editor.call('assets:list') as { get(path: string): unknown }[]).map(a => a.get('name') as string);

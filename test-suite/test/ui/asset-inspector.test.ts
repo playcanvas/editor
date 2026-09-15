@@ -59,9 +59,10 @@ test.describe('asset-inspector', () => {
 
         await inspector.recordHistory();
         await inspector.openColorPicker(diffuse, 'Color');
+        const changed = await assets.armField(material.id, 'data.diffuse', [64 / 255, before[1], before[2]]);
         await inspector.setColorChannel('r', 64);
-
-        await expect.poll(async () => (await assetValue(editorPage, material.id, 'data.diffuse'))[0]).toBeCloseTo(64 / 255, 5);
+        await changed();
+        expect((await assetValue(editorPage, material.id, 'data.diffuse'))[0]).toBeCloseTo(64 / 255, 5);
         const actions = await inspector.historyActions();
         expect(actions).toHaveLength(1);
         expect(actions[0]).toMatch(/^data\.diffuse/);
@@ -79,14 +80,16 @@ test.describe('asset-inspector', () => {
 
         // the channel select only appears once a map is set
         expect(await inspector.fieldVisible(diffuse, 'Color Channel')).toBe(false);
+        const assigned = await assets.armField(material.id, 'data.diffuseMap', texture.id);
         await inspector.assignAsset(diffuse, 'Diffuse', texture.name);
-
-        await expect.poll(() => assetValue(editorPage, material.id, 'data.diffuseMap')).toBe(texture.id);
+        await assigned();
+        expect(await assetValue(editorPage, material.id, 'data.diffuseMap')).toBe(texture.id);
         await expect(inspector.field(diffuse, 'Color Channel')).toBeVisible();
 
+        const channel = await assets.armField(material.id, 'data.diffuseMapChannel', 'g');
         await inspector.setSelect(diffuse, 'Color Channel', 'G');
-
-        await expect.poll(() => assetValue(editorPage, material.id, 'data.diffuseMapChannel')).toBe('g');
+        await channel();
+        expect(await assetValue(editorPage, material.id, 'data.diffuseMapChannel')).toBe('g');
     });
 
     test('switch material workflow', async ({ editorPage }) => {
@@ -100,9 +103,10 @@ test.describe('asset-inspector', () => {
 
         // there is no shader select: the metalness flag is what swaps the lighting workflow
         const before = await assetValue(editorPage, material.id, 'data.useMetalness');
+        const changed = await assets.armField(material.id, 'data.useMetalness', !before);
         await inspector.toggle(specular, 'Use Metalness');
-
-        await expect.poll(() => assetValue(editorPage, material.id, 'data.useMetalness')).toBe(!before);
+        await changed();
+        expect(await assetValue(editorPage, material.id, 'data.useMetalness')).toBe(!before);
     });
 
     test('toggle texture mipmaps', async ({ editorPage }) => {
@@ -117,9 +121,10 @@ test.describe('asset-inspector', () => {
         const texture = inspector.assetType('texture');
         const before = await assetValue(editorPage, asset.id, 'data.mipmaps');
 
+        const changed = await assets.armField(asset.id, 'data.mipmaps', !before);
         await inspector.toggle(texture, 'Mipmaps');
-
-        await expect.poll(() => assetValue(editorPage, asset.id, 'data.mipmaps')).toBe(!before);
+        await changed();
+        expect(await assetValue(editorPage, asset.id, 'data.mipmaps')).toBe(!before);
     });
 
     test('edit texture filtering', async ({ editorPage }) => {
@@ -131,15 +136,19 @@ test.describe('asset-inspector', () => {
         const texture = inspector.assetType('texture');
         await expect(texture).toBeVisible();
 
+        const changed = await assets.armField(asset.id, 'data.magfilter', 'nearest');
         await inspector.setSelect(texture, 'Filtering', 'Point');
+        await changed();
 
         // one select drives both filters, and the min filter carries the mip suffix
-        await expect.poll(() => assetValue(editorPage, asset.id, 'data.magfilter')).toBe('nearest');
+        expect(await assetValue(editorPage, asset.id, 'data.magfilter')).toBe('nearest');
         expect(await assetValue(editorPage, asset.id, 'data.minfilter')).toBe('nearest_mip_nearest');
         expect((await inspector.shell.history()).last).toBe('assets.filtering');
 
+        const address = await assets.armField(asset.id, 'data.addressu', 'clamp');
         await inspector.setSelect(texture, 'Address U', 'Clamp');
-        await expect.poll(() => assetValue(editorPage, asset.id, 'data.addressu')).toBe('clamp');
+        await address();
+        expect(await assetValue(editorPage, asset.id, 'data.addressu')).toBe('clamp');
     });
 
     test('set cubemap faces', async ({ editorPage, errors }) => {
@@ -164,10 +173,11 @@ test.describe('asset-inspector', () => {
         await face.click();
         const picker = editorPage.locator('.picker-asset');
         await picker.waitFor();
+        const assigned = await assets.armField(cubemap.id, 'data.textures.0', texture.id);
         await assets.gridItem(texture.name).click();
         await picker.waitFor({ state: 'hidden' });
-
-        await expect.poll(async () => (await assetValue(editorPage, cubemap.id, 'data.textures'))[0]).toBe(texture.id);
+        await assigned();
+        expect((await assetValue(editorPage, cubemap.id, 'data.textures'))[0]).toBe(texture.id);
     });
 
     test('read json text', async ({ editorPage }) => {
@@ -204,9 +214,10 @@ test.describe('asset-inspector', () => {
         await expect(inspector.header).toHaveText('template');
 
         const renamed = uniqueName('template');
+        const named = await assets.armField(asset.id, 'name', renamed);
         await assets.rename(renamed);
-
-        await expect.poll(() => assets.field(asset.id, 'name')).toBe(renamed);
+        await named();
+        expect(await assets.field(asset.id, 'name')).toBe(renamed);
         await expect(assets.gridItem(renamed)).toBeVisible();
         expect(await assetValue(editorPage, asset.id, 'data.entities')).not.toBeNull();
     });

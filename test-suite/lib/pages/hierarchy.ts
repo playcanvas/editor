@@ -1,5 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 
+import { JOB_TIMEOUT } from '../constants';
 import { EditorShell } from './common';
 
 export type EntityOpts = { parent?: string; name?: string; components?: Record<string, unknown> };
@@ -193,6 +194,37 @@ export class HierarchyPanel {
         return this.page.evaluate(i => !!window.editor.api.globals.entities.get(i), id);
     }
 
+    /** Arms an observer value, including entity removal and recreation during undo. */
+    armField(id: string, path: string, value: unknown) {
+        return this.shell.arm(({ id: i, path: p, value: expected }) => {
+            const entities = window.editor.api.globals.entities;
+            const hit = () => JSON.stringify(entities.get(i)?.get(p)) === JSON.stringify(expected);
+            if (hit()) {
+                return { done: Promise.resolve() };
+            }
+            return { done: new Promise<void>((resolve) => {
+                const evts: { unbind(): void }[] = [];
+                const check = () => {
+                    if (hit()) {
+                        evts.forEach(e => e.unbind());
+                        resolve();
+                    }
+                };
+                const bind = (entity: any) => {
+                    if (entity.get('resource_id') === i) {
+                        ['*:set', '*:unset', '*:insert', '*:remove', '*:move'].forEach(event => evts.push(entity.on(event, check)));
+                    }
+                    check();
+                };
+                evts.push(entities.on('add', bind), entities.on('remove', check));
+                const entity = entities.get(i);
+                if (entity) {
+                    bind(entity);
+                }
+            }) };
+        }, { id, path, value }, { what: `entity ${id}.${path} to equal ${JSON.stringify(value)}`, timeout: JOB_TIMEOUT });
+    }
+
     selection() {
         return this.page.evaluate(() => {
             const selection = window.editor.api.globals.selection;
@@ -202,6 +234,25 @@ export class HierarchyPanel {
                 names: selection.items.map(i => i.get('name')) as string[]
             };
         });
+    }
+
+    /** Arms an exact selection, including clearing it after a viewport pick. */
+    armSelection(ids: string[]) {
+        return this.shell.arm((expected: string[]) => {
+            const selection = window.editor.api.globals.selection;
+            const hit = () => JSON.stringify(selection.items.map(item => item.get('resource_id')).sort()) === JSON.stringify(expected);
+            if (hit()) {
+                return { done: Promise.resolve() };
+            }
+            return { done: new Promise<void>((resolve) => {
+                const evt = window.editor.on('selector:change', () => {
+                    if (hit()) {
+                        evt.unbind();
+                        resolve();
+                    }
+                });
+            }) };
+        }, [...ids].sort());
     }
 
     /** Arms the selector change a row click lands on; await the thunk after the click. */
@@ -228,24 +279,19 @@ export class HierarchyPanel {
         await (await this.armSelected(name))();
     }
 
-    /** Waits for an async editor op (delete, duplicate, paste) to land on the history stack. */
-    async waitForAction(name: string) {
-        const landed = await this.shell.arm((n: string) => {
+    /** Arms the next matching history entry before an async UI operation. */
+    armAction(name: string) {
+        return this.shell.arm((n: string) => {
             const history = window.editor.api.globals.history;
-            const hit = () => history.lastAction?.name === n;
-            if (hit()) {
-                return { done: Promise.resolve() };
-            }
             return { done: new Promise<void>((resolve) => {
-                const evts = ['add', 'undo', 'redo'].map(name => history.on(name, () => {
-                    if (!hit()) {
+                const evt = history.on('add', () => {
+                    if (history.lastAction?.name !== n) {
                         return;
                     }
-                    evts.forEach(e => e.unbind());
+                    evt.unbind();
                     resolve();
-                }));
+                });
             }) };
-        }, name);
-        await landed();
+        }, name, { what: `history action ${name}`, timeout: JOB_TIMEOUT });
     }
 }

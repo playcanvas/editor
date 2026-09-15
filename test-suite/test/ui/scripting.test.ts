@@ -18,13 +18,14 @@ import { uniqueName } from '../../lib/utils';
 const SCRIPTS_CONTAINER = '> .pcui-panel-content > .script-component-inspector-scripts';
 const SCRIPT_PANEL = '> .script-component-inspector-script';
 
-const esm = (name: string, jsdoc = '/** @attribute */', init = ' = 1') => `import { Script } from 'playcanvas';
+const esm = (name: string, jsdoc = '/** @attribute */', init = ' = 1', body = '') => `import { Script } from 'playcanvas';
 
 export class Test extends Script {
     static scriptName = '${name}';
 
     ${jsdoc}
     speed${init};
+    ${body}
 }
 `;
 
@@ -111,7 +112,7 @@ test.describe('scripting', () => {
 
         expect(await assets.field(id, 'type')).toBe('script');
         expect(await assets.field(id, 'name')).toBe(filename);
-        await expect.poll(() => assets.field(id, `data.scripts.${name}.attributes.speed.type`), { timeout: JOB_TIMEOUT }).toBe('number');
+        await (await assets.armField(id, `data.scripts.${name}.attributes.speed.type`, 'number'))();
 
         await assets.select(filename);
         const inspector = assetScripts(editorPage);
@@ -143,7 +144,7 @@ test.describe('scripting', () => {
 
         // the boilerplate declares a script but no attributes, so the rows only appear
         // once the file carries one and the asset inspector re-parses it
-        await expect.poll(() => assets.field(asset.id, 'data.scripts'), { timeout: JOB_TIMEOUT }).not.toEqual({});
+        await assets.waitForTask(asset.id, JOB_TIMEOUT);
         await setText(editorPage, asset.id, classic(name));
 
         await assets.select(filename);
@@ -166,7 +167,7 @@ test.describe('scripting', () => {
         // an invalid parse result is never sent to the backend, so the script has to be
         // created valid and then broken, otherwise createScript times out waiting for it
         const id = await createScript(editorPage, filename, esm(name));
-        await expect.poll(() => assets.field(id, `data.scripts.${name}.attributes.speed`), { timeout: JOB_TIMEOUT }).toBeTruthy();
+        await (await assets.armField(id, `data.scripts.${name}.attributes.speed.type`, 'number'))();
         const parsed = await assets.field(id, 'data.scripts');
         await setText(editorPage, id, esm(name, '/**\n     * @attribute\n     * @type {Function}\n     */', ''));
 
@@ -183,15 +184,31 @@ test.describe('scripting', () => {
 
         // a result with errors never reaches the backend, so the stored attributes stand
         expect(await assets.field(id, 'data.scripts')).toEqual(parsed);
+
+        await setText(editorPage, id, esm(name, '/** @attribute */', ' = 4'));
+        const repaired = await assets.armField(id, `data.scripts.${name}.attributes.speed.default`, 4);
+        await inspector.locator('.pcui-panel-header .pcui-button', { hasText: 'PARSE' }).click();
+        await repaired();
+        await expect(errorContainer).toBeHidden();
+        await expect(inspector.locator('.script-asset-inspector-attribute')).toHaveText(['speed']);
+        await assets.flush(id);
+        await editorPage.reload();
+        await waitForEditor(editorPage);
+        await assets.select(filename);
+        await expect(assetScripts(editorPage).locator('.script-asset-inspector-attribute')).toHaveText(['speed']);
+        expect(await assets.field(id, `data.scripts.${name}.attributes.speed.default`)).toBe(4);
     });
 
-    test('add and remove script', async ({ editorPage }) => {
+    test('add and remove script', async ({ editorPage, openLaunch, project }) => {
         test.setTimeout(JOB_TEST_TIMEOUT);
         const hierarchy = new HierarchyPanel(editorPage);
         const inspector = new Inspector(editorPage);
         const name = uniqueName('attach');
 
-        await createScript(editorPage, `${name}.mjs`, esm(name));
+        await createScript(editorPage, `${name}.mjs`, esm(name, '/** @attribute */', ' = 1', `
+    initialize() {
+        this.entity.setLocalPosition(this.speed, 2, 3);
+    }`));
 
         const entityName = uniqueName('scripted');
         const entityId = await hierarchy.createEntity({ name: entityName });
@@ -201,20 +218,32 @@ test.describe('scripting', () => {
 
         const select = inspector.component('script').locator('> .pcui-panel-content > .pcui-select-input');
         await select.locator('.pcui-select-input-textinput input').click();
+        const attached = await hierarchy.armField(entityId, 'components.script.order', [name]);
         await select.locator(`.pcui-select-input-list > [id="${name}"]`).click();
-
-        await expect.poll(() => hierarchy.get(entityId, 'components.script.order'), { timeout: JOB_TIMEOUT }).toEqual([name]);
+        await attached();
         const panel = inspector.component('script').locator(SCRIPTS_CONTAINER).locator(SCRIPT_PANEL);
         await expect(panel.locator('.pcui-panel-header-title').first()).toHaveText(name);
         expect(await hierarchy.get(entityId, `components.script.scripts.${name}.enabled`)).toBe(true);
 
+        const edited = await hierarchy.armField(entityId, `components.script.scripts.${name}.attributes.speed`, 7);
+        await inspector.setNumber(panel, 'speed', 7);
+        await edited();
+        await inspector.shell.flushJobs();
+        await inspector.shell.flushScene();
+        const launch = await openLaunch(project.sceneId);
+        expect(await launch.evaluate(id => (window as any).pc.app.root.findByGuid(id).getLocalPosition().toArray(), entityId)).toEqual([7, 2, 3]);
+        await launch.close();
+
+        const removed = await hierarchy.armField(entityId, 'components.script.order', []);
         await panel.locator('.component-header-btn').click();
         await inspector.shell.menuItem('Remove Script').first().click();
-        await expect.poll(() => hierarchy.get(entityId, 'components.script.order')).toEqual([]);
+        await removed();
         await expect(panel).toHaveCount(0);
 
+        const restored = await hierarchy.armField(entityId, 'components.script.order', [name]);
         await inspector.shell.undo();
-        await expect.poll(() => hierarchy.get(entityId, 'components.script.order'), { timeout: JOB_TIMEOUT }).toEqual([name]);
+        await restored();
+        expect(await hierarchy.get(entityId, `components.script.scripts.${name}.attributes.speed`)).toBe(7);
         await expect(inspector.component('script').locator(SCRIPTS_CONTAINER).locator(SCRIPT_PANEL)).toHaveCount(1);
 
         // the re-add started a set_entity_defaults job; removing its entity mid-flight fails it
@@ -252,14 +281,16 @@ test.describe('scripting', () => {
         if (!from || !target || !bounds) {
             throw new Error('script panels are not visible');
         }
+        const reordered = await hierarchy.armField(entityId, 'components.script.order', [second, first]);
         await editorPage.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
         await editorPage.mouse.down();
         await editorPage.mouse.move(from.x + from.width / 2, Math.min(target.y + target.height - 2, bounds.y + bounds.height - 2), { steps: 10 });
         await editorPage.mouse.up();
 
-        await expect.poll(() => hierarchy.get(entityId, 'components.script.order')).toEqual([second, first]);
+        await reordered();
         expect(await inspector.shell.history()).toMatchObject({ canUndo: true, last: `entity.${entityId}.components.script.order` });
 
+        await inspector.shell.flushScene();
         await editorPage.reload();
         await waitForEditor(editorPage);
         expect(await hierarchy.get(entityId, 'components.script.order')).toEqual([second, first]);
@@ -280,6 +311,8 @@ test.describe('scripting', () => {
         const id = await createEsmScript(editorPage, filename);
 
         expect(await assets.field(id, 'type')).toBe('script');
-        await expect.poll(async () => Object.keys((await assets.field(id, 'data.scripts')) ?? {}), { timeout: JOB_TIMEOUT }).not.toEqual([]);
+        await assets.select(filename);
+        await expect(assetScripts(editorPage).locator('.script-asset-inspector-script')).toHaveCount(1, { timeout: JOB_TIMEOUT });
+        expect(Object.keys((await assets.field(id, 'data.scripts')) ?? {})).toHaveLength(1);
     });
 });

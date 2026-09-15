@@ -104,6 +104,25 @@ export class SettingsDialog {
         }, path);
     }
 
+    /** Arms the settings observer before a control changes it. */
+    armSetting(scope: 'project' | 'scene' | 'session', path: string, value: unknown) {
+        return this.shell.arm(({ scope: s, path: p, value: expected }) => {
+            const settings = s === 'scene' ? window.editor.api.globals.settings.scene.observer : window.editor.call(`settings:${s}`) as any;
+            const hit = () => JSON.stringify(settings.get(p)) === JSON.stringify(expected);
+            if (hit()) {
+                return { done: Promise.resolve() };
+            }
+            return { done: new Promise<void>((resolve) => {
+                const evts = ['*:set', '*:unset', '*:insert', '*:remove'].map(event => settings.on(event, () => {
+                    if (hit()) {
+                        evts.forEach(e => e.unbind());
+                        resolve();
+                    }
+                }));
+            }) };
+        }, { scope, path, value });
+    }
+
     setProjectSetting(path: string, value: unknown) {
         return this.page.evaluate(([p, v]) => {
             (window.editor.call('settings:project') as any).set(p, v);

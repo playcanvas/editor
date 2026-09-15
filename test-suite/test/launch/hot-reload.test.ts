@@ -1,5 +1,7 @@
 import type { Page } from '@playwright/test';
 
+import { arm } from '../../lib/arm';
+import { READY_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { uniqueName } from '../../lib/utils';
 
@@ -36,19 +38,33 @@ const state = (page: Page, id: string): Promise<State> => page.evaluate((g) => {
     };
 }, id);
 
-// the launch page emits `entities:add` for the observer a realtime op lands on, but nothing
-// for the engine entity built from it, which is what these tests assert; the scene graph is
-// the only signal that the op has been applied end to end
-const waitInLaunch = (page: Page, id: string) => page.waitForFunction(
-    g => !!(window as any).pc.app.root.findByGuid(g),
-    id
-);
+// observer events precede engine application; inspect the resulting graph on engine updates
+const armLaunch = (page: Page, id: string, expected: Partial<NonNullable<State>> | null = {}) => arm(page, ({ id, expected }) => {
+    const app = (window as any).pc.app;
+    let check: () => void;
+    const done = new Promise<void>((resolve) => {
+        check = () => {
+            const entity = app.root.findByGuid(id);
+            if (expected === null ? !!entity : !entity) return;
+            if (entity) {
+                const p = entity.getLocalPosition();
+                const current = { name: entity.name, enabled: entity.enabled, pos: [p.x, p.y, p.z], script: entity.script?.enabled ?? null };
+                if (Object.entries(expected).some(([key, value]) => JSON.stringify(current[key as keyof typeof current]) !== JSON.stringify(value))) return;
+            }
+            app.off('frameend', check);
+            resolve();
+        };
+        app.on('frameend', check);
+        check();
+    });
+    return { done, dispose: () => app.off('frameend', check) };
+}, { id, expected }, { what: 'Launch to apply the realtime entity state', timeout: READY_TIMEOUT });
 
 test.describe('hot-reload', { tag: '@gate' }, () => {
     test.beforeEach(async ({ editorPage, project, openLaunch }) => {
         guid = (await addBox(editorPage)).id;
         launch = await openLaunch(project.sceneId);
-        await waitInLaunch(launch, guid);
+        await (await armLaunch(launch, guid))();
     });
 
     test.afterEach(async ({ editorPage }) => {
@@ -66,14 +82,12 @@ test.describe('hot-reload', { tag: '@gate' }, () => {
     });
 
     test('sync position', async ({ editorPage }) => {
+        const updated = await armLaunch(launch, guid, { pos: [1, 2, 3] });
         await editorPage.evaluate((g) => {
             window.editor.api.globals.entities.get(g)!.set('position', [1, 2, 3]);
         }, guid);
 
-        await launch.waitForFunction((g) => {
-            const p = (window as any).pc.app.root.findByGuid(g)?.getLocalPosition();
-            return !!p && p.x === 1 && p.y === 2 && p.z === 3;
-        }, guid);
+        await updated();
 
         expect((await state(launch, guid))?.pos).toEqual([1, 2, 3]);
     });
@@ -81,7 +95,7 @@ test.describe('hot-reload', { tag: '@gate' }, () => {
     test('sync entity create', async ({ editorPage }) => {
         const added = await addBox(editorPage);
 
-        await waitInLaunch(launch, added.id);
+        await (await armLaunch(launch, added.id))();
 
         const live = await state(launch, added.id);
         expect(live).not.toBeNull();
@@ -89,12 +103,13 @@ test.describe('hot-reload', { tag: '@gate' }, () => {
     });
 
     test('sync entity delete', async ({ editorPage }) => {
+        const removed = await armLaunch(launch, guid, null);
         await editorPage.evaluate(async (g) => {
             const entities = window.editor.api.globals.entities;
             await entities.delete([entities.get(g)!]);
         }, guid);
 
-        await launch.waitForFunction(g => !(window as any).pc.app.root.findByGuid(g), guid);
+        await removed();
 
         expect(await state(launch, guid)).toBeNull();
     });
@@ -104,45 +119,44 @@ test.describe('hot-reload', { tag: '@gate' }, () => {
             window.editor.api.globals.entities.get(g)!.set('enabled', value);
         }, { g: guid, value });
 
+        const disabled = await armLaunch(launch, guid, { enabled: false });
         await set(false);
-        await launch.waitForFunction(g => (window as any).pc.app.root.findByGuid(g)?.enabled === false, guid);
+        await disabled();
         expect((await state(launch, guid))?.enabled).toBe(false);
 
+        const enabled = await armLaunch(launch, guid, { enabled: true });
         await set(true);
-        await launch.waitForFunction(g => (window as any).pc.app.root.findByGuid(g)?.enabled === true, guid);
+        await enabled();
         expect((await state(launch, guid))?.enabled).toBe(true);
     });
 
     test('sync entity name', async ({ editorPage }) => {
         const renamed = uniqueName('renamed');
+        const named = await armLaunch(launch, guid, { name: renamed });
         await editorPage.evaluate(({ g, renamed }) => {
             window.editor.api.globals.entities.get(g)!.set('name', renamed);
         }, { g: guid, renamed });
 
-        await launch.waitForFunction(
-            ({ g, renamed }) => (window as any).pc.app.root.findByGuid(g)?.name === renamed,
-            { g: guid, renamed }
-        );
+        await named();
 
         expect((await state(launch, guid))?.name).toBe(renamed);
     });
 
     test('sync script enabled', async ({ editorPage }) => {
+        const added = await armLaunch(launch, guid, { script: true });
         await editorPage.evaluate((g) => {
             window.editor.api.globals.entities.get(g)!.addComponent('script');
         }, guid);
 
-        await launch.waitForFunction(g => !!(window as any).pc.app.root.findByGuid(g)?.script, guid);
+        await added();
         expect((await state(launch, guid))?.script).toBe(true);
 
+        const disabled = await armLaunch(launch, guid, { script: false });
         await editorPage.evaluate((g) => {
             window.editor.api.globals.entities.get(g)!.set('components.script.enabled', false);
         }, guid);
 
-        await launch.waitForFunction(
-            g => (window as any).pc.app.root.findByGuid(g)?.script?.enabled === false,
-            guid
-        );
+        await disabled();
         expect((await state(launch, guid))?.script).toBe(false);
     });
 });
