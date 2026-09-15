@@ -222,27 +222,73 @@ export class AssetsPanel {
 
     /** Waits for a delete or any other change that drops the asset from the registry. */
     async waitForRemove(id: number) {
-        await this.page.waitForFunction(assetId => !window.editor.api.globals.assets.get(assetId), id);
+        const removed = await this.shell.arm((assetId: number) => {
+            const assets = window.editor.api.globals.assets;
+            if (!assets.get(assetId)) {
+                return { done: Promise.resolve() };
+            }
+            return { done: new Promise<void>((resolve) => {
+                const evt = assets.on(`remove[${assetId}]`, () => {
+                    evt.unbind();
+                    resolve();
+                });
+            }) };
+        }, id);
+        await removed();
     }
 
     /** Waits for a realtime move to land on the asset observer. */
     async waitForParent(id: number, parentId: number | null) {
-        await this.page.waitForFunction(([assetId, expected]) => {
-            const asset = window.editor.api.globals.assets.get(assetId as number);
+        const moved = await this.shell.arm(([assetId, expected]: [number, number | null]) => {
+            const asset = window.editor.api.globals.assets.get(assetId) as any;
             if (!asset) {
-                return false;
+                throw new Error(`asset ${assetId} not found`);
             }
-            const path = asset.get('path') as number[];
-            return (path.length ? path[path.length - 1] : null) === expected;
+            const hit = () => {
+                const path = asset.get('path') as number[];
+                return (path.length ? path[path.length - 1] : null) === expected;
+            };
+            if (hit()) {
+                return { done: Promise.resolve() };
+            }
+            return { done: new Promise<void>((resolve) => {
+                const evt = asset.on('path:set', () => {
+                    if (!hit()) {
+                        return;
+                    }
+                    evt.unbind();
+                    resolve();
+                });
+            }) };
         }, [id, parentId]);
+        await moved();
     }
 
     /** Waits for an asset's pipeline task to finish and its file to land. */
     async waitForTask(id: number, timeout: number) {
-        await this.page.waitForFunction((assetId) => {
-            const asset = window.editor.api.globals.assets.get(assetId);
-            return !!asset && !asset.get('task') && !!asset.get('file.size');
-        }, id, { timeout });
+        const done = await this.shell.arm((assetId: number) => {
+            const asset = window.editor.api.globals.assets.get(assetId) as any;
+            if (!asset) {
+                throw new Error(`asset ${assetId} not found`);
+            }
+            const hit = () => !asset.get('task') && !!asset.get('file.size');
+            if (hit()) {
+                return { done: Promise.resolve() };
+            }
+
+            // the pipeline clears `task` and fills `file` in separate ops, so take every
+            // observer write and re-check rather than binding one path
+            return { done: new Promise<void>((resolve) => {
+                const evts = ['*:set', '*:unset'].map(name => asset.on(name, () => {
+                    if (!hit()) {
+                        return;
+                    }
+                    evts.forEach((e: any) => e.unbind());
+                    resolve();
+                }));
+            }) };
+        }, id, { what: `the pipeline task of asset ${id}`, timeout });
+        await done();
     }
 
     /** A field of an asset, read straight from the registry. */
@@ -309,6 +355,23 @@ export class AssetsPanel {
         }, [method, options, folderId ?? null] as const) as Promise<AddedAsset>;
     }
 
+    /**
+     * Creates a binary asset through the editor-api. A File cannot cross the evaluate
+     * boundary, so the bytes go over as base64 and become a File in the page.
+     */
+    uploadFile(file: { name: string; type: string; mimeType: string; buffer: Buffer }) {
+        return this.page.evaluate(async ([name, type, mimeType, b64]) => {
+            const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+            const asset = await window.editor.api.globals.assets.upload({
+                filename: name,
+                file: new File([bytes], name, { type: mimeType }),
+                type,
+                name
+            });
+            return { id: asset.get('id') as number, name: asset.get('name') as string };
+        }, [file.name, file.type, file.mimeType, file.buffer.toString('base64')] as const) as Promise<AddedAsset>;
+    }
+
     /** Adds a tag the same way the inspector does, via an observer insert. */
     async addTag(id: number, tag: string) {
         await this.page.evaluate(([assetId, value]) => {
@@ -359,6 +422,9 @@ export class AssetsPanel {
         await this.page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
         await this.page.mouse.down();
         await item.dispatchEvent('dragstart');
+
+        // the pcui drop manager arms itself off the native dragstart and emits nothing, so its
+        // own flag is the only signal that the gesture took
         await this.page.waitForFunction(() => (window.editor.call('layout.assets') as any).dropManager.active);
         await this.page.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 8 });
 

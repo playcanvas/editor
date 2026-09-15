@@ -14,7 +14,7 @@ export class HierarchyPanel {
 
     readonly tree: Locator;
 
-    private shell: EditorShell;
+    readonly shell: EditorShell;
 
     constructor(readonly page: Page) {
         this.root = page.locator('#layout-hierarchy');
@@ -82,13 +82,15 @@ export class HierarchyPanel {
 
     // PCUI toggles a row that is already the only selected one, so only call this on an unselected row
     async select(name: string) {
+        const selected = await this.armSelected(name);
         await this.rowContents(name).click();
-        await this.waitForSelected(name);
+        await selected();
     }
 
     async shiftSelect(name: string) {
+        const selected = await this.armSelected(name);
         await this.rowContents(name).click({ modifiers: ['Shift'] });
-        await this.waitForSelected(name);
+        await selected();
     }
 
     async startRename(name: string) {
@@ -138,6 +140,14 @@ export class HierarchyPanel {
             }
             return entities.create(data, { history: true, select: false }).get('resource_id') as string;
         }, opts);
+    }
+
+    /** Selects entities by resource id, bypassing the tree so a row never has to be visible. */
+    setSelection(ids: string[]) {
+        return this.page.evaluate((list) => {
+            const globals = window.editor.api.globals;
+            globals.selection.set(list.map(id => globals.entities.get(id)));
+        }, ids);
     }
 
     /** Removes entities by resource id, skipping ones already gone, to give back a clean scene. */
@@ -194,18 +204,48 @@ export class HierarchyPanel {
         });
     }
 
-    // selector:change is deferred through a setTimeout(0), so poll instead of reading once
-    async waitForSelected(name: string) {
-        await this.page.waitForFunction((n) => {
-            return window.editor.api.globals.selection.items.some(i => i.get('name') === n);
+    /** Arms the selector change a row click lands on; await the thunk after the click. */
+    armSelected(name: string) {
+        return this.shell.arm((n: string) => {
+            const selection = window.editor.api.globals.selection;
+            const hit = () => selection.items.some((i: any) => i.get('name') === n);
+            if (hit()) {
+                return { done: Promise.resolve() };
+            }
+            return { done: new Promise<void>((resolve) => {
+                const evt = window.editor.on('selector:change', () => {
+                    if (!hit()) {
+                        return;
+                    }
+                    evt.unbind();
+                    resolve();
+                });
+            }) };
         }, name);
+    }
+
+    async waitForSelected(name: string) {
+        await (await this.armSelected(name))();
     }
 
     /** Waits for an async editor op (delete, duplicate, paste) to land on the history stack. */
     async waitForAction(name: string) {
-        await this.page.waitForFunction((n) => {
-            const action = window.editor.api.globals.history.lastAction;
-            return !!action && action.name === n;
+        const landed = await this.shell.arm((n: string) => {
+            const history = window.editor.api.globals.history;
+            const hit = () => history.lastAction?.name === n;
+            if (hit()) {
+                return { done: Promise.resolve() };
+            }
+            return { done: new Promise<void>((resolve) => {
+                const evts = ['add', 'undo', 'redo'].map(name => history.on(name, () => {
+                    if (!hit()) {
+                        return;
+                    }
+                    evts.forEach(e => e.unbind());
+                    resolve();
+                }));
+            }) };
         }, name);
+        await landed();
     }
 }

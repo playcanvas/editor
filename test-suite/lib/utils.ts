@@ -1,4 +1,4 @@
-const RUN_ID = process.env.E2E_RUN_ID ?? 'local';
+export const RUN_ID = process.env.E2E_RUN_ID ?? 'local';
 const WORKER = process.env.TEST_PARALLEL_INDEX ?? '0';
 
 const map = new Map<string, number>();

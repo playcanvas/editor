@@ -12,13 +12,16 @@ export const middleware = async (context: BrowserContext) => {
         });
     });
 
-    // cloudfront header injection
-    await context.route(/playcanvas\.com/, (route, request) => {
-        return route.continue({
-            headers: {
-                ...request.headers(),
-                [HEADER_NAME]: HEADER_VALUE
-            }
+    // cloudfront header injection; skip when unset (local backend has no waf) as an
+    // empty header name stalls the request and hangs navigation
+    if (HEADER_NAME) {
+        await context.route(/playcanvas\.com/, (route, request) => {
+            return route.continue({
+                headers: {
+                    ...request.headers(),
+                    [HEADER_NAME]: HEADER_VALUE
+                }
+            });
         });
-    });
+    }
 };

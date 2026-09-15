@@ -2,7 +2,10 @@ import type { Locator, Page } from '@playwright/test';
 
 import { EditorShell } from './common';
 
-const AXES = ['X', 'Y', 'Z', 'W'];
+const ASSET_PICKER = '.picker-asset';
+const ASSET_GRID_ITEM = '#layout-assets .pcui-asset-grid-view-item';
+const PICK_MODE = '#layout-hierarchy.entity-picker-mode';
+const TREE_ROW = '#layout-hierarchy .pcui-treeview-item-contents';
 
 export class Inspector {
     readonly shell: EditorShell;
@@ -57,6 +60,16 @@ export class Inspector {
         return this.shell.labelGroup(scope, label);
     }
 
+    // an asset slot carries its own label instead of sitting in a pcui LabelGroup
+    assetSlot(scope: Locator, label: string) {
+        return scope.locator(`.pcui-asset-input:has(> .pcui-asset-input-label:text-is("${label}"))`);
+    }
+
+    /** False while a component hides the field for the current type or mode. */
+    fieldVisible(scope: Locator, label: string) {
+        return this.field(scope, label).or(this.assetSlot(scope, label)).isVisible();
+    }
+
     async expand(panel: Locator) {
         await panel.waitFor();
         const collapsed = panel.and(this.page.locator('.pcui-collapsed'));
@@ -74,11 +87,72 @@ export class Inspector {
     }
 
     async setVector(scope: Locator, label: string, values: number[]) {
-        const field = this.field(scope, label);
+        // pcui renders one numeric input per axis in order, and the placeholders are not always
+        // X / Y / Z (a zone is W / H / D, a screen resolution Width / Height), so go by index
+        const inputs = this.field(scope, label).locator('.pcui-numeric-input input');
         for (let i = 0; i < values.length; i++) {
-            // pcui puts the axis placeholder on the input wrapper, not on the input itself
-            await this.commit(field.locator(`.pcui-numeric-input[placeholder="${AXES[i]}"] input`), values[i]);
+            await this.commit(inputs.nth(i), values[i]);
         }
+    }
+
+    /** Sets a slider through its numeric input; dragging the handle cannot hit an exact value. */
+    async setSlider(scope: Locator, label: string, value: number) {
+        await this.commit(this.field(scope, label).locator('.pcui-slider .pcui-numeric-input input'), value);
+    }
+
+    /** Picks a dropdown entry by its visible option text. */
+    async setSelect(scope: Locator, label: string, option: string) {
+        const select = this.field(scope, label).locator('.pcui-select-input');
+        await select.locator('.pcui-select-input-value').click();
+        await select.locator(`.pcui-select-input-list > .pcui-label:text-is("${option}")`).click();
+    }
+
+    async setText(scope: Locator, label: string, value: string) {
+        // pcui text inputs report on the native change event, which Enter fires by blurring
+        const input = this.field(scope, label).locator('input, textarea').first();
+        await input.click();
+        await input.press('ControlOrMeta+A');
+        await input.pressSequentially(value);
+        await input.press('Enter');
+    }
+
+    /**
+     * Assigns an asset through the editor's asset picker rather than a drag: the picker reuses
+     * the assets panel grid, so the gesture is a click on a row the panel already filtered.
+     */
+    async assignAsset(scope: Locator, label: string, assetName: string) {
+        await this.assetSlot(scope, label).locator('.pcui-asset-input-edit').click();
+        const picker = this.page.locator(ASSET_PICKER);
+        await picker.waitFor();
+        await this.page.locator(`${ASSET_GRID_ITEM}:has(> .pcui-gridview-item-text:text-is("${assetName}"))`).click();
+        await picker.waitFor({ state: 'hidden' });
+    }
+
+    async clearAsset(scope: Locator, label: string) {
+        await this.assetSlot(scope, label).locator('.pcui-asset-input-remove').click();
+    }
+
+    /** Clicking an entity field puts the hierarchy into pick mode, where a row click is the choice. */
+    async pickEntity(scope: Locator, label: string, entityName: string) {
+        await this.field(scope, label).locator('.pcui-entity-input').click();
+        const mode = this.page.locator(PICK_MODE);
+        await mode.waitFor();
+        await this.page.locator(`${TREE_ROW}:has(> .pcui-treeview-item-text:text-is("${entityName}"))`).click();
+        await mode.waitFor({ state: 'detached' });
+    }
+
+    /** One observer path of an entity, or undefined when the entity is gone. */
+    read(id: string, path: string) {
+        return this.page.evaluate(([i, p]) => {
+            return window.editor.api.globals.entities.get(i)?.get(p);
+        }, [id, path]);
+    }
+
+    // a removed component still reads back as null through get(), so absence needs has()
+    has(id: string, path: string) {
+        return this.page.evaluate(([i, p]) => {
+            return !!window.editor.api.globals.entities.get(i)?.has(p);
+        }, [id, path]);
     }
 
     async toggle(scope: Locator, label: string) {
@@ -104,6 +178,12 @@ export class Inspector {
         }
     }
 
+    /** The "..." menu beside ADD COMPONENT, which owns the paste and remove-all entries. */
+    async entityMenu(item: string) {
+        await this.page.locator('.entity-inspector .pcui-container:has(> button.entity-inspector-add-component) > button:not(.entity-inspector-add-component)').click();
+        await this.shell.menuItem(item).click();
+    }
+
     async componentMenu(name: string, item: string) {
         // the header holds the help button first and the "..." menu button last
         const buttons = this.page.locator(`.${name}-component-inspector > .pcui-panel-header > .component-header-btn`);
@@ -113,20 +193,48 @@ export class Inspector {
 
     /** opens the color picker of a colour field and waits for it to be interactive */
     async openColorPicker(scope: Locator, label: string) {
+        // picker-color.ts refocuses its hex field with select() 100ms after opening, which
+        // steals focus from a channel input mid-fill and drops the edit, so hold until it lands
+        const refocused = await this.page.evaluateHandle(() => {
+            const hex = document.querySelector<HTMLInputElement>('.picker-color .field-hex input')!;
+            const select = hex.select;
+            return { done: new Promise<void>((resolve) => {
+                hex.select = () => {
+                    hex.select = select;
+                    select.call(hex);
+                    resolve();
+                };
+            }) };
+        });
         await this.field(scope, label).locator('.pcui-color-input').click();
         await this.colorPicker.waitFor();
-
-        // the picker focuses its hex field twice, the second time 100ms later with the
-        // text selected, so wait for that before typing into another field
-        await this.page.waitForFunction(() => {
-            const el = document.activeElement as HTMLInputElement | null;
-            return !!el && el.selectionStart === 0 && el.selectionEnd === el.value.length && el.value.length > 0;
-        });
+        await this.page.evaluate(h => h.done, refocused);
+        await refocused.dispose();
     }
 
-    /** sets one 0-255 channel of the open color picker */
+    /** sets one 0-255 channel of the open color picker and waits for the colour input to receive it */
     async setColorChannel(channel: 'r' | 'g' | 'b' | 'a', value: number) {
+        // picker-color.ts hands the edit to the colour input on a 16ms timer; closing the picker
+        // before it fires unbinds the input and drops the edit
+        const delivered = await this.page.evaluateHandle(() => {
+            let resolve: () => void;
+            const evt = window.editor.on('picker:color', () => {
+                evt.unbind();
+                resolve();
+            });
+            return { done: new Promise<void>((r) => {
+                resolve = r;
+            }) };
+        });
         await this.commit(this.colorPicker.locator(`.field-${channel} input`), value);
+        await this.page.evaluate(h => h.done, delivered);
+        await delivered.dispose();
+    }
+
+    /** the picker overlay swallows clicks on the inspector behind it until it is dismissed */
+    async closeColorPicker() {
+        await this.page.keyboard.press('Escape');
+        await this.colorPicker.waitFor({ state: 'hidden' });
     }
 
     /**

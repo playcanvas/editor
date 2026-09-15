@@ -78,66 +78,68 @@ const setSelfPermission = (page: Page, permission: 'read' | 'write') => {
     }, permission);
 };
 
-test.afterEach(async ({ editorPage, project }) => {
-    const guest = guestId;
-    guestId = null;
-    if (guest !== null) {
-        await revoke(editorPage, project.id, guest);
-    }
-});
-
-test('a read-only collaborator gets a disabled inspector and no hierarchy add button', async ({ editorPage, collaborator, project }) => {
-    test.skip(!collaborator, SKIP);
-
-    const guest = await join(editorPage, collaborator, project, 'read');
-
-    await expect(guest.page.locator(ATTRIBUTES)).toHaveClass(DISABLED);
-    await expect(new HierarchyPanel(guest.page).addButton()).toBeHidden();
-    expect(await canWrite(guest.page)).toBe(false);
-    expect(await permissionIds(guest.page, 'read')).toContain(String(guest.id));
-    expect(await permissionIds(guest.page, 'write')).not.toContain(String(guest.id));
-});
-
-test('promoting a collaborator to write restores editing without a reload', async ({ editorPage, collaborator, project }) => {
-    test.skip(!collaborator, SKIP);
-    const guest = await join(editorPage, collaborator, project, 'read');
-    const addButton = new HierarchyPanel(guest.page).addButton();
-    await expect(addButton).toBeHidden();
-
-    // a reload would drop this, which is the only thing "without a reload" can mean from outside
-    await guest.page.evaluate(() => {
-        (window as any).probe = 'kept';
+test.describe('permissions', () => {
+    test.afterEach(async ({ editorPage, project }) => {
+        const guest = guestId;
+        guestId = null;
+        if (guest !== null) {
+            await revoke(editorPage, project.id, guest);
+        }
     });
 
-    await update(editorPage, project.id, guest.id, 'write');
+    test('read only collaborator', async ({ editorPage, collaborator, project }) => {
+        test.skip(!collaborator, SKIP);
 
-    await expect(addButton).toBeVisible();
-    await expect(guest.page.locator(ATTRIBUTES)).not.toHaveClass(DISABLED);
-    await expect.poll(() => canWrite(guest.page)).toBe(true);
-    expect(await permissionIds(guest.page, 'write')).toContain(String(guest.id));
-    expect(await guest.page.evaluate(() => (window as any).probe)).toBe('kept');
-});
+        const guest = await join(editorPage, collaborator, project, 'read');
 
-test('a read permission message gates the editor and a write message restores it', async ({ editorPage }) => {
-    const addButton = new HierarchyPanel(editorPage).addButton();
-    const attributes = editorPage.locator(ATTRIBUTES);
-    const self = String(await editorPage.evaluate(() => window.config.self.id));
-    await expect(addButton).toBeVisible();
-    await expect(attributes).not.toHaveClass(DISABLED);
+        await expect(guest.page.locator(ATTRIBUTES)).toHaveClass(DISABLED);
+        await expect(new HierarchyPanel(guest.page).addButton()).toBeHidden();
+        expect(await canWrite(guest.page)).toBe(false);
+        expect(await permissionIds(guest.page, 'read')).toContain(String(guest.id));
+        expect(await permissionIds(guest.page, 'write')).not.toContain(String(guest.id));
+    });
 
-    await setSelfPermission(editorPage, 'read');
+    test('promote to write', async ({ editorPage, collaborator, project }) => {
+        test.skip(!collaborator, SKIP);
+        const guest = await join(editorPage, collaborator, project, 'read');
+        const addButton = new HierarchyPanel(guest.page).addButton();
+        await expect(addButton).toBeHidden();
 
-    await expect(attributes).toHaveClass(DISABLED);
-    await expect(addButton).toBeHidden();
-    expect(await canWrite(editorPage)).toBe(false);
-    expect(await permissionIds(editorPage, 'read')).toContain(self);
-    expect(await permissionIds(editorPage, 'write')).not.toContain(self);
+        // a reload would drop this, which is the only thing "without a reload" can mean from outside
+        await guest.page.evaluate(() => {
+            (window as any).probe = 'kept';
+        });
 
-    await setSelfPermission(editorPage, 'write');
+        await update(editorPage, project.id, guest.id, 'write');
 
-    await expect(attributes).not.toHaveClass(DISABLED);
-    await expect(addButton).toBeVisible();
-    expect(await canWrite(editorPage)).toBe(true);
-    expect(await permissionIds(editorPage, 'write')).toContain(self);
-    expect(await permissionIds(editorPage, 'read')).not.toContain(self);
+        await expect(addButton).toBeVisible();
+        await expect(guest.page.locator(ATTRIBUTES)).not.toHaveClass(DISABLED);
+        await expect.poll(() => canWrite(guest.page)).toBe(true);
+        expect(await permissionIds(guest.page, 'write')).toContain(String(guest.id));
+        expect(await guest.page.evaluate(() => (window as any).probe)).toBe('kept');
+    });
+
+    test('apply permission message', async ({ editorPage }) => {
+        const addButton = new HierarchyPanel(editorPage).addButton();
+        const attributes = editorPage.locator(ATTRIBUTES);
+        const self = String(await editorPage.evaluate(() => window.config.self.id));
+        await expect(addButton).toBeVisible();
+        await expect(attributes).not.toHaveClass(DISABLED);
+
+        await setSelfPermission(editorPage, 'read');
+
+        await expect(attributes).toHaveClass(DISABLED);
+        await expect(addButton).toBeHidden();
+        expect(await canWrite(editorPage)).toBe(false);
+        expect(await permissionIds(editorPage, 'read')).toContain(self);
+        expect(await permissionIds(editorPage, 'write')).not.toContain(self);
+
+        await setSelfPermission(editorPage, 'write');
+
+        await expect(attributes).not.toHaveClass(DISABLED);
+        await expect(addButton).toBeVisible();
+        expect(await canWrite(editorPage)).toBe(true);
+        expect(await permissionIds(editorPage, 'write')).toContain(self);
+        expect(await permissionIds(editorPage, 'read')).not.toContain(self);
+    });
 });

@@ -1,13 +1,11 @@
 import type { Locator, Page } from '@playwright/test';
 
+import { waitForParser } from '../common';
 import { EditorShell } from './common';
 
 const ROW = '.pcui-treeview-item';
 const CONTENTS = `${ROW}-contents`;
 const TEXT = `${ROW}-text`;
-const FIND_IN_FILES = 'Find in Files';
-// pcui puts the placeholder on the field wrapper, not on the native input
-const QUERY_FIELD = '[placeholder="Find in files"]';
 
 const escape = (text: string) => text.replace(/["\\]/g, '\\$&');
 const exact = (text: string) => new RegExp(`^${text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`);
@@ -23,17 +21,11 @@ export class CodeEditor {
 
     readonly status: Locator;
 
-    readonly search: Locator;
-
-    readonly searchInput: Locator;
-
     readonly renameInput: Locator;
 
     readonly renameError: Locator;
 
     readonly createInput: Locator;
-
-    readonly prefs: Locator;
 
     constructor(readonly page: Page) {
         this.shell = new EditorShell(page);
@@ -41,14 +33,9 @@ export class CodeEditor {
         this.tabs = page.locator('#ui-tabs');
         this.monaco = page.locator('#ui-code .monaco-editor textarea.inputarea');
         this.status = page.locator('#ui-bottom .status');
-
-        // the include/exclude row reuses the picker-search class, so pin the panel that owns the query field
-        this.search = page.locator(`.picker-search:has(${QUERY_FIELD})`);
-        this.searchInput = this.search.locator(`${QUERY_FIELD} input`);
         this.renameInput = this.tree.locator('.files-rename-input input');
         this.renameError = page.locator('.files-rename-error-popup');
         this.createInput = page.locator('.picker-script-create input');
-        this.prefs = page.locator('#ui-right');
     }
 
     // a row element wraps its whole subtree, so filtering rows by descendant text also matches the
@@ -66,19 +53,11 @@ export class CodeEditor {
         return this.tabs.locator(`.tab:has(.pcui-label:text-is("${escape(name)}"))`);
     }
 
-    get resultsTab() {
-        return this.tab(FIND_IN_FILES);
-    }
-
     /** Clicks the tree item and waits for the document and its monaco view to be ready. */
     async open(name: string, id: number) {
+        const opened = await this.armDoc(id);
         await this.treeContents(name).click();
-        await this.waitForDoc(id);
-    }
-
-    /** Double-click pins the temporary tab so the next selection opens its own tab. */
-    async pin(name: string) {
-        await this.treeContents(name).dblclick();
+        await opened();
     }
 
     async openMenu(menu: string, ...path: string[]) {
@@ -120,22 +99,28 @@ export class CodeEditor {
     /** Saves the focused document with the code editor hotkey, which monaco owns. */
     async save() {
         const id = await this.focusedId();
+        const saved = await this.shell.arm((docId: string | null) => {
+            const clean = () => !window.editor.call('documents:isDirty', docId);
+            if (clean()) {
+                return { done: Promise.resolve() };
+            }
+            return { done: new Promise<void>((resolve) => {
+                const evt = window.editor.on('documents:dirty', () => {
+                    if (!clean()) {
+                        return;
+                    }
+                    evt.unbind();
+                    resolve();
+                });
+            }) };
+        }, id);
         await this.monaco.focus();
         await this.page.keyboard.press('ControlOrMeta+S');
-        await this.page.waitForFunction(i => !window.editor.call('documents:isDirty', i), id);
+        await saved();
     }
 
     content() {
         return this.page.evaluate(() => (window.editor.call('editor:monaco') as any).getValue() as string);
-    }
-
-    /** A monaco constructor option, e.g. `fontSize`. */
-    option(name: string) {
-        return this.page.evaluate(n => (window.editor.call('editor:monaco') as any).getRawOptions()[n], name);
-    }
-
-    cursorLine() {
-        return this.page.evaluate(() => (window.editor.call('editor:monaco') as any).getPosition().lineNumber as number);
     }
 
     tabIds() {
@@ -191,61 +176,46 @@ export class CodeEditor {
         }, String(id));
     }
 
-    setting(path: string) {
-        return this.page.evaluate(p => (window.editor.call('editor:settings') as any).get(p), path);
-    }
+    /** Arms the load of a document and its monaco view; await the thunk after the click. */
+    armDoc(id: number) {
+        return this.shell.arm((docId: string) => {
+            const ready = () => {
+                return !!window.editor.call('documents:get', docId) &&
+                    !window.editor.call('documents:isLoading', docId) &&
+                    !!window.editor.call('views:get', docId);
+            };
+            if (ready()) {
+                return { done: Promise.resolve() };
+            }
 
-    setSetting(path: string, value: unknown) {
-        return this.page.evaluate(([p, v]) => {
-            (window.editor.call('editor:settings') as any).set(p, v);
-        }, [path, value] as [string, unknown]);
-    }
-
-    async waitForDoc(id: number) {
-        await this.page.waitForFunction((i) => {
-            return !!window.editor.call('documents:get', i) &&
-                !window.editor.call('documents:isLoading', i) &&
-                !!window.editor.call('views:get', i);
+            // the document lands on documents:load and its view on views:new, in that order
+            return { done: new Promise<void>((resolve) => {
+                const evts = ['documents:load', 'views:new'].map(name => window.editor.on(name, () => {
+                    if (!ready()) {
+                        return;
+                    }
+                    evts.forEach(e => e.unbind());
+                    resolve();
+                }));
+            }) };
         }, String(id));
     }
 
-    // the esm parse step of a new script is registered only once the script worker has booted, and
-    // a call to a missing method is dropped silently, so creating before then never opens a tab
+    async waitForDoc(id: number) {
+        await (await this.armDoc(id))();
+    }
+
     async waitForParser() {
-        await this.page.waitForFunction(() => {
-            return (window.editor as any).methods.has('scripts:handleParse') as boolean;
-        });
+        await waitForParser(this.page);
     }
 
-    /** Sets a page flag when `event` next fires, so a later wait cannot miss it. */
-    async arm(event: string) {
-        await this.page.evaluate((e) => {
-            const w = window as any;
-            w.e2eArmed?.unbind();
-            w.e2eFired = false;
-            w.e2eArmed = window.editor.on(e, () => {
-                w.e2eFired = true;
+    /** Arms the next `event` off the editor, so the action that fires it cannot outrun the wait. */
+    armEvent(event: string) {
+        return this.shell.arm((name: string) => ({ done: new Promise<void>((resolve) => {
+            const evt = window.editor.on(name, () => {
+                evt.unbind();
+                resolve();
             });
-        }, event);
-    }
-
-    async waitArmed() {
-        await this.page.waitForFunction(() => (window as any).e2eFired === true);
-    }
-
-    /** Opens Find in Files from monaco, runs `query` and waits for the search to finish. */
-    async findInFiles(query: string) {
-        await this.monaco.focus();
-        await this.page.keyboard.press('ControlOrMeta+Shift+F');
-        await this.searchInput.waitFor();
-        await this.arm('editor:search:files:end');
-        await this.searchInput.pressSequentially(query);
-        await this.searchInput.press('Enter');
-        await this.waitArmed();
-    }
-
-    /** Double-clicks the results line holding `text`, which jumps to the match. */
-    async jumpToResult(text: string) {
-        await this.page.locator('#ui-code .view-line', { hasText: text }).first().dblclick({ position: { x: 4, y: 4 } });
+        }) }), event);
     }
 }

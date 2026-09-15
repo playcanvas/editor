@@ -1,14 +1,25 @@
 import { test as base, expect, type BrowserContext, type BrowserContextOptions, type Page } from '@playwright/test';
 
 import { checkCookieAccept, createProject, deleteProject } from './common';
-import { AUTH_STATES, codeEditorUrl, editorBlankUrl, editorSceneUrl, editorUrl, launchSceneUrl, type SearchParams } from './config';
+import { AUTH_STATES, codeEditorUrl, editorBlankUrl, editorUrl, launchSceneUrl, type SearchParams } from './config';
 import { attachConsoleCapture, ConsoleErrors } from './console';
+import { JOB_TEST_TIMEOUT } from './constants';
 import { middleware } from './middleware';
+import { type Baseline, EditorShell } from './pages/common';
 import { waitForCodeEditor, waitForEditor, waitForLaunch } from './ready';
 import { uniqueName } from './utils';
 
 export type Project = { id: number; name: string; sceneId: number };
-export type WorkerFixtures = { authState: BrowserContextOptions['storageState']; project: Project };
+
+/** The worker's one editor page and the state every test gets it back in. */
+export type SharedEditor = { page: Page; base: Baseline };
+
+export type WorkerFixtures = {
+    authState: BrowserContextOptions['storageState'];
+    project: Project & { page: Page };
+    editorContext: BrowserContext;
+    sharedEditor: SharedEditor;
+};
 export type EditorFixtures = {
     errors: ConsoleErrors;
     blankPage: Page;
@@ -26,19 +37,30 @@ export const test = base.extend<EditorFixtures, WorkerFixtures>({
         await use(AUTH_STATES[workerInfo.parallelIndex % AUTH_STATES.length]);
     }, { scope: 'worker' }],
 
-    storageState: async ({ authState }, use) => {
-        await use(authState);
-    },
-
-    context: async ({ context }, use) => {
-        await middleware(context);
-        await use(context);
-    },
-
-    project: [async ({ browser, authState }, use) => {
+    // one context for the whole worker: the editor page, the pages a spec opens beside it and
+    // the console capture all hang off it, so only the pages are per test. playwright traces a
+    // context it created through the browser fixture in one chunk per test, so `use.trace` keeps
+    // working even though this context outlives every test
+    editorContext: [async ({ browser, authState }, use) => {
         const context = await browser.newContext({ storageState: authState });
         await middleware(context);
+        await use(context);
+        await context.close();
+    }, { scope: 'worker' }],
+
+    context: async ({ editorContext }, use) => {
+        await use(editorContext);
+    },
+
+    // the built-in page fixture leaves the close to the context, which now outlives the test
+    page: async ({ context }, use) => {
         const page = await context.newPage();
+        await use(page);
+        await page.close();
+    },
+
+    project: [async ({ editorContext }, use) => {
+        const page = await editorContext.newPage();
         await page.goto(editorBlankUrl());
         await page.locator(CMS).waitFor();
         await checkCookieAccept(page);
@@ -47,18 +69,27 @@ export const test = base.extend<EditorFixtures, WorkerFixtures>({
         await page.goto(editorUrl(id, { disableBubbles: true }));
         await waitForEditor(page);
         const sceneId = parseInt(await page.evaluate(() => window.config.scene.id), 10);
-        await use({ id, name, sceneId });
-        await page.goto(editorBlankUrl());
-        await page.locator(CMS).waitFor();
+        await use({ id, name, sceneId, page });
         await deleteProject(page, id);
-        await context.close();
+        await page.close();
+    }, { scope: 'worker', timeout: JOB_TEST_TIMEOUT }],
+
+    // loading the editor is the most expensive thing in the suite, so the worker does it once
+    // and every test is handed the same page through `editorPage`
+    sharedEditor: [async ({ project }, use) => {
+        const { page } = project;
+        const base = await new EditorShell(page).baseline();
+        await use({ page, base });
     }, { scope: 'worker' }],
 
     errors: [async ({ context }, use, testInfo) => {
         const errors = new ConsoleErrors();
         const log: string[] = [];
-        attachConsoleCapture(context, errors, log);
+
+        // the context outlives the test, so the listeners have to come off with it
+        const detach = attachConsoleCapture(context, errors, log);
         await use(errors);
+        detach();
         await testInfo.attach('console.log', { body: log.join('\n'), contentType: 'text/plain' });
         expect(errors.unexpected, 'unexpected console errors').toEqual([]);
     }, { auto: true }],
@@ -70,11 +101,14 @@ export const test = base.extend<EditorFixtures, WorkerFixtures>({
         await use(page);
     },
 
-    editorPage: async ({ page, project }, use) => {
-        await page.goto(editorSceneUrl(project.sceneId, { disableBubbles: true }));
-        await waitForEditor(page);
-        await checkCookieAccept(page);
+    editorPage: async ({ sharedEditor }, use, testInfo) => {
+        const { page, base } = sharedEditor;
+        await new EditorShell(page).reset(base);
         await use(page);
+
+        // a failed test can leave anything behind — a drag mid-flight, a modal `reset` knows
+        // nothing about — so mark the page and let the next reset load it again
+        base.dirty = testInfo.status !== testInfo.expectedStatus || testInfo.errors.length > 0;
     },
 
     codeEditorPage: async ({ context, project }, use) => {
@@ -86,12 +120,17 @@ export const test = base.extend<EditorFixtures, WorkerFixtures>({
     },
 
     openLaunch: async ({ context }, use) => {
+        const opened: Page[] = [];
         await use(async (sceneId, params = {}) => {
             const page = await context.newPage();
+            opened.push(page);
             await page.goto(launchSceneUrl(sceneId, params));
             await waitForLaunch(page);
             return page;
         });
+
+        // the context outlives the test, so a launch page left open would keep on rendering
+        await Promise.all(opened.filter(page => !page.isClosed()).map(page => page.close()));
     },
 
     collaborator: async ({ browser }, use, testInfo) => {

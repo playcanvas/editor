@@ -449,7 +449,10 @@ editor.once('load', () => {
         document.querySelectorAll(buttonSelector).forEach((btn) => {
             const text = btn.getAttribute('data-full-text');
             if (text !== null) {
-                btn.textContent = text;
+                // scene:name handlers registered earlier already wrote the new name, keep it
+                if (!btn.textContent) {
+                    btn.textContent = text;
+                }
                 btn.removeAttribute('data-full-text');
             }
         });

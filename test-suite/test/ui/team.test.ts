@@ -64,46 +64,48 @@ const remove = async (page: Page, username: string) => {
     await expect(target).toHaveCount(0);
 };
 
-test('invites a collaborator with read only access', async ({ editorPage }) => {
-    const team = await openTeam(editorPage);
-    const collaborator = row(editorPage, USERNAME);
+test.describe('team', () => {
+    test('invite collaborator', async ({ editorPage }) => {
+        const team = await openTeam(editorPage);
+        const collaborator = row(editorPage, USERNAME);
 
-    // the worker project is shared between tests, so start from a known state
-    if (await collaborator.count()) {
-        await remove(editorPage, USERNAME);
-    }
+        // the worker project is shared between tests, so start from a known state
+        if (await collaborator.count()) {
+            await remove(editorPage, USERNAME);
+        }
 
-    await invite(team, USERNAME);
-
-    await expect(collaborator).toBeVisible();
-    await expect(collaborator.locator('.role-select')).toHaveText('Read Only');
-    await expect(collaborator.locator('.team-pill')).toHaveText('Member');
-
-    await remove(editorPage, USERNAME);
-    await closeTeam(editorPage);
-});
-
-test('changes a collaborator role and removes them', async ({ editorPage }) => {
-    const team = await openTeam(editorPage);
-    const collaborator = row(editorPage, USERNAME);
-
-    if (!(await collaborator.count())) {
         await invite(team, USERNAME);
+
         await expect(collaborator).toBeVisible();
-    }
+        await expect(collaborator.locator('.role-select')).toHaveText('Read Only');
+        await expect(collaborator.locator('.team-pill')).toHaveText('Member');
 
-    await collaborator.locator('.role-select').click();
-    const menu = editorPage.locator(ROLE_MENU);
-    await expect(menu).toBeVisible();
-    await menu.locator('.pcui-menu-item-content > .pcui-label').filter({ hasText: /^Read & Write$/ }).first().click();
-    await expect(collaborator.locator('.role-select')).toHaveText('Read & Write');
+        await remove(editorPage, USERNAME);
+        await closeTeam(editorPage);
+    });
 
-    // reopening the picker refetches the team, which proves the change was stored
-    await closeTeam(editorPage);
-    await openTeam(editorPage);
-    await expect(collaborator.locator('.role-select')).toHaveText('Read & Write');
+    test('change role and remove', async ({ editorPage }) => {
+        const team = await openTeam(editorPage);
+        const collaborator = row(editorPage, USERNAME);
 
-    await remove(editorPage, USERNAME);
-    await expect(row(editorPage, USERNAME)).toHaveCount(0);
-    await closeTeam(editorPage);
+        if (!(await collaborator.count())) {
+            await invite(team, USERNAME);
+            await expect(collaborator).toBeVisible();
+        }
+
+        await collaborator.locator('.role-select').click();
+        const menu = editorPage.locator(ROLE_MENU);
+        await expect(menu).toBeVisible();
+        await menu.locator('.pcui-menu-item-content > .pcui-label').filter({ hasText: /^Read & Write$/ }).first().click();
+        await expect(collaborator.locator('.role-select')).toHaveText('Read & Write');
+
+        // reopening the picker refetches the team, which proves the change was stored
+        await closeTeam(editorPage);
+        await openTeam(editorPage);
+        await expect(collaborator.locator('.role-select')).toHaveText('Read & Write');
+
+        await remove(editorPage, USERNAME);
+        await expect(row(editorPage, USERNAME)).toHaveCount(0);
+        await closeTeam(editorPage);
+    });
 });

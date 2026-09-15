@@ -38,63 +38,65 @@ const createAtlas = async (page: Page) => {
 // the worker project is shared by the whole run, so hand back what we were given
 let baseline: ProjectState;
 
-test.beforeEach(async ({ editorPage }) => {
-    baseline = await new EditorShell(editorPage).snapshot();
-});
+test.describe('sprite-editor', () => {
+    test.beforeEach(async ({ editorPage }) => {
+        baseline = await new EditorShell(editorPage).snapshot();
+    });
 
-test.afterEach(async ({ editorPage }) => {
-    await new EditorShell(editorPage).restore(baseline);
-});
+    test.afterEach(async ({ editorPage }) => {
+        await new EditorShell(editorPage).restore(baseline);
+    });
 
-test('creates a texture atlas from a texture and opens the sprite editor', async ({ editorPage }) => {
-    test.setTimeout(JOB_TEST_TIMEOUT);
-    const assets = new AssetsPanel(editorPage);
-    const { texture, atlas, item } = await createAtlas(editorPage);
+    test('create texture atlas', async ({ editorPage }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
+        const assets = new AssetsPanel(editorPage);
+        const { texture, atlas, item } = await createAtlas(editorPage);
 
-    expect(await assets.field(atlas.id, 'type')).toBe('textureatlas');
-    expect(await assets.field(atlas.id, 'source')).toBe(false);
-    expect(atlas.id).not.toBe(texture.id);
-    await expect(item).toBeVisible();
+        expect(await assets.field(atlas.id, 'type')).toBe('textureatlas');
+        expect(await assets.field(atlas.id, 'source')).toBe(false);
+        expect(atlas.id).not.toBe(texture.id);
+        await expect(item).toBeVisible();
 
-    await item.dblclick();
-    const editor = editorPage.locator(EDITOR);
-    await expect(editor).toBeVisible();
-    await expect(editor.locator('.root-panel > .pcui-panel-header > .pcui-panel-header-title')).toHaveText(`SPRITE EDITOR - ${atlas.name.toUpperCase()}`);
-    await expect(editor.locator('.left-panel')).toBeVisible();
+        await item.dblclick();
+        const editor = editorPage.locator(EDITOR);
+        await expect(editor).toBeVisible();
+        await expect(editor.locator('.root-panel > .pcui-panel-header > .pcui-panel-header-title')).toHaveText(`SPRITE EDITOR - ${atlas.name.toUpperCase()}`);
+        await expect(editor.locator('.left-panel')).toBeVisible();
 
-    await editor.locator('.root-panel > .pcui-panel-header > .close').click();
-    await expect(editor).toBeHidden();
-});
+        await editor.locator('.root-panel > .pcui-panel-header > .close').click();
+        await expect(editor).toBeHidden();
+    });
 
-test('generates frames in the sprite editor and undoes them', async ({ editorPage }) => {
-    test.setTimeout(JOB_TEST_TIMEOUT);
-    const assets = new AssetsPanel(editorPage);
-    const inspector = new Inspector(editorPage);
-    const { atlas, item } = await createAtlas(editorPage);
+    test('generate frames and undo', async ({ editorPage }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
+        const assets = new AssetsPanel(editorPage);
+        const inspector = new Inspector(editorPage);
+        const { atlas, item } = await createAtlas(editorPage);
 
-    await item.dblclick();
-    const editor = editorPage.locator(EDITOR);
-    await expect(editor).toBeVisible();
+        await item.dblclick();
+        const editor = editorPage.locator(EDITOR);
+        await expect(editor).toBeVisible();
 
-    // the right panel is only built once the atlas image has loaded
-    const panel = inspector.panel(editor, 'GENERATE FRAMES');
-    await expect(panel).toBeVisible();
-    // a fresh atlas carries no frames, so the undo below has to empty it again
-    const before = keys(await assets.field(atlas.id, 'data.frames'));
-    expect(before).toEqual([]);
+        // the right panel is only built once the atlas image has loaded
+        const panel = inspector.panel(editor, 'GENERATE FRAMES');
+        await expect(panel).toBeVisible();
+        // a fresh atlas carries no frames, so the undo below has to empty it again
+        const before = keys(await assets.field(atlas.id, 'data.frames'));
+        expect(before).toEqual([]);
 
-    await panel.locator('.pcui-button', { hasText: 'GENERATE FRAMES' }).click();
+        await panel.locator('.pcui-button', { hasText: 'GENERATE FRAMES' }).click();
 
-    await expect.poll(async () => keys(await assets.field(atlas.id, 'data.frames')).length).toBe(before.length + 1);
-    const frames = (await assets.field(atlas.id, 'data.frames')) as Record<string, { rect: number[]; pivot: number[] }>;
-    const added = Object.keys(frames).filter(key => !before.includes(key));
-    expect(added).toHaveLength(1);
+        await expect.poll(async () => keys(await assets.field(atlas.id, 'data.frames')).length).toBe(before.length + 1);
+        const frames = (await assets.field(atlas.id, 'data.frames')) as Record<string, { rect: number[]; pivot: number[] }>;
+        const added = Object.keys(frames).filter(key => !before.includes(key));
+        expect(added).toHaveLength(1);
 
-    // the fixture png is 2x2 and the default grid is one frame covering all of it
-    expect(frames[added[0]].rect).toEqual([0, 0, 2, 2]);
-    expect(frames[added[0]].pivot).toEqual([0.5, 0.5]);
-    expect(await inspector.shell.history()).toMatchObject({ canUndo: true, last: 'slice' });
+        // the fixture png is 2x2 and the default grid is one frame covering all of it
+        expect(frames[added[0]].rect).toEqual([0, 0, 2, 2]);
+        expect(frames[added[0]].pivot).toEqual([0.5, 0.5]);
+        expect(await inspector.shell.history()).toMatchObject({ canUndo: true, last: 'slice' });
 
-    await inspector.shell.undo();
-    await expect.poll(async () => keys(await assets.field(atlas.id, 'data.frames'))).toEqual(before);
+        await inspector.shell.undo();
+        await expect.poll(async () => keys(await assets.field(atlas.id, 'data.frames'))).toEqual(before);
+    });
 });

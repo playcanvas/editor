@@ -36,108 +36,113 @@ const state = (page: Page, id: string): Promise<State> => page.evaluate((g) => {
     };
 }, id);
 
+// the launch page emits `entities:add` for the observer a realtime op lands on, but nothing
+// for the engine entity built from it, which is what these tests assert; the scene graph is
+// the only signal that the op has been applied end to end
 const waitInLaunch = (page: Page, id: string) => page.waitForFunction(
     g => !!(window as any).pc.app.root.findByGuid(g),
     id
 );
 
-test.beforeEach(async ({ editorPage, project, openLaunch }) => {
-    guid = (await addBox(editorPage)).id;
-    launch = await openLaunch(project.sceneId);
-    await waitInLaunch(launch, guid);
-});
+test.describe('hot-reload', { tag: '@gate' }, () => {
+    test.beforeEach(async ({ editorPage, project, openLaunch }) => {
+        guid = (await addBox(editorPage)).id;
+        launch = await openLaunch(project.sceneId);
+        await waitInLaunch(launch, guid);
+    });
 
-test.afterEach(async ({ editorPage }) => {
-    const ids = created.splice(0);
-    await editorPage.evaluate(async (list) => {
-        const entities = window.editor.api.globals.entities;
-        const targets = list.flatMap((id) => {
-            const entity = entities.get(id);
-            return entity ? [entity] : [];
-        });
-        if (targets.length) {
-            await entities.delete(targets, { history: false });
-        }
-    }, ids);
-});
+    test.afterEach(async ({ editorPage }) => {
+        const ids = created.splice(0);
+        await editorPage.evaluate(async (list) => {
+            const entities = window.editor.api.globals.entities;
+            const targets = list.flatMap((id) => {
+                const entity = entities.get(id);
+                return entity ? [entity] : [];
+            });
+            if (targets.length) {
+                await entities.delete(targets, { history: false });
+            }
+        }, ids);
+    });
 
-test('setting a position in the editor moves the launched entity', async ({ editorPage }) => {
-    await editorPage.evaluate((g) => {
-        window.editor.api.globals.entities.get(g)!.set('position', [1, 2, 3]);
-    }, guid);
+    test('sync position', async ({ editorPage }) => {
+        await editorPage.evaluate((g) => {
+            window.editor.api.globals.entities.get(g)!.set('position', [1, 2, 3]);
+        }, guid);
 
-    await launch.waitForFunction((g) => {
-        const p = (window as any).pc.app.root.findByGuid(g)?.getLocalPosition();
-        return !!p && p.x === 1 && p.y === 2 && p.z === 3;
-    }, guid);
+        await launch.waitForFunction((g) => {
+            const p = (window as any).pc.app.root.findByGuid(g)?.getLocalPosition();
+            return !!p && p.x === 1 && p.y === 2 && p.z === 3;
+        }, guid);
 
-    expect((await state(launch, guid))?.pos).toEqual([1, 2, 3]);
-});
+        expect((await state(launch, guid))?.pos).toEqual([1, 2, 3]);
+    });
 
-test('creating an entity in the editor adds it to the launched app', async ({ editorPage }) => {
-    const added = await addBox(editorPage);
+    test('sync entity create', async ({ editorPage }) => {
+        const added = await addBox(editorPage);
 
-    await waitInLaunch(launch, added.id);
+        await waitInLaunch(launch, added.id);
 
-    const live = await state(launch, added.id);
-    expect(live).not.toBeNull();
-    expect(live?.name).toBe(added.name);
-});
+        const live = await state(launch, added.id);
+        expect(live).not.toBeNull();
+        expect(live?.name).toBe(added.name);
+    });
 
-test('deleting an entity in the editor removes it from the launched app', async ({ editorPage }) => {
-    await editorPage.evaluate(async (g) => {
-        const entities = window.editor.api.globals.entities;
-        await entities.delete([entities.get(g)!]);
-    }, guid);
+    test('sync entity delete', async ({ editorPage }) => {
+        await editorPage.evaluate(async (g) => {
+            const entities = window.editor.api.globals.entities;
+            await entities.delete([entities.get(g)!]);
+        }, guid);
 
-    await launch.waitForFunction(g => !(window as any).pc.app.root.findByGuid(g), guid);
+        await launch.waitForFunction(g => !(window as any).pc.app.root.findByGuid(g), guid);
 
-    expect(await state(launch, guid)).toBeNull();
-});
+        expect(await state(launch, guid)).toBeNull();
+    });
 
-test('toggling enabled in the editor mirrors onto the launched entity', async ({ editorPage }) => {
-    const set = (value: boolean) => editorPage.evaluate(({ g, value }) => {
-        window.editor.api.globals.entities.get(g)!.set('enabled', value);
-    }, { g: guid, value });
+    test('sync entity enabled', async ({ editorPage }) => {
+        const set = (value: boolean) => editorPage.evaluate(({ g, value }) => {
+            window.editor.api.globals.entities.get(g)!.set('enabled', value);
+        }, { g: guid, value });
 
-    await set(false);
-    await launch.waitForFunction(g => (window as any).pc.app.root.findByGuid(g)?.enabled === false, guid);
-    expect((await state(launch, guid))?.enabled).toBe(false);
+        await set(false);
+        await launch.waitForFunction(g => (window as any).pc.app.root.findByGuid(g)?.enabled === false, guid);
+        expect((await state(launch, guid))?.enabled).toBe(false);
 
-    await set(true);
-    await launch.waitForFunction(g => (window as any).pc.app.root.findByGuid(g)?.enabled === true, guid);
-    expect((await state(launch, guid))?.enabled).toBe(true);
-});
+        await set(true);
+        await launch.waitForFunction(g => (window as any).pc.app.root.findByGuid(g)?.enabled === true, guid);
+        expect((await state(launch, guid))?.enabled).toBe(true);
+    });
 
-test('renaming in the editor mirrors onto the launched entity', async ({ editorPage }) => {
-    const renamed = uniqueName('renamed');
-    await editorPage.evaluate(({ g, renamed }) => {
-        window.editor.api.globals.entities.get(g)!.set('name', renamed);
-    }, { g: guid, renamed });
+    test('sync entity name', async ({ editorPage }) => {
+        const renamed = uniqueName('renamed');
+        await editorPage.evaluate(({ g, renamed }) => {
+            window.editor.api.globals.entities.get(g)!.set('name', renamed);
+        }, { g: guid, renamed });
 
-    await launch.waitForFunction(
-        ({ g, renamed }) => (window as any).pc.app.root.findByGuid(g)?.name === renamed,
-        { g: guid, renamed }
-    );
+        await launch.waitForFunction(
+            ({ g, renamed }) => (window as any).pc.app.root.findByGuid(g)?.name === renamed,
+            { g: guid, renamed }
+        );
 
-    expect((await state(launch, guid))?.name).toBe(renamed);
-});
+        expect((await state(launch, guid))?.name).toBe(renamed);
+    });
 
-test('toggling the script component enabled flag mirrors onto the launched entity', async ({ editorPage }) => {
-    await editorPage.evaluate((g) => {
-        window.editor.api.globals.entities.get(g)!.addComponent('script');
-    }, guid);
+    test('sync script enabled', async ({ editorPage }) => {
+        await editorPage.evaluate((g) => {
+            window.editor.api.globals.entities.get(g)!.addComponent('script');
+        }, guid);
 
-    await launch.waitForFunction(g => !!(window as any).pc.app.root.findByGuid(g)?.script, guid);
-    expect((await state(launch, guid))?.script).toBe(true);
+        await launch.waitForFunction(g => !!(window as any).pc.app.root.findByGuid(g)?.script, guid);
+        expect((await state(launch, guid))?.script).toBe(true);
 
-    await editorPage.evaluate((g) => {
-        window.editor.api.globals.entities.get(g)!.set('components.script.enabled', false);
-    }, guid);
+        await editorPage.evaluate((g) => {
+            window.editor.api.globals.entities.get(g)!.set('components.script.enabled', false);
+        }, guid);
 
-    await launch.waitForFunction(
-        g => (window as any).pc.app.root.findByGuid(g)?.script?.enabled === false,
-        guid
-    );
-    expect((await state(launch, guid))?.script).toBe(false);
+        await launch.waitForFunction(
+            g => (window as any).pc.app.root.findByGuid(g)?.script?.enabled === false,
+            guid
+        );
+        expect((await state(launch, guid))?.script).toBe(false);
+    });
 });

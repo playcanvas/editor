@@ -65,224 +65,226 @@ const expectActiveGizmo = async (toolbar: Toolbar, type: string) => {
 // the worker project is shared by the whole run, so hand back the scene we were given
 let baseline: string[] = [];
 
-test.beforeEach(async ({ editorPage }) => {
-    await editorPage.setViewportSize(VIEWPORT);
-    await new Toolbar(editorPage).resetCamera();
-    baseline = await new HierarchyPanel(editorPage).ids();
-});
-
-test.afterEach(async ({ editorPage }) => {
-    const hierarchy = new HierarchyPanel(editorPage);
-    const ids = await hierarchy.ids();
-    await hierarchy.remove(ids.filter(id => !baseline.includes(id)));
-});
-
-test('clicking an entity in the viewport selects it and clicking empty space clears it', async ({ editorPage }) => {
-    const toolbar = new Toolbar(editorPage);
-    const hierarchy = new HierarchyPanel(editorPage);
-    const { id } = await makeBox(editorPage, hierarchy, CLEAR_A);
-    await toolbar.render();
-
-    await toolbar.clickViewport(await toolbar.screenPointOf(id));
-
-    // the pick is a GPU render plus a readPixels, which is slow under ANGLE
-    await expect.poll(async () => (await hierarchy.selection()).ids).toEqual([id]);
-
-    await toolbar.clickViewport(await toolbar.emptyPoint());
-
-    await expect.poll(async () => (await hierarchy.selection()).count).toBe(0);
-});
-
-test('Ctrl+click adds to the selection and a Ctrl+drag box replaces it', async ({ editorPage }) => {
-    const toolbar = new Toolbar(editorPage);
-    const hierarchy = new HierarchyPanel(editorPage);
-    const a = await makeBox(editorPage, hierarchy, CLEAR_A);
-    const b = await makeBox(editorPage, hierarchy, CLEAR_B);
-    await toolbar.render();
-
-    const pointA = await toolbar.screenPointOf(a.id);
-    await toolbar.clickViewport(pointA);
-    await expect.poll(async () => (await hierarchy.selection()).ids).toEqual([a.id]);
-
-    await toolbar.clickViewport(await toolbar.screenPointOf(b.id), ['ControlOrMeta']);
-    await expect.poll(async () => [...(await hierarchy.selection()).ids].sort()).toEqual([a.id, b.id].sort());
-
-    // a box that only covers A; it starts far enough out that the gizmo (on the midpoint of
-    // the two boxes) cannot swallow the drag
-    await toolbar.dragViewport(
-        { x: pointA.x - 60, y: pointA.y - 60 },
-        { x: pointA.x + 60, y: pointA.y + 60 },
-        ['ControlOrMeta']
-    );
-
-    await expect.poll(async () => (await hierarchy.selection()).ids).toEqual([a.id]);
-});
-
-test('1, 2, 3 and the toolbar buttons agree on the gizmo type', async ({ editorPage }) => {
-    const toolbar = new Toolbar(editorPage);
-
-    // hotkeys are ignored while an input has focus, so put it back on the page first
-    await toolbar.clickViewport(await toolbar.emptyPoint());
-
-    expect(await toolbar.gizmoType()).toBe('translate');
-    await expectActiveGizmo(toolbar, 'translate');
-
-    for (const [key, type] of [['2', 'rotate'], ['3', 'scale'], ['1', 'translate']]) {
-        await editorPage.keyboard.press(key);
-        await expect.poll(() => toolbar.gizmoType()).toBe(type);
-        await expectActiveGizmo(toolbar, type);
-    }
-
-    await toolbar.button('gizmo-rotate').click();
-
-    await expect.poll(() => toolbar.gizmoType()).toBe('rotate');
-    await expectActiveGizmo(toolbar, 'rotate');
-});
-
-test('L and the World / Local button toggle the gizmo coordinate system', async ({ editorPage }) => {
-    const toolbar = new Toolbar(editorPage);
-    const space = toolbar.button('gizmo-space');
-    await toolbar.clickViewport(await toolbar.emptyPoint());
-
-    expect(await toolbar.coordSystem()).toBe('world');
-    await expect(space).toHaveClass(ACTIVE);
-
-    await editorPage.keyboard.press('l');
-
-    await expect.poll(() => toolbar.coordSystem()).toBe('local');
-    await expect(space).not.toHaveClass(ACTIVE);
-
-    await space.click();
-
-    await expect.poll(() => toolbar.coordSystem()).toBe('world');
-    await expect(space).toHaveClass(ACTIVE);
-});
-
-test('dragging the X translate arrow with snap on moves the entity in whole increments', async ({ editorPage }) => {
-    const toolbar = new Toolbar(editorPage);
-    const hierarchy = new HierarchyPanel(editorPage);
-    const shell = new EditorShell(editorPage);
-    const { id, name } = await makeBox(editorPage, hierarchy);
-
-    await hierarchy.select(name);
-    await toolbar.waitForGizmo();
-    await toolbar.render();
-
-    await toolbar.button('gizmo-snap').click();
-    await expect(toolbar.button('gizmo-snap')).toHaveClass(ACTIVE);
-    const increment = await toolbar.snapIncrement();
-
-    // drag straight out along the screen projection of the arrow, past its tip
-    const centre = await toolbar.screenPointOf(id);
-    const handle = await toolbar.gizmoHandlePoint('x');
-    const length = Math.hypot(handle.x - centre.x, handle.y - centre.y);
-    await toolbar.dragViewport(handle, {
-        x: handle.x + ((handle.x - centre.x) / length) * 150,
-        y: handle.y + ((handle.y - centre.y) / length) * 150
+test.describe('viewport', () => {
+    test.beforeEach(async ({ editorPage }) => {
+        await editorPage.setViewportSize(VIEWPORT);
+        await new Toolbar(editorPage).resetCamera();
+        baseline = await new HierarchyPanel(editorPage).ids();
     });
 
-    await expect.poll(async () => (await toolbar.transform(id)).position[0]).not.toBe(0);
-    const moved = await toolbar.transform(id);
-    const steps = moved.position[0] / increment;
-    expect(Math.abs(steps - Math.round(steps))).toBeLessThan(1e-6);
-    expect(moved.position[1]).toBe(0);
-    expect(moved.position[2]).toBe(0);
-    expect((await shell.history()).last).toBe('entities.translate');
-    await expect(toolbar.status).toHaveText('entities.translate');
+    test.afterEach(async ({ editorPage }) => {
+        const hierarchy = new HierarchyPanel(editorPage);
+        const ids = await hierarchy.ids();
+        await hierarchy.remove(ids.filter(id => !baseline.includes(id)));
+    });
 
-    await shell.undo();
+    test('click select', async ({ editorPage }) => {
+        const toolbar = new Toolbar(editorPage);
+        const hierarchy = new HierarchyPanel(editorPage);
+        const { id } = await makeBox(editorPage, hierarchy, CLEAR_A);
+        await toolbar.render();
 
-    await expect.poll(async () => (await toolbar.transform(id)).position).toEqual([0, 0, 0]);
-});
+        await toolbar.clickViewport(await toolbar.screenPointOf(id));
 
-test('F focuses the camera on the selection and Focus is disabled without one', async ({ editorPage }) => {
-    const toolbar = new Toolbar(editorPage);
-    const hierarchy = new HierarchyPanel(editorPage);
-    const focus = toolbar.button('gizmo-focus');
-    const { name } = await makeBox(editorPage, hierarchy, CLEAR_A);
-    await toolbar.render();
+        // the pick is a GPU render plus a readPixels, which is slow under ANGLE
+        await expect.poll(async () => (await hierarchy.selection()).ids).toEqual([id]);
 
-    await toolbar.clickViewport(await toolbar.emptyPoint());
-    await expect.poll(async () => (await hierarchy.selection()).count).toBe(0);
-    await expect(focus).toHaveClass(DISABLED);
+        await toolbar.clickViewport(await toolbar.emptyPoint());
 
-    await hierarchy.select(name);
-    await expect(focus).not.toHaveClass(DISABLED);
+        await expect.poll(async () => (await hierarchy.selection()).count).toBe(0);
+    });
 
-    await toolbar.watch('camera:focus:end');
-    const before = await toolbar.camera();
-    await editorPage.keyboard.press('f');
+    test('box select', async ({ editorPage }) => {
+        const toolbar = new Toolbar(editorPage);
+        const hierarchy = new HierarchyPanel(editorPage);
+        const a = await makeBox(editorPage, hierarchy, CLEAR_A);
+        const b = await makeBox(editorPage, hierarchy, CLEAR_B);
+        await toolbar.render();
 
-    // focus is a multi frame fly, so wait for the editor to say it finished
-    await expect.poll(() => toolbar.fired('camera:focus:end')).toBeGreaterThan(0);
-    const after = await toolbar.camera();
-    expect(after.name).toBe('perspective');
-    expect(after.position).not.toEqual(before.position);
-});
+        const pointA = await toolbar.screenPointOf(a.id);
+        await toolbar.clickViewport(pointA);
+        await expect.poll(async () => (await hierarchy.selection()).ids).toEqual([a.id]);
 
-test('Space and the expand button hide the hierarchy, assets and inspector panels', async ({ editorPage }) => {
-    const toolbar = new Toolbar(editorPage);
-    await toolbar.clickViewport(await toolbar.emptyPoint());
+        await toolbar.clickViewport(await toolbar.screenPointOf(b.id), ['ControlOrMeta']);
+        await expect.poll(async () => [...(await hierarchy.selection()).ids].sort()).toEqual([a.id, b.id].sort());
 
-    await editorPage.keyboard.press(' ');
+        // a box that only covers A; it starts far enough out that the gizmo (on the midpoint of
+        // the two boxes) cannot swallow the drag
+        await toolbar.dragViewport(
+            { x: pointA.x - 60, y: pointA.y - 60 },
+            { x: pointA.x + 60, y: pointA.y + 60 },
+            ['ControlOrMeta']
+        );
 
-    await expect.poll(() => toolbar.expandState()).toBe(true);
-    await expect(toolbar.panel('hierarchy')).toBeHidden();
-    await expect(toolbar.panel('assets')).toBeHidden();
-    await expect(toolbar.panel('attributes')).toBeHidden();
-    await expect(toolbar.expand).toHaveClass(ACTIVE);
+        await expect.poll(async () => (await hierarchy.selection()).ids).toEqual([a.id]);
+    });
 
-    await editorPage.keyboard.press(' ');
+    test('switch gizmo type', async ({ editorPage }) => {
+        const toolbar = new Toolbar(editorPage);
 
-    await expect.poll(() => toolbar.expandState()).toBe(false);
-    await expect(toolbar.panel('hierarchy')).toBeVisible();
-    await expect(toolbar.expand).not.toHaveClass(ACTIVE);
+        // hotkeys are ignored while an input has focus, so put it back on the page first
+        await toolbar.clickViewport(await toolbar.emptyPoint());
 
-    await toolbar.expand.click();
+        expect(await toolbar.gizmoType()).toBe('translate');
+        await expectActiveGizmo(toolbar, 'translate');
 
-    await expect.poll(() => toolbar.expandState()).toBe(true);
-    await expect(toolbar.panel('attributes')).toBeHidden();
+        for (const [key, type] of [['2', 'rotate'], ['3', 'scale'], ['1', 'translate']]) {
+            await editorPage.keyboard.press(key);
+            await expect.poll(() => toolbar.gizmoType()).toBe(type);
+            await expectActiveGizmo(toolbar, type);
+        }
 
-    await toolbar.expand.click();
+        await toolbar.button('gizmo-rotate').click();
 
-    await expect.poll(() => toolbar.expandState()).toBe(false);
-    await expect(toolbar.panel('assets')).toBeVisible();
-});
+        await expect.poll(() => toolbar.gizmoType()).toBe('rotate');
+        await expectActiveGizmo(toolbar, 'rotate');
+    });
 
-test('the undo and redo buttons mirror the history state', async ({ editorPage }) => {
-    const toolbar = new Toolbar(editorPage);
-    const hierarchy = new HierarchyPanel(editorPage);
-    const shell = new EditorShell(editorPage);
-    const undo = toolbar.button('undo');
-    const redo = toolbar.button('redo');
+    test('toggle gizmo space', async ({ editorPage }) => {
+        const toolbar = new Toolbar(editorPage);
+        const space = toolbar.button('gizmo-space');
+        await toolbar.clickViewport(await toolbar.emptyPoint());
 
-    await toolbar.clearHistory();
+        expect(await toolbar.coordSystem()).toBe('world');
+        await expect(space).toHaveClass(ACTIVE);
 
-    expect(await shell.history()).toMatchObject({ canUndo: false, canRedo: false });
-    await expect(undo).toHaveClass(DISABLED);
-    await expect(redo).toHaveClass(DISABLED);
+        await editorPage.keyboard.press('l');
 
-    const { id } = await makeBox(editorPage, hierarchy);
+        await expect.poll(() => toolbar.coordSystem()).toBe('local');
+        await expect(space).not.toHaveClass(ACTIVE);
 
-    expect((await shell.history()).canUndo).toBe(true);
-    await expect(undo).not.toHaveClass(DISABLED);
-    await expect(redo).toHaveClass(DISABLED);
+        await space.click();
 
-    await deleteEntity(editorPage, id);
-    await hierarchy.waitForAction('delete entities');
+        await expect.poll(() => toolbar.coordSystem()).toBe('world');
+        await expect(space).toHaveClass(ACTIVE);
+    });
 
-    expect(await hierarchy.exists(id)).toBe(false);
-    await expect(undo).not.toHaveClass(DISABLED);
+    test('translate with snap', async ({ editorPage }) => {
+        const toolbar = new Toolbar(editorPage);
+        const hierarchy = new HierarchyPanel(editorPage);
+        const shell = new EditorShell(editorPage);
+        const { id, name } = await makeBox(editorPage, hierarchy);
 
-    await undo.click();
+        await hierarchy.select(name);
+        await toolbar.waitForGizmo();
+        await toolbar.render();
 
-    await expect.poll(() => hierarchy.exists(id)).toBe(true);
-    expect((await shell.history()).canRedo).toBe(true);
-    await expect(redo).not.toHaveClass(DISABLED);
+        await toolbar.button('gizmo-snap').click();
+        await expect(toolbar.button('gizmo-snap')).toHaveClass(ACTIVE);
+        const increment = await toolbar.snapIncrement();
 
-    await redo.click();
+        // drag straight out along the screen projection of the arrow, past its tip
+        const centre = await toolbar.screenPointOf(id);
+        const handle = await toolbar.gizmoHandlePoint('x');
+        const length = Math.hypot(handle.x - centre.x, handle.y - centre.y);
+        await toolbar.dragViewport(handle, {
+            x: handle.x + ((handle.x - centre.x) / length) * 150,
+            y: handle.y + ((handle.y - centre.y) / length) * 150
+        });
 
-    await expect.poll(() => hierarchy.exists(id)).toBe(false);
-    expect(await shell.history()).toMatchObject({ canUndo: true, canRedo: false });
-    await expect(redo).toHaveClass(DISABLED);
+        await expect.poll(async () => (await toolbar.transform(id)).position[0]).not.toBe(0);
+        const moved = await toolbar.transform(id);
+        const steps = moved.position[0] / increment;
+        expect(Math.abs(steps - Math.round(steps))).toBeLessThan(1e-6);
+        expect(moved.position[1]).toBe(0);
+        expect(moved.position[2]).toBe(0);
+        expect((await shell.history()).last).toBe('entities.translate');
+        await expect(toolbar.status).toHaveText('entities.translate');
+
+        await shell.undo();
+
+        await expect.poll(async () => (await toolbar.transform(id)).position).toEqual([0, 0, 0]);
+    });
+
+    test('focus selection', async ({ editorPage }) => {
+        const toolbar = new Toolbar(editorPage);
+        const hierarchy = new HierarchyPanel(editorPage);
+        const focus = toolbar.button('gizmo-focus');
+        const { name } = await makeBox(editorPage, hierarchy, CLEAR_A);
+        await toolbar.render();
+
+        await toolbar.clickViewport(await toolbar.emptyPoint());
+        await expect.poll(async () => (await hierarchy.selection()).count).toBe(0);
+        await expect(focus).toHaveClass(DISABLED);
+
+        await hierarchy.select(name);
+        await expect(focus).not.toHaveClass(DISABLED);
+
+        await toolbar.watch('camera:focus:end');
+        const before = await toolbar.camera();
+        await editorPage.keyboard.press('f');
+
+        // focus is a multi frame fly, so wait for the editor to say it finished
+        await expect.poll(() => toolbar.fired('camera:focus:end')).toBeGreaterThan(0);
+        const after = await toolbar.camera();
+        expect(after.name).toBe('perspective');
+        expect(after.position).not.toEqual(before.position);
+    });
+
+    test('collapse panels', async ({ editorPage }) => {
+        const toolbar = new Toolbar(editorPage);
+        await toolbar.clickViewport(await toolbar.emptyPoint());
+
+        await editorPage.keyboard.press(' ');
+
+        await expect.poll(() => toolbar.expandState()).toBe(true);
+        await expect(toolbar.panel('hierarchy')).toBeHidden();
+        await expect(toolbar.panel('assets')).toBeHidden();
+        await expect(toolbar.panel('attributes')).toBeHidden();
+        await expect(toolbar.expand).toHaveClass(ACTIVE);
+
+        await editorPage.keyboard.press(' ');
+
+        await expect.poll(() => toolbar.expandState()).toBe(false);
+        await expect(toolbar.panel('hierarchy')).toBeVisible();
+        await expect(toolbar.expand).not.toHaveClass(ACTIVE);
+
+        await toolbar.expand.click();
+
+        await expect.poll(() => toolbar.expandState()).toBe(true);
+        await expect(toolbar.panel('attributes')).toBeHidden();
+
+        await toolbar.expand.click();
+
+        await expect.poll(() => toolbar.expandState()).toBe(false);
+        await expect(toolbar.panel('assets')).toBeVisible();
+    });
+
+    test('undo and redo buttons', async ({ editorPage }) => {
+        const toolbar = new Toolbar(editorPage);
+        const hierarchy = new HierarchyPanel(editorPage);
+        const shell = new EditorShell(editorPage);
+        const undo = toolbar.button('undo');
+        const redo = toolbar.button('redo');
+
+        await toolbar.clearHistory();
+
+        expect(await shell.history()).toMatchObject({ canUndo: false, canRedo: false });
+        await expect(undo).toHaveClass(DISABLED);
+        await expect(redo).toHaveClass(DISABLED);
+
+        const { id } = await makeBox(editorPage, hierarchy);
+
+        expect((await shell.history()).canUndo).toBe(true);
+        await expect(undo).not.toHaveClass(DISABLED);
+        await expect(redo).toHaveClass(DISABLED);
+
+        await deleteEntity(editorPage, id);
+        await hierarchy.waitForAction('delete entities');
+
+        expect(await hierarchy.exists(id)).toBe(false);
+        await expect(undo).not.toHaveClass(DISABLED);
+
+        await undo.click();
+
+        await expect.poll(() => hierarchy.exists(id)).toBe(true);
+        expect((await shell.history()).canRedo).toBe(true);
+        await expect(redo).not.toHaveClass(DISABLED);
+
+        await redo.click();
+
+        await expect.poll(() => hierarchy.exists(id)).toBe(false);
+        expect(await shell.history()).toMatchObject({ canUndo: true, canRedo: false });
+        await expect(redo).toHaveClass(DISABLED);
+    });
 });

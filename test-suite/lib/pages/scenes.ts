@@ -1,5 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 
+import { arm } from '../arm';
 import { READY_TIMEOUT } from '../constants';
 import { EditorShell } from './common';
 
@@ -51,31 +52,33 @@ export const deleteScenes = async (page: Page, ids: number[]) => {
 export const sceneId = (page: Page) => page.evaluate(() => Number(window.config.scene.id));
 
 /**
- * Marks the page before an in-page scene switch. `body.editor-ready` is a one-shot latch and
+ * Arms an in-page scene switch away from `from`. `body.editor-ready` is a one-shot latch and
  * `entities:loaded` never returns to false, so a switch has to be awaited through a fresh
- * `entities:load`.
+ * `entities:load`; the realtime doc emits `scene:load` (which sets the config) immediately
+ * before it. The thunk resolves with the id of the scene that loaded.
  */
-export const armSceneLoad = (page: Page) => page.evaluate(() => {
-    const w = window as any;
-    w.__sceneLoad = false;
-    w.__sceneEvt?.unbind();
-    w.__sceneEvt = window.editor.on('entities:load', () => {
-        w.__sceneLoad = true;
-    });
-});
+export const armSceneLoad = (page: Page, from: number) => arm(page, (prev: number) => {
+    return { done: new Promise<number>((resolve) => {
+        const evt = window.editor.on('entities:load', () => {
+            const id = Number(window.config.scene.id);
+            if (!id || id === prev || !window.editor.api.globals.entities.root) {
+                return;
+            }
+            evt.unbind();
+            resolve(id);
+        });
+    }) };
+}, from, { what: 'a scene switch', timeout: READY_TIMEOUT });
 
-/** Waits for the armed switch to land on a scene other than `from` and returns its id. */
-export const waitForSceneSwitch = async (page: Page, from: number) => {
-    await page.waitForFunction((prev) => {
-        const w = window as any;
-        return w.__sceneLoad === true &&
-            !!window.config.scene.id &&
-            Number(window.config.scene.id) !== prev &&
-            window.editor.call('entities:loaded') === true &&
-            !!window.editor.api.globals.entities.root;
-    }, from, { timeout: READY_TIMEOUT });
-    return sceneId(page);
-};
+/** Resolves with the name the next `scene:name` carries; every strip and picker label follows that event. */
+export const armSceneName = (page: Page) => arm(page, () => {
+    return { done: new Promise<string>((resolve) => {
+        const evt = window.editor.on('scene:name', (name: string) => {
+            evt.unbind();
+            resolve(name);
+        });
+    }) };
+}, undefined, { what: 'scene:name', timeout: READY_TIMEOUT });
 
 export class ScenePicker {
     readonly shell: EditorShell;
@@ -95,6 +98,15 @@ export class ScenePicker {
         this.list = this.root.locator('.scene-list');
         this.newButton = this.root.locator('.toolbar .pcui-button.new');
         this.stripButton = page.locator('.control-strip.top-left .control-strip-btn').last();
+    }
+
+    armName() {
+        return armSceneName(this.page);
+    }
+
+    /** Scene name shown on the strip button; the strip moves it into data-full-text when it collapses to icons. */
+    stripName() {
+        return this.stripButton.evaluate(btn => btn.textContent || btn.getAttribute('data-full-text'));
     }
 
     /** Opens the picker from the logo menu (idempotent) and waits for the rows to render. */
@@ -128,11 +140,10 @@ export class ScenePicker {
 
     /** Clicks a row to load its scene in place; resolves with the loaded scene id. */
     async openRow(id: number) {
-        const from = await sceneId(this.page);
         await this.open();
-        await armSceneLoad(this.page);
+        const loaded = await armSceneLoad(this.page, await sceneId(this.page));
         await this.row(id).locator('.name').click();
-        return waitForSceneSwitch(this.page, from);
+        return loaded();
     }
 
     /** Creates a scene through the inline "New Scene" row; resolves with the new scene id. */
@@ -146,8 +157,8 @@ export class ScenePicker {
         // the row opens focused on a prefilled "Untitled", so clear it with real keys
         await input.press('ControlOrMeta+A');
         await input.pressSequentially(name);
-        await armSceneLoad(this.page);
+        const loaded = await armSceneLoad(this.page, from);
         await input.press('Enter');
-        return waitForSceneSwitch(this.page, from);
+        return loaded();
     }
 }

@@ -5,10 +5,9 @@ import type { BrowserContext, Locator, Page } from '@playwright/test';
 
 import {
     checkCookieAccept,
-    createEsmScript,
     createProject,
     deleteProject,
-    deleteProjectsByPrefix
+    deleteProjects
 } from '../../lib/common';
 import { editorBlankUrl, editorSceneUrl, editorUrl } from '../../lib/config';
 import { JOB_TEST_TIMEOUT, JOB_TIMEOUT } from '../../lib/constants';
@@ -20,6 +19,11 @@ import { waitForCodeEditor, waitForEditor, waitForLaunch } from '../../lib/ready
 import { uniqueName } from '../../lib/utils';
 
 const TICKED = /pcui-boolean-input-ticked/;
+
+// the full version/type/device and classic/esm matrices live in test/api/basic.test.ts; these
+// copies exist for the settings, launch-option and builds ui, which one combo exercises
+const LAUNCH_COMBO = { version: 'current', type: 'debug', device: 'webgl2' };
+const BUILD_SCRIPTS = 'classic';
 
 // three .picker-modal-confirmation modals sit in the dom from load, so match the button by name
 // and by role, which never binds a hidden node
@@ -107,9 +111,14 @@ test.describe('export/import', () => {
     });
 
     test.afterAll(async () => {
-        // the import copies the name, so clear both projects by prefix
         test.setTimeout(JOB_TEST_TIMEOUT);
-        await deleteProjectsByPrefix(setup, projectName);
+
+        // the ui can delete either copy; resolve this run's exact name to the surviving ids
+        const ids = await setup.evaluate(async (name) => {
+            const res: any = await window.editor.api.globals.rest.users.userProjects(window.config.self.id, '').promisify();
+            return (res.result ?? []).filter((project: any) => project.name === name).map((project: any) => Number(project.id)) as number[];
+        }, projectName);
+        await deleteProjects(setup, ids);
         await context.close();
     });
 
@@ -242,50 +251,45 @@ test.describe('navigation', () => {
         await expect(shell.labelGroup(settings, 'Enable WebGL 2.0')).toBeVisible();
     });
 
-    for (const version of ['current', 'previous', 'releaseCandidate'] as const) {
-        for (const type of ['debug', 'profiler', 'release'] as const) {
-            for (const device of ['webgpu', 'webgl2'] as const) {
-                test(`goto launcher (version: ${version}, type: ${type}, device: ${device})`, { tag: '@slow' }, async ({ page }) => {
-                    const engine = engineVersions[version];
-                    test.skip(!engine, `no ${version} engine version available`);
+    const { version, type, device } = LAUNCH_COMBO;
+    test(`goto launcher (version: ${version}, type: ${type}, device: ${device})`, { tag: '@slow' }, async ({ page }) => {
+        const engine = engineVersions[version];
+        test.skip(!engine, `no ${version} engine version available`);
 
-                    await openEditor(page);
-                    const shell = new EditorShell(page);
-                    const settings = await openSettings(page, shell);
+        await openEditor(page);
+        const shell = new EditorShell(page);
+        const settings = await openSettings(page, shell);
 
-                    // select version
-                    const select = settings.locator('.settings-engine-version');
-                    await select.locator('.pcui-select-input-value').click();
-                    await select.locator(`.pcui-select-input-list [id="${version}"]`).click();
+        // select version
+        const select = settings.locator('.settings-engine-version');
+        await select.locator('.pcui-select-input-value').click();
+        await select.locator(`.pcui-select-input-list [id="${version}"]`).click();
 
-                    // select device — the launch button follows the project device order
-                    await setTick(shell.labelGroup(settings, webgpuLabel).locator('.pcui-boolean-input'), device === 'webgpu');
-                    await setTick(shell.labelGroup(settings, 'Enable WebGL 2.0').locator('.pcui-boolean-input'), device === 'webgl2');
+        // select device — the launch button follows the project device order
+        await setTick(shell.labelGroup(settings, webgpuLabel).locator('.pcui-boolean-input'), device === 'webgpu');
+        await setTick(shell.labelGroup(settings, 'Enable WebGL 2.0').locator('.pcui-boolean-input'), device === 'webgl2');
 
-                    // select type — the launch options reveal on hover
-                    const launch = page.locator('.control-strip.top-right > .launch > .control-strip-btn');
-                    await launch.hover();
-                    await setTick(page.locator('.launch-option-debug .pcui-boolean-input'), type === 'debug');
-                    await setTick(page.locator('.launch-option-profiler .pcui-boolean-input'), type === 'profiler');
+        // select type — the launch options reveal on hover
+        const launch = page.locator('.control-strip.top-right > .launch > .control-strip-btn');
+        await launch.hover();
+        await setTick(page.locator('.launch-option-debug .pcui-boolean-input'), type === 'debug');
+        await setTick(page.locator('.launch-option-profiler .pcui-boolean-input'), type === 'profiler');
 
-                    // launch page
-                    const [launchPage] = await Promise.all([
-                        page.waitForEvent('popup'),
-                        launch.click()
-                    ]);
-                    await waitForLaunch(launchPage);
+        // launch page
+        const [launchPage] = await Promise.all([
+            page.waitForEvent('popup'),
+            launch.click()
+        ]);
+        await waitForLaunch(launchPage);
 
-                    const url = new URL(launchPage.url());
-                    expect(url.pathname).toContain(String(sceneId));
-                    expect(url.searchParams.get('debug')).toBe(type === 'debug' ? 'true' : null);
-                    expect(url.searchParams.get('profile')).toBe(type === 'profiler' ? 'true' : null);
-                    expect(url.searchParams.get('version')).toBe(version === 'current' ? null : engine.version);
-                    expect(await launchPage.evaluate(() => (window as any).pc.app.graphicsDevice.deviceType)).toBe(device);
-                    await launchPage.close();
-                });
-            }
-        }
-    }
+        const url = new URL(launchPage.url());
+        expect(url.pathname).toContain(String(sceneId));
+        expect(url.searchParams.get('debug')).toBe(type === 'debug' ? 'true' : null);
+        expect(url.searchParams.get('profile')).toBe(type === 'profiler' ? 'true' : null);
+        expect(url.searchParams.get('version')).toBe(version === 'current' ? null : engine.version);
+        expect(await launchPage.evaluate(() => (window as any).pc.app.graphicsDevice.deviceType)).toBe(device);
+        await launchPage.close();
+    });
 });
 
 test.describe('publish/download', () => {
@@ -328,56 +332,44 @@ test.describe('publish/download', () => {
         expect(await page.evaluate(() => window.config.project.id)).toBe(projectId);
     });
 
-    for (const scripts of ['classic', 'esm'] as const) {
-        if (scripts === 'esm') {
-            test('create ESM script', async ({ page }) => {
-                test.setTimeout(JOB_TEST_TIMEOUT);
-                await open(page);
+    test(`download app (scripts: ${BUILD_SCRIPTS})`, async ({ page }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
+        await open(page);
 
-                const assetId = await createEsmScript(page, 'test-esm.mjs');
-                expect(assetId).toBeGreaterThan(0);
-            });
-        }
+        await openBuilds(page);
+        await startBuild(page, 'download');
 
-        test(`download app (scripts: ${scripts})`, async ({ page }) => {
-            test.setTimeout(JOB_TEST_TIMEOUT);
-            await open(page);
+        // download artifact link
+        const downloadPagePromise = page.waitForEvent('popup');
+        const downloadPromise = page.waitForEvent('download');
+        await buildArtifact(page, 'download').click();
+        await downloadPagePromise;
+        const download = await downloadPromise;
+        expect(download.suggestedFilename()).toMatch(/\.zip$/);
 
-            await openBuilds(page);
-            await startBuild(page, 'download');
+        // delete the build so a rerun starts with an empty download history
+        await deleteBuild(page, 'download');
+        await closeBuilds(page);
+    });
 
-            // download artifact link
-            const downloadPagePromise = page.waitForEvent('popup');
-            const downloadPromise = page.waitForEvent('download');
-            await buildArtifact(page, 'download').click();
-            await downloadPagePromise;
-            const download = await downloadPromise;
-            expect(download.suggestedFilename()).toMatch(/\.zip$/);
+    test(`publish app (scripts: ${BUILD_SCRIPTS})`, async ({ page }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
+        await open(page);
 
-            // delete build so the next iteration starts with an empty download history
-            await deleteBuild(page, 'download');
-            await closeBuilds(page);
-        });
+        await openBuilds(page);
+        await startBuild(page, 'publish');
 
-        test(`publish app (scripts: ${scripts})`, async ({ page }) => {
-            test.setTimeout(JOB_TEST_TIMEOUT);
-            await open(page);
+        // launch app
+        const [appPage] = await Promise.all([
+            page.waitForEvent('popup'),
+            buildArtifact(page, 'publish').click()
+        ]);
+        await appPage.waitForLoadState();
+        expect(appPage.url()).toMatch(/\/b\//);
+        await appPage.close();
 
-            await openBuilds(page);
-            await startBuild(page, 'publish');
-
-            // launch app
-            const [appPage] = await Promise.all([
-                page.waitForEvent('popup'),
-                buildArtifact(page, 'publish').click()
-            ]);
-            await appPage.waitForLoadState();
-            expect(appPage.url()).toMatch(/\/b\//);
-            await appPage.close();
-
-            // delete app
-            await deleteBuild(page, 'publish');
-            await closeBuilds(page);
-        });
-    }
+        // delete app
+        await deleteBuild(page, 'publish');
+        await closeBuilds(page);
+    });
 });

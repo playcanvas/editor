@@ -1,5 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
 
+import { arm } from '../arm';
+
 type Point = { x: number; y: number };
 type Modifier = 'Alt' | 'Control' | 'ControlOrMeta' | 'Meta' | 'Shift';
 
@@ -136,6 +138,8 @@ export class Toolbar {
 
     /** Waits for the gizmo of the current type to be attached to the selection. */
     async waitForGizmo() {
+        // the gizmos are rebuilt from the viewport render loop and nothing is emitted when one
+        // attaches, so the scene graph is the only signal
         await this.page.waitForFunction(() => {
             const app = window.editor.call('viewport:app') as any;
             return !!app?.root.findByName(`gizmo:${window.editor.call('gizmo:type')}`)?.enabled;
@@ -218,16 +222,33 @@ export class Toolbar {
     // the editor resizes the canvas from a 60fps timer, so after a window resize the element
     // lags the layout; every coordinate here has to come from the size it settles on
     private async canvasBox() {
-        await this.page.waitForFunction(() => {
-            const canvas = document.getElementById('canvas-3d');
-            const container = document.getElementById('layout-viewport');
-            if (!canvas || !container) {
-                return false;
+        const sized = await arm(this.page, () => {
+            const fits = () => {
+                const canvas = document.getElementById('canvas-3d');
+                const container = document.getElementById('layout-viewport');
+                if (!canvas || !container) {
+                    return false;
+                }
+                const rect = container.getBoundingClientRect();
+                return canvas.style.width === `${Math.floor(rect.width)}px` &&
+                    canvas.style.height === `${Math.floor(rect.height)}px`;
+            };
+            if (fits()) {
+                return { done: Promise.resolve() };
             }
-            const rect = container.getBoundingClientRect();
-            return canvas.style.width === `${Math.floor(rect.width)}px` &&
-                canvas.style.height === `${Math.floor(rect.height)}px`;
+
+            // viewport:resize is emitted from the canvas resize itself, after the style landed
+            return { done: new Promise<void>((resolve) => {
+                const evt = window.editor.on('viewport:resize', () => {
+                    if (!fits()) {
+                        return;
+                    }
+                    evt.unbind();
+                    resolve();
+                });
+            }) };
         });
+        await sized();
         const box = await this.canvas.boundingBox();
         if (!box) {
             throw new Error('the viewport canvas is not visible');

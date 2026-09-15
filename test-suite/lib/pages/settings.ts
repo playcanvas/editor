@@ -120,9 +120,15 @@ export class SettingsDialog {
         }, [path, value] as [string, unknown]);
     }
 
-    /** Session settings are in-memory only; nothing to restore across a reload. */
+    /** Session settings are in-memory, but the worker's editor page outlives every test. */
     sessionSetting(path: string) {
         return this.page.evaluate(p => (window.editor.call('settings:session') as any).get(p), path);
+    }
+
+    setSessionSetting(path: string, value: unknown) {
+        return this.page.evaluate(([p, v]) => {
+            (window.editor.call('settings:session') as any).set(p as string, v);
+        }, [path, value] as [string, unknown]);
     }
 
     engineVersions() {

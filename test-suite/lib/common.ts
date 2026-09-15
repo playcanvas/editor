@@ -1,6 +1,8 @@
 import { type Page } from '@playwright/test';
 
-import { JOB_TIMEOUT } from './constants';
+import { arm } from './arm';
+import { JOB_TIMEOUT, STALE_PROJECT_AGE, WORKER_INIT_TIMEOUT } from './constants';
+import { RUN_ID } from './utils';
 
 export interface EsmBuildOptions {
     scripts_concatenate?: boolean;
@@ -118,17 +120,43 @@ export const deleteProject = async (page: Page, projectId: number) => {
     }, projectId);
 };
 
+/** Deletes owned ids that still exist, including after a partially completed test. */
+export const deleteProjects = async (page: Page, ids: number[]) => {
+    const live = await page.evaluate(async () => {
+        const res: any = await window.editor.api.globals.rest.users.userProjects(window.config.self.id, '').promisify();
+        return (res.result ?? []).map((project: any) => Number(project.id)) as number[];
+    });
+    for (const id of new Set(ids)) {
+        if (live.includes(id)) {
+            await deleteProject(page, id);
+        }
+    }
+};
+
 /**
- * Delete every project of the current user whose name starts with the given prefix.
+ * Delete the leftovers of earlier runs: the current user's projects whose name starts with the
+ * given prefix, were not created by this run, and are older than `STALE_PROJECT_AGE`. A run in
+ * flight beside this one owns projects that are both younger than the threshold and stamped with
+ * a different run id, so it keeps them.
  *
  * @param page - The page.
  * @param prefix - The project name prefix.
  */
 export const deleteProjectsByPrefix = async (page: Page, prefix: string) => {
-    const projects = await page.evaluate(async (prefix) => {
+    const projects = await page.evaluate(async ({ prefix, runId, maxAge }) => {
         const res: any = await window.editor.api.globals.rest.users.userProjects(window.config.self.id, '').promisify();
-        return (res.result ?? []).filter((project: any) => project.name?.startsWith(prefix)) as { id: number }[];
-    }, prefix);
+        return (res.result ?? []).filter((project: any) => {
+            if (!project.name?.startsWith(prefix) || project.name.includes(runId)) {
+                return false;
+            }
+
+            // the api serves a naive utc stamp, which Date otherwise reads as local time; an
+            // unreadable one is left alone, since the age is what proves the project is dead
+            const stamp = String(project.created ?? '');
+            const created = Date.parse(/(?:Z|[+-]\d\d:?\d\d)$/.test(stamp) ? stamp : `${stamp}Z`);
+            return !Number.isNaN(created) && Date.now() - created > maxAge;
+        }) as { id: number; name: string }[];
+    }, { prefix, runId: RUN_ID, maxAge: STALE_PROJECT_AGE });
     for (const project of projects) {
         await deleteProject(page, project.id);
     }
@@ -456,6 +484,23 @@ export const deleteApp = async (page: Page, appId: number) => {
 };
 
 /**
+ * Waits for the esm parse path. It is registered from the script worker's init callback, and
+ * a Caller.call for a missing method is dropped silently, so a script created before then never
+ * gets parsed and createScript hangs. The registration ends with `scripts:parser:ready`.
+ */
+export const waitForParser = async (page: Page) => {
+    const ready = await arm(page, () => {
+        if ((window.editor as any).methods.has('scripts:handleParse')) {
+            return { done: Promise.resolve() };
+        }
+        return { done: new Promise<void>((resolve) => {
+            window.editor.once('scripts:parser:ready', () => resolve());
+        }) };
+    }, undefined, { what: 'the script parser worker', timeout: WORKER_INIT_TIMEOUT });
+    await ready();
+};
+
+/**
  * Create an ESM script asset.
  *
  * @param page - The page.
@@ -466,7 +511,8 @@ export const deleteApp = async (page: Page, appId: number) => {
 export const createEsmScript = async (page: Page, filename: string, text?: string, attempts = 3): Promise<number> => {
     let lastError = '';
     for (let attempt = 0; attempt < attempts; attempt++) {
-        const result = await page.evaluate(async ({ filename, text }) => {
+        await waitForParser(page);
+        const result = await page.evaluate(({ filename, text }) => {
             const assets = window.editor.api.globals.assets;
 
             // reuse a script left by a prior partial attempt — the upload succeeds even
@@ -474,16 +520,6 @@ export const createEsmScript = async (page: Page, filename: string, text?: strin
             const existing = assets.list().find((a: any) => a.get('type') === 'script' && a.get('name') === filename && a.get('file'));
             if (existing) {
                 return { id: existing.get('id') as number };
-            }
-
-            // the ESM parse path (scripts:handleParse) is registered only after the
-            // script worker finishes init; creating a script before then drops the
-            // parse silently and createScript hangs. wait for it to be ready first.
-            const methods = (window.editor as any).methods as Map<string, unknown>;
-            for (let i = 0; i < 200 && !methods.has('scripts:handleParse'); i++) {
-                await new Promise<void>((resolve) => {
-                    setTimeout(resolve, 50);
-                });
             }
 
             return assets.createScript({ filename, text }).then(async (asset: any) => {

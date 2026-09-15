@@ -20,6 +20,8 @@ export const armReload = (page: Page) => page.evaluate(() => {
 });
 
 export const waitReload = async (page: Page) => {
+    // a reload replaces the page, so no in-page subscription survives it; the mark going
+    // missing is the only signal that the new document is the one running
     await page.waitForFunction(() => {
         const w = window as any;
         return w.__vcReload === undefined && !!w.editor?.api?.globals?.branchId;
