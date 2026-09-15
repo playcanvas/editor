@@ -8,7 +8,7 @@ import { uniqueName } from '../../lib/utils';
 // the worker project is shared by the whole run, so hand back what we were given
 let baseline: ProjectState;
 
-test.describe('inspector', { tag: '@gate' }, () => {
+test.describe('inspector', () => {
     test.beforeEach(async ({ editorPage }) => {
         baseline = await new EditorShell(editorPage).snapshot();
     });

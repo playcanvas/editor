@@ -1,6 +1,6 @@
 import { expect, test } from '../../lib/fixtures';
 
-test.describe('smoke', { tag: '@gate' }, () => {
+test.describe('smoke', () => {
     test('load editor', async ({ editorPage, project }) => {
         await expect(editorPage.locator('#layout-hierarchy')).toBeVisible();
         expect(await editorPage.evaluate(() => window.editor.call('editor:ready'))).toBe(true);

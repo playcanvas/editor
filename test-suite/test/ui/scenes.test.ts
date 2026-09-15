@@ -9,7 +9,7 @@ import { uniqueName } from '../../lib/utils';
 // only the scene the project fixture created
 let extra: number[] = [];
 
-test.describe('scenes', { tag: '@gate' }, () => {
+test.describe('scenes', () => {
     test.beforeEach(() => {
         extra = [];
     });

@@ -3,7 +3,7 @@ import { test as setup } from '@playwright/test';
 import { AUTH_STATES, EMAILS, HOST } from '../lib/config';
 import { middleware } from '../lib/middleware';
 
-setup('user authenticated', async ({ page, browser }, info) => {
+setup('user authenticated', async ({ page, browser }) => {
     await middleware(page.context());
 
     // check if already authenticated by looking for editor title. an unauthenticated request
@@ -28,9 +28,6 @@ setup('user authenticated', async ({ page, browser }, info) => {
 
     if (EMAILS.length && email?.toLowerCase() !== EMAILS[0].toLowerCase()) {
         throw new Error('PC_EMAILS entry 1 does not match its authenticated account');
-    }
-    if (info.config.metadata.release && (AUTH_STATES.length < 2 || EMAILS.length < 2)) {
-        throw new Error('release verification requires two testSuite accounts with matching PC_EMAILS and PC_COOKIE_VALUE lists');
     }
     const ids = new Set([id]);
     for (const [index, state] of AUTH_STATES.slice(1).entries()) {

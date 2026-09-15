@@ -30,8 +30,6 @@
     "start": "tsx src/index.ts",
     "report": "playwright show-report",
     "test": "playwright test",
-    "test:gate": "playwright test --grep @gate --grep-invert @slow",
-    "test:release": "playwright test --config playwright.release.config.mjs",
     "test:clean": "playwright test --config playwright.clean.config.mjs",
     "test:debug": "playwright test --debug ",
     "test:headed": "playwright test --headed",

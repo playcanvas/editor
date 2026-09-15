@@ -22,9 +22,6 @@ import { middleware } from '../../lib/middleware';
 import { waitForCodeEditor, waitForEditor } from '../../lib/ready';
 import { uniqueName } from '../../lib/utils';
 
-// the launcher combo the gate runs; the rest of the matrix is @slow
-const GATE_COMBO = { version: 'current', type: 'release', device: 'webgl2' } as const;
-
 /** ids of every project owned by the current user */
 const projectIds = (page: Page) => page.evaluate(async () => {
     const res: any = await window.editor.api.globals.rest.users.userProjects(window.config.self.id, '').promisify();
@@ -165,9 +162,7 @@ test.describe('navigation', () => {
     for (const version of ['current', 'previous', 'releaseCandidate'] as const) {
         for (const type of ['debug', 'profiler', 'release'] as const) {
             for (const device of ['webgpu', 'webgl2'] as const) {
-                // one combo carries the gate's launcher coverage; the rest of the matrix is @slow
-                const tag = version === GATE_COMBO.version && type === GATE_COMBO.type && device === GATE_COMBO.device ? '@gate' : '@slow';
-                test(`goto launcher (version: ${version}, type: ${type}, device: ${device})`, { tag }, async ({ openLaunch }) => {
+                test(`goto launcher (version: ${version}, type: ${type}, device: ${device})`, async ({ openLaunch }) => {
                     const engine = engineVersions[version];
                     test.skip(!engine, `no ${version} engine version available`);
 

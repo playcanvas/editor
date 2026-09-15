@@ -33,9 +33,6 @@ Run these commands from `test-suite/`:
 
 ```sh
 npm test                         # full E2E suite, including optional capabilities
-npm run test:release             # candidate rollout check; documented skips accepted, retries rejected
-CI=true npm test                 # CI behaviour locally
-npm run test:gate                # faster @gate subset, excluding @slow
 npm test -- test/ui/hierarchy.test.ts # one spec, including authentication
 npm run test:clean               # remove stale test projects
 npm run report                   # open the HTML report
@@ -43,14 +40,10 @@ npm run lint
 npm run type:check
 ```
 
-The fast gate omits script editing, collaboration, permissions, publishing and most launcher
-combinations. Use `test:release` for rollout checks. It requires at least two accounts,
-matching email/cookie lists and the candidate `dist/` with `PC_LOCAL_FRONTEND=true`.
-Intentional skips with reasons are reported separately, including unavailable optional
-engine versions, component flags and store content. It keeps browser
-security and certificate verification enabled and starts its own frontend server; stop
-any existing server on port 3487 first. Filters, shards, unexecuted tests, unexplained
-skips, retries and flaky results cannot pass. At least one non-authentication test must pass.
+`npm test` runs the same full suite locally and in CI, with no automatic retries.
+Failures fail the run; `test.only` and flaky results are rejected. Intentional skips
+remain visible in the reports for unavailable accounts, engine versions, component
+flags and store content. There is no separate gate or release suite.
 
 Each worker uses one account and reuses its Editor page and project. Comma-separated
 cookies in `PC_COOKIE_VALUE` enable additional workers and collaboration tests. Configure
@@ -64,16 +57,14 @@ missing or unreadable creation dates.
 ## Reports and CI
 
 Runs write `playwright-report/` and `test-results/results.json`, including durations,
-retries and skips. CI retries once, captures a retry trace and fails on flaky tests.
-Local runs do not retry and retain failure traces. Video is disabled.
+retries and skips. Local and CI runs retain failure traces and screenshots. Video is disabled.
 
 For overlapping runs, give each a distinct `--output` directory and set separate
 `PLAYWRIGHT_HTML_OUTPUT_DIR` and `PLAYWRIGHT_JSON_OUTPUT_FILE` paths to prevent overwrites.
 
 [Test Suite / CI](../.github/workflows/test-suite-ci.yml) runs lint and types.
-[Test Suite / Run](../.github/workflows/test-suite-run.yml) runs the strict release suite and
-uploads reports for manual and PR-label runs. `test-results/release.json` records the
-candidate hash, suite revision, target hosts, intentional skips and blocking reasons.
+[Test Suite / Run](../.github/workflows/test-suite-run.yml) builds the frontend, runs `npm test`
+and uploads reports for manual and PR-label runs.
 
 The monorepo's `suite:editor` label runs separately through SnapCI. It builds
 `suites/editor` from the published test image pinned to the Editor submodule SHA,

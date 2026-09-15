@@ -19,9 +19,9 @@ export default defineConfig({
     timeout: 2 * 60 * 1000,
     testDir: './test',
     fullyParallel: false, // tests in a file share the worker project fixture
-    forbidOnly: !!process.env.CI,
-    failOnFlakyTests: !!process.env.CI,
-    retries: process.env.CI ? 1 : 0,
+    forbidOnly: true,
+    failOnFlakyTests: true,
+    retries: 0,
     workers: AUTH_STATES.length, // one account per worker
     reporter: [['list'], ['html', { open: 'never' }], ['json', { outputFile: 'test-results/results.json' }]],
     webServer: LOCAL_FRONTEND ? {
@@ -35,7 +35,7 @@ export default defineConfig({
         // trusts it via the keychain); harmless for dev/prod which have valid certs
         ignoreHTTPSErrors: true,
         // shared contexts retain per-test traces; video needs a context per test
-        trace: process.env.CI ? 'on-first-retry' : 'retain-on-failure',
+        trace: 'retain-on-failure',
         video: 'off',
         screenshot: 'only-on-failure'
     },

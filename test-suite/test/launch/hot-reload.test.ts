@@ -60,7 +60,7 @@ const armLaunch = (page: Page, id: string, expected: Partial<NonNullable<State>>
     return { done, dispose: () => app.off('frameend', check) };
 }, { id, expected }, { what: 'Launch to apply the realtime entity state', timeout: READY_TIMEOUT });
 
-test.describe('hot-reload', { tag: '@gate' }, () => {
+test.describe('hot-reload', () => {
     test.beforeEach(async ({ editorPage, project, openLaunch }) => {
         guid = (await addBox(editorPage)).id;
         launch = await openLaunch(project.sceneId);

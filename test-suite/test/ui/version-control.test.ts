@@ -34,7 +34,7 @@ test.describe.configure({
     mode: 'serial'
 });
 
-test.describe('branch/checkpoint/diff/merge', { tag: '@gate' }, () => {
+test.describe('branch/checkpoint/diff/merge', () => {
     const projectName = uniqueName('ui-vc');
     let context: BrowserContext;
     let setup: Page;

@@ -311,7 +311,7 @@ test.describe('navigation', () => {
     });
 
     const { version, type, device } = LAUNCH_COMBO;
-    test(`goto launcher (version: ${version}, type: ${type}, device: ${device})`, { tag: '@slow' }, async ({ page }) => {
+    test(`goto launcher (version: ${version}, type: ${type}, device: ${device})`, async ({ page }) => {
         const engine = engineVersions[version];
         test.skip(!engine, `no ${version} engine version available`);
 

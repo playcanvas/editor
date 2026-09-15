@@ -9,7 +9,7 @@ const RENDER_ICON = '.pcui-treeview-item-icon.component-icon-postfix.type-render
 // the worker project is shared by the whole run, so hand back the scene we were given
 let baseline: string[] = [];
 
-test.describe('hierarchy', { tag: '@gate' }, () => {
+test.describe('hierarchy', () => {
     test.beforeEach(async ({ editorPage }) => {
         baseline = await new HierarchyPanel(editorPage).ids();
     });

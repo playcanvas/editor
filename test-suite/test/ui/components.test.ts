@@ -46,7 +46,7 @@ test.describe('components', () => {
     });
 
     for (const { name, path, flag } of COMPONENTS) {
-        test(`add and remove component (component: ${name})`, { tag: '@gate' }, async ({ editorPage }) => {
+        test(`add and remove component (component: ${name})`, async ({ editorPage }) => {
             if (flag) {
                 const allowed = await editorPage.evaluate(f => !!window.editor.call('users:hasFlag', f), flag);
                 test.skip(!allowed, `needs the ${flag} account flag`);

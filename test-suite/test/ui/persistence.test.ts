@@ -18,7 +18,7 @@ const reload = async (page: Page) => {
 let baseline: ProjectState;
 let extra: number[] = [];
 
-test.describe('persistence', { tag: '@gate' }, () => {
+test.describe('persistence', () => {
     test.beforeEach(async ({ editorPage }) => {
         extra = [];
         baseline = await new EditorShell(editorPage).snapshot();
