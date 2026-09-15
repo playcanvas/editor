@@ -76,12 +76,18 @@ test.describe('realtime', () => {
         baseline = await new HierarchyPanel(editorPage).ids();
     });
 
-    test.afterEach(async ({ editorPage, project }) => {
+    test.afterEach(async ({ editorPage, project, collaborator }) => {
+        const guest = guestId;
+        guestId = null;
+
+        // finish guest sessions before cleanup can invalidate in-flight subscriptions
+        await Promise.all((collaborator?.pages() ?? []).map(page => page.close()));
+        if (guest !== null) {
+            await expect(editorPage.locator(`${WHOIS}[style*="/users/${guest}/"]`)).toHaveCount(0);
+        }
         const hierarchy = new HierarchyPanel(editorPage);
         const ids = await hierarchy.ids();
         await hierarchy.remove(ids.filter(id => !baseline.includes(id)));
-        const guest = guestId;
-        guestId = null;
         if (guest !== null) {
             await revoke(editorPage, project.id, guest);
         }

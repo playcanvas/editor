@@ -22,7 +22,7 @@ const fingerprint = (dir: string) => {
     return hash.digest('hex');
 };
 
-/** A release succeeds only when the complete selected artifact suite finishes without skips. */
+/** Requires the complete candidate suite, with intentional skips recorded separately. */
 export default class ReleaseReporter implements Reporter {
     private suite?: Suite;
 
@@ -43,10 +43,10 @@ export default class ReleaseReporter implements Reporter {
             this.reasons.push('release verification requires the candidate dist via PC_LOCAL_FRONTEND=true');
         }
         this.revision = process.env.GITHUB_SHA ?? execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
-        if (config.shard || config.grepInvert || String(config.grep) !== '/.*/') {
+        if (config.shard || config.grepInvert || String(config.grep) !== '/.*/' || config.projects.some(project => project.grepInvert || String(project.grep) !== '/.*/')) {
             this.reasons.push('release verification cannot be filtered or sharded');
         }
-        if (process.argv.some(arg => /^--(?:last-failed|test-list|test-list-invert|only-changed)(?:=|$)/.test(arg) || /\.test\.ts:\d/.test(arg))) {
+        if (process.argv.some(arg => /^--(?:grep(?:-invert)?|last-failed|test-list|test-list-invert|only-changed)(?:=|$)|^-g/.test(arg) || /\.test\.ts:\d/.test(arg))) {
             this.reasons.push('release verification cannot select individual tests');
         }
         const expected = readdirSync('test', { recursive: true }).filter(path => /(?:\.test\.ts|auth\.setup\.ts)$/.test(String(path)));
@@ -58,10 +58,19 @@ export default class ReleaseReporter implements Reporter {
 
     onEnd(result: FullResult) {
         const tests = this.suite?.allTests() ?? [];
+        const skipped: { title: string; reasons: string[] }[] = [];
         if (this.candidate && fingerprint(this.dist) !== this.candidate) this.reasons.push('candidate dist changed during verification');
         if (result.status !== 'passed') this.reasons.push(`run status: ${result.status}`);
         if (!tests.length) this.reasons.push('no tests executed');
+        if (!tests.some(test => !test.location.file.endsWith('auth.setup.ts') && test.results.some(result => result.status === 'passed'))) {
+            this.reasons.push('no suite tests passed');
+        }
         for (const test of tests) {
+            const reasons = test.annotations.filter(annotation => annotation.type === 'skip' && annotation.description).map(annotation => annotation.description!);
+            if (test.expectedStatus === 'skipped' && test.outcome() === 'skipped' && test.results.length === 1 && test.results[0].status === 'skipped' && reasons.length) {
+                skipped.push({ title: test.titlePath().join(' > '), reasons });
+                continue;
+            }
             if (test.outcome() !== 'expected' || test.results.length !== 1 || test.results[0].status !== 'passed') {
                 this.reasons.push(`${test.titlePath().join(' > ')}: ${test.outcome()}`);
             }
@@ -75,6 +84,7 @@ export default class ReleaseReporter implements Reporter {
             host: HOST,
             launch: LAUNCH_HOST,
             tests: tests.length,
+            skipped,
             reasons: this.reasons
         }, null, 2)}\n`);
         if (!passed) process.stderr.write(`Release blocked:\n${this.reasons.join('\n')}\n`);

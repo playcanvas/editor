@@ -9,6 +9,7 @@ import { waitForEditor } from '../../lib/ready';
 import { uniqueName } from '../../lib/utils';
 
 const ATTRIBUTES = '#layout-attributes';
+const WHOIS = '.control-strip.bottom-left .whoisonline-user';
 const DISABLED = /pcui-disabled/;
 const SKIP = 'needs a second testSuite account cookie';
 
@@ -87,11 +88,17 @@ test.describe('permissions', () => {
         baseline = await new HierarchyPanel(editorPage).ids();
     });
 
-    test.afterEach(async ({ editorPage, project }) => {
-        const hierarchy = new HierarchyPanel(editorPage);
-        await hierarchy.remove((await hierarchy.ids()).filter(id => !baseline.includes(id)));
+    test.afterEach(async ({ editorPage, project, collaborator }) => {
         const guest = guestId;
         guestId = null;
+
+        // finish guest sessions before cleanup can invalidate in-flight subscriptions
+        await Promise.all((collaborator?.pages() ?? []).map(page => page.close()));
+        if (guest !== null) {
+            await expect(editorPage.locator(`${WHOIS}[style*="/users/${guest}/"]`)).toHaveCount(0);
+        }
+        const hierarchy = new HierarchyPanel(editorPage);
+        await hierarchy.remove((await hierarchy.ids()).filter(id => !baseline.includes(id)));
         if (guest !== null) {
             await revoke(editorPage, project.id, guest);
         }

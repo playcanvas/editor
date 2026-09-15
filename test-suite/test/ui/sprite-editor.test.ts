@@ -12,6 +12,7 @@ import { uniqueName } from '../../lib/utils';
 
 const PNG = readFileSync(new URL('../fixtures/files/test.png', import.meta.url));
 const EDITOR = '#sprite-editor';
+const GRIDS = ['Frame Count', 'Frame Size'];
 
 const keys = (data: unknown) => Object.keys((data ?? {}) as Record<string, unknown>);
 
@@ -68,65 +69,75 @@ test.describe('sprite-editor', () => {
         await expect(editor).toBeHidden();
     });
 
-    test('generate frames and undo', async ({ editorPage }) => {
-        test.setTimeout(JOB_TEST_TIMEOUT);
-        const assets = new AssetsPanel(editorPage);
-        const inspector = new Inspector(editorPage);
-        const { atlas, item } = await createAtlas(editorPage);
+    for (const grid of GRIDS) {
+        test(`generate frames and undo (${grid})`, async ({ editorPage }) => {
+            test.setTimeout(JOB_TEST_TIMEOUT);
+            const assets = new AssetsPanel(editorPage);
+            const inspector = new Inspector(editorPage);
+            const { atlas, item } = await createAtlas(editorPage);
 
-        await item.dblclick();
-        const editor = editorPage.locator(EDITOR);
-        await expect(editor).toBeVisible();
+            await item.dblclick();
+            const editor = editorPage.locator(EDITOR);
+            await expect(editor).toBeVisible();
 
-        // the right panel is only built once the atlas image has loaded
-        const panel = inspector.panel(editor, 'GENERATE FRAMES');
-        await expect(panel).toBeVisible();
-        // a fresh atlas carries no frames, so the undo below has to empty it again
-        const before = keys(await assets.field(atlas.id, 'data.frames'));
-        expect(before).toEqual([]);
+            // the right panel is only built once the atlas image has loaded
+            const panel = inspector.panel(editor, 'GENERATE FRAMES');
+            await expect(panel).toBeVisible();
+            await inspector.setSelect(panel, 'Type', `Grid By ${grid}`);
 
-        const generated = await inspector.shell.arm((id: number) => {
-            const asset = window.editor.api.globals.assets.get(id);
-            if (!asset) {
-                throw new Error(`atlas ${id} is missing`);
+            // a fresh atlas carries no frames, so the undo below has to empty it again
+            const before = keys(await assets.field(atlas.id, 'data.frames'));
+            expect(before).toEqual([]);
+
+            const generated = await inspector.shell.arm((id: number) => {
+                const asset = window.editor.api.globals.assets.get(id);
+                if (!asset) {
+                    throw new Error(`atlas ${id} is missing`);
+                }
+                return { done: new Promise<void>((resolve) => {
+                    const evt = asset.on('data.frames:set', () => {
+                        evt.unbind();
+                        resolve();
+                    });
+                }) };
+            }, atlas.id);
+            await panel.locator('.pcui-button', { hasText: 'GENERATE FRAMES' }).click();
+            await generated();
+            const frames = (await assets.field(atlas.id, 'data.frames')) as Record<string, { rect: number[]; pivot: number[] }>;
+            const added = Object.keys(frames).filter(key => !before.includes(key));
+            expect(added).toHaveLength(1);
+
+            // the fixture png is 2x2 and the default grid is one frame covering all of it
+            expect(frames[added[0]].rect).toEqual([0, 0, 2, 2]);
+            expect(frames[added[0]].pivot).toEqual([0.5, 0.5]);
+            expect(await inspector.shell.history()).toMatchObject({ canUndo: true, last: 'slice' });
+
+            for (let i = 0; i < 2; i++) {
+                const undone = await assets.armField(atlas.id, 'data.frames', {});
+                await inspector.shell.undo();
+                await undone();
+                expect(keys(await assets.field(atlas.id, 'data.frames'))).toEqual(before);
+                expect(await inspector.shell.history()).toMatchObject({ canRedo: true });
+
+                // redo must restore the snapshot, not slice again using these controls
+                await inspector.setVector(panel, grid, grid === 'Frame Count' ? [2, 1] : [1, 2]);
+                await inspector.setSelect(panel, 'Pivot', 'Top Left');
+
+                const redone = await inspector.shell.arm((id: number) => ({ done: new Promise<void>((resolve) => {
+                    window.editor.api.globals.assets.get(id)!.once('data.frames:set', () => resolve());
+                }) }), atlas.id);
+                await inspector.shell.redo();
+                await redone();
+                expect(await assets.field(atlas.id, 'data.frames')).toEqual(frames);
             }
-            return { done: new Promise<void>((resolve) => {
-                const evt = asset.on('data.frames:set', () => {
-                    evt.unbind();
-                    resolve();
-                });
-            }) };
-        }, atlas.id);
-        await panel.locator('.pcui-button', { hasText: 'GENERATE FRAMES' }).click();
-        await generated();
-        const frames = (await assets.field(atlas.id, 'data.frames')) as Record<string, { rect: number[]; pivot: number[] }>;
-        const added = Object.keys(frames).filter(key => !before.includes(key));
-        expect(added).toHaveLength(1);
-
-        // the fixture png is 2x2 and the default grid is one frame covering all of it
-        expect(frames[added[0]].rect).toEqual([0, 0, 2, 2]);
-        expect(frames[added[0]].pivot).toEqual([0.5, 0.5]);
-        expect(await inspector.shell.history()).toMatchObject({ canUndo: true, last: 'slice' });
-
-        const undone = await assets.armField(atlas.id, 'data.frames', {});
-        await inspector.shell.undo();
-        await undone();
-        expect(keys(await assets.field(atlas.id, 'data.frames'))).toEqual(before);
-        expect(await inspector.shell.history()).toMatchObject({ canRedo: true });
-
-        const redone = await inspector.shell.arm((id: number) => ({ done: new Promise<void>((resolve) => {
-            window.editor.api.globals.assets.get(id)!.once('data.frames:set', () => resolve());
-        }) }), atlas.id);
-        await inspector.shell.redo();
-        await redone();
-        expect(await assets.field(atlas.id, 'data.frames')).toEqual(frames);
-        await editor.locator('.root-panel > .pcui-panel-header > .close').click();
-        await assets.flush(atlas.id);
-        await editorPage.reload();
-        await waitForEditor(editorPage);
-        expect(await assets.field(atlas.id, 'data.frames')).toEqual(frames);
-        await item.dblclick();
-        await expect(editor).toBeVisible();
-        await expect(editor.locator('.left-panel .frame')).toHaveCount(1);
-    });
+            await editor.locator('.root-panel > .pcui-panel-header > .close').click();
+            await assets.flush(atlas.id);
+            await editorPage.reload();
+            await waitForEditor(editorPage);
+            expect(await assets.field(atlas.id, 'data.frames')).toEqual(frames);
+            await item.dblclick();
+            await expect(editor).toBeVisible();
+            await expect(editor.locator('.left-panel .frame')).toHaveCount(1);
+        });
+    }
 });

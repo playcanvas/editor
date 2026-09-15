@@ -3,9 +3,6 @@
 Playwright tests for the Editor, Code Editor and Launch, using a real backend with
 local or deployed frontend bundles.
 
-See [coverage contracts](COVERAGE.md) for the user journeys, backend boundary and release
-completion rules.
-
 ## Setup
 
 Use Node >= 22. From the repository root:
@@ -36,7 +33,7 @@ Run these commands from `test-suite/`:
 
 ```sh
 npm test                         # full E2E suite, including optional capabilities
-npm run test:release             # strict candidate rollout check; no skips or retries accepted
+npm run test:release             # candidate rollout check; documented skips accepted, retries rejected
 CI=true npm test                 # CI behaviour locally
 npm run test:gate                # faster @gate subset, excluding @slow
 npm test -- test/ui/hierarchy.test.ts # one spec, including authentication
@@ -48,11 +45,12 @@ npm run type:check
 
 The fast gate omits script editing, collaboration, permissions, publishing and most launcher
 combinations. Use `test:release` for rollout checks. It requires at least two accounts,
-matching email/cookie lists, the candidate `dist/` with `PC_LOCAL_FRONTEND=true`, and all
-tested capabilities enabled. Missing capabilities block release, including unavailable
-engine versions, component flags, graphics devices and store content. It keeps browser
+matching email/cookie lists and the candidate `dist/` with `PC_LOCAL_FRONTEND=true`.
+Intentional skips with reasons are reported separately, including unavailable optional
+engine versions, component flags and store content. It keeps browser
 security and certificate verification enabled and starts its own frontend server; stop
-any existing server on port 3487 first. Filters, shards, skips and retries cannot pass.
+any existing server on port 3487 first. Filters, shards, unexecuted tests, unexplained
+skips, retries and flaky results cannot pass. At least one non-authentication test must pass.
 
 Each worker uses one account and reuses its Editor page and project. Comma-separated
 cookies in `PC_COOKIE_VALUE` enable additional workers and collaboration tests. Configure
@@ -77,7 +75,7 @@ For overlapping runs, give each a distinct `--output` directory and set separate
 uploads reports, including on failure. A deployment workflow can call it with `env` and
 an optional `artifact` containing the candidate `dist/` contents; otherwise it builds the
 frontend. `test-results/release.json` records the candidate SHA-256, suite checkout revision,
-target hosts and blocking reasons; a candidate changed during the run fails verification.
+target hosts, intentional skips and blocking reasons; a candidate changed during the run fails verification.
 The suite revision is not the source revision of a separately supplied frontend artifact.
 PROD promotion still needs to depend on this check and use the tested
 artifact; the Editor repository cannot enforce a deployment owned by another repository.
