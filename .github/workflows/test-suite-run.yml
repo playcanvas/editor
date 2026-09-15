@@ -1,16 +1,6 @@
 name: Test Suite / Run
 
 on:
-    workflow_call:
-        inputs:
-            env:
-                description: 'Environment to run tests against'
-                required: true
-                type: string
-            artifact:
-                description: 'Built frontend artifact from the calling workflow'
-                default: ''
-                type: string
     pull_request:
         branches: [main]
         types: [labeled]
@@ -31,7 +21,7 @@ jobs:
         runs-on: ubuntu-latest
         environment:
             name: ${{ inputs.env || 'dev' }}
-        if: "${{ github.repository == 'playcanvas/editor' && (inputs.env != '' || (github.event.label.name == 'run: test-suite' && github.actor == 'kpal81xd')) }}"
+        if: "${{ github.repository == 'playcanvas/editor' && ((github.event.label.name == 'run: test-suite' && github.actor == 'kpal81xd') || github.event_name == 'workflow_dispatch') }}"
         steps:
             - name: Checkout code
               uses: actions/checkout@v7
@@ -59,15 +49,7 @@ jobs:
               working-directory: test-suite
               run: npx playwright install --with-deps chromium
 
-            - name: Download candidate frontend
-              if: inputs.artifact != ''
-              uses: actions/download-artifact@v7
-              with:
-                  name: ${{ inputs.artifact }}
-                  path: dist
-
             - name: Build candidate frontend
-              if: inputs.artifact == ''
               run: npm run build
 
             - name: Run tests

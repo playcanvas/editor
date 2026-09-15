@@ -72,13 +72,14 @@ For overlapping runs, give each a distinct `--output` directory and set separate
 
 [Test Suite / CI](../.github/workflows/test-suite-ci.yml) runs lint and types.
 [Test Suite / Run](../.github/workflows/test-suite-run.yml) runs the strict release suite and
-uploads reports, including on failure. A deployment workflow can call it with `env` and
-an optional `artifact` containing the candidate `dist/` contents; otherwise it builds the
-frontend. `test-results/release.json` records the candidate SHA-256, suite checkout revision,
-target hosts, intentional skips and blocking reasons; a candidate changed during the run fails verification.
-The suite revision is not the source revision of a separately supplied frontend artifact.
-PROD promotion still needs to depend on this check and use the tested
-artifact; the Editor repository cannot enforce a deployment owned by another repository.
+uploads reports for manual and PR-label runs. `test-results/release.json` records the
+candidate hash, suite revision, target hosts, intentional skips and blocking reasons.
+
+The monorepo's `suite:editor` label runs separately through SnapCI. It builds
+`suites/editor` from the published test image pinned to the Editor submodule SHA,
+injects backend test configuration and runs `npm test` against DEV. A failed suite
+fails the SnapCI job. This path does not call the GitHub test workflow or use local
+frontend artifacts; suites are skipped in non-DEV environments.
 
 ## Writing tests
 
