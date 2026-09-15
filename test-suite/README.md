@@ -88,7 +88,7 @@ e2e:
 
 Make the promotion job depend on `e2e` and promote that same artifact. This repository's release
 workflow only creates a GitHub release; the PROD deployment pipeline must add that dependency.
-The GitHub `Test Suite / CI` workflow runs lint, types and helper unit tests, not browser E2E.
+The GitHub `Test Suite / CI` workflow runs lint and types, not browser E2E.
 Both reports are uploaded even when browser tests fail. Check skips as well as failures:
 collaboration needs a second account, team tests need its username, and engine/component
 capabilities can be absent on the target environment.
@@ -286,5 +286,4 @@ test timeout fires first and you lose the job-specific failure message. Playwrig
 npm run lint
 npm run lint:fix
 npm run type:check   # regenerates .editor-api-types, then tsc
-npm run test:unit    # offline cleanup ownership and age checks
 ```

@@ -32,7 +32,6 @@
     "test": "playwright test",
     "test:gate": "playwright test --grep @gate --grep-invert @slow",
     "test:clean": "playwright test --config playwright.clean.config.mjs",
-    "test:unit": "node --import tsx --test lib/*.test.ts",
     "test:debug": "playwright test --debug ",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
