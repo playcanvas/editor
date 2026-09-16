@@ -27,7 +27,7 @@ import {
     VertexBuffer,
     VertexFormat
 } from 'playcanvas';
-import type { AppBase, Asset, GraphicsDevice } from 'playcanvas';
+import type { AppBase, Asset, EventHandle, GraphicsDevice } from 'playcanvas';
 
 import { GIZMO_MASK } from '@/core/constants';
 import type { EntityObserver } from '@/editor-api';
@@ -135,6 +135,9 @@ editor.once('load', () => {
         type = '';
 
         asset = 0;
+
+        // pending 'load' handler for a mesh collision asset that is still loading
+        _loadHandle: EventHandle | null = null;
 
         update() {
             if (!app || !this._link?.entity) {
@@ -392,6 +395,11 @@ editor.once('load', () => {
         // removes the currently displayed shape from both the model and render
         // components, returning pooled primitive models to their pool
         clearShape() {
+            // cancel any wireframe asset load still in flight so it cannot
+            // build a shape for a type or asset that is no longer current
+            this._loadHandle?.off();
+            this._loadHandle = null;
+
             const model = this.entity.model.model;
             if (model) {
                 layerFront.removeMeshInstances(model.meshInstances);
@@ -425,20 +433,22 @@ editor.once('load', () => {
                     this.entity.model.model = createModelCopy(asset.resource, this.color);
                 }
             } else {
-                this.events.push(
-                    asset.once('load', (loadedAsset: Asset) => {
-                        // the collision type or asset may have changed while loading
-                        if (this.type !== 'mesh' || this.asset !== loadedAsset.id) {
-                            return;
-                        }
+                // clearShape() unbinds this handle if the type or asset changes before
+                // the load completes, so only the most recent request ever builds a shape
+                this._loadHandle = asset.once('load', (loadedAsset: Asset) => {
+                    this._loadHandle = null;
 
-                        if (isRender) {
-                            this.entity.render.meshInstances = createRenderCopy(loadedAsset.resource, this.color);
-                        } else {
-                            this.entity.model.model = createModelCopy(loadedAsset.resource, this.color);
-                        }
-                    })
-                );
+                    // safety net - should already be guaranteed by clearShape()
+                    if (this.type !== 'mesh' || this.asset !== loadedAsset.id) {
+                        return;
+                    }
+
+                    if (isRender) {
+                        this.entity.render.meshInstances = createRenderCopy(loadedAsset.resource, this.color);
+                    } else {
+                        this.entity.model.model = createModelCopy(loadedAsset.resource, this.color);
+                    }
+                });
             }
         }
     }
