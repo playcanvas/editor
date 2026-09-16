@@ -28,6 +28,7 @@ import './viewport/cursor/cursor';
 import './search/search';
 import './notify/notify';
 import './refocus';
+import './ready';
 
 // realtime
 import './realtime/realtime';

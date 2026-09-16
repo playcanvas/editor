@@ -11,4 +11,4 @@ page.on('close', async () => {
     await browser.close();
 });
 
-await page.goto(`https://${HOST}`, { waitUntil: 'networkidle' });
+await page.goto(`https://${HOST}`, { waitUntil: 'domcontentloaded' });

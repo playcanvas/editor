@@ -298,6 +298,8 @@ onmessage = (e) => {
 
             classicParse(asset, inEditor, callback);
         });
+
+        editor.emit('scripts:parser:ready');
     });
 
     workerClient.once('ready', () => workerClient.send('init', config.url.frontend));

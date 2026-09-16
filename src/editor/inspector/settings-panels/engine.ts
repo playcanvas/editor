@@ -46,17 +46,17 @@ class EngineSettingsPanel extends BaseSettingsPanel {
 
         super(args);
 
+        const versionField = this._attributesInspector.getField<SelectInput>('engineVersion');
+        versionField?.class.add('settings-engine-version');
+
         // when use_local_engine overrides the engine, the version select is forced by the URL,
         // so show the actual engine version (read-only) instead of the selectable options
-        if (!config.url.engine.startsWith(DEFAULT_ENGINE_URL_PREFIX)) {
-            const versionField = this._attributesInspector.getField<SelectInput>('engineVersion');
-            if (versionField) {
-                const match = config.url.engine.match(/playcanvas-(\d+\.\d+\.\d+(?:-[a-z]+\.\d+)?)/);
-                const label = match ? `${match[1]} (local engine)` : 'Local';
-                // keep the currently bound value so disabling does not write back to settings
-                versionField.options = [{ t: label, v: versionField.value }];
-                versionField.enabled = false;
-            }
+        if (versionField && !config.url.engine.startsWith(DEFAULT_ENGINE_URL_PREFIX)) {
+            const match = config.url.engine.match(/playcanvas-(\d+\.\d+\.\d+(?:-[a-z]+\.\d+)?)/);
+            const label = match ? `${match[1]} (local engine)` : 'Local';
+            // keep the currently bound value so disabling does not write back to settings
+            versionField.options = [{ t: label, v: versionField.value }];
+            versionField.enabled = false;
         }
     }
 }

@@ -14,6 +14,7 @@ COPY lib ./lib
 COPY test ./test
 COPY globals.d.ts ./
 COPY playwright.config.mjs ./
+COPY playwright.clean.config.mjs ./
 COPY package.json package-lock.json ./
 COPY tsconfig.json ./
 
