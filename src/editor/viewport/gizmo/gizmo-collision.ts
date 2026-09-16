@@ -160,6 +160,11 @@ editor.once('load', () => {
 
             if (this.type !== type) {
                 this.type = type;
+                this.asset = 0;
+
+                // remove whatever shape was previously displayed (pooled primitive
+                // or mesh wireframe on either the model or render component)
+                this.clearShape();
 
                 if (!this.color) {
                     const guid = this._link.entity.guid;
@@ -171,17 +176,8 @@ editor.once('load', () => {
                 }
 
                 if (models[this.type]) {
-                    // return current model to pool
-                    let model = this.entity.model.model;
-                    if (model) {
-                        layerFront.removeMeshInstances(model.meshInstances);
-                        layerBack.removeMeshInstances(model.meshInstances);
-                        this.entity.removeChild(model.getGraph());
-                        poolModels[model._type]?.push(model);
-                    }
-
                     // get from pool or clone
-                    model = poolModels[this.type]?.shift();
+                    let model = poolModels[this.type]?.shift();
                     if (!model) {
                         model = models[this.type].clone();
                         model._type = this.type;
@@ -235,21 +231,12 @@ editor.once('load', () => {
                     }
 
                     this.entity.setLocalScale(1, 1, 1);
-                } else if (this.type === 'mesh') {
-                    const isRender = !!collision.renderAsset;
-                    this.asset = isRender ? collision.renderAsset : collision.asset;
-                    this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
-                    this.createWireframe(this.asset, isRender);
-                    if (!this.asset) {
-                        this.entity.enabled = false;
-                        this.entity.model.model = null;
-                        return;
-                    }
-                } else {
+                } else if (this.type !== 'mesh') {
+                    // unknown type - nothing to display
                     this.entity.enabled = false;
-                    this.entity.model.model = null;
                     return;
                 }
+                // 'mesh' type wireframe is created below, once the asset is known
             }
 
             const radius = collision.radius || 0.00001;
@@ -296,16 +283,15 @@ editor.once('load', () => {
                     const asset = isRender ? collision.renderAsset : collision.asset;
                     if (asset !== this.asset) {
                         this.asset = asset;
+                        // the previous wireframe may live on either component depending on
+                        // whether it came from a render or model asset, so clear both
+                        this.clearShape();
                         this.createWireframe(this.asset, isRender);
-                        if (!this.asset) {
-                            this.entity.enabled = false;
-                            if (isRender) {
-                                this.entity.render.meshInstances = [];
-                            } else {
-                                this.entity.model.model = null;
-                            }
-                            return;
-                        }
+                    }
+
+                    if (!this.asset) {
+                        this.entity.enabled = false;
+                        return;
                     }
 
                     // when model collision mesh gets clicked on again, select the mesh instance
@@ -399,17 +385,27 @@ editor.once('load', () => {
             this.type = '';
             this.asset = 0;
 
+            this.clearShape();
+            this.entity.destroy();
+        }
+
+        // removes the currently displayed shape from both the model and render
+        // components, returning pooled primitive models to their pool
+        clearShape() {
             const model = this.entity.model.model;
             if (model) {
                 layerFront.removeMeshInstances(model.meshInstances);
                 layerBack.removeMeshInstances(model.meshInstances);
                 this.entity.removeChild(model.getGraph());
                 if (model._type) {
-                    poolModels[model._type].push(model);
+                    poolModels[model._type]?.push(model);
                 }
+                this.entity.model.model = null;
             }
 
-            this.entity.destroy();
+            if (this.entity.render.meshInstances.length) {
+                this.entity.render.meshInstances = [];
+            }
         }
 
         createWireframe(assetId: number, isRender: boolean) {
@@ -431,7 +427,8 @@ editor.once('load', () => {
             } else {
                 this.events.push(
                     asset.once('load', (loadedAsset: Asset) => {
-                        if (this.asset !== loadedAsset.id) {
+                        // the collision type or asset may have changed while loading
+                        if (this.type !== 'mesh' || this.asset !== loadedAsset.id) {
                             return;
                         }
 
