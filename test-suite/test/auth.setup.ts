@@ -1,6 +1,6 @@
 import { test as setup } from '@playwright/test';
 
-import { AUTH_STATES, EMAILS, HOST } from '../lib/config';
+import { AUTH_STATES, HOST } from '../lib/config';
 import { middleware } from '../lib/middleware';
 
 setup('user authenticated', async ({ page, browser }) => {
@@ -21,16 +21,13 @@ setup('user authenticated', async ({ page, browser }) => {
     const res1 = await page.request.get(`https://${HOST}/api/id`);
     const { id } = await res1.json();
     const res2 = await page.request.get(`https://${HOST}/api/users/${id}`);
-    const { flags, email } = await res2.json();
+    const { flags } = await res2.json();
     if (!flags?.testSuite) {
         throw new Error('test suite flag not present on account');
     }
 
-    if (EMAILS.length && email?.toLowerCase() !== EMAILS[0].toLowerCase()) {
-        throw new Error('PC_EMAILS entry 1 does not match its authenticated account');
-    }
     const ids = new Set([id]);
-    for (const [index, state] of AUTH_STATES.slice(1).entries()) {
+    for (const state of AUTH_STATES.slice(1)) {
         const context = await browser.newContext({ storageState: state });
         await middleware(context);
         const guest = await context.newPage();
@@ -39,9 +36,6 @@ setup('user authenticated', async ({ page, browser }) => {
         const identity = await (await guest.request.get(`https://${HOST}/api/id`)).json();
         const user = await (await guest.request.get(`https://${HOST}/api/users/${identity.id}`)).json();
         await context.close();
-        if (EMAILS.length && user.email?.toLowerCase() !== EMAILS[index + 1].toLowerCase()) {
-            throw new Error(`PC_EMAILS entry ${index + 2} does not match its authenticated account`);
-        }
         if (!user.flags?.testSuite || ids.has(identity.id)) {
             throw new Error('each worker needs a distinct authenticated testSuite account');
         }

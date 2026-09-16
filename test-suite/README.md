@@ -24,8 +24,6 @@ Configure `.env`:
 - `PC_HEADER_NAME`, `PC_HEADER_VALUE`: access header, if required by the environment.
 - `PC_LOCAL_FRONTEND=true`: load local bundles. Playwright serves `dist/` on port 3487
   and can reuse an existing local server. Unset to test deployed bundles.
-- `PC_EMAILS`: comma-separated account emails, in the same order as `PC_COOKIE_VALUE`.
-  Authentication verifies every email matches its cookie and every account has `testSuite`.
 
 ## Run
 
@@ -46,9 +44,10 @@ remain visible in the reports for unavailable accounts, engine versions, compone
 flags and store content. There is no separate gate or release suite.
 
 Each worker uses one account and reuses its Editor page and project. Comma-separated
-cookies in `PC_COOKIE_VALUE` enable additional workers and collaboration tests. Configure
-matching emails in `PC_EMAILS` for team invitations; usernames are resolved from the
-authenticated accounts. To measure with one worker, use `npm test -- --workers=1`.
+cookies in `PC_COOKIE_VALUE` enable additional workers and collaboration tests. Emails
+and usernames for team invitations are read from the authenticated accounts. Authentication
+checks that every account is distinct and has `testSuite`. To measure with one worker,
+use `npm test -- --workers=1`.
 
 Tests delete their own projects during teardown. The separate clean config authenticates
 and deletes `e2e-` projects from other runs older than two hours, preserving projects with

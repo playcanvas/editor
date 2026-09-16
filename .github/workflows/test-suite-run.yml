@@ -63,7 +63,6 @@ jobs:
                   PC_COOKIE_VALUE: ${{ secrets.PC_COOKIE_VALUE }}
                   PC_HEADER_NAME: ${{ secrets.PC_HEADER_NAME }}
                   PC_HEADER_VALUE: ${{ secrets.PC_HEADER_VALUE }}
-                  PC_EMAILS: ${{ secrets.PC_EMAILS }}
               run: npm test
 
             - name: Upload test results

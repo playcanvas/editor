@@ -1,11 +1,11 @@
 import type { Locator, Page } from '@playwright/test';
 
 import { arm } from '../../lib/arm';
-import { EMAILS, HOST } from '../../lib/config';
+import { AUTH_STATES, HOST } from '../../lib/config';
 import { expect, test } from '../../lib/fixtures';
 import { EditorShell } from '../../lib/pages/common';
 
-test.skip(EMAILS.length < 2, 'set PC_EMAILS and PC_COOKIE_VALUE to matching lists of dedicated accounts');
+test.skip(AUTH_STATES.length < 2, 'set PC_COOKIE_VALUE to at least two dedicated account cookies');
 
 const TEAM = '.picker-team-management';
 const ROLE_MENU = '.team-role-menu';
@@ -85,10 +85,10 @@ const remove = async (page: Page, username: string) => {
 };
 
 test.describe('team', () => {
-    test('invite collaborator', async ({ editorPage, collaborator: context }, info) => {
+    test('invite collaborator', async ({ editorPage, collaborator: context }) => {
         const identity = await (await context!.request.get(`https://${HOST}/api/id`)).json();
-        const { username } = await (await context!.request.get(`https://${HOST}/api/users/${identity.id}`)).json();
-        const email = EMAILS[(info.parallelIndex + 1) % EMAILS.length];
+        const { username, email } = await (await context!.request.get(`https://${HOST}/api/users/${identity.id}`)).json();
+        expect(typeof email === 'string' && email.length > 0, 'collaborator account has an email').toBe(true);
         const team = await openTeam(editorPage);
         const collaborator = row(editorPage, username);
 
@@ -107,10 +107,10 @@ test.describe('team', () => {
         await closeTeam(editorPage);
     });
 
-    test('change role and remove', async ({ editorPage, collaborator: context }, info) => {
+    test('change role and remove', async ({ editorPage, collaborator: context }) => {
         const identity = await (await context!.request.get(`https://${HOST}/api/id`)).json();
-        const { username } = await (await context!.request.get(`https://${HOST}/api/users/${identity.id}`)).json();
-        const email = EMAILS[(info.parallelIndex + 1) % EMAILS.length];
+        const { username, email } = await (await context!.request.get(`https://${HOST}/api/users/${identity.id}`)).json();
+        expect(typeof email === 'string' && email.length > 0, 'collaborator account has an email').toBe(true);
         const team = await openTeam(editorPage);
         const collaborator = row(editorPage, username);
 
