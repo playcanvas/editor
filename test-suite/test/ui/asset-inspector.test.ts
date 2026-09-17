@@ -127,6 +127,62 @@ test.describe('asset-inspector', () => {
         expect(await assetValue(editorPage, asset.id, 'data.mipmaps')).toBe(!before);
     });
 
+    // RGBM and sRGB are mutually exclusive, but enforcing that must never rewrite the asset
+    // on its own: linking the fields used to clear RGBM on any texture that carried both,
+    // silently turning an RGBM environment map into a much brighter sRGB one
+    test('preserve texture encoding flags on select', async ({ editorPage }) => {
+        const inspector = new Inspector(editorPage);
+        const assets = new AssetsPanel(editorPage);
+        const asset = await uploadTexture(assets);
+
+        // the state a generated cubemap face lands in: RGBM pixels plus the default sRGB flag
+        await editorPage.evaluate((id) => {
+            const texture = window.editor.api.globals.assets.get(id);
+            texture.set('data.rgbm', true);
+            texture.set('data.srgb', true);
+        }, asset.id);
+
+        await inspector.recordHistory();
+        await assets.select(asset.name);
+        const texture = inspector.assetType('texture');
+        await expect(texture).toBeVisible();
+
+        expect(await assetValue(editorPage, asset.id, 'data.rgbm')).toBe(true);
+        expect(await assetValue(editorPage, asset.id, 'data.srgb')).toBe(true);
+        // selecting is itself a history action, so only the flag writes matter here
+        expect(await inspector.historyActions()).not.toContainEqual(expect.stringMatching(/^data\.(rgbm|srgb)/));
+        await expect(inspector.field(texture, 'RGBM').locator('.pcui-boolean-input')).toHaveClass(/ticked/);
+    });
+
+    test('toggle texture encoding flags', async ({ editorPage }) => {
+        const inspector = new Inspector(editorPage);
+        const assets = new AssetsPanel(editorPage);
+        const asset = await uploadTexture(assets);
+
+        await editorPage.evaluate((id) => {
+            const texture = window.editor.api.globals.assets.get(id);
+            texture.set('data.rgbm', false);
+            texture.set('data.srgb', true);
+        }, asset.id);
+
+        await assets.select(asset.name);
+        const texture = inspector.assetType('texture');
+        await expect(texture).toBeVisible();
+
+        // enabling one flag has to clear the other: the two encodings cannot both apply
+        const rgbm = await assets.armField(asset.id, 'data.srgb', false);
+        await inspector.toggle(texture, 'RGBM');
+        await rgbm();
+        expect(await assetValue(editorPage, asset.id, 'data.rgbm')).toBe(true);
+        expect(await assetValue(editorPage, asset.id, 'data.srgb')).toBe(false);
+
+        const srgb = await assets.armField(asset.id, 'data.rgbm', false);
+        await inspector.toggle(texture, 'sRGB');
+        await srgb();
+        expect(await assetValue(editorPage, asset.id, 'data.srgb')).toBe(true);
+        expect(await assetValue(editorPage, asset.id, 'data.rgbm')).toBe(false);
+    });
+
     test('edit texture filtering', async ({ editorPage }) => {
         const inspector = new Inspector(editorPage);
         const assets = new AssetsPanel(editorPage);
