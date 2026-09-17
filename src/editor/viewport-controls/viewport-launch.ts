@@ -179,7 +179,9 @@ editor.once('load', () => {
     };
 
     const createOption = (name: string, title: string) => {
-        const panel = new Container();
+        const panel = new Container({
+            class: `launch-option-${name}`
+        });
         panelOptions.append(panel);
 
         const option = new BooleanInput({
@@ -447,7 +449,10 @@ editor.once('load', () => {
         document.querySelectorAll(buttonSelector).forEach((btn) => {
             const text = btn.getAttribute('data-full-text');
             if (text !== null) {
-                btn.textContent = text;
+                // scene:name handlers registered earlier already wrote the new name, keep it
+                if (!btn.textContent) {
+                    btn.textContent = text;
+                }
                 btn.removeAttribute('data-full-text');
             }
         });

@@ -502,7 +502,7 @@ editor.once('load', () => {
 
     // import project button
     const importProjectButton = new Button({
-        class: 'import-button',
+        class: ['import-button', 'import-project-button'],
         icon: 'E222'
     });
     headerUtils.append(importProjectButton);

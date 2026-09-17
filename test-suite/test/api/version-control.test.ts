@@ -1,15 +1,13 @@
-import { type Observer } from '@playcanvas/observer';
-import { expect, test, type Page } from '@playwright/test';
+import type { BrowserContext, Page } from '@playwright/test';
 
-import { capture } from '../../lib/capture';
-import {
-    checkCookieAccept,
-    createProject,
-    deleteProject
-} from '../../lib/common';
+import { checkCookieAccept, createProject, deleteProject } from '../../lib/common';
 import { editorBlankUrl, editorUrl } from '../../lib/config';
+import { JOB_TEST_TIMEOUT, JOB_TIMEOUT } from '../../lib/constants';
+import { expect, test } from '../../lib/fixtures';
 import { middleware } from '../../lib/middleware';
-import { uniqueName, wait } from '../../lib/utils';
+import { armBranchDeleted, armReload, branchIds, createCheckpointApi, waitReload } from '../../lib/pages/version-control';
+import { waitForEditor } from '../../lib/ready';
+import { uniqueName } from '../../lib/utils';
 
 test.describe.configure({
     mode: 'serial'
@@ -17,9 +15,11 @@ test.describe.configure({
 
 test.describe('branch/checkpoint/diff/merge', () => {
     const projectName = uniqueName('api-vc');
+    let context: BrowserContext;
+    let setup: Page;
     let projectId: number;
-    let page: Page;
     let materialId: number;
+    let baseDiffuse: number[];
 
     let mainBranchId: string;
     let mainCheckpointId: string;
@@ -28,421 +28,310 @@ test.describe('branch/checkpoint/diff/merge', () => {
 
     let greenBranchId: string;
 
-    test.describe.configure({
-        mode: 'serial'
-    });
-
-    test.beforeAll(async ({ browser }) => {
-        page = await browser.newPage();
-        await middleware(page.context());
-
-        // create a temporary project
-        await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
-        await checkCookieAccept(page);
-        projectId = await createProject(page, projectName);
+    // the vc flow mutates branches and hard resets history, so it owns its project
+    test.beforeAll(async ({ browser, authState }) => {
+        context = await browser.newContext({ storageState: authState });
+        await middleware(context);
+        setup = await context.newPage();
+        await setup.goto(editorBlankUrl());
+        await setup.locator('.picker-project-cms').waitFor();
+        await checkCookieAccept(setup);
+        projectId = await createProject(setup, projectName);
     });
 
     test.afterAll(async () => {
-        // delete temporary project
-        await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
-        await deleteProject(page, projectId);
-
-        await page.close();
+        await deleteProject(setup, projectId);
+        await context.close();
     });
 
-    test('create base checkpoint', async () => {
-        expect(await capture('editor', page, async () => {
-            await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
+    const open = async (page: Page) => {
+        await page.goto(editorUrl(projectId, { disableBubbles: true }));
+        await waitForEditor(page);
+    };
 
-            [materialId, mainBranchId, mainCheckpointId] = await page.evaluate(async () => {
-                const createCheckpoint = async (description: string) => {
-                    const jobDeferred: PromiseWithResolvers<any> = Promise.withResolvers();
-                    const checkpointPromise = new Promise<any>((resolve, reject) => {
-                        const handle = window.editor.api.globals.messenger.on('message', async (name: string, data: any) => {
-                            const job = await jobDeferred.promise;
-                            if (name !== 'job.update' || data.job.id !== job.id) {
-                                return;
-                            }
-                            handle.unbind();
-                            const completed = await window.editor.api.globals.rest.jobs.jobGet({ jobId: job.id }).promisify();
-                            if (completed.status === 'error') {
-                                reject(new Error(completed.messages?.[0] ?? 'Checkpoint create failed'));
-                                return;
-                            }
-                            resolve(completed.data);
-                        });
-                    });
+    const diffuse = (page: Page) => page.evaluate((id) => {
+        return window.editor.api.globals.assets.get(id)?.get('data.diffuse') as number[];
+    }, materialId);
 
-                    const job = await window.editor.api.globals.rest.checkpoints.checkpointCreate({
-                        projectId: window.editor.api.globals.projectId,
-                        branchId: window.editor.api.globals.branchId,
-                        description
-                    }).promisify();
-                    jobDeferred.resolve(job);
-                    return checkpointPromise;
-                };
+    const branchFromCheckpoint = async (page: Page, name: string) => {
+        await armReload(page);
+        const branchId = await page.evaluate(async ({ name, sourceBranchId, sourceCheckpointId }) => {
+            const branch = await window.editor.api.globals.rest.branches.branchCreate({
+                name,
+                projectId: window.editor.api.globals.projectId,
+                sourceBranchId,
+                sourceCheckpointId
+            }).promisify();
+            return branch.id;
+        }, { name, sourceBranchId: mainBranchId, sourceCheckpointId: mainCheckpointId });
 
-                // setup material
-                const material = await window.editor.api.globals.assets.createMaterial({ name: 'TEST_MATERIAL' });
+        // creating a branch checks it out, which reloads the editor
+        await waitReload(page);
+        expect(await page.evaluate(() => window.editor.api.globals.branchId)).toBe(branchId);
+        return branchId;
+    };
 
-                // create checkpoint
-                const checkpoint = await createCheckpoint('BASE');
+    const setDiffuse = (page: Page, color: number[]) => page.evaluate(({ id, color }) => {
+        window.editor.api.globals.assets.get(id)!.set('data.diffuse', color);
+    }, { id: materialId, color });
 
-                return [
-                    material.get('id'),
-                    window.editor.api.globals.branchId,
-                    checkpoint.id
-                ];
-            });
-        })).toStrictEqual([]);
+    test('create base checkpoint', async ({ page }) => {
+        await open(page);
+
+        materialId = await page.evaluate(async () => {
+            const material = await window.editor.api.globals.assets.createMaterial({ name: 'TEST_MATERIAL' });
+            return material.get('id') as number;
+        });
+        baseDiffuse = await diffuse(page);
+
+        const checkpoint = await createCheckpointApi(page, 'BASE');
+        mainCheckpointId = checkpoint.id;
+        mainBranchId = await page.evaluate(() => window.editor.api.globals.branchId);
+
+        expect(materialId).toBeGreaterThan(0);
+        expect(mainCheckpointId).toMatch(/^[0-9a-f-]{36}$/);
     });
 
-    test('create red branch', async () => {
-        expect(await capture('editor', page, async () => {
-            await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
+    test('create red branch', async ({ page }) => {
+        await open(page);
 
-            redBranchId = await page.evaluate(async ([mainBranchId, mainCheckpointId]) => {
-                // create red branch
-                const branch = await window.editor.api.globals.rest.branches.branchCreate({
-                    name: 'red',
-                    projectId: window.editor.api.globals.projectId,
-                    sourceBranchId: mainBranchId,
-                    sourceCheckpointId: mainCheckpointId
-                }).promisify();
+        redBranchId = await branchFromCheckpoint(page, 'red');
+        expect(redBranchId).not.toBe(mainBranchId);
 
-                return branch.id;
-            }, [mainBranchId, mainCheckpointId]);
-
-            // wait for page to reload
-            await wait(5000);
-            await page.waitForLoadState('networkidle');
-
-            await page.evaluate(async (materialId) => {
-                const createCheckpoint = async (description: string) => {
-                    const jobDeferred: PromiseWithResolvers<any> = Promise.withResolvers();
-                    const checkpointPromise = new Promise<void>((resolve, reject) => {
-                        const handle = window.editor.api.globals.messenger.on('message', async (name: string, data: any) => {
-                            const job = await jobDeferred.promise;
-                            if (name !== 'job.update' || data.job.id !== job.id) {
-                                return;
-                            }
-                            handle.unbind();
-                            const completed = await window.editor.api.globals.rest.jobs.jobGet({ jobId: job.id }).promisify();
-                            if (completed.status === 'error') {
-                                reject(new Error(completed.messages?.[0] ?? 'Checkpoint create failed'));
-                                return;
-                            }
-                            resolve();
-                        });
-                    });
-
-                    const job = await window.editor.api.globals.rest.checkpoints.checkpointCreate({
-                        projectId: window.editor.api.globals.projectId,
-                        branchId: window.editor.api.globals.branchId,
-                        description
-                    }).promisify();
-                    jobDeferred.resolve(job);
-                    return checkpointPromise;
-                };
-
-                // set material color RED
-                const material = await window.editor.api.globals.assets.findOne((asset: Observer) => asset.get('id') === materialId);
-                material.set('data.diffuse', [1, 0, 0]);
-
-                // create checkpoint
-                await createCheckpoint('RED');
-            }, materialId);
-        })).toStrictEqual([]);
+        // set material color RED and checkpoint it on red
+        await setDiffuse(page, [1, 0, 0]);
+        const checkpoint = await createCheckpointApi(page, 'RED');
+        expect(checkpoint.id).not.toBe(mainCheckpointId);
     });
 
-    test('create green branch', async () => {
-        expect(await capture('editor', page, async () => {
-            await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
+    test('create green branch', async ({ page }) => {
+        await open(page);
 
-            greenBranchId = await page.evaluate(async ([mainBranchId, mainCheckpointId]) => {
-                // create green branch
-                const branch = await window.editor.api.globals.rest.branches.branchCreate({
-                    name: 'green',
-                    projectId: window.editor.api.globals.projectId,
-                    sourceBranchId: mainBranchId,
-                    sourceCheckpointId: mainCheckpointId
-                }).promisify();
+        greenBranchId = await branchFromCheckpoint(page, 'green');
+        expect(greenBranchId).not.toBe(redBranchId);
 
-                return branch.id;
-            }, [mainBranchId, mainCheckpointId]);
-
-            // wait for page to reload
-            await wait(5000);
-            await page.waitForLoadState('networkidle');
-
-            await page.evaluate(async (materialId) => {
-                const createCheckpoint = async (description: string) => {
-                    const jobDeferred: PromiseWithResolvers<any> = Promise.withResolvers();
-                    const checkpointPromise = new Promise<void>((resolve, reject) => {
-                        const handle = window.editor.api.globals.messenger.on('message', async (name: string, data: any) => {
-                            const job = await jobDeferred.promise;
-                            if (name !== 'job.update' || data.job.id !== job.id) {
-                                return;
-                            }
-                            handle.unbind();
-                            const completed = await window.editor.api.globals.rest.jobs.jobGet({ jobId: job.id }).promisify();
-                            if (completed.status === 'error') {
-                                reject(new Error(completed.messages?.[0] ?? 'Checkpoint create failed'));
-                                return;
-                            }
-                            resolve();
-                        });
-                    });
-
-                    const job = await window.editor.api.globals.rest.checkpoints.checkpointCreate({
-                        projectId: window.editor.api.globals.projectId,
-                        branchId: window.editor.api.globals.branchId,
-                        description
-                    }).promisify();
-                    jobDeferred.resolve(job);
-                    return checkpointPromise;
-                };
-
-                // set material color GREEN
-                const material = await window.editor.api.globals.assets.findOne((asset: Observer) => asset.get('id') === materialId);
-                material.set('data.diffuse', [0, 1, 0]);
-
-                // create checkpoint
-                await createCheckpoint('GREEN');
-            }, materialId);
-        })).toStrictEqual([]);
+        // set material color GREEN and checkpoint it on green
+        await setDiffuse(page, [0, 1, 0]);
+        const checkpoint = await createCheckpointApi(page, 'GREEN');
+        expect(checkpoint.id).not.toBe(mainCheckpointId);
     });
 
-    test('diff between green and main branch', async () => {
-        expect(await capture('editor', page, async () => {
-            await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
+    test('diff between green and main branch', async ({ page }) => {
+        await open(page);
 
-            await page.evaluate(async ([greenBranchId, mainBranchId]) => {
-                const { rest } = window.editor.api.globals;
+        const diff = await page.evaluate(async ({ greenBranchId, mainBranchId, jobTimeout }) => {
+            const { rest } = window.editor.api.globals;
 
-                type Resolved<T extends (...args: never[]) => { promisify(): Promise<unknown> }> = Awaited<ReturnType<ReturnType<T>['promisify']>>;
-                type DiffJob = Resolved<typeof rest.jobs.jobGet>;
-                type DiffResult = Resolved<typeof rest.diff.diffGet>;
+            type Resolved<T extends (...args: never[]) => { promisify(): Promise<unknown> }> = Awaited<ReturnType<ReturnType<T>['promisify']>>;
+            type DiffJob = Resolved<typeof rest.jobs.jobGet>;
+            type DiffResult = Resolved<typeof rest.diff.diffGet>;
 
-                // deferred for the job response
-                const jobDeferred: PromiseWithResolvers<DiffJob> = Promise.withResolvers();
+            // deferred for the job response
+            const jobDeferred: PromiseWithResolvers<DiffJob> = Promise.withResolvers();
 
-                // wait for diff via messenger job.update event
-                const diffPromise: Promise<DiffResult> = new Promise((resolve, reject) => {
-                    const evt = window.editor.on('messenger:job.update', async (...args: unknown[]) => {
-                        const { job: jobData } = args[0] as { job: { id: number } };
-                        const job = await jobDeferred.promise;
-                        if (jobData.id !== job.id) {
-                            return;
-                        }
-                        evt.unbind();
+            // wait for diff via messenger job.update event
+            const diffPromise: Promise<DiffResult> = new Promise((resolve, reject) => {
+                const timer = setTimeout(() => reject(new Error('timed out waiting for diff job.update')), jobTimeout);
+                const evt = window.editor.on('messenger:job.update', async (...args: unknown[]) => {
+                    const { job: jobData } = args[0] as { job: { id: number } };
+                    const job = await jobDeferred.promise;
+                    if (jobData.id !== job.id) {
+                        return;
+                    }
+                    evt.unbind();
+                    clearTimeout(timer);
 
-                        try {
-                            // verify job completed
-                            const completedJob = await rest.jobs.jobGet({ jobId: job.id }).promisify();
-                            if (completedJob.status === 'error') {
-                                throw new Error(completedJob.messages?.[0] ?? 'Diff job failed');
-                            }
-
-                            // fetch full diff from S3
-                            const diff = await rest.diff.diffGet({ id: job.data.merge_id }).promisify();
-                            resolve(diff);
-                        } catch (err) {
-                            reject(err);
-                        }
-                    });
+                    // verify the job completed, then fetch the full diff from S3
+                    const completedJob = await rest.jobs.jobGet({ jobId: job.id }).promisify();
+                    if (completedJob.status === 'error') {
+                        reject(new Error(completedJob.messages?.[0] ?? 'Diff job failed'));
+                        return;
+                    }
+                    resolve(await rest.diff.diffGet({ id: job.data.merge_id }).promisify());
                 });
+            });
 
-                // create diff
-                const job = await rest.diff.diffCreate({
-                    srcBranchId: greenBranchId,
-                    dstBranchId: mainBranchId
-                }).promisify();
-                jobDeferred.resolve(job);
+            // create diff
+            const job = await rest.diff.diffCreate({
+                srcBranchId: greenBranchId,
+                dstBranchId: mainBranchId
+            }).promisify();
+            jobDeferred.resolve(job);
 
-                // validate job response
-                if (!job.id || !job.data.merge_id) {
-                    throw new Error('diffCreate did not return a valid job');
-                }
+            const diff = await diffPromise;
+            return { jobId: job.id, mergeId: job.data.merge_id, isDiff: diff.isDiff, numConflicts: diff.numConflicts };
+        }, { greenBranchId, mainBranchId, jobTimeout: JOB_TIMEOUT });
 
-                // await full diff from messenger event
-                const diff = await diffPromise;
-
-                // validate diff response
-                if (typeof diff.numConflicts !== 'number') {
-                    throw new Error('diff missing numConflicts');
-                }
-                if (!diff.isDiff) {
-                    throw new Error('diff.isDiff should be true');
-                }
-            }, [greenBranchId, mainBranchId]);
-        })).toStrictEqual([]);
+        expect(diff.jobId).toBeTruthy();
+        expect(diff.mergeId).toBeTruthy();
+        expect(diff.isDiff).toBe(true);
+        expect(typeof diff.numConflicts).toBe('number');
     });
 
-    test('switch to main branch', async () => {
-        expect(await capture('editor', page, async () => {
-            await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
+    test('switch to main branch', async ({ page }) => {
+        await open(page);
 
-            // switch to main branch
-            await page.evaluate(async (mainBranchId) => {
-                await window.editor.api.globals.rest.branches.branchCheckout({
-                    branchId: mainBranchId
-                }).promisify();
-            }, mainBranchId);
+        await armReload(page);
+        await page.evaluate((mainBranchId) => {
+            return window.editor.api.globals.rest.branches.branchCheckout({ branchId: mainBranchId }).promisify();
+        }, mainBranchId);
 
-            // wait for page to reload
-            await wait(5000);
-            await page.waitForLoadState('networkidle');
-        })).toStrictEqual([]);
+        // checkout reloads the editor onto main
+        await waitReload(page);
+        expect(await page.evaluate(() => window.editor.api.globals.branchId)).toBe(mainBranchId);
     });
 
-    test('merge red branch', async () => {
-        expect(await capture('editor', page, async () => {
-            await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
+    test('merge red branch', async ({ page }) => {
+        await open(page);
 
-            await page.evaluate(async ([mainBranchId, redBranchId]) => {
-                // create merge
-                let merge = await window.editor.api.globals.rest.merge.mergeCreate({
-                    srcBranchId: redBranchId,
-                    dstBranchId: mainBranchId,
-                    srcBranchClose: true
-                }).promisify();
+        await armReload(page);
+        await page.evaluate(async ({ mainBranchId, redBranchId }) => {
+            const { rest } = window.editor.api.globals;
 
-                // get details of the merge
-                merge = await window.editor.api.globals.rest.merge.mergeGet({
-                    mergeId: merge.id
-                }).promisify();
+            // create merge
+            let merge = await rest.merge.mergeCreate({
+                srcBranchId: redBranchId,
+                dstBranchId: mainBranchId,
+                srcBranchClose: true
+            }).promisify();
 
-                // check for conflicts
-                if (merge.conflicts?.length) {
-                    // resolve conflicts
-                    await window.editor.api.globals.rest.conflicts.conflictsResolve({
-                        mergeId: merge.id,
-                        conflictIds: merge.conflicts.flatMap(group => group.data.map(conflict => conflict.id)),
-                        useSrc: true
-                    }).promisify();
+            // get details of the merge
+            merge = await rest.merge.mergeGet({ mergeId: merge.id }).promisify();
 
-                    // apply conflicts
-                    await window.editor.api.globals.rest.merge.mergeApply({
-                        mergeId: merge.id,
-                        finalize: false
-                    }).promisify();
-                }
-
-                // create diff
-                await window.editor.api.globals.rest.diff.diffCreate({
-                    srcBranchId: redBranchId,
-                    dstBranchId: mainBranchId
-                }).promisify();
-
-                // apply merge
-                await window.editor.api.globals.rest.merge.mergeApply({
+            // check for conflicts
+            if (merge.conflicts?.length) {
+                // resolve conflicts in favour of the source branch
+                await rest.conflicts.conflictsResolve({
                     mergeId: merge.id,
-                    finalize: true
+                    conflictIds: merge.conflicts.flatMap(group => group.data.map(conflict => conflict.id)),
+                    useSrc: true
                 }).promisify();
-            }, [mainBranchId, redBranchId]);
-        })).toStrictEqual([]);
+
+                // apply conflicts
+                await rest.merge.mergeApply({ mergeId: merge.id, finalize: false }).promisify();
+            }
+
+            // create diff
+            await rest.diff.diffCreate({ srcBranchId: redBranchId, dstBranchId: mainBranchId }).promisify();
+
+            // apply merge
+            await rest.merge.mergeApply({ mergeId: merge.id, finalize: true }).promisify();
+        }, { mainBranchId, redBranchId });
+
+        // completing the merge reloads the editor with red's material colour on main
+        await waitReload(page);
+        expect(await diffuse(page)).toStrictEqual([1, 0, 0]);
     });
 
-    test('merge green branch', async () => {
-        expect(await capture('editor', page, async () => {
-            await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
+    test('merge green branch', async ({ page }) => {
+        await open(page);
 
-            await page.evaluate(async ([mainBranchId, greenBranchId]) => {
-                // create merge
-                let merge = await window.editor.api.globals.rest.merge.mergeCreate({
-                    srcBranchId: greenBranchId,
-                    dstBranchId: mainBranchId,
-                    srcBranchClose: false
-                }).promisify();
+        await armReload(page);
+        const conflicts = await page.evaluate(async ({ mainBranchId, greenBranchId }) => {
+            const { rest } = window.editor.api.globals;
 
-                // get details of the merge
-                merge = await window.editor.api.globals.rest.merge.mergeGet({
-                    mergeId: merge.id
-                }).promisify();
+            // create merge
+            let merge = await rest.merge.mergeCreate({
+                srcBranchId: greenBranchId,
+                dstBranchId: mainBranchId,
+                srcBranchClose: false
+            }).promisify();
 
-                // check for conflicts
-                if (merge.conflicts?.length) {
-                    // resolve conflicts
-                    await window.editor.api.globals.rest.conflicts.conflictsResolve({
-                        mergeId: merge.id,
-                        conflictIds: merge.conflicts.flatMap(group => group.data.map(conflict => conflict.id)),
-                        useSrc: true
-                    }).promisify();
+            // get details of the merge
+            merge = await rest.merge.mergeGet({ mergeId: merge.id }).promisify();
 
-                    // apply conflicts
-                    await window.editor.api.globals.rest.merge.mergeApply({
-                        mergeId: merge.id,
-                        finalize: false
-                    }).promisify();
-                }
-
-                // create diff
-                await window.editor.api.globals.rest.diff.diffCreate({
-                    srcBranchId: greenBranchId,
-                    dstBranchId: mainBranchId
-                }).promisify();
-
-                // apply merge
-                await window.editor.api.globals.rest.merge.mergeApply({
+            // check for conflicts
+            const conflictIds = merge.conflicts?.flatMap(group => group.data.map(conflict => conflict.id)) ?? [];
+            if (conflictIds.length) {
+                // resolve conflicts in favour of the source branch
+                await rest.conflicts.conflictsResolve({
                     mergeId: merge.id,
-                    finalize: true
+                    conflictIds,
+                    useSrc: true
                 }).promisify();
-            }, [mainBranchId, greenBranchId]);
-        })).toStrictEqual([]);
+
+                // apply conflicts
+                await rest.merge.mergeApply({ mergeId: merge.id, finalize: false }).promisify();
+            }
+
+            // create diff
+            await rest.diff.diffCreate({ srcBranchId: greenBranchId, dstBranchId: mainBranchId }).promisify();
+
+            // apply merge
+            await rest.merge.mergeApply({ mergeId: merge.id, finalize: true }).promisify();
+
+            return conflictIds.length;
+        }, { mainBranchId, greenBranchId });
+
+        // green's colour conflicts with the merged red change and wins the resolve
+        expect(conflicts).toBeGreaterThan(0);
+        await waitReload(page);
+        expect(await diffuse(page)).toStrictEqual([0, 1, 0]);
     });
 
-    test('restore checkpoint', async () => {
-        expect(await capture('editor', page, async () => {
-            await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
+    test('restore checkpoint', async ({ page }) => {
+        await open(page);
 
-            await page.evaluate(async ([mainBranchId, mainCheckpointId]) => {
-                // restore checkpoint
-                await window.editor.api.globals.rest.checkpoints.checkpointRestore({
-                    branchId: mainBranchId,
-                    checkpointId: mainCheckpointId
-                }).promisify();
-            }, [mainBranchId, mainCheckpointId]);
-        })).toStrictEqual([]);
+        await armReload(page);
+        await page.evaluate(({ mainBranchId, mainCheckpointId }) => {
+            return window.editor.api.globals.rest.checkpoints.checkpointRestore({
+                branchId: mainBranchId,
+                checkpointId: mainCheckpointId
+            }).promisify();
+        }, { mainBranchId, mainCheckpointId });
+
+        // the restore job reloads the editor with the base material colour back
+        await waitReload(page);
+        expect(await diffuse(page)).toStrictEqual(baseDiffuse);
     });
 
-    test('hard reset checkpoint', async () => {
-        expect(await capture('editor', page, async () => {
-            await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
+    test('hard reset checkpoint', async ({ page }) => {
+        await open(page);
 
-            await page.evaluate(async ([mainBranchId, mainCheckpointId]) => {
-                // hard reset checkpoint
-                await window.editor.api.globals.rest.checkpoints.checkpointHardReset({
-                    branchId: mainBranchId,
-                    checkpointId: mainCheckpointId
-                }).promisify();
-            }, [mainBranchId, mainCheckpointId]);
-        })).toStrictEqual([]);
+        await armReload(page);
+        await page.evaluate(({ mainBranchId, mainCheckpointId }) => {
+            return window.editor.api.globals.rest.checkpoints.checkpointHardReset({
+                branchId: mainBranchId,
+                checkpointId: mainCheckpointId
+            }).promisify();
+        }, { mainBranchId, mainCheckpointId });
+
+        // the hard reset job reloads the editor with base as the branch head
+        await waitReload(page);
+        const head = await page.evaluate(async () => {
+            const checkpoints = await window.editor.api.globals.rest.branches.branchCheckpoints({
+                branchId: window.editor.api.globals.branchId,
+                limit: 1
+            }).promisify();
+            return checkpoints.result[0].id;
+        });
+        expect(head).toBe(mainCheckpointId);
     });
 
-    test('delete red branch', async () => {
-        expect(await capture('editor', page, async () => {
-            await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
+    test('delete red branch', async ({ page }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
+        await open(page);
 
-            await page.evaluate(async (redBranchId) => {
-                // delete red branch
-                await window.editor.api.globals.rest.branches.branchDelete({
-                    branchId: redBranchId
-                }).promisify();
-            }, redBranchId);
-        })).toStrictEqual([]);
+        const deleted = await armBranchDeleted(page, redBranchId);
+        await page.evaluate((redBranchId) => {
+            return window.editor.api.globals.rest.branches.branchDelete({ branchId: redBranchId }).promisify();
+        }, redBranchId);
+
+        // red was closed by its merge, so it drops out of the closed list
+        await deleted();
+        expect(await branchIds(page, true)).not.toContain(redBranchId);
     });
 
-    test('delete green branch', async () => {
-        expect(await capture('editor', page, async () => {
-            await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
+    test('delete green branch', async ({ page }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
+        await open(page);
 
-            await page.evaluate(async (greenBranchId) => {
-                // delete green branch
-                await window.editor.api.globals.rest.branches.branchDelete({
-                    branchId: greenBranchId
-                }).promisify();
-            }, greenBranchId);
-        })).toStrictEqual([]);
+        const deleted = await armBranchDeleted(page, greenBranchId);
+        await page.evaluate((greenBranchId) => {
+            return window.editor.api.globals.rest.branches.branchDelete({ branchId: greenBranchId }).promisify();
+        }, greenBranchId);
+
+        await deleted();
+        expect(await branchIds(page)).not.toContain(greenBranchId);
     });
 });

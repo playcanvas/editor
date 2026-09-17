@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import type { BrowserContextOptions } from '@playwright/test';
 
-type SearchParams = Record<string, string | number | boolean>;
+export type SearchParams = Record<string, string | number | boolean>;
 
 export const HOST = process.env.PC_HOST ?? 'playcanvas.com';
 export const LOGIN_HOST = process.env.PC_LOGIN_HOST ?? 'login.playcanvas.com';
@@ -15,7 +15,7 @@ export const AUTH_STATES: BrowserContextOptions['storageState'][] = (() => {
     if (parts.length < 2) {
         throw new Error(`Invalid HOST: ${HOST}`);
     }
-    const cookies = (process.env.PC_COOKIE_VALUE ?? '').split(',');
+    const cookies = (process.env.PC_COOKIE_VALUE ?? '').split(',').map(value => value.trim());
     return cookies.map((value) => {
         return {
             cookies: [{

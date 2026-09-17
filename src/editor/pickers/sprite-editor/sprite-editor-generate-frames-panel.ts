@@ -217,20 +217,7 @@ editor.once('load', () => {
                 const history = asset.history.enabled;
                 asset.history.enabled = false;
 
-                const frameCountValue = (fieldFrameCount as VectorInput).value;
-                const frameSizeValue = (fieldFrameSize as VectorInput).value;
-
-                if (type === TYPE_GRID_BY_FRAME_COUNT) {
-                    sliceGridByCount(frameCountValue[0], frameCountValue[1], newFrames);
-
-                    // set frames and manually emit 'set' event
-                    // to avoid huge performance hit if there's a lot of frames
-                    setFrames(asset, newFrames);
-                } else if (type === TYPE_GRID_BY_FRAME_SIZE) {
-                    sliceGridBySize(frameSizeValue[0], frameSizeValue[1], newFrames);
-                    setFrames(asset, newFrames);
-                }
-
+                setFrames(asset, newFrames);
                 asset.history.enabled = history;
             };
 
@@ -255,6 +242,16 @@ editor.once('load', () => {
             // do this in a timeout to give a chance to the button to
             // appear disabled
             setTimeout(() => {
+                const frameCountValue = (fieldFrameCount as VectorInput).value;
+                const frameSizeValue = (fieldFrameSize as VectorInput).value;
+
+                // generate once so redo restores the original frames and settings
+                if (type === TYPE_GRID_BY_FRAME_COUNT) {
+                    sliceGridByCount(frameCountValue[0], frameCountValue[1], newFrames);
+                } else if (type === TYPE_GRID_BY_FRAME_SIZE) {
+                    sliceGridBySize(frameSizeValue[0], frameSizeValue[1], newFrames);
+                }
+
                 redo();
                 btnGenerate.enabled = true;
             }, 50);

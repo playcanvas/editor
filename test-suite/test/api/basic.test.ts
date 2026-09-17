@@ -1,214 +1,181 @@
+import { statSync } from 'fs';
 import { tmpdir } from 'os';
 
-import { expect, test, type Page } from '@playwright/test';
+import type { BrowserContext, Page } from '@playwright/test';
 
-import { capture } from '../../lib/capture';
 import {
     checkCookieAccept,
     createEsmScript,
     createProject,
     deleteApp,
     deleteProject,
+    deleteProjects,
     downloadApp,
     exportProject,
     importProject,
     publishApp
 } from '../../lib/common';
-import { codeEditorUrl, editorBlankUrl, editorSceneUrl, editorUrl, launchSceneUrl } from '../../lib/config';
+import { codeEditorUrl, editorBlankUrl, editorSceneUrl, editorUrl } from '../../lib/config';
+import { JOB_TEST_TIMEOUT } from '../../lib/constants';
+import { expect, test } from '../../lib/fixtures';
 import { middleware } from '../../lib/middleware';
+import { waitForCodeEditor, waitForEditor } from '../../lib/ready';
 import { uniqueName } from '../../lib/utils';
 
-test.describe.configure({
-    mode: 'serial'
+/** ids of every project owned by the current user */
+const projectIds = (page: Page) => page.evaluate(async () => {
+    const res: any = await window.editor.api.globals.rest.users.userProjects(window.config.self.id, '').promisify();
+    return (res.result ?? []).map((project: any) => project.id as number);
 });
 
 test.describe('create/delete', () => {
+    test.describe.configure({ mode: 'serial' });
+
     const projectName = uniqueName('api-project');
     const forkedProjectName = uniqueName('api-project');
     let projectId: number;
     let forkedProjectId: number;
-    let page: Page;
 
-    test.describe.configure({
-        mode: 'serial'
+    test('create project', async ({ blankPage }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
+        projectId = await createProject(blankPage, projectName);
+        expect(projectId).toBeGreaterThan(0);
+        expect(await projectIds(blankPage)).toContain(projectId);
     });
 
-    test.beforeAll(async ({ browser }) => {
-        page = await browser.newPage();
-        await middleware(page.context());
+    test('fork project', async ({ blankPage }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
+        forkedProjectId = await createProject(blankPage, forkedProjectName, projectId);
+        expect(forkedProjectId).not.toBe(projectId);
+        expect(await projectIds(blankPage)).toContain(forkedProjectId);
     });
 
-    test.afterAll(async () => {
-        await page.close();
+    test('delete forked project', async ({ blankPage }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
+        await deleteProject(blankPage, forkedProjectId);
+        expect(await projectIds(blankPage)).not.toContain(forkedProjectId);
     });
 
-    test('create project', async () => {
-        expect(await capture('create-project', page, async () => {
-            await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
-            projectId = await createProject(page, projectName);
-        })).toStrictEqual([]);
-    });
-
-    test('fork project', async () => {
-        expect(await capture('create-project', page, async () => {
-            forkedProjectId = await createProject(page, forkedProjectName, projectId);
-        })).toStrictEqual([]);
-    });
-
-    test('delete forked project', async () => {
-        expect(await capture('delete-project', page, async () => {
-            await deleteProject(page, forkedProjectId);
-        })).toStrictEqual([]);
-    });
-
-    test('delete project', async () => {
-        expect(await capture('delete-project', page, async () => {
-            await deleteProject(page, projectId);
-        })).toStrictEqual([]);
+    test('delete project', async ({ blankPage }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
+        await deleteProject(blankPage, projectId);
+        expect(await projectIds(blankPage)).not.toContain(projectId);
     });
 });
 
 test.describe('export/import', () => {
+    test.describe.configure({ mode: 'serial' });
+
     const projectName = uniqueName('api-export');
     const exportPath = `${tmpdir()}/${uniqueName('exported-project')}.zip`;
+    let context: BrowserContext;
+    let setup: Page;
     let projectId: number;
     let importedProjectId: number;
-    let page: Page;
 
-    test.describe.configure({
-        mode: 'serial'
-    });
-
-    test.beforeAll(async ({ browser }) => {
-        page = await browser.newPage();
-        await middleware(page.context());
-
-        // create a temporary project
-        await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
-        await checkCookieAccept(page);
-        projectId = await createProject(page, projectName);
+    test.beforeAll(async ({ browser, authState }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
+        context = await browser.newContext({ storageState: authState });
+        await middleware(context);
+        setup = await context.newPage();
+        await setup.goto(editorBlankUrl());
+        await setup.locator('.picker-project-cms').waitFor();
+        await checkCookieAccept(setup);
+        projectId = await createProject(setup, projectName);
     });
 
     test.afterAll(async () => {
-        // delete temporary project
-        await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
-        await deleteProject(page, projectId);
-
-        await page.close();
+        test.setTimeout(JOB_TEST_TIMEOUT);
+        await deleteProjects(setup, [projectId, importedProjectId]);
+        await context.close();
     });
 
-    test('export project', async () => {
-        test.setTimeout(4 * 60 * 1000);
-        expect(await capture('export-project', page, async () => {
-            const downloadPromise = page.waitForEvent('download');
-            await exportProject(page, projectId);
-            const download = await downloadPromise;
-            await download.saveAs(exportPath);
-        })).toStrictEqual([]);
+    test('export project', async ({ blankPage }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
+        const downloadPromise = blankPage.waitForEvent('download');
+        await exportProject(blankPage, projectId);
+        const download = await downloadPromise;
+        await download.saveAs(exportPath);
+        expect(statSync(exportPath).size).toBeGreaterThan(0);
     });
 
-    test('import project', async () => {
-        test.setTimeout(4 * 60 * 1000);
-        expect(await capture('import-project', page, async () => {
-            importedProjectId = await importProject(page, exportPath);
-        })).toStrictEqual([]);
+    test('import project', async ({ blankPage }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
+        importedProjectId = await importProject(blankPage, exportPath);
+        expect(importedProjectId).toBeGreaterThan(0);
+        expect(importedProjectId).not.toBe(projectId);
+        expect(await projectIds(blankPage)).toContain(importedProjectId);
     });
 
-    test('delete imported project', async () => {
-        expect(await capture('delete-imported-project', page, async () => {
-            await deleteProject(page, importedProjectId);
-        })).toStrictEqual([]);
+    test('delete imported project', async ({ blankPage }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
+        await deleteProject(blankPage, importedProjectId);
+        expect(await projectIds(blankPage)).not.toContain(importedProjectId);
     });
 });
 
 test.describe('navigation', () => {
     const projectName = uniqueName('api-nav');
+    let context: BrowserContext;
+    let setup: Page;
     let projectId: number;
     let sceneId: number;
     let engineVersions: typeof window.config.engineVersions;
-    let page: Page;
 
-    test.describe.configure({
-        mode: 'serial'
-    });
+    test.beforeAll(async ({ browser, authState }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
+        context = await browser.newContext({ storageState: authState });
+        await middleware(context);
+        setup = await context.newPage();
+        await setup.goto(editorBlankUrl());
+        await setup.locator('.picker-project-cms').waitFor();
+        await checkCookieAccept(setup);
+        projectId = await createProject(setup, projectName);
 
-    test.beforeAll(async ({ browser }) => {
-        page = await browser.newPage();
-        await middleware(page.context());
-
-        // create a temporary project
-        await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
-        await checkCookieAccept(page);
-        projectId = await createProject(page, projectName);
+        // the launcher matrix needs the scene and the engine versions the project offers
+        await setup.goto(editorUrl(projectId, { disableBubbles: true }));
+        await waitForEditor(setup);
+        sceneId = parseInt(await setup.evaluate(() => window.config.scene.id), 10);
+        engineVersions = await setup.evaluate(() => window.config.engineVersions);
     });
 
     test.afterAll(async () => {
-        // delete temporary project
-        await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
-        await deleteProject(page, projectId);
-
-        await page.close();
+        test.setTimeout(JOB_TEST_TIMEOUT);
+        await deleteProject(setup, projectId);
+        await context.close();
     });
 
-    test('goto editor', async () => {
-        expect(await capture('editor', page, async () => {
-            await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
-            sceneId = parseInt(await page.evaluate(() => window.config.scene.id), 10);
-            engineVersions = await page.evaluate(() => window.config.engineVersions);
-        })).toStrictEqual([]);
+    test('goto editor', async ({ page }) => {
+        await page.goto(editorUrl(projectId, { disableBubbles: true }));
+        await waitForEditor(page);
+        expect(await page.evaluate(() => window.config.project.id)).toBe(projectId);
+        expect(await page.evaluate(() => parseInt(window.config.scene.id, 10))).toBe(sceneId);
     });
 
-    test('goto code editor', async () => {
-        expect(await capture('code-editor', page, async () => {
-            await page.goto(codeEditorUrl(projectId), { waitUntil: 'networkidle' });
-        })).toStrictEqual([]);
+    test('goto code editor', async ({ page }) => {
+        await page.goto(codeEditorUrl(projectId));
+        await waitForCodeEditor(page);
+        await expect(page.locator('#ui-left')).toBeVisible();
+        expect(await page.evaluate(() => window.config.project.id)).toBe(projectId);
     });
 
     for (const version of ['current', 'previous', 'releaseCandidate'] as const) {
         for (const type of ['debug', 'profiler', 'release'] as const) {
             for (const device of ['webgpu', 'webgl2'] as const) {
-                test(`goto launcher (version: ${version}, type: ${type}, device: ${device})`, async () => {
-                    expect(await capture('launcher', page, async () => {
-                        const { current, previous, releaseCandidate } = engineVersions;
-                        const args: Record<string, string> = { device };
+                test(`goto launcher (version: ${version}, type: ${type}, device: ${device})`, async ({ openLaunch }) => {
+                    const engine = engineVersions[version];
+                    test.skip(!engine, `no ${version} engine version available`);
 
-                        // select version number
-                        args.version = current.version;
-                        switch (version) {
-                            case 'previous': {
-                                if (!previous) {
-                                    test.skip(true, `no previous version available for ${version}`);
-                                    return;
-                                }
-                                args.version = previous.version;
-                                break;
-                            }
-                            case 'releaseCandidate': {
-                                if (!releaseCandidate) {
-                                    test.skip(true, `no release candidate version available for ${version}`);
-                                    return;
-                                }
-                                args.version = releaseCandidate.version;
-                                break;
-                            }
-                        }
+                    const args: Record<string, string> = { device, version: engine.version };
+                    if (type === 'debug') {
+                        args.debug = 'true';
+                    }
+                    if (type === 'profiler') {
+                        args.profile = 'true';
+                    }
 
-                        // select type
-                        switch (type) {
-                            case 'debug': {
-                                args.debug = 'true';
-                                break;
-                            }
-                            case 'profiler': {
-                                args.profile = 'true';
-                                break;
-                            }
-                        }
-
-                        // launch page
-                        const url = launchSceneUrl(sceneId, args);
-                        await page.goto(url, { waitUntil: 'networkidle' });
-                    })).toStrictEqual([]);
+                    const launch = await openLaunch(sceneId, args);
+                    expect(await launch.evaluate(() => (window as any).pc.app.frame)).toBeGreaterThan(0);
                 });
             }
         }
@@ -216,73 +183,87 @@ test.describe('navigation', () => {
 });
 
 test.describe('publish/download', () => {
+    test.describe.configure({ mode: 'serial' });
+
     const projectName = uniqueName('api-apps');
+    let context: BrowserContext;
+    let setup: Page;
     let projectId: number;
     let sceneId: number;
-    let page: Page;
 
-    test.describe.configure({
-        mode: 'serial'
-    });
+    test.beforeAll(async ({ browser, authState }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
+        context = await browser.newContext({ storageState: authState });
+        await middleware(context);
+        setup = await context.newPage();
+        await setup.goto(editorBlankUrl());
+        await setup.locator('.picker-project-cms').waitFor();
+        await checkCookieAccept(setup);
+        projectId = await createProject(setup, projectName);
 
-    test.beforeAll(async ({ browser }) => {
-        page = await browser.newPage();
-        await middleware(page.context());
-
-        // create a temporary project
-        await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
-        await checkCookieAccept(page);
-        projectId = await createProject(page, projectName);
+        await setup.goto(editorUrl(projectId, { disableBubbles: true }));
+        await waitForEditor(setup);
+        sceneId = parseInt(await setup.evaluate(() => window.config.scene.id), 10);
     });
 
     test.afterAll(async () => {
-        // delete temporary project
-        await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
-        await deleteProject(page, projectId);
-
-        await page.close();
+        test.setTimeout(JOB_TEST_TIMEOUT);
+        await deleteProject(setup, projectId);
+        await context.close();
     });
 
-    test('goto editor', async () => {
-        expect(await capture('editor', page, async () => {
-            await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
-            sceneId = parseInt(await page.evaluate(() => window.config.scene.id), 10);
-        })).toStrictEqual([]);
+    const open = async (page: Page) => {
+        await page.goto(editorSceneUrl(sceneId, { disableBubbles: true }));
+        await waitForEditor(page);
+    };
+
+    const appIds = (page: Page) => page.evaluate(async () => {
+        const res: any = await window.editor.api.globals.rest.projects.projectApps().promisify();
+        return (res.result ?? []).map((app: any) => app.id as number);
+    });
+
+    test('goto editor', async ({ page }) => {
+        await open(page);
+        expect(await page.evaluate(() => window.config.project.id)).toBe(projectId);
     });
 
     for (const scripts of ['classic', 'esm'] as const) {
         if (scripts === 'esm') {
-            test('create ESM script', async () => {
-                expect(await capture('create-esm-script', page, async () => {
-                    await createEsmScript(page, 'test-esm.mjs');
-                })).toStrictEqual([]);
+            test('create ESM script', async ({ page }) => {
+                await open(page);
+                const assetId = await createEsmScript(page, 'test-esm.mjs');
+                expect(assetId).toBeGreaterThan(0);
+                expect(await page.evaluate((id) => {
+                    return window.editor.api.globals.assets.get(id)?.get('type');
+                }, assetId)).toBe('script');
             });
         }
 
-        test(`download app (scripts: ${scripts})`, async () => {
-            test.setTimeout(4 * 60 * 1000);
-            expect(await capture(`download-project-${scripts}`, page, async () => {
-                // download app
-                const job = await downloadApp(page, sceneId);
+        test(`download app (scripts: ${scripts})`, async ({ page }) => {
+            test.setTimeout(JOB_TEST_TIMEOUT);
+            await open(page);
 
-                // check download URL
-                expect(job.download_url).toBeDefined();
-            })).toStrictEqual([]);
+            const job = await downloadApp(page, sceneId);
+            expect(job.download_url).toMatch(/^https?:\/\//);
         });
 
-        test(`publish app (scripts: ${scripts})`, async () => {
-            test.setTimeout(4 * 60 * 1000);
-            expect(await capture(`publish-project-${scripts}`, page, async () => {
-                // publish app
-                const app = await publishApp(page, sceneId);
+        test(`publish app (scripts: ${scripts})`, async ({ page }) => {
+            test.setTimeout(JOB_TEST_TIMEOUT);
+            await open(page);
 
-                // launch app
-                await page.goto(app.url, { waitUntil: 'networkidle' });
+            // publish app
+            const app = await publishApp(page, sceneId);
+            expect(app.url).toMatch(/^https?:\/\//);
+            expect(await appIds(page)).toContain(app.id);
 
-                // delete app
-                await page.goto(editorSceneUrl(sceneId), { waitUntil: 'networkidle' });
-                await deleteApp(page, app.id);
-            })).toStrictEqual([]);
+            // the published build is served from its own host, so assert it responds
+            const res = await page.goto(app.url);
+            expect(res?.status()).toBe(200);
+
+            // delete app
+            await open(page);
+            await deleteApp(page, app.id);
+            expect(await appIds(page)).not.toContain(app.id);
         });
     }
 });

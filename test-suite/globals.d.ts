@@ -46,6 +46,7 @@ interface Window {
     editor: {
         call(method: string, ...args: unknown[]): unknown;
         on(event: string, callback: (...args: never[]) => void): { unbind(): void };
+        once(event: string, callback: (...args: never[]) => void): { unbind(): void };
         api: {
             globals: Omit<Globals, 'rest'> & { rest: EditorRest };
         };

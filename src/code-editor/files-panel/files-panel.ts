@@ -516,6 +516,7 @@ editor.once('load', () => {
 
         // tree done
         editor.emit('files:load');
+        document.body.classList.add('code-editor-ready');
     });
 
     // Delete tree node for removed assets
