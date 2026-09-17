@@ -35,11 +35,13 @@ const closeStore = async (store: Locator) => {
 const search = async (store: Locator, text: string) => {
     const page = store.page();
     const input = store.locator('.search-store input');
-    await input.click();
 
     // arm before typing: the debounced request can be answered before a later wait is registered
-    const response = page.waitForResponse(r => r.url().includes('/api/store?') && r.url().includes(`search=${text}`), { timeout: STORE_TIMEOUT });
-    await input.pressSequentially(text);
+    const response = page.waitForResponse((r) => {
+        const url = new URL(r.url());
+        return url.pathname === '/api/store' && url.searchParams.get('search') === text;
+    }, { timeout: STORE_TIMEOUT });
+    await input.fill(text);
     await expect(input).toHaveValue(text);
 
     const res = await response;
