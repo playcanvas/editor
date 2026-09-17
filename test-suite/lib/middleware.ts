@@ -12,6 +12,11 @@ export const middleware = async (context: BrowserContext) => {
         });
     });
 
+    // analytics availability must not affect editor tests
+    await context.route('https://www.googletagmanager.com/gtag/js?*', (route) => {
+        return route.fulfill({ status: 200, contentType: 'application/javascript', body: '' });
+    });
+
     // cloudfront header injection; skip when unset (local backend has no waf) as an
     // empty header name stalls the request and hangs navigation
     if (HEADER_NAME) {
