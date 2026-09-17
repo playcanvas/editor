@@ -137,7 +137,7 @@ test.describe('asset-inspector', () => {
 
         // the state a generated cubemap face lands in: RGBM pixels plus the default sRGB flag
         await editorPage.evaluate((id) => {
-            const texture = window.editor.api.globals.assets.get(id);
+            const texture = window.editor.api.globals.assets.get(id)!;
             texture.set('data.rgbm', true);
             texture.set('data.srgb', true);
         }, asset.id);
@@ -160,7 +160,7 @@ test.describe('asset-inspector', () => {
         const asset = await uploadTexture(assets);
 
         await editorPage.evaluate((id) => {
-            const texture = window.editor.api.globals.assets.get(id);
+            const texture = window.editor.api.globals.assets.get(id)!;
             texture.set('data.rgbm', false);
             texture.set('data.srgb', true);
         }, asset.id);
