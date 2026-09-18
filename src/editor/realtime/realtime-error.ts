@@ -15,4 +15,11 @@ const schemaRejectionMessage = (err: unknown) => {
     return `A change was rejected by the server and reverted (${reason}). See the browser console for details.`;
 };
 
-export { isSchemaRejection, schemaRejectionMessage };
+// a failed pipeline job reports its verdict on the `job.update` payload; returns the
+// user-facing message when that verdict is a schema rejection, else null
+const jobRejectionMessage = (data: { job?: { error?: unknown } }) => {
+    const err = data?.job?.error;
+    return isSchemaRejection(err) ? schemaRejectionMessage(err) : null;
+};
+
+export { isSchemaRejection, schemaRejectionMessage, jobRejectionMessage };
