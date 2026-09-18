@@ -2,6 +2,7 @@ import { Overlay } from '@playcanvas/pcui';
 
 import { createLog } from '@/common/sentry';
 import { config } from '@/editor/config';
+import { isSchemaRejection, schemaRejectionMessage } from '@/editor/realtime/realtime-error';
 
 const log = createLog('<PATH>');
 
@@ -130,19 +131,30 @@ editor.once('load', () => {
         overlay.hidden = false;
     });
 
-    editor.on('realtime:error', onError);
+    // a schema-validation rejection reverts the op but leaves the connection healthy, so the
+    // connection-loss handler would suppress it during its grace period — surface it instead
+    const onRealtimeError = (err: unknown) => {
+        if (isSchemaRejection(err)) {
+            console.error('realtime change rejected and reverted:', err);
+            editor.call('status:error', schemaRejectionMessage(err));
+            return;
+        }
+        onError(err);
+    };
+
+    editor.on('realtime:error', onRealtimeError);
     editor.on('realtime:scene:error', (err) => {
         // this should be ok...
         if (/Exceeded max submit retries/.test(err)) {
             console.info(err);
         } else {
-            onError(err);
+            onRealtimeError(err);
         }
     });
     editor.on('realtime:userdata:error', (err) => {
         log.error(err);
     });
-    editor.on('realtime:assets:error', onError);
+    editor.on('realtime:assets:error', onRealtimeError);
 
     editor.on('messenger:scene.delete', (data) => {
         if (data.scene.branchId !== config.self.branch.id) {
