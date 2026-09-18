@@ -20,6 +20,7 @@ import './hotkey/hotkey';
 import './layout/layout';
 import './console/console';
 import './messenger/messenger';
+import './messenger/job-schema-error';
 import './relay/relay';
 import './history/history-hotkeys';
 import './history/history-status-text';
