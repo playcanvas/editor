@@ -4,6 +4,8 @@ import type { Entity } from '../entity';
 import type { Realtime } from '../realtime';
 
 import type { RealtimeConnection } from './connection';
+import { ensureParentOps } from './ensure-parent-ops';
+import type { Op } from './ensure-parent-ops';
 
 /**
  * Represents a scene in sharedb
@@ -113,7 +115,7 @@ class RealtimeScene extends Events {
         }
 
         try {
-            this._document.submitOp([op]);
+            this._document.submitOp(ensureParentOps(this._document.data, op as Op));
         } catch (err) {
             console.error(err);
             this._realtime.emit('error:scene', err, this._uniqueId);
