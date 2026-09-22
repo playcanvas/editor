@@ -26,12 +26,11 @@
     "main": "js/editor/index.js",
     "scripts": {
         "build": "cross-env NODE_ENV=production vite build",
-        "dev": "concurrently --kill-others \"cross-env NODE_ENV=development vite build --watch\" \"npm run serve\"",
+        "dev": "concurrently --kill-others \"cross-env NODE_ENV=development vite build --watch\" \"vite preview\"",
         "fmt": "prettier --check .",
         "fmt:fix": "prettier --write .",
         "lint": "stylelint sass && eslint",
         "lint:fix": "stylelint sass --fix && eslint --fix",
-        "serve": "serve -s dist -p 3487 --cors",
         "test": "mocha",
         "test:api": "rollup -c test/editor-api/rollup.test.config.mjs && karma start test/editor-api/karma.conf.cjs --single-run",
         "typecheck": "tsc"
@@ -85,7 +84,6 @@
         "rollup": "4.59.0",
         "rollup-plugin-polyfill-node": "0.13.0",
         "sass-embedded": "1.98.0",
-        "serve": "14.2.6",
         "sharedb": "3.3.2",
         "sinon": "17.0.1",
         "stylelint": "16.26.1",
