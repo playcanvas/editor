@@ -587,5 +587,11 @@ export default defineConfig({
             }
         }
     },
+    preview: {
+        host: '0.0.0.0',
+        port: 3487,
+        strictPort: true,
+        cors: true
+    },
     plugins: [virtualEmptyPlugin(), esbuildBundlePlugin()]
 });
