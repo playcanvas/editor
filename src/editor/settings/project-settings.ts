@@ -11,13 +11,11 @@ import {
 } from 'playcanvas';
 
 import { unsetLocal } from '@/common/observer-unset';
-import { migrateGlslTranspilation } from '@/common/project-settings';
 import { deepCopy, formatter as f, insert, remove, set, unset } from '@/common/utils';
 import { config } from '@/editor/config';
 
 editor.once('load', () => {
     const schema = editor.api.globals.schema;
-    const migrateGlsl = migrateGlslTranspilation(config.project.settings);
     const projectSettings = Object.assign(schema.settings.getDefaultProjectSettings(), config.project.settings);
 
     const settings = editor.call('settings:create', {
@@ -83,6 +81,19 @@ editor.once('load', () => {
             }
             editor.call('console:log:settings', settings, msg);
         }
+        if (
+            !Object.prototype.hasOwnProperty.call(config.project.settings, 'enableGlslTranspilation') &&
+            !Object.prototype.hasOwnProperty.call(data, 'enableGlslTranspilation')
+        ) {
+            const enableGlslTranspilation = Object.prototype.hasOwnProperty.call(
+                config.project.settings,
+                'enableWebGpu'
+            )
+                ? !!settings.get('enableWebGpu')
+                : settings.get('deviceTypes')?.[0] === DEVICETYPE_WEBGPU;
+            settings.set('enableGlslTranspilation', enableGlslTranspilation, undefined, undefined, true);
+        }
+
         if (settings.has('deviceTypes')) {
             const deviceTypes = settings.get('deviceTypes');
             unsetLocal(settings, 'deviceTypes');
@@ -105,10 +116,6 @@ editor.once('load', () => {
             }
 
             editor.call('console:log:settings', settings, msg);
-        }
-
-        if (migrateGlsl?.(data)) {
-            settings.set('enableGlslTranspilation', !!settings.get('enableWebGpu'), undefined, undefined, true);
         }
 
         if (!settings.get('batchGroups')) {
