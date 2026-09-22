@@ -384,7 +384,7 @@ editor.once('load', () => {
             description: `When enabled, the application will try to use WebGPU${editor.projectEngineV2 ? '' : ' (beta)'} if available.`
         },
         {
-            name: 'settings:project:enableGlslShaderTranspilation',
+            name: 'settings:project:enableGlslTranspilation',
             title: 'Enable GLSL Shader Transpilation',
             description:
                 'When enabled, GLSL-only shaders are supported under WebGPU. This adds shader compiler files to published and downloaded builds.'
