@@ -109,7 +109,10 @@ export const createChangesPanel = () => {
 
     description.on('change', gateCreate);
     // re-evaluate gating when write permission flips mid-session
-    editor.on('permissions:writeState', gateCreate);
+    editor.on('permissions:writeState', () => {
+        gateCreate();
+        renderSummary();
+    });
     description.on('keydown', (e: KeyboardEvent) => {
         if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && !create.disabled) {
             sidebar.emit('create', description.value.trim());
@@ -350,6 +353,17 @@ export const createChangesPanel = () => {
                 summary.emit('openDiff', !loading && rawDiffLive ? raw : null, rawPromise);
             });
             side.appendChild(openBtn);
+        }
+
+        // throwing away uncheckpointed work sits next to the baseline it reverts to (vs <hash>)
+        if (branch.latestCheckpointId && current?.total && editor.call('permissions:write')) {
+            const discard = document.createElement('button');
+            discard.type = 'button';
+            discard.classList.add('vc-button', 'danger');
+            discard.textContent = 'Discard All…';
+            discard.title = 'Discard all changes since the latest checkpoint';
+            discard.addEventListener('click', () => summary.emit('discardAll', current.total));
+            side.appendChild(discard);
         }
 
         // field-level diff of the selected change
