@@ -1,6 +1,7 @@
 import type { Observer } from '@playcanvas/observer';
 import { LAYERID_DEPTH } from 'playcanvas';
 
+import { useGlslTranspilation } from '@/common/project-settings';
 import { ReferencedFontHandler } from '@/common/referenced-font-handler';
 import { createLog } from '@/common/sentry';
 import { config } from '@/launch/config';
@@ -140,7 +141,7 @@ editor.once('load', () => {
     scriptPrefix = config.project.scriptPrefix;
 
     // device types
-    const { enableWebGpu, enableWebGl2 } = editor.call('settings:project').json();
+    const { enableWebGpu, enableWebGl2, enableGlslTranspilation } = editor.call('settings:project').json();
     let deviceTypes = [
         enableWebGpu && pc.DEVICETYPE_WEBGPU,
         enableWebGl2 && pc.DEVICETYPE_WEBGL2,
@@ -179,8 +180,12 @@ editor.once('load', () => {
 
     const gfxOptions = {
         deviceTypes: deviceTypes,
-        glslangUrl: '/editor/scene/js/webgpu/glslang.js',
-        twgslUrl: '/editor/scene/js/webgpu/twgsl.js',
+        ...(useGlslTranspilation(enableWebGpu, enableGlslTranspilation)
+            ? {
+                  glslangUrl: '/editor/scene/js/webgpu/glslang.js',
+                  twgslUrl: '/editor/scene/js/webgpu/twgsl.js'
+              }
+            : {}),
         powerPreference: powerPreference,
         antialias: config.project.settings.antiAlias !== false,
         alpha: config.project.settings.transparentCanvas !== false,
