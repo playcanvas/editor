@@ -230,6 +230,11 @@ editor.once('load', () => {
         'Finished - refreshing the browser',
         'Failed to hard reset to checkpoint'
     );
+    const progressDiscard = makeProgress(
+        'Discarding changes',
+        'Changes discarded - refreshing the browser',
+        'Failed to discard changes'
+    );
     const progressSwitch = makeProgress(
         'Switching branch',
         'Switched branch - refreshing the browser',
@@ -247,6 +252,7 @@ editor.once('load', () => {
             progressMerge,
             progressRestore,
             progressHardReset,
+            progressDiscard,
             progressSwitch
         ].forEach((p) => {
             p.hidden = p !== w;
@@ -825,6 +831,51 @@ editor.once('load', () => {
         });
     });
     panel.on('checkpoint:restore', (checkpoint: any) => detail.emit('restore', checkpoint));
+
+    changes.summary.on('discardAll', (count: number) => {
+        // captured before the safety checkpoint, which would otherwise become the new baseline
+        const checkpointId = config.self.branch.latestCheckpointId;
+        const dialog = showVcDialog({
+            title: 'Discard all changes?',
+            body: [
+                `Discards all ${count} change${count === 1 ? '' : 's'} since `,
+                { bold: checkpointId.substring(0, 7) },
+                '.'
+            ],
+            confirmText: 'Discard All',
+            checkboxes: [{ key: 'checkpoint', label: 'Take a checkpoint of the current state first', value: true }],
+            escalate: (checks) =>
+                checks.checkpoint ? null : { confirmText: 'Discard Permanently', warning: 'This cannot be undone.' },
+            onConfirm: ({ checks }) => {
+                dialog.close();
+                const discard = () => {
+                    showProgress(progressDiscard);
+                    handleCallback(
+                        editor.api.globals.rest.checkpoints.checkpointRestore({
+                            checkpointId,
+                            branchId: config.self.branch.id
+                        }),
+                        (err) => {
+                            progressDiscard.finish(err);
+                            if (err) {
+                                togglePanels(true);
+                            }
+                        }
+                    );
+                };
+                togglePanels(false);
+                if (checks.checkpoint) {
+                    createCheckpoint(
+                        config.self.branch.id,
+                        `Checkpoint before discarding changes since "${checkpointId.substring(0, 7)}"`,
+                        discard
+                    );
+                } else {
+                    discard();
+                }
+            }
+        });
+    });
 
     detail.on('hardReset', (checkpoint: any) => {
         const dialog = showVcDialog({
