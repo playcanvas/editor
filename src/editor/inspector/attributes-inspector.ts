@@ -191,6 +191,51 @@ class AttributesInspector extends Container {
         );
 
         const field = Element.create(attr.type, fieldArgs);
+
+        // pcui can display a clamped value without changing the observer
+        if (attr.type === 'number' || attr.type === 'slider') {
+            let edited = false;
+            const edit = (evt: Event) => {
+                if (evt.type === 'input') {
+                    edited = true;
+                } else if (evt instanceof KeyboardEvent && evt.key === 'Escape') {
+                    edited = false;
+                }
+            };
+            const commit = (evt: Event) => {
+                if (evt instanceof KeyboardEvent && evt.key !== 'Enter') {
+                    return;
+                }
+                if (evt.type === 'focusout' && !edited) {
+                    return;
+                }
+                edited = false;
+                const { binding, value } = field;
+                if (!field.enabled || field.readOnly || !binding || !Number.isFinite(value)) {
+                    return;
+                }
+                if (
+                    binding.observers.some(
+                        (observer, i) => observer.get(binding.paths[i] ?? binding.paths[0]) !== value
+                    )
+                ) {
+                    binding.setValue(value);
+                }
+            };
+            field.dom.addEventListener('input', edit);
+            field.dom.addEventListener('keydown', edit, true);
+            field.dom.addEventListener('change', commit);
+            field.dom.addEventListener('keydown', commit);
+            field.dom.addEventListener('focusout', commit);
+            field.once('destroy', () => {
+                field.dom.removeEventListener('input', edit);
+                field.dom.removeEventListener('keydown', edit, true);
+                field.dom.removeEventListener('change', commit);
+                field.dom.removeEventListener('keydown', commit);
+                field.dom.removeEventListener('focusout', commit);
+            });
+        }
+
         let evtChange = field.on('change', this._onAttributeChangeHandler);
         field.once('destroy', () => {
             if (!evtChange) {
