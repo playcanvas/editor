@@ -4,6 +4,7 @@ on:
     push:
         tags:
             - 'v[0-9]+.[0-9]+.[0-9]+'
+            - 'v[0-9]+.[0-9]+.[0-9]+-preview.[0-9]+'
 
 jobs:
     release:
@@ -17,6 +18,6 @@ jobs:
               uses: softprops/action-gh-release@v3
               with:
                   generate_release_notes: true
-                  prerelease: false
+                  prerelease: ${{ contains(github.ref_name, '-preview.') }}
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

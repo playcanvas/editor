@@ -2,15 +2,15 @@ name: Test Suite / Publish
 
 on:
     push:
-        branches: [main]
+        branches: [main, 'release-*']
 
 permissions:
     contents: read
     packages: write
 
 concurrency:
-    group: publish-test
-    cancel-in-progress: true
+    group: publish-test-${{ github.sha }}
+    cancel-in-progress: false
 
 jobs:
     publish:
@@ -35,11 +35,11 @@ jobs:
               with:
                   context: ./test-suite
                   push: true
-                  cache-from: type=registry,ref=ghcr.io/playcanvas/editor/test:cache
-                  cache-to: type=registry,ref=ghcr.io/playcanvas/editor/test:cache,mode=max
+                  cache-from: type=registry,ref=ghcr.io/playcanvas/editor/test:cache-${{ github.ref_name }}
+                  cache-to: type=registry,ref=ghcr.io/playcanvas/editor/test:cache-${{ github.ref_name }},mode=max
                   tags: |
                       ghcr.io/playcanvas/editor/test:${{ github.sha }}
-                      ghcr.io/playcanvas/editor/test:latest
+                      ${{ github.ref_name == 'main' && 'ghcr.io/playcanvas/editor/test:latest' || '' }}
                   platforms: linux/amd64,linux/arm64
               env:
                   DOCKER_BUILD_SUMMARY: false
