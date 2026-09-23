@@ -34,7 +34,7 @@ editor.once('load', () => {
     const searchMatches = new Set();
     const projects = {};
     const IS_EMPTY_STATE = !config.project.id; // if no project loaded, CMS is in empty state
-    const EMPTY_THUMBNAIL_IMAGE = '/static/platform/images/home/blank_project.png';
+    const EMPTY_THUMBNAIL_IMAGE = `${config.url.frontend}static/img/blank-project.png`;
 
     let events = [];
 
