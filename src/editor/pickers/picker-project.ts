@@ -23,7 +23,7 @@ editor.once('load', () => {
     let alerts = []; // list of alerts
 
     const IS_EMPTY_STATE = !config.project.id;
-    const EMPTY_THUMBNAIL_IMAGE = "url('/static/platform/images/home/blank_project.png')";
+    const EMPTY_THUMBNAIL_IMAGE = `url('${config.url.frontend}static/img/blank-project.png')`;
     const FULLSCREEN_KEY = 'editor:picker:project:fullscreen';
 
     // UI

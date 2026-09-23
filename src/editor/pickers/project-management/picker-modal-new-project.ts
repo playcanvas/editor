@@ -11,12 +11,14 @@ import {
     TextInput
 } from '@playcanvas/pcui';
 
+import { config } from '@/editor/config';
+
 editor.once('load', () => {
     // GLOBAL VARIABLES
     const blankProject = {
         name: 'Blank Project',
         description: 'A new blank project.',
-        image: '/static/platform/images/home/blank_project.png',
+        image: `${config.url.frontend}static/img/blank-project.png`,
         tags: ['games'],
         fork_from: null
     };
