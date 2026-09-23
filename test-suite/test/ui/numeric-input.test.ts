@@ -4,7 +4,7 @@ import { expect, test } from '@playwright/test';
 import { build } from 'esbuild';
 
 const ROOT = fileURLToPath(new URL('../../..', import.meta.url));
-const SOURCE = /* html */ `
+const SOURCE = /* javascript */ `
     import { Observer } from '@playcanvas/observer';
     import { History } from './src/editor-api/history';
     import { AttributesInspector } from './src/editor/inspector/attributes-inspector';
