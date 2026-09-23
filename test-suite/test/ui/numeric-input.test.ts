@@ -4,7 +4,7 @@ import { expect, test } from '@playwright/test';
 import { build } from 'esbuild';
 
 const ROOT = fileURLToPath(new URL('../../..', import.meta.url));
-const SOURCE = `
+const SOURCE = /* html */ `
     import { Observer } from '@playcanvas/observer';
     import { History } from './src/editor-api/history';
     import { AttributesInspector } from './src/editor/inspector/attributes-inspector';
@@ -53,7 +53,9 @@ test.beforeAll(async () => {
 });
 
 test.beforeEach(async ({ page }) => {
-    await page.setContent('<html><body></body></html>');
+    await page.setContent(/* html */ `
+        <html><body></body></html>
+    `);
     await page.evaluate(() => {
         Object.assign(window, {
             config: { sentry: { enabled: false } },
