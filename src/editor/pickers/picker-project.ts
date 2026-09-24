@@ -23,7 +23,7 @@ editor.once('load', () => {
     let alerts = []; // list of alerts
 
     const IS_EMPTY_STATE = !config.project.id;
-    const EMPTY_THUMBNAIL_IMAGE = `url('${config.url.frontend}static/img/blank-project.png')`;
+    const EMPTY_THUMBNAIL_IMAGE = `url('${config.url.frontend}static/img/blank-project.webp')`;
     const FULLSCREEN_KEY = 'editor:picker:project:fullscreen';
 
     // UI
@@ -340,7 +340,7 @@ editor.once('load', () => {
         }
 
         const previousBackgroundImage = projectImg.style.backgroundImage;
-        projectImg.style.backgroundImage = `url("${config.url.static}/platform/images/common/ajax-loader.gif")`;
+        projectImg.style.backgroundImage = `url("${config.url.frontend}static/img/ajax-loader.webp")`;
         projectImg.classList.add('progress');
 
         uploadingImage = true;

@@ -107,7 +107,7 @@ editor.once('load', () => {
     imageField.classList.add('image');
     containerInfo.append(imageField);
 
-    const blankImage = `${config.url.frontend}static/img/blank-project.png`;
+    const blankImage = `${config.url.frontend}static/img/blank-project.webp`;
 
     const clearAppImage = function () {
         imageField.classList.remove('progress');
@@ -154,7 +154,7 @@ editor.once('load', () => {
 
         imageField.classList.remove('blank');
         imageField.classList.add('progress');
-        imageField.style.backgroundImage = `url("${config.url.static}/platform/images/common/ajax-loader.gif")`;
+        imageField.style.backgroundImage = `url("${config.url.frontend}static/img/ajax-loader.webp")`;
 
         const file = fileInput.files[0];
         fileInput.value = null;
