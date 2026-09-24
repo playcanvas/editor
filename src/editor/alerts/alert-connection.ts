@@ -4,10 +4,11 @@ import { createLog } from '@/common/sentry';
 import { formatter as f } from '@/common/utils';
 import { config } from '@/editor/config';
 import {
-    assetRejection,
+    docRejection,
     isSchemaRejection,
     schemaRejectionMessage,
-    sceneRejection
+    sceneRejection,
+    settingsRejection
 } from '@/editor/realtime/realtime-error';
 import type { OpComponent } from '@/editor/realtime/realtime-error';
 
@@ -177,18 +178,30 @@ editor.once('load', () => {
         }
         onRealtimeError(err);
     });
+    // settings.ts already logs the devtools line, as it also runs in the launcher and code editor
+    editor.on('realtime:settings:error', (err, op: OpComponent[], name: string) => {
+        const [uiMsg, verboseMsg] = f.parse(settingsRejection(err, op, name));
+        editor.call('console:warn', uiMsg, verboseMsg, () => {
+            editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
+        });
+    });
     editor.on('realtime:userdata:error', (err) => {
         log.error(err);
     });
     editor.on('realtime:assets:error', (err, op?: OpComponent[], uniqueId?: number) => {
         if (op?.length && uniqueId !== undefined && isSchemaRejection(err)) {
             const name = editor.call('assets:getUnique', uniqueId)?.get('name');
-            warnRejection(err, op, assetRejection(err, op, uniqueId, name), () => {
-                const target = editor.call('assets:getUnique', uniqueId);
-                if (target) {
-                    editor.call('selector:set', 'asset', [target]);
+            warnRejection(
+                err,
+                op,
+                docRejection(err, op, name ? `${name}<< (${uniqueId})>>` : `asset ${uniqueId}`),
+                () => {
+                    const target = editor.call('assets:getUnique', uniqueId);
+                    if (target) {
+                        editor.call('selector:set', 'asset', [target]);
+                    }
                 }
-            });
+            );
             return;
         }
         onRealtimeError(err);

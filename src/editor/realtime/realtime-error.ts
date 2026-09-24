@@ -42,13 +42,26 @@ const sceneRejection = (err: unknown, op: OpComponent[], nameOf: (id: string) =>
 };
 
 /**
- * Describes which part of a rejected asset op the server refused.
+ * Describes which part of a rejected asset or settings op the server refused.
  */
-const assetRejection = (err: unknown, op: OpComponent[], id: number, name?: string) => {
+const docRejection = (err: unknown, op: OpComponent[], subject: string) => {
     const reason = reasonOf(err);
     const c = culprit(reason, op);
-    return refusal(reason, c, c.p.join('.'), name ? `${name}<< (${id})>>` : `asset ${id}`);
+    return refusal(reason, c, c.p.join('.'), subject);
 };
+
+const SETTINGS_LABELS: Record<string, string> = {
+    project: 'project settings',
+    projectUser: 'project user settings',
+    projectPrivate: 'private project settings',
+    user: 'user settings'
+};
+
+/**
+ * Describes which setting the server refused, labelled by the settings doc it lives in.
+ */
+const settingsRejection = (err: unknown, op: OpComponent[], name: string) =>
+    docRejection(err, op, SETTINGS_LABELS[name] ?? `${name} settings`);
 
 // a failed pipeline job reports its verdict on the `job.update` payload; returns the
 // user-facing message when that verdict is a schema rejection, else null
@@ -57,5 +70,12 @@ const jobRejectionMessage = (data: { job?: { error?: unknown } }) => {
     return isSchemaRejection(err) ? schemaRejectionMessage(err) : null;
 };
 
-export { isSchemaRejection, schemaRejectionMessage, sceneRejection, assetRejection, jobRejectionMessage };
+export {
+    isSchemaRejection,
+    schemaRejectionMessage,
+    sceneRejection,
+    docRejection,
+    settingsRejection,
+    jobRejectionMessage
+};
 export type { OpComponent };

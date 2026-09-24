@@ -5,9 +5,9 @@
  * @param report - Called once per rejection with every op it covered
  * @returns A callback taking the error and the ops of one submit
  */
-export const batchRejections = (report: (err: unknown, ops: object[]) => void) => {
-    const pending = new Map<unknown, object[]>();
-    return (err: unknown, ops: object[]) => {
+export const batchRejections = <T>(report: (err: unknown, ops: T[]) => void) => {
+    const pending = new Map<unknown, T[]>();
+    return (err: unknown, ops: T[]) => {
         const batch = pending.get(err);
         if (batch) {
             batch.push(...ops);
