@@ -90,7 +90,7 @@ export const createHistoryPanel = () => {
             if (checkpoint) {
                 applyUserThumbnail(avatar, checkpoint.user.id, 28);
             } else {
-                avatar.src = `${config.url.frontend}static/img/blank-project.png`;
+                avatar.src = `${config.url.frontend}static/img/blank-project.webp`;
             }
             row.appendChild(avatar);
         }
