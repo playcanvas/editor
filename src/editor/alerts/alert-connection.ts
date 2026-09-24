@@ -152,7 +152,8 @@ editor.once('load', () => {
     // the op pinpoints the refused change, so log it to the editor console rather than the status bar
     const warnRejection = (err: unknown, op: OpComponent[], msg: string, select: () => void) => {
         const [uiMsg, verboseMsg] = f.parse(msg);
-        console.warn('realtime change rejected and reverted:', err, op);
+        // the message and op are what matter; logging the error itself only adds a ShareDB stack
+        console.warn(`${uiMsg} (${err instanceof Error ? err.message : err}):`, op);
         editor.call('console:warn', uiMsg, verboseMsg, select);
     };
 

@@ -3,6 +3,7 @@ import { Events } from '@playcanvas/observer';
 import type { Realtime } from '../realtime';
 
 import type { RealtimeConnection } from './connection';
+import { batchRejections } from './rejections';
 
 /**
  * Represents an asset in sharedb
@@ -21,6 +22,8 @@ class RealtimeAsset extends Events {
     private _loaded: boolean;
 
     private _evtConnection: any;
+
+    private _onRejected = batchRejections((err, ops) => this._realtime.emit('error:asset', err, this._uniqueId, ops));
 
     /**
      * Constructor
@@ -91,7 +94,7 @@ class RealtimeAsset extends Events {
             // a callback keeps the rejected op, which the doc 'error' event drops
             this._document.submitOp([op], (err: unknown) => {
                 if (err) {
-                    this._realtime.emit('error:asset', err, this._uniqueId, [op]);
+                    this._onRejected(err, [op]);
                 }
                 callback?.(err);
             });
