@@ -107,7 +107,7 @@ editor.once('load', () => {
     imageField.classList.add('image');
     containerInfo.append(imageField);
 
-    const blankImage = `${config.url.static}/platform/images/common/blank_project.png`;
+    const blankImage = `${config.url.frontend}static/img/blank-project.png`;
 
     const clearAppImage = function () {
         imageField.classList.remove('progress');
