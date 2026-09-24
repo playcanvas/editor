@@ -88,7 +88,13 @@ class RealtimeAsset extends Events {
         }
 
         try {
-            this._document.submitOp([op], callback);
+            // a callback keeps the rejected op, which the doc 'error' event drops
+            this._document.submitOp([op], (err: unknown) => {
+                if (err) {
+                    this._realtime.emit('error:asset', err, this._uniqueId, [op]);
+                }
+                callback?.(err);
+            });
         } catch (err) {
             console.error(err);
             this._realtime.emit('error:asset', err, this._uniqueId);

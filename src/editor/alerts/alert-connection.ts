@@ -1,8 +1,15 @@
 import { Overlay } from '@playcanvas/pcui';
 
 import { createLog } from '@/common/sentry';
+import { formatter as f } from '@/common/utils';
 import { config } from '@/editor/config';
-import { isSchemaRejection, schemaRejectionMessage } from '@/editor/realtime/realtime-error';
+import {
+    assetRejection,
+    isSchemaRejection,
+    schemaRejectionMessage,
+    sceneRejection
+} from '@/editor/realtime/realtime-error';
+import type { OpComponent } from '@/editor/realtime/realtime-error';
 
 const log = createLog('<PATH>');
 
@@ -142,19 +149,49 @@ editor.once('load', () => {
         onError(err);
     };
 
+    // the op pinpoints the refused change, so log it to the editor console rather than the status bar
+    const warnRejection = (err: unknown, op: OpComponent[], msg: string, select: () => void) => {
+        const [uiMsg, verboseMsg] = f.parse(msg);
+        console.warn('realtime change rejected and reverted:', err, op);
+        editor.call('console:warn', uiMsg, verboseMsg, select);
+    };
+
     editor.on('realtime:error', onRealtimeError);
-    editor.on('realtime:scene:error', (err) => {
+    editor.on('realtime:scene:error', (err, op?: OpComponent[]) => {
         // this should be ok...
         if (/Exceeded max submit retries/.test(err)) {
             console.info(err);
-        } else {
-            onRealtimeError(err);
+            return;
         }
+
+        if (op?.length && isSchemaRejection(err)) {
+            const { entity, msg } = sceneRejection(err, op, (id) => editor.call('entities:get', id)?.get('name'));
+            warnRejection(err, op, msg, () => {
+                const target = entity && editor.call('entities:get', entity);
+                if (target) {
+                    editor.call('selector:set', 'entity', [target]);
+                }
+            });
+            return;
+        }
+        onRealtimeError(err);
     });
     editor.on('realtime:userdata:error', (err) => {
         log.error(err);
     });
-    editor.on('realtime:assets:error', onRealtimeError);
+    editor.on('realtime:assets:error', (err, op?: OpComponent[], uniqueId?: number) => {
+        if (op?.length && uniqueId !== undefined && isSchemaRejection(err)) {
+            const name = editor.call('assets:getUnique', uniqueId)?.get('name');
+            warnRejection(err, op, assetRejection(err, op, uniqueId, name), () => {
+                const target = editor.call('assets:getUnique', uniqueId);
+                if (target) {
+                    editor.call('selector:set', 'asset', [target]);
+                }
+            });
+            return;
+        }
+        onRealtimeError(err);
+    });
 
     editor.on('messenger:scene.delete', (data) => {
         if (data.scene.branchId !== config.self.branch.id) {

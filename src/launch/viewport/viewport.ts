@@ -193,8 +193,6 @@ editor.once('load', () => {
     };
 
     app = new pc.AppBase(canvas);
-    app.loader.withCredentials = projectSettings.get('withCredentials');
-    app.loader.maxConcurrentRequests = projectSettings.get('maxConcurrentRequests');
 
     pc.createGraphicsDevice(canvas, gfxOptions).then((device) => {
         const createOptions = new pc.AppOptions();
@@ -286,6 +284,13 @@ editor.once('load', () => {
 
         app.init(createOptions);
         gfxCreated = true;
+
+        // engine v1 creates the loader in init; unmigrated projects lack these settings
+        app.loader.withCredentials = !!projectSettings.get('withCredentials');
+        const maxRequests = projectSettings.get('maxConcurrentRequests');
+        if (typeof maxRequests === 'number') {
+            app.loader.maxConcurrentRequests = maxRequests;
+        }
 
         // when app is initialized (which is async), emit event to allow dependencies to load
         editor.emit('launcher:device:ready', app);

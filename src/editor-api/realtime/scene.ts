@@ -115,7 +115,14 @@ class RealtimeScene extends Events {
         }
 
         try {
-            this._document.submitOp(ensureParentOps(this._document.data, op as Op));
+            const ops = ensureParentOps(this._document.data, op as Op);
+
+            // a callback keeps the rejected op, which the doc 'error' event drops
+            this._document.submitOp(ops, (err) => {
+                if (err) {
+                    this._realtime.emit('error:scene', err, this._uniqueId, ops);
+                }
+            });
         } catch (err) {
             console.error(err);
             this._realtime.emit('error:scene', err, this._uniqueId);

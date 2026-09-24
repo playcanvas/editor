@@ -31,12 +31,12 @@ editor.once('start', () => {
         editor.call('status:error', err);
     });
 
-    realtime.on('error:scene', (err: unknown) => {
-        editor.emit('realtime:scene:error', err);
+    realtime.on('error:scene', (err: unknown, _id: number, op?: unknown[]) => {
+        editor.emit('realtime:scene:error', err, op);
     });
 
-    realtime.on('error:asset', (err: unknown) => {
-        editor.emit('realtime:assets:error', err);
+    realtime.on('error:asset', (err: unknown, uniqueId: number, op?: unknown[]) => {
+        editor.emit('realtime:assets:error', err, op, uniqueId);
     });
 
     realtime.on('disconnect', (reason: string) => {
