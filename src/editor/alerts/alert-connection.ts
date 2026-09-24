@@ -1,8 +1,16 @@
 import { Overlay } from '@playcanvas/pcui';
 
 import { createLog } from '@/common/sentry';
+import { formatter as f } from '@/common/utils';
 import { config } from '@/editor/config';
-import { isSchemaRejection, schemaRejectionMessage } from '@/editor/realtime/realtime-error';
+import {
+    docRejection,
+    isSchemaRejection,
+    schemaRejectionMessage,
+    sceneRejection,
+    settingsRejection
+} from '@/editor/realtime/realtime-error';
+import type { OpComponent } from '@/editor/realtime/realtime-error';
 
 const log = createLog('<PATH>');
 
@@ -142,19 +150,62 @@ editor.once('load', () => {
         onError(err);
     };
 
+    // the op pinpoints the refused change, so log it to the editor console rather than the status bar
+    const warnRejection = (err: unknown, op: OpComponent[], msg: string, select: () => void) => {
+        const [uiMsg, verboseMsg] = f.parse(msg);
+        // the message and op are what matter; logging the error itself only adds a ShareDB stack
+        console.warn(`${uiMsg} (${err instanceof Error ? err.message : err}):`, op);
+        editor.call('console:warn', uiMsg, verboseMsg, select);
+    };
+
     editor.on('realtime:error', onRealtimeError);
-    editor.on('realtime:scene:error', (err) => {
+    editor.on('realtime:scene:error', (err, op?: OpComponent[]) => {
         // this should be ok...
         if (/Exceeded max submit retries/.test(err)) {
             console.info(err);
-        } else {
-            onRealtimeError(err);
+            return;
         }
+
+        if (op?.length && isSchemaRejection(err)) {
+            const { entity, msg } = sceneRejection(err, op, (id) => editor.call('entities:get', id)?.get('name'));
+            warnRejection(err, op, msg, () => {
+                const target = entity && editor.call('entities:get', entity);
+                if (target) {
+                    editor.call('selector:set', 'entity', [target]);
+                }
+            });
+            return;
+        }
+        onRealtimeError(err);
+    });
+    // settings.ts already logs the devtools line, as it also runs in the launcher and code editor
+    editor.on('realtime:settings:error', (err, op: OpComponent[], name: string) => {
+        const [uiMsg, verboseMsg] = f.parse(settingsRejection(err, op, name));
+        editor.call('console:warn', uiMsg, verboseMsg, () => {
+            editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
+        });
     });
     editor.on('realtime:userdata:error', (err) => {
         log.error(err);
     });
-    editor.on('realtime:assets:error', onRealtimeError);
+    editor.on('realtime:assets:error', (err, op?: OpComponent[], uniqueId?: number) => {
+        if (op?.length && uniqueId !== undefined && isSchemaRejection(err)) {
+            const name = editor.call('assets:getUnique', uniqueId)?.get('name');
+            warnRejection(
+                err,
+                op,
+                docRejection(err, op, name ? `${name}<< (${uniqueId})>>` : `asset ${uniqueId}`),
+                () => {
+                    const target = editor.call('assets:getUnique', uniqueId);
+                    if (target) {
+                        editor.call('selector:set', 'asset', [target]);
+                    }
+                }
+            );
+            return;
+        }
+        onRealtimeError(err);
+    });
 
     editor.on('messenger:scene.delete', (data) => {
         if (data.scene.branchId !== config.self.branch.id) {
