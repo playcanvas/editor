@@ -1,0 +1,32 @@
+name: Label
+
+on:
+    pull_request_target:
+        branches: [main, 'release-*']
+        types: [opened, reopened, synchronize, labeled, unlabeled, edited]
+
+permissions:
+    pull-requests: read
+
+concurrency:
+    group: label-${{ github.event.pull_request.number }}
+    cancel-in-progress: true
+
+jobs:
+    label:
+        name: Label
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check Release Label
+              uses: actions/github-script@v8
+              with:
+                  script: |
+                      const labels = await github.paginate(github.rest.issues.listLabelsOnIssue, {
+                          ...context.repo,
+                          issue_number: context.payload.pull_request.number
+                      });
+                      const count = labels.filter(({ name }) => name === 'release: next patch' || name === 'release: next minor').length;
+
+                      if (count !== 1) {
+                          core.setFailed('Add exactly one release label: "release: next patch" or "release: next minor".');
+                      }
