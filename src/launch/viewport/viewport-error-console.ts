@@ -24,7 +24,7 @@ editor.once('load', () => {
 
     // close button img
     const closeBtn = document.createElement('img');
-    closeBtn.src = `${config.url.frontend}static/img/remove.png`;
+    closeBtn.src = `${config.url.frontend}static/img/remove.svg`;
     panel.appendChild(closeBtn);
 
     closeBtn.addEventListener('click', () => {

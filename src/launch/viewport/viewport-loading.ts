@@ -64,7 +64,7 @@ editor.once('load', () => {
                 splash.style.display = 'none';
 
                 const logo = document.createElement('img');
-                logo.src = `${config.url.frontend}static/img/play_text_252_white.png`;
+                logo.src = `${config.url.frontend}static/img/play_text_252_white.svg`;
                 splash.appendChild(logo);
                 logo.onload = () => {
                     splash.style.display = 'block';

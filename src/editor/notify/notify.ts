@@ -2,7 +2,7 @@ editor.once('load', () => {
     const TIMEOUT = 5000;
     const TIMEOUT_OVERLAP = 500;
     let last;
-    const logo = `${config.url.frontend}static/img/playcanvas-logo-360.jpg`;
+    const logo = `${config.url.frontend}static/img/playcanvas-logo-360.webp`;
 
     editor.method('notify:state', () => {
         if (!window.Notification) {

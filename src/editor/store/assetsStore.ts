@@ -4,7 +4,7 @@ import filenamify from 'filenamify/browser';
 import { bytesToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
-import { BaseStore, EMPTY_THUMBNAIL_IMAGE, EMPTY_THUMBNAIL_IMAGE_LARGE, STORE_ITEM_PAGE_SIZE } from './baseStore';
+import { BaseStore, EMPTY_THUMBNAIL_IMAGE, STORE_ITEM_PAGE_SIZE } from './baseStore';
 
 class AssetsStore extends BaseStore {
     readonly name = 'playcanvasStore';
@@ -153,7 +153,7 @@ class AssetsStore extends BaseStore {
         description: string;
         license: string;
     }) {
-        let thumbnail = EMPTY_THUMBNAIL_IMAGE_LARGE;
+        let thumbnail = EMPTY_THUMBNAIL_IMAGE;
         if (item.pictures.length) {
             const pictures = `${config.url.images}/${config.aws.s3Prefix}files/pictures/`;
             thumbnail = `${pictures + item.pictures[0]}/1280x720.jpg`;

@@ -2,9 +2,8 @@ import { Label, Container, RadioButton } from '@playcanvas/pcui';
 
 import { bytesToHuman } from '@/common/utils';
 
-const EMPTY_THUMBNAIL_IMAGE = `${config.url.frontend}static/img/store-default-thumbnail-480x320.jpg`;
+const EMPTY_THUMBNAIL_IMAGE = `${config.url.frontend}static/img/store-default-thumbnail.svg`;
 const STORE_ITEM_PAGE_SIZE = 24;
-const EMPTY_THUMBNAIL_IMAGE_LARGE = `${config.url.frontend}static/img/store-default-thumbnail.jpg`;
 
 class BaseStore {
     searchResults: any = [];
@@ -75,4 +74,4 @@ class BaseStore {
     }
 }
 
-export { BaseStore, EMPTY_THUMBNAIL_IMAGE_LARGE, EMPTY_THUMBNAIL_IMAGE, STORE_ITEM_PAGE_SIZE };
+export { BaseStore, EMPTY_THUMBNAIL_IMAGE, STORE_ITEM_PAGE_SIZE };

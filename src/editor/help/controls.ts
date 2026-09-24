@@ -39,7 +39,7 @@ editor.once('load', () => {
 
     // top image
     const imgTop = new Image();
-    imgTop.src = `${config.url.frontend}static/img/help-controls.png`;
+    imgTop.src = `${config.url.frontend}static/img/help-controls.svg`;
     imgTop.classList.add('top');
     imgTop.draggable = false;
     overlay.append(imgTop);
