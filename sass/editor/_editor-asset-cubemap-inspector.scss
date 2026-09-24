@@ -9,7 +9,7 @@
     position: relative;
     width: 25%;
     overflow: hidden;
-    background: url('/editor/scene/img/asset-placeholder-texture.png') no-repeat center center / 100% 100% #07f;
+    background: url('../static/img/asset-placeholder-texture.svg') no-repeat center center / 100% 100% #07f;
 
     &.pcui-disabled {
         opacity: 0.5;
