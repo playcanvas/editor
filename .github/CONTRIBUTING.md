@@ -281,15 +281,15 @@ npm run serve
 
 ## Release Process
 
-`main` contains development for the next minor release. At feature freeze, maintainers
-create a `release-X.Y` branch and advance `main` to the following minor version.
-Release candidates use `vX.Y.Z-preview.N` tags and are marked as prereleases. Stable
-releases use `vX.Y.Z` tags.
+`main` contains development for the next minor release. Each minor release creates a
+`release-X.Y` branch from `main` and advances `main` to the following minor version.
+Releases use `vX.Y.Z` tags.
 
-Bug fixes should normally land on `main` first, then be backported in a separate PR
-targeting the current release branch. Patch releases contain selected fixes rather
-than unreleased features from `main`. CI and the label-triggered test suite support
-both development and release branches.
+Bug fixes should normally land on `main` first. Label a fix `release: next patch` to
+ship it in the next patch release; the release job backports it to the current release
+branch in a separate PR. Patch releases contain selected fixes rather than unreleased
+features from `main`. CI and the label-triggered test suite support both development
+and release branches.
 
 Test images are published for each commit on those branches. The `latest` image
 tag follows `main`; release branches publish only their commit tags.
