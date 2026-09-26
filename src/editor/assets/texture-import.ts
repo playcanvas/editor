@@ -1,6 +1,6 @@
-// client-side replacement for assets-server lib/convert/texture-convert.ts + pipeline.texture.convert.
-// decides in-place vs source->target like the server, uploads with conversion opted out, then runs the
-// job's tail: thumbnails, then compress for a target with compression enabled.
+// client-side texture conversion. decides in-place vs source->target like the server, uploads with
+// conversion opted out, then finishes like the server's conversion: thumbnails, then compress for a
+// target with compression enabled.
 
 import type { Converted } from '../../texture-convert/convert';
 import {
@@ -31,14 +31,14 @@ export type ImportDeps = {
     findTarget: (src: Src, name: string, related: boolean) => Obs | null;
     get: (id: number | string) => Obs | null;
 
-    // queue like startTextureCompressJob: compress `asset` from `source`'s file, resized to `size`
+    // queue a compress job: compress `asset` from `source`'s file, resized to `size`
     compress: (asset: Obs, source: number, size?: Size) => void;
 
-    // plan 03 (assets:thumbnails:texture): every upload here is noConvert, so the editor owns its thumbnails
+    // assets:thumbnails:texture: every upload here is noConvert, so the editor owns its thumbnails
     thumbnails: (asset: Obs, source: Blob, rgbm?: boolean) => Promise<void>;
 
-    // plan 02 (assets:meta:texture) seam. without it the server's meta job (no noMeta) produces meta. plan 02
-    // meta is only ever stored: sourceMeta alone decides what gets converted
+    // assets:meta:texture. without it the server's meta job (no noMeta) produces meta. this meta is
+    // only ever stored: sourceMeta alone decides what gets converted
     meta?: (file: Blob, name: string) => Promise<TextureMeta | null>;
 };
 
@@ -58,7 +58,7 @@ export const COMPRESS_FORMATS = ['dxt', 'pvr', 'etc1', 'etc2', 'basis'];
 
 export const compressFormats = (asset: Obs) => COMPRESS_FORMATS.filter((f) => asset.get(`meta.compress.${f}`));
 
-// same match as the server's target query (texture-convert.ts), path only when not searching related
+// same match as the server's target query, path only when not searching related
 export const isTarget = (a: Obs, src: Src, name: string, related: boolean) =>
     `${a.get('source_asset_id')}` === `${src.id}` &&
     a.get('name') === name &&
@@ -68,7 +68,7 @@ export const isTarget = (a: Obs, src: Src, name: string, related: boolean) =>
 // path.extname, lowercased
 const extname = (name: string) => /(?!^)\.[^.]*$/.exec(name)?.[0].toLowerCase() ?? '';
 
-// a rest update stores the file under the asset's name (assets-server update.ts); a server re-import keeps the
+// a rest update stores the file under the asset's name; a server re-import keeps the
 // stored filename, so an asset renamed away from its file only re-imports there
 export const keepsFilename = (a: Obs) => {
     const name = a.get('name');
@@ -76,7 +76,7 @@ export const keepsFilename = (a: Obs) => {
     return (extname(name) === ext ? name : name + ext) === a.get('file.filename');
 };
 
-// startTextureCompressJob's payload (texture-convert/app.js): compress `asset` from `source`'s file
+// the server conversion's compress job payload: compress `asset` from `source`'s file
 export const compressJob = (asset: Obs, source: Obs, size?: Size) => {
     const c = asset.get('meta.compress');
     const type = `${asset.get('meta.type') ?? ''}`.toLowerCase();
@@ -127,7 +127,7 @@ export const queue = (n: number) => {
 export const importTexture = async (deps: ImportDeps, args: ImportArgs) => {
     const { file, type, parent, existing, pow2, related, preload } = args;
 
-    // a file dropped over a target makes the server regenerate the target from its source (texture-convert.ts)
+    // a file dropped over a target makes the server regenerate the target from its source
     const of = existing?.get('source_asset_id');
     if (of && deps.get(of)?.get('type') === existing.get('type')) {
         return false;
@@ -153,7 +153,7 @@ export const importTexture = async (deps: ImportDeps, args: ImportArgs) => {
           ? existing.get('path')
           : [];
 
-    // like texture-convert/app.js:533, a pow2 size the existing target's meta already has is not applied again
+    // like the server, a pow2 size the existing target's meta already has is not applied again
     const name = targetName(file.name, options.format);
     const prior = inPlace
         ? null
@@ -173,8 +173,8 @@ export const importTexture = async (deps: ImportDeps, args: ImportArgs) => {
     const blob = out ? new Blob([out.file], { type: `image/${options.format}` }) : file;
     const dims = opts.size && !opts.rgbm ? opts.size : { width: meta.width, height: meta.height };
 
-    // plan 02 meta of the uploaded file. the server describes an in-place texture from the file it was
-    // given, then writes the new size and depth over that (texture-convert/app.js:674-700)
+    // client meta of the uploaded file. the server describes an in-place texture from the file it was
+    // given, then writes the new size and depth over that
     const clientMeta = deps.meta ? await deps.meta(file, file.name).catch(() => null) : null;
     const converted = inPlace
         ? clientMeta && { ...clientMeta, ...(opts.size ?? {}), ...(opts.depthConvert ? { depth: 8 } : {}) }
@@ -183,11 +183,11 @@ export const importTexture = async (deps: ImportDeps, args: ImportArgs) => {
           : null;
     const outMeta = out ? converted : clientMeta;
 
-    // noMeta only with plan 02 meta for that upload; the editor always makes the thumbnails
+    // the editor always makes the thumbnails; with computed meta the upload writes it (noMeta) too
     const optOut = (m: TextureMeta | null) => ({
         noConvert: true,
         noThumbnails: true,
-        ...(m ? { noMeta: true, clientMeta: m } : {})
+        ...(m ? { clientMeta: m } : {})
     });
 
     const finish = async (id: number, src: number) => {
@@ -204,7 +204,7 @@ export const importTexture = async (deps: ImportDeps, args: ImportArgs) => {
             out?.preview ? false : undefined
         );
 
-        // the server compresses in-place and separate targets alike (texture-convert/app.js:688-707, :757),
+        // the server compresses in-place and separate targets alike,
         // resized to the pow2 size even when the stale-size skip left the file alone
         if (compressFormats(asset).length) {
             deps.compress(asset, src, options.size);
@@ -231,7 +231,7 @@ export const importTexture = async (deps: ImportDeps, args: ImportArgs) => {
     const srcId = args.skipSource
         ? existing.get('id')
         : await deps.upload({
-              // worker decision meta is never stored: without plan 02 meta the source keeps its meta job
+              // worker decision meta is never stored: without client meta the source keeps its meta job
               ...optOut(clientMeta),
               asset: existing,
               file,
@@ -243,8 +243,8 @@ export const importTexture = async (deps: ImportDeps, args: ImportArgs) => {
     const src = { id: srcId, type: existing ? existing.get('type') : type, path };
     const target = prior ?? deps.findTarget(src, name, related);
 
-    // a refreshed target keeps its own name, folder and data, as texture-convert leaves them alone; a target
-    // re-import keeps its filename (texture-convert.ts uses asset.file.filename)
+    // a refreshed target keeps its own name, folder and data, as the server leaves them alone; a target
+    // re-import keeps its stored filename
     const filename = args.target ? (args.target.get('file.filename') ?? args.target.get('name')) : name;
     const id = await deps.upload({
         ...optOut(outMeta),
@@ -263,7 +263,7 @@ export const importTexture = async (deps: ImportDeps, args: ImportArgs) => {
                   preload: existing ? true : preload,
                   data: options.rgbm ? { rgbm: true } : null,
 
-                  // createTarget passes the source meta: its alpha seeds meta.compress.alpha and its srgb (false
+                  // the server seeds a new target with the source meta: its alpha seeds meta.compress.alpha and its srgb (false
                   // for float sources) data.srgb
                   meta: { ...meta, srgb: !options.rgbm }
               })

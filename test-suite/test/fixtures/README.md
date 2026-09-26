@@ -8,20 +8,6 @@ Only those generated fixtures are original test data covered by the repository M
   `[-1, 0, 0]` to `[1, 2, 0]`, measured from vertices, with zero grounding offset.
   `model(2)` changes the width to four units while preserving names and hierarchy.
 - `splat()`: binary little-endian Gaussian PLY, nine red gaussians in a 3×3 grid.
-- `texture({ width, height, alpha, format, blocks })`: `png`, `jpeg`, `tga`, `bmp`, `hdr` or
-  `exr`, any size (npot included). `pixels(opts)` is the target RGBA: red ramps with x, green
-  with y, blue is an 8px checker, and alpha (png, tga, bmp only) falls from the top-left. PNG,
-  TGA and BMP encode those bytes exactly; JPEG applies its lossy YCbCr roundtrip. JPEG is
-  baseline 4:4:4 with quantizer 1 and DC-only blocks, so its target pixels are one colour per
-  8×8 block (`blocks: true` gives the other formats the same image). TGA is uncompressed
-  true-colour and BMP is `BI_RGB`, both bottom-up. HDR is flat RGBE and EXR is a single-part
-  uncompressed float B/G/R file; both hold `byte / 255 * HDR_SCALE` (4). Browsers decode png,
-  jpeg and bmp; only the pipeline decodes tga, hdr and exr.
-- `normalMap({ width, height })`: opaque png tangent-space normals, blue ≥ 128 everywhere.
-- `classicScripts(tag)`: three classic scripts logging load order to `window.__e2eOrder` and
-  initialize order to `window.__e2eInit`; `<tag>-c.js` throws from `initialize` at
-  `CLASSIC_THROW_LINE`. Use one fixed tag in both halves of a parity run, so the script text
-  (and anything built from it) is identical.
 - `files/test.png` and `files/test.wav`: existing suite image and audio fixtures.
 - `files/courier-prime.ttf`: unmodified Courier Prime Regular 1.203 (98,156 bytes),
   Copyright (c) 2013 Quote-Unquote Apps, designer Alan Dague-Greene. Copied from the

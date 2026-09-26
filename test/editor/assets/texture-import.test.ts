@@ -23,7 +23,7 @@ const HDR = { ...EXR, format: 'hdr' };
 const OUT = { format: 'jpeg', type: 'TrueColor', width: 16, height: 16, alpha: false, depth: 8 };
 const BASIS = { compress: { basis: true } };
 
-// metas are plan 02 answers in call order (source, then output); null means "leave it to the server".
+// metas are client meta answers in call order (source, then output); null means "leave it to the server".
 // the worker's decision meta describes the source the same way unless a test says otherwise
 const setup = (metas: any[], over: Record<string, any> = {}) => {
     const decision = metas[0] && !(metas[0] instanceof Error) ? metas[0] : null;
@@ -73,10 +73,10 @@ const setup = (metas: any[], over: Record<string, any> = {}) => {
     return { deps, calls, uploads, thumbs, rgbms, names, converts, settles, compresses };
 };
 
-// tga/bmp/exr: plan 02 answers null for the source, the worker supplies decision meta
+// tga/bmp/exr: client meta answers null for the source, the worker supplies decision meta
 const tgaSource = { sourceMeta: async () => TGA };
 
-// without plan 02's client meta the server's meta job describes every upload
+// without client meta the server's meta job describes every upload
 const NO_02 = { meta: undefined };
 
 const withCompress = { observer: async (i: number) => obs({ id: i, meta: BASIS }) };
@@ -130,18 +130,18 @@ describe('importTexture', () => {
         expect(await importTexture(t.deps, a)).to.equal(true);
         expect(t.converts).to.have.length(0);
         expect(t.uploads).to.have.length(1);
-        expect(t.uploads[0]).to.include({ noConvert: true, noMeta: true, noThumbnails: true, clientMeta: PNG16 });
+        expect(t.uploads[0]).to.include({ noConvert: true, noThumbnails: true, clientMeta: PNG16 });
         expect(t.uploads[0].file.size).to.equal(a.file.size);
 
         // no compression settings on the asset, so nothing to queue
         expect(t.calls).to.deep.equal(['upload', 'settle', 'thumbs']);
 
-        // an in-place texture thumbnails from its own file, so plan 03 follows the asset's data.rgbm
+        // an in-place texture thumbnails from its own file, so the thumbnails follow the asset's data.rgbm
         expect(t.rgbms).to.deep.equal([undefined]);
     });
 
     it('compresses an in-place texture with compression enabled, like the server', async () => {
-        // texture-convert/app.js:688-707: finish() queues compress when source and target are the same asset
+        // like the server, finish() queues compress when source and target are the same asset
         const existing = obs({ id: 60, name: 'a.png', type: 'texture', path: [] });
         const t = setup([PNG20, PNG16], withCompress);
         expect(await importTexture(t.deps, args({ existing }))).to.equal(true);
@@ -192,27 +192,26 @@ describe('importTexture', () => {
             type: 'texture',
             data: null,
             clientMeta: OUT,
-            noMeta: true,
             noConvert: true,
             noThumbnails: true
         });
         expect(t.uploads[1].asset).to.equal(null);
 
-        // the create's meta stays createTarget's source meta seed, whatever plan 02 says
+        // the create's meta stays the server's source meta seed, whatever the client meta says
         expect(t.uploads[1].meta).to.deep.equal({ ...TGA, srgb: true });
     });
 
-    it('without plan 02, converts a tga and leaves meta to the server', async () => {
+    it('without client meta, converts a tga and leaves meta to the server', async () => {
         const t = setup([], { ...tgaSource, ...NO_02, sourceMeta: async () => TGA20 });
         expect(await importTexture(t.deps, args({ file: file('rock.tga') }))).to.equal(true);
         expect(t.uploads).to.have.length(2);
         for (const u of t.uploads) {
             expect(u).to.include({ noConvert: true, noThumbnails: true });
-            expect(u).to.not.have.any.keys('noMeta');
+            expect(u).to.not.have.any.keys('noMeta', 'clientMeta');
         }
         expect(t.uploads[0]).to.not.have.any.keys('meta');
 
-        // createTarget's source meta: alpha seeds meta.compress.alpha, srgb data.srgb
+        // the server's source meta seed: alpha seeds meta.compress.alpha, srgb data.srgb
         expect(t.uploads[1].meta).to.deep.equal({ ...TGA20, srgb: true });
 
         // the server meta job fills the target's meta; wait for the size the conversion produced
@@ -220,7 +219,7 @@ describe('importTexture', () => {
         expect(t.calls).to.deep.equal(['upload', 'upload', 'settle', 'thumbs']);
     });
 
-    it('without plan 02, converts png, jpeg and webp from the worker decision meta', async () => {
+    it('without client meta, converts png, jpeg and webp from the worker decision meta', async () => {
         for (const format of ['png', 'jpeg', 'webp']) {
             const t = setup([], { ...NO_02, sourceMeta: async () => ({ ...PNG20, format }) });
             expect(await importTexture(t.deps, args({ file: file(`a.${format}`) }))).to.equal(true);
@@ -231,7 +230,7 @@ describe('importTexture', () => {
         }
     });
 
-    it('without plan 02, an hdr target gets the float source meta, so data.srgb ends up false', async () => {
+    it('without client meta, an hdr target gets the float source meta, so data.srgb ends up false', async () => {
         const t = setup([], {
             meta: undefined,
             sourceMeta: async () => HDR,
@@ -339,10 +338,10 @@ describe('importTexture', () => {
         });
         expect(await importTexture(t.deps, args({ file: file('env.hdr') }))).to.equal(true);
 
-        // plan 02 describes .hdr, so the source replaces its meta job too
-        expect(t.uploads[0]).to.include({ name: 'env.hdr', noMeta: true, clientMeta: HDR });
+        // client meta describes .hdr, so the source replaces its meta job too
+        expect(t.uploads[0]).to.include({ name: 'env.hdr', clientMeta: HDR });
         expect(t.names).to.deep.equal(['env.hdr', 'env.png']);
-        expect(t.uploads[1]).to.deep.include({ noMeta: true, clientMeta: { ...OUT, format: 'png' } });
+        expect(t.uploads[1]).to.deep.include({ clientMeta: { ...OUT, format: 'png' } });
         expect(t.uploads[1].meta).to.deep.equal({ ...HDR, srgb: false });
         expect(t.uploads[1]).to.include({ name: 'env.png' });
         expect(t.uploads[1].data).to.deep.equal({ rgbm: true });
@@ -399,12 +398,12 @@ describe('importTexture', () => {
         await importTexture(t.deps, args({ file: file('rock.tga') }));
         expect(t.calls.slice(-3)).to.deep.equal(['settle', 'thumbs', 'compress']);
 
-        // startTextureCompressJob compresses the target from the source file
+        // the server compresses the target from the source file
         expect(t.compresses).to.deep.equal([{ id: 101, src: 100, size: undefined }]);
     });
 
     it('skips the pow2 resize like the server when the existing target meta already has that size', async () => {
-        // texture-convert/app.js:533 compares options.size with the existing target's meta
+        // the server compares options.size with the existing target's meta
         const source = obs({ id: 40, name: 'rock.tga', type: 'texture', path: [] });
         const target = obs({ id: 41, meta: { width: 16, height: 16 } });
         const t = setup([null, OUT], {
@@ -417,7 +416,7 @@ describe('importTexture', () => {
         expect(t.settles[0].dims).to.deep.equal({ width: 18, height: 14 });
     });
 
-    it('still compresses to the pow2 size after the stale-size skip, like startTextureCompressJob', async () => {
+    it('still compresses to the pow2 size after the stale-size skip, like the server', async () => {
         const source = obs({ id: 40, name: 'rock.tga', type: 'texture', path: [] });
         const target = obs({ id: 41, meta: { width: 16, height: 16 } });
         const t = setup([null, OUT], {
@@ -511,7 +510,7 @@ describe('compressJob', () => {
         };
     };
 
-    it('compresses an in-place texture from its own file at the pow2 size, like startTextureCompressJob', async () => {
+    it('compresses an in-place texture from its own file at the pow2 size, like the server', async () => {
         const png = obs({
             id: 60,
             uniqueId: '1060',

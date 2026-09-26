@@ -1,3 +1,4 @@
+import { metaWrites } from '@/common/asset-meta/kind';
 import { WorkerClient } from '@/core/worker/worker-client';
 import { config } from '@/editor/config';
 
@@ -9,14 +10,13 @@ const READY_TIMEOUT = 15000;
 
 const KINDS = ['texture', 'model', 'animation', 'gsplat'];
 
-// texture-meta's fields; the server keeps compress.normals only where compression settings exist
-const TEXTURE_KEYS = ['format', 'type', 'width', 'height', 'alpha', 'depth', 'srgb', 'interlaced'];
-
 type Fillable = {
     get: (path: string) => any;
     set: (path: string, value: unknown) => void;
     history?: { enabled?: boolean };
 };
+
+type Syncable = Fillable & { sync?: { enabled: boolean } };
 
 editor.once('load', () => {
     const pending = new Map<number, (meta: object | null) => void>();
@@ -74,9 +74,50 @@ editor.once('load', () => {
 
     KINDS.forEach((kind) => editor.method(`assets:meta:${kind}`, compute(kind)));
 
-    // Get Meta for a texture that has none: no conversion follows, so a plain op is enough. no meta
-    // means no compression settings, so the normal-map flag is dropped as texture-meta does.
-    // false means the caller sends the server's meta job as before
+    // stores computed meta as ordinary ops, shaped like the server meta job's write. resolves false
+    // when it could not be written (no write access, not loaded, or rejected), so the caller asks the
+    // server for its meta instead
+    editor.method('assets:meta:write', (asset: Syncable, meta: object) => {
+        const doc = editor.api.globals.realtime.assets.get(asset.get('uniqueId'));
+        if (!doc?.loaded || !editor.call('permissions:write')) {
+            return Promise.resolve(false);
+        }
+        const writes = metaWrites(asset.get('type'), asset.get('meta'), meta);
+
+        // submitted directly so each op's ack or rejection comes back, and before the observer sees the
+        // meta, so edits its listeners make in response (default compression settings) go in their own op
+        const acks = writes.map(
+            ({ path, value }) =>
+                new Promise<boolean>((resolve) => {
+                    doc.submitOp({ p: path.split('.'), oi: structuredClone(value), od: null }, (err: unknown) => resolve(!err));
+                })
+        );
+        return Promise.all(acks).then((ok) => {
+            if (!ok.every(Boolean)) {
+                return false;
+            }
+
+            // mirrored without echoing the ops, and the server job's write is not an undoable user edit
+            const sync = asset.sync?.enabled;
+            const history = asset.history?.enabled;
+            if (asset.sync) {
+                asset.sync.enabled = false;
+            }
+            if (asset.history) {
+                asset.history.enabled = false;
+            }
+            writes.forEach(({ path, value }) => asset.set(path, value));
+            if (asset.sync) {
+                asset.sync.enabled = sync;
+            }
+            if (asset.history) {
+                asset.history.enabled = history;
+            }
+            return true;
+        });
+    });
+
+    // Get Meta for a texture that has none. false means the caller sends the server's meta job as before
     editor.method('assets:meta:fill', async (asset: Fillable) => {
         if (asset.get('meta') || !asset.get('file') || !['texture', 'textureatlas'].includes(asset.get('type'))) {
             return false;
@@ -91,17 +132,6 @@ editor.once('load', () => {
         if (!meta || asset.get('meta')) {
             return false;
         }
-
-        // the server job's write is not an undoable user edit
-        const history = asset.history;
-        const enabled = history?.enabled;
-        if (history) {
-            history.enabled = false;
-        }
-        asset.set('meta', Object.fromEntries(TEXTURE_KEYS.map((key) => [key, meta[key]])));
-        if (history) {
-            history.enabled = enabled;
-        }
-        return true;
+        return editor.call('assets:meta:write', asset, meta);
     });
 });

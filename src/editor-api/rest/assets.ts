@@ -143,16 +143,9 @@ export type AssetUpdateData = {
     noThumbnails?: boolean;
 
     /**
-     * The editor computed `clientMeta` itself, so the server skips its meta job (it validates the
-     * meta and runs the job anyway if the meta is rejected)
+     * Skip the server meta job (the editor writes the asset meta itself once the upload lands)
      */
     noMeta?: boolean;
-
-    /**
-     * The asset meta the editor computed, sent with noMeta. Unlike a create's `meta`, which seeds
-     * the new asset, this stands in for the server's meta job
-     */
-    clientMeta?: object;
 };
 
 export type AssetCreateData = AssetUpdateData & {
@@ -462,10 +455,9 @@ const assetUpdateFields = (form: FormData, data: AssetUpdateData, pipeline: Asse
         form.append('noThumbnails', 'true');
     }
 
-    // noMeta (editor-computed meta replaces the server meta job)
-    if (data.noMeta && data.clientMeta) {
+    // noMeta (editor-written meta)
+    if (data.noMeta) {
         form.append('noMeta', 'true');
-        form.append('clientMeta', JSON.stringify(data.clientMeta));
     }
 
     // name

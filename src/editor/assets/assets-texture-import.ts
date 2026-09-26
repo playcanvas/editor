@@ -1,6 +1,6 @@
-// client-side texture import: the worker does pipeline.texture.convert's work and the result is
-// uploaded with noConvert and noThumbnails, and with plan 02's meta (noMeta) where the editor can
-// compute it. the editor makes the thumbnails (plan 03, assets:thumbnails:texture)
+// client-side texture import: the worker does the server conversion's work and the result is
+// uploaded with noConvert and noThumbnails, and with noMeta where the editor can compute the meta
+// (the upload then writes it). the editor makes the thumbnails (assets:thumbnails:texture)
 
 import type { Observer } from '@playcanvas/observer';
 
