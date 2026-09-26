@@ -1137,4 +1137,266 @@ ${className}.prototype.update = function(dt) {
         const redoEntity = await promise;
         expect(redoEntity).to.not.equal(null);
     });
+
+    function prepareLocalInstance() {
+        const send = sandbox.spy();
+        api.globals.schema = new api.Schema(schema);
+        api.globals.entities = new api.Entities();
+        api.globals.selection = new api.Selection();
+        api.globals.history = new api.History();
+        api.globals.jobs = new api.Jobs();
+        api.globals.messenger = { on: () => {} };
+        api.globals.realtime = {
+            scenes: { current: { uniqueId: 1, addEntity: () => {}, removeEntity: () => {} } },
+            connection: { sendMessage: send }
+        };
+        return send;
+    }
+
+    function makeTemplate(id, entities) {
+        const asset = new api.Asset({ id, uniqueId: id, type: 'template', name: `tpl${id}`, data: { entities } });
+        api.globals.assets.add(asset);
+        return asset;
+    }
+
+    // template entity data as createTemplate stores it
+    function ent(id, parent, children = [], components = {}) {
+        return {
+            resource_id: id,
+            name: id.toUpperCase(),
+            parent,
+            children,
+            enabled: true,
+            tags: [],
+            position: [0, 0, 0],
+            rotation: [0, 0, 0],
+            scale: [1, 1, 1],
+            components,
+            template: null,
+            template_id: null,
+            template_ent_ids: null
+        };
+    }
+
+    // component data with every schema default, as editor entities have
+    function full(component, data) {
+        return { ...api.globals.schema.components.getDefaultData(component), ...data };
+    }
+
+    function smallTemplate() {
+        return {
+            r: ent('r', null, ['c']),
+            c: ent('c', 'r', [], { testcomponent: full('testcomponent', { entityRef: 'r', entityArrayRef: ['r'] }) })
+        };
+    }
+
+    function bigTemplate(count) {
+        const entities = { r: ent('r', null) };
+        for (let i = 0; i < count; i++) {
+            entities[`e${i}`] = ent(`e${i}`, 'r');
+            entities.r.children.push(`e${i}`);
+        }
+        return entities;
+    }
+
+    it('instantiateTemplates builds small templates in the editor', async function () {
+        const send = prepareLocalInstance();
+        const asset = makeTemplate(1, smallTemplate());
+        const root = api.globals.entities.create();
+
+        const [inst] = await api.globals.assets.instantiateTemplates([asset], root);
+        const child = inst.children[0];
+
+        expect(send.called).to.equal(false);
+        expect(inst.get('name')).to.equal('tpl1');
+        expect(inst.get('template_id')).to.equal(1);
+        expect(inst.get('parent')).to.equal(root.get('resource_id'));
+        expect(root.get('children')).to.deep.equal([inst.get('resource_id')]);
+        expect(inst.get(`template_ent_ids.${child.get('resource_id')}`)).to.equal('c');
+        expect(child.get('components.testcomponent.entityRef')).to.equal(inst.get('resource_id'));
+    });
+
+    it('instantiateTemplates keeps instance components identical to the template', async function () {
+        prepareLocalInstance();
+        const asset = makeTemplate(1, smallTemplate());
+        const root = api.globals.entities.create();
+
+        const [inst] = await api.globals.assets.instantiateTemplates([asset], root);
+
+        // like the pipeline, only top-level fields typed entity are remapped
+        expect(inst.children[0].get('components.testcomponent')).to.deep.equal(full('testcomponent', {
+            entityRef: inst.get('resource_id'),
+            entityArrayRef: ['r']
+        }));
+        expect(asset.get('data.entities.c.resource_id')).to.equal('c');
+        expect(asset.get('data.entities.c.components.testcomponent.entityRef')).to.equal('r');
+    });
+
+    it('instantiateTemplates inserts at index 0 without an index, like the backend', async function () {
+        prepareLocalInstance();
+        const a = makeTemplate(1, smallTemplate());
+        const b = makeTemplate(2, smallTemplate());
+        const root = api.globals.entities.create();
+        const existing = api.globals.entities.create({ parent: root });
+
+        const [i1, i2] = await api.globals.assets.instantiateTemplates([a, b], root);
+
+        expect(root.get('children')).to.deep.equal([
+            i1.get('resource_id'),
+            i2.get('resource_id'),
+            existing.get('resource_id')
+        ]);
+    });
+
+    it('instantiateTemplates honours the index', async function () {
+        prepareLocalInstance();
+        const asset = makeTemplate(1, smallTemplate());
+        const root = api.globals.entities.create();
+        const existing = api.globals.entities.create({ parent: root });
+
+        const [inst] = await api.globals.assets.instantiateTemplates([asset], root, { index: 1 });
+
+        expect(root.get('children')).to.deep.equal([existing.get('resource_id'), inst.get('resource_id')]);
+    });
+
+    it('instantiateTemplates selects local instances when asked', async function () {
+        prepareLocalInstance();
+        const asset = makeTemplate(1, smallTemplate());
+        const root = api.globals.entities.create();
+
+        const [inst] = await api.globals.assets.instantiateTemplates([asset], root, { select: true });
+
+        expect(api.globals.selection.items.length).to.equal(1);
+        expect(api.globals.selection.items[0]).to.equal(inst);
+    });
+
+    it('instantiateTemplates undo removes and redo restores the same local instance', async function () {
+        prepareLocalInstance();
+        const asset = makeTemplate(1, smallTemplate());
+        const root = api.globals.entities.create();
+        const [inst] = await api.globals.assets.instantiateTemplates([asset], root, { select: true });
+        const id = inst.get('resource_id');
+
+        await api.globals.history.undo();
+        expect(inst.latest()).to.equal(null);
+
+        await api.globals.history.redo();
+        const restored = api.globals.entities.get(id);
+        expect(restored).to.be.ok;
+        expect(restored.children.length).to.equal(1);
+        expect(restored.children[0].get('components.testcomponent.entityRef')).to.equal(id);
+        expect(api.globals.selection.items).to.deep.equal([restored]);
+    });
+
+    it('instantiateTemplates uses the backend above 500 entities', function () {
+        const send = prepareLocalInstance();
+        const asset = makeTemplate(1, bigTemplate(500));
+        const root = api.globals.entities.create();
+
+        api.globals.assets.instantiateTemplates([asset], root);
+
+        expect(send.calledOnce).to.equal(true);
+    });
+
+    it('instantiateTemplates builds 500 entities in the editor', async function () {
+        const send = prepareLocalInstance();
+        const asset = makeTemplate(1, bigTemplate(499));
+        const root = api.globals.entities.create();
+
+        const [inst] = await api.globals.assets.instantiateTemplates([asset], root);
+
+        expect(send.called).to.equal(false);
+        expect(inst.children.length).to.equal(499);
+    });
+
+    it('instantiateTemplates counts all templates toward the limit', function () {
+        const send = prepareLocalInstance();
+        const a = makeTemplate(1, bigTemplate(299));
+        const b = makeTemplate(2, bigTemplate(299));
+        const root = api.globals.entities.create();
+
+        api.globals.assets.instantiateTemplates([a, b], root);
+
+        expect(send.calledOnce).to.equal(true);
+    });
+
+    it('instantiateTemplates uses the backend for extraData', function () {
+        const send = prepareLocalInstance();
+        const root = api.globals.entities.create();
+
+        api.globals.assets.instantiateTemplates([makeTemplate(1, smallTemplate())], root, {
+            extraData: { subtreeRootId: 'c' }
+        });
+
+        expect(send.calledOnce).to.equal(true);
+    });
+
+    it('instantiateTemplates uses the backend for unloaded or rootless templates', function () {
+        const send = prepareLocalInstance();
+        const root = api.globals.entities.create();
+
+        api.globals.assets.instantiateTemplates([makeTemplate(2, null)], root);
+        api.globals.assets.instantiateTemplates([makeTemplate(3, { a: ent('a', 'x') })], root);
+
+        expect(send.callCount).to.equal(2);
+    });
+
+    it('instantiateTemplates uses the backend for templates it would not copy exactly', function () {
+        const send = prepareLocalInstance();
+        const root = api.globals.entities.create();
+        const variants = [
+            // child missing from the template
+            { r: ent('r', null, ['gone']) },
+            // unreachable entity
+            { r: ent('r', null), a: ent('a', 'b', ['b']), b: ent('b', 'a', ['a']) },
+            // child whose parent points elsewhere
+            { r: ent('r', null, ['a']), a: ent('a', 'x') },
+            // field the Entity constructor drops, and one it fills in
+            { r: { ...ent('r', null), legacy: 1 } },
+            { r: { ...ent('r', null), tags: undefined } },
+            // components the editor would fill with schema defaults
+            { r: ent('r', null, [], { testcomponent: { enabled: true } }) },
+            { r: ent('r', null, [], { testcomponent: null }) }
+        ];
+
+        variants.forEach((v, i) => api.globals.assets.instantiateTemplates([makeTemplate(10 + i, v)], root));
+
+        expect(send.callCount).to.equal(variants.length);
+    });
+
+    it('instantiateTemplates uses the backend for an index outside the children', function () {
+        const send = prepareLocalInstance();
+        const root = api.globals.entities.create();
+
+        api.globals.assets.instantiateTemplates([makeTemplate(1, smallTemplate())], root, { index: 1 });
+        api.globals.assets.instantiateTemplates([makeTemplate(2, smallTemplate())], root, { index: -1 });
+
+        expect(send.callCount).to.equal(2);
+    });
+
+    it('instantiateTemplates uses the backend when a script it uses is defined by two assets', function () {
+        const send = prepareLocalInstance();
+        const def = { attributes: { target: { type: 'entity' } } };
+        api.globals.assets.add(new api.Asset({ id: 10, type: 'script', data: { scripts: { mover: def } } }));
+        api.globals.assets.add(new api.Asset({ id: 11, type: 'script', data: { scripts: { mover: def } } }));
+        const script = full('script', { order: ['mover'], scripts: { mover: { enabled: true, attributes: { target: 'r' } } } });
+        const asset = makeTemplate(1, { r: ent('r', null, [], { script }) });
+
+        api.globals.assets.instantiateTemplates([asset], api.globals.entities.create());
+
+        expect(send.calledOnce).to.equal(true);
+    });
+
+    it('instantiateTemplates remaps script attributes of a script defined once', async function () {
+        const send = prepareLocalInstance();
+        const def = { attributes: { target: { type: 'entity' }, other: { type: 'entity' } } };
+        api.globals.assets.add(new api.Asset({ id: 10, type: 'script', data: { scripts: { mover: def } } }));
+        const script = full('script', { order: ['mover'], scripts: { mover: { enabled: true, attributes: { target: 'r', other: 'x' } } } });
+        const asset = makeTemplate(1, { r: ent('r', null, [], { script }) });
+
+        const [inst] = await api.globals.assets.instantiateTemplates([asset], api.globals.entities.create());
+
+        expect(send.called).to.equal(false);
+        expect(inst.get('components.script.scripts.mover.attributes')).to.deep.equal({ target: inst.get('resource_id'), other: null });
+    });
 });

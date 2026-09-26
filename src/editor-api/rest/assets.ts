@@ -136,6 +136,16 @@ export type AssetUpdateData = {
      * Skip server-side conversion (for assets the editor generates itself, e.g. client-side fonts)
      */
     noConvert?: boolean;
+
+    /**
+     * Skip server-side thumbnails (the editor uploads its own via assetThumbnailsUpload)
+     */
+    noThumbnails?: boolean;
+
+    /**
+     * Skip the server meta job (the editor writes the asset meta itself once the upload lands)
+     */
+    noMeta?: boolean;
 };
 
 export type AssetCreateData = AssetUpdateData & {
@@ -440,6 +450,16 @@ const assetUpdateFields = (form: FormData, data: AssetUpdateData, pipeline: Asse
         form.append('noConvert', 'true');
     }
 
+    // noThumbnails (editor-generated texture thumbnails)
+    if (data.noThumbnails) {
+        form.append('noThumbnails', 'true');
+    }
+
+    // noMeta (editor-written meta)
+    if (data.noMeta) {
+        form.append('noMeta', 'true');
+    }
+
     // name
     if (data.name) {
         form.append('name', data.name);
@@ -596,6 +616,30 @@ export const assetUpdate = (assetId: string, data: AssetUpdateData, pipeline: As
         ignoreContentType: true,
         headers: {
             Accept: 'application/json' // Verified to be JSON response
+        }
+    });
+};
+
+/**
+ * Uploads editor-generated thumbnails for a texture asset
+ *
+ * @param assetId - The ID of the asset
+ * @param thumbnails - One jpeg per size, keyed by size name (xlarge, large, medium, small)
+ * @returns A request that responds once the thumbnails are stored
+ */
+export const assetThumbnailsUpload = (assetId: string, thumbnails: Record<string, Blob>) => {
+    const form = new FormData();
+    for (const name in thumbnails) {
+        form.append(name, thumbnails[name], `${name}.jpg`);
+    }
+
+    return Ajax.post({
+        url: `${api.apiUrl}/assets/${assetId}/thumbnails?branchId=${api.branchId}`,
+        auth: true,
+        data: form,
+        ignoreContentType: true,
+        headers: {
+            Accept: 'application/json'
         }
     });
 };

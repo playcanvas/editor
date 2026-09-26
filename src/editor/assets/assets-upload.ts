@@ -1,4 +1,9 @@
+import { metaKind } from '@/common/asset-meta/kind';
+import { wantsClientThumbnails } from '@/common/texture-thumbnails';
 import { config } from '@/editor/config';
+
+// how long to wait for an uploaded asset to arrive over realtime before leaving its thumbnails and meta to the server
+const ASSET_TIMEOUT = 30000;
 
 editor.once('load', () => {
     let uploadJobs = 0;
@@ -107,7 +112,53 @@ editor.once('load', () => {
     };
     editor.method('assets:pipeline:options', pipelineOptions);
 
-    editor.method('assets:uploadFile', (args, fn) => {
+    // the uploaded asset's observer, or null if it never arrives
+    const observer = (asset, id: number) =>
+        new Promise<any>((resolve) => {
+            const existing = asset ?? editor.call('assets:get', id);
+            if (existing) {
+                resolve(existing);
+                return;
+            }
+            const timer = setTimeout(() => {
+                evt.unbind();
+                resolve(null);
+            }, ASSET_TIMEOUT);
+            const evt = editor.once(`assets:add[${id}]`, (a) => {
+                clearTimeout(timer);
+                resolve(a);
+            });
+        });
+
+    // hand an uploaded texture's file to the client thumbnailer once its observer exists
+    const clientThumbnails = (asset, id: number, file: Blob) => {
+        observer(asset, id).then((a) =>
+            a
+                ? editor.call('assets:thumbnails:texture', a, file)
+                : editor.call('realtime:send', 'pipeline', { name: 'thumbnails', data: { target: id } })
+        );
+    };
+
+    // the upload skipped the server meta job (noMeta); anything that stops the write asks for it after all
+    const clientMeta = (asset, data: { id: number; uniqueId: number }, meta: object) => {
+        const serverMeta = (id: number) => editor.call('realtime:send', 'pipeline', { name: 'meta', id });
+        observer(asset, data.id).then((a) =>
+            a
+                ? editor.call('assets:meta:write', a, meta).then((ok: boolean) => ok || serverMeta(a.get('uniqueId')))
+                : serverMeta(data.uniqueId)
+        );
+    };
+
+    const upload = (input, fn, meta?: object) => {
+        // a caller that already set noThumbnails makes its own
+        const thumbnails = wantsClientThumbnails(
+            input.type ?? input.asset?.get('type'),
+            input.noConvert,
+            input.file,
+            input.noThumbnails
+        );
+        const args = thumbnails ? { ...input, noThumbnails: true } : input;
+
         let request;
         if (args.asset) {
             const assetId = args.asset.get('id');
@@ -128,6 +179,12 @@ editor.once('load', () => {
                 if (fn) {
                     fn(null, data);
                 }
+                if (thumbnails) {
+                    clientThumbnails(args.asset, data.id, args.file);
+                }
+                if (meta) {
+                    clientMeta(args.asset, data, meta);
+                }
             })
             .on('progress', (progress) => {
                 editor.call('status:job', `asset-upload:${job}`, progress);
@@ -143,6 +200,18 @@ editor.once('load', () => {
                     fn(data);
                 }
             });
+    };
+
+    // clientMeta is meta the caller already computed; otherwise the editor computes it where it can.
+    // null (unsupported, failed, timed out) keeps the server meta job
+    editor.method('assets:uploadFile', ({ clientMeta: known, ...args }, fn) => {
+        const kind = metaKind(args);
+        if (!known && !kind) {
+            upload(args, fn);
+            return;
+        }
+        const meta = known ? Promise.resolve(known) : editor.call(`assets:meta:${kind}`, args.file, args.filename || args.name);
+        meta.then((m) => upload(m ? { ...args, noMeta: true } : args, fn, m));
     });
 
     function getPathFromFolder(folder: { get: (path: string) => number[] | string } | null) {
@@ -339,6 +408,20 @@ editor.once('load', () => {
                 }
             );
         };
+
+        // client-side texture import; false means the server pipeline runs instead (unsupported
+        // format or size, no write permission, or the worker failed before anything was uploaded)
+        if (type === 'texture' || type === 'textureatlas') {
+            editor
+                .call('textures:import', {
+                    file,
+                    type,
+                    parent: currentFolder,
+                    existing: asset ? asset[1] : sourceAsset
+                })
+                .then((ok: boolean) => ok || uploadToFolder(currentFolder));
+            return;
+        }
 
         // client-side font import: create a folder named after the font and generate the json +
         // texture mirrors + runtime font in the editor (needs the backend noConvert support)

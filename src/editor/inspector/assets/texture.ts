@@ -934,9 +934,14 @@ class TextureAssetInspector extends Container {
                 continue;
             }
 
-            editor.call('realtime:send', 'pipeline', {
-                name: 'meta',
-                id: asset.get('uniqueId')
+            // the editor fills what it can; the rest goes to the server's meta job as before
+            editor.call('assets:meta:fill', asset).then((filled: boolean) => {
+                if (!filled) {
+                    editor.call('realtime:send', 'pipeline', {
+                        name: 'meta',
+                        id: asset.get('uniqueId')
+                    });
+                }
             });
         }
         this._btnGetMeta.enabled = false;
