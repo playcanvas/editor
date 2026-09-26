@@ -95,6 +95,16 @@ const ATTRIBUTES: Attribute[] = [
         }
     },
     {
+        label: 'Gravity Scale',
+        path: 'components.rigidbody.gravityScale',
+        reference: 'rigidbody:gravityScale',
+        type: 'number',
+        args: {
+            precision: 4,
+            step: 0.01
+        }
+    },
+    {
         label: 'Friction',
         path: 'components.rigidbody.friction',
         reference: 'rigidbody:friction',
@@ -171,7 +181,7 @@ class RigidbodyComponentInspector extends ComponentInspector {
 
         const isDynamic = this._field('type').value === 'dynamic';
 
-        ['mass', 'linearDamping', 'angularDamping', 'linearFactor', 'angularFactor'].forEach((field) => {
+        ['mass', 'linearDamping', 'angularDamping', 'linearFactor', 'angularFactor', 'gravityScale'].forEach((field) => {
             this._field(field).parent.hidden = !isDynamic;
         });
     }
