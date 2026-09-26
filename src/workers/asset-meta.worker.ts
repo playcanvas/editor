@@ -17,7 +17,7 @@ const texture = async (file: Blob, name?: string) => {
         return null;
     }
 
-    // float images are never normal maps (detectNormalmap); anything the browser can't decode
+    // float images are never normal maps on the server; anything the browser can't decode
     // throws, which leaves it to the server
     let normals = false;
     if (meta.format !== 'hdr') {

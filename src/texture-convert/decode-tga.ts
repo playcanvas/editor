@@ -1,5 +1,4 @@
-// ported verbatim from monorepo pipeline/shared/base/image-loader.js so the editor decodes exactly
-// what the server does. keep the two in step.
+// decodes exactly what the server's decoder does, so keep the two in step
 
 // TGA origin is stored in bit 5 of the image descriptor byte (byte 17 of header).
 // 0 = bottom-left origin (needs vertical flip), 1 = top-left origin (no flip).

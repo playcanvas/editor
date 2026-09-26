@@ -1,4 +1,4 @@
-// port of pipeline/jobs/texture-meta getFileMeta for the formats whose sharp metadata is fully
+// the texture meta the server's meta job computes, for the formats whose sharp metadata is fully
 // determined by the file header. anything else returns null and the server job runs as before
 
 export type TextureMeta = {
@@ -15,7 +15,7 @@ export type TextureMeta = {
 // sharp's default limitInputPixels, so bigger images never get server meta either
 const MAX_DIM = 16384;
 
-// the server picks these decoders by extension, not by content (image-loader.js loadImage)
+// the server picks these decoders by extension, not by content
 const SERVER_ONLY = new Set(['tga', 'bmp', 'exr']);
 
 const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
@@ -31,7 +31,7 @@ const u32 = (b: Uint8Array, o: number) => ((b[o] << 24) | (b[o + 1] << 16) | (b[
 const le16 = (b: Uint8Array, o: number) => b[o] | (b[o + 1] << 8);
 const le24 = (b: Uint8Array, o: number) => b[o] | (b[o + 1] << 8) | (b[o + 2] << 16);
 
-// deriveImageType: grey when sharp reports <= 2 channels
+// grey when sharp reports <= 2 channels
 const raster = (
     format: string,
     width: number,
@@ -120,7 +120,7 @@ const webp = (b: Uint8Array) => {
     return null;
 };
 
-// decodeHdr's header scan in pipeline/shared/base/image-loader.js: the first blank line (lf or crlf)
+// the server's hdr header scan: the first blank line (lf or crlf)
 const headerEnd = (b: Uint8Array) => {
     for (let i = 0; i < b.length - 1; i++) {
         if (b[i] === 0x0a && b[i + 1] === 0x0a) {
@@ -133,7 +133,7 @@ const headerEnd = (b: Uint8Array) => {
     return -1;
 };
 
-// the float branch of getFileMeta; the resolution line is read the way decodeHdr reads it
+// float images; the resolution line is read the way the hdr decoder reads it
 const hdr = (b: Uint8Array): TextureMeta | null => {
     const start = headerEnd(b);
     if (start < 0) {
@@ -184,7 +184,7 @@ const detect = (b: Uint8Array, ext: string) => {
 };
 
 /**
- * The meta pipeline.texture.meta would write for this file, or null when only the server can tell.
+ * The meta the server's texture meta job would write for this file, or null when only the server can tell.
  *
  * @param bytes - the texture file
  * @param name - file name; picks the extension-decoded formats like the server does
@@ -196,7 +196,7 @@ export const textureMeta = (bytes: Uint8Array, name = '') => {
 };
 
 /**
- * Port of texture-meta detectNormalmap over 8-bit rgba pixels.
+ * The server's normal-map detection over 8-bit rgba pixels.
  *
  * @param rgba - decoded pixels
  */

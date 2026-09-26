@@ -91,7 +91,7 @@ export const codecs = (wasm: Wasm) =>
             );
         },
 
-        // decodeRgbExr in exrs, as image-loader decodes; init is a no-op once loaded
+        // decodeRgbExr in exrs, as the server decodes; init is a no-op once loaded
         exr: async (buffer) => {
             await initExr({ module_or_path: await wasm(EXR_WASM) });
             const res = readExrRgb(new Uint8Array(buffer));

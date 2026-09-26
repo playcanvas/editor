@@ -36,8 +36,7 @@ export const normalize = (format?: string) => (format === 'jpg' ? 'jpeg' : forma
 export const nearestPow2 = (size: number) => Math.pow(2, Math.round(Math.log2(size)));
 
 /**
- * Port of getTextureOptions in services/assets-server/lib/assets.ts. Both are pinned by
- * texture-options-cases.json, so change them together.
+ * The conversion options the server derives from a texture's meta; keep the two in step.
  */
 export const textureOptions = (meta: TextureMeta | null, pow2: boolean) => {
     if (!meta) {

@@ -42,7 +42,7 @@ const decode8 = async (format: string, buffer: ArrayBuffer, meta: TextureMeta, c
 };
 
 /**
- * The work pipeline.texture.convert does for one source: decode, depth convert, pow2 resize, drop
+ * The work the server's texture conversion does for one source: decode, depth convert, pow2 resize, drop
  * channels the source didn't have, encode. hdr/exr sources become rgbm png plus a tonemapped preview
  * for the thumbnailer.
  */
@@ -251,7 +251,7 @@ const webpMeta = (dv: DataView) => {
     return kind === 'VP8 ' ? meta(dv.getUint16(26, true) & 0x3fff, dv.getUint16(28, true) & 0x3fff, false) : null;
 };
 
-// sharp sniffs everything image-loader doesn't pick by extension
+// sharp sniffs everything the server doesn't decode by extension
 const sniff = (dv: DataView) => {
     if (dv.byteLength > 33 && dv.getUint32(0) === 0x89504e47 && tag(dv, 12) === 'IHDR') {
         return pngMeta(dv);
@@ -263,9 +263,9 @@ const sniff = (dv: DataView) => {
 };
 
 /**
- * Decision meta, as texture-meta getFileMeta reports it. The server picks tga/bmp/hdr/exr decoders by
- * extension (image-loader.js loadImageFromBuffer) and sharp sniffs the rest; getFileMeta reports the
- * decoder's hasAlpha/isGrayscale for tga/bmp and a fixed opaque 32-bit truecolor for float images.
+ * Decision meta, as the server's texture meta reports it. The server picks tga/bmp/hdr/exr decoders by
+ * extension and sharp sniffs the rest; it reports the decoder's hasAlpha/isGrayscale for tga/bmp and a
+ * fixed opaque 32-bit truecolor for float images.
  */
 export const sourceMeta = async (buffer: ArrayBuffer, name: string, codecs: Codecs) => {
     // path.extname: a leading dot is part of the name, not an extension
@@ -299,7 +299,7 @@ export const sourceMeta = async (buffer: ArrayBuffer, name: string, codecs: Code
     if (ext === 'tga' || ext === 'bmp') {
         const img = (ext === 'tga' ? decodeTga : decodeBmp)(new Uint8Array(buffer));
 
-        // texture-meta deriveImageType with the decoder's overrides
+        // the server's image type, with the decoder's overrides
         const type = `${img.isGrayscale ? 'Grayscale' : 'TrueColor'}${img.hasAlpha ? 'Alpha' : ''}`;
         return { format: ext, type, width: img.width, height: img.height, alpha: img.hasAlpha, depth: 8 };
     }

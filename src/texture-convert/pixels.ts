@@ -56,7 +56,7 @@ export const pack = (rgba: Uint8Array, alpha: boolean) => {
     return out;
 };
 
-// port of encodeRGBM in pipeline/jobs/texture-convert/app.js
+// the server's rgbm encoding
 export const encodeRGBM = (r: number, g: number, b: number) => {
     const rf = Math.pow(r, 0.5) / 8;
     const gf = Math.pow(g, 0.5) / 8;
@@ -78,7 +78,7 @@ export const toRgbm = ({ data, width, height }: Float) => {
     return out;
 };
 
-// the server's float -> 8-bit tonemap (texture-convert/app.js processNonRgbm), used for previews
+// the server's float -> 8-bit tonemap, used for previews
 export const tonemap = ({ data, width, height }: Float) => {
     const out = new Uint8Array(width * height * 3);
     for (let i = 0; i < width * height * 3; i++) {

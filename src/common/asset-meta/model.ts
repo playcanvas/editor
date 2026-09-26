@@ -1,4 +1,4 @@
-// port of pipeline/jobs/model-meta generateMetaJson / generateMetaGlb
+// the model meta the server's meta job computes, from a json or glb model file
 
 export type ModelMeta = {
     meshes: number;
@@ -80,7 +80,7 @@ const fromGlb = (json: any): ModelMeta => {
                 seen.add(pos);
             }
 
-            // only an explicit TRIANGLES mode counts, matching model-meta
+            // only an explicit TRIANGLES mode counts, as on the server
             if (prim.mode === 4) {
                 const idx = prim.indices == null ? pos : prim.indices;
                 if (idx != null) {
@@ -122,7 +122,7 @@ const fromGlb = (json: any): ModelMeta => {
 };
 
 /**
- * The meta pipeline.model.meta would write (without the server-owned userMapping). Throws where
+ * The meta the server's model meta job would write (without the server-owned userMapping). Throws where
  * the job would fail.
  *
  * @param bytes - a json or glb model file

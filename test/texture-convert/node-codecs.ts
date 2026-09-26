@@ -3,7 +3,7 @@ import { decode as decodePng } from 'fast-png';
 
 import type { Codecs } from '../../src/texture-convert/convert';
 
-// the same exrs the server's image-loader decodes with; init falls back to reading the wasm from disk
+// the same exrs the server decodes with; init falls back to reading the wasm from disk
 await init();
 
 // node stand-ins for the worker's wasm codecs: png via fast-png, exr via exrs, lossy formats recorded

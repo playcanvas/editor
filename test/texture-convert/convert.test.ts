@@ -151,7 +151,7 @@ describe('convertTexture', () => {
 });
 
 describe('sourceMeta', () => {
-    it('describes a tga like texture-meta, with alpha and grey from the decoder scan', async () => {
+    it('describes a tga like the server, with alpha and grey from the decoder scan', async () => {
         const tga = new Uint8Array([0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 8, 0, 10, 20]);
         expect(await sourceMeta(tga.buffer, 'rock.TGA', nodeCodecs)).to.deep.equal({
             format: 'tga',
@@ -163,7 +163,7 @@ describe('sourceMeta', () => {
         });
     });
 
-    it('describes an exr like the getFileMeta float branch', async () => {
+    it('describes an exr like the server float meta', async () => {
         const exr = encodeRgbExr({ width: 2, height: 1, interleavedRgbPixels: new Float32Array(6) });
         const codecs = { ...nodeCodecs, exr: async () => ({ data: new Float32Array(6), width: 2, height: 1 }) };
         expect(await sourceMeta(exr.slice().buffer, 'sky.exr', codecs)).to.deep.equal({
@@ -441,7 +441,7 @@ describe('sourceMeta', () => {
         expect(await sourceMeta(hdr('garbage'), 'env.hdr', nodeCodecs)).to.equal(null);
     });
 
-    it('leaves every other extension to plan 02 or the server', async () => {
+    it('leaves every other extension to client meta or the server', async () => {
         expect(await sourceMeta(new ArrayBuffer(4), 'a.png', nodeCodecs)).to.equal(null);
         expect(await sourceMeta(new ArrayBuffer(4), 'a.avif', nodeCodecs)).to.equal(null);
         expect(await sourceMeta(new ArrayBuffer(4), 'tga', nodeCodecs)).to.equal(null);

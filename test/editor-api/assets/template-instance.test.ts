@@ -6,9 +6,8 @@ import { describe, it } from 'mocha';
 import { buildInstance, nest } from '../../../src/editor-api/assets/template-instance';
 
 const DIR = 'test/editor-api/assets/fixtures/template-instance';
-const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/g;
 
-// top-level entity fields of these components in @pc-shared/schemas (editorType 'entity')
+// top-level entity fields of these components (schema editorType 'entity')
 const FIELDS: Record<string, string[]> = { button: ['imageEntity'], render: ['rootBone'] };
 
 const load = (name: string) => JSON.parse(fs.readFileSync(`${DIR}/${name}`, 'utf8'));
@@ -18,17 +17,20 @@ const ctx = {
     scriptAttrs: (s: string) => scriptAttrs[s]
 };
 
-// swap generated guids for the same @src / +key tokens gen.mjs uses
-const normalize = (res: any) => {
-    const tok: Record<string, string> = {};
-    for (const k in res.srcToDst) tok[res.srcToDst[k]] = `@${k}`;
-    for (const k in res.extra) tok[res.extra[k]] = `+${k}`;
-    return JSON.parse(JSON.stringify(res.entities).replace(UUID, (id) => tok[id] || id));
-};
-
 describe('buildInstance', () => {
-    it('matches the pipeline template-instance output', () => {
-        expect(normalize(buildInstance(template, 'PARENT', ctx))).to.deep.equal(load('expected.json'));
+    it('remaps entity references to the new ids and drops ones outside the template', () => {
+        const { rootId, entities, srcToDst } = buildInstance(template, 'PARENT', ctx);
+        const root = entities[rootId];
+        expect(root).to.include({ name: 'Crate', parent: 'PARENT', template_id: 42 });
+        expect(root.children).to.deep.equal(['a', 'b', 'nested'].map((k) => srcToDst[k]));
+
+        const a = entities[srcToDst.a].components;
+        expect(a.button.imageEntity).to.equal(srcToDst.b);
+        expect(a.render.rootBone).to.equal(null);
+
+        const mover = entities[srcToDst.b].components.script.scripts.mover.attributes;
+        expect(mover).to.deep.include({ target: srcToDst.a, targets: [srcToDst.b, null], cfgStr: 'a' });
+        expect(mover.cfgs).to.deep.equal([{ ent: srcToDst.b }, { ent: null }]);
     });
 
     it('does not mutate the template data', () => {

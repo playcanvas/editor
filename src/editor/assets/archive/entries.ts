@@ -7,7 +7,7 @@ export type ArchivePlan = { name: string; entries: ArchiveEntry[] };
 export type ArchiveResult = [string | null, ArchivePlan | null];
 export type DownloadPlan = { mode: 'server' } | { mode: 'error'; error: string } | { mode: 'client'; plan: ArchivePlan };
 
-// same list as pipeline/jobs/{material,model}-archive; newer maps stay raw ids there too
+// the texture maps the server's material and model archives remap; newer maps stay raw ids there too
 const TEXTURE_PROPERTIES = [
     'aoMap',
     'diffuseMap',
@@ -109,7 +109,7 @@ const cubemapEntries = (ctx: Ctx) =>
 const textureEntries = (ctx: Ctx) =>
     [...ctx.textures].map(([id, t]) => fromFile(t, `${id}/${t.get('file.filename')}`, ctx.branchId));
 
-// model-archive drops every falsy material field, material-archive only falsy map refs; kept for zip parity
+// the server's model archive drops every falsy material field, its material archive only falsy map refs; kept for zip parity
 const rewriteMaterial = (ctx: Ctx, data: any, pruneAll: boolean) => {
     for (const key of Object.keys(data)) {
         const map = TEXTURE_PROPERTIES.includes(key);

@@ -1,4 +1,4 @@
-// sizes, fit and quality must match monorepo pipeline/jobs/texture-thumbnails
+// sizes, fit and quality match the server's thumbnails
 export const THUMBNAIL_SIZES = [
     { name: 'xlarge', size: 512 },
     { name: 'large', size: 256 },
@@ -41,7 +41,7 @@ export const decodeRgbm = (px: Uint8ClampedArray) => {
  * @param type - Asset type
  * @param noConvert - Whether the upload skips server conversion
  * @param file - The uploaded file
- * @param noThumbnails - Set by a caller that makes the thumbnails itself (plan 04)
+ * @param noThumbnails - Set by a caller that makes the thumbnails itself
  * @returns True to send noThumbnails and generate on the client
  */
 export const wantsClientThumbnails = (

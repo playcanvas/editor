@@ -1,5 +1,3 @@
-import fs from 'node:fs';
-
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 
@@ -11,13 +9,28 @@ import {
     targetName,
     textureOptions
 } from '../../src/texture-convert/options';
+import type { TextureMeta } from '../../src/texture-convert/options';
 
-const cases = JSON.parse(fs.readFileSync('test/fixtures/texture-convert/texture-options-cases.json', 'utf8'));
+const CASES: [string, boolean, TextureMeta, object][] = [
+    ['npot png rounds each axis', true, { format: 'png', width: 20, height: 12, alpha: false, depth: 8 }, { format: 'png', size: { width: 16, height: 16 } }],
+    ['pot png is untouched', true, { format: 'png', width: 16, height: 16, alpha: false, depth: 8 }, { format: 'png' }],
+    ['pow2 rounds at the log2 midpoint', true, { format: 'jpeg', width: 1449, height: 1448, alpha: false, depth: 8 }, { format: 'jpeg', size: { width: 2048, height: 1024 } }],
+    ['jpg is normalized to jpeg', false, { format: 'jpg', width: 64, height: 64, alpha: false, depth: 8 }, { format: 'jpeg' }],
+    ['opaque tga becomes jpeg', false, { format: 'tga', width: 20, height: 12, alpha: false, depth: 8 }, { format: 'jpeg' }],
+    ['alpha tga becomes png', false, { format: 'tga', width: 20, height: 12, alpha: true, depth: 8 }, { format: 'png' }],
+    ['16-bit png is depth converted', false, { format: 'png', width: 32, height: 32, alpha: false, depth: 16 }, { format: 'png', depthConvert: true }],
+    ['hdr becomes rgbm png', true, { format: 'hdr', width: 64, height: 32, alpha: false, depth: 32 }, { format: 'png', rgbm: true }],
+    ['npot exr becomes rgbm png with a size', true, { format: 'exr', width: 60, height: 30, alpha: false, depth: 32 }, { format: 'png', rgbm: true, size: { width: 64, height: 32 } }],
+    ['16-bit tiff becomes rgbm png', false, { format: 'tiff', width: 8, height: 8, alpha: false, depth: 16 }, { format: 'png', rgbm: true }],
+    ['webp keeps its format', true, { format: 'webp', width: 30, height: 30, alpha: true, depth: 8 }, { format: 'webp', size: { width: 32, height: 32 } }],
+    ['gif keeps its format', false, { format: 'gif', width: 8, height: 8, alpha: false, depth: 8 }, { format: 'gif' }],
+    ['10-bit avif is depth converted in place', false, { format: 'avif', width: 16, height: 16, alpha: false, depth: 10 }, { format: 'avif', depthConvert: true }]
+];
 
 describe('textureOptions', () => {
-    for (const c of cases) {
-        it(c.name, () => {
-            expect(textureOptions(c.meta, c.pow2)).to.deep.equal(c.expected);
+    for (const [name, pow2, meta, expected] of CASES) {
+        it(name, () => {
+            expect(textureOptions(meta, pow2)).to.deep.equal(expected);
         });
     }
 

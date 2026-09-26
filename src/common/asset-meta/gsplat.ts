@@ -1,5 +1,5 @@
-// port of pipeline/jobs/gsplat-meta (ply-file.js readPlyHeader / readSogHeader + materializeAssetMeta
-// defaults), reading only the ply header or the sog's meta.json instead of the whole file
+// the gsplat meta the server's meta job computes (with its schema defaults), reading only the ply
+// header or the sog's meta.json instead of the whole file
 
 export type GsplatMeta = {
     format: string;
@@ -28,7 +28,7 @@ const UNKNOWN = 0xffffffff;
 
 const zero = () => ({ min: [0, 0, 0], max: [0, 0, 0] });
 
-// gsplat-meta writes schema-complete meta, so the defaults travel with it
+// the server writes schema-complete meta, so the defaults travel with it
 const complete = (header: Header): GsplatMeta => ({ ...header, comments: [], elements: {} });
 
 const shBands = (props: Record<string, true>) => BANDS[BAND_NAMES.findIndex((name) => !Object.hasOwn(props, name))] ?? 0;
@@ -173,7 +173,7 @@ const sogText = async (file: Blob) => {
 };
 
 /**
- * The meta pipeline.gsplat.meta would write for a ply, compressed ply or sog file. Null when only
+ * The meta the server's gsplat meta job would write for a ply, compressed ply or sog file. Null when only
  * the server can tell; throws where the job would fail.
  *
  * @param file - the splat file

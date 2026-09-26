@@ -1,5 +1,4 @@
-// ported verbatim from monorepo pipeline/shared/base/image-loader.js so the editor decodes exactly
-// what the server does. keep the two in step.
+// decodes exactly what the server's decoder does, so keep the two in step
 
 /**
  * Decode a Radiance HDR (.hdr) file buffer into float32 RGB pixel data.

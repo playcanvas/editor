@@ -29,7 +29,7 @@ const MODEL = {
 };
 
 describe('modelMeta', () => {
-    it('counts a json model like model-meta generateMetaJson', () => {
+    it('counts a json model like the server', () => {
         expect(modelMeta(json(MODEL), 'a.json')).to.deep.equal({
             meshes: 1,
             meshInstances: 1,
@@ -42,7 +42,7 @@ describe('modelMeta', () => {
         });
     });
 
-    it('counts a glb like model-meta generateMetaGlb', () => {
+    it('counts a glb like the server', () => {
         const gltf = {
             meshes: [
                 {

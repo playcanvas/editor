@@ -1,5 +1,5 @@
 /**
- * Browser-side replacement for the `pipeline.concatenate.scripts` job, used by the launch page
+ * Browser-side replacement for the server's script concatenation job, used by the launch page
  * whenever it is opened with the existing `concatenateScripts=true` option and every joined
  * script downloads successfully.
  */
@@ -45,8 +45,8 @@ const b64 = (s: string) => {
 };
 
 /**
- * Picks the scripts to concatenate in project script order. Mirrors assets-server
- * `Project.getConcatenatedScriptsHash` and the job's `isValidScriptAsset`: `.js` files with a file
+ * Picks the scripts to concatenate in project script order, as the server does for its
+ * concatenated scripts hash and job: `.js` files with a file
  * hash that don't load before or after the engine. Neither type nor preload is checked, same as
  * the server. A repeated id is joined once, as terser keys its inputs by path.
  *

@@ -1,6 +1,6 @@
 import { glbJson, isJson, json } from './model';
 
-// port of pipeline/jobs/animation-meta generateMetaJson / generateMetaGlb
+// the animation meta the server's meta job computes, from a json or glb animation file
 
 export type AnimationMeta = {
     name: string;
@@ -29,7 +29,7 @@ const fromGlb = (json: any): AnimationMeta => {
 };
 
 /**
- * The meta pipeline.animation.meta would write. Throws where the job would fail.
+ * The meta the server's animation meta job would write. Throws where the job would fail.
  *
  * @param bytes - a json or glb animation file
  * @param name - file name; the server reads a .json file as json and anything else as a GLB
