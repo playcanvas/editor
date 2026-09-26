@@ -1,0 +1,144 @@
+[
+    {
+        "name": "<p>.hdr",
+        "type": "texture",
+        "source": true,
+        "filename": "<p>.hdr",
+        "parent": null,
+        "sourceOf": null,
+        "variants": [],
+        "asset": {
+            "name": "<tc-hdr-flip-x>.hdr",
+            "tags": [],
+            "meta": {
+                "format": "hdr",
+                "type": "TrueColor",
+                "width": 20,
+                "height": 12,
+                "alpha": false,
+                "depth": 32,
+                "srgb": false,
+                "interlaced": false
+            },
+            "data": {
+                "addressu": "repeat",
+                "addressv": "repeat",
+                "minfilter": "linear_mip_linear",
+                "magfilter": "linear",
+                "anisotropy": 1,
+                "rgbm": false,
+                "srgb": true,
+                "mipmaps": true
+            },
+            "file": {
+                "filename": "<tc-hdr-flip-x>.hdr",
+                "size": 1007,
+                "hash": "5365148385b81f2ef92404c0b5f17722"
+            },
+            "path": [],
+            "type": "texture",
+            "source": true,
+            "source_asset_id": null,
+            "scope": {
+                "type": "project",
+                "id": "<project>"
+            },
+            "user_id": "<user>",
+            "revision": 1,
+            "preload": false,
+            "exclude": false,
+            "region": "<region>",
+            "i18n": {},
+            "checkpoint_id": 0,
+            "has_thumbnail": false,
+            "immutable_backup": null,
+            "license": null,
+            "same_as_backup": 0
+        },
+        "image": null,
+        "sha256": "986706f252e67d2332c85e389fb403b5325cc093f1baab2b289aad2d95e2d874"
+    },
+    {
+        "name": "<p>.png",
+        "type": "texture",
+        "source": false,
+        "filename": "<p>.png",
+        "parent": null,
+        "sourceOf": "<p>.hdr",
+        "variants": [],
+        "asset": {
+            "name": "<tc-hdr-flip-x>.png",
+            "tags": [],
+            "meta": {
+                "compress": {
+                    "alpha": false,
+                    "normals": false,
+                    "dxt": false,
+                    "pvr": false,
+                    "pvrBpp": 4,
+                    "etc1": false,
+                    "etc2": false,
+                    "basis": false,
+                    "quality": 128,
+                    "compressionMode": "etc"
+                },
+                "format": "png",
+                "type": "TrueColorAlpha",
+                "width": 20,
+                "height": 12,
+                "alpha": true,
+                "depth": 8,
+                "srgb": true,
+                "interlaced": false
+            },
+            "data": {
+                "addressu": "repeat",
+                "addressv": "repeat",
+                "minfilter": "linear_mip_linear",
+                "magfilter": "linear",
+                "anisotropy": 1,
+                "rgbm": true,
+                "srgb": false,
+                "mipmaps": true
+            },
+            "file": {
+                "filename": "<tc-hdr-flip-x>.png",
+                "hash": "6b08ece75d9cc6162928f4a9e14ca4fc",
+                "size": 438,
+                "variants": {}
+            },
+            "path": [],
+            "type": "texture",
+            "source": false,
+            "source_asset_id": "<source>",
+            "scope": {
+                "type": "project",
+                "id": "<project>"
+            },
+            "user_id": "<user>",
+            "revision": 1,
+            "preload": true,
+            "exclude": false,
+            "region": "<region>",
+            "i18n": {},
+            "checkpoint_id": 0,
+            "has_thumbnail": true,
+            "immutable_backup": null,
+            "license": null,
+            "same_as_backup": 0,
+            "thumbnails": {
+                "s": "<url>",
+                "m": "<url>",
+                "l": "<url>",
+                "xl": "<url>"
+            }
+        },
+        "image": {
+            "format": "png",
+            "width": 20,
+            "height": 12,
+            "channels": 4
+        },
+        "sha256": "7e69b9b7bb72dbaa0af13a074738475ac95d1d3ed6c0e13950b25e93c665342f"
+    }
+]

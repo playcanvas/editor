@@ -1,0 +1,85 @@
+[
+    {
+        "name": "<p>.png",
+        "type": "texture",
+        "source": false,
+        "filename": "<p>.png",
+        "parent": null,
+        "sourceOf": null,
+        "variants": [],
+        "asset": {
+            "name": "<tc-huge-pow2-server-only>.png",
+            "tags": [],
+            "meta": {
+                "compress": {
+                    "alpha": false,
+                    "normals": false,
+                    "dxt": false,
+                    "pvr": false,
+                    "pvrBpp": 4,
+                    "etc1": false,
+                    "etc2": false,
+                    "basis": false,
+                    "quality": 128,
+                    "compressionMode": "etc"
+                },
+                "format": "png",
+                "type": "Grayscale",
+                "width": 4096,
+                "height": 4096,
+                "alpha": false,
+                "depth": 8,
+                "srgb": false,
+                "interlaced": false
+            },
+            "data": {
+                "addressu": "repeat",
+                "addressv": "repeat",
+                "minfilter": "linear_mip_linear",
+                "magfilter": "linear",
+                "anisotropy": 1,
+                "rgbm": false,
+                "srgb": true,
+                "mipmaps": true
+            },
+            "file": {
+                "filename": "<tc-huge-pow2-server-only>.png",
+                "size": 58799,
+                "hash": "0752b9018cb700d211ae1efaf296b463",
+                "variants": {}
+            },
+            "path": [],
+            "type": "texture",
+            "source": false,
+            "source_asset_id": null,
+            "scope": {
+                "type": "project",
+                "id": "<project>"
+            },
+            "user_id": "<user>",
+            "revision": 1,
+            "preload": true,
+            "exclude": false,
+            "region": "<region>",
+            "i18n": {},
+            "checkpoint_id": 0,
+            "has_thumbnail": true,
+            "immutable_backup": null,
+            "license": null,
+            "same_as_backup": 0,
+            "thumbnails": {
+                "s": "<url>",
+                "m": "<url>",
+                "l": "<url>",
+                "xl": "<url>"
+            }
+        },
+        "image": {
+            "format": "png",
+            "width": 4096,
+            "height": 4096,
+            "channels": 3
+        },
+        "sha256": "a088cbd13a61c2153c17ee030f152f34717afe2e665212ec1e01f18b39c68905"
+    }
+]

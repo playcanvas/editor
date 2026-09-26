@@ -1,4 +1,9 @@
+import { metaKind } from '@/common/asset-meta/kind';
+import { wantsClientThumbnails } from '@/common/texture-thumbnails';
 import { config } from '@/editor/config';
+
+// how long to wait for a created texture to arrive over realtime before leaving its thumbnails to the server
+const THUMBNAIL_ASSET_TIMEOUT = 30000;
 
 editor.once('load', () => {
     let uploadJobs = 0;
@@ -107,7 +112,33 @@ editor.once('load', () => {
     };
     editor.method('assets:pipeline:options', pipelineOptions);
 
-    editor.method('assets:uploadFile', (args, fn) => {
+    // hand an uploaded texture's file to the client thumbnailer once its observer exists
+    const clientThumbnails = (asset, id: number, file: Blob) => {
+        const existing = asset ?? editor.call('assets:get', id);
+        if (existing) {
+            editor.call('assets:thumbnails:texture', existing, file);
+            return;
+        }
+        const timer = setTimeout(() => {
+            evt.unbind();
+            editor.call('realtime:send', 'pipeline', { name: 'thumbnails', data: { target: id } });
+        }, THUMBNAIL_ASSET_TIMEOUT);
+        const evt = editor.once(`assets:add[${id}]`, (a) => {
+            clearTimeout(timer);
+            editor.call('assets:thumbnails:texture', a, file);
+        });
+    };
+
+    const upload = (input, fn) => {
+        // a caller that already set noThumbnails (plan 04) makes its own
+        const thumbnails = wantsClientThumbnails(
+            input.type ?? input.asset?.get('type'),
+            input.noConvert,
+            input.file,
+            input.noThumbnails
+        );
+        const args = thumbnails ? { ...input, noThumbnails: true } : input;
+
         let request;
         if (args.asset) {
             const assetId = args.asset.get('id');
@@ -128,6 +159,9 @@ editor.once('load', () => {
                 if (fn) {
                     fn(null, data);
                 }
+                if (thumbnails) {
+                    clientThumbnails(args.asset, data.id, args.file);
+                }
             })
             .on('progress', (progress) => {
                 editor.call('status:job', `asset-upload:${job}`, progress);
@@ -143,6 +177,19 @@ editor.once('load', () => {
                     fn(data);
                 }
             });
+    };
+
+    editor.method('assets:uploadFile', (args, fn) => {
+        const kind = metaKind(args);
+        if (!kind) {
+            upload(args, fn);
+            return;
+        }
+
+        // null (unsupported, failed, timed out) keeps the server meta job
+        editor.call(`assets:meta:${kind}`, args.file, args.filename || args.name).then((meta) => {
+            upload(meta ? { ...args, noMeta: true, clientMeta: meta } : args, fn);
+        });
     });
 
     function getPathFromFolder(folder: { get: (path: string) => number[] | string } | null) {
@@ -339,6 +386,20 @@ editor.once('load', () => {
                 }
             );
         };
+
+        // client-side texture import; false means the server pipeline runs instead (unsupported
+        // format or size, no write permission, or the worker failed before anything was uploaded)
+        if (type === 'texture' || type === 'textureatlas') {
+            editor
+                .call('textures:import', {
+                    file,
+                    type,
+                    parent: currentFolder,
+                    existing: asset ? asset[1] : sourceAsset
+                })
+                .then((ok: boolean) => ok || uploadToFolder(currentFolder));
+            return;
+        }
 
         // client-side font import: create a folder named after the font and generate the json +
         // texture mirrors + runtime font in the editor (needs the backend noConvert support)

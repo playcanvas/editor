@@ -155,6 +155,7 @@ import './assets/assets-copy';
 import './assets/assets-paste';
 import './assets/assets-edit';
 import './assets/assets-download';
+import './assets/assets-archive';
 import './assets/assets-replace';
 import './assets/assets-rename';
 import './assets/assets-rename-select';
@@ -187,9 +188,12 @@ import './assets/assets-sprite-utils';
 import './assets/assets-bundles';
 import './assets/assets-move-to-store';
 import './assets/assets-texture-convert';
+import './assets/assets-texture-import';
 import './assets/assets-font-generate';
+import './assets/assets-meta';
 import './assets/assets-font-import';
 import './assets/assets-mapping-removal';
+import './assets/assets-texture-thumbnails';
 import './assets/assets-thumbnail-regen';
 
 // templates

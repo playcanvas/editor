@@ -81,8 +81,13 @@ editor.once('load', () => {
         return element;
     };
 
-    const onError = function (msg: string, url: string | undefined, line: number, col: number, e?: Error) {
+    const onError = function (msg: string, rawUrl: string | undefined, rawLine: number, col: number, e?: Error) {
         const ide = editor.call('settings:projectUser')?.get('editor.codeEditor');
+
+        // a line of the client-concatenated scripts maps back to its own file, which links to the code editor
+        const hit = rawUrl?.startsWith('blob:') ? editor.call('assets:concatenated:resolve', rawUrl, rawLine) : null;
+        const url = hit?.url ?? rawUrl;
+        const line = hit?.line ?? rawLine;
         if (url) {
             // check if this is a playcanvas script
             let codeEditorUrl = '';

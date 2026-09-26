@@ -1,0 +1,144 @@
+[
+    {
+        "name": "<p>.png",
+        "type": "texture",
+        "source": false,
+        "filename": "<p>.png",
+        "parent": null,
+        "sourceOf": "<p>.tga",
+        "variants": [],
+        "asset": {
+            "name": "<tc-tga-alpha-no-pow2>.png",
+            "tags": [],
+            "meta": {
+                "compress": {
+                    "alpha": true,
+                    "normals": false,
+                    "dxt": false,
+                    "pvr": false,
+                    "pvrBpp": 4,
+                    "etc1": false,
+                    "etc2": false,
+                    "basis": false,
+                    "quality": 128,
+                    "compressionMode": "etc"
+                },
+                "format": "png",
+                "type": "TrueColorAlpha",
+                "width": 20,
+                "height": 12,
+                "alpha": true,
+                "depth": 8,
+                "srgb": true,
+                "interlaced": false
+            },
+            "data": {
+                "addressu": "repeat",
+                "addressv": "repeat",
+                "minfilter": "linear_mip_linear",
+                "magfilter": "linear",
+                "anisotropy": 1,
+                "rgbm": false,
+                "srgb": true,
+                "mipmaps": true
+            },
+            "file": {
+                "filename": "<tc-tga-alpha-no-pow2>.png",
+                "hash": "3665476feea3b2a16b1f45792944f808",
+                "size": 156,
+                "variants": {}
+            },
+            "path": [],
+            "type": "texture",
+            "source": false,
+            "source_asset_id": "<source>",
+            "scope": {
+                "type": "project",
+                "id": "<project>"
+            },
+            "user_id": "<user>",
+            "revision": 1,
+            "preload": true,
+            "exclude": false,
+            "region": "<region>",
+            "i18n": {},
+            "checkpoint_id": 0,
+            "has_thumbnail": true,
+            "immutable_backup": null,
+            "license": null,
+            "same_as_backup": 0,
+            "thumbnails": {
+                "s": "<url>",
+                "m": "<url>",
+                "l": "<url>",
+                "xl": "<url>"
+            }
+        },
+        "image": {
+            "format": "png",
+            "width": 20,
+            "height": 12,
+            "channels": 4
+        },
+        "sha256": "305d7fe8050ecf7e04ae9fa4bcd3d0425f54e4eca2c891f090ec92115e287574"
+    },
+    {
+        "name": "<p>.tga",
+        "type": "texture",
+        "source": true,
+        "filename": "<p>.tga",
+        "parent": null,
+        "sourceOf": null,
+        "variants": [],
+        "asset": {
+            "name": "<tc-tga-alpha-no-pow2>.tga",
+            "tags": [],
+            "meta": {
+                "format": "tga",
+                "type": "TrueColorAlpha",
+                "width": 20,
+                "height": 12,
+                "alpha": true,
+                "depth": 8,
+                "srgb": true,
+                "interlaced": false
+            },
+            "data": {
+                "addressu": "repeat",
+                "addressv": "repeat",
+                "minfilter": "linear_mip_linear",
+                "magfilter": "linear",
+                "anisotropy": 1,
+                "rgbm": false,
+                "srgb": true,
+                "mipmaps": true
+            },
+            "file": {
+                "filename": "<tc-tga-alpha-no-pow2>.tga",
+                "size": 978,
+                "hash": "97996f78535fca2749d79a1929c426f1"
+            },
+            "path": [],
+            "type": "texture",
+            "source": true,
+            "source_asset_id": null,
+            "scope": {
+                "type": "project",
+                "id": "<project>"
+            },
+            "user_id": "<user>",
+            "revision": 1,
+            "preload": false,
+            "exclude": false,
+            "region": "<region>",
+            "i18n": {},
+            "checkpoint_id": 0,
+            "has_thumbnail": false,
+            "immutable_backup": null,
+            "license": null,
+            "same_as_backup": 0
+        },
+        "image": null,
+        "sha256": "a6a2e964b7a5e546967b80367bc12a33c2ce88abda6528e429a1e3bb0b4c3f85"
+    }
+]

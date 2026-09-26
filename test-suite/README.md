@@ -53,6 +53,44 @@ Tests delete their own projects during teardown. The separate clean config authe
 and deletes `e2e-` projects from other runs older than two hours, preserving projects with
 missing or unreadable creation dates.
 
+## Parity tests
+
+Use `lib/parity.ts` for explicit server-oracle and candidate frontend runs. The harness
+does not select application behavior: each callback performs its own operation on its
+own page. Both runs can share a page when the server leg directly invokes a public
+backend operation. Otherwise supply a pinned baseline Editor page and candidate page.
+There are no production rollout flags or test-controlled application switches.
+
+This working harness-mechanics example creates the same folder twice; it does not prove
+a migrated frontend job exists or has parity:
+
+```ts
+const assets = new AssetsPanel(editorPage);
+const run = async () => {
+    const folder = await assets.create('createFolder', { name: uniqueName('parity') });
+    return normalizeAsset(await editorPage.evaluate(
+        id => window.editor.api.globals.assets.get(id)!.json(), folder.id
+    ));
+};
+await parity({
+    server: { page: editorPage, run },
+    client: { page: editorPage, run }
+});
+```
+
+- Each run gets its own snapshot and fresh `ServerSpy`; server runs before client.
+  Raw results attach as `parity-server.json` and `parity-client.json`, with byte digests.
+- Create shared inputs before `parity()`. `normalizeTree` preserves IDs outside the subtree.
+- Scenarios must finish all work and return plain data. Snapshot/restore removes added
+  assets/entities only; scenarios must restore edits to existing data/settings themselves.
+- Project additions and spies are cleaned up on failures. If cleanup also fails,
+  an `AggregateError` preserves the original failure.
+- Use `opts.normalize` only for legitimate differences. For lossy outputs, omit
+  `file.hash`/`file.size` and compare pixels with `imageDiff` under a stated tolerance.
+- The nine archive tests currently characterize the unchanged server-based Editor.
+  Future differential tests need explicit backend oracle operations or a pinned baseline
+  Editor, plus a candidate frontend implementation and server-work assertions.
+
 ## Reports and CI
 
 Runs write `playwright-report/` and `test-results/results.json`, including durations,

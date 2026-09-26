@@ -1,0 +1,152 @@
+{
+    "rgb8.png": {
+        "format": "png",
+        "type": "TrueColor",
+        "width": 5,
+        "height": 3,
+        "alpha": false,
+        "depth": 8,
+        "srgb": true,
+        "interlaced": false
+    },
+    "rgba8.png": {
+        "format": "png",
+        "type": "TrueColorAlpha",
+        "width": 6,
+        "height": 4,
+        "alpha": true,
+        "depth": 8,
+        "srgb": true,
+        "interlaced": false
+    },
+    "grey8.png": {
+        "format": "png",
+        "type": "Grayscale",
+        "width": 5,
+        "height": 3,
+        "alpha": false,
+        "depth": 8,
+        "srgb": false,
+        "interlaced": false
+    },
+    "greyalpha8.png": {
+        "format": "png",
+        "type": "GrayscaleAlpha",
+        "width": 6,
+        "height": 4,
+        "alpha": true,
+        "depth": 8,
+        "srgb": false,
+        "interlaced": false
+    },
+    "rgb16.png": {
+        "format": "png",
+        "type": "TrueColor",
+        "width": 5,
+        "height": 3,
+        "alpha": false,
+        "depth": 16,
+        "srgb": false,
+        "interlaced": false
+    },
+    "palette.png": {
+        "format": "png",
+        "type": "TrueColorAlpha",
+        "width": 6,
+        "height": 4,
+        "alpha": true,
+        "depth": 8,
+        "srgb": true,
+        "interlaced": false
+    },
+    "interlaced.png": {
+        "format": "png",
+        "type": "TrueColor",
+        "width": 5,
+        "height": 3,
+        "alpha": false,
+        "depth": 8,
+        "srgb": true,
+        "interlaced": false
+    },
+    "rgb.jpg": {
+        "format": "jpeg",
+        "type": "TrueColor",
+        "width": 5,
+        "height": 3,
+        "alpha": false,
+        "depth": 8,
+        "srgb": true,
+        "interlaced": false
+    },
+    "grey.jpg": {
+        "format": "jpeg",
+        "type": "Grayscale",
+        "width": 5,
+        "height": 3,
+        "alpha": false,
+        "depth": 8,
+        "srgb": false,
+        "interlaced": false
+    },
+    "cmyk.jpg": {
+        "format": "jpeg",
+        "type": "TrueColor",
+        "width": 5,
+        "height": 3,
+        "alpha": false,
+        "depth": 8,
+        "srgb": false,
+        "interlaced": false
+    },
+    "lossy.webp": {
+        "format": "webp",
+        "type": "TrueColor",
+        "width": 5,
+        "height": 3,
+        "alpha": false,
+        "depth": 8,
+        "srgb": true,
+        "interlaced": false
+    },
+    "lossy-alpha.webp": {
+        "format": "webp",
+        "type": "TrueColorAlpha",
+        "width": 6,
+        "height": 4,
+        "alpha": true,
+        "depth": 8,
+        "srgb": true,
+        "interlaced": false
+    },
+    "lossless.webp": {
+        "format": "webp",
+        "type": "TrueColor",
+        "width": 5,
+        "height": 3,
+        "alpha": false,
+        "depth": 8,
+        "srgb": true,
+        "interlaced": false
+    },
+    "lossless-alpha.webp": {
+        "format": "webp",
+        "type": "TrueColorAlpha",
+        "width": 6,
+        "height": 4,
+        "alpha": true,
+        "depth": 8,
+        "srgb": true,
+        "interlaced": false
+    },
+    "flat.hdr": {
+        "format": "hdr",
+        "type": "TrueColor",
+        "width": 7,
+        "height": 2,
+        "alpha": false,
+        "depth": 32,
+        "srgb": false,
+        "interlaced": false
+    }
+}

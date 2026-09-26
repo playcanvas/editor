@@ -45,6 +45,10 @@ const STATIC_ASSETS = [
     { src: 'static/img', dest: 'dist/static/img' },
     { src: 'src/wasm/lodepng', dest: 'dist/wasm/lodepng' },
     { src: 'src/wasm/codecs', dest: 'dist/wasm/codecs' },
+    {
+        src: 'node_modules/exrs/node_modules/exrs-raw-wasm-bindgen/exrs_raw_wasm_bindgen_bg.wasm',
+        dest: 'dist/wasm/exrs/exrs_raw_wasm_bindgen_bg.wasm'
+    },
     { src: 'node_modules/@playcanvas/msdfgen-wasm/dist/msdfgen.wasm', dest: 'dist/js/msdfgen.wasm' },
     { src: 'node_modules/@playcanvas/attribute-parser/dist/libs.d.ts', dest: 'dist/types/libs.d.ts' }
 ];

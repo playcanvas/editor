@@ -4,6 +4,7 @@ import { ObserverSync } from '@/common/observer-sync';
 import { createLog } from '@/common/sentry';
 import { isReferencedFont } from '@/editor/inspector/assets/font-mode';
 import type { LaunchConfig } from '@/editor-api/external-types/config';
+import { concatenate, fetchScripts, selectScripts } from '@/launch/assets/concatenate-scripts';
 
 const log = createLog('<PATH>');
 
@@ -50,6 +51,32 @@ editor.once('load', () => {
         }
         return `assets/files/${path}${encodeURIComponent(filename)}?id=${id}&branchId=${(config.self as { branch: { id: string } }).branch.id}`;
     };
+
+    let concatenated: { url: string; resolve: ReturnType<typeof concatenate>['resolve'] } | null = null;
+
+    // file.url may already point at the server join, so each script is fetched from its own url
+    const buildConcatenated = async () => {
+        const base = new URL(app.assets.prefix ?? '', location.href);
+        const picked = selectScripts<Observer>(settings.get('scripts') ?? [], (id) => editor.call('assets:get', id));
+        const scripts = picked.map((a) => {
+            const url = getFileUrl(a.get('path'), a.get('id'), a.get('revision'), a.get('file.filename'));
+            return { id: a.get('id') as number, url: new URL(url, base).href, name: a.get('file.filename') as string };
+        });
+        if (!scripts.length) {
+            return null;
+        }
+        const files = await fetchScripts(scripts);
+        if (!files) {
+            console.warn('Concatenate scripts: a script failed to download, using the server concatenation');
+            return null;
+        }
+        const { code, resolve } = concatenate(files);
+        return { url: URL.createObjectURL(new Blob([code], { type: 'text/javascript' })), resolve };
+    };
+
+    editor.method('assets:concatenated:resolve', (url: string, line: number) => {
+        return concatenated && url === concatenated.url ? concatenated.resolve(line) : null;
+    });
 
     editor.method('loadAsset', (uniqueId: string, callback?: (asset?: Observer) => void) => {
         const connection = editor.call('realtime:connection');
@@ -292,6 +319,11 @@ editor.once('load', () => {
         // create the engine asset
         const assetData = asset.json();
 
+        // every asset doc load pointed at the server join takes the client join instead
+        if (concatenated && assetData.file?.url === concatenatedScriptsUrl) {
+            assetData.file.url = concatenated.url;
+        }
+
         // a referenced font resolves its descriptor and atlas from sibling assets, so a bundle can
         // only carry its placeholder file. worse, the engine derives a bundled font's atlas page urls
         // from data.info.maps, which a referenced font does not have, and throws mid-index — which
@@ -398,6 +430,10 @@ editor.once('load', () => {
 
                     // Initialize the Mapping SW which handles url mappings
                     await editor.call('sw:initialize');
+
+                    if (concatenateScripts && !legacyScripts) {
+                        concatenated = await buildConcatenated();
+                    }
 
                     if (!legacyScripts) {
                         loadScripts(wasmAssetIds);

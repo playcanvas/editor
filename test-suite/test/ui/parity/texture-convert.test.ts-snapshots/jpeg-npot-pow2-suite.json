@@ -1,0 +1,85 @@
+[
+    {
+        "name": "<p>.jpg",
+        "type": "texture",
+        "source": false,
+        "filename": "<p>.jpg",
+        "parent": null,
+        "sourceOf": null,
+        "variants": [],
+        "asset": {
+            "name": "<tc-jpeg-npot-pow2>.jpg",
+            "tags": [],
+            "meta": {
+                "compress": {
+                    "alpha": false,
+                    "normals": false,
+                    "dxt": false,
+                    "pvr": false,
+                    "pvrBpp": 4,
+                    "etc1": false,
+                    "etc2": false,
+                    "basis": false,
+                    "quality": 128,
+                    "compressionMode": "etc"
+                },
+                "format": "jpeg",
+                "type": "TrueColor",
+                "width": 16,
+                "height": 16,
+                "alpha": false,
+                "depth": 8,
+                "srgb": true,
+                "interlaced": false
+            },
+            "data": {
+                "addressu": "repeat",
+                "addressv": "repeat",
+                "minfilter": "linear_mip_linear",
+                "magfilter": "linear",
+                "anisotropy": 1,
+                "rgbm": false,
+                "srgb": true,
+                "mipmaps": true
+            },
+            "file": {
+                "filename": "<tc-jpeg-npot-pow2>.jpg",
+                "size": 393,
+                "hash": "b40f6a882c61878e9e75551e4f5a13cb",
+                "variants": {}
+            },
+            "path": [],
+            "type": "texture",
+            "source": false,
+            "source_asset_id": null,
+            "scope": {
+                "type": "project",
+                "id": "<project>"
+            },
+            "user_id": "<user>",
+            "revision": 1,
+            "preload": true,
+            "exclude": false,
+            "region": "<region>",
+            "i18n": {},
+            "checkpoint_id": 0,
+            "has_thumbnail": true,
+            "immutable_backup": null,
+            "license": null,
+            "same_as_backup": 0,
+            "thumbnails": {
+                "s": "<url>",
+                "m": "<url>",
+                "l": "<url>",
+                "xl": "<url>"
+            }
+        },
+        "image": {
+            "format": "jpeg",
+            "width": 16,
+            "height": 16,
+            "channels": 3
+        },
+        "sha256": "709d07a33640e2564e791438077531f34638b3f086ff3fc7557e496b8534386c"
+    }
+]

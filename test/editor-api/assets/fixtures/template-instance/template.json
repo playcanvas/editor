@@ -1,0 +1,26 @@
+{
+    "template": {
+        "id": 42,
+        "name": "Crate",
+        "entities": {
+            "root": { "resource_id": "root", "name": "Root", "parent": null, "children": ["a", "b", "nested"], "enabled": true, "tags": [], "position": [0, 0, 0], "rotation": [0, 0, 0], "scale": [1, 1, 1], "components": {}, "template": null, "template_id": null, "template_ent_ids": null },
+            "a": { "resource_id": "a", "name": "A", "parent": "root", "children": [], "enabled": true, "tags": [], "position": [1, 0, 0], "rotation": [0, 0, 0], "scale": [1, 1, 1], "components": { "button": { "enabled": true, "imageEntity": "b" }, "render": { "enabled": true, "rootBone": "outside" } }, "template": null, "template_id": null, "template_ent_ids": null },
+            "b": { "resource_id": "b", "name": "B", "parent": "root", "children": [], "enabled": true, "tags": [], "position": [0, 1, 0], "rotation": [0, 0, 0], "scale": [1, 1, 1], "components": { "script": { "enabled": true, "order": ["mover", "dot.ted"], "scripts": { "mover": { "enabled": true, "attributes": { "target": "a", "targets": ["b", "outside"], "speed": 3, "cfg": { "ent": "a", "n": 1 }, "cfgs": [{ "ent": "b" }, { "ent": "outside" }], "cfgStr": "a" } }, "dot.ted": { "enabled": true, "attributes": { "target": "a" } } } } }, "template": null, "template_id": null, "template_ent_ids": null },
+            "nested": { "resource_id": "nested", "name": "Nested", "parent": "root", "children": ["nchild"], "enabled": true, "tags": [], "position": [0, 0, 1], "rotation": [0, 0, 0], "scale": [1, 1, 1], "components": {}, "template": null, "template_id": 99, "template_ent_ids": { "nested": "n-src-root", "nchild": "n-src-child", "gone": "n-src-gone" } },
+            "nchild": { "resource_id": "nchild", "name": "NChild", "parent": "nested", "children": [], "enabled": true, "tags": [], "position": [0, 0, 0], "rotation": [0, 0, 0], "scale": [1, 1, 1], "components": {}, "template": null, "template_id": null, "template_ent_ids": { "gone": "n-src-gone" } }
+        }
+    },
+    "scriptAttrs": {
+        "mover": {
+            "target": { "type": "entity" },
+            "targets": { "type": "entity", "array": true },
+            "speed": { "type": "number" },
+            "cfg": { "type": "json", "schema": [{ "name": "ent", "type": "entity" }, { "name": "n", "type": "number" }] },
+            "cfgs": { "type": "json", "array": true, "schema": [{ "name": "ent", "type": "entity" }] },
+            "cfgStr": { "type": "json", "schema": [{ "name": "0", "type": "entity" }] }
+        },
+        "dot.ted": {
+            "target": { "type": "entity" }
+        }
+    }
+}

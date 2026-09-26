@@ -253,7 +253,11 @@ driver.method('assets:texture:metadata', async (id) => {
             event = asset.once('meta:set', () => {
                 done();
             });
-            editor.call('realtime:send', 'pipeline', { name: 'meta', id: asset.get('uniqueId') });
+            editor.call('assets:meta:fill', asset).then((filled: boolean) => {
+                if (!filled) {
+                    editor.call('realtime:send', 'pipeline', { name: 'meta', id: asset.get('uniqueId') });
+                }
+            });
         },
         () => event?.unbind()
     );

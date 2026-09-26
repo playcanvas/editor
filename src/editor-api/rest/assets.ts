@@ -136,6 +136,23 @@ export type AssetUpdateData = {
      * Skip server-side conversion (for assets the editor generates itself, e.g. client-side fonts)
      */
     noConvert?: boolean;
+
+    /**
+     * Skip server-side thumbnails (the editor uploads its own via assetThumbnailsUpload)
+     */
+    noThumbnails?: boolean;
+
+    /**
+     * The editor computed `clientMeta` itself, so the server skips its meta job (it validates the
+     * meta and runs the job anyway if the meta is rejected)
+     */
+    noMeta?: boolean;
+
+    /**
+     * The asset meta the editor computed, sent with noMeta. Unlike a create's `meta`, which seeds
+     * the new asset, this stands in for the server's meta job
+     */
+    clientMeta?: object;
 };
 
 export type AssetCreateData = AssetUpdateData & {
@@ -440,6 +457,17 @@ const assetUpdateFields = (form: FormData, data: AssetUpdateData, pipeline: Asse
         form.append('noConvert', 'true');
     }
 
+    // noThumbnails (editor-generated texture thumbnails)
+    if (data.noThumbnails) {
+        form.append('noThumbnails', 'true');
+    }
+
+    // noMeta (editor-computed meta replaces the server meta job)
+    if (data.noMeta && data.clientMeta) {
+        form.append('noMeta', 'true');
+        form.append('clientMeta', JSON.stringify(data.clientMeta));
+    }
+
     // name
     if (data.name) {
         form.append('name', data.name);
@@ -596,6 +624,30 @@ export const assetUpdate = (assetId: string, data: AssetUpdateData, pipeline: As
         ignoreContentType: true,
         headers: {
             Accept: 'application/json' // Verified to be JSON response
+        }
+    });
+};
+
+/**
+ * Uploads editor-generated thumbnails for a texture asset
+ *
+ * @param assetId - The ID of the asset
+ * @param thumbnails - One jpeg per size, keyed by size name (xlarge, large, medium, small)
+ * @returns A request that responds once the thumbnails are stored
+ */
+export const assetThumbnailsUpload = (assetId: string, thumbnails: Record<string, Blob>) => {
+    const form = new FormData();
+    for (const name in thumbnails) {
+        form.append(name, thumbnails[name], `${name}.jpg`);
+    }
+
+    return Ajax.post({
+        url: `${api.apiUrl}/assets/${assetId}/thumbnails?branchId=${api.branchId}`,
+        auth: true,
+        data: form,
+        ignoreContentType: true,
+        headers: {
+            Accept: 'application/json'
         }
     });
 };
