@@ -1147,7 +1147,7 @@ ${className}.prototype.update = function(dt) {
         api.globals.jobs = new api.Jobs();
         api.globals.messenger = { on: () => {} };
         api.globals.realtime = {
-            scenes: { current: { uniqueId: 1, addEntity: () => {}, removeEntity: () => {} } },
+            scenes: { current: { uniqueId: 1, addEntity: () => {}, removeEntity: () => {}, batch: fn => fn() } },
             connection: { sendMessage: send }
         };
         return send;
