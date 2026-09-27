@@ -19,9 +19,27 @@ export const registry = (...docs: Record<string, any>[]) => {
     return (id: number | string) => map.get(Number(id)) ?? null;
 };
 
-export const albedo = { id: 40, type: 'texture', source: false, name: 'Albedo', file: { filename: 'albedo.png', size: 100 } };
-export const sheen = { id: 41, type: 'texture', source: false, name: 'Sheen', file: { filename: 'sheen.png', size: 50 } };
-export const sourceTex = { id: 42, type: 'texture', source: true, name: 'Albedo.psd', file: { filename: 'albedo.psd', size: 999 } };
+export const albedo = {
+    id: 40,
+    type: 'texture',
+    source: false,
+    name: 'Albedo',
+    file: { filename: 'albedo.png', size: 100 }
+};
+export const sheen = {
+    id: 41,
+    type: 'texture',
+    source: false,
+    name: 'Sheen',
+    file: { filename: 'sheen.png', size: 50 }
+};
+export const sourceTex = {
+    id: 42,
+    type: 'texture',
+    source: true,
+    name: 'Albedo.psd',
+    file: { filename: 'albedo.psd', size: 999 }
+};
 export const sky = {
     id: 50,
     type: 'cubemap',
@@ -35,7 +53,16 @@ export const steel = {
     type: 'material',
     source: false,
     name: 'Steel',
-    data: { diffuseMap: 40, normalMap: 404, opacityMap: null, aoMap: 42, cubeMap: 50, opacity: 0, useMetalness: false, sheenMap: 41 }
+    data: {
+        diffuseMap: 40,
+        normalMap: 404,
+        opacityMap: null,
+        aoMap: 42,
+        cubeMap: 50,
+        opacity: 0,
+        useMetalness: false,
+        sheenMap: 41
+    }
 };
 export const car = {
     id: 60,
@@ -63,8 +90,38 @@ export const refFont = {
     file: { filename: 'unisans.json', size: 2 },
     data: { jsonAsset: 21, textureAssets: [22, 23] }
 };
-export const refJson = { id: 21, type: 'json', source: false, name: 'unisans.json', file: { filename: 'unisans.json', size: 300 } };
-export const refPage0 = { id: 22, type: 'texture', source: false, name: 'unisans.png', file: { filename: 'unisans.png', size: 500 } };
-export const refPage1 = { id: 23, type: 'texture', source: false, name: 'unisans1.png', file: { filename: 'unisans1.png', size: 600 } };
+export const refJson = {
+    id: 21,
+    type: 'json',
+    source: false,
+    name: 'unisans.json',
+    file: { filename: 'unisans.json', size: 300 }
+};
+export const refPage0 = {
+    id: 22,
+    type: 'texture',
+    source: false,
+    name: 'unisans.png',
+    file: { filename: 'unisans.png', size: 500 }
+};
+export const refPage1 = {
+    id: 23,
+    type: 'texture',
+    source: false,
+    name: 'unisans1.png',
+    file: { filename: 'unisans1.png', size: 600 }
+};
 
-export const lookup = registry(albedo, sheen, sourceTex, sky, steel, car, legacyFont, refFont, refJson, refPage0, refPage1);
+export const lookup = registry(
+    albedo,
+    sheen,
+    sourceTex,
+    sky,
+    steel,
+    car,
+    legacyFont,
+    refFont,
+    refJson,
+    refPage0,
+    refPage1
+);

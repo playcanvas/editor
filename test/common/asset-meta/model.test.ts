@@ -69,7 +69,11 @@ describe('modelMeta', () => {
     });
 
     it('skips primitives without an explicit mode, as the server does', () => {
-        const gltf = { meshes: [{ primitives: [{ attributes: { POSITION: 0 } }] }], accessors: [{ count: 3 }], nodes: [] };
+        const gltf = {
+            meshes: [{ primitives: [{ attributes: { POSITION: 0 } }] }],
+            accessors: [{ count: 3 }],
+            nodes: []
+        };
         expect(modelMeta(glb(gltf), 'a.glb').triangles).to.equal(0);
     });
 

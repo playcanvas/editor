@@ -67,7 +67,14 @@ describe('gsplatMeta', () => {
     });
 
     it('reads compressed ply', async () => {
-        const meta = await gsplatMeta(ply([['chunk', 1, ['min_x']], ['vertex', 256, ['packed_position']], ['sh', 256, rest(24)]]), 'a.compressed.ply');
+        const meta = await gsplatMeta(
+            ply([
+                ['chunk', 1, ['min_x']],
+                ['vertex', 256, ['packed_position']],
+                ['sh', 256, rest(24)]
+            ]),
+            'a.compressed.ply'
+        );
         expect(meta).to.include({ format: 'COMPRESSED.PLY', count: 256, bands: 2 });
     });
 
@@ -87,7 +94,15 @@ describe('gsplatMeta', () => {
 
     for (const deflate of [true, false]) {
         it(`reads meta.json from a ${deflate ? 'deflated' : 'stored'} sog`, async () => {
-            expect(await gsplatMeta(zip([{ name: 'means_l.webp', content: 'x' }, { name: 'meta.json', content: META, deflate }]), 'a.sog')).to.deep.equal({
+            expect(
+                await gsplatMeta(
+                    zip([
+                        { name: 'means_l.webp', content: 'x' },
+                        { name: 'meta.json', content: META, deflate }
+                    ]),
+                    'a.sog'
+                )
+            ).to.deep.equal({
                 format: 'SOG',
                 count: 5,
                 bands: 2,
@@ -99,22 +114,37 @@ describe('gsplatMeta', () => {
     }
 
     it('returns the server placeholder for unparseable sog meta', async () => {
-        expect(await gsplatMeta(zip([{ name: 'meta.json', content: '{' }]), 'a.sog')).to.include({ format: '?', count: -1, bands: -1 });
+        expect(await gsplatMeta(zip([{ name: 'meta.json', content: '{' }]), 'a.sog')).to.include({
+            format: '?',
+            count: -1,
+            bands: -1
+        });
     });
 
     it('leaves zips yauzl refuses, or without meta.json, to the server', async () => {
         for (const entries of [
             [{ name: 'other.json', content: '{}' }],
-            [{ name: '../evil', content: 'x' }, { name: 'meta.json', content: META }],
-            [{ name: 'C:/evil', content: 'x' }, { name: 'meta.json', content: META }],
-            [{ name: 'x', content: 'x', deflate: false, raw: 7 }, { name: 'meta.json', content: META }],
+            [
+                { name: '../evil', content: 'x' },
+                { name: 'meta.json', content: META }
+            ],
+            [
+                { name: 'C:/evil', content: 'x' },
+                { name: 'meta.json', content: META }
+            ],
+            [
+                { name: 'x', content: 'x', deflate: false, raw: 7 },
+                { name: 'meta.json', content: META }
+            ],
             [{ name: 'meta.json', content: META, raw: 3 }]
         ]) {
             expect(await gsplatMeta(zip(entries), 'a.sog')).to.equal(null);
         }
 
         // bytes after the end record make yauzl reject the comment length
-        expect(await gsplatMeta(new Blob([zip([{ name: 'meta.json', content: META }]), 'junk']), 'a.sog')).to.equal(null);
+        expect(await gsplatMeta(new Blob([zip([{ name: 'meta.json', content: META }]), 'junk']), 'a.sog')).to.equal(
+            null
+        );
     });
 
     it('picks the reader by name like the server', async () => {

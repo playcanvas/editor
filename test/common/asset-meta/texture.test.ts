@@ -6,7 +6,16 @@ import { describe, it } from 'mocha';
 import { isNormalMap, textureMeta } from '../../../src/common/asset-meta/texture';
 
 const DIR = 'test/fixtures/texture-meta/';
-const RGB8 = { format: 'png', type: 'TrueColor', width: 5, height: 3, alpha: false, depth: 8, srgb: true, interlaced: false };
+const RGB8 = {
+    format: 'png',
+    type: 'TrueColor',
+    width: 5,
+    height: 3,
+    alpha: false,
+    depth: 8,
+    srgb: true,
+    interlaced: false
+};
 const read = (name: string) => new Uint8Array(readFileSync(DIR + name));
 
 const pngHeader = (w: number, h: number, bits = 8, color = 2) => {
@@ -28,9 +37,17 @@ const fill = (n: number, px: number[]) => Uint8Array.from({ length: n * 4 }, (_,
 describe('textureMeta', () => {
     it('reads png, jpeg, webp and hdr headers', () => {
         expect(textureMeta(read('rgb8.png'), 'rgb8.png')).to.deep.equal(RGB8);
-        expect(textureMeta(read('rgba8.png'), 'rgba8.png')).to.include({ type: 'TrueColorAlpha', alpha: true, width: 6 });
+        expect(textureMeta(read('rgba8.png'), 'rgba8.png')).to.include({
+            type: 'TrueColorAlpha',
+            alpha: true,
+            width: 6
+        });
         expect(textureMeta(read('rgb16.png'), 'rgb16.png')).to.include({ depth: 16, srgb: false });
-        expect(textureMeta(read('grey.jpg'), 'grey.jpg')).to.include({ format: 'jpeg', type: 'Grayscale', srgb: false });
+        expect(textureMeta(read('grey.jpg'), 'grey.jpg')).to.include({
+            format: 'jpeg',
+            type: 'Grayscale',
+            srgb: false
+        });
         expect(textureMeta(read('lossy-alpha.webp'), 'a.webp')).to.include({ format: 'webp', alpha: true, height: 4 });
         expect(textureMeta(read('flat.hdr'), 'flat.hdr')).to.include({ format: 'hdr', width: 7, height: 2, depth: 32 });
     });
@@ -52,7 +69,10 @@ describe('textureMeta', () => {
 
     it('reads the hdr resolution line like decodeHdr, crlf headers and transposed axes included', () => {
         expect(textureMeta(hdr('#?RADIANCE\r\n\r\n', '+X 5 -Y 3'), 'a.hdr')).to.include({ width: 5, height: 3 });
-        expect(textureMeta(hdr('FORMAT=32-bit_rle_rgbe\n\n', '-Y 3 +X 5'), 'a.hdr')).to.include({ width: 5, height: 3 });
+        expect(textureMeta(hdr('FORMAT=32-bit_rle_rgbe\n\n', '-Y 3 +X 5'), 'a.hdr')).to.include({
+            width: 5,
+            height: 3
+        });
         expect(textureMeta(hdr('#?RADIANCE\n\n', 'nonsense'), 'a.hdr')).to.equal(null);
     });
 

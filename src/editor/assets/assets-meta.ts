@@ -89,7 +89,9 @@ editor.once('load', () => {
         const acks = writes.map(
             ({ path, value }) =>
                 new Promise<boolean>((resolve) => {
-                    doc.submitOp({ p: path.split('.'), oi: structuredClone(value), od: null }, (err: unknown) => resolve(!err));
+                    doc.submitOp({ p: path.split('.'), oi: structuredClone(value), od: null }, (err: unknown) =>
+                        resolve(!err)
+                    );
                 })
         );
         return Promise.all(acks).then((ok) => {

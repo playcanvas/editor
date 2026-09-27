@@ -52,7 +52,9 @@ describe('buildArchive font', () => {
             "One or more of the font's texture assets are missing or have no file"
         );
         const missingJson = fake({ ...refFont, data: { jsonAsset: 404, textureAssets: [22] } });
-        expect(buildArchive(missingJson, lookup, BRANCH)[0]).to.equal("The font's JSON asset is missing or has no file");
+        expect(buildArchive(missingJson, lookup, BRANCH)[0]).to.equal(
+            "The font's JSON asset is missing or has no file"
+        );
     });
 
     it('fails without a font file', () => {

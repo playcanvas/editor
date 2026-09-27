@@ -5,7 +5,8 @@ export type ArchiveLookup = (id: number | string) => ArchiveAsset | null | undef
 export type ArchiveEntry = { path: string; id?: number; url?: string; size?: number; json?: unknown };
 export type ArchivePlan = { name: string; entries: ArchiveEntry[] };
 export type ArchiveResult = [string | null, ArchivePlan | null];
-export type DownloadPlan = { mode: 'server' } | { mode: 'error'; error: string } | { mode: 'client'; plan: ArchivePlan };
+export type DownloadPlan =
+    { mode: 'server' } | { mode: 'error'; error: string } | { mode: 'client'; plan: ArchivePlan };
 
 // the texture maps the server's material and model archives remap; newer maps stay raw ids there too
 const TEXTURE_PROPERTIES = [
@@ -195,7 +196,10 @@ const model = (asset: ArchiveAsset, lookup: ArchiveLookup, branchId: string) => 
     for (const [id, mat] of materials) {
         const md = clone(mat.get('data')) ?? {};
         md.mapping_format = 'path';
-        entries.push({ path: `${id}/${sanitize(mat.get('name') || 'Untitled')}.json`, json: rewriteMaterial(ctx, md, true) });
+        entries.push({
+            path: `${id}/${sanitize(mat.get('name') || 'Untitled')}.json`,
+            json: rewriteMaterial(ctx, md, true)
+        });
     }
     entries.push(...cubemapEntries(ctx), ...textureEntries(ctx), fromFile(asset, file.filename, branchId));
     return ok({ name: `${filename}.zip`, entries });
@@ -248,7 +252,9 @@ const BUILDERS = { cubemap, font, material, model };
 
 export const buildArchive = (asset: ArchiveAsset, lookup: ArchiveLookup, branchId: string) => {
     const type = asset.get('type');
-    return Object.hasOwn(BUILDERS, type) ? BUILDERS[type as keyof typeof BUILDERS](asset, lookup, branchId) : fail('Unsupported asset type');
+    return Object.hasOwn(BUILDERS, type)
+        ? BUILDERS[type as keyof typeof BUILDERS](asset, lookup, branchId)
+        : fail('Unsupported asset type');
 };
 
 export const archiveSize = (plan: ArchivePlan) => plan.entries.reduce((n, e) => n + (e.size ?? 0), 0);

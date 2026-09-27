@@ -47,7 +47,11 @@ describe('buildArchive material', () => {
     });
 
     it('never puts asset names in error text', () => {
-        const [err] = buildArchive(fake({ ...steel, name: '<img src=x onerror=alert(1)>', data: null }), lookup, BRANCH);
+        const [err] = buildArchive(
+            fake({ ...steel, name: '<img src=x onerror=alert(1)>', data: null }),
+            lookup,
+            BRANCH
+        );
         expect(err).to.not.include('<');
     });
 

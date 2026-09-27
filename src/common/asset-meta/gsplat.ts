@@ -31,7 +31,8 @@ const zero = () => ({ min: [0, 0, 0], max: [0, 0, 0] });
 // the server writes schema-complete meta, so the defaults travel with it
 const complete = (header: Header): GsplatMeta => ({ ...header, comments: [], elements: {} });
 
-const shBands = (props: Record<string, true>) => BANDS[BAND_NAMES.findIndex((name) => !Object.hasOwn(props, name))] ?? 0;
+const shBands = (props: Record<string, true>) =>
+    BANDS[BAND_NAMES.findIndex((name) => !Object.hasOwn(props, name))] ?? 0;
 
 const plyHeader = (text: string): Header => {
     const els: Record<string, Element> = {};
@@ -97,7 +98,7 @@ const refused = (dir: DataView, p: number, name: string) => {
     const flags = dir.getUint16(p + 8, true);
     const stored = dir.getUint16(p + 10, true) === 0;
     const extra = dir.getUint16(p + 30, true);
-    for (let i = 0, o = p + 46 + dir.getUint16(p + 28, true); i < extra - 3; ) {
+    for (let i = 0, o = p + 46 + dir.getUint16(p + 28, true); i < extra - 3;) {
         const end = i + 4 + dir.getUint16(o + i + 2, true);
         if (end > extra || dir.getUint16(o + i, true) === 0x7075) {
             return true;
@@ -121,7 +122,11 @@ const sogText = async (file: Blob) => {
     for (let i = tail.byteLength - 22; i >= 0 && eocd < 0; i--) {
         eocd = tail.getUint32(i, true) === 0x06054b50 ? i : -1;
     }
-    if (eocd < 0 || tail.getUint16(eocd + 4, true) !== 0 || tail.getUint16(eocd + 20, true) !== tail.byteLength - eocd - 22) {
+    if (
+        eocd < 0 ||
+        tail.getUint16(eocd + 4, true) !== 0 ||
+        tail.getUint16(eocd + 20, true) !== tail.byteLength - eocd - 22
+    ) {
         return null;
     }
     if (eocd >= 20 && tail.getUint32(eocd - 20, true) === 0x07064b50) {
@@ -161,7 +166,8 @@ const sogText = async (file: Blob) => {
                 return null;
             }
             const data = file.slice(start, start + size);
-            const stream = method === 8 ? data.stream().pipeThrough(new DecompressionStream('deflate-raw')) : data.stream();
+            const stream =
+                method === 8 ? data.stream().pipeThrough(new DecompressionStream('deflate-raw')) : data.stream();
             const bytes = new Uint8Array(await new Response(stream).arrayBuffer());
 
             // yauzl validates the entry's uncompressed size

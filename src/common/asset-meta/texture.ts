@@ -22,7 +22,13 @@ const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
 
 // libspng: bands per colour type (before tRNS adds alpha) and the bit depths each allows
 const PNG_CHANNELS: Record<number, number> = { 0: 1, 2: 3, 3: 3, 4: 2, 6: 4 };
-const PNG_DEPTHS: Record<number, number[]> = { 0: [1, 2, 4, 8, 16], 2: [8, 16], 3: [1, 2, 4, 8], 4: [8, 16], 6: [8, 16] };
+const PNG_DEPTHS: Record<number, number[]> = {
+    0: [1, 2, 4, 8, 16],
+    2: [8, 16],
+    3: [1, 2, 4, 8],
+    4: [8, 16],
+    6: [8, 16]
+};
 
 const latin1 = new TextDecoder('latin1');
 const ascii = (b: Uint8Array, o: number, n: number) => latin1.decode(b.subarray(o, o + n));
@@ -75,7 +81,7 @@ const png = (b: Uint8Array) => {
 };
 
 const jpeg = (b: Uint8Array) => {
-    for (let o = 2; o + 9 < b.length; ) {
+    for (let o = 2; o + 9 < b.length;) {
         if (b[o] !== 0xff) {
             return null;
         }

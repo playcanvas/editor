@@ -210,7 +210,9 @@ editor.once('load', () => {
             upload(args, fn);
             return;
         }
-        const meta = known ? Promise.resolve(known) : editor.call(`assets:meta:${kind}`, args.file, args.filename || args.name);
+        const meta = known
+            ? Promise.resolve(known)
+            : editor.call(`assets:meta:${kind}`, args.file, args.filename || args.name);
         meta.then((m) => upload(m ? { ...args, noMeta: true } : args, fn, m));
     });
 

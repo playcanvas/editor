@@ -128,4 +128,5 @@ const fromGlb = (json: any): ModelMeta => {
  * @param bytes - a json or glb model file
  * @param name - file name; the server reads a .json file as json and anything else as a GLB
  */
-export const modelMeta = (bytes: Uint8Array, name = '') => (isJson(name) ? fromJson(json(bytes)) : fromGlb(glbJson(bytes)));
+export const modelMeta = (bytes: Uint8Array, name = '') =>
+    isJson(name) ? fromJson(json(bytes)) : fromGlb(glbJson(bytes));

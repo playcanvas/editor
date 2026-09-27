@@ -13,7 +13,15 @@ describe('buildArchive model', () => {
         expect(plan.entries).to.deep.equal([
             { path: 'My Model.mapping.json', json: { mapping: [{ path: '30/Steel.json' }, { path: null }], area: 0 } },
             // model-archive prunes every falsy material field (opacity 0, useMetalness false)
-            { path: '30/Steel.json', json: { diffuseMap: '../40/albedo.png', cubeMap: '../50/Sky.json', sheenMap: 41, mapping_format: 'path' } },
+            {
+                path: '30/Steel.json',
+                json: {
+                    diffuseMap: '../40/albedo.png',
+                    cubeMap: '../50/Sky.json',
+                    sheenMap: 41,
+                    mapping_format: 'path'
+                }
+            },
             { path: '50/sky.dds', id: 50, url: url(50, 'sky.dds'), size: 400 },
             {
                 path: '50/Sky.json',

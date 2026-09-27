@@ -29,7 +29,9 @@ describe('planDownload', () => {
     it('leaves source assets and other types to the server', () => {
         expect(planDownload(fake({ ...steel, source: true }), lookup, BRANCH, BIG)).to.deep.equal({ mode: 'server' });
         expect(planDownload(fake(albedo), lookup, BRANCH, BIG)).to.deep.equal({ mode: 'server' });
-        expect(planDownload(fake({ ...albedo, type: 'toString' }), lookup, BRANCH, BIG)).to.deep.equal({ mode: 'server' });
+        expect(planDownload(fake({ ...albedo, type: 'toString' }), lookup, BRANCH, BIG)).to.deep.equal({
+            mode: 'server'
+        });
     });
 
     it('reports planner errors', () => {

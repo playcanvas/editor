@@ -13,7 +13,10 @@ describe('animationMeta', () => {
 
     it('spans all scalar sampler inputs of the first glb animation', () => {
         const gltf = {
-            animations: [{ name: 'walk', samplers: [{ input: 0 }, { input: 1 }, { input: 2 }, { input: 9 }] }, { name: 'other', samplers: [] }],
+            animations: [
+                { name: 'walk', samplers: [{ input: 0 }, { input: 1 }, { input: 2 }, { input: 9 }] },
+                { name: 'other', samplers: [] }
+            ],
             accessors: [
                 { type: 'SCALAR', min: [0.5], max: [2] },
                 { type: 'SCALAR', min: [0], max: [1.5] },
