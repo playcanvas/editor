@@ -2,11 +2,36 @@ import { Observer } from '@playcanvas/observer';
 
 import { ObserverSync } from '@/common/observer-sync';
 import { createLog } from '@/common/sentry';
+import { WorkerClient } from '@/core/worker/worker-client';
 import { isReferencedFont } from '@/editor/inspector/assets/font-mode';
 import type { LaunchConfig } from '@/editor-api/external-types/config';
-import { concatenate, fetchScripts, selectScripts } from '@/launch/assets/concatenate-scripts';
+import { fetchScripts, resolveLine, selectScripts } from '@/launch/assets/concatenate-scripts';
+import type { Range, ScriptFile } from '@/launch/assets/concatenate-scripts';
 
 const log = createLog('<PATH>');
+
+// a worker script that never runs (an empty or blocked response) never says ready
+const READY_TIMEOUT = 15000;
+
+// joins off the page: a big project's join and source map would hold it for hundreds of ms.
+// null (the worker failed) keeps the server concatenation
+const join = (files: ScriptFile[]) =>
+    new Promise<{ blob: Blob; ranges: Range[] } | null>((resolve) => {
+        const client = new WorkerClient(`${config.url.frontend}js/concatenate-scripts.worker.js`);
+        const done = (res: { blob: Blob; ranges: Range[] } | null) => {
+            clearTimeout(timer);
+            client.stop();
+            resolve(res);
+        };
+        const timer = setTimeout(() => done(null), READY_TIMEOUT);
+        client.once('error', () => done(null));
+        client.once('ready', () => {
+            clearTimeout(timer);
+            client.once('concatenate', (blob: Blob, ranges: Range[]) => done({ blob, ranges }));
+            client.send('concatenate', files);
+        });
+        client.start().catch(() => done(null));
+    });
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');
@@ -52,7 +77,7 @@ editor.once('load', () => {
         return `assets/files/${path}${encodeURIComponent(filename)}?id=${id}&branchId=${(config.self as { branch: { id: string } }).branch.id}`;
     };
 
-    let concatenated: { url: string; resolve: ReturnType<typeof concatenate>['resolve'] } | null = null;
+    let concatenated: { url: string; resolve: (line: number) => ReturnType<typeof resolveLine> } | null = null;
 
     // file.url may already point at the server join, so each script is fetched from its own url
     const buildConcatenated = async () => {
@@ -70,8 +95,13 @@ editor.once('load', () => {
             console.warn('Concatenate scripts: a script failed to download, using the server concatenation');
             return null;
         }
-        const { code, resolve } = concatenate(files);
-        return { url: URL.createObjectURL(new Blob([code], { type: 'text/javascript' })), resolve };
+        const res = await join(files);
+        if (!res) {
+            console.warn('Concatenate scripts: the join failed, using the server concatenation');
+            return null;
+        }
+        const urls = files.map((f) => f.url);
+        return { url: URL.createObjectURL(res.blob), resolve: (line: number) => resolveLine(urls, res.ranges, line) };
     };
 
     editor.method('assets:concatenated:resolve', (url: string, line: number) => {

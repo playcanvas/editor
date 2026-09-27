@@ -8,6 +8,8 @@ export type ScriptLike = { get: (path: string) => unknown };
 
 export type ScriptFile = { id: number; url: string; name: string; text: string };
 
+export type Range = { start: number; count: number };
+
 const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 // data.loadingType values the server leaves out of the join
@@ -81,11 +83,11 @@ export const selectScripts = <T extends ScriptLike>(order: number[], get: (id: n
  * original file url.
  *
  * @param files - Downloaded scripts in execution order.
- * @returns The script and a resolver from a 1-based concatenated line to its original file line.
+ * @returns The script and the concatenated line range of each file, for {@link resolveLine}.
  */
 export const concatenate = (files: ScriptFile[]) => {
     const rows: string[] = [];
-    const ranges: { start: number; count: number }[] = [];
+    const ranges: Range[] = [];
     let code = '';
     let src = 0;
     let prev = 0;
@@ -117,12 +119,20 @@ export const concatenate = (files: ScriptFile[]) => {
     };
     code += `//# sourceMappingURL=data:application/json;charset=utf-8;base64,${b64(JSON.stringify(map))}\n`;
 
-    const resolve = (line: number) => {
-        const i = ranges.findIndex((r) => line - 1 >= r.start && line - 1 < r.start + r.count);
-        return i === -1 ? null : { url: files[i].url, line: line - ranges[i].start };
-    };
+    return { code, ranges };
+};
 
-    return { code, resolve };
+/**
+ * Maps a 1-based concatenated line back to its original file line.
+ *
+ * @param urls - File urls in execution order.
+ * @param ranges - The ranges {@link concatenate} returned.
+ * @param line - The 1-based concatenated line.
+ * @returns The file url and line, or null outside every file.
+ */
+export const resolveLine = (urls: string[], ranges: Range[], line: number) => {
+    const i = ranges.findIndex((r) => line - 1 >= r.start && line - 1 < r.start + r.count);
+    return i === -1 ? null : { url: urls[i], line: line - ranges[i].start };
 };
 
 /**

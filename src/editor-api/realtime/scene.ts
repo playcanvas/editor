@@ -123,6 +123,48 @@ class RealtimeScene extends Events {
     }
 
     /**
+     * Runs a function and sends the ops it submits as one op. ShareDB composes every op into the
+     * pending one by cloning it, which turns a large synchronous edit quadratic.
+     *
+     * @param fn - The function to run
+     * @returns What the function returns
+     */
+    batch<T>(fn: () => T) {
+        const doc = this._document;
+        if (!this._loaded || doc.preventCompose) {
+            return fn();
+        }
+
+        // flush is deferred, so nothing queued from here on is sent before the batch ends
+        const from = doc.pendingOps.length;
+        let done = false;
+        const end = () => {
+            if (done) {
+                return;
+            }
+            done = true;
+            doc.preventCompose = false;
+
+            // concatenation is what json0 compose does, without the clone
+            const [first, ...rest] = doc.pendingOps.splice(from);
+            if (first) {
+                rest.forEach((o: { op: unknown[]; callbacks: unknown[] }) => {
+                    first.op.push(...o.op);
+                    first.callbacks.push(...o.callbacks);
+                });
+                doc.pendingOps.push(first);
+            }
+        };
+        doc.preventCompose = true;
+
+        // still ends if fn throws
+        queueMicrotask(end);
+        const res = fn();
+        end();
+        return res;
+    }
+
+    /**
      * Calls the callback when there are no changes pending to be
      * sent to the server
      *

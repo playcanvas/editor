@@ -3,7 +3,13 @@ import vm from 'node:vm';
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 
-import { concatenate, fetchScripts, selectScripts, vlq } from '../../src/launch/assets/concatenate-scripts';
+import {
+    concatenate,
+    fetchScripts,
+    resolveLine,
+    selectScripts,
+    vlq
+} from '../../src/launch/assets/concatenate-scripts';
 
 const asset = (fields: Record<string, unknown>) => ({ get: (path: string) => fields[path] });
 
@@ -69,7 +75,9 @@ describe('concatenate scripts', () => {
         });
 
         it('resolves concatenated lines back to the original file line', () => {
-            const { resolve } = concatenate(files);
+            const { ranges } = concatenate(files);
+            const urls = files.map((f) => f.url);
+            const resolve = (line: number) => resolveLine(urls, ranges, line);
             expect(resolve(2)).to.deep.equal({ url: files[0].url, line: 1 });
             expect(resolve(3)).to.deep.equal({ url: files[0].url, line: 2 });
             expect(resolve(6)).to.deep.equal({ url: files[1].url, line: 1 });
@@ -96,9 +104,9 @@ describe('concatenate scripts', () => {
         });
 
         it('handles an empty file', () => {
-            const { code, resolve } = concatenate([{ id: 1, url: 'u', name: 'a.js', text: '' }]);
+            const { code, ranges } = concatenate([{ id: 1, url: 'u', name: 'a.js', text: '' }]);
             expect(code.startsWith('// a.js\n\n;\n')).to.equal(true);
-            expect(resolve(2)).to.deep.equal({ url: 'u', line: 1 });
+            expect(resolveLine(['u'], ranges, 2)).to.deep.equal({ url: 'u', line: 1 });
         });
     });
 

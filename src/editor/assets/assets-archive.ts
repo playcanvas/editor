@@ -5,14 +5,14 @@ import { loadFiles } from './archive/load';
 
 export const STARTUP_FAILED = 'the archive worker could not be loaded';
 
-// fetches and zips off the main thread; resolves [err, data]. err is exactly
+// fetches and zips off the main thread; resolves [err, zip]. err is exactly
 // STARTUP_FAILED only when the worker never started, i.e. before any file was fetched
 const run = (plan: ArchivePlan) =>
-    new Promise<[string | null, Uint8Array<ArrayBuffer> | null]>((resolve) => {
+    new Promise<[string | null, Blob | null]>((resolve) => {
         const client = new WorkerClient(`${config.url.frontend}js/asset-archive.worker.js`);
 
         let settled = false;
-        const settle = (err: string | null, data: Uint8Array<ArrayBuffer> | null = null) => {
+        const settle = (err: string | null, data: Blob | null = null) => {
             if (settled) {
                 return;
             }
@@ -44,8 +44,8 @@ editor.once('load', () => {
     editor.method('assets:archive', async (plan: ArchivePlan) => {
         const job = `asset-archive:${++n}`;
         editor.call('status:job', job, 1);
-        const [err, data] = await run(plan);
+        const res = await run(plan);
         editor.call('status:job', job);
-        return [err, data && new Blob([data], { type: 'application/zip' })] as [string | null, Blob | null];
+        return res;
     });
 });

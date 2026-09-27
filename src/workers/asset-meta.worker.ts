@@ -1,6 +1,6 @@
 import { animationMeta } from '@/common/asset-meta/animation';
 import { gsplatMeta } from '@/common/asset-meta/gsplat';
-import { modelMeta } from '@/common/asset-meta/model';
+import { isJson, modelMeta } from '@/common/asset-meta/model';
 import { isNormalMap, textureMeta } from '@/common/asset-meta/texture';
 import { WorkerServer } from '@/core/worker/worker-server';
 
@@ -10,6 +10,12 @@ const workerServer = new WorkerServer(self as unknown as DedicatedWorkerGlobalSc
 const MAX_PIXELS = 8192 * 8192;
 
 const bytes = async (file: Blob) => new Uint8Array(await file.arrayBuffer());
+
+// a glb's meta is all in its header and json chunk, so the binary chunk is never read
+const glbHead = async (file: Blob) => {
+    const head = new DataView(await file.slice(0, 20).arrayBuffer());
+    return bytes(file.slice(0, 20 + (head.byteLength === 20 ? head.getUint32(12, true) : 0)));
+};
 
 const texture = async (file: Blob, name?: string) => {
     const meta = textureMeta(await bytes(file), name);
@@ -33,7 +39,7 @@ const texture = async (file: Blob, name?: string) => {
 
 const run: Record<string, (file: Blob, name: string) => Promise<object | null>> = {
     texture,
-    model: async (file, name) => modelMeta(await bytes(file), name),
+    model: async (file, name) => modelMeta(await (isJson(name) ? bytes(file) : glbHead(file)), name),
     animation: async (file, name) => animationMeta(await bytes(file), name),
     gsplat: (file, name) => gsplatMeta(file, name)
 };

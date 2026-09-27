@@ -151,11 +151,19 @@ function instantiateLocally(
     // the backend inserts at 0 when no index is given
     const index = options.index ?? 0;
     const parentId = parent.get('resource_id');
-    let entities = assets.map((asset, i) => {
-        const template = { id: parseInt(asset.get('id'), 10), name: asset.get('name'), entities: templates[i] };
-        const res = buildInstance(template, parentId, ctx);
-        return createEntity(nest(res.entities, res.rootId), { index: index + i, history: false });
-    });
+
+    // every entity is an op; sent as one, like the backend's
+    const batch = <T>(fn: () => T) => {
+        const scene = api.realtime?.scenes.current;
+        return scene ? scene.batch(fn) : fn();
+    };
+    let entities = batch(() =>
+        assets.map((asset, i) => {
+            const template = { id: parseInt(asset.get('id'), 10), name: asset.get('name'), entities: templates[i] };
+            const res = buildInstance(template, parentId, ctx);
+            return createEntity(nest(res.entities, res.rootId), { index: index + i, history: false });
+        })
+    );
 
     const select = () => {
         if (options.select) {
@@ -184,7 +192,7 @@ function instantiateLocally(
                 }
 
                 // same resource ids as before undo, selected again like the backend redo
-                entities = data.map((d, i) => createEntity(d, { index: index + i, history: false }));
+                entities = batch(() => data.map((d, i) => createEntity(d, { index: index + i, history: false })));
                 data = null;
                 select();
             }

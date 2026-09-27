@@ -5,6 +5,6 @@ import type { ZipFile } from '@/editor/assets/archive/zip';
 const workerServer = new WorkerServer(self as unknown as DedicatedWorkerGlobalScope);
 
 workerServer.on('zip', (files: ZipFile[]) => {
-    const out = zipFiles(files);
-    workerServer.with([out.buffer as ArrayBuffer]).send('zip', out);
+    // a blob crosses to the page by reference, so the page never copies the zip
+    workerServer.send('zip', new Blob([zipFiles(files)], { type: 'application/zip' }));
 });
