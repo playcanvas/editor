@@ -206,7 +206,9 @@ editor.once('load', () => {
                 const nonce = genGUID();
                 const csp = `default-src 'none'; script-src 'nonce-${nonce}' 'unsafe-eval' blob:; worker-src blob:; connect-src 'none'`;
 
-                // spawn the parser worker from source text (never a url) and relay its result out
+                // spawn the parser worker from source text (never a url) and relay its result out; never
+                // revoke the worker url (webkit then blocks the worker's own blob importScripts), removing
+                // the iframe frees it
                 iframe.srcdoc = /* html */ `<!DOCTYPE html><html><head>
 <meta http-equiv="Content-Security-Policy" content="${csp}">
 </head><body><script nonce="${nonce}">
@@ -214,7 +216,6 @@ onmessage = (e) => {
     const { workerSource, engine, script, port } = e.data;
     const url = URL.createObjectURL(new Blob([workerSource], { type: 'text/javascript' }));
     const worker = new Worker(url);
-    URL.revokeObjectURL(url);
     worker.onmessage = (ev) => { port.postMessage({ result: ev.data }); worker.terminate(); };
     worker.onerror = (ev) => { port.postMessage({ error: ev.message || 'parse error' }); worker.terminate(); };
     worker.postMessage({ engine, script });
