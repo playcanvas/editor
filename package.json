@@ -38,6 +38,11 @@
     "browserslist": [
         ">0.3%, defaults"
     ],
+    "overrides": {
+        "esbuild-plugin-polyfill-node": {
+            "import-meta-resolve": "4.2.0"
+        }
+    },
     "dependencies": {
         "@playcanvas/attribute-parser": "^1.11.0"
     },
@@ -94,10 +99,5 @@
     },
     "engines": {
         "node": ">=22.22.0"
-    },
-    "overrides": {
-        "esbuild-plugin-polyfill-node": {
-            "import-meta-resolve": "4.2.0"
-        }
     }
 }
