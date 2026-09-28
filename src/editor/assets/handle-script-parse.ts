@@ -1,4 +1,5 @@
 import { buildQueryUrl } from '@/common/utils';
+import { SOURCE_MAP_URL } from '@/core/constants';
 import { WorkerClient } from '@/core/worker/worker-client';
 
 const CLASSIC_PARSE_TIMEOUT = 60000;
@@ -188,7 +189,10 @@ editor.once('load', () => {
             };
 
             try {
-                workerSourcePromise ??= fetchText(`${config.url.frontend}js/classic-script.worker.js`);
+                // the network-less sandbox can't load a source map, so drop the comment
+                workerSourcePromise ??= fetchText(`${config.url.frontend}js/classic-script.worker.js`).then((t) =>
+                    t.replace(SOURCE_MAP_URL, '')
+                );
                 enginePromise ??= fetchText(config.url.engine);
                 const [workerSource, engine, script] = await Promise.all([
                     workerSourcePromise,
