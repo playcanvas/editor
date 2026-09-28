@@ -94,5 +94,10 @@
     },
     "engines": {
         "node": ">=22.22.0"
+    },
+    "overrides": {
+        "esbuild-plugin-polyfill-node": {
+            "import-meta-resolve": "4.2.0"
+        }
     }
 }
