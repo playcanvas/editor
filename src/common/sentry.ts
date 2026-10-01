@@ -182,10 +182,8 @@ if (sentryConfig.enabled) {
 
             const frames = event.exception?.values?.[0]?.stacktrace?.frames;
             const top = frames?.[frames.length - 1];
-            // frames from user-authored asset scripts, under the page's api path on whichever origin serves
-            // it, are their bugs, not editor bugs
             if (top?.filename?.includes(`${new URL(config.url.api, location.href).pathname}/assets/`)) {
-                return null;
+                return null; // a user script's bug, not the editor's
             }
 
             if (frames?.some((frame) => EXTENSION_URL.test(frame.filename || ''))) {
