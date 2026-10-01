@@ -281,7 +281,7 @@ export type LaunchConfig = {
         name: string;
         url: string;
     }[];
-    url: Omit<Url, 'launch' | 'relay' | 'useCustomEngine'> & {
+    url: Omit<Url, 'relay' | 'useCustomEngine'> & {
         engineExtras: string;
         physics: string;
         webvr: string;

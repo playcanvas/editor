@@ -27,7 +27,7 @@ editor.once('load', () => {
             const parent = path.length ? path[path.length - 1] : null;
 
             // FIXME: No way to use arrayBuffer with AJAX
-            const response = await fetch(`/api/assets/${id}/download?branchId=${config.self.branch.id}`);
+            const response = await fetch(`${config.url.api}/assets/${id}/download?branchId=${config.self.branch.id}`);
             if (!response.ok) {
                 void log.error`texture download failed ${response.status}: ${response.statusText}`;
                 callback(new Error(`Texture download failed (${response.status} ${response.statusText}).`));
