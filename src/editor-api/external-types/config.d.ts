@@ -282,6 +282,11 @@ export type LaunchConfig = {
         url: string;
     }[];
     url: Omit<Url, 'launch' | 'relay' | 'useCustomEngine'> & {
+        /**
+         * The same-origin path launch loads asset files under, e.g. `/api/`, which the launch host proxies;
+         * `api` is the REST api on its own origin. Defaults to `/api/`.
+         */
+        assetPrefix?: string;
         engineExtras: string;
         physics: string;
         webvr: string;

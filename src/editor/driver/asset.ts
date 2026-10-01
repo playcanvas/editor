@@ -183,7 +183,7 @@ const openDownload = async (id: number) => {
         }
         return { id, filename, mime: file.type, size: file.size, stream: file.stream() };
     }
-    const res = await fetch(`/api/assets/${id}/download?branchId=${config.self.branch.id}`);
+    const res = await fetch(`${config.url.api}/assets/${id}/download?branchId=${config.self.branch.id}`);
     if (!res.ok) {
         await res.body?.cancel();
         throw new Error(`Failed to download asset: ${res.status} ${res.statusText}`);

@@ -34,7 +34,7 @@ const rest = (method: string, path: string, data?: FormData | object, auth = fal
         headers['Content-Type'] = 'application/json';
         init.body = JSON.stringify(data);
     }
-    return fetch(`/api/${path}`, init).then((res) => res.json());
+    return fetch(`${config.url.api}/${path}`, init).then((res) => res.json());
 };
 
 /**

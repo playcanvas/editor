@@ -1,6 +1,8 @@
 import typescriptConfig from '@playcanvas/eslint-config/typescript';
 import globals from 'globals';
 
+const API_URL_MESSAGE = 'Build api urls on config.url.api (launch asset files on ASSET_PREFIX), not a literal /api/.';
+
 const coreConfig = {
     files: [
         'src/core/**/*.ts',
@@ -98,6 +100,20 @@ export default [
         ],
         rules: {
             'no-unused-expressions': ['error', { allowTaggedTemplates: true }]
+        }
+    },
+    {
+        // the config names each page's api, so a page can be served against another backend; a literal /api/
+        // would bypass it
+        files: ['src/**/*.ts'],
+        // hosted's url map, and the launch prefix's own default
+        ignores: ['src/sw/**', 'src/launch/asset-prefix.ts'],
+        rules: {
+            'no-restricted-syntax': [
+                'error',
+                { selector: 'Literal[value=/(^|url\\()\\/api\\//]', message: API_URL_MESSAGE },
+                { selector: 'TemplateElement[value.raw=/(^|url\\()\\/api\\//]', message: API_URL_MESSAGE }
+            ]
         }
     },
     {

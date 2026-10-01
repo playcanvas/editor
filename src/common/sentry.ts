@@ -14,8 +14,6 @@ const RELEASE = `playcanvas-editor@${version}`;
 const BREADCRUMBS_INTEGRATION = 'Breadcrumbs';
 const MAX_BREADCRUMBS = 100;
 
-// frames from user-authored asset scripts are their bugs, not editor bugs
-const USER_SCRIPT_PATH = '/api/assets/';
 const EXTENSION_URL = /^(?:chrome|moz|safari-web)-extension:\/\//;
 
 // standard hosts the editor loads its engine and frontend from; anything else is a user override
@@ -184,7 +182,9 @@ if (sentryConfig.enabled) {
 
             const frames = event.exception?.values?.[0]?.stacktrace?.frames;
             const top = frames?.[frames.length - 1];
-            if (top?.filename?.includes(USER_SCRIPT_PATH)) {
+            // frames from user-authored asset scripts, under the page's api path on whichever origin serves
+            // it, are their bugs, not editor bugs
+            if (top?.filename?.includes(`${new URL(config.url.api, location.href).pathname}/assets/`)) {
                 return null;
             }
 

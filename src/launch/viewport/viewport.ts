@@ -4,6 +4,7 @@ import { LAYERID_DEPTH } from 'playcanvas';
 import { useGlslTranspilation } from '@/common/project-settings';
 import { ReferencedFontHandler } from '@/common/referenced-font-handler';
 import { createLog } from '@/common/sentry';
+import { ASSET_PREFIX } from '@/launch/asset-prefix';
 import { config } from '@/launch/config';
 
 const log = createLog('<PATH>');
@@ -92,7 +93,7 @@ editor.once('load', () => {
             if (config.project.settings.useLegacyScripts) {
                 loadingScript.src = `${scriptPrefix}/${config.project.settings.loadingScreenScript}`;
             } else {
-                loadingScript.src = `/api/assets/${config.project.settings.loadingScreenScript}/download?branchId=${config.self.branch.id}`;
+                loadingScript.src = `${ASSET_PREFIX}assets/${config.project.settings.loadingScreenScript}/download?branchId=${config.self.branch.id}`;
             }
 
             loadingScript.onload = function () {
@@ -262,7 +263,7 @@ editor.once('load', () => {
             mouse: useMouse ? new pc.Mouse(canvas) : null,
             gamepads: useGamepads ? new pc.GamePads() : null,
             touch: useTouch && pc.platform.touch ? new pc.TouchDevice(canvas) : null,
-            assetPrefix: '/api/',
+            assetPrefix: ASSET_PREFIX,
             scriptPrefix: scriptPrefix,
             scriptsOrder: projectSettings.get('scripts') || []
         };

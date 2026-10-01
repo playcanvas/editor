@@ -1,3 +1,5 @@
+import { ASSET_PREFIX } from '@/launch/asset-prefix';
+
 editor.once('load', () => {
     const app = editor.call('viewport:app');
     if (!app) {
@@ -39,7 +41,7 @@ editor.once('load', () => {
                 callback: (err: Error | null, scene?: unknown) => void,
                 settingsOnly?: boolean
             ) {
-                const id = parseInt(url.replace('/api/', '').replace('.json', ''), 10);
+                const id = parseInt(url.replace(ASSET_PREFIX, '').replace('.json', ''), 10);
 
                 if (typeof id === 'number' && !isNaN(id)) {
                     // load scene from server to get its unique id
@@ -76,7 +78,7 @@ editor.once('load', () => {
                 callback: (err: Error | null, scene?: unknown) => void,
                 settingsOnly?: boolean
             ) {
-                const id = parseInt(url.replace('/api/', '').replace('.json', ''), 10);
+                const id = parseInt(url.replace(ASSET_PREFIX, '').replace('.json', ''), 10);
                 if (typeof id === 'number' && !isNaN(id)) {
                     loadSceneByItemId(id, (err: unknown, scene?: { uniqueId: number }) => {
                         if (err) {
@@ -129,7 +131,7 @@ editor.once('load', () => {
                     };
                 }
 
-                const id = parseInt(url.original.replace('/api/', '').replace('.json', ''), 10);
+                const id = parseInt(url.original.replace(ASSET_PREFIX, '').replace('.json', ''), 10);
                 if (typeof id === 'number') {
                     loadSceneByItemId(id, (err: unknown, scene?: { uniqueId: number }) => {
                         if (err) {

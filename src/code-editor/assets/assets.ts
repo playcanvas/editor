@@ -192,7 +192,7 @@ editor.once('load', () => {
     editor.method('assets:virtualPath', assetVirtualPath);
 
     editor.method('assets:realPath', (asset: Observer) => {
-        return `/api/assets/${asset.get('id')}/file/${asset.get('name')}?branchId=${config.self.branch.id}`;
+        return `${config.url.api}/assets/${asset.get('id')}/file/${asset.get('name')}?branchId=${config.self.branch.id}`;
     });
 
     editor.method('assets:getByVirtualPath', (path: string) => assetToVirtualPath.get(path));

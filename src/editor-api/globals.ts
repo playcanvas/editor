@@ -148,4 +148,12 @@ const globals: {
     }
 };
 
-export { globals };
+/**
+ * The base the asset urls and calls outside `rest` build on: `apiUrl`, or hosted's same-origin `/api` when a
+ * page leaves it unset, as these did before reading it.
+ *
+ * @returns The base, without a trailing slash.
+ */
+const apiBase = () => globals.apiUrl || '/api';
+
+export { apiBase, globals };
