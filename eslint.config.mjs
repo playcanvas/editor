@@ -103,11 +103,8 @@ export default [
         }
     },
     {
-        // the config names each page's api, so a page can be served against another backend; a literal /api/
-        // would bypass it
-        files: ['src/**/*.ts'],
-        // hosted's url map
-        ignores: ['src/sw/**'],
+        files: ['src/**/*.ts'], // api urls come from the page config
+        ignores: ['src/sw/**'], // hosted's url map
         rules: {
             'no-restricted-syntax': [
                 'error',
