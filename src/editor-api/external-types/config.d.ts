@@ -282,8 +282,7 @@ export type LaunchConfig = {
         url: string;
     }[];
     url: Omit<Url, 'launch' | 'relay' | 'useCustomEngine'> & {
-        /** Same-origin path launch loads asset files under. Defaults to `/api/`. */
-        assetPrefix?: string;
+        assetPrefix?: string; // same-origin path launch loads asset files under, defaults to /api/
         engineExtras: string;
         physics: string;
         webvr: string;
