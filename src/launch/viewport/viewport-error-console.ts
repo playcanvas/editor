@@ -109,7 +109,7 @@ editor.once('load', () => {
                 query = `?line=${line}&col=${col}&error=true`;
             } else if (
                 !editor.call('settings:project').get('useLegacyScripts') &&
-                url.includes(`${config.url.assetPrefix}assets/`) &&
+                url.includes(`${config.url.launch}api/assets/`) &&
                 (url.includes('.js') || url.includes('.mjs'))
             ) {
                 const match = url.match(/\/api\/assets\/files\/.+?id=(\d+)/);

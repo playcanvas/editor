@@ -41,7 +41,7 @@ editor.once('load', () => {
                 callback: (err: Error | null, scene?: unknown) => void,
                 settingsOnly?: boolean
             ) {
-                const id = parseInt(url.replace(config.url.assetPrefix, '').replace('.json', ''), 10);
+                const id = parseInt(url.replace(`${config.url.launch}api/`, '').replace('.json', ''), 10);
 
                 if (typeof id === 'number' && !isNaN(id)) {
                     // load scene from server to get its unique id
@@ -78,7 +78,7 @@ editor.once('load', () => {
                 callback: (err: Error | null, scene?: unknown) => void,
                 settingsOnly?: boolean
             ) {
-                const id = parseInt(url.replace(config.url.assetPrefix, '').replace('.json', ''), 10);
+                const id = parseInt(url.replace(`${config.url.launch}api/`, '').replace('.json', ''), 10);
                 if (typeof id === 'number' && !isNaN(id)) {
                     loadSceneByItemId(id, (err: unknown, scene?: { uniqueId: number }) => {
                         if (err) {
@@ -131,7 +131,7 @@ editor.once('load', () => {
                     };
                 }
 
-                const id = parseInt(url.original.replace(config.url.assetPrefix, '').replace('.json', ''), 10);
+                const id = parseInt(url.original.replace(`${config.url.launch}api/`, '').replace('.json', ''), 10);
                 if (typeof id === 'number') {
                     loadSceneByItemId(id, (err: unknown, scene?: { uniqueId: number }) => {
                         if (err) {

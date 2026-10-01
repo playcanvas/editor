@@ -281,8 +281,7 @@ export type LaunchConfig = {
         name: string;
         url: string;
     }[];
-    url: Omit<Url, 'launch' | 'relay' | 'useCustomEngine'> & {
-        assetPrefix: string; // same-origin path launch loads asset files under
+    url: Omit<Url, 'relay' | 'useCustomEngine'> & {
         engineExtras: string;
         physics: string;
         webvr: string;

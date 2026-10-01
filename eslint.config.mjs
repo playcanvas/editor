@@ -2,7 +2,7 @@ import typescriptConfig from '@playcanvas/eslint-config/typescript';
 import globals from 'globals';
 
 const API_URL_MESSAGE =
-    'Build api urls on config.url.api (launch asset files on config.url.assetPrefix), not a literal /api/.';
+    'Build api urls on config.url.api (launch asset files on config.url.launch), not a literal /api/.';
 
 const coreConfig = {
     files: [
