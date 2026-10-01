@@ -141,7 +141,7 @@ class AudioAssetInspector extends Panel {
         this._attributesInspector.link(assets);
         this._audio = new Audio();
         this._audioContainer.prepend(this._audio);
-        this._audio.src = config.url.home + assets[0].get('file.url');
+        this._audio.src = assets[0].get('file.url');
 
         this._audio.addEventListener('canplay', this._assetEvents.canplay, false);
         this._audio.addEventListener('play', this._assetEvents.play, false);
