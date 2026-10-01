@@ -1,4 +1,4 @@
-import { ASSET_PREFIX } from '@/launch/asset-prefix';
+import { config } from '@/launch/config';
 
 editor.once('load', () => {
     // console
@@ -109,7 +109,7 @@ editor.once('load', () => {
                 query = `?line=${line}&col=${col}&error=true`;
             } else if (
                 !editor.call('settings:project').get('useLegacyScripts') &&
-                url.includes(`${ASSET_PREFIX}assets/`) &&
+                url.includes(`${config.url.assetPrefix}assets/`) &&
                 (url.includes('.js') || url.includes('.mjs'))
             ) {
                 const match = url.match(/\/api\/assets\/files\/.+?id=(\d+)/);
