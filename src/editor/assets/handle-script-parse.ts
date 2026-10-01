@@ -98,7 +98,7 @@ editor.once('load', () => {
 
         const postUrl = (asset) => {
             const encodedFileName = encodeURIComponent(asset.get('file.filename'));
-            return buildQueryUrl(`/api/assets/${asset.get('id')}/file/${encodedFileName}`, {
+            return buildQueryUrl(`${config.url.api}/assets/${asset.get('id')}/file/${encodedFileName}`, {
                 branchId: config.self.branch.id
             });
         };

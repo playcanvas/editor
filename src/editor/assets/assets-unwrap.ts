@@ -63,7 +63,7 @@ editor.once('load', () => {
                 editor.emit('assets:model:unwrap:progress', asset, val);
             });
 
-            workerClient.send('start', assetId, filename, args.padding || 2.0);
+            workerClient.send('start', `${config.url.api}/assets/${assetId}/file/${filename}`, args.padding || 2.0);
         });
 
         workerClient.on('error', (err) => {
@@ -104,7 +104,7 @@ editor.once('load', () => {
                 callback?.(null, asset, area || null);
             });
 
-            workerClient.send('area', assetId, filename);
+            workerClient.send('area', `${config.url.api}/assets/${assetId}/file/${filename}`);
         });
 
         workerClient.on('error', (err) => {

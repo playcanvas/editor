@@ -21,7 +21,7 @@ editor.once('load', () => {
             // Use the download API endpoint which properly handles filenames
             // including special characters like # that would otherwise be URL-encoded
             const branchId = (config.self.branch as { id: string }).id;
-            window.open(`/api/assets/${asset.get('id')}/download?branchId=${branchId}`);
+            window.open(`${config.url.api}/assets/${asset.get('id')}/download?branchId=${branchId}`);
         }
     });
 });

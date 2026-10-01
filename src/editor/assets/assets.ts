@@ -120,7 +120,7 @@ editor.once('load', () => {
     });
 
     editor.method('assets:realPath', (asset: AssetObserver) => {
-        return `/api/assets/${asset.get('id')}/file/${asset.get('name')}?branchId=${config.self.branch.id}`;
+        return `${config.url.api}/assets/${asset.get('id')}/file/${asset.get('name')}?branchId=${config.self.branch.id}`;
     });
 
     // get asset ide path
