@@ -10,7 +10,7 @@ describe('Assets API tests', function () {
         api.globals.messenger = null;
         api.globals.history = null;
         api.globals.assets = new api.Assets();
-        api.globals.apiUrl = '';
+        api.globals.apiUrl = '/api';
         assets = api.globals.assets;
         sandbox = sinon.createSandbox();
     });

@@ -2,7 +2,7 @@ import { Events, Observer, ObserverHistory } from '@playcanvas/observer';
 
 import { replace } from './assets/replace';
 import type { Entity } from './entity';
-import { apiBase, globals as api } from './globals';
+import { globals as api } from './globals';
 
 /**
  * Represents an observer for an asset, extending the base Observer.
@@ -106,10 +106,10 @@ class Asset extends Events {
         if (this.get('has_thumbnail')) {
             const id = this.get('id');
             this.set('thumbnails', {
-                s: `${apiBase()}/assets/${id}/thumbnail/small?branchId=${api.branchId}`,
-                m: `${apiBase()}/assets/${id}/thumbnail/medium?branchId=${api.branchId}`,
-                l: `${apiBase()}/assets/${id}/thumbnail/large?branchId=${api.branchId}`,
-                xl: `${apiBase()}/assets/${id}/thumbnail/xlarge?branchId=${api.branchId}`
+                s: `${api.apiUrl}/assets/${id}/thumbnail/small?branchId=${api.branchId}`,
+                m: `${api.apiUrl}/assets/${id}/thumbnail/medium?branchId=${api.branchId}`,
+                l: `${api.apiUrl}/assets/${id}/thumbnail/large?branchId=${api.branchId}`,
+                xl: `${api.apiUrl}/assets/${id}/thumbnail/xlarge?branchId=${api.branchId}`
             });
         } else {
             this.unset('thumbnails');
@@ -228,7 +228,7 @@ class Asset extends Events {
      * Loads asset from the server without subscribing to realtime changes.
      */
     async load() {
-        const response = await fetch(`${apiBase()}/assets/${this.get('id')}?branchId=${api.branchId}`);
+        const response = await fetch(`${api.apiUrl}/assets/${this.get('id')}?branchId=${api.branchId}`);
         if (!response.ok) {
             throw new Error(`${response.status}: ${response.statusText}`);
         }
@@ -351,7 +351,7 @@ class Asset extends Events {
      * @returns The file URL
      */
     static getFileUrl(id: number, filename: string) {
-        return `${apiBase()}/assets/${id}/file/${encodeURIComponent(filename)}?branchId=${api.branchId}`;
+        return `${api.apiUrl}/assets/${id}/file/${encodeURIComponent(filename)}?branchId=${api.branchId}`;
     }
 }
 

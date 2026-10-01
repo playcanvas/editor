@@ -1,4 +1,4 @@
-import { apiBase, globals as api } from '../globals';
+import { globals as api } from '../globals';
 
 function getSetting(settings: any, name: string, defaultValue: any) {
     return settings && settings[name] !== undefined ? settings[name] : defaultValue;
@@ -94,11 +94,11 @@ async function uploadFile(
     const form = createFormData(data, settings);
     if (data.id) {
         method = 'PUT';
-        url = `${apiBase()}/assets/${data.id}`;
+        url = `${api.apiUrl}/assets/${data.id}`;
     } else {
         appendCreateFields(form, data);
         method = 'POST';
-        url = `${apiBase()}/assets`;
+        url = `${api.apiUrl}/assets`;
     }
 
     const response = await new Promise<XMLHttpRequest['response']>((resolve) => {
