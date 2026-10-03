@@ -41,9 +41,23 @@
     background-color: black;
 }
 
+// assets panel dock - holds the primary asset panel and the split view one
+#layout-assets-dock {
+    grid-area: assets;
+    min-width: 0;
+    min-height: 0;
+}
+
 // assets panel
 #layout-assets {
-    grid-area: assets;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+}
+
+// secondary assets panel (split view)
+#layout-assets-secondary {
+    flex-shrink: 0;
     min-width: 0;
     min-height: 0;
 }
