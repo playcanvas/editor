@@ -1259,7 +1259,7 @@ editor.once('load', () => {
         thumb.alt = '';
         thumb.src =
             (config.project.thumbnails && (config.project.thumbnails.m || config.project.thumbnails.s)) ||
-            `${config.url.frontend}static/img/blank-project.png`;
+            `${config.url.frontend}static/img/blank-project.webp`;
         header.appendChild(thumb);
 
         const heading = document.createElement('div');
@@ -1660,7 +1660,7 @@ editor.once('load', () => {
         thumb.alt = '';
         thumb.src =
             (config.project.thumbnails && (config.project.thumbnails.m || config.project.thumbnails.s)) ||
-            `${config.url.frontend}static/img/blank-project.png`;
+            `${config.url.frontend}static/img/blank-project.webp`;
         card.appendChild(thumb);
 
         const body = document.createElement('div');

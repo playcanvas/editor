@@ -18,21 +18,21 @@ editor.once('load', () => {
     const blankProject = {
         name: 'Blank Project',
         description: 'A new blank project.',
-        image: `${config.url.frontend}static/img/blank-project.png`,
+        image: `${config.url.frontend}static/img/blank-project.webp`,
         tags: ['games'],
         fork_from: null
     };
     const modelViewer = {
         name: 'Model Viewer',
         description: 'A simple viewer application for any 3D model. Just drop the 3D model into the scene to upload.',
-        image: '/static/platform/images/home/ModelViewer.jpg',
+        image: `${config.url.frontend}static/img/model-viewer-kit.webp`,
         tags: ['products'],
         fork_from: 446385
     };
     const vr = {
         name: 'VR Kit',
         description: 'An application to get you started quickly creating VR applications in PlayCanvas.',
-        image: '/static/platform/images/home/VR.jpg',
+        image: `${config.url.frontend}static/img/vr-kit.webp`,
         tags: ['immersive'],
         fork_from: 435780
     };
