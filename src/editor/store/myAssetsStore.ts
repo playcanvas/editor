@@ -3,7 +3,7 @@ import filenamify from 'filenamify/browser';
 
 import { bytesToHuman } from '@/common/utils';
 
-import { BaseStore, EMPTY_THUMBNAIL_IMAGE, EMPTY_THUMBNAIL_IMAGE_LARGE, STORE_ITEM_PAGE_SIZE } from './baseStore';
+import { BaseStore, EMPTY_THUMBNAIL_IMAGE, STORE_ITEM_PAGE_SIZE } from './baseStore';
 
 class MyAssetsStore extends BaseStore {
     sortPolicy = 'createdAt';
@@ -127,7 +127,7 @@ class MyAssetsStore extends BaseStore {
         name: string;
         modifiedAt?: string;
     }) {
-        let thumbnail = EMPTY_THUMBNAIL_IMAGE_LARGE;
+        let thumbnail = EMPTY_THUMBNAIL_IMAGE;
         if (asset.hasThumbnail) {
             thumbnail = `/api/assets/${asset.id}/thumbnail/xlarge`;
         }

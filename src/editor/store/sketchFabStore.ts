@@ -5,7 +5,7 @@ import Markdown from 'markdown-it';
 import { createLog } from '@/common/sentry';
 import { bytesToHuman } from '@/common/utils';
 
-import { BaseStore, EMPTY_THUMBNAIL_IMAGE_LARGE, STORE_ITEM_PAGE_SIZE } from './baseStore';
+import { BaseStore, EMPTY_THUMBNAIL_IMAGE, STORE_ITEM_PAGE_SIZE } from './baseStore';
 
 const log = createLog('<PATH>');
 
@@ -126,7 +126,7 @@ class SketchFabStore extends BaseStore {
         },
         assets: { name: string; size: string; type: string }[] | undefined
     ) {
-        let thumbnail = EMPTY_THUMBNAIL_IMAGE_LARGE;
+        let thumbnail = EMPTY_THUMBNAIL_IMAGE;
 
         // select the thumbnail image, with resolution closest to 1920x1080
         if (item.thumbnails.images.length > 0) {
