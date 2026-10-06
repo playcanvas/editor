@@ -216,6 +216,11 @@ editor.once('load', () => {
                 if (!entity.has('components.rigidbody.rollingFriction')) {
                     entity.set('components.rigidbody.rollingFriction', 0);
                 }
+
+                // gravityScale
+                if (!entity.has('components.rigidbody.gravityScale')) {
+                    entity.set('components.rigidbody.gravityScale', 1);
+                }
             }
 
             // model

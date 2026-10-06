@@ -79,6 +79,14 @@ export const fields: AttributeReference[] = [
         url: 'https://api.playcanvas.com/engine/classes/RigidBodyComponent.html#type'
     },
     {
+        name: 'rigidbody:gravityScale',
+        title: 'gravityScale',
+        subTitle: '{Number}',
+        description:
+            'Scales the world gravity for this body. 1 follows the world gravity, 0 makes the body ignore gravity and negative values make it rise. Only applies to dynamic bodies.',
+        url: 'https://api.playcanvas.com/engine/classes/RigidBodyComponent.html#gravityscale'
+    },
+    {
         name: 'rigidbody:rollingFriction',
         title: 'rollingFriction',
         subTitle: '{Number}',
