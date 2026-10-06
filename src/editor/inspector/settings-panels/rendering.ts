@@ -1,6 +1,6 @@
 import type { Container } from '@playcanvas/pcui';
 import { Button, Label, Overlay, Panel } from '@playcanvas/pcui';
-import { GSPLATDATA_COMPACT, GSPLATDATA_LARGE, GSPLAT_LODMODE_DISTANCE, GSPLAT_LODMODE_ERROR } from 'playcanvas';
+import { GSPLATDATA_COMPACT, GSPLATDATA_LARGE, GSPLAT_BUDGET_LIMIT, GSPLAT_BUDGET_TARGET } from 'playcanvas';
 
 import { TONEMAPPING } from '@/core/constants';
 
@@ -327,6 +327,20 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
     },
     {
         observer: 'sceneSettings',
+        label: 'Splat Budget Mode',
+        path: 'render.gsplatSplatBudgetMode',
+        reference: 'settings:gsplatSplatBudgetMode',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [
+                { v: GSPLAT_BUDGET_TARGET, t: 'Target' },
+                { v: GSPLAT_BUDGET_LIMIT, t: 'Limit' }
+            ]
+        }
+    },
+    {
+        observer: 'sceneSettings',
         label: 'Alpha Clip',
         path: 'render.gsplatAlphaClip',
         reference: 'settings:gsplatAlphaClip',
@@ -426,20 +440,6 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
         path: 'render.gsplatEnableIds',
         reference: 'settings:gsplatEnableIds',
         type: 'boolean'
-    },
-    {
-        observer: 'sceneSettings',
-        label: 'LOD Mode',
-        path: 'render.gsplatLodMode',
-        reference: 'settings:gsplatLodMode',
-        type: 'select',
-        args: {
-            type: 'string',
-            options: [
-                { v: GSPLAT_LODMODE_ERROR, t: 'Error' },
-                { v: GSPLAT_LODMODE_DISTANCE, t: 'Distance' }
-            ]
-        }
     },
     {
         type: 'divider'

@@ -31,6 +31,14 @@ export const fields: AttributeReference[] = [
         url: 'https://api.playcanvas.com/engine/classes/RigidBodyComponent.html#angularfactor'
     },
     {
+        name: 'rigidbody:gravityScale',
+        title: 'gravityScale',
+        subTitle: '{Number}',
+        description:
+            'Scale applied to the world gravity for this body. 0 makes it ignore gravity and negative values reverse it. Only affects dynamic bodies.',
+        url: 'https://api.playcanvas.com/engine/classes/RigidBodyComponent.html#gravityscale'
+    },
+    {
         name: 'rigidbody:friction',
         title: 'friction',
         subTitle: '{Number}',
