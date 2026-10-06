@@ -181,9 +181,11 @@ class RigidbodyComponentInspector extends ComponentInspector {
 
         const isDynamic = this._field('type').value === 'dynamic';
 
-        ['mass', 'linearDamping', 'angularDamping', 'linearFactor', 'angularFactor', 'gravityScale'].forEach((field) => {
-            this._field(field).parent.hidden = !isDynamic;
-        });
+        ['mass', 'linearDamping', 'angularDamping', 'linearFactor', 'angularFactor', 'gravityScale'].forEach(
+            (field) => {
+                this._field(field).parent.hidden = !isDynamic;
+            }
+        );
     }
 
     link(entities: EntityObserver[]) {
