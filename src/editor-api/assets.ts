@@ -484,7 +484,7 @@ class Assets extends Events {
         this.emit('load:progress', 0.1);
 
         const response = await fetch(
-            `/api/projects/${api.projectId}/assets?branchId=${api.branchId}&view=${options.view || 'designer'}`
+            `${api.apiUrl}/projects/${api.projectId}/assets?branchId=${api.branchId}&view=${options.view || 'designer'}`
         );
         if (!response.ok) {
             console.error(`Could not load assets: [${response.status}] - ${response.statusText}`);
@@ -541,7 +541,7 @@ class Assets extends Events {
         this.emit('load:progress', 0.1);
 
         const response = await fetch(
-            `/api/projects/${api.projectId}/assets?branchId=${api.branchId}&view=${options.view || 'designer'}`
+            `${api.apiUrl}/projects/${api.projectId}/assets?branchId=${api.branchId}&view=${options.view || 'designer'}`
         );
         if (!response.ok) {
             console.error(`Could not load assets: [${response.status}] - ${response.statusText}`);
@@ -1242,7 +1242,7 @@ class Assets extends Events {
      * @param assets - The assets
      */
     async delete(assets: Asset[]) {
-        const response = await fetch('/api/assets', {
+        const response = await fetch(`${api.apiUrl}/assets`, {
             body: JSON.stringify({
                 assets: assets.map((a: any) => a.get('id')),
                 branchId: api.branchId

@@ -92,7 +92,7 @@ editor.once('load', () => {
             if (config.project.settings.useLegacyScripts) {
                 loadingScript.src = `${scriptPrefix}/${config.project.settings.loadingScreenScript}`;
             } else {
-                loadingScript.src = `/api/assets/${config.project.settings.loadingScreenScript}/download?branchId=${config.self.branch.id}`;
+                loadingScript.src = `${config.url.launch}api/assets/${config.project.settings.loadingScreenScript}/download?branchId=${config.self.branch.id}`;
             }
 
             loadingScript.onload = function () {
@@ -264,7 +264,7 @@ editor.once('load', () => {
             mouse: useMouse ? new pc.Mouse(canvas) : null,
             gamepads: useGamepads ? new pc.GamePads() : null,
             touch: useTouch && pc.platform.touch ? new pc.TouchDevice(canvas) : null,
-            assetPrefix: '/api/',
+            assetPrefix: `${config.url.launch}api/`,
             scriptPrefix: scriptPrefix,
             scriptsOrder: projectSettings.get('scripts') || []
         };

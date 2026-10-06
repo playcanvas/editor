@@ -124,7 +124,7 @@ class AssetsStore extends BaseStore {
                 return;
             }
 
-            const url = `/api/store/assets/${asset.id}/file/${asset.file.filename}`;
+            const url = `${config.url.api}/store/assets/${asset.id}/file/${asset.file.filename}`;
             if (this._isModelAsset(asset) && modelUrls.length === 0) {
                 modelUrls.push(encodeUrl(url));
             } else if (this._isTextureAsset(asset)) {

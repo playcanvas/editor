@@ -52,7 +52,7 @@ export const userThumbnail = (userId: string | number, size: number) => {
     if (!thumbCache.has(key)) {
         thumbCache.set(
             key,
-            fetch(`/api/users/${userId}/thumbnail?size=${size}`)
+            fetch(`${config.url.api}/users/${userId}/thumbnail?size=${size}`)
                 .then((res) => (res.ok ? res.blob() : Promise.reject(new Error(`${res.status}`))))
                 .then((blob) => URL.createObjectURL(blob))
                 .then((url) => {

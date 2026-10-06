@@ -94,11 +94,11 @@ async function uploadFile(
     const form = createFormData(data, settings);
     if (data.id) {
         method = 'PUT';
-        url = `/api/assets/${data.id}`;
+        url = `${api.apiUrl}/assets/${data.id}`;
     } else {
         appendCreateFields(form, data);
         method = 'POST';
-        url = '/api/assets';
+        url = `${api.apiUrl}/assets`;
     }
 
     const response = await new Promise<XMLHttpRequest['response']>((resolve) => {
