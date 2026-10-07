@@ -98,6 +98,18 @@ const ATTRIBUTES: Attribute[] = [
         type: 'number'
     },
     {
+        label: 'Use Fog',
+        path: 'components.particlesystem.useFog',
+        reference: 'particlesystem:useFog',
+        type: 'boolean'
+    },
+    {
+        label: 'Use Tonemapping',
+        path: 'components.particlesystem.useTonemap',
+        reference: 'particlesystem:useTonemap',
+        type: 'boolean'
+    },
+    {
         label: 'Depth Write',
         path: 'components.particlesystem.depthWrite',
         reference: 'particlesystem:depthWrite',

@@ -372,6 +372,20 @@ export const fields: AttributeReference[] = [
         url: 'https://api.playcanvas.com/engine/classes/ParticleSystemComponent.html#stretch'
     },
     {
+        name: 'particlesystem:useFog',
+        title: 'useFog',
+        subTitle: '{Boolean}',
+        description: 'Apply fogging (as configured in scene settings) to the particles.',
+        url: 'https://api.playcanvas.com/engine/classes/ParticleSystemComponent.html#usefog'
+    },
+    {
+        name: 'particlesystem:useTonemap',
+        title: 'useTonemap',
+        subTitle: '{Boolean}',
+        description: 'Apply tonemapping (as configured in scene settings or the camera) to the particles.',
+        url: 'https://api.playcanvas.com/engine/classes/ParticleSystemComponent.html#usetonemap'
+    },
+    {
         name: 'particlesystem:velocityGraph',
         title: 'velocityGraph',
         subTitle: '{pc.CurveSet}',
