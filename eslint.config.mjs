@@ -56,6 +56,15 @@ const modulesConfig = {
     }
 };
 
+const scriptsConfig = {
+    files: ['scripts/**/*.ts'],
+    languageOptions: {
+        globals: {
+            ...globals.node
+        }
+    }
+};
+
 const testConfig = {
     files: ['test/**/*.ts'],
     languageOptions: {
@@ -88,6 +97,7 @@ export default [
     workersConfig,
     serviceWorkersConfig,
     modulesConfig,
+    scriptsConfig,
     testConfig,
     esmJsConfig,
     {
