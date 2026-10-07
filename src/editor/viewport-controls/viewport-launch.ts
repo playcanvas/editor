@@ -96,6 +96,10 @@ editor.once('load', () => {
             query.push('ministats=true');
         }
 
+        if (launchOptions.inspector) {
+            query.push('inspector=true');
+        }
+
         // the editor relays the launch page to MCP, so it opens no socket of its own
         const withMcp = editor.call('mcp:status') === 'connected';
 
@@ -311,6 +315,24 @@ editor.once('load', () => {
     TooltipHandle.attach({
         target: optionMiniStats.parent.dom,
         text: 'Show the MiniStats in the launched application.',
+        align: 'right',
+        root: root
+    }).class.add('launch-tooltip');
+
+    // inspector
+    const optionInspector = createOption('inspector', 'Inspector');
+    optionInspector.value = settings.get('editor.launchInspector');
+    settings.on('editor.launchInspector:set', (value: boolean) => {
+        if (value !== optionInspector.value) {
+            optionInspector.value = value;
+        }
+    });
+    optionInspector.on('change', (value: boolean) => {
+        settings.set('editor.launchInspector', value);
+    });
+    TooltipHandle.attach({
+        target: optionInspector.parent.dom,
+        text: 'Show the Inspector debug panel in the launched application. Requires Engine 2.23 or later.',
         align: 'right',
         root: root
     }).class.add('launch-tooltip');
