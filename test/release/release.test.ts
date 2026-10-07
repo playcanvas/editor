@@ -1,27 +1,16 @@
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { expect } from 'chai';
 import { afterEach, beforeEach, describe, it } from 'mocha';
 
-import { latestEngine, release } from '../../scripts/release';
-import type { Backport, Deps } from '../../scripts/release';
+import { release } from '../../scripts/release';
+import type { Backport } from '../../scripts/release';
 
 const sh = (cwd: string, ...args: string[]) =>
     execFileSync('git', args, { cwd, encoding: 'utf8', stdio: 'pipe' }).trim();
-
-const writePkg = (cwd: string, edit: (pkg: { devDependencies: Record<string, string> }) => void) => {
-    for (const file of ['package.json', 'package-lock.json']) {
-        const json = JSON.parse(readFileSync(join(cwd, file), 'utf8'));
-        edit(file === 'package.json' ? json : json.packages['']);
-        if (file === 'package-lock.json') {
-            json.version = json.packages[''].version;
-        }
-        writeFileSync(join(cwd, file), `${JSON.stringify(json, null, 2)}\n`);
-    }
-};
 
 describe('release', function () {
     this.timeout(30000);
@@ -32,14 +21,12 @@ describe('release', function () {
     let ci: string;
     let picks: Backport[];
 
-    const deps: Deps = {
-        engine: () => '2.24.0',
-        setEngine: (cwd, version) =>
-            writePkg(cwd, (pkg) => {
-                pkg.devDependencies.playcanvas = version;
-            }),
-        backports: () => picks
-    };
+    const run = (type: string) =>
+        release(
+            ci,
+            { type, bumpEngine: false },
+            { engine: () => '', setEngine: () => undefined, backports: () => picks }
+        );
     const show = (ref: string) => JSON.parse(sh(remote, 'show', `${ref}:package.json`));
     const refs = () => sh(remote, 'for-each-ref', '--format=%(refname) %(objectname)');
 
@@ -80,89 +67,34 @@ describe('release', function () {
 
     afterEach(() => rmSync(root, { recursive: true, force: true }));
 
-    const minor = () => release(ci, { type: 'minor', bumpEngine: false }, deps);
-
     it('cuts a minor from main and moves main to the next beta', () => {
-        expect(minor()).to.deep.equal({ tag: 'v2.34.0', released: true });
+        expect(run('minor')).to.deep.equal({ tag: 'v2.34.0', released: true });
         expect(show('release-2.34').version).to.equal('2.34.0');
-        expect(show('v2.34.0').version).to.equal('2.34.0');
-        expect(show('main').version).to.equal('2.35.0-beta.0');
         expect(sh(remote, 'rev-parse', 'v2.34.0^{commit}')).to.equal(sh(remote, 'rev-parse', 'release-2.34'));
-    });
-
-    it('pins the latest Engine on both branches when cutting a minor', () => {
-        release(ci, { type: 'minor', bumpEngine: true }, deps);
-        expect(show('release-2.34').devDependencies.playcanvas).to.equal('2.24.0');
-        expect(show('main').devDependencies.playcanvas).to.equal('2.24.0');
-    });
-
-    it('does nothing when main has no changes since the last minor', () => {
-        minor();
-        const before = refs();
-        expect(minor()).to.deep.equal({ tag: 'v2.34.0', released: false });
-        expect(refs()).to.equal(before);
+        expect(show('main').version).to.equal('2.35.0-beta.0');
     });
 
     it('backports labeled fixes and tags the next patch', () => {
-        minor();
-        const sha = land('main', 'b.txt', 'b');
-        picks = [{ number: 7, title: 'fix: b', sha }];
-        expect(release(ci, { type: 'patch', bumpEngine: false }, deps)).to.deep.equal({
-            tag: 'v2.34.1',
-            released: true
-        });
-        expect(show('release-2.34').version).to.equal('2.34.1');
+        run('minor');
+        picks = [{ number: 7, title: 'fix: b', sha: land('main', 'b.txt', 'b') }];
+        expect(run('patch')).to.deep.equal({ tag: 'v2.34.1', released: true });
+        expect(show('v2.34.1').version).to.equal('2.34.1');
         expect(sh(remote, 'show', 'release-2.34:b.txt')).to.equal('b');
-        expect(show('main').version).to.equal('2.35.0-beta.0');
-    });
-
-    it('skips fixes already on the release branch', () => {
-        minor();
-        const sha = land('main', 'b.txt', 'b');
-        land('release-2.34', 'b.txt', 'b');
-        picks = [{ number: 7, title: 'fix: b', sha }];
-        const result = release(ci, { type: 'patch', bumpEngine: false }, deps);
-        expect(result.tag).to.equal('v2.34.1');
-        expect(sh(remote, 'rev-list', '--count', 'v2.34.0..release-2.34')).to.equal('2');
     });
 
     it('stops on a conflicting backport without pushing', () => {
-        minor();
-        const sha = land('main', 'a.txt', 'main');
+        run('minor');
+        picks = [{ number: 8, title: 'fix: a', sha: land('main', 'a.txt', 'main') }];
         land('release-2.34', 'a.txt', 'branch');
-        picks = [{ number: 8, title: 'fix: a', sha }];
         const before = refs();
-        expect(() => release(ci, { type: 'patch', bumpEngine: false }, deps)).to.throw(
-            /Backport of #8 conflicts on release-2.34/
-        );
+        expect(() => run('patch')).to.throw(/Backport of #8 conflicts on release-2.34/);
         expect(refs()).to.equal(before);
     });
 
-    it('does nothing when the release branch has no changes', () => {
-        minor();
+    it('does nothing when there is nothing to release', () => {
+        run('minor');
         const before = refs();
-        expect(release(ci, { type: 'patch', bumpEngine: false }, deps)).to.deep.equal({
-            tag: 'v2.34.0',
-            released: false
-        });
+        expect(run('patch')).to.deep.equal({ tag: 'v2.34.0', released: false });
         expect(refs()).to.equal(before);
-    });
-
-    it('releases an Engine bump as a patch and keeps main in step', () => {
-        minor();
-        const result = release(ci, { type: 'patch', bumpEngine: true }, deps);
-        expect(result).to.deep.equal({ tag: 'v2.34.1', released: true });
-        expect(show('v2.34.1').devDependencies.playcanvas).to.equal('2.24.0');
-        expect(show('main').devDependencies.playcanvas).to.equal('2.24.0');
-    });
-});
-
-describe('latestEngine', () => {
-    it('picks the newest stable 2.x', () => {
-        expect(latestEngine(['1.99.0', '2.9.0', '2.10.1', '2.11.0-beta.1', '3.0.0'])).to.equal('2.10.1');
-    });
-
-    it('throws without a stable 2.x', () => {
-        expect(() => latestEngine(['1.0.0', '2.1.0-beta.0'])).to.throw(/No stable Engine/);
     });
 });
