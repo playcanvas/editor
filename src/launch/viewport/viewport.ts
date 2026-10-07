@@ -1,3 +1,4 @@
+import { Inspector } from '@playcanvas/inspector';
 import type { Observer } from '@playcanvas/observer';
 import { LAYERID_DEPTH } from 'playcanvas';
 
@@ -362,6 +363,15 @@ editor.once('load', () => {
 
         if (queryParams.ministats) {
             const miniStats = new (pc.MiniStats ? pc.MiniStats : pcx.MiniStats)(app);
+        }
+
+        if (queryParams.inspector) {
+            const [major, minor] = pc.version.split('.').map(Number);
+            if (major > 2 || (major === 2 && minor >= 23)) {
+                new Inspector(app);
+            } else {
+                console.warn(`The Inspector requires Engine 2.23 or later (running ${pc.version})`);
+            }
         }
 
         // localization

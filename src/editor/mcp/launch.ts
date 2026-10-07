@@ -107,6 +107,9 @@ mcp.method('launch:start', async (options: any = {}) => {
     if (options.miniStats) {
         params.set('ministats', 'true');
     }
+    if (options.inspector) {
+        params.set('inspector', 'true');
+    }
 
     // a local build must launch the local page, like the Launch button
     for (const flag of ['use_local_frontend', 'use_local_engine']) {
