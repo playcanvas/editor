@@ -1,15 +1,80 @@
 name: Release
 
+run-name: ${{ github.event_name == 'workflow_dispatch' && format('Release {0}{1} {2}', inputs.type, inputs.bump_engine && ' + engine' || '', inputs.id) || github.ref_name }}
+
 on:
     push:
         tags:
             - 'v[0-9]+.[0-9]+.[0-9]+'
+    workflow_dispatch:
+        inputs:
+            type:
+                description: 'minor: new minor from main. patch: backport "release: next patch" fixes to the latest release branch'
+                type: choice
+                options: [patch, minor]
+                default: patch
+            bump_engine:
+                description: 'Pin the latest stable Engine 2.x before releasing'
+                type: boolean
+                default: false
+            dry_run:
+                description: 'Prepare the release without pushing'
+                type: boolean
+                default: false
+            id:
+                description: 'Optional caller id, shown in the run name'
+                type: string
+                default: ''
 
 jobs:
+    cut:
+        name: Cut
+        runs-on: ubuntu-latest
+        if: ${{ github.event_name == 'workflow_dispatch' && github.repository == 'playcanvas/editor' && github.ref_name == 'main' }}
+        # queue releases instead of racing them
+        concurrency:
+            group: release-cut
+            cancel-in-progress: false
+        steps:
+            - name: Generate app token
+              id: app-token
+              uses: actions/create-github-app-token@v3
+              with:
+                  app-id: ${{ secrets.APP_ID }}
+                  private-key: ${{ secrets.APP_KEY }}
+
+            - name: Check out code
+              uses: actions/checkout@v7
+              with:
+                  fetch-depth: 0
+                  token: ${{ steps.app-token.outputs.token }}
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version: 24.x
+                  registry-url: 'https://registry.npmjs.org/'
+
+            - name: Configure git
+              run: |
+                  id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)
+                  git config user.name "${{ steps.app-token.outputs.app-slug }}[bot]"
+                  git config user.email "${id}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com"
+              env:
+                  GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+            - name: Cut release
+              run: node scripts/release.ts
+              env:
+                  TYPE: ${{ inputs.type }}
+                  BUMP_ENGINE: ${{ inputs.bump_engine }}
+                  DRY_RUN: ${{ inputs.dry_run }}
+                  GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
     release:
         name: Release
         runs-on: ubuntu-latest
-        if: ${{ github.repository_owner == 'playcanvas' }}
+        if: ${{ github.event_name == 'push' && github.repository_owner == 'playcanvas' }}
         permissions:
             contents: write
         steps:

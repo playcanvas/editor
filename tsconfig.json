@@ -15,6 +15,6 @@
             "@/*": ["./src/*"]
         }
     },
-    "include": ["src", "test", "eslint.config.mjs", "vite.config.mjs", "types.d.ts"],
+    "include": ["src", "scripts", "test", "eslint.config.mjs", "vite.config.mjs", "types.d.ts"],
     "exclude": ["src/wasm", "test/editor-api"]
 }
