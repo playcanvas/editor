@@ -9,7 +9,7 @@ const BACKPORT_LABEL = 'release: next patch';
 
 export type Backport = { number: number; title: string; sha: string };
 
-export type Options = { type: string; bumpEngine: boolean; dryRun: boolean };
+export type Options = { type: string; bumpEngine: boolean };
 
 export type Deps = {
     engine: () => string;
@@ -39,7 +39,7 @@ export const latestEngine = (versions: string[]) => {
  *
  * Returns the latest stable tag; `released` is false when there was nothing to release.
  */
-export const release = (cwd: string, { type, bumpEngine, dryRun }: Options, deps: Deps) => {
+export const release = (cwd: string, { type, bumpEngine }: Options, deps: Deps) => {
     if (type !== 'minor' && type !== 'patch') {
         throw new Error(`Release type must be minor or patch, got "${type}"`);
     }
@@ -155,7 +155,7 @@ export const release = (cwd: string, { type, bumpEngine, dryRun }: Options, deps
         throw new Error(`Tag ${tag} already exists`);
     }
     git('tag', '-a', tag, '-m', tag, head);
-    const args = [
+    git(
         'push',
         '--atomic',
         ...updates.map(({ ref, lease }) => `--force-with-lease=${ref}:${lease}`),
@@ -163,22 +163,17 @@ export const release = (cwd: string, { type, bumpEngine, dryRun }: Options, deps
         'origin',
         ...updates.map(({ sha, ref }) => `${sha}:${ref}`),
         `refs/tags/${tag}:refs/tags/${tag}`
-    ];
-    if (dryRun) {
-        console.log(`Dry run, not pushing: git ${args.join(' ')}`);
-    } else {
-        git(...args);
-    }
-    return { tag, released: !dryRun };
+    );
+    return { tag, released: true };
 };
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-    const { TYPE = 'patch', BUMP_ENGINE, DRY_RUN, GITHUB_REPOSITORY, GITHUB_STEP_SUMMARY } = process.env;
+    const { TYPE = 'patch', BUMP_ENGINE, GITHUB_REPOSITORY, GITHUB_STEP_SUMMARY } = process.env;
     const run = (cmd: string, args: string[], cwd = process.cwd()) =>
         execFileSync(cmd, args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] });
     const result = release(
         process.cwd(),
-        { type: TYPE, bumpEngine: BUMP_ENGINE === 'true', dryRun: DRY_RUN === 'true' },
+        { type: TYPE, bumpEngine: BUMP_ENGINE === 'true' },
         {
             engine: () => latestEngine(JSON.parse(run('npm', ['view', 'playcanvas', 'versions', '--json']))),
             setEngine: (cwd, version) => {

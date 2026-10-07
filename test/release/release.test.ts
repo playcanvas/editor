@@ -80,7 +80,7 @@ describe('release', function () {
 
     afterEach(() => rmSync(root, { recursive: true, force: true }));
 
-    const minor = () => release(ci, { type: 'minor', bumpEngine: false, dryRun: false }, deps);
+    const minor = () => release(ci, { type: 'minor', bumpEngine: false }, deps);
 
     it('cuts a minor from main and moves main to the next beta', () => {
         expect(minor()).to.deep.equal({ tag: 'v2.34.0', released: true });
@@ -91,7 +91,7 @@ describe('release', function () {
     });
 
     it('pins the latest Engine on both branches when cutting a minor', () => {
-        release(ci, { type: 'minor', bumpEngine: true, dryRun: false }, deps);
+        release(ci, { type: 'minor', bumpEngine: true }, deps);
         expect(show('release-2.34').devDependencies.playcanvas).to.equal('2.24.0');
         expect(show('main').devDependencies.playcanvas).to.equal('2.24.0');
     });
@@ -107,7 +107,7 @@ describe('release', function () {
         minor();
         const sha = land('main', 'b.txt', 'b');
         picks = [{ number: 7, title: 'fix: b', sha }];
-        expect(release(ci, { type: 'patch', bumpEngine: false, dryRun: false }, deps)).to.deep.equal({
+        expect(release(ci, { type: 'patch', bumpEngine: false }, deps)).to.deep.equal({
             tag: 'v2.34.1',
             released: true
         });
@@ -121,7 +121,7 @@ describe('release', function () {
         const sha = land('main', 'b.txt', 'b');
         land('release-2.34', 'b.txt', 'b');
         picks = [{ number: 7, title: 'fix: b', sha }];
-        const result = release(ci, { type: 'patch', bumpEngine: false, dryRun: false }, deps);
+        const result = release(ci, { type: 'patch', bumpEngine: false }, deps);
         expect(result.tag).to.equal('v2.34.1');
         expect(sh(remote, 'rev-list', '--count', 'v2.34.0..release-2.34')).to.equal('2');
     });
@@ -132,7 +132,7 @@ describe('release', function () {
         land('release-2.34', 'a.txt', 'branch');
         picks = [{ number: 8, title: 'fix: a', sha }];
         const before = refs();
-        expect(() => release(ci, { type: 'patch', bumpEngine: false, dryRun: false }, deps)).to.throw(
+        expect(() => release(ci, { type: 'patch', bumpEngine: false }, deps)).to.throw(
             /Backport of #8 conflicts on release-2.34/
         );
         expect(refs()).to.equal(before);
@@ -141,7 +141,7 @@ describe('release', function () {
     it('does nothing when the release branch has no changes', () => {
         minor();
         const before = refs();
-        expect(release(ci, { type: 'patch', bumpEngine: false, dryRun: false }, deps)).to.deep.equal({
+        expect(release(ci, { type: 'patch', bumpEngine: false }, deps)).to.deep.equal({
             tag: 'v2.34.0',
             released: false
         });
@@ -150,19 +150,10 @@ describe('release', function () {
 
     it('releases an Engine bump as a patch and keeps main in step', () => {
         minor();
-        const result = release(ci, { type: 'patch', bumpEngine: true, dryRun: false }, deps);
+        const result = release(ci, { type: 'patch', bumpEngine: true }, deps);
         expect(result).to.deep.equal({ tag: 'v2.34.1', released: true });
         expect(show('v2.34.1').devDependencies.playcanvas).to.equal('2.24.0');
         expect(show('main').devDependencies.playcanvas).to.equal('2.24.0');
-    });
-
-    it('pushes nothing on a dry run', () => {
-        const before = refs();
-        expect(release(ci, { type: 'minor', bumpEngine: true, dryRun: true }, deps)).to.deep.equal({
-            tag: 'v2.34.0',
-            released: false
-        });
-        expect(refs()).to.equal(before);
     });
 });
 

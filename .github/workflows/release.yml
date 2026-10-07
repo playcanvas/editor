@@ -17,10 +17,6 @@ on:
                 description: 'Pin the latest stable Engine 2.x before releasing'
                 type: boolean
                 default: false
-            dry_run:
-                description: 'Prepare the release without pushing'
-                type: boolean
-                default: false
             id:
                 description: 'Optional caller id, shown in the run name'
                 type: string
@@ -68,7 +64,6 @@ jobs:
               env:
                   TYPE: ${{ inputs.type }}
                   BUMP_ENGINE: ${{ inputs.bump_engine }}
-                  DRY_RUN: ${{ inputs.dry_run }}
                   GH_TOKEN: ${{ steps.app-token.outputs.token }}
 
     release:
