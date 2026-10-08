@@ -7,11 +7,11 @@ import { AssetInspectorPreviewBase } from './asset-preview-base';
 const getPreviewUrl = (asset) => {
     const url = asset.get('file.url');
     const hash = asset.get('file.hash');
-    if (!config || !config.url || !config.url.home || !url || !hash) {
+    if (!url || !hash) {
         return null;
     }
 
-    return buildQueryUrl(config.url.home + asset.get('file.url'), { t: asset.get('file.hash') });
+    return buildQueryUrl(url, { t: hash });
 };
 
 class TextureAssetInspectorPreview extends AssetInspectorPreviewBase {

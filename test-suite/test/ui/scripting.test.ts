@@ -219,8 +219,10 @@ test.describe('scripting', () => {
         const select = inspector.component('script').locator('> .pcui-panel-content > .pcui-select-input');
         await select.locator('.pcui-select-input-textinput input').click();
         const attached = await hierarchy.armField(entityId, 'components.script.order', [name]);
+        const initialized = await hierarchy.armField(entityId, `components.script.scripts.${name}.attributes.speed`, 1);
         await select.locator(`.pcui-select-input-list > [id="${name}"]`).click();
         await attached();
+        await initialized();
         const panel = inspector.component('script').locator(SCRIPTS_CONTAINER).locator(SCRIPT_PANEL);
         await expect(panel.locator('.pcui-panel-header-title').first()).toHaveText(name);
         expect(await hierarchy.get(entityId, `components.script.scripts.${name}.enabled`)).toBe(true);

@@ -657,18 +657,19 @@ class TextureAssetInspector extends Container {
         const srgbField = this._textureAttributesInspector.getField('data.srgb');
         const rgbmField = this._textureAttributesInspector.getField('data.rgbm');
 
-        // Ensure that the sRGB and RGBM fields are mutually exclusive
-        rgbmField.on('change', (value) => {
-            if (value) {
-                srgbField.value = false;
+        // Ensure that the sRGB and RGBM fields are mutually exclusive, but only for a user edit.
+        // A field also emits change while its binding pushes an observer value into it, on link
+        // and on a remote edit, and clearing the other field there writes the asset back and
+        // silently drops an encoding flag.
+        const exclusive = (other: typeof srgbField) => (value: boolean) => {
+            if (!value || srgbField.binding.applyingChange || rgbmField.binding.applyingChange) {
+                return;
             }
-        });
+            other.value = false;
+        };
 
-        srgbField.on('change', (value) => {
-            if (value) {
-                rgbmField.value = false;
-            }
-        });
+        rgbmField.on('change', exclusive(srgbField));
+        srgbField.on('change', exclusive(rgbmField));
     }
 
     _btnGetMetaVisibility() {

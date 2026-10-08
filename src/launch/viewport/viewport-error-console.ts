@@ -1,3 +1,5 @@
+import { config } from '@/launch/config';
+
 editor.once('load', () => {
     // console
     const panel = document.createElement('div');
@@ -24,7 +26,7 @@ editor.once('load', () => {
 
     // close button img
     const closeBtn = document.createElement('img');
-    closeBtn.src = 'https://playcanvas.com/static-assets/images/icons/fa/16x16/remove.png';
+    closeBtn.src = `${config.url.frontend}static/img/remove.svg`;
     panel.appendChild(closeBtn);
 
     closeBtn.addEventListener('click', () => {
@@ -107,7 +109,7 @@ editor.once('load', () => {
                 query = `?line=${line}&col=${col}&error=true`;
             } else if (
                 !editor.call('settings:project').get('useLegacyScripts') &&
-                url.includes('/api/assets/') &&
+                url.includes(`${config.url.launch}api/assets/`) &&
                 (url.includes('.js') || url.includes('.mjs'))
             ) {
                 const match = url.match(/\/api\/assets\/files\/.+?id=(\d+)/);
@@ -115,7 +117,8 @@ editor.once('load', () => {
                     assetId = parseInt(match[1], 10);
                     switch (ide) {
                         case 'vscode':
-                        case 'cursor': {
+                        case 'cursor':
+                        case 'antigravity-ide': {
                             const asset = editor.call('assets:get', assetId);
                             target = `${ide}:${config.project.id}`;
                             codeEditorUrl = editor.call('assets:idePath', ide, asset);
@@ -157,7 +160,7 @@ editor.once('load', () => {
             if (assetId) {
                 const link = document.getElementById(`error-${errorCount}`);
                 link.addEventListener('click', (e: MouseEvent) => {
-                    if (ide === 'vscode' || ide === 'cursor') {
+                    if (ide === 'vscode' || ide === 'cursor' || ide === 'antigravity-ide') {
                         window.open(codeEditorUrl + query, target);
                         return;
                     }

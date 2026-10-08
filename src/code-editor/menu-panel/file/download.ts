@@ -35,7 +35,7 @@ editor.once('load', () => {
     editor.method('editor:command:download', (id?: string) => {
         id = id || editor.call('documents:getFocused');
         if (id) {
-            window.open(`/api/assets/${id}/download?branchId=${config.self.branch.id}`);
+            window.open(`${config.url.api}/assets/${id}/download?branchId=${config.self.branch.id}`);
         }
     });
 });

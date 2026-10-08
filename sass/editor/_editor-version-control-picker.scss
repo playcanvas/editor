@@ -1502,7 +1502,8 @@
                 }
             }
 
-            > .vc-dialog-error {
+            > .vc-dialog-error,
+            > .vc-dialog-warning {
                 margin-top: 8px;
                 color: #ff8a8a;
                 font-size: 12px;

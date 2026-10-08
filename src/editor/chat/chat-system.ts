@@ -122,7 +122,7 @@ editor.once('load', () => {
                 img.classList.add('selectable');
                 img.width = 14;
                 img.height = 14;
-                img.src = `/api/users/${type}/thumbnail?size=14`;
+                img.src = `${config.url.api}/users/${type}/thumbnail?size=14`;
                 element.insertBefore(img, text);
 
                 const date = new Date();

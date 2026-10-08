@@ -1,4 +1,5 @@
 import { captureException } from '@/common/sentry';
+import { SOURCE_MAP_URL } from '@/core/constants';
 
 class WorkerClient {
     _transfer: (ArrayBuffer | MessagePort | ImageBitmap)[] = [];
@@ -62,8 +63,14 @@ class WorkerClient {
             this.worker = new Worker(this.url);
         } else {
             const res = await fetch(this.url);
-            const blob = await res.blob();
-            const url = URL.createObjectURL(blob);
+            const base = new URL(this.url, location.href);
+
+            // a relative source map would resolve against the blob url, so anchor it to the worker url
+            const src = (await res.text()).replace(
+                SOURCE_MAP_URL,
+                (_, map) => `//# sourceMappingURL=${new URL(map, base).href}`
+            );
+            const url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
             this.worker = new Worker(url);
             URL.revokeObjectURL(url);
         }

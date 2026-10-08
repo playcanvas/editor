@@ -12,6 +12,8 @@ import { AttributesInspector } from '../attributes-inspector';
 
 const log = createLog('<PATH>');
 
+const UV_CHANNEL_OPTIONS = Array.from({ length: 8 }, (_, i) => ({ v: i, t: `UV${i}` }));
+
 const TextureTypes = {
     Normal: 'Normal',
     Color: 'Color',
@@ -101,16 +103,7 @@ const createTextureAttribute = (label: string, attributeName: string, type: stri
             type: 'select',
             args: {
                 type: 'number',
-                options: [
-                    {
-                        v: 0,
-                        t: 'UV0'
-                    },
-                    {
-                        v: 1,
-                        t: 'UV1'
-                    }
-                ]
+                options: UV_CHANNEL_OPTIONS
             },
             reference: `asset:material:${attributeName}MapUv`
         },

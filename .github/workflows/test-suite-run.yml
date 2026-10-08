@@ -2,7 +2,7 @@ name: Test Suite / Run
 
 on:
     pull_request:
-        branches: [main]
+        branches: [main, 'release-*']
         types: [labeled]
     workflow_dispatch:
         inputs:

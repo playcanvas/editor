@@ -10,6 +10,8 @@ import {
     Texture
 } from 'playcanvas';
 
+import { config } from '@/editor/config';
+
 editor.once('load', () => {
     let app;
     let iconsEntity;
@@ -355,7 +357,10 @@ editor.once('load', () => {
                 // Log image loading errors so missing icons don't fail silently
                 console.error(`Failed to load entity icon texture "${textureName}" from`, img.src, event);
             };
-            img.src = `/editor/scene/img/entity-icons/${textureName}.png`;
+
+            // the frontend can be on another origin (e.g. use_local_frontend); without cors the image taints webgl
+            img.crossOrigin = 'anonymous';
+            img.src = `${config.url.frontend}static/img/entity-icons/${textureName}.png`;
         });
 
         editor.on('entities:add', (obj) => {

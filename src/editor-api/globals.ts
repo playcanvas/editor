@@ -136,7 +136,7 @@ const globals: {
     projectId: undefined,
     branchId: undefined,
     homeUrl: '',
-    apiUrl: '',
+    apiUrl: '/api',
     hasLegacyScripts: undefined,
     confirmFn(
         text: string,

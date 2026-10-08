@@ -3,7 +3,7 @@ import filenamify from 'filenamify/browser';
 
 import { bytesToHuman } from '@/common/utils';
 
-import { BaseStore, EMPTY_THUMBNAIL_IMAGE, EMPTY_THUMBNAIL_IMAGE_LARGE, STORE_ITEM_PAGE_SIZE } from './baseStore';
+import { BaseStore, EMPTY_THUMBNAIL_IMAGE, STORE_ITEM_PAGE_SIZE } from './baseStore';
 
 class MyAssetsStore extends BaseStore {
     sortPolicy = 'createdAt';
@@ -64,7 +64,7 @@ class MyAssetsStore extends BaseStore {
     }
 
     _getThumbnailUrl(id: string) {
-        return `/api/assets/${id}/thumbnail/large`;
+        return `${config.url.api}/assets/${id}/thumbnail/large`;
     }
 
     // prepare users assets for the list view
@@ -115,7 +115,7 @@ class MyAssetsStore extends BaseStore {
 
     _prepareViewerUrl(asset: { id: string; file: { filename: string } }) {
         // model viewer with the splat
-        const splatUrl = encodeURIComponent(`/api/assets/${asset.id}/file/${asset.file.filename}`);
+        const splatUrl = encodeURIComponent(`${config.url.api}/assets/${asset.id}/file/${asset.file.filename}`);
         return `/viewer?load=${splatUrl}`;
     }
 
@@ -127,9 +127,9 @@ class MyAssetsStore extends BaseStore {
         name: string;
         modifiedAt?: string;
     }) {
-        let thumbnail = EMPTY_THUMBNAIL_IMAGE_LARGE;
+        let thumbnail = EMPTY_THUMBNAIL_IMAGE;
         if (asset.hasThumbnail) {
-            thumbnail = `/api/assets/${asset.id}/thumbnail/xlarge`;
+            thumbnail = `${config.url.api}/assets/${asset.id}/thumbnail/xlarge`;
         }
 
         const viewerUrl = this._prepareViewerUrl(asset);

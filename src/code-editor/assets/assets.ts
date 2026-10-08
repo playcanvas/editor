@@ -192,13 +192,13 @@ editor.once('load', () => {
     editor.method('assets:virtualPath', assetVirtualPath);
 
     editor.method('assets:realPath', (asset: Observer) => {
-        return `/api/assets/${asset.get('id')}/file/${asset.get('name')}?branchId=${config.self.branch.id}`;
+        return `${config.url.api}/assets/${asset.get('id')}/file/${asset.get('name')}?branchId=${config.self.branch.id}`;
     });
 
     editor.method('assets:getByVirtualPath', (path: string) => assetToVirtualPath.get(path));
 
     // get asset ide path
-    editor.method('assets:idePath', (ide: 'cursor' | 'vscode', asset?: Observer) => {
+    editor.method('assets:idePath', (ide: 'cursor' | 'vscode' | 'antigravity-ide', asset?: Observer) => {
         const assetPath = asset ? `/asset/${asset.get('id')}` : '';
         return `${ide}://playcanvas.playcanvas/project/${config.project.id}${assetPath}`;
     });

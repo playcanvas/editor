@@ -4,6 +4,9 @@ import type { Entity } from '../entity';
 import type { Realtime } from '../realtime';
 
 import type { RealtimeConnection } from './connection';
+import { ensureParentOps } from './ensure-parent-ops';
+import type { Op } from './ensure-parent-ops';
+import { batchRejections } from './rejections';
 
 /**
  * Represents a scene in sharedb
@@ -22,6 +25,8 @@ class RealtimeScene extends Events {
     private _loaded: boolean;
 
     private _evtConnection: any;
+
+    private _onRejected = batchRejections((err, ops) => this._realtime.emit('error:scene', err, this._uniqueId, ops));
 
     /**
      * Constructor
@@ -113,7 +118,14 @@ class RealtimeScene extends Events {
         }
 
         try {
-            this._document.submitOp([op]);
+            const ops = ensureParentOps(this._document.data, op as Op);
+
+            // a callback keeps the rejected op, which the doc 'error' event drops
+            this._document.submitOp(ops, (err: unknown) => {
+                if (err) {
+                    this._onRejected(err, ops);
+                }
+            });
         } catch (err) {
             console.error(err);
             this._realtime.emit('error:scene', err, this._uniqueId);

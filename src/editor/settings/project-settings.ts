@@ -47,7 +47,7 @@ editor.once('load', () => {
     });
 
     // migrations
-    editor.on('settings:project:load', () => {
+    editor.on('settings:project:load', (data) => {
         const history = settings.history.enabled;
         const sync = settings.sync.enabled;
 
@@ -81,6 +81,19 @@ editor.once('load', () => {
             }
             editor.call('console:log:settings', settings, msg);
         }
+        if (
+            !Object.prototype.hasOwnProperty.call(config.project.settings, 'enableGlslTranspilation') &&
+            !Object.prototype.hasOwnProperty.call(data, 'enableGlslTranspilation')
+        ) {
+            const enableGlslTranspilation = Object.prototype.hasOwnProperty.call(
+                config.project.settings,
+                'enableWebGpu'
+            )
+                ? !!settings.get('enableWebGpu')
+                : settings.get('deviceTypes')?.[0] === DEVICETYPE_WEBGPU;
+            settings.set('enableGlslTranspilation', enableGlslTranspilation, undefined, undefined, true);
+        }
+
         if (settings.has('deviceTypes')) {
             const deviceTypes = settings.get('deviceTypes');
             unsetLocal(settings, 'deviceTypes');

@@ -38,7 +38,7 @@ To initialize a local development environment for the Editor Frontend, ensure yo
 3. Build the Editor frontend and start a local web server:
 
     ```sh
-    npm run develop
+    npm run dev
     ```
 
 4. Open the Editor at [playcanvas.com](https://playcanvas.com) and append the query parameter `use_local_frontend` to load the development build:

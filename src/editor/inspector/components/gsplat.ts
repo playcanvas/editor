@@ -45,13 +45,23 @@ const ATTRIBUTES: Attribute[] = [
         }
     },
     {
-        label: 'LOD Falloff',
-        path: 'components.gsplat.lodFalloff',
-        reference: 'gsplat:lodFalloff',
-        type: 'slider',
+        label: 'LOD Base Distance',
+        path: 'components.gsplat.lodBaseDistance',
+        reference: 'gsplat:lodBaseDistance',
+        type: 'number',
         args: {
-            min: 0,
-            max: 8,
+            min: 0.1,
+            step: 0.1,
+            precision: 2
+        }
+    },
+    {
+        label: 'LOD Multiplier',
+        path: 'components.gsplat.lodMultiplier',
+        reference: 'gsplat:lodMultiplier',
+        type: 'number',
+        args: {
+            min: 1.2,
             step: 0.1,
             precision: 2
         }

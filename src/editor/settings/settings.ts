@@ -2,6 +2,10 @@ import { Observer } from '@playcanvas/observer';
 
 import { ObserverSync } from '@/common/observer-sync';
 import { createLog } from '@/common/sentry';
+import { formatter as f } from '@/common/utils';
+import { isSchemaRejection, settingsRejection } from '@/editor/realtime/realtime-error';
+import type { OpComponent } from '@/editor/realtime/realtime-error';
+import { batchRejections } from '@/editor-api/realtime/rejections';
 
 const log = createLog('<PATH>');
 
@@ -25,6 +29,17 @@ editor.once('load', () => {
         });
 
         let doc;
+
+        // a schema rejection names the refused setting; anything else is unexpected, so report it
+        const onRejected = batchRejections((err, ops: OpComponent[]) => {
+            if (!isSchemaRejection(err)) {
+                log.error(err);
+                return;
+            }
+            const [msg] = f.parse(settingsRejection(err, ops, args.name));
+            console.warn(`${msg} (${err instanceof Error ? err.message : err}):`, ops);
+            editor.emit('realtime:settings:error', err, ops, args.name);
+        });
 
         settings.reload = function () {
             const connection = editor.call('realtime:connection');
@@ -64,7 +79,11 @@ editor.once('load', () => {
                         // local -> server
                         settings.sync.on('op', (op) => {
                             if (doc) {
-                                doc.submitOp([op]);
+                                doc.submitOp([op], (err: unknown) => {
+                                    if (err) {
+                                        onRejected(err, [op]);
+                                    }
+                                });
                             }
                         });
                     }

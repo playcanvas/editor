@@ -1,4 +1,5 @@
 import { buildQueryUrl } from '@/common/utils';
+import { SOURCE_MAP_URL } from '@/core/constants';
 import { WorkerClient } from '@/core/worker/worker-client';
 
 const CLASSIC_PARSE_TIMEOUT = 60000;
@@ -97,7 +98,7 @@ editor.once('load', () => {
 
         const postUrl = (asset) => {
             const encodedFileName = encodeURIComponent(asset.get('file.filename'));
-            return buildQueryUrl(`/api/assets/${asset.get('id')}/file/${encodedFileName}`, {
+            return buildQueryUrl(`${config.url.api}/assets/${asset.get('id')}/file/${encodedFileName}`, {
                 branchId: config.self.branch.id
             });
         };
@@ -188,7 +189,10 @@ editor.once('load', () => {
             };
 
             try {
-                workerSourcePromise ??= fetchText(`${config.url.frontend}js/classic-script.worker.js`);
+                // the network-less sandbox can't load a source map, so drop the comment
+                workerSourcePromise ??= fetchText(`${config.url.frontend}js/classic-script.worker.js`).then((t) =>
+                    t.replace(SOURCE_MAP_URL, '')
+                );
                 enginePromise ??= fetchText(config.url.engine);
                 const [workerSource, engine, script] = await Promise.all([
                     workerSourcePromise,
@@ -206,7 +210,9 @@ editor.once('load', () => {
                 const nonce = genGUID();
                 const csp = `default-src 'none'; script-src 'nonce-${nonce}' 'unsafe-eval' blob:; worker-src blob:; connect-src 'none'`;
 
-                // spawn the parser worker from source text (never a url) and relay its result out
+                // spawn the parser worker from source text (never a url) and relay its result out; never
+                // revoke the worker url (webkit then blocks the worker's own blob importScripts), removing
+                // the iframe frees it
                 iframe.srcdoc = /* html */ `<!DOCTYPE html><html><head>
 <meta http-equiv="Content-Security-Policy" content="${csp}">
 </head><body><script nonce="${nonce}">
@@ -214,7 +220,6 @@ onmessage = (e) => {
     const { workerSource, engine, script, port } = e.data;
     const url = URL.createObjectURL(new Blob([workerSource], { type: 'text/javascript' }));
     const worker = new Worker(url);
-    URL.revokeObjectURL(url);
     worker.onmessage = (ev) => { port.postMessage({ result: ev.data }); worker.terminate(); };
     worker.onerror = (ev) => { port.postMessage({ error: ev.message || 'parse error' }); worker.terminate(); };
     worker.postMessage({ engine, script });

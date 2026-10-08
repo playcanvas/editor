@@ -384,6 +384,12 @@ editor.once('load', () => {
             description: `When enabled, the application will try to use WebGPU${editor.projectEngineV2 ? '' : ' (beta)'} if available.`
         },
         {
+            name: 'settings:project:enableGlslTranspilation',
+            title: 'Enable GLSL Shader Transpilation',
+            description:
+                'When enabled, GLSL-only shaders are supported under WebGPU. This adds shader compiler files to published and downloaded builds.'
+        },
+        {
             name: 'settings:project:enableWebGl2',
             title: 'Enable WebGL 2.0',
             description: 'When enabled, the application will try to use WebGL 2.0 if available.'
@@ -735,12 +741,14 @@ editor.once('load', () => {
         {
             name: 'settings:gsplatLodUpdateAngle',
             title: 'gsplatLodUpdateAngle',
-            description: 'Camera rotation in degrees that triggers an LOD update. Set to 0 to disable angle updates.'
+            description:
+                'Camera rotation in degrees that triggers an LOD update. Rotation only affects LOD through the behind penalty, so set to 0 or set the penalty to 1 to disable angle updates.'
         },
         {
             name: 'settings:gsplatLodBehindPenalty',
             title: 'gsplatLodBehindPenalty',
-            description: 'Distance multiplier used for splat nodes behind the camera during LOD selection.'
+            description:
+                'Distance multiplier used for splat nodes behind the camera during LOD selection. 1 means no penalty. Streamed LOD files also load in this order, so higher values load the view in front of the camera first.'
         },
         {
             name: 'settings:gsplatLodUnderfillLimit',
@@ -751,7 +759,13 @@ editor.once('load', () => {
             name: 'settings:gsplatSplatBudget',
             title: 'gsplatSplatBudget',
             description:
-                'Target number of splats rendered across the scene. Non-positive values use the engine default.'
+                'Number of splats rendered across the scene, used as set by the Splat Budget Mode. Set to 0 for no budget.'
+        },
+        {
+            name: 'settings:gsplatSplatBudgetMode',
+            title: 'gsplatSplatBudgetMode',
+            description:
+                'How the splat budget is used. Target raises detail until the budget is used up. Limit lets the LOD distances of each GSplat decide the detail, and only lowers it to fit the budget.'
         },
         {
             name: 'settings:gsplatAlphaClip',
@@ -818,11 +832,6 @@ editor.once('load', () => {
             name: 'settings:gsplatEnableIds',
             title: 'gsplatEnableIds',
             description: 'Store a unique component ID in the Gaussian splat work buffer.'
-        },
-        {
-            name: 'settings:gsplatLodMode',
-            title: 'gsplatLodMode',
-            description: 'Metric used to select Gaussian splat detail within the global budget.'
         },
         {
             name: 'settings:lightingCookieAtlasResolution',

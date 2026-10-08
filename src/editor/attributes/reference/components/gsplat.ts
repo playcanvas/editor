@@ -45,11 +45,19 @@ export const fields: AttributeReference[] = [
         url: 'https://api.playcanvas.com/engine/classes/GSplatComponent.html#lodrangemax'
     },
     {
-        name: 'gsplat:lodFalloff',
-        title: 'lodFalloff',
+        name: 'gsplat:lodBaseDistance',
+        title: 'lodBaseDistance',
         subTitle: '{Number}',
         description:
-            'Controls how strongly detail is concentrated near the camera within the global splat budget. 0 spreads detail evenly.',
-        url: 'https://api.playcanvas.com/engine/classes/GSplatComponent.html#lodfalloff'
+            'Distance of the first LOD transition (LOD 0 to LOD 1). Closer objects use the highest quality LOD. With the Splat Budget Mode set to Limit, these distances decide the detail; with Target, they shape how detail falls off.',
+        url: 'https://api.playcanvas.com/engine/classes/GSplatComponent.html#lodbasedistance'
+    },
+    {
+        name: 'gsplat:lodMultiplier',
+        title: 'lodMultiplier',
+        subTitle: '{Number}',
+        description:
+            'Geometric multiplier between successive LOD distance thresholds. Higher values keep finer detail further from the camera, at a higher memory cost.',
+        url: 'https://api.playcanvas.com/engine/classes/GSplatComponent.html#lodmultiplier'
     }
 ];
