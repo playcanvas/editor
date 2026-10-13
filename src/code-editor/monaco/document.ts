@@ -339,8 +339,21 @@ editor.once('load', () => {
             return;
         }
 
-        // Fetch the dependencies for the asset
-        const deps = await getDependenciesForAsset(asset);
+        // Fetch the whole import chain, not only direct imports, so inherited members resolve
+        const deps = new Set<string>();
+        const queue = [asset];
+        while (queue.length) {
+            for (const path of await getDependenciesForAsset(queue.shift())) {
+                if (path === filePath || deps.has(path)) {
+                    continue;
+                }
+                deps.add(path);
+                const dep = editor.call('assets:getByVirtualPath', path);
+                if (dep) {
+                    queue.push(dep);
+                }
+            }
+        }
 
         const openPaths = Object.values(viewIndex)
             .map(({ view }) => view.uri.path) // ignore the schema
