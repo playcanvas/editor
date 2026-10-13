@@ -19,6 +19,15 @@ const SORTS = [
     ['plays', 'Most played'],
     ['size', 'Size']
 ];
+// home subtitle, picked once per page load (a prompt, like claude code's home, not stats)
+const PROMPTS = [
+    'What are we building today?',
+    'Ready to make something?',
+    'What should we make next?',
+    'Pick up where you left off, or start something new.',
+    'Got an idea for a scene?'
+];
+const PROMPT = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
 const QUALIFIERS = ['name:', 'owner:', 'desc:', 'is:private', 'is:public', 'is:open', 'is:locked'];
 const IS_EMPTY_STATE = !config.project.id; // if no project loaded, CMS is in empty state
 const EMPTY_THUMBNAIL_IMAGE = `${config.url.frontend}static/img/blank-project.webp`;
@@ -349,7 +358,7 @@ editor.once('load', () => {
     navItem('E129', 'Explore', () => window.open(`${config.url.home}/explore/featured`, '_blank'));
     navItem('E232', 'Docs', () => window.open('https://developer.playcanvas.com/', '_blank'));
 
-    text('Recents', 'cms-section', side);
+    const recentsHeader = text('Recents', 'cms-section', side);
     const recentsList = box('cms-side-list', side);
 
     const orgHeader = box('cms-section', side);
@@ -686,6 +695,7 @@ editor.once('load', () => {
                 item.dom.title = p.name;
                 item.on('click', () => openProject(p));
             });
+        recentsHeader.hidden = !recentsList.dom.children.length;
 
         orgList.clear();
         orgs().forEach((org) => {
@@ -705,17 +715,14 @@ editor.once('load', () => {
         const org = orgs().find((o) => o.id === filter);
         orgMenuButton.hidden = !org;
         sectionTitle.hidden = !!org;
+
         if (org) {
             title.text = userName(org);
             subtitle.text = `Organization · ${(projects[org.id] ?? []).length} projects`;
         } else {
+            // counts live on the tabs and storage on the sidebar card, so home gets a prompt
             title.text = `${greeting()}, ${userName(rootUser)}`;
-            const mine = rootProjects().filter((p) => p.owner_id === config.self.id).length;
-            const usage =
-                accountUsage && currentUser === rootUser
-                    ? ` · ${bytesToHuman(accountUsage.total)} of ${bytesToHuman(rootUser.limits.diskAllowance * 1000 * 1000)} storage used`
-                    : '';
-            subtitle.text = waiting() ? 'Loading projects…' : `${mine} projects of yours${usage}`;
+            subtitle.text = PROMPT;
         }
         banner.hidden = IS_EMPTY_STATE || !org;
     };
@@ -947,7 +954,7 @@ editor.once('load', () => {
             more.append(new Element({ class: 'cms-spin' }));
             text(`Loading more · showing ${shown} of ${rows.length}`, null, more);
         } else {
-            text(`All ${rows.length} projects shown`, null, more);
+            text(rows.length === 1 ? '1 project shown' : `All ${rows.length} projects shown`, null, more);
         }
     };
 
@@ -1001,6 +1008,9 @@ editor.once('load', () => {
             return;
         }
         renderSidebar();
+
+        // nothing to browse yet: the greeting and actions take the centre, like claude code's start screen
+        rightPanel.class[!loading && !isOrg(filter) && !rootProjects().length ? 'add' : 'remove']('start');
         renderHead();
         renderWelcome();
         renderTools();

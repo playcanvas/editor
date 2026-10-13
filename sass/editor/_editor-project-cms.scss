@@ -577,9 +577,48 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
     }
 
     .cms-subtitle {
-        margin-top: 4px;
+        margin-top: 6px;
         color: $text-dark;
-        font-size: 13px;
+        font-size: 14px;
+    }
+
+    // start screen: no projects yet, so the greeting and actions sit centred
+    .cms-col.start {
+        min-height: 100%;
+        justify-content: center;
+
+        > .cms-head {
+            flex-direction: column;
+            gap: 24px;
+            margin: 0 0 12vh;
+            text-align: center;
+
+            > .cms-head-text {
+                flex: none;
+                align-items: center;
+            }
+
+            .cms-title {
+                font-size: 36px;
+                line-height: 44px;
+            }
+
+            .cms-subtitle {
+                font-size: 15px;
+            }
+
+            > .cms-head-actions {
+                flex-direction: row-reverse;
+            }
+        }
+
+        > .cms-welcome,
+        > .cms-heading,
+        > .cms-toolbar,
+        > .cms-list,
+        > .cms-more {
+            display: none;
+        }
     }
 
     .cms-head-actions {
