@@ -42,7 +42,7 @@ editor.once('load', () => {
     });
 
     // picked asset
-    assetsPanel.on('select', (asset: Observer) => {
+    const pick = (asset: Observer) => {
         if (overlay.hidden) {
             return;
         }
@@ -78,7 +78,15 @@ editor.once('load', () => {
             // hide picker
             overlay.hidden = true;
         }
+    };
+
+    // a click picks; arrow keys only move through the list, and Enter picks
+    assetsPanel.on('select', (asset: Observer, viaKeyboard: boolean) => {
+        if (!viaKeyboard) {
+            pick(asset);
+        }
     });
+    assetsPanel.on('activate', pick);
 
     assetsPanel.on('deselect', (asset: Observer) => {
         if (overlay.hidden || !asset) {
