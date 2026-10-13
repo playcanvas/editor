@@ -1,12 +1,11 @@
-const TYPES: Record<string, string> = { name: 'string', description: 'string', private: 'boolean', owner: 'number' };
+const TYPES: Record<string, string> = { name: 'string', description: 'string', private: 'boolean', owner: 'string' };
 
 const ALLOWED = {
     create: ['name', 'description', 'private', 'owner'],
     update: ['name', 'description', 'private']
 };
 
-const valid = (key: string, value: unknown) =>
-    key === 'owner' ? Number.isInteger(value) : typeof value === TYPES[key];
+const valid = (key: string, value: unknown) => typeof value === TYPES[key];
 
 /**
  * Picks the project fields an agent may set over MCP. Anything else (forks, settings, images,
@@ -28,7 +27,7 @@ const pickProjectFields = (input: Record<string, unknown> | null | undefined, mo
     const invalid = entries.filter(([key, value]) => !valid(key, value)).map(([key]) => key);
     if (invalid.length) {
         return {
-            error: `Invalid project field(s): ${invalid.map((key) => `${key} (expected ${key === 'owner' ? 'integer' : TYPES[key]})`).join(', ')}.`
+            error: `Invalid project field(s): ${invalid.map((key) => `${key} (expected ${TYPES[key]})`).join(', ')}.`
         };
     }
 
