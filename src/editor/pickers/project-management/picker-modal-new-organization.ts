@@ -63,7 +63,7 @@ editor.once('load', () => {
     });
     panel.header.append(btnClose);
 
-    const orgNameInput = buildFormGroup('Organization Name', 'e.g. PlayCanvas Ltd');
+    const orgNameInput = buildFormGroup('Organization name', 'e.g. PlayCanvas Ltd');
     const orgIdInput = buildFormGroup(
         'Organization ID',
         'Your organization will be available at https://playcanvas.com/<organization-id>'
@@ -80,12 +80,21 @@ editor.once('load', () => {
         validateInputs();
     });
 
+    const footer = new Container({ class: 'new-organization-footer' });
+    panel.append(footer);
+
+    const cancelButton = new Button({ class: 'cancel-org-button', text: 'Cancel' });
+    cancelButton.on('click', () => {
+        overlay.hidden = true;
+    });
+    footer.append(cancelButton);
+
     const createButton = new Button({
         class: 'create-org-button',
-        text: 'CREATE',
+        text: 'Create organization',
         enabled: false
     });
-    panel.append(createButton);
+    footer.append(createButton);
 
     createButton.on('click', () => {
         const newOrganization = {

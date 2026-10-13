@@ -18,11 +18,14 @@ const BLOCKED_HINTS: Record<string, string> = {
  * Create the MCP button and its connect popover, and reconnect if the page was connected
  * before it reloaded. Callers place the returned button.
  *
- * @param placement - Open the popover to the right of the button (toolbar) or below it (header).
+ * @param placement - Open the popover to the right of the button, centered (toolbar), or above the projects page account row it sits in.
  * @returns The MCP button.
  */
-const createMcpButton = (placement: 'right' | 'below') => {
+const createMcpButton = (placement: 'right' | 'account') => {
     const root = editor.call('layout.root');
+
+    // account = the projects page account row: sentence case, no collapse toggle
+    const account = placement === 'account';
 
     const button = new Button({ class: ['pc-icon', 'mcp'] });
     button.dom.appendChild(new DOMParser().parseFromString(MCP_ICON, 'image/svg+xml').documentElement);
@@ -30,15 +33,15 @@ const createMcpButton = (placement: 'right' | 'below') => {
     const tooltip = TooltipHandle.attach({
         target: button.dom,
         text: 'MCP Server',
-        align: placement === 'below' ? 'top' : 'left',
+        align: account ? 'bottom' : 'left',
         root
     });
 
     // connect popover
     const popover = new Panel({
         class: ['mcp-popover', `mcp-popover-${placement}`],
-        headerText: 'MCP SERVER',
-        collapsible: true,
+        headerText: account ? 'MCP server' : 'MCP SERVER',
+        collapsible: !account,
         hidden: true
     });
 
@@ -52,7 +55,7 @@ const createMcpButton = (placement: 'right' | 'below') => {
     portRow.append(new Label({ class: 'mcp-row-label', text: 'Port' }));
     portRow.append(portField);
 
-    const toggle = new Button({ class: 'mcp-toggle', text: 'CONNECT' });
+    const toggle = new Button({ class: 'mcp-toggle' });
 
     const hint = new Label({ class: 'mcp-hint', hidden: true });
 
@@ -76,7 +79,9 @@ const createMcpButton = (placement: 'right' | 'below') => {
         }
         button.class[state === 'connected' ? 'add' : 'remove']('active');
         portField.enabled = state === 'disconnected';
-        toggle.text = state === 'connecting' ? 'CANCEL' : state === 'connected' ? 'DISCONNECT' : 'CONNECT';
+        const label = state === 'connecting' ? 'Cancel' : state === 'connected' ? 'Disconnect' : 'Connect';
+        toggle.text = account ? label : label.toUpperCase();
+        toggle.class[account && state === 'disconnected' ? 'add' : 'remove']('primary');
         updateHint();
     };
     render(editor.call('mcp:status') || 'disconnected');
@@ -110,9 +115,12 @@ const createMcpButton = (placement: 'right' | 'below') => {
         }
         popover.hidden = false;
         const rect = button.dom.getBoundingClientRect();
-        if (placement === 'below') {
-            popover.dom.style.left = `${Math.max(4, rect.right - popover.dom.offsetWidth)}px`;
-            popover.dom.style.top = `${rect.bottom + 4}px`;
+        if (account) {
+            // opens above the account row the button sits in and spans it, like the account menu
+            const row = button.dom.parentElement.getBoundingClientRect();
+            popover.dom.style.width = `${row.width}px`;
+            popover.dom.style.left = `${row.left}px`;
+            popover.dom.style.top = `${Math.max(4, row.top - popover.dom.offsetHeight - 4)}px`;
         } else {
             const top = rect.top + rect.height / 2 - popover.dom.offsetHeight / 2;
             popover.dom.style.left = `${rect.right + 4}px`;
