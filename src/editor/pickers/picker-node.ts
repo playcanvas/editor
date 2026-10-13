@@ -1,12 +1,17 @@
-import { LegacyOverlay } from '@/common/ui/overlay';
+import { Overlay } from '@playcanvas/pcui';
+
+import { unsetObserver } from '@/editor/driver/observer-unset';
 
 import { ModelAssetInspectorMeshInstances } from '../inspector/assets/model-mesh-instances';
 
+import { addSidePanelOverlayClose } from './side-panel-overlay';
+
 editor.once('load', () => {
-    const overlay = new LegacyOverlay();
-    overlay.class.add('picker-node');
-    overlay.center = false;
-    overlay.hidden = true;
+    const overlay = new Overlay({
+        class: 'picker-node',
+        hidden: true
+    });
+    addSidePanelOverlayClose(overlay);
 
     const root = editor.call('layout.root');
     root.append(overlay);
@@ -51,7 +56,6 @@ editor.once('load', () => {
         const actions = [];
 
         for (let i = 0, len = currentEntities.length; i < len; i++) {
-
             const history = currentEntities[i].history.enabled;
             currentEntities[i].history.enabled = false;
 
@@ -103,7 +107,7 @@ editor.once('load', () => {
                     item.history.enabled = false;
 
                     if (actions[i].undo === undefined) {
-                        item.unset(actions[i].path);
+                        unsetObserver(item, actions[i].path);
                     } else {
                         item.set(actions[i].path, actions[i].undo);
                     }
@@ -138,7 +142,6 @@ editor.once('load', () => {
 
         return overrideCount && overrideCount === len;
     };
-
 
     // open asset picker
     editor.method('picker:node', (entities) => {
@@ -188,9 +191,7 @@ editor.once('load', () => {
                 evtModelEntityPermissions.unbind();
             });
         });
-
     });
-
 
     // close asset picker
     editor.method('picker:node:close', () => {

@@ -2,10 +2,12 @@ editor.once('load', () => {
     // Check and, if necessary, update the assigned coords of each node
     // so that there is proper distance between them vertically
     class VerticalConsistency {
+        allNodes: Record<string, unknown>[];
+
+        xToMaxY: Record<number, number> = {};
+
         constructor(idToNode: Record<string, Record<string, unknown>>) {
             this.allNodes = Object.values(idToNode);
-
-            this.xToMaxY = {};
         }
 
         run() {
@@ -71,7 +73,7 @@ editor.once('load', () => {
         minDiffInBranch(h: Record<string, unknown>, prevNode: Record<string, unknown>) {
             const diff = this.helper('minBetweenNodes');
 
-            const connected = h.child.find(edge => edge.child === prevNode.id);
+            const connected = h.child.find((edge) => edge.child === prevNode.id);
 
             return connected ? diff.small : diff.large;
         }

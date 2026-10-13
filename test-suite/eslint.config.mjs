@@ -5,6 +5,9 @@ import globals from 'globals';
 export default [
     ...playcanvasConfig,
     {
+        ignores: ['test/fixtures/files/ammo/**']
+    },
+    {
         files: ['**/*.ts'],
         languageOptions: {
             parser: typescriptParser,

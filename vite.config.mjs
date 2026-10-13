@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
+import { sentryEsbuildPlugin } from '@sentry/esbuild-plugin';
 import autoprefixer from 'autoprefixer';
 import { context } from 'esbuild';
 import { polyfillNode } from 'esbuild-plugin-polyfill-node';
@@ -13,6 +14,24 @@ import { defineConfig } from 'vite';
 
 const production = process.env.NODE_ENV === 'production';
 
+const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+
+// must match the release the sentry client reports under (see src/common/sentry.ts)
+const SENTRY_RELEASE = `playcanvas-editor@${pkg.version}`;
+
+// sourcemap upload is only attempted for production builds that carry the full sentry target
+// (url, org, project, token) in the environment, so local and watch builds never contact sentry.
+// telemetry is off so the plugin never reports to sentry.io
+const SENTRY_UPLOAD =
+    production &&
+    ['SENTRY_URL', 'SENTRY_ORG', 'SENTRY_PROJECT', 'SENTRY_AUTH_TOKEN'].every((k) => Boolean(process.env[k]));
+
+// createLog('<PATH>') in page source is filled at bundle time with the file's directory relative to
+// src (e.g. editor/pickers/version-control), so modules never hand-write their own sentry source tag
+const SRC_DIR = path.resolve('src');
+const SOURCE_PLACEHOLDER = '<PATH>';
+const SOURCE_PLACEHOLDER_RE = new RegExp(`createLog\\((['"])${SOURCE_PLACEHOLDER}\\1\\)`, 'g');
+
 // rollup requires an input — these let us feed it an empty module so esbuild does the real work
 const VIRTUAL_INPUT = 'virtual:empty';
 const VIRTUAL_RESOLVED = '\0virtual:empty';
@@ -24,12 +43,16 @@ const STATIC_ASSETS = [
     { src: 'src/json/monaco-themes', dest: 'dist/json/monaco-themes' },
     { src: 'static/json', dest: 'dist/static/json' },
     { src: 'static/img', dest: 'dist/static/img' },
+    { src: 'static/fonts', dest: 'dist/static/fonts' },
     { src: 'src/wasm/lodepng', dest: 'dist/wasm/lodepng' },
     { src: 'src/wasm/codecs', dest: 'dist/wasm/codecs' },
+    { src: 'node_modules/@playcanvas/msdfgen-wasm/dist/msdfgen.wasm', dest: 'dist/js/msdfgen.wasm' },
     { src: 'node_modules/@playcanvas/attribute-parser/dist/libs.d.ts', dest: 'dist/types/libs.d.ts' }
 ];
 
 const STUBBED_NODE_MODULES = ['worker_threads', 'path', 'fs'];
+// the font-generate worker bundles msdfgen-wasm, whose node-only branches pull these in
+const WORKER_STUBBED_NODE_MODULES = [...STUBBED_NODE_MODULES, 'module', 'crypto', 'url'];
 
 /**
  * Formats a duration in milliseconds to a human-readable string.
@@ -49,17 +72,22 @@ const color = {
      * @param {string} s - Text to wrap.
      * @returns {string} Bold ANSI string.
      */
-    bold: s => `\x1b[1m${s}\x1b[22m`,
+    bold: (s) => `\x1b[1m${s}\x1b[22m`,
     /**
      * @param {string} s - Text to wrap.
      * @returns {string} Cyan ANSI string.
      */
-    cyan: s => `\x1b[36m${s}\x1b[39m`,
+    cyan: (s) => `\x1b[36m${s}\x1b[39m`,
     /**
      * @param {string} s - Text to wrap.
      * @returns {string} Green ANSI string.
      */
-    green: s => `\x1b[32m${s}\x1b[39m`
+    green: (s) => `\x1b[32m${s}\x1b[39m`,
+    /**
+     * @param {string} s - Text to wrap.
+     * @returns {string} Yellow ANSI string.
+     */
+    yellow: (s) => `\x1b[33m${s}\x1b[39m`
 };
 
 /**
@@ -90,24 +118,26 @@ const SASS_OUT_DIR = 'dist/css';
  * Compiles all top-level .scss files in SASS_DIR through sass-embedded + postcss/autoprefixer.
  */
 const compileSass = async () => {
-    const files = fs.readdirSync(SASS_DIR).filter(f => f.endsWith('.scss'));
+    const files = fs.readdirSync(SASS_DIR).filter((f) => f.endsWith('.scss'));
     const processor = postcss([autoprefixer]);
 
-    await Promise.all(files.map(async (file) => {
-        const src = `${SASS_DIR}/${file}`;
-        const dest = `${SASS_OUT_DIR}/${file.replace('.scss', '.css')}`;
+    await Promise.all(
+        files.map(async (file) => {
+            const src = `${SASS_DIR}/${file}`;
+            const dest = `${SASS_OUT_DIR}/${file.replace('.scss', '.css')}`;
 
-        console.log(color.cyan(`${color.bold(src)} \u2192 ${color.bold(dest)}...`));
-        const t0 = performance.now();
+            console.log(color.cyan(`${color.bold(src)} \u2192 ${color.bold(dest)}...`));
+            const t0 = performance.now();
 
-        const compiled = await sass.compileAsync(src, { style: 'compressed', logger: sass.Logger.silent });
-        const result = await processor.process(compiled.css, { from: undefined });
+            const compiled = await sass.compileAsync(src, { style: 'compressed', logger: sass.Logger.silent });
+            const result = await processor.process(compiled.css, { from: undefined });
 
-        fs.mkdirSync(SASS_OUT_DIR, { recursive: true });
-        fs.writeFileSync(dest, result.css);
+            fs.mkdirSync(SASS_OUT_DIR, { recursive: true });
+            fs.writeFileSync(dest, result.css);
 
-        console.log(color.green(`created ${color.bold(dest)} in ${color.bold(ts(performance.now() - t0))}`));
-    }));
+            console.log(color.green(`created ${color.bold(dest)} in ${color.bold(ts(performance.now() - t0))}`));
+        })
+    );
 };
 
 /**
@@ -116,11 +146,11 @@ const compileSass = async () => {
  * @param {string[]} modules - Module names to stub.
  * @returns {object} An esbuild plugin.
  */
-const emptyNodeModulesPlugin = modules => ({
+const emptyNodeModulesPlugin = (modules) => ({
     name: 'empty-node-modules',
     setup(build) {
         const filter = new RegExp(`^(node:)?(${modules.join('|')})$`);
-        build.onResolve({ filter }, args => ({
+        build.onResolve({ filter }, (args) => ({
             path: args.path,
             namespace: 'empty-node-module'
         }));
@@ -132,8 +162,9 @@ const emptyNodeModulesPlugin = modules => ({
 });
 
 /**
- * Replaces `.font-regular` with `.font-regular-disabled` in source files
- * to prevent PCUI font loading during bundling.
+ * Bundle-time source rewrites for page code: swaps `.font-regular` for `.font-regular-disabled` to
+ * prevent PCUI font loading, and fills `createLog('<PATH>')` with the file's directory relative to
+ * src so each module's sentry `source` tag tracks its location instead of being hand-written.
  *
  * @returns {object} An esbuild plugin.
  */
@@ -142,15 +173,23 @@ const replacePlugin = () => ({
     setup(build) {
         build.onLoad({ filter: /\.[jt]sx?$/ }, async (args) => {
             // skip deps and standalone bundles that don't use pcui fonts
-            if (args.path.includes('node_modules') || args.path.includes('/workers/') || args.path.includes('/plugins/') || args.path.includes('/sw/')) {
+            if (
+                args.path.includes('node_modules') ||
+                args.path.includes('/workers/') ||
+                args.path.includes('/plugins/') ||
+                args.path.includes('/sw/')
+            ) {
                 return;
             }
             const src = await fs.promises.readFile(args.path, 'utf8');
-            if (!src.includes('.font-regular')) {
+            if (!src.includes('.font-regular') && !src.includes(SOURCE_PLACEHOLDER)) {
                 return;
             }
+            const dir = path.dirname(path.relative(SRC_DIR, args.path)).split(path.sep).join('/');
             return {
-                contents: src.replaceAll('.font-regular', '.font-regular-disabled'),
+                contents: src
+                    .replaceAll('.font-regular', '.font-regular-disabled')
+                    .replace(SOURCE_PLACEHOLDER_RE, `createLog('${dir}')`),
                 loader: path.extname(args.path).slice(1)
             };
         });
@@ -163,20 +202,20 @@ const replacePlugin = () => ({
  * @param {Record<string, string>} globals - Map of module name to global variable expression.
  * @returns {object} An esbuild plugin.
  */
-const globalExternalsPlugin = globals => ({
+const globalExternalsPlugin = (globals) => ({
     name: 'global-externals',
     setup(build) {
         const filter = new RegExp(
             `^(${Object.keys(globals)
-            .map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-            .join('|')})$`
+                .map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+                .join('|')})$`
         );
         // redirect matched imports to a synthetic module that re-exports the global
-        build.onResolve({ filter }, args => ({
+        build.onResolve({ filter }, (args) => ({
             path: args.path,
             namespace: 'global-external'
         }));
-        build.onLoad({ filter: /.*/, namespace: 'global-external' }, args => ({
+        build.onLoad({ filter: /.*/, namespace: 'global-external' }, (args) => ({
             contents: `module.exports = ${globals[args.path]};`,
             loader: 'js'
         }));
@@ -212,7 +251,47 @@ const watchLogPlugin = (input, output) => ({
     }
 });
 
+/**
+ * Adds the sentry plugin to an esbuild config so its output gets a debug id and its js + sourcemap
+ * are uploaded, letting sentry resolve minified frames back to src. Scoped to the target's own
+ * output so each build uploads only its files.
+ *
+ * @param {BuildOptions} config - The esbuild config.
+ * @returns {BuildOptions} The config with the sentry plugin appended when uploading is enabled.
+ */
+const withSentry = (config) => {
+    if (!SENTRY_UPLOAD) {
+        return config;
+    }
+    const assets = config.outfile ? [config.outfile, `${config.outfile}.map`] : [`${config.outdir}/**`];
+    const plugin = sentryEsbuildPlugin({
+        url: process.env.SENTRY_URL,
+        org: process.env.SENTRY_ORG,
+        project: process.env.SENTRY_PROJECT,
+        authToken: process.env.SENTRY_AUTH_TOKEN,
+        telemetry: false,
+        debug: Boolean(process.env.SENTRY_DEBUG),
+        release: {
+            name: SENTRY_RELEASE,
+            dist: process.env.SENTRY_DIST || undefined,
+            setCommits: false,
+            deploy: false
+        },
+        sourcemaps: { assets },
+        // a sentry outage must not block an editor release
+        errorHandler: (err) => console.warn(color.yellow(`sentry upload failed for ${assets[0]}: ${err.message}`))
+    });
+    // the plugin wraps each entry in a debug-id proxy module that re-exports a default our entries never
+    // define; esbuild warns about it on every target, so silence just that rule
+    return {
+        ...config,
+        plugins: [...(config.plugins || []), plugin],
+        logOverride: { ...(config.logOverride || {}), 'import-is-undefined': 'silent' }
+    };
+};
+
 const stubNodeBuiltins = emptyNodeModulesPlugin(STUBBED_NODE_MODULES);
+const stubWorkerNodeBuiltins = emptyNodeModulesPlugin(WORKER_STUBBED_NODE_MODULES);
 
 const pagePlugins = [stubNodeBuiltins, replacePlugin(), polyfillNode()];
 
@@ -275,7 +354,7 @@ const PAGE_TARGETS = [
 
 // auto-discover plugin/worker/sw entries from their directories
 /** @type {BuildOptions[]} */
-const PLUGIN_TARGETS = fs.readdirSync('src/plugins').map(file => ({
+const PLUGIN_TARGETS = fs.readdirSync('src/plugins').map((file) => ({
     ...shared,
     entryPoints: [`src/plugins/${file}`],
     outfile: `dist/js/plugins/${file.replace(/\.ts$/, '.js')}`,
@@ -284,16 +363,22 @@ const PLUGIN_TARGETS = fs.readdirSync('src/plugins').map(file => ({
 }));
 
 /** @type {BuildOptions[]} */
-const WORKER_TARGETS = fs.readdirSync('src/workers').map(file => ({
-    ...shared,
-    entryPoints: [`src/workers/${file}`],
-    outfile: `dist/js/${file.replace(/\.ts$/, '.js')}`,
-    format: /** @type {const} */ ('esm'),
-    plugins: [stubNodeBuiltins]
-}));
+const WORKER_TARGETS = fs.readdirSync('src/workers').map((file) => {
+    // the font worker bundles msdfgen-wasm which references import.meta.url; workers load as
+    // classic scripts so define it away (to the worker url) and stub its node-only deps
+    const isFont = file.startsWith('font-generate');
+    return {
+        ...shared,
+        entryPoints: [`src/workers/${file}`],
+        outfile: `dist/js/${file.replace(/\.ts$/, '.js')}`,
+        format: /** @type {const} */ ('esm'),
+        plugins: [isFont ? stubWorkerNodeBuiltins : stubNodeBuiltins],
+        define: isFont ? { ...shared.define, 'import.meta.url': 'self.location.href' } : shared.define
+    };
+});
 
 /** @type {BuildOptions[]} */
-const SERVICE_WORKER_TARGETS = fs.readdirSync('src/sw').map(file => ({
+const SERVICE_WORKER_TARGETS = fs.readdirSync('src/sw').map((file) => ({
     ...shared,
     entryPoints: [`src/sw/${file}`],
     outfile: `dist/js/${file.replace(/\.ts$/, '.js')}`,
@@ -380,44 +465,50 @@ const esbuildBundlePlugin = () => {
             // so we can print the summary after all initial builds are done
             const firstBuildDone = [];
 
-            const results = await Promise.all(configs.map(async (config) => {
-                const input = config.entryPoints[0];
-                const output = /** @type {string} */ (config.outfile || config.outdir);
-                const existing = config.plugins || [];
+            const results = await Promise.all(
+                configs.map(async (config) => {
+                    const input = config.entryPoints[0];
+                    const output = /** @type {string} */ (config.outfile || config.outdir);
+                    const existing = config.plugins || [];
 
-                if (isWatch) {
-                    // ctx.watch() resolves immediately — use a one-shot onEnd to track completion
-                    let resolveFirst;
-                    firstBuildDone.push(new Promise((r) => {
-                        resolveFirst = r;
-                    }));
-                    const onFirstBuild = {
-                        name: 'first-build-done',
-                        setup(build) {
-                            let fired = false;
-                            build.onEnd(() => {
-                                if (!fired) {
-                                    fired = true;
-                                    resolveFirst();
-                                }
-                            });
-                        }
-                    };
-                    const cfg = { ...config, plugins: [...existing, watchLogPlugin(input, output), onFirstBuild] };
-                    const ctx = await context(cfg);
-                    await ctx.watch();
+                    if (isWatch) {
+                        // ctx.watch() resolves immediately — use a one-shot onEnd to track completion
+                        let resolveFirst;
+                        firstBuildDone.push(
+                            new Promise((r) => {
+                                resolveFirst = r;
+                            })
+                        );
+                        const onFirstBuild = {
+                            name: 'first-build-done',
+                            setup(build) {
+                                let fired = false;
+                                build.onEnd(() => {
+                                    if (!fired) {
+                                        fired = true;
+                                        resolveFirst();
+                                    }
+                                });
+                            }
+                        };
+                        const cfg = { ...config, plugins: [...existing, watchLogPlugin(input, output), onFirstBuild] };
+                        const ctx = await context(cfg);
+                        await ctx.watch();
+                        return ctx;
+                    }
+
+                    // production: one-shot build then dispose
+                    const ctx = await context(withSentry(config));
+                    console.log(color.cyan(`${color.bold(input)} \u2192 ${color.bold(output)}...`));
+                    const bt = performance.now();
+                    await ctx.rebuild();
+                    await ctx.dispose();
+                    console.log(
+                        color.green(`created ${color.bold(output)} in ${color.bold(ts(performance.now() - bt))}`)
+                    );
                     return ctx;
-                }
-
-                // production: one-shot build then dispose
-                const ctx = await context(config);
-                console.log(color.cyan(`${color.bold(input)} \u2192 ${color.bold(output)}...`));
-                const bt = performance.now();
-                await ctx.rebuild();
-                await ctx.dispose();
-                console.log(color.green(`created ${color.bold(output)} in ${color.bold(ts(performance.now() - bt))}`));
-                return ctx;
-            }));
+                })
+            );
 
             // wait for sass + all initial watch builds before printing summary
             if (isWatch) {
@@ -447,8 +538,10 @@ const esbuildBundlePlugin = () => {
                 // deployment URL sends users to the editor with the correct
                 // use_local_frontend query parameter for this branch.
                 if (process.env.VERCEL) {
+                    const owner = (process.env.VERCEL_GIT_REPO_OWNER || 'playcanvas').toLowerCase();
                     const branch = process.env.VERCEL_GIT_COMMIT_REF || 'main';
-                    const redirectUrl = `https://playcanvas.com/editor?use_local_frontend=branch:${branch}`;
+                    const query = new URLSearchParams({ use_local_frontend: `${owner}:${branch}` });
+                    const redirectUrl = `https://playcanvas.com/editor?${query}`;
                     const html = [
                         '<!DOCTYPE html>',
                         '<html><head>',
@@ -494,6 +587,12 @@ export default defineConfig({
                 defaultHandler(warning);
             }
         }
+    },
+    preview: {
+        host: '0.0.0.0',
+        port: 3487,
+        strictPort: true,
+        cors: true
     },
     plugins: [virtualEmptyPlugin(), esbuildBundlePlugin()]
 });

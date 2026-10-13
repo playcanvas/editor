@@ -73,7 +73,6 @@ editor.once('load', () => {
         editor.emit('picker:fuzzy:close');
     });
 
-
     // when an asset is selected
     // put it on the front of the stack
     editor.on('select:asset', (asset: Observer) => {

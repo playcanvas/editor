@@ -35,6 +35,7 @@ class SpriteAssetInspectorPreview extends AssetInspectorPreviewBase {
             useDevicePixelRatio: true
         });
         this.append(this._preview);
+        this._previewElement = this._preview.dom as HTMLElement;
 
         this._playButton = new Button({ icon: 'E286', class: CLASS_BUTTON });
         this.append(this._playButton);
@@ -54,7 +55,6 @@ class SpriteAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
         this._renderFrame = requestAnimationFrame(this._renderPreview.bind(this));
     }
-
 
     _renderPreview() {
         if (this._renderFrame) {
@@ -100,7 +100,11 @@ class SpriteAssetInspectorPreview extends AssetInspectorPreviewBase {
 
     link(assets: Observer[]) {
         super.link();
-        this._previewRenderer = new SpriteThumbnailRenderer(assets[0], this._preview.dom as HTMLCanvasElement, editor.call('assets:raw'));
+        this._previewRenderer = new SpriteThumbnailRenderer(
+            assets[0],
+            this._preview.dom as HTMLCanvasElement,
+            editor.call('assets:raw')
+        );
         this._spriteFrames = assets[0].get('data.frameKeys').length;
         this._queueRender();
     }

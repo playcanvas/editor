@@ -1,9 +1,18 @@
 import { ObserverHistory } from '@playcanvas/observer';
-import { DEVICETYPE_WEBGL2, DEVICETYPE_WEBGPU, LAYERID_WORLD, LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE, LAYERID_UI, script } from 'playcanvas';
+import {
+    DEVICETYPE_WEBGL2,
+    DEVICETYPE_WEBGPU,
+    LAYERID_WORLD,
+    LAYERID_DEPTH,
+    LAYERID_SKYBOX,
+    LAYERID_IMMEDIATE,
+    LAYERID_UI,
+    script
+} from 'playcanvas';
 
+import { unsetLocal } from '@/common/observer-unset';
 import { deepCopy, formatter as f, insert, remove, set, unset } from '@/common/utils';
 import { config } from '@/editor/config';
-
 
 editor.once('load', () => {
     const schema = editor.api.globals.schema;
@@ -38,18 +47,18 @@ editor.once('load', () => {
     });
 
     // migrations
-    editor.on('settings:project:load', () => {
+    editor.on('settings:project:load', (data) => {
         const history = settings.history.enabled;
         const sync = settings.sync.enabled;
 
         settings.history.enabled = false;
         settings.sync.enabled = editor.call('permissions:write');
 
-        if (!config.project.settings.hasOwnProperty('engineV2')) {
+        if (!Object.prototype.hasOwnProperty.call(config.project.settings, 'engineV2')) {
             settings.set('engineV2', false, undefined, undefined, true);
         }
 
-        if (config.project.settings.hasOwnProperty('useLegacyScripts')) {
+        if (Object.prototype.hasOwnProperty.call(config.project.settings, 'useLegacyScripts')) {
             if (settings.get('useLegacyScripts')) {
                 settings.set('useLegacyScripts', false);
                 const msg = `The ${f.path('useLegacyScripts')} project setting has been removed`;
@@ -65,16 +74,29 @@ editor.once('load', () => {
             const enableWebGl2 = settings.get('preferWebGl2');
             const oldEnableWebGl2 = settings.get('enableWebGl2');
             settings.set('enableWebGl2', enableWebGl2);
-            settings.unset('preferWebGl2');
+            unsetLocal(settings, 'preferWebGl2');
             let msg = `The ${f.path('preferWebGl2')} project setting has been removed`;
             if (oldEnableWebGl2 !== enableWebGl2) {
                 msg += `. Setting project setting ${f.path('enableWebGl2')} from ${f.value(oldEnableWebGl2)} to ${f.value(enableWebGl2)}`;
             }
             editor.call('console:log:settings', settings, msg);
         }
+        if (
+            !Object.prototype.hasOwnProperty.call(config.project.settings, 'enableGlslTranspilation') &&
+            !Object.prototype.hasOwnProperty.call(data, 'enableGlslTranspilation')
+        ) {
+            const enableGlslTranspilation = Object.prototype.hasOwnProperty.call(
+                config.project.settings,
+                'enableWebGpu'
+            )
+                ? !!settings.get('enableWebGpu')
+                : settings.get('deviceTypes')?.[0] === DEVICETYPE_WEBGPU;
+            settings.set('enableGlslTranspilation', enableGlslTranspilation, undefined, undefined, true);
+        }
+
         if (settings.has('deviceTypes')) {
             const deviceTypes = settings.get('deviceTypes');
-            settings.unset('deviceTypes');
+            unsetLocal(settings, 'deviceTypes');
             let msg = `The ${f.path('deviceTypes')} project setting has been removed`;
 
             if (deviceTypes.length) {
@@ -194,7 +216,7 @@ editor.once('load', () => {
         }
         if (settings.has('useLegacyAudio')) {
             const useLegacyAudio = settings.get('useLegacyAudio');
-            settings.unset('useLegacyAudio');
+            unsetLocal(settings, 'useLegacyAudio');
             if (useLegacyAudio) {
                 const msg = `The ${f.path('useLegacyAudio')} project setting has been removed`;
                 editor.call('console:log:settings', settings, msg);

@@ -13,11 +13,10 @@ self.pc = {
             });
         },
 
-        create: function () {
-            this.name = arguments[0];
+        create: function (...args: unknown[]) {
+            this.name = args[0];
         }
     },
-
 
     // mock methods that might appear outside of script definitions
     extend: function (obj: Record<string, unknown>, other: Record<string, unknown>) {
@@ -29,11 +28,19 @@ self.pc = {
     },
 
     posteffect: {
-        PostEffect: function () {}
+        PostEffect: function () {
+            /* mock constructor */
+        }
     }
 };
 
-function onReadyStateChange(method: string, url: string, xhr: XMLHttpRequest, success: () => void, error: (methodOrErr: string | Error, url?: string, xhr?: XMLHttpRequest) => void) {
+function onReadyStateChange(
+    method: string,
+    url: string,
+    xhr: XMLHttpRequest,
+    success: () => void,
+    error: (methodOrErr: string | Error, url?: string, xhr?: XMLHttpRequest) => void
+) {
     if (xhr.readyState === 4) {
         switch (xhr.status) {
             case 0: {
@@ -56,11 +63,17 @@ function onReadyStateChange(method: string, url: string, xhr: XMLHttpRequest, su
     }
 }
 
-function onSuccess(method: string, url: string, xhr: XMLHttpRequest, success: () => void, error: (methodOrErr: string | Error, url?: string, xhr?: XMLHttpRequest) => void) {
+function onSuccess(
+    method: string,
+    url: string,
+    xhr: XMLHttpRequest,
+    success: () => void,
+    error: (methodOrErr: string | Error, url?: string, xhr?: XMLHttpRequest) => void
+) {
     const type = xhr.getResponseHeader('Content-Type');
     if (type && (type.indexOf('application/javascript') >= 0 || type.indexOf('application/x-javascript') >= 0)) {
         try {
-            const fn = new Function(xhr.responseText); // eslint-disable-line no-new-func
+            const fn = new Function(xhr.responseText);
             fn();
             success();
         } catch (e) {
@@ -71,7 +84,12 @@ function onSuccess(method: string, url: string, xhr: XMLHttpRequest, success: ()
     }
 }
 
-function request(method: string, url: string, success: () => void, error: (methodOrErr: string | Error, url?: string, xhr?: XMLHttpRequest) => void) {
+function request(
+    method: string,
+    url: string,
+    success: () => void,
+    error: (methodOrErr: string | Error, url?: string, xhr?: XMLHttpRequest) => void
+) {
     const xhr = new XMLHttpRequest();
 
     xhr.open(method, url, false);
@@ -91,22 +109,30 @@ onmessage = function (event: MessageEvent) {
     const data = event.data;
 
     if (data.url) {
-        const url = data.url.indexOf('?') !== -1 ? `${data.url}&ts=${new Date().getTime()}` : `${data.url}?ts=${new Date().getTime()}`;
-        request('GET', url, () => {
-            // success
-            postMessage({
-                name: pc.script.name,
-                values: pc.script.attributes
-            });
+        const url =
+            data.url.indexOf('?') !== -1
+                ? `${data.url}&ts=${new Date().getTime()}`
+                : `${data.url}?ts=${new Date().getTime()}`;
+        request(
+            'GET',
+            url,
+            () => {
+                // success
+                postMessage({
+                    name: pc.script.name,
+                    values: pc.script.attributes
+                });
 
-            close();
-        }, (error) => {
-            // error
-            postMessage({
-                error: error.toString()
-            });
+                close();
+            },
+            (error) => {
+                // error
+                postMessage({
+                    error: error.toString()
+                });
 
-            close();
-        });
+                close();
+            }
+        );
     }
 };

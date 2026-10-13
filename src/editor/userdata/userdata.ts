@@ -1,12 +1,16 @@
 import { Observer } from '@playcanvas/observer';
 
 import { ObserverSync } from '@/common/observer-sync';
+import { createLog } from '@/common/sentry';
+
+const log = createLog('<PATH>');
+
+type Op = Parameters<ObserverSync['write']>[0];
 
 editor.once('load', () => {
     const userdata = new Observer();
 
     editor.on(`userdata:${config.self.id}:raw`, (data: unknown) => {
-
         if (!userdata.sync) {
             userdata.sync = new ObserverSync({
                 item: userdata,
@@ -14,9 +18,9 @@ editor.once('load', () => {
             });
 
             // client > server
-            userdata.sync.on('op', (op: unknown) => {
+            userdata.sync.on('op', (op: Op) => {
                 if (op.oi === null) {
-                    log.error('Tried to send invalid userdata op', op);
+                    void log.error`tried to send invalid userdata op: ${op}`;
                     return;
                 }
 
@@ -29,6 +33,10 @@ editor.once('load', () => {
         userdata.sync.enabled = true;
 
         editor.emit('userdata:load', userdata);
+    });
+
+    editor.on(`realtime:userdata:${config.self.id}:op:cameras`, (op: Op) => {
+        userdata.sync?.write(op);
     });
 
     editor.method('userdata', () => {

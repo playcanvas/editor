@@ -1,9 +1,16 @@
-import type { EventHandle, Observer } from '@playcanvas/observer';
+import type { EventHandle } from '@playcanvas/observer';
 import type { SelectInput } from '@playcanvas/pcui';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
-import { BaseSettingsPanel } from './base';
 import type { Attribute } from '../attribute.type.d';
+
+import { BaseSettingsPanel } from './base';
+import type { BaseSettingsPanelArgs } from './base';
+
+type BatchGroupItemArgs = {
+    id: string | number;
+    onRemove: () => void;
+} & BaseSettingsPanelArgs;
 
 /**
  * @param args - The attribute args
@@ -57,17 +64,15 @@ class BatchGroupsSettingsPanelItem extends BaseSettingsPanel {
 
     _evts: EventHandle[] = [];
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: BatchGroupItemArgs) {
         args = Object.assign({}, args);
-        args.attributes = ATTRIBUTES(args as { id: string | number });
+        args.attributes = ATTRIBUTES(args);
         args.removable = true;
         args.hideIcon = true;
 
         super(args);
-        this._args = args;
-        this._projectSettings = this._args.projectSettings as Observer;
 
-        const evtRemove = this.on('click:remove', args.onRemove as () => void);
+        const evtRemove = this.on('click:remove', args.onRemove);
 
         this.once('destroy', () => {
             evtRemove.unbind();
@@ -78,21 +83,27 @@ class BatchGroupsSettingsPanelItem extends BaseSettingsPanel {
 
         this._updateLayerOptions();
 
-        this._evts.push(this._projectSettings.on(`batchGroups.${this._args.id}.name:set`, (value) => {
-            this.headerText = value;
-        }));
+        this._evts.push(
+            this._projectSettings.on(`batchGroups.${this._args.id}.name:set`, (value) => {
+                this.headerText = value;
+            })
+        );
 
-        this._evts.push(this._projectSettings.on('*:set', (path) => {
-            if (path.includes('layers')) {
-                this._updateLayerOptions();
-            }
-        }));
+        this._evts.push(
+            this._projectSettings.on('*:set', (path) => {
+                if (path.includes('layers')) {
+                    this._updateLayerOptions();
+                }
+            })
+        );
 
-        this._evts.push(this._projectSettings.on('*:unset', (path) => {
-            if (path.includes('layers')) {
-                this._updateLayerOptions();
-            }
-        }));
+        this._evts.push(
+            this._projectSettings.on('*:unset', (path) => {
+                if (path.includes('layers')) {
+                    this._updateLayerOptions();
+                }
+            })
+        );
     }
 
     _updateLayerOptions() {
@@ -105,7 +116,8 @@ class BatchGroupsSettingsPanelItem extends BaseSettingsPanel {
                 });
             }
         }
-        (this._attributesInspector.getField(`batchGroups.${this._args.id}.layers`) as SelectInput).options = layerOptions;
+        (this._attributesInspector.getField(`batchGroups.${this._args.id}.layers`) as SelectInput).options =
+            layerOptions;
     }
 }
 

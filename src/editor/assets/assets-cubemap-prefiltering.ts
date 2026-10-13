@@ -7,18 +7,14 @@ import {
     Texture,
     TEXTURETYPE_RGBM
 } from 'playcanvas';
+import type { AppBase } from 'playcanvas';
 
-
-import {
-    readGPUPixels,
-    pixelsToPngBlob
-} from './assets-utils';
+import { readGPUPixels, pixelsToPngBlob } from './assets-utils';
 
 editor.once('load', () => {
-
     let app = null;
 
-    editor.once('viewport:load', (application: import('playcanvas').AppBase) => {
+    editor.once('viewport:load', (application: AppBase) => {
         app = application;
     });
 
@@ -159,10 +155,10 @@ editor.once('load', () => {
         header[20] = DDS_PIXELFLAGS_RGBA8;
         header[21] = 0; // fourcc
         header[22] = 32; // bpp
-        header[23] = 0x00FF0000; // R mask
-        header[24] = 0x0000FF00; // G mask
-        header[25] = 0x000000FF; // B mask
-        header[26] = 0xFF000000; // A mask
+        header[23] = 0x00ff0000; // R mask
+        header[24] = 0x0000ff00; // G mask
+        header[25] = 0x000000ff; // B mask
+        header[26] = 0xff000000; // A mask
         header[27] = caps;
         header[28] = caps2;
         header[29] = 0;
@@ -182,7 +178,8 @@ editor.once('load', () => {
         } else {
             for (let face = 0; face < 6; face++) {
                 for (let i = 0; i < texture._levels.length; i++) {
-                    const level = texture._levels[i][face];
+                    const levelFaces = texture._levels[i];
+                    const level = levelFaces[face];
                     const mip = new Uint8Array(buff, offset, level.length);
                     for (let j = 0; j < level.length; j++) {
                         mip[j] = level[j];
@@ -238,42 +235,52 @@ editor.once('load', () => {
         };
     };
 
-    editor.method('assets:cubemaps:prefilter', (cubemapAsset: Observer, generateLegacyCubemap: boolean, callback: (err: Error | null, data?: unknown) => void) => {
-        if (!app) {
-            // webgl not available
-            callback(new Error('webgl not available'));
-            return;
-        }
+    editor.method(
+        'assets:cubemaps:prefilter',
+        (
+            cubemapAsset: Observer,
+            generateLegacyCubemap: boolean,
+            callback: (err: Error | null, data?: unknown) => void
+        ) => {
+            if (!app) {
+                // webgl not available
+                callback(new Error('webgl not available'));
+                return;
+            }
 
-        const onLoaded = (cubemap: Texture) => {
-            (generateLegacyCubemap ? generateCubemap : generateEnvAtlas)(cubemapAsset, cubemap)
-            .then((result) => {
-                // upload blob as dds
-                editor.call('assets:uploadFile', {
-                    file: result.blob,
-                    name: cubemapAsset.get('name') + result.extension,
-                    asset: cubemapAsset,
-                    type: 'cubemap'
-                }, (err, data) => {
-                    if (callback) {
-                        callback(err, data);
-                    }
+            const onLoaded = (cubemap: Texture) => {
+                (generateLegacyCubemap ? generateCubemap : generateEnvAtlas)(cubemapAsset, cubemap).then((result) => {
+                    // upload blob as dds
+                    editor.call(
+                        'assets:uploadFile',
+                        {
+                            file: result.blob,
+                            name: cubemapAsset.get('name') + result.extension,
+                            asset: cubemapAsset,
+                            type: 'cubemap'
+                        },
+                        (err, data) => {
+                            if (callback) {
+                                callback(err, data);
+                            }
+                        }
+                    );
                 });
-            });
-        };
+            };
 
-        const asset = app.assets.get(parseInt(cubemapAsset.get('id'), 10));
-        if (asset) {
-            if (asset.resource) {
-                onLoaded(asset.resource);
-            } else {
-                asset.once('load', () => {
+            const asset = app.assets.get(parseInt(cubemapAsset.get('id'), 10));
+            if (asset) {
+                if (asset.resource) {
                     onLoaded(asset.resource);
-                });
-                app.assets.load(asset);
+                } else {
+                    asset.once('load', () => {
+                        onLoaded(asset.resource);
+                    });
+                    app.assets.load(asset);
+                }
             }
         }
-    });
+    );
 
     // invalidate prefiltering data on cubemaps
     // when one of face textures file is changed

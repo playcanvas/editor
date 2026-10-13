@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="184" height="92" viewBox="0 0 720 360">
+    <defs>
+        <path id="logo" d="M127 68.3 235 130 127 191.7v-30L182.5 130 127 98.3zM235 163.1v30l-55.5 31.7 55.5 31.7v30l-108-61.7z"/>
+    </defs>
+    <rect width="360" height="360" fill="#5a6f72"/>
+    <g transform="translate(-1.9 3.7)">
+        <use xlink:href="#logo" y="12.3" fill="#4d5f62"/>
+        <use xlink:href="#logo" fill="#fff"/>
+    </g>
+    <rect x="360" width="360" height="360" fill="#f06423"/>
+    <g transform="translate(358.1 3.7)">
+        <use xlink:href="#logo" y="12.3" fill="#d65b2b"/>
+        <use xlink:href="#logo" fill="#fff"/>
+    </g>
+</svg>

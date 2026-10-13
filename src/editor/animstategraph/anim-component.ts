@@ -1,20 +1,23 @@
-import type { Observer, EventHandle } from '@playcanvas/observer';
+import type { Observer, ObserverList, EventHandle } from '@playcanvas/observer';
 
-class AnimstategraphAnimComponent {
-    _args: Record<string, unknown>;
+import type { AnimStateGraphView } from './view';
 
-    _view: { _selectedLayer: number; link: (assets: Observer[], layer: number) => void };
+type AnimStateGraphAnimComponentArgs = {
+    entities?: ObserverList;
+};
 
-    _entities: Observer[];
+class AnimStateGraphAnimComponent {
+    _view: AnimStateGraphView;
+
+    _entities: ObserverList | null;
 
     _asset: Observer | null = null;
 
     _onSetStateNameEvent: EventHandle | null = null;
 
-    constructor(args: Record<string, unknown>, view: { _selectedLayer: number; link: (assets: Observer[], layer: number) => void }) {
-        this._args = args;
+    constructor(args: AnimStateGraphAnimComponentArgs, view: AnimStateGraphView) {
         this._view = view;
-        this._entities = args.entities as Observer[];
+        this._entities = args.entities ?? null;
     }
 
     link(assets: Observer[]) {
@@ -23,8 +26,12 @@ class AnimstategraphAnimComponent {
         this._onSetStateNameEvent = this._asset.on('*:set', (path, value, prevValue) => {
             if (path.includes('data.states.') && path.includes('.name')) {
                 const layerName = this._asset.get(`data.layers.${this._view._selectedLayer}.name`);
-                this._entities.forEach((entity) => {
-                    if (entity.entity.anim && entity.entity.anim.stateGraphAsset && entity.entity.anim.stateGraphAsset === this._asset.get('id')) {
+                this._entities?.forEach((entity) => {
+                    if (
+                        entity.entity.anim &&
+                        entity.entity.anim.stateGraphAsset &&
+                        entity.entity.anim.stateGraphAsset === this._asset.get('id')
+                    ) {
                         const entityHistoryEnabled = entity.history.enabled;
                         entity.history.enabled = false;
                         const animationAssets = entity.get('components.anim.animationAssets');
@@ -49,4 +56,4 @@ class AnimstategraphAnimComponent {
     }
 }
 
-export { AnimstategraphAnimComponent };
+export { AnimStateGraphAnimComponent };

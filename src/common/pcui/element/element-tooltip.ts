@@ -1,5 +1,6 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { Container, Element } from '@playcanvas/pcui';
+import type { Element } from '@playcanvas/pcui';
+import { Container } from '@playcanvas/pcui';
 
 /**
  * A floating tooltip that can be attached to a target element.
@@ -9,19 +10,26 @@ class Tooltip extends Container {
 
     private _delay = 200;
 
-    private _targets: Map<Element, {
-        container: Container,
-        target: Element,
-        arrow: HTMLDivElement,
-        events: EventHandle[]
-    }> = new Map();
+    private _targets = new Map<
+        Element,
+        {
+            container: Container;
+            target: Element;
+            arrow: HTMLDivElement;
+            events: EventHandle[];
+            cancel: () => void;
+        }
+    >();
+
+    // the single container currently shown; the singleton shows one at a time (gh 2133)
+    private _shown: Container | null = null;
 
     /**
      * Creates new tooltip.
      *
      * @param args - The arguments.
      */
-    constructor({ id, delay, margin }: { id?: string, delay?: number, margin?: number } = {}) {
+    constructor({ id, delay, margin }: { id?: string; delay?: number; margin?: number } = {}) {
         super({
             id,
             class: 'pcui-tooltip',
@@ -137,19 +145,18 @@ class Tooltip extends Container {
         align = 'right',
         arrowAlign
     }: {
-        container: Container,
-        target: Element,
-        horzAlignEl?: Element,
-        vertAlignEl?: Element,
-        align?: 'top' | 'bottom' | 'left' | 'right',
-        arrowAlign?: 'start' | 'end'
+        container: Container;
+        target: Element;
+        horzAlignEl?: Element;
+        vertAlignEl?: Element;
+        align?: 'top' | 'bottom' | 'left' | 'right';
+        arrowAlign?: 'start' | 'end';
     }) {
         const horz = horzAlignEl ?? target;
         const vert = vertAlignEl ?? target;
 
         const events = [];
         let timeout = null;
-        let appended = false;
 
         const defer = () => {
             if (timeout) {
@@ -166,10 +173,21 @@ class Tooltip extends Container {
 
         const hover = () => {
             defer().then(() => {
+                // the target may have been detached, or the container destroyed, while the show
+                // was pending; showing it now would leave it stuck with no hoverend (gh 2225)
+                if (container.destroyed || !this._targets.has(target)) {
+                    return;
+                }
+                // drop whatever was shown before. a field destroyed while its tooltip is
+                // up never fires hoverend, so its container would otherwise linger and
+                // stack with the next one shown (gh 2133)
+                if (this._shown && this._shown !== container) {
+                    this.remove(this._shown);
+                }
+                this._shown = container;
                 this.hidden = false;
-                if (!appended) {
+                if (container.parent !== this) {
                     this.append(container);
-                    appended = true;
                 }
                 this._realign(align, horz, vert);
             });
@@ -177,11 +195,13 @@ class Tooltip extends Container {
 
         const hoverend = () => {
             defer().then(() => {
-                this.hidden = true;
-                if (appended) {
-                    this.remove(container);
-                    appended = false;
+                // a later hover may have taken the singleton over; leave that one alone
+                if (this._shown !== container) {
+                    return;
                 }
+                this.hidden = true;
+                this.remove(container);
+                this._shown = null;
             });
         };
 
@@ -203,7 +223,8 @@ class Tooltip extends Container {
             container,
             target,
             arrow,
-            events
+            events,
+            cancel: () => clearTimeout(timeout)
         });
 
         return this;
@@ -220,11 +241,16 @@ class Tooltip extends Container {
         if (!data) {
             return this;
         }
-        const { container, arrow, events }  = data;
+        const { container, arrow, events, cancel } = data;
 
+        cancel();
         events.forEach((evt: EventHandle) => evt.unbind());
         arrow.remove();
         this.remove(container);
+        if (this._shown === container) {
+            this._shown = null;
+            this.hidden = true;
+        }
         this._targets.delete(target);
 
         return this;

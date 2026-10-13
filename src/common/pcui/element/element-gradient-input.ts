@@ -1,8 +1,8 @@
-import { Element, ElementArgs, Canvas } from '@playcanvas/pcui';
+import type { ElementArgs } from '@playcanvas/pcui';
+import { Element, Canvas } from '@playcanvas/pcui';
 import { CurveSet } from 'playcanvas';
 
 import { CLASS_MULTIPLE_VALUES } from '../constants';
-
 
 const REGEX_KEYS = /keys/;
 const REGEX_TYPE = /type/;
@@ -31,14 +31,14 @@ function createCheckerboardPattern(context: CanvasRenderingContext2D) {
 /**
  * The arguments for the {@link GradientInput} constructor.
  */
-interface GradientInputArgs extends ElementArgs {
+type GradientInputArgs = {
     /** The number of color channels. Between 1 and 4. */
     channels?: number;
     /** The initial value */
     value?: any;
     /** If true the input will flash when changed */
     renderChanges?: boolean;
-}
+} & ElementArgs;
 
 /**
  * Shows a color gradient.
@@ -77,7 +77,9 @@ class GradientInput extends Element {
         this._canvas.parent = this;
         this._canvas.on('resize', this._renderGradient.bind(this));
 
-        this._checkerboardPattern = createCheckerboardPattern((this._canvas.dom as HTMLCanvasElement).getContext('2d')!);
+        this._checkerboardPattern = createCheckerboardPattern(
+            (this._canvas.dom as HTMLCanvasElement).getContext('2d')!
+        );
 
         // make sure canvas is the same size as the container element
         // 20 times a second
@@ -143,7 +145,7 @@ class GradientInput extends Element {
     _getDefaultValue() {
         return {
             type: 4,
-            keys: (new Array(this._channels)).fill([0, 0]),
+            keys: new Array(this._channels).fill([0, 0]),
             betweenCurves: false
         };
     }
@@ -228,7 +230,7 @@ class GradientInput extends Element {
             const r = Math.round((rgba[0] || 0) * 255);
             const g = Math.round((rgba[1] || 0) * 255);
             const b = Math.round((rgba[2] || 0) * 255);
-            const a = this.channels === 4 ? (rgba[3] || 0) : 1;
+            const a = this.channels === 4 ? rgba[3] || 0 : 1;
 
             gradient.addColorStop(t / width, `rgba(${r}, ${g}, ${b}, ${a})`);
         }

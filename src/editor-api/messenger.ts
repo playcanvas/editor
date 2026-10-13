@@ -32,7 +32,6 @@ export type MessagerClient = Events & {
     projectWatch(projectId: string): void;
 };
 
-
 /**
  * The Messenger API. The messenger receives messages
  * when various things happen e.g. an asset is created etc.
@@ -69,7 +68,7 @@ class Messenger extends Events {
         this._messenger.projectWatch(api.projectId as unknown as string);
     }
 
-    private _onMessage(data: { name: string; data: any; }) {
+    private _onMessage(data: { name: string; data: any }) {
         this.emit(data.name, data.data);
         this.emit('message', data.name, data.data);
     }

@@ -1,5 +1,6 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { Button, Container, Panel, type NumericInput, type SelectInput, type TextInput, type VectorInput } from '@playcanvas/pcui';
+import { Button, Panel } from '@playcanvas/pcui';
+import type { Container, NumericInput, SelectInput, TextInput, VectorInput } from '@playcanvas/pcui';
 
 import type { Attribute } from '@/editor/inspector/attribute.type.d';
 import { AttributesInspector } from '@/editor/inspector/attributes-inspector';
@@ -8,15 +9,15 @@ import { SpritePreviewContainer } from './sprite-editor-preview-panel';
 
 // Pivot presets mapping
 const PIVOT_PRESETS = [
-    [0, 1],      // Top Left
-    [0.5, 1],    // Top
-    [1, 1],      // Top Right
-    [0, 0.5],    // Left
-    [0.5, 0.5],  // Center
-    [1, 0.5],    // Right
-    [0, 0],      // Bottom Left
-    [0.5, 0],    // Bottom
-    [1, 0]       // Bottom Right
+    [0, 1], // Top Left
+    [0.5, 1], // Top
+    [1, 1], // Top Right
+    [0, 0.5], // Left
+    [0.5, 0.5], // Center
+    [1, 0.5], // Right
+    [0, 0], // Bottom Left
+    [0.5, 0], // Bottom
+    [1, 0] // Bottom Right
 ];
 
 // Generate attributes based on selected frames
@@ -25,13 +26,13 @@ const createAttributes = (frames: string[]): Attribute[] => [
         label: 'Name',
         type: 'string',
         reference: 'spriteeditor:frame:name',
-        paths: frames.map(f => `data.frames.${f}.name`)
+        paths: frames.map((f) => `data.frames.${f}.name`)
     },
     {
         label: 'Rect',
         alias: 'rect',
         type: 'vec4',
-        paths: frames.map(f => `data.frames.${f}.rect`)
+        paths: frames.map((f) => `data.frames.${f}.rect`)
     },
     {
         label: 'Position',
@@ -81,7 +82,7 @@ const createAttributes = (frames: string[]): Attribute[] => [
         alias: 'pivot',
         type: 'vec2',
         reference: 'spriteeditor:frame:pivot',
-        paths: frames.map(f => `data.frames.${f}.pivot`),
+        paths: frames.map((f) => `data.frames.${f}.pivot`),
         args: {
             min: 0,
             max: 1,
@@ -95,7 +96,7 @@ const createAttributes = (frames: string[]): Attribute[] => [
         alias: 'border',
         type: 'vec4',
         reference: 'spriteeditor:frame:border',
-        paths: frames.map(f => `data.frames.${f}.border`),
+        paths: frames.map((f) => `data.frames.${f}.border`),
         args: {
             min: 0,
             placeholder: ['←', '↓', '→', '↑']
@@ -138,9 +139,11 @@ editor.once('load', () => {
         inspector.link(frames.map(() => atlasAsset));
 
         inspector.enabled = editor.call('permissions:write');
-        events.push(editor.on('permissions:writeState', (canWrite: boolean) => {
-            inspector.enabled = canWrite;
-        }));
+        events.push(
+            editor.on('permissions:writeState', (canWrite: boolean) => {
+                inspector.enabled = canWrite;
+            })
+        );
 
         // Get field references
         const fieldName = inspector.getField(`data.frames.${frames[0]}.name`) as TextInput;
@@ -169,7 +172,8 @@ editor.once('load', () => {
             const values: number[] = [];
 
             for (let i = 0; i < frames.length; i++) {
-                const f = frameData[frames[i]];
+                const frame = frames[i];
+                const f = frameData[frame];
                 if (f) {
                     values.push(f._data.rect[componentIndex]);
                 }
@@ -347,11 +351,17 @@ editor.once('load', () => {
 
                         // Check if border needs to be adjusted
                         if (frame._data.border[borderIdx] > clampedValue - frame._data.border[borderIdx + 2]) {
-                            asset.set(`data.frames.${frames[i]}.border.${borderIdx}`, Math.max(0, clampedValue - frame._data.border[borderIdx + 2]));
+                            asset.set(
+                                `data.frames.${frames[i]}.border.${borderIdx}`,
+                                Math.max(0, clampedValue - frame._data.border[borderIdx + 2])
+                            );
                         }
 
                         if (frame._data.border[borderIdx + 2] > clampedValue - frame._data.border[borderIdx]) {
-                            asset.set(`data.frames.${frames[i]}.border.${borderIdx + 2}`, Math.max(0, clampedValue - frame._data.border[borderIdx]));
+                            asset.set(
+                                `data.frames.${frames[i]}.border.${borderIdx + 2}`,
+                                Math.max(0, clampedValue - frame._data.border[borderIdx])
+                            );
                         }
                     }
                 }
@@ -443,7 +453,6 @@ editor.once('load', () => {
                     if (asset.has(key) && prevValues[frames[i]]) {
                         asset.set(`${key}.pivot`, prevValues[frames[i]]);
                     }
-
                 }
                 asset.history.enabled = history;
             };
@@ -464,7 +473,7 @@ editor.once('load', () => {
             const suspend = suspendChanges;
             suspendChanges = true;
             const pivotValue = fieldPivot.value as number[];
-            const index = PIVOT_PRESETS.findIndex(p => p[0] === pivotValue[0] && p[1] === pivotValue[1]);
+            const index = PIVOT_PRESETS.findIndex((p) => p[0] === pivotValue[0] && p[1] === pivotValue[1]);
             // Set to 9 (Custom) if no preset matches
             fieldPivotPreset.value = index >= 0 ? index : 9;
             suspendChanges = suspend;
@@ -517,7 +526,7 @@ editor.once('load', () => {
             borderInputs[3].max = maxTop;
         };
 
-        borderInputs.forEach(input => input.on('change', updateBorderMax));
+        borderInputs.forEach((input) => input.on('change', updateBorderMax));
 
         const panelButtons = new Panel({
             headerText: 'ACTIONS',
@@ -525,9 +534,11 @@ editor.once('load', () => {
         });
         rootPanelContent.append(panelButtons);
         panelButtons.enabled = editor.call('permissions:write');
-        events.push(editor.on('permissions:writeState', (canWrite: boolean) => {
-            panelButtons.enabled = canWrite;
-        }));
+        events.push(
+            editor.on('permissions:writeState', (canWrite: boolean) => {
+                panelButtons.enabled = canWrite;
+            })
+        );
 
         // new sprite
         const btnCreateSprite = new Button({
@@ -605,15 +616,17 @@ editor.once('load', () => {
         });
 
         // clean up
-        events.push(rootPanel.on('clear', () => {
-            preview.destroy();
-            inspector.unlink();
-            inspector.destroy();
-            panelButtons.destroy();
-        }));
+        events.push(
+            rootPanel.on('clear', () => {
+                preview.destroy();
+                inspector.unlink();
+                inspector.destroy();
+                panelButtons.destroy();
+            })
+        );
 
         inspector.once('destroy', () => {
-            events.forEach(event => event.unbind());
+            events.forEach((event) => event.unbind());
             events.length = 0;
         });
     });

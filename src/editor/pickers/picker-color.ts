@@ -1,6 +1,5 @@
-import { LegacyNumberField } from '@/common/ui/number-field';
-import { LegacyOverlay } from '@/common/ui/overlay';
-import { LegacyTextField } from '@/common/ui/text-field';
+import { NumericInput, Overlay, TextInput } from '@playcanvas/pcui';
+
 import { hsv2rgb, rgb2hsv } from '@/core/color';
 
 editor.once('load', () => {
@@ -11,13 +10,21 @@ editor.once('load', () => {
     let channelsNumber = 4;
     let changing = false;
     let dragging = false;
-
+    let updateRects = undefined;
+    let callCallback = undefined;
+    let pickRect = undefined;
+    let pickRectHandle = undefined;
+    let pickHue = undefined;
+    let pickHueHandle = undefined;
+    let pickOpacityHandle = undefined;
+    let fieldA = undefined;
+    let fieldHex = undefined;
 
     // make hex out of channels
     const getHex = function () {
         let hex = '';
         for (let i = 0; i < channelsNumber; i++) {
-            hex += (`00${channels[i].value.toString(16)}`).slice(-2).toUpperCase();
+            hex += `00${channels[i].value.toString(16)}`.slice(-2).toUpperCase();
         }
         return hex;
     };
@@ -30,7 +37,7 @@ editor.once('load', () => {
         const y = Math.max(0, Math.min(size, Math.floor(evt.clientY - rect.top)));
 
         colorHSV[1] = x / size;
-        colorHSV[2] = 1.0 - (y / size);
+        colorHSV[2] = 1.0 - y / size;
 
         directInput = false;
         const rgb = hsv2rgb([colorHSV[0], colorHSV[1], colorHSV[2]]);
@@ -103,7 +110,6 @@ editor.once('load', () => {
         editor.emit('picker:color:end');
     };
 
-
     const updateHex = function () {
         if (!directInput) {
             return;
@@ -121,12 +127,13 @@ editor.once('load', () => {
         changing = false;
     };
 
-
     // update rgb
-    var updateRects = function () {
-        const color = channels.map((channel) => {
-            return channel.value || 0;
-        }).slice(0, channelsNumber);
+    updateRects = function () {
+        const color = channels
+            .map((channel) => {
+                return channel.value || 0;
+            })
+            .slice(0, channelsNumber);
 
         const hsv = rgb2hsv(color);
         if (directInput) {
@@ -172,7 +179,7 @@ editor.once('load', () => {
         }
 
         // position
-        pickOpacityHandle.style.top = `${Math.floor(size * (1.0 - (Math.max(0, Math.min(255, value)) / 255)))}px`;
+        pickOpacityHandle.style.top = `${Math.floor(size * (1.0 - Math.max(0, Math.min(255, value)) / 255))}px`;
 
         // color
         pickOpacityHandle.style.backgroundColor = `rgb(${[value, value, value].join(',')})`;
@@ -180,16 +187,20 @@ editor.once('load', () => {
         callCallback();
     };
 
-
     let callingCallback = false;
     const callbackHandle = function () {
         callingCallback = false;
 
-        editor.emit('picker:color', channels.map((channel) => {
-            return channel.value || 0;
-        }).slice(0, channelsNumber));
+        editor.emit(
+            'picker:color',
+            channels
+                .map((channel) => {
+                    return channel.value || 0;
+                })
+                .slice(0, channelsNumber)
+        );
     };
-    var callCallback = function () {
+    callCallback = function () {
         if (callingCallback) {
             return;
         }
@@ -198,17 +209,17 @@ editor.once('load', () => {
         setTimeout(callbackHandle, 1000 / 60);
     };
 
-
     // overlay
-    const overlay = new LegacyOverlay();
-    overlay.class.add('picker-color');
-    overlay.center = false;
-    overlay.transparent = true;
-    overlay.hidden = true;
-
+    const overlay = new Overlay({
+        class: 'picker-color',
+        clickable: true,
+        hidden: true,
+        transparent: true
+    });
+    overlay.domContent.classList.add('content');
 
     // rectangular picker
-    var pickRect = document.createElement('div');
+    pickRect = document.createElement('div');
     pickRect.classList.add('pick-rect');
     overlay.append(pickRect);
 
@@ -236,13 +247,12 @@ editor.once('load', () => {
     pickRect.appendChild(pickRectBlack);
 
     // handle
-    var pickRectHandle = document.createElement('div');
+    pickRectHandle = document.createElement('div');
     pickRectHandle.classList.add('handle');
     pickRect.appendChild(pickRectHandle);
 
-
     // hue (rainbow) picker
-    var pickHue = document.createElement('div');
+    pickHue = document.createElement('div');
     pickHue.classList.add('pick-hue');
     overlay.append(pickHue);
 
@@ -260,10 +270,9 @@ editor.once('load', () => {
     });
 
     // handle
-    var pickHueHandle = document.createElement('div');
+    pickHueHandle = document.createElement('div');
     pickHueHandle.classList.add('handle');
     pickHue.appendChild(pickHueHandle);
-
 
     // opacity (gradient) picker
     const pickOpacity = document.createElement('div');
@@ -284,90 +293,89 @@ editor.once('load', () => {
     });
 
     // handle
-    var pickOpacityHandle = document.createElement('div');
+    pickOpacityHandle = document.createElement('div');
     pickOpacityHandle.classList.add('handle');
     pickOpacity.appendChild(pickOpacityHandle);
-
 
     // fields
     const panelFields = document.createElement('div');
     panelFields.classList.add('fields');
     overlay.append(panelFields);
 
-
     // R
-    const fieldR = new LegacyNumberField({
+    const fieldR = new NumericInput({
         precision: 1,
         step: 1,
         min: 0,
-        max: 255
+        max: 255,
+        hideSlider: true,
+        renderChanges: false,
+        placeholder: 'r',
+        flexGrow: 1
     });
     channels.push(fieldR);
-    fieldR.renderChanges = false;
-    fieldR.placeholder = 'r';
-    fieldR.flexGrow = 1;
     fieldR.class.add('field', 'field-r');
     fieldR.on('change', updateRects);
-    panelFields.appendChild(fieldR.element);
+    panelFields.appendChild(fieldR.dom);
 
     // G
-    const fieldG = new LegacyNumberField({
+    const fieldG = new NumericInput({
         precision: 1,
         step: 1,
         min: 0,
-        max: 255
+        max: 255,
+        hideSlider: true,
+        renderChanges: false,
+        placeholder: 'g'
     });
     channels.push(fieldG);
-    fieldG.renderChanges = false;
-    fieldG.placeholder = 'g';
     fieldG.class.add('field', 'field-g');
     fieldG.on('change', updateRects);
-    panelFields.appendChild(fieldG.element);
+    panelFields.appendChild(fieldG.dom);
 
     // B
-    const fieldB = new LegacyNumberField({
+    const fieldB = new NumericInput({
         precision: 1,
         step: 1,
         min: 0,
-        max: 255
+        max: 255,
+        hideSlider: true,
+        renderChanges: false,
+        placeholder: 'b'
     });
     channels.push(fieldB);
-    fieldB.renderChanges = false;
-    fieldB.placeholder = 'b';
     fieldB.class.add('field', 'field-b');
     fieldB.on('change', updateRects);
-    panelFields.appendChild(fieldB.element);
-
+    panelFields.appendChild(fieldB.dom);
 
     // A
-    var fieldA = new LegacyNumberField({
+    fieldA = new NumericInput({
         precision: 1,
         step: 1,
         min: 0,
-        max: 255
+        max: 255,
+        hideSlider: true,
+        renderChanges: false,
+        placeholder: 'a'
     });
     channels.push(fieldA);
-    fieldA.renderChanges = false;
-    fieldA.placeholder = 'a';
     fieldA.class.add('field', 'field-a');
     fieldA.on('change', updateRectAlpha);
-    panelFields.appendChild(fieldA.element);
-
+    panelFields.appendChild(fieldA.dom);
 
     // HEX
-    var fieldHex = new LegacyTextField();
-    fieldHex.renderChanges = false;
-    fieldHex.placeholder = '#';
+    fieldHex = new TextInput({
+        renderChanges: false,
+        placeholder: '#'
+    });
     fieldHex.class.add('field', 'field-hex');
     fieldHex.on('change', () => {
         updateHex();
     });
-    panelFields.appendChild(fieldHex.element);
-
+    panelFields.appendChild(fieldHex.dom);
 
     const root = editor.call('layout.root');
     root.append(overlay);
-
 
     // esc to close
     editor.call('hotkey:register', 'picker:color:close', {
@@ -381,11 +389,9 @@ editor.once('load', () => {
         }
     });
 
-
     overlay.on('hide', () => {
         editor.emit('picker:color:close');
     });
-
 
     // call picker
     editor.method('picker:color', (color) => {
@@ -420,11 +426,10 @@ editor.once('load', () => {
         overlay.hidden = false;
 
         // focus on hex field
-        fieldHex.elementInput.focus();
+        fieldHex.focus();
 
         setTimeout(() => {
-            fieldHex.elementInput.focus();
-            fieldHex.elementInput.select();
+            fieldHex.focus(true);
         }, 100);
     });
 
@@ -433,7 +438,7 @@ editor.once('load', () => {
     });
 
     editor.method('picker:color:rect', () => {
-        return overlay.rect;
+        return overlay.domContent.getBoundingClientRect();
     });
 
     // position color picker

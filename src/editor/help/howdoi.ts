@@ -40,7 +40,7 @@ editor.once('load', () => {
             return;
         }
 
-        const canvasRect = canvas.element.getBoundingClientRect();
+        const canvasRect = canvas.dom.getBoundingClientRect();
 
         const titleWidget = document.querySelector('.control-strip.top-left');
         const titleWidgetRect = titleWidget ? titleWidget.getBoundingClientRect() : null;
@@ -64,7 +64,7 @@ editor.once('load', () => {
         }
 
         panel.style.width = `${width}px`;
-        panel.style.left = `${topLeftWidth + (((topControlsRect.left - titleWidgetRect.right) - width) / 2)}px`;
+        panel.style.left = `${topLeftWidth + (topControlsRect.left - titleWidgetRect.right - width) / 2}px`;
     };
 
     // events when panel is shown
@@ -92,8 +92,8 @@ editor.once('load', () => {
             editor.call('layout.toolbar')
         );
 
-        b.element.style.top = '';
-        b.element.style.bottom = '130px';
+        b.style.top = '';
+        b.style.bottom = '130px';
         return b;
     };
 
@@ -169,7 +169,6 @@ editor.once('load', () => {
 
     // method to register new suggestions
     editor.method('help:howdoi:register', (data: { title: string; keywords?: string[] }) => {
-
         // create new menu item
         const menuItem = new Container({
             class: 'howdoi-menu-item'

@@ -1,4 +1,5 @@
-import { Events, Observer } from '@playcanvas/observer';
+import type { Observer } from '@playcanvas/observer';
+import { Events } from '@playcanvas/observer';
 
 const isMac = navigator.platform.indexOf('Mac') !== -1;
 
@@ -18,14 +19,14 @@ export const formatShortcut = (shortcut: string): string => {
     }
 
     return shortcut
-    .replace(/\+/g, ' ')
-    .replace(/Shift/g, '⇧')
-    .replace(/Alt/g, '⌥')
-    .replace(/Cmd/g, '⌘')
-    .replace(/Right Arrow/g, '→')
-    .replace(/Left Arrow/g, '←')
-    .replace(/Up Arrow/g, '↑')
-    .replace(/Down Arrow/g, '↓');
+        .replace(/\+/g, ' ')
+        .replace(/Shift/g, '⇧')
+        .replace(/Alt/g, '⌥')
+        .replace(/Cmd/g, '⌘')
+        .replace(/Right Arrow/g, '→')
+        .replace(/Left Arrow/g, '←')
+        .replace(/Up Arrow/g, '↑')
+        .replace(/Down Arrow/g, '↓');
 };
 
 /**
@@ -34,7 +35,7 @@ export const formatShortcut = (shortcut: string): string => {
  * @returns The copied object
  */
 export const deepCopy = <T>(data: T): T => {
-    if (data == null || typeof (data) !== 'object') {
+    if (data == null || typeof data !== 'object') {
         return data;
     }
 
@@ -45,9 +46,9 @@ export const deepCopy = <T>(data: T): T => {
         }
         return arr as T;
     }
-    const obj: any = { };
+    const obj: any = {};
     for (const key in data) {
-        if (data.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
             obj[key] = deepCopy(data[key]);
         }
     }
@@ -77,7 +78,7 @@ export const deepEqual = (a: any, b: any): boolean => {
     }
     for (let i = 0; i < keysA.length; i++) {
         const key = keysA[i];
-        if (!b.hasOwnProperty(key)) {
+        if (!Object.prototype.hasOwnProperty.call(b, key)) {
             return false;
         }
         if (!deepEqual(a[key], b[key])) {
@@ -128,7 +129,7 @@ export const set = (obj: any, path: string, value: any): boolean => {
     const parts = path.split('.');
     let ref = obj;
     for (let i = 0; i < parts.length - 1; i++) {
-        if (!ref.hasOwnProperty(parts[i])) {
+        if (!Object.prototype.hasOwnProperty.call(ref, parts[i])) {
             ref[parts[i]] = {};
         }
         ref = ref[parts[i]];
@@ -274,7 +275,9 @@ export const assignEvents = (t: any): void => {
  */
 export const buildQueryUrl = (url: string, params: Record<string, string | number | boolean>): string => {
     const adj = url.indexOf('?') === -1 ? '?' : '&';
-    return `${url}${adj}${Object.entries(params).map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&')}`;
+    return `${url}${adj}${Object.entries(params)
+        .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+        .join('&')}`;
 };
 
 /**
@@ -315,7 +318,7 @@ export const camelCaseToTitle = (str: string): string => {
  * @param depth - The depth to convert
  * @returns The converted string
  */
-export const toCleanStr = (val: any, depth: number = 0): string => {
+export const toCleanStr = (val: any, depth = 0): string => {
     if (Array.isArray(val)) {
         if (depth > 1) {
             return '[array]';
@@ -405,7 +408,7 @@ export const formatter = {
  * @param delay - The delay to throttle by
  * @returns The throttled function
  */
-export const throttler = (fn: Function, delay: number = 0): Function => {
+export const throttler = (fn: (...args: any[]) => any, delay = 0): ((...args: any[]) => any) => {
     let timeout = null;
     return (...args: any[]) => {
         if (timeout) {
@@ -423,7 +426,7 @@ export const throttler = (fn: Function, delay: number = 0): Function => {
  * @param fn - The function to limit
  * @returns The limited function
  */
-export const frameLimiter = (fn: Function): Function => {
+export const frameLimiter = (fn: (...args: any[]) => any): ((...args: any[]) => any) => {
     let called = false;
     return (...args: any[]) => {
         if (called) {
@@ -443,7 +446,7 @@ export const frameLimiter = (fn: Function): Function => {
  * @param className - The class name of the spinner
  * @returns The spinner element
  */
-export const createSpinner = (size: number, className: string = 'spin'): SVGElement => {
+export const createSpinner = (size: number, className = 'spin'): SVGElement => {
     const spinner = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     spinner.classList.add(className);
     spinner.setAttribute('width', `${size}`);
@@ -451,7 +454,8 @@ export const createSpinner = (size: number, className: string = 'spin'): SVGElem
     spinner.setAttribute('x', '0');
     spinner.setAttribute('y', '0');
     spinner.setAttribute('viewBox', '0 0 64 64');
-    spinner.innerHTML = '<g width="65" height="65"><path fill="#773417" d="M32,60 C47.463973,60 60,47.463973 60,32 C60,16.536027 47.463973,4 32,4 C16.536027,4 4,16.536027 4,32 C4,47.463973 16.536027,60 32,60 Z M32,64 C14.326888,64 0,49.673112 0,32 C0,14.326888 14.326888,0 32,0 C49.673112,0 64,14.326888 64,32 C64,49.673112 49.673112,64 32,64 Z"></path><path class="spin" fill="#FF6600" d="M62.3041668,42.3124142 C58.1809687,54.9535127 46.0037894,64 32,64 L32,60.0514995 C44.0345452,60.0514995 54.8533306,51.9951081 58.5660922,41.0051114 L62.3041668,42.3124142 Z"></path></g>';
+    spinner.innerHTML =
+        '<g width="65" height="65"><path fill="#773417" d="M32,60 C47.463973,60 60,47.463973 60,32 C60,16.536027 47.463973,4 32,4 C16.536027,4 4,16.536027 4,32 C4,47.463973 16.536027,60 32,60 Z M32,64 C14.326888,64 0,49.673112 0,32 C0,14.326888 14.326888,0 32,0 C49.673112,0 64,14.326888 64,32 C64,49.673112 49.673112,64 32,64 Z"></path><path class="spin" fill="#FF6600" d="M62.3041668,42.3124142 C58.1809687,54.9535127 46.0037894,64 32,64 L32,60.0514995 C44.0345452,60.0514995 54.8533306,51.9951081 58.5660922,41.0051114 L62.3041668,42.3124142 Z"></path></g>';
     return spinner;
 };
 
@@ -470,7 +474,6 @@ export const handleCallback = <T extends { on: (event: string, handler: (status:
     return ajax;
 };
 
-
 /**
  * @param obj - The object to check the path in.
  * @param path - The path to check in the engine.
@@ -479,10 +482,11 @@ export const handleCallback = <T extends { on: (event: string, handler: (status:
 export const pathExists = (obj: Record<string, any>, path: string): boolean => {
     const parts = path.split('.');
     for (let i = 0; i < parts.length; i++) {
-        if (!(parts[i] in obj) && obj[parts[i]] === undefined) {
+        const part = parts[i];
+        if (!(part in obj) && obj[part] === undefined) {
             return false;
         }
-        obj = obj[parts[i]];
+        obj = obj[part];
     }
     return true;
 };

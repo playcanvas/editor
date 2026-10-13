@@ -1,77 +1,44 @@
-import { Element, Container, Label, Button } from '@playcanvas/pcui';
+import { Button, Container, Element, Label, Overlay, Panel } from '@playcanvas/pcui';
 
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyList } from '@/common/ui/list';
-import { LegacyListItem } from '@/common/ui/list-item';
-import { LegacyOverlay } from '@/common/ui/overlay';
-import { LegacyPanel } from '@/common/ui/panel';
 import { bytesToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
+const MENU_LABELS = new Map([
+    ['project-main', 'Project settings'],
+    ['scenes', 'Scenes'],
+    ['version control', 'Version control'],
+    ['builds-publish', 'Builds & Publish'],
+    ['team', 'Team']
+]);
+
 editor.once('load', () => {
     // GLOBAL VARIABLES
-    let projectSettingsListMenu;  // used to enable hot reload of sidebar menu text upon project name change
-    let currentProject;  // used to display project stats
+    let projectSettingsListMenu; // used to enable hot reload of sidebar menu text upon project name change
+    let currentProject; // used to display project stats
     let currentUser;
-    let cmsView;  // general CMS view
-    let reducedView;  // alternative CMS view
-    let noAdminView;  // alternative 'none' access level view
-    let lockedView;  // alternative locked view
-    let alerts = [];  // list of alerts
+    let cmsView; // general CMS view
+    let reducedView; // alternative CMS view
+    let noAdminView; // alternative 'none' access level view
+    let lockedView; // alternative locked view
+    let alerts = []; // list of alerts
 
     const IS_EMPTY_STATE = !config.project.id;
-    const EMPTY_THUMBNAIL_IMAGE = 'url(\'/static/platform/images/home/blank_project.png\')';
+    const EMPTY_THUMBNAIL_IMAGE = `url('${config.url.frontend}static/img/blank-project.webp')`;
+    const FULLSCREEN_KEY = 'editor:picker:project:fullscreen';
 
     // UI
 
     // build project stats
     let statsContainer;
-    const buildProjectStatsUI = () => {
-        statsContainer = new Container({
-            class: 'project-stats'
-        });
-        statsContainer.element.id = 'project-stats';
-        leftPanel.append(statsContainer);
-
-        if (!noAdminView) {
-            // Forks
-            const forksLabel = new Label({
-                text: `${currentProject.fork_count}`,
-                class: 'forks-stat'
-            });
-            statsContainer.append(forksLabel);
-
-            // Views
-            const viewsLabel = new Label({
-                text: `${currentProject.views}`,
-                class: 'views-stat'
-            });
-            statsContainer.append(viewsLabel);
-
-            // Plays
-            const playsLabel = new Label({
-                text: `${currentProject.plays}`,
-                class: 'plays-stat'
-            });
-            statsContainer.append(playsLabel);
-        }
-
-        // Size
-        const sizeLabel = new Label({
-            text: bytesToHuman(currentProject.size.total),
-            class: 'size-stat'
-        });
-        statsContainer.append(sizeLabel);
-    };
 
     // helper method to build alert
-    const buildAlert = (root, alert, showButton = false, buttonText = '', funcParameters) => {
-        const alertContainer = new Element({
+    const buildAlert = (root: Container, alert: string, showButton = false, buttonText = '', funcParameters) => {
+        const alertContainer = new Container({
             class: 'alert'
         });
         root.dom.appendChild(alertContainer.dom);
 
-        const alertTextContainer = new Element({
+        const alertTextContainer = new Container({
             class: 'alert-text'
         });
         const alertInfo = new Element({
@@ -80,33 +47,38 @@ editor.once('load', () => {
         const alertText = new Label({
             text: alert
         });
-        alertContainer.dom.appendChild(alertTextContainer.dom);
-        alertTextContainer.dom.appendChild(alertInfo.dom);
-        alertTextContainer.dom.appendChild(alertText.element);
+        alertContainer.append(alertTextContainer);
+        alertTextContainer.append(alertInfo);
+        alertTextContainer.append(alertText);
 
         if (showButton && buttonText.length > 0) {
             const button = new Button({
                 class: 'btn',
                 text: buttonText
             });
-            alertContainer.dom.appendChild(button.element);
+            alertContainer.append(button);
 
             button.on('click', () => {
                 const callback = funcParameters.errorCallback;
                 if (funcParameters.currentUser) {
                     // upgrade number of seats and add collaborator
                     const currentUser = funcParameters.currentUser;
-                    editor.call('users:updateSubscription', config.owner, { seats: currentUser.limits.seats + 1 }, () => {
-                        currentUser.limits.seats++;
-                        editor.call('picker:team:management:createCollaborator');
-                    }, (status, error) => {
-                        if (callback) {
-                            callback(status, error);
+                    editor.call(
+                        'users:updateSubscription',
+                        config.owner,
+                        { seats: currentUser.limits.seats + 1 },
+                        () => {
+                            currentUser.limits.seats++;
+                            editor.call('picker:team:management:createCollaborator');
+                        },
+                        (status, error) => {
+                            if (callback) {
+                                callback(status, error);
+                            }
                         }
-                    });
-
+                    );
                 } else if (funcParameters.url) {
-                    window.open(funcParameters.url, '_self');  // open upgrade screen
+                    window.open(funcParameters.url, '_self'); // open upgrade screen
                 }
             });
         }
@@ -114,7 +86,7 @@ editor.once('load', () => {
         const alertClose = new Button({
             class: 'alert-close'
         });
-        alertContainer.dom.appendChild(alertClose.element);
+        alertContainer.append(alertClose);
 
         alertClose.on('click', () => {
             alertContainer.dom.remove();
@@ -128,22 +100,28 @@ editor.once('load', () => {
         if (currentProject.thumbnails) {
             projectImg.style.backgroundImage = `url("${currentProject.thumbnails.m}")`;
             deleteButton.hidden = false;
-            replaceButton.element.style.marginRight = '0px';
+            replaceButton.style.marginRight = '0px';
         } else {
             projectImg.style.backgroundImage = EMPTY_THUMBNAIL_IMAGE;
             // Disable delete thumbnail button if no thumbnails
             deleteButton.hidden = true;
-            replaceButton.element.style.marginRight = '6px';
+            replaceButton.style.marginRight = '6px';
         }
 
         if (reducedView) {
-            btnClose.hidden = false;  // show close button for modal
+            btnClose.hidden = false; // show close button for modal
 
             overlay.class.add('reduced-view');
 
             // if not admin, don't display thumbnail controls
-            thumbnailButtons.enabled = (currentProject.access_level === 'admin' && currentProject.owner_id === config.self.id) || currentProject.id === config.project.id;
-            thumbnailButtons.style.opacity = (currentProject.access_level === 'admin' && currentProject.owner_id === config.self.id) || currentProject.id === config.project.id ? '1' : '0';
+            thumbnailButtons.enabled =
+                (currentProject.access_level === 'admin' && currentProject.owner_id === config.self.id) ||
+                currentProject.id === config.project.id;
+            thumbnailButtons.style.opacity =
+                (currentProject.access_level === 'admin' && currentProject.owner_id === config.self.id) ||
+                currentProject.id === config.project.id
+                    ? '1'
+                    : '0';
 
             menuOptions.scenes.item.hidden = true;
             if (!IS_EMPTY_STATE) {
@@ -193,7 +171,6 @@ editor.once('load', () => {
 
             playBtn.hidden = true;
             playBtn.enabled = false;
-
         } else if (lockedView) {
             btnClose.hidden = false;
 
@@ -223,7 +200,9 @@ editor.once('load', () => {
             overlay.class.remove('reduced-view');
 
             // if admin, enable thumbnail controls
-            thumbnailButtons.enabled = (currentProject.access_level === 'admin' && currentProject.owner_id === config.self.id) || currentProject.id === config.project.id;
+            thumbnailButtons.enabled =
+                (currentProject.access_level === 'admin' && currentProject.owner_id === config.self.id) ||
+                currentProject.id === config.project.id;
 
             projectCMSButton.enabled = true;
             projectCMSButton.hidden = false;
@@ -236,7 +215,7 @@ editor.once('load', () => {
 
             // ensure all panels are visible
             for (const key in menuOptions) {
-                if (key !== 'publish-download' && key !== 'publish-new') {
+                if (!menuOptions[key].panelOnly) {
                     menuOptions[key].item.hidden = false;
                 }
             }
@@ -244,7 +223,7 @@ editor.once('load', () => {
         }
 
         if (statsContainer) {
-            statsContainer.element.remove();
+            statsContainer.destroy();
         }
         editor.call('picker:project:main:refreshUI');
         editor.call('picker:team:management:refreshUI');
@@ -252,71 +231,155 @@ editor.once('load', () => {
     };
 
     // overlay
-    var overlay = new LegacyOverlay();
-    overlay.class.add('picker-project');
-    overlay.clickable = true;
-    overlay.hidden = true;
+    const overlay = new Overlay({
+        clickable: true,
+        hidden: true,
+        class: 'picker-project'
+    });
+
+    let closeCallback: (() => boolean) | null = null;
+    let suspended = false;
+    let suspendClickable = true;
+    const originalOnPointerDown = (overlay as any)._onPointerDown;
+    (overlay as any)._onPointerDown = (evt: PointerEvent) => {
+        if (closeCallback && !closeCallback()) {
+            return;
+        }
+        const target = evt.target as HTMLElement;
+        const tooltip = target.closest('.pcui-tooltip');
+        if (target.closest('.pcui-menu') || tooltip?.querySelector('.primary-scene-tooltip')) {
+            return;
+        }
+        const targetOverlay = target.closest('.pcui-overlay');
+        if (targetOverlay && targetOverlay !== overlay.dom) {
+            return;
+        }
+        originalOnPointerDown(evt);
+    };
 
     const root = editor.call('layout.root');
     root.append(overlay);
 
     // main panel
-    const panel = new LegacyPanel();
-    panel.class.add('project');
+    const panel = new Container({
+        class: 'project'
+    });
     overlay.append(panel);
 
     // left side panel
-    var leftPanel = new LegacyPanel();
+    const leftPanel = new Container({
+        class: 'left'
+    });
     panel.append(leftPanel);
-    leftPanel.class.add('left');
+
+    const projectSummary = new Container({
+        class: 'project-summary'
+    });
+    leftPanel.append(projectSummary);
 
     // project image
-    var projectImg = document.createElement('div');
+    const projectImg = document.createElement('div');
     projectImg.classList.add('image');
     if (!IS_EMPTY_STATE) {
-        projectImg.style.backgroundImage = config.project.thumbnails.m ? `url("${config.project.thumbnails.m}")` : EMPTY_THUMBNAIL_IMAGE;
+        projectImg.style.backgroundImage = config.project.thumbnails.m
+            ? `url("${config.project.thumbnails.m}")`
+            : EMPTY_THUMBNAIL_IMAGE;
     }
-    leftPanel.append(projectImg);
+    projectSummary.dom.appendChild(projectImg);
+
+    const projectSummaryText = new Container({
+        class: 'project-summary-text'
+    });
+    projectSummary.append(projectSummaryText);
+
+    const projectTitle = new Label({
+        class: 'project-name',
+        text: IS_EMPTY_STATE ? '' : config.project.name
+    });
+    projectSummaryText.append(projectTitle);
+
+    const buildProjectStatsUI = () => {
+        projectTitle.text = currentProject.name;
+
+        statsContainer = new Container({
+            id: 'project-stats',
+            class: 'project-stats'
+        });
+        projectSummary.append(statsContainer);
+
+        if (!noAdminView) {
+            const forksLabel = new Label({
+                text: `${currentProject.fork_count}`,
+                class: 'forks-stat'
+            });
+            statsContainer.append(forksLabel);
+
+            const viewsLabel = new Label({
+                text: `${currentProject.views}`,
+                class: 'views-stat'
+            });
+            statsContainer.append(viewsLabel);
+        }
+
+        const sizeLabel = new Label({
+            text: bytesToHuman(currentProject.size.total),
+            class: 'size-stat'
+        });
+        statsContainer.append(sizeLabel);
+    };
 
     let uploadingImage = false;
 
     const uploadProjectImage = function (file: File) {
-        if ((!IS_EMPTY_STATE && !editor.call('permissions:write')) || uploadingImage || currentProject.access_level !== 'admin') {
+        if (
+            (!IS_EMPTY_STATE && !editor.call('permissions:write')) ||
+            uploadingImage ||
+            currentProject.access_level !== 'admin'
+        ) {
             return;
         }
 
         const previousBackgroundImage = projectImg.style.backgroundImage;
-        projectImg.style.backgroundImage = `url("${config.url.static}/platform/images/common/ajax-loader.gif")`;
+        projectImg.style.backgroundImage = `url("${config.url.frontend}static/img/ajax-loader.webp")`;
         projectImg.classList.add('progress');
 
         uploadingImage = true;
 
-        editor.call('images:upload', file, currentProject, (data) => {
-            editor.call('projects:save', currentProject, { image_url: data.url }, () => {
-                uploadingImage = false;
-            }, (err) => {
+        editor.call(
+            'images:upload',
+            file,
+            currentProject,
+            (data) => {
+                editor.call(
+                    'projects:save',
+                    currentProject,
+                    { image_url: data.url },
+                    () => {
+                        uploadingImage = false;
+                    },
+                    (err) => {
+                        // error
+                        uploadingImage = false;
+                        buildAlert(rightPanel, err);
+                        projectImg.style.backgroundImage = previousBackgroundImage;
+                        projectImg.classList.remove('progress');
+                    }
+                );
+            },
+            (status, data) => {
                 // error
                 uploadingImage = false;
-                buildAlert(rightPanel, err);
+                buildAlert(rightPanel, data);
                 projectImg.style.backgroundImage = previousBackgroundImage;
                 projectImg.classList.remove('progress');
-            });
-        }, (status, data) => {
-            // error
-            uploadingImage = false;
-            buildAlert(rightPanel, data);
-            projectImg.style.backgroundImage = previousBackgroundImage;
-            projectImg.classList.remove('progress');
-        });
+            }
+        );
     };
 
     const dropRef = editor.call('drop:target', {
         ref: projectImg,
         filter: function (type: string, data: File[]) {
-            return editor.call('permissions:write') &&
-                   !leftPanel.disabled &&
-                   !uploadingImage &&
-                   type === 'files';
+            return editor.call('permissions:write') && leftPanel.enabled && !uploadingImage && type === 'files';
         },
         drop: function (type: string, data: File[]) {
             if (type !== 'files') {
@@ -346,7 +409,12 @@ editor.once('load', () => {
     let currentSelection = null;
 
     projectImg.addEventListener('click', () => {
-        if (!editor.call('permissions:write') || leftPanel.disabled || currentProject.access_level !== 'admin' || currentProject.owner_id !== config.self.id) {
+        if (
+            !editor.call('permissions:write') ||
+            !leftPanel.enabled ||
+            currentProject.access_level !== 'admin' ||
+            currentProject.owner_id !== config.self.id
+        ) {
             return;
         }
 
@@ -361,29 +429,31 @@ editor.once('load', () => {
 
         statsContainer.style.backgroundImage = 'linear-gradient(rgba(0, 0, 0, 0.8) 15%, transparent)';
         deleteButton.hidden = false;
-        replaceButton.element.style.marginRight = '0px';
+        replaceButton.style.marginRight = '0px';
     });
 
     // store all panels for each menu option
-    var menuOptions = {};
+    const menuOptions = {};
     let defaultMenuOption = null;
 
     // thumbnail buttons
     const thumbnailButtons = new Container({
         class: 'thumbnail-buttons'
     });
-    leftPanel.append(thumbnailButtons);
-    thumbnailButtons.style.opacity = '0';  // thumbnail buttons start hidden
+    projectSummary.append(thumbnailButtons);
+    thumbnailButtons.style.opacity = '0'; // thumbnail buttons start hidden
 
     const replaceButton = new Button({
         class: 'thumbnail-replace',
         icon: 'E222',
-        text: 'REPLACE'
+        text: ''
     });
+    replaceButton.dom.setAttribute('aria-label', 'Replace project icon');
+    replaceButton.dom.setAttribute('title', 'Replace project icon');
     thumbnailButtons.append(replaceButton);
 
     replaceButton.on('click', () => {
-        fileInput.click();  // open file picker
+        fileInput.click(); // open file picker
     });
 
     const deleteButton = new Button({
@@ -396,12 +466,15 @@ editor.once('load', () => {
         deleteThumbnail();
         // Hide delete button and adjust margin
         deleteButton.hidden = true;
-        replaceButton.element.style.marginRight = '6px';
+        replaceButton.style.marginRight = '6px';
     });
 
     // menu
-    const list = new LegacyList();
-    leftPanel.append(list);
+    const list = new Container({
+        dom: 'ul',
+        class: ['ui-list', 'selectable']
+    });
+    leftPanel.dom.appendChild(list.dom);
 
     // project CMS button
     const projectCMSButton = new Button({
@@ -437,11 +510,11 @@ editor.once('load', () => {
     });
     leftPanel.append(editorBtn);
 
-    editorBtn.element.addEventListener('mousedown', (e) => {
+    editorBtn.dom.addEventListener('mousedown', (e) => {
         let target = '_self';
         if (e.which === 2 || e.button === 4 || e.metaKey || e.ctrlKey) {
             target = '_blank';
-        }  // If middle click, open in new tab
+        } // If middle click, open in new tab
 
         let url = `${config.url.home}/editor/project/${currentProject.id}`;
         const params = new URLSearchParams(location.search);
@@ -467,21 +540,49 @@ editor.once('load', () => {
     });
 
     // right side panel
-    const rightPanel = new LegacyPanel('Project');
+    const rightPanel = new Panel({
+        headerText: 'Project',
+        class: 'right'
+    });
     panel.append(rightPanel);
-    rightPanel.class.add('right');
 
     // close button
-    const btnClose = new LegacyButton({
-        text: '&#57650;'
+    const btnClose = new Button({
+        icon: 'E132',
+        class: 'close'
     });
-    btnClose.class.add('close');
     btnClose.on('click', () => {
         if (currentSelection !== 'version control' || editor.call('vcgraph:isHidden')) {
             overlay.hidden = true;
         }
     });
-    rightPanel.headerElement.appendChild(btnClose.element);
+    rightPanel.header.append(btnClose);
+
+    // fullscreen toggle — expands the picker to fill the viewport (right of the
+    // 40px left toolbar) even when the window is large enough for the small
+    // centered picker; hidden by css below the 1060px breakpoint where the
+    // picker is force-fullscreen anyway
+    let fullscreen = editor.call('localStorage:get', FULLSCREEN_KEY) === true;
+    const btnFullscreen = new Button({
+        class: 'fullscreen-toggle'
+    });
+    const applyFullscreen = () => {
+        overlay.class[fullscreen ? 'add' : 'remove']('fullscreen');
+        btnFullscreen.class[fullscreen ? 'add' : 'remove']('active');
+        btnFullscreen.dom.setAttribute('title', fullscreen ? 'Exit fullscreen' : 'Fullscreen');
+        // let hosted panels (e.g. version control) resize their panes to the larger viewport
+        editor.emit('picker:project:fullscreen', fullscreen);
+    };
+    btnFullscreen.on('click', () => {
+        fullscreen = !fullscreen;
+        editor.call('localStorage:set', FULLSCREEN_KEY, fullscreen);
+        applyFullscreen();
+    });
+    rightPanel.header.append(btnFullscreen);
+    applyFullscreen();
+
+    // hosted panels read the current state on show (this picker loads before them)
+    editor.method('picker:project:isFullscreen', () => fullscreen);
 
     // LOCAL UTILS
 
@@ -520,8 +621,8 @@ editor.once('load', () => {
         // show desired option
         menuOptions[name].item.class.add('active');
         menuOptions[name].panel.hidden = false;
-        rightPanel.headerElementTitle.textContent = menuOptions[name].title;
-        rightPanel.innerElement.scrollTop = 0;
+        rightPanel.headerText = menuOptions[name].title;
+        rightPanel.content.dom.scrollTop = 0;
     };
 
     // ESC key should close popup
@@ -530,7 +631,7 @@ editor.once('load', () => {
             return;
         }
 
-        if (e.keyCode === 27 && overlay.clickable) {
+        if (e.keyCode === 27 && overlay.clickable && !editor.call('picker:isOpen', 'conflict-manager')) {
             overlay.hidden = true;
         }
     };
@@ -547,7 +648,9 @@ editor.once('load', () => {
 
         projectImg.classList.remove('progress');
         if (!IS_EMPTY_STATE) {
-            projectImg.style.backgroundImage = config.project.thumbnails.m ? `url("${config.project.thumbnails.m}")` : EMPTY_THUMBNAIL_IMAGE;
+            projectImg.style.backgroundImage = config.project.thumbnails.m
+                ? `url("${config.project.thumbnails.m}")`
+                : EMPTY_THUMBNAIL_IMAGE;
         }
 
         if (editor.call('permissions:write')) {
@@ -586,12 +689,21 @@ editor.once('load', () => {
 
     // register new panel / menu option
     editor.method('picker:project:registerMenu', (name, title, panel, displayName = '') => {
-        let menuItem;
-        if (displayName.length > 0) {
-            menuItem = new LegacyListItem({ text: displayName });
-        } else {
-            menuItem = new LegacyListItem({ text: name });
-        }
+        const menuItem = new Container({
+            dom: 'li',
+            class: 'ui-list-item'
+        }) as Container & { text: string };
+        const menuItemText = document.createElement('span');
+        Object.defineProperty(menuItem, 'text', {
+            get() {
+                return menuItemText.textContent;
+            },
+            set(value: string) {
+                menuItemText.textContent = value;
+            }
+        });
+        menuItem.text = MENU_LABELS.get(name) || displayName || name;
+        menuItem.dom.appendChild(menuItemText);
 
         if (title === 'PROJECT SETTINGS') {
             projectSettingsListMenu = menuItem;
@@ -607,7 +719,8 @@ editor.once('load', () => {
         menuOptions[name] = {
             item: menuItem,
             title: title,
-            panel: panel
+            panel: panel,
+            panelOnly: false
         };
         panel.hidden = true;
         rightPanel.append(panel);
@@ -618,6 +731,8 @@ editor.once('load', () => {
     editor.method('picker:project:registerPanel', (name, title, panel) => {
         // just do the regular registration but hide the menu
         const item = editor.call('picker:project:registerMenu', name, title, panel);
+        menuOptions[name].panelOnly = true;
+        item.hidden = true;
         item.class.add('hidden');
         return item;
     });
@@ -636,7 +751,7 @@ editor.once('load', () => {
             refreshUI();
 
             if (cmsView) {
-                btnClose.hidden = false;  // display close button
+                btnClose.hidden = false; // display close button
                 overlay.class.add('cmsView');
                 projectCMSButton.text = 'Return to Project';
             } else {
@@ -650,9 +765,9 @@ editor.once('load', () => {
         });
 
         if (option === 'version control') {
-            overlay.setCloseCallback(() => editor.call('vcgraph:isHidden'));
+            closeCallback = () => editor.call('vcgraph:isHidden');
         } else {
-            overlay.setCloseCallback(null);
+            closeCallback = null;
         }
 
         select(option || defaultMenuOption);
@@ -665,13 +780,13 @@ editor.once('load', () => {
             reducedView = true;
 
             editor.call('users:loadOne', config.self.id, (user) => {
-                currentUser = user;  // change this variable name
+                currentUser = user; // change this variable name
                 overlay.hidden = false;
             });
 
             refreshUI();
 
-            select('project-main');  // select project settings panel
+            select('project-main'); // select project settings panel
         });
     });
 
@@ -683,14 +798,14 @@ editor.once('load', () => {
             noAdminView = true;
 
             editor.call('users:loadOne', config.self.id, (user) => {
-                currentUser = user;  // change this variable name
+                currentUser = user; // change this variable name
                 overlay.hidden = false;
             });
 
             refreshUI();
             btnClose.hidden = false;
 
-            select('team');  // select project settings panel
+            select('team'); // select project settings panel
         });
     });
 
@@ -709,7 +824,7 @@ editor.once('load', () => {
             refreshUI();
             btnClose.hidden = false;
 
-            select('project-main');  // select main project panel
+            select('project-main'); // select main project panel
             thumbnailButtons.style.opacity = '0';
         });
     });
@@ -722,10 +837,12 @@ editor.once('load', () => {
                 userIsCollaborator = true;
             }
         });
-        return editor.call('project:management:isOrgAdmin', project.owner_id, currentUser) &&
+        return (
+            editor.call('project:management:isOrgAdmin', project.owner_id, currentUser) &&
             !project.locked &&
             collaborators.length >= 0 &&
-            !userIsCollaborator;
+            !userIsCollaborator
+        );
     });
 
     // close popup
@@ -733,6 +850,25 @@ editor.once('load', () => {
         overlay.class.remove('cmsView');
         overlay.class.remove('noAdminView');
         overlay.hidden = true;
+    });
+
+    editor.method('picker:project:suspend', () => {
+        if (suspended || overlay.hidden) {
+            return;
+        }
+        suspended = true;
+        suspendClickable = overlay.clickable;
+        overlay.clickable = false;
+        overlay.class.add('vc-suspended');
+    });
+
+    editor.method('picker:project:resume', () => {
+        if (!suspended) {
+            return;
+        }
+        suspended = false;
+        overlay.class.remove('vc-suspended');
+        overlay.clickable = suspendClickable;
     });
 
     // prevent user closing popup
@@ -743,7 +879,7 @@ editor.once('load', () => {
 
     // disable / enable the state of the left panel
     editor.method('picker:project:toggleLeftPanel', (enabled) => {
-        leftPanel.disabled = !enabled;
+        leftPanel.enabled = enabled;
     });
 
     // disables / enables a menu option on the left
@@ -756,7 +892,8 @@ editor.once('load', () => {
 
     // hook to retrieve project settings sidebar menu element (to enable hot reloading)
     editor.method('picker:project:updateProjectSettingsMenuItem', (newName) => {
-        projectSettingsListMenu.text = newName;
+        projectTitle.text = newName;
+        projectSettingsListMenu.text = MENU_LABELS.get('project-main') || 'Project settings';
     });
 
     // hook to upload project image
@@ -789,7 +926,7 @@ editor.once('load', () => {
     // hook to hide all alerts
     editor.method('picker:project:hideAlerts', () => {
         alerts.forEach((alert) => {
-            alert.dom.style.display = 'none';
+            alert.style.display = 'none';
             alert.destroy();
         });
         alerts = [];
@@ -798,7 +935,7 @@ editor.once('load', () => {
     // hook to display thumbnail controls
     editor.method('picker:project:showThumbnailControls', () => {
         if (currentProject.access_level === 'admin') {
-            thumbnailButtons.style.transform = 'translate(0, 0px)';
+            thumbnailButtons.style.transform = 'scale(1)';
             thumbnailButtons.style.opacity = '1';
             thumbnailButtons.style.zIndex = '0';
             thumbnailButtons.style.pointerEvents = 'all';
@@ -808,7 +945,7 @@ editor.once('load', () => {
     // hook to hide thumbnail controls
     editor.method('picker:project:hideThumbnailControls', () => {
         if (currentProject.access_level === 'admin') {
-            thumbnailButtons.style.transform = 'translate(0, 32px)';
+            thumbnailButtons.style.transform = 'scale(0.92)';
             thumbnailButtons.style.opacity = '0';
             thumbnailButtons.style.zIndex = '-1';
             thumbnailButtons.style.pointerEvents = 'none';

@@ -1,7 +1,16 @@
-import { Observer, type EventHandle } from '@playcanvas/observer';
+import { Observer } from '@playcanvas/observer';
+import type { EventHandle } from '@playcanvas/observer';
 import { Container, Panel, Label, BooleanInput } from '@playcanvas/pcui';
+import type { ContainerArgs } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
+
+type RenderOrderListArgs = {
+    settings?: Observer;
+    projectSettings: Observer;
+    userSettings?: Observer;
+    sceneSettings?: Observer;
+} & ContainerArgs;
 
 const CLASS_ROOT = 'layers-settings-panel';
 const CLASS_RENDER_ORDER_LIST = `${CLASS_ROOT}-render-order-list`;
@@ -12,15 +21,15 @@ const CLASS_RENDER_ORDER_LIST_ITEM_TRANSPARENT = `${CLASS_RENDER_ORDER_LIST_ITEM
 const REGEX_LAYER_ENABLED = /^layerOrder\.(\d+)\.enabled$/;
 
 class LayersSettingsPanelRenderOrderList extends Container {
-    _args: Record<string, unknown>;
+    _args: RenderOrderListArgs;
 
-    _settings: Observer;
+    _settings: Observer | undefined;
 
     _projectSettings: Observer;
 
-    _userSettings: Observer;
+    _userSettings: Observer | undefined;
 
-    _sceneSettings: Observer;
+    _sceneSettings: Observer | undefined;
 
     _suspendLayerEvents = false;
 
@@ -30,16 +39,16 @@ class LayersSettingsPanelRenderOrderList extends Container {
 
     _settingsEvents: EventHandle[] = [];
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: RenderOrderListArgs) {
         args = Object.assign({}, args);
 
         super(args);
 
         this._args = args;
-        this._settings = args.settings as Observer;
-        this._projectSettings = args.projectSettings as Observer;
-        this._userSettings = args.userSettings as Observer;
-        this._sceneSettings = args.sceneSettings as Observer;
+        this._settings = args.settings;
+        this._projectSettings = args.projectSettings;
+        this._userSettings = args.userSettings;
+        this._sceneSettings = args.sceneSettings;
 
         this._layerListContainer = new Container();
         this.append(this._layerListContainer);
@@ -85,7 +94,7 @@ class LayersSettingsPanelRenderOrderList extends Container {
             layerPanel.class.add(CLASS_RENDER_ORDER_LIST_ITEM_TRANSPARENT);
         }
         if (layer.layer < 1000) {
-            layerPanel._btnRemove.disabled = true;
+            layerPanel._btnRemove.enabled = false;
         }
 
         layerPanel.header.append(
@@ -136,8 +145,8 @@ class LayersSettingsPanelRenderOrderList extends Container {
         let deleteTooltip;
 
         if (layer.layer < 1000) {
-            deleteTooltip = LegacyTooltip.attach({
-                target: layerPanel._btnRemove.element,
+            deleteTooltip = TooltipHandle.attach({
+                target: layerPanel._btnRemove.dom,
                 text: 'You cannot delete a built-in layer',
                 align: 'bottom',
                 root: editor.call('layout.root')
@@ -154,7 +163,7 @@ class LayersSettingsPanelRenderOrderList extends Container {
     }
 
     _onLayerInsert(value: Observer | { layer: number; transparent: boolean }, index: number) {
-        const data = value instanceof Observer ? value.json() as { layer: number; transparent: boolean } : value;
+        const data = value instanceof Observer ? (value.json() as { layer: number; transparent: boolean }) : value;
 
         const name = this._projectSettings.get(`layers.${data.layer}.name`);
         const layerPanel = this._createLayerElement(data, name);
@@ -213,7 +222,7 @@ class LayersSettingsPanelRenderOrderList extends Container {
 
         this._layerList.length = 0;
 
-        this._settingsEvents.forEach(evt => evt.unbind());
+        this._settingsEvents.forEach((evt) => evt.unbind());
         this._settingsEvents.length = 0;
 
         super.destroy();

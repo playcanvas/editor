@@ -1,11 +1,41 @@
-import { default as PCUIGraph } from '@playcanvas/pcui-graph';
+import type { Container, Menu } from '@playcanvas/pcui';
+import Graph from '@playcanvas/pcui-graph';
 
 import { handleCallback } from '@/common/utils';
+import { applyUserThumbnail } from '@/editor/pickers/version-control/vc-helpers';
 
 editor.once('load', () => {
     const COORD_OFFSETS = { x: 80, y: 50 };
 
     const COORD_COEFS = { x: 265, y: 110 };
+
+    const VC_GRAPH_NODE_ICON = '\uE431';
+
+    const VC_GRAPH_NODE_FILL = '#2a3437';
+
+    const VC_GRAPH_NODE_TEXT = 'transparent';
+
+    const VC_GRAPH_NODE_WIDTH = 226;
+
+    const VC_GRAPH_NODE_HEIGHT = 72;
+
+    const VC_GRAPH_NODE_RADIUS = 6;
+
+    const VC_GRAPH_NODE_LINE_HEIGHT = 13;
+
+    const VC_GRAPH_NODE_HOVER_STROKE = '#fff';
+
+    const VC_GRAPH_FALLBACK_ACCENT = '#f60';
+
+    const VC_GRAPH_BRANCH_COLOR_START = 13;
+
+    const VC_GRAPH_SMALL_QUERY = '(max-width: 1099px)';
+
+    const VC_GRAPH_DATE_FORMAT = {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+    } as const;
 
     const GRAPH_DEFAULTS = {
         passiveUIEvents: false,
@@ -27,11 +57,11 @@ editor.once('load', () => {
     };
 
     const NODE_DEFAULTS = {
-        textColor: '#20292b',
-        baseHeight: 72,
-        baseWidth: 190,
-        lineHeight: 15,
-        textAlignMiddle: true,
+        textColor: VC_GRAPH_NODE_TEXT,
+        baseHeight: VC_GRAPH_NODE_HEIGHT,
+        baseWidth: VC_GRAPH_NODE_WIDTH,
+        lineHeight: VC_GRAPH_NODE_LINE_HEIGHT,
+        textAlignMiddle: false,
         includeIcon: false
     };
 
@@ -56,6 +86,11 @@ editor.once('load', () => {
 
     const SCREEN_COORD_OFFSET = { x: 80, y: 180 };
 
+    // graph host (.vc-graph-container) screen origin when fullscreen — 40px left toolbar, 33px
+    // header. SCREEN_COORD_OFFSET is calibrated for this; in the smaller box the host moves, so
+    // the menu shifts by (current host origin - this)
+    const VC_GRAPH_FS_HOST = { x: 40, y: 33 };
+
     const MIN_BETWEEN_NODES = {
         large: 2,
         small: 1
@@ -69,23 +104,31 @@ editor.once('load', () => {
 
     const TRUNCATE_TOKEN_LIMIT = 7;
 
-    const NUM_ID_CHARS = 4;
+    const NUM_ID_CHARS = 7;
 
     const CLOSED_BRANCH_SUFFIX = ' [x]';
 
-    interface VcGraphData {
+    let branchCount = 0;
+
+    // current graph + its host, so the picker can force a paper resize on fullscreen toggle
+    // (pcui-graph only auto-resizes via a ResizeObserver, which misses the class-driven toggle)
+    let currentGraph: (Graph & { _resizeGraph?: (el: HTMLElement) => void }) | null = null;
+    let currentGraphDom: HTMLElement | null = null;
+
+    type VcGraphData = {
         idToNode: Record<string, Record<string, unknown>>;
         branches: Record<string, Record<string, unknown>>;
-        graph: Record<string, unknown>;
+        graph: Graph;
         renderedEdges: Record<string, boolean>;
-        vcNodeMenu?: unknown;
+        vcNodeMenu?: Menu;
         vcHistItem?: unknown;
-    }
+    };
 
     const VcUtils = {
         renderVcNode: function (h: Record<string, unknown>, data: VcGraphData) {
             if (h.isNodeRendered) {
                 VcUtils.updateRenderedPosition(h, data);
+                VcUtils.renderNodeContent(h, data);
             } else {
                 VcUtils.renderNewNode(h, data);
             }
@@ -105,17 +148,19 @@ editor.once('load', () => {
         renderNewNode: function (h: Record<string, unknown>, data: VcGraphData) {
             data.graph.createNode({
                 id: h.id,
-                name: VcUtils.vcNodeText(h, data),
+                name: '',
                 nodeType: VcUtils.nodeToColorType(h, data),
                 posX: VcUtils.transformCoord(h, 'x'),
                 posY: VcUtils.transformCoord(h, 'y'),
                 marker: h.isExpandable
             });
 
+            VcUtils.renderNodeContent(h, data);
+
             h.isNodeRendered = true;
         },
 
-        placeSelectedMark: function (graph: Record<string, unknown>, nodeCoords: { x: number; y: number }) {
+        placeSelectedMark: function (graph: Graph, nodeCoords: { x: number; y: number }) {
             const markCoords = {
                 coords: {
                     x: nodeCoords.x + SELECTED_MARK.offset.x,
@@ -134,8 +179,42 @@ editor.once('load', () => {
             graph.createNode(h);
         },
 
-        rmSelectedMark: function (graph: Record<string, unknown>) {
+        rmSelectedMark: function (graph: Graph) {
             graph.deleteNode(SELECTED_MARK.id);
+        },
+
+        vcNodeContent: function (node: Record<string, unknown>, data: VcGraphData) {
+            const h = node.checkpointData as Record<string, unknown>;
+
+            return {
+                title: VcUtils.descriptionLines(node, data).join(' '),
+                user: String(h.user_full_name || ''),
+                userId: VcUtils.vcNodeUserId(h),
+                date: VcUtils.epochToDisplayStr(Number(h.created_at)),
+                hash: String(node.id).substring(0, NUM_ID_CHARS),
+                accent: VcUtils.nodeAccent(node, data),
+                expandable: Boolean(node.isExpandable)
+            };
+        },
+
+        vcNodeUserId: function (h: Record<string, unknown>) {
+            const user = h.user as Record<string, unknown> | undefined;
+
+            return h.user_id || h.userId || user?.id;
+        },
+
+        epochToDisplayStr: function (n: number) {
+            const d = new Date(n);
+
+            return d.toLocaleDateString(undefined, VC_GRAPH_DATE_FORMAT);
+        },
+
+        nodeAccent: function (node: Record<string, unknown>, data: VcGraphData) {
+            const styles = editor.call('vcgraph:getAllStyles');
+
+            const style = styles[VcUtils.nodeToColorType(node, data)];
+
+            return style?.stroke || VC_GRAPH_FALLBACK_ACCENT;
         },
 
         vcNodeText: function (node: Record<string, unknown>, data: VcGraphData) {
@@ -150,6 +229,95 @@ editor.once('load', () => {
             return lines.join('\n');
         },
 
+        renderNodeContent: function (node: Record<string, unknown>, data: VcGraphData) {
+            const el = data.graph.view.getNodeDomElement(String(node.id));
+
+            const div = el?.querySelector<HTMLElement>('.graph-node-div');
+
+            if (!div) {
+                return;
+            }
+
+            const h = VcUtils.vcNodeContent(node, data);
+            const compareBase = VcUtils.isCompareBase(node, data.graph);
+
+            VcUtils.roundNodeRects(el);
+
+            el.classList.toggle('vc-graph-node-compare-base', compareBase);
+
+            div.className = 'graph-node-div vc-graph-node';
+            div.style.setProperty('--vc-graph-node-accent', h.accent);
+            div.replaceChildren();
+
+            VcUtils.appendNodeIcon(div, h.userId);
+            VcUtils.appendNodeText(div, 'vc-graph-node-title', h.title);
+            VcUtils.appendNodeText(div, 'vc-graph-node-user', h.user);
+            VcUtils.appendNodeText(div, 'vc-graph-node-date', h.date);
+            VcUtils.appendNodeText(div, 'vc-graph-node-hash', h.hash);
+
+            if (h.expandable) {
+                const marker = VcUtils.appendNodeText(div, 'vc-graph-node-expandable', '');
+
+                marker.style.color = h.accent;
+            }
+        },
+
+        isCompareBase: function (node: Record<string, unknown>, graph: Graph) {
+            const selected = (graph as Graph & { selectedForCompare?: Record<string, unknown> | null })
+                .selectedForCompare;
+
+            return node.vcCompareBase || selected?.id === node.id;
+        },
+
+        roundNodeRects: function (el: Element) {
+            el.querySelectorAll<SVGRectElement>(
+                'rect[joint-selector="body"], rect[joint-selector="labelBackground"]'
+            ).forEach((rect) => {
+                rect.setAttribute('rx', String(VC_GRAPH_NODE_RADIUS));
+                rect.setAttribute('ry', String(VC_GRAPH_NODE_RADIUS));
+            });
+        },
+
+        appendNodeIcon: function (parent: HTMLElement, userId: unknown) {
+            if (!userId) {
+                VcUtils.appendNodeText(parent, 'vc-graph-node-icon vc-graph-node-icon-fallback', VC_GRAPH_NODE_ICON);
+                return;
+            }
+
+            const img = document.createElement('img');
+
+            img.className = 'vc-graph-node-icon';
+            img.alt = '';
+            applyUserThumbnail(img, userId as string | number, 28);
+            parent.appendChild(img);
+        },
+
+        appendNodeText: function (parent: HTMLElement, cls: string, text: string) {
+            const el = document.createElement('span');
+
+            el.className = cls;
+            el.textContent = text;
+            parent.appendChild(el);
+
+            return el;
+        },
+
+        refreshCompareSelection: function (
+            data: VcGraphData,
+            oldNode?: Record<string, unknown> | null,
+            newNode?: Record<string, unknown> | null
+        ) {
+            if (oldNode) {
+                VcUtils.renderNodeContent(oldNode, data);
+            }
+
+            if (newNode && newNode !== oldNode) {
+                VcUtils.renderNodeContent(newNode, data);
+            }
+
+            VcUtils.renderCompareTray(data);
+        },
+
         descriptionLines: function (node: Record<string, unknown>, data: VcGraphData) {
             let descr = node.checkpointData.description;
 
@@ -159,12 +327,7 @@ editor.once('load', () => {
                 descr = VcUtils.addHistPrefix(descr, node);
             }
 
-            const lines = editor.call(
-                'vcgraph:splitNodeDescription',
-                descr,
-                CHARS_PER_LINE,
-                TRUNCATE_TOKEN_LIMIT
-            );
+            const lines = editor.call('vcgraph:splitNodeDescription', descr, CHARS_PER_LINE, TRUNCATE_TOKEN_LIMIT);
 
             return lines.slice(0, DESCRIPTION_LINES);
         },
@@ -203,7 +366,7 @@ editor.once('load', () => {
 
             s = s.replace(/\[[a-z0-9]{7}\]/g, '');
 
-            s = s.replace(/"/g, '\'');
+            s = s.replace(/"/g, "'");
 
             s = s.replace(/, parent checkpoint:.+$/, '');
 
@@ -265,10 +428,10 @@ editor.once('load', () => {
 
             const edges = [];
 
-            nodes.forEach(h => VcUtils.edgesToRenderForNode(h, data, edges));
+            nodes.forEach((h) => VcUtils.edgesToRenderForNode(h, data, edges));
 
             for (const h of edges) {
-                await VcUtils.waitMs(1); // eslint-disable-line no-await-in-loop
+                await VcUtils.waitMs(1);
 
                 VcUtils.renderOneEdge(data, h);
             }
@@ -285,7 +448,158 @@ editor.once('load', () => {
 
             a = a.filter(VcUtils.nodeNeedsRender);
 
-            a.forEach(h => VcUtils.renderVcNode(h, data));
+            a.forEach((h) => VcUtils.renderVcNode(h, data));
+        },
+
+        renderBranchLegend: function (data: VcGraphData) {
+            const legend = VcUtils.branchLegend(data.graph);
+            const list = legend.querySelector<HTMLElement>('.vc-graph-legend-list');
+            const styles = editor.call('vcgraph:getAllStyles');
+            const branchIds = new Set(Object.values(data.idToNode).map((h) => h.branchId));
+            const branches = Object.entries(data.branches)
+                .filter(([id, h]) => branchIds.has(id) && h.name && h.vcBranchColor !== undefined)
+                .map(([, h]) => h);
+
+            VcUtils.sortByIntField(branches, 'created_at');
+            list?.replaceChildren();
+            legend.hidden = !branches.length;
+            legend.open = legend.dataset.open ? legend.dataset.open === 'true' : !VcUtils.isSmallGraph(data.graph);
+            legend.classList.toggle('pcui-collapsed', !legend.open);
+
+            branches.forEach((h) => {
+                const item = document.createElement('span');
+                const dot = document.createElement('span');
+                const label = document.createElement('span');
+                const name = String(h.name) + (h.closed ? CLOSED_BRANCH_SUFFIX : '');
+
+                item.className = 'vc-graph-legend-item';
+                item.title = name;
+                dot.className = 'vc-graph-legend-dot';
+                dot.style.backgroundColor = styles[Number(h.vcBranchColor)]?.stroke || VC_GRAPH_FALLBACK_ACCENT;
+                label.className = 'vc-graph-legend-label';
+                label.textContent = name;
+                item.append(dot, label);
+                list?.appendChild(item);
+            });
+        },
+
+        renderCompareTray: function (data: VcGraphData) {
+            const tray = VcUtils.compareTray(data.graph);
+            const selected = (data.graph as Graph & { selectedForCompare?: Record<string, unknown> | null })
+                .selectedForCompare;
+
+            tray.replaceChildren();
+            tray.hidden = !selected;
+            tray.style.borderColor = '';
+
+            if (!selected) {
+                return;
+            }
+
+            const h = VcUtils.vcNodeContent(selected, data);
+            const branch = data.branches[String(selected.branchId)];
+            const info = document.createElement('span');
+            const label = document.createElement('span');
+            const title = document.createElement('span');
+            const meta = document.createElement('span');
+            const clear = document.createElement('button');
+
+            tray.style.borderColor = h.accent;
+            info.className = 'vc-graph-compare-info';
+            label.className = 'vc-graph-compare-label';
+            title.className = 'vc-graph-compare-title';
+            meta.className = 'vc-graph-compare-meta';
+            clear.className = 'vc-graph-compare-clear';
+            clear.type = 'button';
+            label.textContent = 'Compare base';
+            title.textContent = h.title;
+            meta.textContent = `${String(branch?.name || '')} · ${h.hash} · ${h.date}`;
+            clear.textContent = 'Clear';
+            clear.addEventListener('click', () => {
+                selected.vcCompareBase = false;
+                (data.graph as Graph & { selectedForCompare?: Record<string, unknown> | null }).selectedForCompare =
+                    null;
+                VcUtils.renderNodeContent(selected, data);
+                VcUtils.renderCompareTray(data);
+            });
+
+            info.append(label, title, meta);
+            tray.append(VcUtils.compareAvatar(h.userId), info, clear);
+        },
+
+        compareTray: function (graph: Graph) {
+            let tray = graph.dom.querySelector<HTMLElement>('.vc-graph-compare-tray');
+
+            if (!tray) {
+                tray = document.createElement('div');
+                tray.className = 'vc-graph-compare-tray';
+                VcUtils.overlayStack(graph).appendChild(tray);
+            }
+
+            return tray;
+        },
+
+        compareAvatar: function (userId: unknown) {
+            if (!userId) {
+                const icon = document.createElement('span');
+
+                icon.className = 'vc-graph-compare-avatar vc-graph-node-icon-fallback';
+                icon.textContent = VC_GRAPH_NODE_ICON;
+
+                return icon;
+            }
+
+            const img = document.createElement('img');
+
+            img.className = 'vc-graph-compare-avatar';
+            img.alt = '';
+            applyUserThumbnail(img, userId as string | number, 22);
+
+            return img;
+        },
+
+        branchLegend: function (graph: Graph) {
+            let legend = graph.dom.querySelector<HTMLDetailsElement>('.vc-graph-legend');
+
+            if (!legend) {
+                const header = document.createElement('summary');
+                const title = document.createElement('span');
+                const list = document.createElement('div');
+
+                legend = document.createElement('details');
+                legend.className = 'pcui-panel pcui-collapsible vc-graph-legend';
+                header.className = 'pcui-panel-header';
+                title.className = 'pcui-panel-header-title';
+                title.textContent = 'LEGEND';
+                list.className = 'pcui-panel-content vc-graph-legend-list';
+                header.appendChild(title);
+                legend.append(header, list);
+                legend.addEventListener('toggle', () => {
+                    legend.dataset.open = String(legend.open);
+                    legend.classList.toggle('pcui-collapsed', !legend.open);
+                });
+                VcUtils.overlayStack(graph).appendChild(legend);
+            }
+
+            return legend;
+        },
+
+        isSmallGraph: function (graph: Graph) {
+            const overlay = graph.dom.closest('.vc-graph-overlay');
+
+            return window.matchMedia(VC_GRAPH_SMALL_QUERY).matches || !overlay?.classList.contains('fullscreen');
+        },
+
+        overlayStack: function (graph: Graph) {
+            let stack = graph.dom.querySelector<HTMLElement>('.vc-graph-overlay-stack');
+
+            if (!stack) {
+                stack = document.createElement('div');
+                stack.className = 'vc-graph-overlay-stack';
+                graph.dom.appendChild(stack);
+            }
+
+            return stack;
         },
 
         nodeNeedsRender: function (h: Record<string, unknown>) {
@@ -303,8 +617,7 @@ editor.once('load', () => {
 
             const ch2 = data.idToNode[h.child];
 
-            const need = !data.renderedEdges[h.vcEdgeId] &&
-                ch1 && ch2;
+            const need = !data.renderedEdges[h.vcEdgeId] && ch1 && ch2;
 
             if (need) {
                 res.push(h);
@@ -345,7 +658,7 @@ editor.once('load', () => {
             return `${h.parent}-${h.child}`;
         },
 
-        rmEdgesForNode: function (node: Record<string, unknown>, renderedEdges: Record<string, boolean>, graph: Record<string, unknown>) {
+        rmEdgesForNode: function (node: Record<string, unknown>, renderedEdges: Record<string, boolean>, graph: Graph) {
             VcUtils.iterAllEdges(node, (n, edge, type) => {
                 graph.deleteEdge(edge.vcEdgeId);
 
@@ -391,7 +704,12 @@ editor.once('load', () => {
             delete data.idToNode[h.id];
         },
 
-        rmAllEdges: function (h1: Record<string, unknown>, type1: 'parent' | 'child', type2: 'parent' | 'child', data: VcGraphData) {
+        rmAllEdges: function (
+            h1: Record<string, unknown>,
+            type1: 'parent' | 'child',
+            type2: 'parent' | 'child',
+            data: VcGraphData
+        ) {
             h1[type1].forEach((edge) => {
                 const h2 = data.idToNode[edge[type1]];
 
@@ -407,8 +725,8 @@ editor.once('load', () => {
             });
         },
 
-        initVcGraph: function (container: { dom: HTMLElement }, closeBtn: { dom: HTMLElement }) {
-            VcUtils.branchCount = 0;
+        initVcGraph: function (container: Container) {
+            branchCount = 0;
 
             const h = {
                 dom: container.dom
@@ -418,9 +736,10 @@ editor.once('load', () => {
 
             const schema = VcUtils.makeSchema();
 
-            const graph = new PCUIGraph(schema, h);
+            const graph = new Graph(schema, h);
 
-            graph.dom.appendChild(closeBtn.dom);
+            currentGraph = graph;
+            currentGraphDom = container.dom;
 
             return graph;
         },
@@ -463,16 +782,27 @@ editor.once('load', () => {
         },
 
         vcNodeSchema: function (fill: string, stroke: string, i: number) {
+            if (!i) {
+                return Object.assign(
+                    {
+                        fill: fill,
+                        stroke: stroke,
+                        strokeSelected: stroke,
+                        strokeHover: stroke
+                    },
+                    SELECTED_MARK.defaults
+                );
+            }
+
             const h = {
-                fill: fill,
+                fill: VC_GRAPH_NODE_FILL,
                 stroke: stroke,
+                fillSecondary: VC_GRAPH_NODE_FILL,
                 strokeSelected: stroke,
-                strokeHover: stroke
+                strokeHover: VC_GRAPH_NODE_HOVER_STROKE
             };
 
-            const def = i ? NODE_DEFAULTS : SELECTED_MARK.defaults;
-
-            return Object.assign(h, def);
+            return Object.assign(h, NODE_DEFAULTS);
         },
 
         vcEdgeSchema: function (stroke: string, defaults: Record<string, unknown>) {
@@ -487,32 +817,41 @@ editor.once('load', () => {
             Array.prototype.push.apply(a1, a2);
         },
 
-        forAllEdgeTypes: function (node: Record<string, unknown>, callback: (node: Record<string, unknown>, edges: unknown[], type: string) => void) {
+        forAllEdgeTypes: function (
+            node: Record<string, unknown>,
+            callback: (node: Record<string, unknown>, edges: unknown[], type: string) => void
+        ) {
             VC_EDGE_TYPES.forEach((type) => {
                 callback(node, node[type], type);
             });
         },
 
-        iterAllEdges: function (node: Record<string, unknown>, callback: (node: Record<string, unknown>, edge: Record<string, unknown>, type: string) => void) {
+        iterAllEdges: function (
+            node: Record<string, unknown>,
+            callback: (node: Record<string, unknown>, edge: Record<string, unknown>, type: string) => void
+        ) {
             VcUtils.forAllEdgeTypes(node, (node, edges, type) => {
                 VcUtils.iterEdgeType(node, edges, type, callback);
             });
         },
 
-        iterEdgeType: function (node: Record<string, unknown>, edges: unknown[], type: string, callback: (node: Record<string, unknown>, edge: Record<string, unknown>, type: string) => void) {
+        iterEdgeType: function (
+            node: Record<string, unknown>,
+            edges: unknown[],
+            type: string,
+            callback: (node: Record<string, unknown>, edge: Record<string, unknown>, type: string) => void
+        ) {
             edges.forEach((edge) => {
                 callback(node, edge, type);
             });
         },
 
         nextBranchCoordX: function () {
-            return VcUtils.branchCount++;
+            return branchCount++;
         },
 
         assignBranchColors: function (data: VcGraphData) {
-            let a = Object.values(data.branches);
-
-            a = a.filter(h => h.vcBranchColor === undefined);
+            const a = Object.values(data.branches);
 
             VcUtils.sortByIntField(a, 'created_at');
 
@@ -525,12 +864,10 @@ editor.once('load', () => {
             });
         },
 
-        setColorForBranch: function (h: Record<string, unknown>) {
-            let n = VcUtils.strToHashCode(h.name);
+        setColorForBranch: function (h: Record<string, unknown>, i: number) {
+            const n = Number(editor.call('vcgraph:numStyles')) - 1;
 
-            n %= editor.call('vcgraph:numStyles');
-
-            h.vcBranchColor = Math.max(1, n); // 0 is the special marker node
+            h.vcBranchColor = 1 + ((VC_GRAPH_BRANCH_COLOR_START - 1 + i) % n);
         },
 
         groupByPath: function (a: Record<string, unknown>[], path: string[]) {
@@ -600,7 +937,7 @@ editor.once('load', () => {
         findMaxKey: function (h: Record<string, unknown>) {
             let a = Object.keys(h);
 
-            a = a.map(s => parseInt(s, 10));
+            a = a.map((s) => parseInt(s, 10));
 
             return Math.max(...a);
         },
@@ -636,19 +973,32 @@ editor.once('load', () => {
             return a;
         },
 
-        // Top left coords and width/height of the box rel to screen
-        nodeToScreenCoords: function (node: Record<string, unknown>, graph: Record<string, unknown>) {
+        // node box position/size relative to the screen. taken from the node's actual rendered
+        // element (via graph.view, as renderNodeContent does) so it stays correct wherever the
+        // graph box sits — the fixed offset below only holds at the box's reference position
+        nodeToScreenCoords: function (node: Record<string, unknown>, graph: Graph) {
             const scale = graph.getGraphScale();
 
             const grPos = graph.getGraphPosition();
+
+            // the fixed offset is calibrated for fullscreen; when the box isn't fullscreen the host
+            // sits elsewhere, so shift the menu by how far it moved from its fullscreen origin
+            let offX = SCREEN_COORD_OFFSET.x;
+            let offY = SCREEN_COORD_OFFSET.y;
+            const overlay = graph.dom.closest('.vc-graph-overlay');
+            if (overlay && !overlay.classList.contains('fullscreen')) {
+                const rect = graph.dom.getBoundingClientRect();
+                offX += rect.left - VC_GRAPH_FS_HOST.x;
+                offY += rect.top - VC_GRAPH_FS_HOST.y;
+            }
 
             const h = {
                 x: VcUtils.transformCoord(node, 'x'),
                 y: VcUtils.transformCoord(node, 'y')
             };
 
-            h.x = grPos.x + (h.x * scale) + SCREEN_COORD_OFFSET.x;
-            h.y = grPos.y + (h.y * scale) + SCREEN_COORD_OFFSET.y;
+            h.x = grPos.x + h.x * scale + offX;
+            h.y = grPos.y + h.y * scale + offY;
 
             h.w = NODE_DEFAULTS.baseWidth * scale;
             h.h = NODE_DEFAULTS.baseHeight * scale;
@@ -658,20 +1008,6 @@ editor.once('load', () => {
 
         minBetweenNodes: function () {
             return MIN_BETWEEN_NODES;
-        },
-
-        strToHashCode: function (s: string) {
-            let hash = 0;
-
-            for (let i = 0; i < s.length; i++) {
-                const chr = s.charCodeAt(i);
-
-                hash = ((hash << 5) - hash) + chr;
-
-                hash |= 0; // Convert to 32bit integer
-            }
-
-            return Math.abs(hash);
         },
 
         vcNodeClick: function (id: string, expandCallback: (err: unknown, data: unknown) => void, data: VcGraphData) {
@@ -690,7 +1026,11 @@ editor.once('load', () => {
             editor.call('vcgraph:showNodeMenu', data.vcNodeMenu, h, data, coords);
         },
 
-        expandVcNode: function (node: Record<string, unknown>, histItem: unknown, callback: (err: unknown, data: unknown) => void) {
+        expandVcNode: function (
+            node: Record<string, unknown>,
+            histItem: unknown,
+            callback: (err: unknown, data: unknown) => void
+        ) {
             const h = {
                 branchId: node.branchId,
                 graphStartId: node.id,
@@ -705,12 +1045,15 @@ editor.once('load', () => {
 
             h.branch = h.branchId;
 
-            handleCallback(editor.api.globals.rest.branches.branchCheckpoints({
-                branchId: h.branch,
-                taskType: h.task_type,
-                graphStartId: h.graphStartId,
-                vcHistItem: h.vcHistItem
-            }), callback);
+            handleCallback(
+                editor.api.globals.rest.branches.branchCheckpoints({
+                    branchId: h.branch,
+                    taskType: h.task_type,
+                    graphStartId: h.graphStartId,
+                    vcHistItem: h.vcHistItem
+                }),
+                callback
+            );
         },
 
         launchItemHist: function (type: string, id: string) {
@@ -722,7 +1065,7 @@ editor.once('load', () => {
 
             editor.call('picker:versioncontrol');
 
-            editor.call('vcgraph:showGraphPanel', h);
+            editor.call('picker:versioncontrol:graph', h);
         },
 
         equalHistNodes: function (h1: Record<string, unknown>, h2: Record<string, unknown>) {
@@ -736,7 +1079,7 @@ editor.once('load', () => {
         cleanHistNode: function (h: Record<string, unknown>) {
             const res = { parent: [], child: [] };
 
-            ['parent', 'child'].forEach(s => VcUtils.cleanEdges(res, h, s));
+            ['parent', 'child'].forEach((s) => VcUtils.cleanEdges(res, h, s));
 
             return res;
         },
@@ -758,8 +1101,19 @@ editor.once('load', () => {
         }
     };
 
-    // eslint-disable-next-line prefer-arrow-callback -- needs function for callMethod binding
     editor.method('vcgraph:utils', function (...args: unknown[]) {
         return editor.call('utils:callMethod', VcUtils, args);
+    });
+
+    editor.method('vcgraph:resize', () => {
+        if (!currentGraphDom) {
+            return;
+        }
+        // joint's setDimensions pins an inline px width/height on the host, which then ignores
+        // the css-driven fullscreen resize. clearing it lets the host follow its flex size; the
+        // optional nudge remeasures synchronously when the method is reachable
+        currentGraphDom.style.width = '';
+        currentGraphDom.style.height = '';
+        currentGraph?._resizeGraph?.(currentGraphDom);
     });
 });

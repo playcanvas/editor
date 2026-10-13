@@ -4,6 +4,7 @@ import { Container } from '@playcanvas/pcui';
 import type { Attribute } from './attribute.type.d';
 import { AttributesInspector } from './attributes-inspector';
 import { AssetImportSettingsPanel } from './settings-panels/asset-import';
+import type { BaseSettingsPanelArgs } from './settings-panels/base';
 import { BatchGroupsSettingsPanel } from './settings-panels/batchgroups';
 import { EditorSettingsPanel } from './settings-panels/editor';
 import { EngineSettingsPanel } from './settings-panels/engine';
@@ -20,13 +21,14 @@ import { PhysicsSettingsPanel } from './settings-panels/physics';
 import { RenderingSettingsPanel } from './settings-panels/rendering';
 import { ScriptsSettingsPanel } from './settings-panels/scripts';
 import { ProjectHistorySettingsPanel } from './settings-panels/settings-history';
-
+import { VersionControlSettingsPanel } from './settings-panels/version-control';
 
 const CLASS_ROOT = 'settings';
 
 const SETTINGS_PANELS = [
     EngineSettingsPanel,
     EditorSettingsPanel,
+    VersionControlSettingsPanel,
     AssetImportSettingsPanel,
     PhysicsSettingsPanel,
     RenderingSettingsPanel,
@@ -53,7 +55,7 @@ const ATTRIBUTES: Attribute[] = [
     }
 ];
 
-const DOM = parent => [
+const DOM = (parent) => [
     {
         sceneAttributes: new AttributesInspector({
             attributes: ATTRIBUTES,
@@ -66,7 +68,7 @@ const DOM = parent => [
 ];
 
 class SettingsPanel extends Container {
-    private _args: Record<string, unknown>;
+    private _args: BaseSettingsPanelArgs;
 
     private _settingsEvents: EventHandle[] = [];
 
@@ -76,7 +78,7 @@ class SettingsPanel extends Container {
 
     private _sceneAttributes: AttributesInspector;
 
-    constructor(args: Record<string, unknown> = {}) {
+    constructor(args: BaseSettingsPanelArgs) {
         args.flex = true;
 
         super(args);
@@ -86,15 +88,18 @@ class SettingsPanel extends Container {
 
         this.buildDom(DOM(this));
 
-        editor.on('scene:raw', (data) => {
-            editor.emit('scene:name', data.name);
-            this._sceneName = data.name;
+        editor.on('scene:name', (name) => {
+            this._sceneName = name;
             const sceneNameField = this._sceneAttributes.getField('name');
 
             const suspend = this._suspendSceneNameEvt;
             this._suspendSceneNameEvt = true;
             sceneNameField.value = this._sceneName;
             this._suspendSceneNameEvt = suspend;
+        });
+
+        editor.on('scene:raw', (data) => {
+            editor.emit('scene:name', data.name);
         });
 
         editor.on('realtime:scene:op:name', (op) => {
@@ -121,22 +126,24 @@ class SettingsPanel extends Container {
     _linkSceneNameField() {
         const sceneNameField = this._sceneAttributes.getField('name');
         sceneNameField.value = this._sceneName;
-        this._settingsEvents.push(sceneNameField.on('change', (newSceneName) => {
-            if (this._suspendSceneNameEvt) {
-                return;
-            }
-            if (!editor.call('permissions:write')) {
-                return;
-            }
+        this._settingsEvents.push(
+            sceneNameField.on('change', (newSceneName) => {
+                if (this._suspendSceneNameEvt) {
+                    return;
+                }
+                if (!editor.call('permissions:write')) {
+                    return;
+                }
 
-            editor.call('realtime:scene:op', {
-                p: ['name'],
-                od: this._sceneName || '',
-                oi: newSceneName || ''
-            });
-            this._sceneName = newSceneName;
-            editor.emit('scene:name', newSceneName);
-        }));
+                editor.call('realtime:scene:op', {
+                    p: ['name'],
+                    od: this._sceneName || '',
+                    oi: newSceneName || ''
+                });
+                this._sceneName = newSceneName;
+                editor.emit('scene:name', newSceneName);
+            })
+        );
     }
 }
 

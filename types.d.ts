@@ -1,56 +1,109 @@
-// config type (injected into HTML)
-declare var config: import('./src/editor-api').EditorBlankConfig |
-    import('./src/editor-api').EditorConfig |
-    import('./src/editor-api').CodeEditorConfig |
-    import('./src/editor-api').LaunchConfig;
+import type * as pcuiLib from '@playcanvas/pcui';
+import type * as monacoEditor from 'monaco-editor';
+import type * as playcanvas from 'playcanvas';
 
-// editor
-declare var editor: import('./src/common/editor').Editor<import('./src/common/editor').EditorMethods>;
+import type { Editor, EditorMethods } from './src/common/editor';
+import type { RelayServer } from './src/editor/relay/relay-server';
+import type { CodeEditorConfig, EditorBlankConfig, EditorConfig, LaunchConfig } from './src/editor-api';
+import type * as pcuiConstants from './src/pcui/constants';
 
-// log
-declare var log: {
-    error: (...args: any) => void;
-};
+declare global {
+    // config type (injected into HTML)
+    let config: EditorBlankConfig | EditorConfig | CodeEditorConfig | LaunchConfig;
 
-// metrics
-declare var metrics: {
-    increment: (data: any) => void;
-};
+    // editor
+    let editor: Editor<EditorMethods>;
 
-// monaco
-declare var monaco: typeof import('monaco-editor');
+    // log
+    let log: {
+        error: {
+            (...args: any[]): void;
+            (strings: TemplateStringsArray, ...values: unknown[]): void;
+        };
+    };
 
-// pc (bundled in editor, injected in HTML for launch page)
-declare var pc: typeof import('playcanvas');
+    // metrics
+    let metrics: {
+        increment: (data: any) => void;
+    };
 
-// pcui
-declare var pcui: typeof import('@playcanvas/pcui') &
-    typeof import('./src/pcui/constants');
+    // monaco
+    let monaco: typeof monacoEditor;
 
-// pcx (loaded in HTML)
-declare var pcx: typeof import('playcanvas');
+    // pc (bundled in editor, injected in HTML for launch page)
+    let pc: typeof playcanvas;
 
-// pcBootstrap (injected into HTML)
-declare var pcBootstrap: any;
+    // pcui
+    let pcui: typeof pcuiLib & typeof pcuiConstants;
 
-// relay (loaded in HTML)
-declare var relay: import('./src/editor/relay/relay-server').RelayServer;
+    // pcx (loaded in HTML)
+    let pcx: typeof playcanvas;
 
-// array extensions
-declare interface Array {
-    equals: (array: any[]) => boolean;
+    // pcBootstrap (injected into HTML)
+    let pcBootstrap: any;
+
+    // relay (loaded in HTML)
+    let relay: RelayServer;
+
+    // array extensions
+    // eslint-disable-next-line @typescript-eslint/consistent-type-definitions -- must be an interface to merge with the global Array type
+    interface Array {
+        equals: (array: any[]) => boolean;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/consistent-type-definitions -- must be an interface to merge with the global Window type
+    interface Window {
+        // global variables
+        config: typeof config;
+        editor: typeof editor;
+        log: typeof log;
+        metrics: typeof metrics;
+        monaco: typeof monaco;
+        pc: typeof pc;
+        pcui: typeof pcui;
+        pcx: typeof pcx;
+        pcBootstrap: typeof pcBootstrap;
+        relay: typeof relay;
+    }
 }
 
-declare interface Window {
-    // global variables
-    config: typeof config;
-    editor: typeof editor;
-    log: typeof log;
-    metrics: typeof metrics;
-    monaco: typeof monaco;
-    pc: typeof pc;
-    pcui: typeof pcui;
-    pcx: typeof pcx;
-    pcBootstrap: typeof pcBootstrap;
-    relay: typeof relay;
+// @playcanvas/font-tools ships as JSDoc-typed JS with no .d.ts — declare the subset we use
+declare module '@playcanvas/font-tools' {
+    /** default glyph cell size in px, as passed to msdfgen */
+    export const GLYPH_SIZE: number;
+    /** default msdf pixel range, as passed to msdfgen */
+    export const PXRANGE: number;
+    export type FontGlyphSource = {
+        generateGlyph(codepoint: number, opts: { size: number; pxrange: number }): any;
+        dispose?: () => void;
+    };
+    export type FontImageBackend = {
+        composite(page: { width: number; height: number; glyphs: any[] }): Promise<Uint8Array>;
+    };
+    export function generateFont(opts: {
+        chars?: string | number[];
+        fontName?: string;
+        intensity?: number;
+        invert?: boolean;
+        glyphSource: FontGlyphSource;
+        imageBackend: FontImageBackend;
+        kerningSource?: unknown;
+        size?: number;
+        pxrange?: number;
+    }): Promise<{ data: any; textures: Uint8Array[] }>;
+}
+
+declare module '@playcanvas/font-tools/image-backend-canvas' {
+    import type { FontImageBackend } from '@playcanvas/font-tools';
+
+    export function createCanvasImageBackend(): FontImageBackend;
+}
+
+declare module '@playcanvas/font-tools/glyph-source-msdfgen' {
+    import type { FontGlyphSource } from '@playcanvas/font-tools';
+
+    export function createMsdfgenGlyphSource(
+        fontBytes: Uint8Array | ArrayBuffer,
+        opts?: { moduleOverrides?: { locateFile?: (path: string) => string } }
+    ): Promise<FontGlyphSource>;
 }

@@ -1,9 +1,13 @@
-import { Button, Label, Overlay } from '@playcanvas/pcui';
+import type { Container } from '@playcanvas/pcui';
+import { Button, Label, Overlay, Panel } from '@playcanvas/pcui';
+import { GSPLATDATA_COMPACT, GSPLATDATA_LARGE, GSPLAT_BUDGET_LIMIT, GSPLAT_BUDGET_TARGET } from 'playcanvas';
 
 import { TONEMAPPING } from '@/core/constants';
 
-import { BaseSettingsPanel } from './base';
 import type { Attribute, Divider } from '../attribute.type.d';
+
+import { BaseSettingsPanel } from './base';
+import type { BaseSettingsPanelArgs } from './base';
 
 const ATTRIBUTES: (Attribute | Divider)[] = [
     {
@@ -189,6 +193,18 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
     },
     {
         observer: 'sceneSettings',
+        label: 'Max Lights',
+        path: 'render.lightingMaxLights',
+        reference: 'settings:lightingMaxLights',
+        type: 'number',
+        args: {
+            min: 1,
+            step: 1,
+            precision: 0
+        }
+    },
+    {
+        observer: 'sceneSettings',
         label: 'Cookies Enabled',
         type: 'boolean',
         path: 'render.lightingCookiesEnabled',
@@ -233,13 +249,20 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
         type: 'select',
         args: {
             type: 'number',
-            options: [{
-                v: 5, t: 'Shadow Map PCF 1x1'
-            }, {
-                v: 0, t: 'Shadow Map PCF 3x3'
-            }, {
-                v: 4, t: 'Shadow Map PCF 5x5'
-            }]
+            options: [
+                {
+                    v: 5,
+                    t: 'Shadow Map PCF 1x1'
+                },
+                {
+                    v: 0,
+                    t: 'Shadow Map PCF 3x3'
+                },
+                {
+                    v: 4,
+                    t: 'Shadow Map PCF 5x5'
+                }
+            ]
         }
     },
     {
@@ -248,6 +271,175 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
         type: 'boolean',
         path: 'render.lightingAreaLightsEnabled',
         reference: 'settings:lightingAreaLightsEnabled'
+    },
+    {
+        type: 'divider'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Radial Sorting',
+        path: 'render.gsplatRadialSorting',
+        reference: 'settings:gsplatRadialSorting',
+        type: 'boolean'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'LOD Update Distance',
+        path: 'render.gsplatLodUpdateDistance',
+        reference: 'settings:gsplatLodUpdateDistance',
+        type: 'number'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'LOD Update Angle',
+        path: 'render.gsplatLodUpdateAngle',
+        reference: 'settings:gsplatLodUpdateAngle',
+        type: 'number'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'LOD Behind Penalty',
+        path: 'render.gsplatLodBehindPenalty',
+        reference: 'settings:gsplatLodBehindPenalty',
+        type: 'number'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'LOD Underfill Limit',
+        path: 'render.gsplatLodUnderfillLimit',
+        reference: 'settings:gsplatLodUnderfillLimit',
+        type: 'number',
+        args: {
+            step: 1,
+            precision: 0
+        }
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Splat Budget',
+        path: 'render.gsplatSplatBudget',
+        reference: 'settings:gsplatSplatBudget',
+        type: 'number',
+        args: {
+            step: 1000,
+            precision: 0
+        }
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Splat Budget Mode',
+        path: 'render.gsplatSplatBudgetMode',
+        reference: 'settings:gsplatSplatBudgetMode',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [
+                { v: GSPLAT_BUDGET_TARGET, t: 'Target' },
+                { v: GSPLAT_BUDGET_LIMIT, t: 'Limit' }
+            ]
+        }
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Alpha Clip',
+        path: 'render.gsplatAlphaClip',
+        reference: 'settings:gsplatAlphaClip',
+        type: 'number'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Forward Alpha Clip',
+        path: 'render.gsplatAlphaClipForward',
+        reference: 'settings:gsplatAlphaClipForward',
+        type: 'number'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Min Pixel Size',
+        path: 'render.gsplatMinPixelSize',
+        reference: 'settings:gsplatMinPixelSize',
+        type: 'number'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Min Contribution',
+        path: 'render.gsplatMinContribution',
+        reference: 'settings:gsplatMinContribution',
+        type: 'number'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Foveation Strength',
+        path: 'render.gsplatFoveationStrength',
+        reference: 'settings:gsplatFoveationStrength',
+        type: 'number'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Foveation Center',
+        path: 'render.gsplatFoveationCenter',
+        reference: 'settings:gsplatFoveationCenter',
+        type: 'number'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Anti-Alias',
+        path: 'render.gsplatAntiAlias',
+        reference: 'settings:gsplatAntiAlias',
+        type: 'boolean'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Use Fog',
+        path: 'render.gsplatUseFog',
+        reference: 'settings:gsplatUseFog',
+        type: 'boolean'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Use Tonemapping',
+        path: 'render.gsplatUseTonemap',
+        reference: 'settings:gsplatUseTonemap',
+        type: 'boolean'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Color Update Angle',
+        path: 'render.gsplatColorUpdateAngle',
+        reference: 'settings:gsplatColorUpdateAngle',
+        type: 'number'
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Cooldown Ticks',
+        path: 'render.gsplatCooldownTicks',
+        reference: 'settings:gsplatCooldownTicks',
+        type: 'number',
+        args: {
+            step: 1,
+            precision: 0
+        }
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Data Format',
+        path: 'render.gsplatDataFormat',
+        reference: 'settings:gsplatDataFormat',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [
+                { v: GSPLATDATA_COMPACT, t: 'Compact' },
+                { v: GSPLATDATA_LARGE, t: 'Large' }
+            ]
+        }
+    },
+    {
+        observer: 'sceneSettings',
+        label: 'Enable IDs',
+        path: 'render.gsplatEnableIds',
+        reference: 'settings:gsplatEnableIds',
+        type: 'boolean'
     },
     {
         type: 'divider'
@@ -461,6 +653,13 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
     },
     {
         observer: 'projectSettings',
+        label: 'Enable GLSL Shader Transpilation',
+        type: 'boolean',
+        reference: 'settings:project:enableGlslTranspilation',
+        path: 'enableGlslTranspilation'
+    },
+    {
+        observer: 'projectSettings',
         label: 'Enable WebGL 2.0',
         type: 'boolean',
         reference: 'settings:project:enableWebGl2',
@@ -552,7 +751,7 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
 ];
 
 class RenderingSettingsPanel extends BaseSettingsPanel {
-    constructor(args: Record<string, unknown>) {
+    constructor(args: BaseSettingsPanelArgs) {
         args = Object.assign({}, args);
         args.headerText = 'RENDERING';
         args.attributes = ATTRIBUTES;
@@ -561,6 +760,12 @@ class RenderingSettingsPanel extends BaseSettingsPanel {
         super(args);
 
         this.class.add('rendering');
+
+        const firstSplat = this._attributesInspector.getField('render.gsplatRadialSorting');
+        (firstSplat.parent.parent as Container).appendBefore(
+            new Panel({ headerText: 'Gaussian Splatting', class: 'rendering-settings-section' }),
+            firstSplat.parent
+        );
 
         const fogAttribute = this._attributesInspector.getField('render.fog');
         const fogChangeEvt = fogAttribute.on('change', (value) => {
@@ -618,6 +823,7 @@ class RenderingSettingsPanel extends BaseSettingsPanel {
         const cookieResolution = this._attributesInspector.getField('render.lightingCookieAtlasResolution');
         const cells = this._attributesInspector.getField('render.lightingCells');
         const lightsPerCell = this._attributesInspector.getField('render.lightingMaxLightsPerCell');
+        const maxLights = this._attributesInspector.getField('render.lightingMaxLights');
         const clusteredEnabled = this._attributesInspector.getField('render.clusteredLightingEnabled');
 
         const sceneSettings = editor.call('sceneSettings');
@@ -647,7 +853,6 @@ class RenderingSettingsPanel extends BaseSettingsPanel {
         });
 
         clusteredEnabled.on('change', (value) => {
-
             const oldclusteredEnabled = sceneSettings.get('render.clusteredLightingEnabled');
 
             // if the user changed clusteredLightingEnabled tickbox, reload the Editor
@@ -660,6 +865,8 @@ class RenderingSettingsPanel extends BaseSettingsPanel {
             cells.parent.hidden = !value;
             lightsPerCell.hidden = !value;
             lightsPerCell.parent.hidden = !value;
+            maxLights.hidden = !value;
+            maxLights.parent.hidden = !value;
 
             const shadows = shadowsEnabled.value && value;
             shadowsEnabled.hidden = !value;
@@ -693,14 +900,18 @@ class RenderingSettingsPanel extends BaseSettingsPanel {
         const deviceOrder = this._attributesInspector.getField('deviceOrder');
 
         const enableWebGpu = this._attributesInspector.getField('enableWebGpu');
+        const enableGlslTranspilation = this._attributesInspector.getField('enableGlslTranspilation');
         const enableWebGl2 = this._attributesInspector.getField('enableWebGl2');
 
         const onDeviceChange = () => {
+            enableGlslTranspilation.parent.hidden = !enableWebGpu.value;
             (deviceOrder as Label).text = [
                 enableWebGpu.value ? `WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}` : '',
                 enableWebGl2.value ? 'WebGL 2.0' : '',
                 editor.projectEngineV2 ? '' : 'WebGL 1.0'
-            ].filter(Boolean).join(' ► ');
+            ]
+                .filter(Boolean)
+                .join(' ► ');
             setTimeout(() => editor.emit('toolbar:launch:refresh'));
         };
         enableWebGpu.on('change', onDeviceChange);

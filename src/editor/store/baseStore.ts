@@ -2,19 +2,23 @@ import { Label, Container, RadioButton } from '@playcanvas/pcui';
 
 import { bytesToHuman } from '@/common/utils';
 
-const EMPTY_THUMBNAIL_IMAGE = 'https://playcanvas.com/static-assets/images/store-default-thumbnail-480x320.jpg';
+const EMPTY_THUMBNAIL_IMAGE = `${config.url.frontend}static/img/store-default-thumbnail.svg`;
 const STORE_ITEM_PAGE_SIZE = 24;
-const EMPTY_THUMBNAIL_IMAGE_LARGE = 'https://playcanvas.com/static-assets/images/store-default-thumbnail.jpg';
 
 class BaseStore {
-    constructor(args?: unknown) {
-        this.searchResults = [];
-        this.items = [];
-        this.startItem = 0;
-        this.selectedSortRadioButton = null;
-        this.sortPolicy = 'created';
-        this.sortCallback = null;
-    }
+    searchResults: any = [];
+
+    items: any[] = [];
+
+    startItem = 0;
+
+    totalCount = 0;
+
+    selectedSortRadioButton: RadioButton | null = null;
+
+    sortPolicy = 'created';
+
+    sortCallback: (() => void) | null = null;
 
     setItems(items: unknown[]) {
         this.items = items;
@@ -45,7 +49,7 @@ class BaseStore {
     }
 
     // build sorting menu item
-    buildSortingMenuItem(root: import('@playcanvas/pcui').Container, label: string, sortPolicy: string, selected?: boolean) {
+    buildSortingMenuItem(root: Container, label: string, sortPolicy: string, selected?: boolean) {
         const sortingMenuItem = new Container({ class: 'sorting-menu-item' });
         root.append(sortingMenuItem);
 
@@ -70,4 +74,4 @@ class BaseStore {
     }
 }
 
-export { BaseStore, EMPTY_THUMBNAIL_IMAGE_LARGE, EMPTY_THUMBNAIL_IMAGE, STORE_ITEM_PAGE_SIZE };
+export { BaseStore, EMPTY_THUMBNAIL_IMAGE, STORE_ITEM_PAGE_SIZE };

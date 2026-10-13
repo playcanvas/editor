@@ -40,7 +40,6 @@ editor.once('viewport:load', (app) => {
 
     // Option Fields UI
     const createOption = (cameraName: string, guid: string) => {
-
         // Create UI Panel
         const panelCameraOption = new Container({
             flex: true
@@ -147,7 +146,7 @@ editor.once('viewport:load', (app) => {
     editor.on('permissions:writeState', refreshOptions);
 
     editor.on('camera:add', (entity) => {
-        const guid = entity.getGuid();
+        const guid = entity.guid;
 
         viewportCamera.optionTitles[guid] = entity.name;
         viewportCamera.cameras[guid] = entity;
@@ -177,7 +176,7 @@ editor.once('viewport:load', (app) => {
     });
 
     editor.on('camera:remove', (entity) => {
-        const guid = entity.getGuid();
+        const guid = entity.guid;
 
         delete viewportCamera.optionTitles[guid];
         refreshOptions();
@@ -190,7 +189,7 @@ editor.once('viewport:load', (app) => {
 
     // Update camera selected title and active button
     editor.on('camera:change', (entity) => {
-        const guid = entity.getGuid();
+        const guid = entity.guid;
 
         viewportCamera.active = guid;
         clearRadioButtons();
@@ -223,28 +222,44 @@ editor.once('viewport:load', (app) => {
         }
     };
 
-    cameraPanel.dom.addEventListener('mouseenter', () => {
-        inButton = true;
-        enable();
-    }, false);
+    cameraPanel.dom.addEventListener(
+        'mouseenter',
+        () => {
+            inButton = true;
+            enable();
+        },
+        false
+    );
 
-    cameraPanel.dom.addEventListener('mouseleave', () => {
-        inButton = false;
-        disable();
-    }, false);
+    cameraPanel.dom.addEventListener(
+        'mouseleave',
+        () => {
+            inButton = false;
+            disable();
+        },
+        false
+    );
 
-    cameraOptions.dom.addEventListener('mouseenter', () => {
-        inOptions = true;
+    cameraOptions.dom.addEventListener(
+        'mouseenter',
+        () => {
+            inOptions = true;
 
-        if (timeout) {
-            clearTimeout(timeout);
-            timeout = null;
-        }
-    }, false);
+            if (timeout) {
+                clearTimeout(timeout);
+                timeout = null;
+            }
+        },
+        false
+    );
 
-    cameraOptions.dom.addEventListener('mouseleave', () => {
-        inOptions = false;
+    cameraOptions.dom.addEventListener(
+        'mouseleave',
+        () => {
+            inOptions = false;
 
-        disable();
-    }, false);
+            disable();
+        },
+        false
+    );
 });

@@ -4,48 +4,55 @@ import { Container, Panel } from '@playcanvas/pcui';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+const META_ATTRIBUTES: Attribute[] = [
+    {
+        label: 'Format',
+        alias: 'format',
+        path: 'meta.format',
+        type: 'label'
+    },
+    {
+        label: 'Splats',
+        alias: 'splats',
+        path: 'meta.count',
+        type: 'label'
+    },
+    {
+        label: 'SH Bands',
+        alias: 'bands',
+        path: 'meta.bands',
+        type: 'label'
+    },
+    {
+        label: 'Bound Min',
+        alias: 'bounds.min',
+        path: 'meta.bounds.min',
+        type: 'vec3'
+    },
+    {
+        label: 'Bound Max',
+        alias: 'bounds.max',
+        path: 'meta.bounds.max',
+        type: 'vec3'
+    }
+];
 
-const META_ATTRIBUTES: Attribute[] = [{
-    label: 'Format',
-    alias: 'format',
-    path: 'meta.format',
-    type: 'label'
-}, {
-    label: 'Splats',
-    alias: 'splats',
-    path: 'meta.count',
-    type: 'label'
-}, {
-    label: 'SH Bands',
-    alias: 'bands',
-    path: 'meta.bands',
-    type: 'label'
-}, {
-    label: 'Bound Min',
-    alias: 'bounds.min',
-    path: 'meta.bounds.min',
-    type: 'vec3'
-}, {
-    label: 'Bound Max',
-    alias: 'bounds.max',
-    path: 'meta.bounds.max',
-    type: 'vec3'
-}];
-
-const DOM = parent => [
+const DOM = (parent) => [
     {
         root: {
             metaPanel: new Panel({
                 headerText: 'META'
             })
         },
-        children: [{
-            metaAttributesInspector: new AttributesInspector({
-                assets: parent._args.assets,
-                history: parent._args.history,
-                attributes: META_ATTRIBUTES
-            })
-        }]
+        children: [
+            {
+                metaAttributesInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: META_ATTRIBUTES
+                })
+            }
+        ]
     }
 ];
 

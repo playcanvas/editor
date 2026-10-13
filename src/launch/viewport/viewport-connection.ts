@@ -1,7 +1,11 @@
+import { createLog } from '@/common/sentry';
+
+const log = createLog('<PATH>');
+
 editor.once('load', () => {
     const icon = document.createElement('img');
     icon.classList.add('connecting');
-    icon.src = 'https://playcanvas.com/static-assets/platform/images/loader_transparent.gif';
+    icon.src = `${config.url.frontend}static/img/loader_transparent.webp`;
     icon.width = 32;
     icon.height = 32;
 

@@ -4,20 +4,21 @@ import { Container, Button, Progress, Panel } from '@playcanvas/pcui';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
-
 const CLASS_ROOT = 'asset-audio-inspector';
 
-const ATTRIBUTES: Attribute[] = [{
-    label: 'Duration',
-    alias: 'duration',
-    reference: 'asset:audio:duration',
-    type: 'label',
-    args: {
-        value: '...'
+const ATTRIBUTES: Attribute[] = [
+    {
+        label: 'Duration',
+        alias: 'duration',
+        reference: 'asset:audio:duration',
+        type: 'label',
+        args: {
+            value: '...'
+        }
     }
-}];
+];
 
-const DOM = parent => [
+const DOM = (parent) => [
     {
         attributesInspector: new AttributesInspector({
             assets: parent._args.assets,
@@ -102,7 +103,7 @@ class AudioAssetInspector extends Panel {
     }
 
     _audioCanPlay(evt: Event) {
-        this._audioButton.disabled = false;
+        this._audioButton.enabled = true;
         this._audioTimeline.value = 0;
     }
 
@@ -123,7 +124,7 @@ class AudioAssetInspector extends Panel {
     }
 
     _updateTimeline() {
-        this._audioTimeline.value = this._audio.currentTime / this._audio.duration * 100;
+        this._audioTimeline.value = (this._audio.currentTime / this._audio.duration) * 100;
     }
 
     link(assets: Observer[]) {
@@ -132,15 +133,15 @@ class AudioAssetInspector extends Panel {
             return;
         }
 
-        this._audioButton.disabled = true;
+        this._audioButton.enabled = false;
         this._audioTimeline.value = 100;
 
-        this._assetEvents.click = (this._audioButton.on('click', this._onClickAudioButton.bind(this)));
+        this._assetEvents.click = this._audioButton.on('click', this._onClickAudioButton.bind(this));
 
         this._attributesInspector.link(assets);
         this._audio = new Audio();
         this._audioContainer.prepend(this._audio);
-        this._audio.src = config.url.home + assets[0].get('file.url');
+        this._audio.src = assets[0].get('file.url');
 
         this._audio.addEventListener('canplay', this._assetEvents.canplay, false);
         this._audio.addEventListener('play', this._assetEvents.play, false);

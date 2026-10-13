@@ -1,8 +1,8 @@
 import type { Observer, ObserverList } from '@playcanvas/observer';
-import { Element, ElementArgs, Container, Label, Button, BindingObserversToElement } from '@playcanvas/pcui';
+import type { ElementArgs } from '@playcanvas/pcui';
+import { Element, Container, Label, Button, BindingObserversToElement } from '@playcanvas/pcui';
 
 import { CLASS_FOCUS, CLASS_MULTIPLE_VALUES } from '../constants';
-
 
 const CLASS_ENTITY_INPUT = 'pcui-entity-input';
 const CLASS_EMPTY = `${CLASS_ENTITY_INPUT}-empty`;
@@ -10,7 +10,7 @@ const CLASS_EMPTY = `${CLASS_ENTITY_INPUT}-empty`;
 /**
  * The arguments for the {@link EntityInput} constructor.
  */
-interface EntityInputArgs extends ElementArgs {
+type EntityInputArgs = {
     /** The entities list. */
     entities?: ObserverList;
     /** A function with signature (callback) => void. The function should allow the user to pick an Entity and then the function should call the callback passing the Entity's resource id as the argument. */
@@ -23,7 +23,7 @@ interface EntityInputArgs extends ElementArgs {
     value?: string | null;
     /** If true then the Element will flash when its value changes */
     renderChanges?: boolean;
-}
+} & ElementArgs;
 
 /**
  * An input that accepts an Entity.
@@ -149,7 +149,7 @@ class EntityInput extends Element {
         editor.call('drop:target', {
             ref: this,
             filter: (type: string, dropData: any) => {
-                return (dropData.resource_id && dropData.resource_id !== this.value && type === 'entity');
+                return dropData.resource_id && dropData.resource_id !== this.value && type === 'entity';
             },
             drop: (type: string, dropData: any) => {
                 this.value = dropData.resource_id;

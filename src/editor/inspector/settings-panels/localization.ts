@@ -1,7 +1,9 @@
 import type { Observer } from '@playcanvas/observer';
 
-import { BaseSettingsPanel } from './base';
 import type { Attribute } from '../attribute.type.d';
+
+import { BaseSettingsPanel } from './base';
+import type { BaseSettingsPanelArgs } from './base';
 
 const ATTRIBUTES: Attribute[] = [
     {
@@ -29,7 +31,7 @@ const ATTRIBUTES: Attribute[] = [
 class LocalizationSettingsPanel extends BaseSettingsPanel {
     _createAssetTooltip: unknown;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: BaseSettingsPanelArgs) {
         args = Object.assign({}, args);
         args.headerText = 'LOCALIZATION';
         args.attributes = ATTRIBUTES;
@@ -39,13 +41,14 @@ class LocalizationSettingsPanel extends BaseSettingsPanel {
 
         const createNewAssetEvt = this._attributesInspector.getField('createAsset').on('click', () => {
             const folder = editor.call('assets:panel:currentFolder');
-            editor.api.globals.assets.createI18n({
-                name: 'Localization',
-                folder: folder && folder.apiAsset
-            })
-            .catch((err) => {
-                editor.call('status:error', err);
-            });
+            editor.api.globals.assets
+                .createI18n({
+                    name: 'localization.json',
+                    folder: folder && folder.apiAsset
+                })
+                .catch((err) => {
+                    editor.call('status:error', err);
+                });
         });
 
         this.once('destroy', () => {
@@ -56,7 +59,11 @@ class LocalizationSettingsPanel extends BaseSettingsPanel {
     link(observers: Observer[]) {
         super.link(observers);
         if (!this._createAssetTooltip) {
-            this._createAssetTooltip = editor.call('attributes:reference:attach', 'settings:localization:createAsset', this._attributesInspector.getField('createAsset'));
+            this._createAssetTooltip = editor.call(
+                'attributes:reference:attach',
+                'settings:localization:createAsset',
+                this._attributesInspector.getField('createAsset')
+            );
         }
     }
 }

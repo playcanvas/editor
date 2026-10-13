@@ -1,3 +1,5 @@
+import type { Entity, MeshInstance } from 'playcanvas';
+
 editor.once('load', () => {
     let inViewport = false;
     let nameLast = '';
@@ -22,7 +24,7 @@ editor.once('load', () => {
         editor.call('cursor:text', nameLast);
     };
 
-    const checkPicked = function (node: import('playcanvas').Entity | null, picked: import('playcanvas').MeshInstance | { node: { name: string } } | null): void {
+    const checkPicked = function (node: Entity | null, picked: MeshInstance | { node: { name: string } } | null): void {
         let name = '';
 
         if (inViewport && node) {
@@ -35,14 +37,14 @@ editor.once('load', () => {
             } else if (node._userCamera) {
                 name = '@';
                 editor.call('users:loadOne', node._userCamera, (data) => {
-                    name = `@${data && data.username || 'anonymous'}`;
+                    name = `@${(data && data.username) || 'anonymous'}`;
                 });
             } else if (node.model && node.model.asset && node.model.model && picked && picked.node) {
                 // entity model meshInstance
                 name = `${node.name} &#8594; ${picked.node.name}`;
             } else {
                 // normal entity
-                if (editor.call('entities:get', node.getGuid())) {
+                if (editor.call('entities:get', node.guid)) {
                     name = node.name;
                 }
             }

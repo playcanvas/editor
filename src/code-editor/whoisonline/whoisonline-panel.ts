@@ -23,7 +23,7 @@ editor.once('load', () => {
             item.style.borderColor = editor.call('users:color', id, 'hex');
         };
 
-        img.src = `/api/users/${id}/thumbnail?size=28`;
+        img.src = `${config.url.api}/users/${id}/thumbnail?size=28`;
         link.appendChild(img);
 
         const item = new Element({
@@ -46,7 +46,6 @@ editor.once('load', () => {
             });
         });
     };
-
 
     editor.on('whoisonline:add', (assetId: string, userId: string) => {
         // check if this is the focused document

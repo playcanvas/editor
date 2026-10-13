@@ -4,34 +4,41 @@ import { Panel, Container, Label, BooleanInput, Button } from '@playcanvas/pcui'
 import { CLASS_ERROR } from '@/common/pcui/constants';
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
 
-import { CubemapFace } from './cubemap-face';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+import { CubemapFace } from './cubemap-face';
 
 const CLASS_ROOT = 'pcui-cubemap-asset-inspector';
 const CLASS_FACES_CONTAINER = `${CLASS_ROOT}-faces-container`;
 
-const ATTRIBUTES: Attribute[] = [{
-    label: 'Filtering',
-    alias: 'filtering',
-    type: 'select',
-    reference: 'asset:texture:filtering',
-    args: {
-        type: 'string',
-        options: [{
-            v: 'nearest', t: 'Point'
-        }, {
-            v: 'linear', t: 'Linear'
-        }]
+const ATTRIBUTES: Attribute[] = [
+    {
+        label: 'Filtering',
+        alias: 'filtering',
+        type: 'select',
+        reference: 'asset:texture:filtering',
+        args: {
+            type: 'string',
+            options: [
+                {
+                    v: 'nearest',
+                    t: 'Point'
+                },
+                {
+                    v: 'linear',
+                    t: 'Linear'
+                }
+            ]
+        }
+    },
+    {
+        label: 'Anisotropy',
+        path: 'data.anisotropy',
+        type: 'number',
+        reference: 'asset:cubemap:anisotropy'
     }
-},
-{
-    label: 'Anisotropy',
-    path: 'data.anisotropy',
-    type: 'number',
-    reference: 'asset:cubemap:anisotropy'
-}];
+];
 
 const FACES = {
     0: 'Right',
@@ -43,11 +50,11 @@ const FACES = {
 };
 
 const FILTERS = {
-    'nearest': {
+    nearest: {
         minFilter: 2,
         magFilter: 0
     },
-    'linear': {
+    linear: {
         minFilter: 5,
         magFilter: 1
     }
@@ -60,13 +67,15 @@ const DOM = (parent, args) => [
                 headerText: 'CUBEMAP'
             })
         },
-        children: [{
-            cubemapAttributesInspector: new AttributesInspector({
-                assets: args.assets,
-                history: args.history,
-                attributes: ATTRIBUTES
-            })
-        }]
+        children: [
+            {
+                cubemapAttributesInspector: new AttributesInspector({
+                    assets: args.assets,
+                    history: args.history,
+                    attributes: ATTRIBUTES
+                })
+            }
+        ]
     },
     {
         facesPanel: new Panel({
@@ -77,46 +86,57 @@ const DOM = (parent, args) => [
         root: {
             prefilteringContainer: new Container()
         },
-        children: [{
-            root: {
-                prefilteringPanel: new Panel({ headerText: 'PREFILTERING', flex: true })
-            },
-            children: [{
+        children: [
+            {
                 root: {
-                    prefilterGenerateCubemapContainer: new Container({
+                    prefilteringPanel: new Panel({ headerText: 'PREFILTERING', flex: true })
+                },
+                children: [
+                    {
+                        root: {
+                            prefilterGenerateCubemapContainer: new Container({
+                                flex: true,
+                                flexDirection: 'row'
+                            })
+                        },
+                        children: [
+                            {
+                                prefilterGenerateCubemapLabel: new Label({
+                                    text: 'Generate legacy cubemap'
+                                })
+                            },
+                            {
+                                prefilterGenerateCubemap: new BooleanInput({
+                                    flexShrink: 0,
+                                    flexGrow: 0
+                                })
+                            }
+                        ]
+                    },
+                    {
+                        prefilterButton: new Button({ text: 'PREFILTER CUBEMAP' })
+                    },
+                    {
+                        deletePrefilterButton: new Button({ text: 'DELETE PREFILTERED DATA' })
+                    }
+                ]
+            },
+            {
+                root: {
+                    errorContainer: new Container({
                         flex: true,
-                        flexDirection: 'row'
+                        alignItems: 'center'
                     })
                 },
-                children: [{
-                    prefilterGenerateCubemapLabel: new Label({
-                        text: 'Generate legacy cubemap'
-                    })
-                }, {
-                    prefilterGenerateCubemap: new BooleanInput({
-                        flexShrink: 0,
-                        flexGrow: 0
-                    })
-                }]
-            }, {
-                prefilterButton: new Button({ text: 'PREFILTER CUBEMAP' })
-            }, {
-                deletePrefilterButton: new Button({ text: 'DELETE PREFILTERED DATA' })
-            }]
-        },
-        {
-            root: {
-                errorContainer: new Container({
-                    flex: true,
-                    alignItems: 'center'
-                })
-            },
-            children: [{
-                errorLabel: new Label({
-                    class: CLASS_ERROR
-                })
-            }]
-        }]
+                children: [
+                    {
+                        errorLabel: new Label({
+                            class: CLASS_ERROR
+                        })
+                    }
+                ]
+            }
+        ]
     }
 ];
 
@@ -354,11 +374,17 @@ class CubemapAssetInspector extends Container {
         });
 
         // Events
-        this._assetEvents.push(this._cubemapAttributesInspector.getField('filtering').on('change', this._onFilteringSelectChange.bind(this)));
+        this._assetEvents.push(
+            this._cubemapAttributesInspector
+                .getField('filtering')
+                .on('change', this._onFilteringSelectChange.bind(this))
+        );
         assets.forEach((asset) => {
-            this._assetEvents.push(asset.on('*:set', () => {
-                this._updateLayout();
-            }));
+            this._assetEvents.push(
+                asset.on('*:set', () => {
+                    this._updateLayout();
+                })
+            );
         });
         this._assetEvents.push(this._prefilterButton.on('click', this._onClickPrefilterButton.bind(this)));
         this._assetEvents.push(this._deletePrefilterButton.on('click', this._onClickDeletePrefilterButton.bind(this)));
@@ -375,7 +401,7 @@ class CubemapAssetInspector extends Container {
         this._faces.forEach((face) => {
             face.unlink();
         });
-        this._assetEvents.forEach(evt => evt.unbind());
+        this._assetEvents.forEach((evt) => evt.unbind());
         this._assetEvents = [];
     }
 }

@@ -31,7 +31,6 @@ editor.once('load', () => {
         }
     });
 
-
     editor.method('editor:command:nextTab', () => {
         const tabs = editor.call('tabs:list');
         if (!tabs.length) {
@@ -70,7 +69,6 @@ editor.once('load', () => {
             editor.call('editor:command:previousTab');
         }
     });
-
 
     editor.method('editor:command:previousTab', () => {
         const tabs = editor.call('tabs:list');

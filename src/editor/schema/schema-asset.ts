@@ -1,4 +1,6 @@
 editor.once('load', () => {
+    const schema = editor.api.globals.schema;
+
     /**
      * Gets the type of a path in the asset schema
      *
@@ -6,7 +8,7 @@ editor.once('load', () => {
      * @returns The type
      */
     editor.method('schema:asset:getType', (path: string): string => {
-        return editor.call('schema:getTypeForPath', config.schema.asset, path);
+        return editor.call('schema:getTypeForPath', schema.getDocument('asset'), path);
     });
 
     /**
@@ -17,14 +19,28 @@ editor.once('load', () => {
      * @returns The type
      */
     editor.method('schema:asset:getDataType', (assetType: string, path: string): string => {
-        const schema = config.schema[`${assetType}Data`];
-        if (schema) {
+        const data = schema.getAssetData(assetType);
+        if (data) {
             // strip data.
             path = path.substring(5);
-            return editor.call('schema:getTypeForPath', schema, path);
+            return editor.call('schema:getTypeForPath', data, path);
         }
 
         return editor.call('schema:asset:getType', path);
+    });
+
+    /**
+     * Gets the numeric bounds ({ min, max }) of a path in the asset data schema for the specified asset type.
+     *
+     * @param assetType - The type of asset (e.g. 'material', 'texture')
+     * @param path - The path in the schema separated by dots (e.g. 'data.reflectivity')
+     * @returns The resolved bounds; min/max are undefined when the field is unbounded
+     */
+    editor.method('schema:asset:getDataBounds', (assetType: string, path: string) => {
+        const data = schema.getAssetData(assetType);
+        const root = data ?? schema.getDocument('asset');
+        const resolved = schema.resolvePath(root, data ? path.substring(5) : path);
+        return schema.getBounds(resolved?.field);
     });
 
     /**
@@ -33,7 +49,6 @@ editor.once('load', () => {
      * @returns Array of asset type names
      */
     editor.method('schema:assets:list', (): string[] => {
-        const assetSchema = config.schema.asset as { type: { $enum: string[] } };
-        return assetSchema.type.$enum;
+        return schema.getAssetTypes();
     });
 });

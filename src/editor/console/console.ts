@@ -10,6 +10,7 @@ editor.on('load', () => {
     const workerClient = new WorkerClient(`${config.url.frontend}js/console.worker.js`);
     let workerReady = false;
     let pendingHistory = false;
+    let queryId = 0;
 
     workerClient.once('init', () => {
         workerClient.on('prune', (progress: number) => {
@@ -58,7 +59,12 @@ editor.on('load', () => {
      * @param onclick - Click handler
      * @returns A promise that resolves when the log is added
      */
-    const addLog = (type: 'info' | 'warn' | 'error', msg: string, verboseMsg?: string | (() => void), onclick?: () => void): Promise<void> => {
+    const addLog = (
+        type: 'info' | 'warn' | 'error',
+        msg: string,
+        verboseMsg?: string | (() => void),
+        onclick?: () => void
+    ): Promise<void> => {
         if (typeof verboseMsg === 'function') {
             onclick = verboseMsg;
             verboseMsg = undefined;
@@ -138,6 +144,20 @@ editor.on('load', () => {
             submit(resolve);
         });
     });
+    editor.method('console:query', (options = {}) => {
+        const id = ++queryId;
+        const submit = (resolve: (value: unknown) => void) => {
+            workerClient.once(`query:${id}`, (data, meta) => resolve({ data, meta }));
+            workerClient.send('query', id, options);
+        };
+        return new Promise((resolve) => {
+            if (workerReady) {
+                submit(resolve);
+            } else {
+                workerClient.once('init', () => submit(resolve));
+            }
+        });
+    });
 
     // helper methods
     editor.method('console:log:asset', (asset: Observer, msg: string, silent = false) => {
@@ -180,5 +200,10 @@ editor.on('load', () => {
     // log frontend usage
     if (!config.url.frontend.startsWith('/editor/scene')) {
         editor.call('console:log', 'Using local frontend');
+    }
+
+    // log engine usage
+    if (!config.url.engine.startsWith('https://code.playcanvas.com/playcanvas-')) {
+        editor.call('console:log', 'Using local engine');
     }
 });

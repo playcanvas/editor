@@ -5,10 +5,12 @@ editor.once('load', () => {
         if (['audiolistener', 'sound'].indexOf(key) >= 0) {
             return 'audio-sub-menu';
         }
-        if (['element', 'screen', 'layoutgroup', 'layoutchild', 'button', 'scrollview', 'scrollbar'].indexOf(key) >= 0) {
+        if (
+            ['element', 'screen', 'layoutgroup', 'layoutchild', 'button', 'scrollview', 'scrollbar'].indexOf(key) >= 0
+        ) {
             return 'ui-sub-menu';
         }
-        if (['rigidbody', 'collision'].indexOf(key) >= 0) {
+        if (['rigidbody', 'collision', 'joint'].indexOf(key) >= 0) {
             return 'physics-sub-menu';
         }
 
@@ -28,14 +30,12 @@ editor.once('load', () => {
                 return selection;
             }
             return [entity];
-
         }
         return selection;
-
     };
 
-    const makeAddComponentMenuItem = function (key: string, components: Record<string, { $title: string }>, logos: Record<string, string>) {
-        let title = components[key].$title;
+    const makeAddComponentMenuItem = function (key: string, logos: Record<string, string>) {
+        let title = editor.call('components:title', key);
         if (title === 'Model' || title === 'Animation') {
             title += ' (legacy)';
         }
@@ -87,16 +87,15 @@ editor.once('load', () => {
         };
 
         // fill menu with available components
-        const components = editor.call('components:schema');
         const list = editor.call('components:list');
 
         for (let i = 0; i < list.length; i++) {
             const key = list[i];
             const submenu = getSubMenu(key);
             if (submenu) {
-                items[submenu].items.push(makeAddComponentMenuItem(key, components, COMPONENT_LOGOS));
+                items[submenu].items.push(makeAddComponentMenuItem(key, COMPONENT_LOGOS));
             } else {
-                items[key] = makeAddComponentMenuItem(key, components, COMPONENT_LOGOS);
+                items[key] = makeAddComponentMenuItem(key, COMPONENT_LOGOS);
             }
         }
 
@@ -104,7 +103,8 @@ editor.once('load', () => {
         const orderedKeys = Object.keys(items).sort();
         const sorted = [];
         for (let i = 0; i < orderedKeys.length; i++) {
-            sorted.push(items[orderedKeys[i]]);
+            const key = orderedKeys[i];
+            sorted.push(items[key]);
         }
 
         return sorted;

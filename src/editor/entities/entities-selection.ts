@@ -15,6 +15,5 @@ editor.once('load', () => {
             return selection[0];
         }
         return null;
-
     });
 });

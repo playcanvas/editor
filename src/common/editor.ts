@@ -5,9 +5,9 @@ import * as api from '@/editor-api';
 import { Caller } from './caller';
 
 type EditorMethods = {
-    'load': () => void;
-    'loaded': () => void;
-    'visibility': () => boolean;
+    load: () => void;
+    loaded: () => void;
+    visibility: () => boolean;
 } & Record<string, (...args: any[]) => any>;
 
 class Editor<T extends EditorMethods> extends Caller<T> {
@@ -24,12 +24,13 @@ class Editor<T extends EditorMethods> extends Caller<T> {
     /**
      * Whether the Editor is a code editor.
      */
-    isCodeEditor: boolean = false;
+    isCodeEditor = false;
 
     /**
      * Whether the Editor project is using engine v2.
      */
-    projectEngineV2: boolean = ('settings' in config.project) ? (config.project.settings as Record<string, any>)?.engineV2 ?? false : false;
+    projectEngineV2: boolean =
+        'settings' in config.project ? ((config.project.settings as Record<string, any>)?.engineV2 ?? false) : false;
 
     /**
      * Editor API history global
@@ -84,8 +85,8 @@ class Editor<T extends EditorMethods> extends Caller<T> {
     /**
      * @param name - The name of the Editor.
      */
-    constructor(name: string = 'Editor') {
-        super(name);
+    constructor(name?: string) {
+        super(name === undefined ? 'Editor' : name);
 
         this._registerVisibility();
         this._registerLoad();
@@ -112,20 +113,28 @@ class Editor<T extends EditorMethods> extends Caller<T> {
             return document.visibilityState === 'visible';
         });
 
-        document.addEventListener('visibilitychange', () => {
-            this.emit(document.visibilityState);
-            this.emit('visibility', document.visibilityState === 'visible');
-        }, false);
+        document.addEventListener(
+            'visibilitychange',
+            () => {
+                this.emit(document.visibilityState);
+                this.emit('visibility', document.visibilityState === 'visible');
+            },
+            false
+        );
     }
 
     /**
      * Register the load and loaded events.
      */
     private _registerLoad() {
-        document.addEventListener('DOMContentLoaded', () => {
-            this.emit('load');
-            queueMicrotask(() => this.emit('loaded'));
-        }, false);
+        document.addEventListener(
+            'DOMContentLoaded',
+            () => {
+                this.emit('load');
+                queueMicrotask(() => this.emit('loaded'));
+            },
+            false
+        );
     }
 
     /**
@@ -142,7 +151,4 @@ class Editor<T extends EditorMethods> extends Caller<T> {
     }
 }
 
-export {
-    type EditorMethods,
-    Editor
-};
+export { type EditorMethods, Editor };

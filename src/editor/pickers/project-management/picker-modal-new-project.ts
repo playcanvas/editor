@@ -1,28 +1,38 @@
-import { Element, Button, Label, TextInput, TextAreaInput, BooleanInput, SelectInput, Panel } from '@playcanvas/pcui';
+import {
+    BooleanInput,
+    Button,
+    Container,
+    Element,
+    Label,
+    Overlay,
+    Panel,
+    SelectInput,
+    TextAreaInput,
+    TextInput
+} from '@playcanvas/pcui';
 
-import { LegacyOverlay } from '@/common/ui/overlay';
+import { config } from '@/editor/config';
 
 editor.once('load', () => {
-
     // GLOBAL VARIABLES
     const blankProject = {
         name: 'Blank Project',
         description: 'A new blank project.',
-        image: '/static/platform/images/home/blank_project.png',
+        image: `${config.url.frontend}static/img/blank-project.webp`,
         tags: ['games'],
         fork_from: null
     };
     const modelViewer = {
         name: 'Model Viewer',
         description: 'A simple viewer application for any 3D model. Just drop the 3D model into the scene to upload.',
-        image: '/static/platform/images/home/ModelViewer.jpg',
+        image: `${config.url.frontend}static/img/model-viewer-kit.webp`,
         tags: ['products'],
         fork_from: 446385
     };
     const vr = {
         name: 'VR Kit',
         description: 'An application to get you started quickly creating VR applications in PlayCanvas.',
-        image: '/static/platform/images/home/VR.jpg',
+        image: `${config.url.frontend}static/img/vr-kit.webp`,
         tags: ['immersive'],
         fork_from: 435780
     };
@@ -32,86 +42,73 @@ editor.once('load', () => {
         name: blankProject.name,
         description: blankProject.description,
         private: false,
-        legacy: null,
         fork_from: null
     };
 
     let rootUser;
-    let currentUser;
     let newProjectOwner;
-    let selectedKitElement;  // ui element of selected starter kit
-    let newKitData = blankProject;  // will store starterkit metadata to create project
+    let selectedKitElement; // ui element of selected starter kit
+    let newKitData = blankProject; // will store starterkit metadata to create project
 
     const starterKits = { 0: blankProject, 446385: modelViewer, 435780: vr };
-    const starterKitDOMElements = [];  // list to store all starterkit DOM elements
 
     // UI
 
-    // renders all of the starter kit UIs onto main panel
-    const loadUIKits = () => {
-        // add starter kits
-        for (const [fork, starterkit] of Object.entries(starterKits)) {
-            createStarterKitUI(starterkit, fork, kitsContainer);
-        }
-
-    };
-
     // helper method to construct UI for starterkit
-    const createStarterKitUI = (starterkit, fork, container) => {
+    const createStarterKitUI = (starterkit, fork, kitContainer) => {
         // Starter Kit
-        const starterKit = new Element({
+        const starterKit = new Container({
             class: 'starter-kit'
         });
-        container.dom.appendChild(starterKit.dom);
+        kitContainer.append(starterKit);
         // Blank project selected by default
         if (starterkit.name === 'Blank Project') {
             selectedKitElement = starterKit;
-            selectedKitElement.dom.classList.add('selected');
+            selectedKitElement.class.add('selected');
         }
 
         starterKit.dom.addEventListener('mouseenter', () => {
-            starterKit.dom.classList.add('hovered');
+            starterKit.class.add('hovered');
+        });
+
+        starterKit.dom.addEventListener('mouseleave', () => {
+            starterKit.class.remove('hovered');
         });
 
         starterKit.dom.addEventListener('click', () => {
             if (selectedKitElement) {
-                selectedKitElement.dom.classList.remove('selected');
+                selectedKitElement.class.remove('selected');
             }
 
             selectedKitElement = starterKit;
             formInputs.name = starterKits[fork].name;
             formInputs.description = starterKits[fork].description;
             formInputs.private = false;
-            formInputs.legacy = null;
             formInputs.fork_from = starterKits[fork].fork_from;
 
-            selectedKitElement.dom.classList.add('selected');
+            selectedKitElement.class.add('selected');
 
-            buildSidebar();  // rebuild sidebar
-        });
-
-        starterKit.dom.addEventListener('mouseleave', () => {
-            starterKit.dom.classList.remove('hovered');
+            buildSidebar(); // rebuild sidebar
         });
 
         // Thumbnail
-        const thumbnail = new Element({
+        const thumbnail = new Container({
             class: 'thumbnail'
         });
-        starterKit.dom.appendChild(thumbnail.dom);
+        starterKit.append(thumbnail);
 
         // Image
         const image = new Element({
             dom: 'img'
         });
         image.dom.src = starterkit.image;
-        thumbnail.dom.appendChild(image.dom);
+        thumbnail.append(image);
 
         // Overlay
-        const overlay = new Element({
+        const thumbnailOverlay = new Container({
             class: 'overlay'
         });
-        thumbnail.dom.appendChild(overlay.dom);
+        thumbnail.append(thumbnailOverlay);
 
         // Preview Button (ignore for blank project)
         if (starterkit !== blankProject) {
@@ -120,7 +117,7 @@ editor.once('load', () => {
                 icon: 'E286',
                 hidden: true
             });
-            overlay.dom.appendChild(previewButton.element);
+            thumbnailOverlay.append(previewButton);
 
             previewButton.on('click', () => {
                 previewProject(starterkit.fork_from);
@@ -132,18 +129,13 @@ editor.once('load', () => {
             dom: 'h4'
         });
         title.dom.textContent = starterkit.name;
-        starterKit.dom.appendChild(title.dom);
-
-        // Add starter kit to list of DOM elements
-        starterKitDOMElements.push(starterKit);
+        starterKit.append(title);
     };
 
     // helper method to build sidebar once data has loaded in
     const buildSidebar = () => {
         // refresh UI if it already exists
-        if (formContent.dom.innerHTML !== '') {
-            formContent.dom.innerHTML = '';
-        }
+        formContent.clear();
 
         // make form groups for relevant inputs
         const textName = buildFormGroup('text', 'Name', formContent);
@@ -152,24 +144,18 @@ editor.once('load', () => {
             buildOrgDropdown(formContent);
         }
         const togglePrivate = buildFormGroup('toggle', allowPrivate() ? 'Private' : 'Private (Premium)', formContent);
-        if (formInputs.legacy !== null && currentUser.flags.hasLegacyScripts) {
-            const toggleLegacy = buildFormGroup('toggle', 'Legacy Scripts', formContent);
-            toggleLegacy.on('change', () => {
-                formInputs.legacy = toggleLegacy.value;
-            });
-        }
 
         textName.on('change', () => {
             formInputs.name = textName.value;
         });
         textName.on('focus', () => {
-            textName.element.childNodes[0].select();
+            textName.dom.childNodes[0].select();
         });
         textDescription.on('change', () => {
             formInputs.description = textDescription.value;
         });
         textDescription.on('focus', () => {
-            textDescription.element.childNodes[0].select();
+            textDescription.dom.childNodes[0].select();
         });
         togglePrivate.on('change', () => {
             formInputs.private = togglePrivate.value;
@@ -177,22 +163,20 @@ editor.once('load', () => {
     };
 
     // helper method to construct UI for different form groups
-    const buildFormGroup = (type, label, container) => {
-        const formGroupStyling = {
-            'display': 'flex',
-            'flex-direction': type !== 'toggle' ? 'column' : 'row',
-            'justify-content': type !== 'toggle' ? 'start' : 'space-between'
-        };
-        const formGroup = new Element();
-        Object.assign(formGroup.style, formGroupStyling);
-        container.dom.appendChild(formGroup.dom);
+    const buildFormGroup = (type, label, formContainer) => {
+        const formGroup = new Container({
+            flex: true,
+            flexDirection: type !== 'toggle' ? 'column' : 'row',
+            justifyContent: type !== 'toggle' ? 'start' : 'space-between'
+        });
+        formContainer.append(formGroup);
 
         switch (type) {
             case 'text': {
                 const labelElement = new Label({
                     text: label
                 });
-                formGroup.dom.appendChild(labelElement.element);
+                formGroup.append(labelElement);
 
                 let textInput;
                 if (label === 'Name') {
@@ -208,48 +192,47 @@ editor.once('load', () => {
                         renderChanges: true,
                         height: 100
                     });
-                    textInput.element.id = 'description';
+                    textInput.dom.id = 'description';
                 }
 
-                formGroup.dom.appendChild(textInput.element);
-                return textInput;  // return element
+                formGroup.append(textInput);
+                return textInput;
             }
 
             case 'toggle': {
                 const labelElement = new Label({
                     text: label
                 });
-                formGroup.dom.appendChild(labelElement.element);
+                formGroup.append(labelElement);
 
                 const toggleElement = new BooleanInput({
                     type: 'toggle',
                     value: false,
                     enabled: allowPrivate()
                 });
-                formGroup.dom.appendChild(toggleElement.element);
-                return toggleElement;  // return element
+                formGroup.append(toggleElement);
+                return toggleElement;
             }
         }
     };
 
     // helper method to construct organizations dropdown
-    const buildOrgDropdown = (container) => {
+    const buildOrgDropdown = (formContainer) => {
         let possibleOwners = [...rootUser.organizations];
         possibleOwners.unshift(rootUser);
 
-        const formGroupStyling = {
-            'display': 'flex',
-            'flex-direction': 'column',
-            'justify-content': 'space-between'
-        };
-        const ownerContainer = new Element({ class: 'form-owner' });
-        Object.assign(ownerContainer.style, formGroupStyling);
-        container.dom.appendChild(ownerContainer.dom);
+        const ownerContainer = new Container({
+            class: 'form-owner',
+            flex: true,
+            flexDirection: 'column',
+            justifyContent: 'space-between'
+        });
+        formContainer.append(ownerContainer);
 
         const ownerLabel = new Label({
             text: 'Owner'
         });
-        ownerContainer.dom.appendChild(ownerLabel.element);
+        ownerContainer.append(ownerLabel);
 
         const ownerDropdown = new SelectInput({
             class: 'owner-dropdown',
@@ -259,17 +242,19 @@ editor.once('load', () => {
             value: newProjectOwner.id,
             renderChanges: true
         });
-        ownerContainer.dom.appendChild(ownerDropdown.element);
+        ownerContainer.append(ownerDropdown);
 
-        const ownerDropdownContainer = ownerDropdown.element.querySelector('.pcui-select-input-container-value');
+        const ownerDropdownContainer = ownerDropdown.dom.querySelector('.pcui-select-input-container-value');
         const ownerDropdownSelectedProfile = new Element({
             dom: 'img',
             class: 'owner-profile'
         });
-        ownerDropdownSelectedProfile.element.src = `${config.url.api}/users/${newProjectOwner.id}/thumbnail?size=32`;
+        ownerDropdownSelectedProfile.dom.src = `${config.url.api}/users/${newProjectOwner.id}/thumbnail?size=32`;
         ownerDropdownContainer.appendChild(ownerDropdownSelectedProfile.dom);
 
-        const ownerDropdownList = ownerDropdown.element.querySelector('.pcui-select-input-container-value .pcui-select-input-list');
+        const ownerDropdownList = ownerDropdown.dom.querySelector(
+            '.pcui-select-input-container-value .pcui-select-input-list'
+        );
         let imageContainer;
         for (let i = 0; i < possibleOwners.length; i++) {
             const dropdownOption = ownerDropdownList.childNodes[i];
@@ -279,36 +264,32 @@ editor.once('load', () => {
                 class: 'owner-profile'
             });
             dropdownOption.appendChild(imageContainer.dom);
-            imageContainer.element.src = `${config.url.api}/users/${possibleOwners[i].id}/thumbnail?size=32`;
+            imageContainer.dom.src = `${config.url.api}/users/${possibleOwners[i].id}/thumbnail?size=32`;
         }
 
         ownerDropdown.on('change', () => {
             const oldOwner = newProjectOwner;
-            newProjectOwner = possibleOwners.filter(org => org.id === ownerDropdown.value)[0];
+            newProjectOwner = possibleOwners.filter((org) => org.id === ownerDropdown.value)[0];
             if (oldOwner !== newProjectOwner) {
-                possibleOwners = [];  // reset possible owners list
-                buildSidebar();  // rebuild sidebar on owner change
+                possibleOwners = []; // reset possible owners list
+                buildSidebar(); // rebuild sidebar on owner change
             }
         });
     };
 
     // helper method to toggle AJAX loader in create project button
-    const toggleLoader = (toggle) => {
-        if (toggle) {
-            createBtn.text = '';
-            loader.element.style.display = 'block';
-        } else {
-            loader.element.style.display = 'none';
-            createBtn.text = 'CREATE';
-        }
+    const toggleLoader = (loading: boolean) => {
+        loader.hidden = !loading;
+        createBtn.text = loading ? '' : 'CREATE';
     };
 
     // overlay
     const root = editor.call('layout.root');
-    const overlay = new LegacyOverlay();
-    overlay.clickable = false;
-    overlay.hidden = true;
-    overlay.class.add('picker-project-new');
+    const overlay = new Overlay({
+        clickable: false,
+        class: 'picker-project-new',
+        hidden: true
+    });
     root.append(overlay);
 
     // main panel
@@ -334,46 +315,46 @@ editor.once('load', () => {
     panel.header.append(btnClose);
 
     // container
-    const container = new Element({
+    const modalContainer = new Container({
         class: 'modal-new-project-container'
     });
-    panel.append(container);
+    panel.append(modalContainer);
 
     // main view
-    const mainView = new Element({
+    const mainView = new Container({
         class: 'modal-new-project-main-view'
     });
-    container.dom.appendChild(mainView.dom);
+    modalContainer.append(mainView);
 
     // kits container
-    const kitsContainer = new Element({
+    const kitsContainer = new Container({
         class: 'modal-new-project-kits-container'
     });
-    mainView.dom.appendChild(kitsContainer.dom);
+    mainView.append(kitsContainer);
 
     // sidebar
-    const sidebar = new Element({
+    const sidebar = new Container({
         class: 'modal-new-project-sidebar'
     });
-    container.dom.appendChild(sidebar.dom);
+    modalContainer.append(sidebar);
 
     // form content
-    const formContent = new Element({
+    const formContent = new Container({
         class: 'modal-new-project-form-content'
     });
-    sidebar.dom.appendChild(formContent.dom);
+    sidebar.append(formContent);
 
     // add create button
-    const createBtnContainer = new Element({
+    const createBtnContainer = new Container({
         class: 'create-btn-container'
     });
-    sidebar.dom.appendChild(createBtnContainer.dom);
+    sidebar.append(createBtnContainer);
 
     const createBtn = new Button({
         class: 'create-btn',
         text: 'CREATE'
     });
-    createBtnContainer.dom.appendChild(createBtn.element);
+    createBtnContainer.append(createBtn);
 
     // attach listener to create button
     createBtn.on('click', () => {
@@ -382,19 +363,15 @@ editor.once('load', () => {
         newKitData.name = formInputs.name;
         newKitData.description = formInputs.description;
         newKitData.private = formInputs.private;
-        newKitData.settings = {
-            useLegacyScripts: formInputs.legacy === null ? false : formInputs.legacy,
-            vr: false
-        };
         newKitData.fork_from = formInputs.fork_from;
         createNewProject();
     });
 
     const loader = new Element({
-        class: 'loader'
+        class: 'loader',
+        hidden: true
     });
-    loader.element.style.display = 'none';  // hide loader by default
-    createBtnContainer.dom.appendChild(loader.dom);
+    createBtnContainer.append(loader);
 
     // CONTROLLERS
 
@@ -408,7 +385,9 @@ editor.once('load', () => {
             });
 
             if (kitsContainer.dom) {
-                loadUIKits();
+                for (const [fork, starterkit] of Object.entries(starterKits)) {
+                    createStarterKitUI(starterkit, fork, kitsContainer);
+                }
             }
         });
     };
@@ -418,77 +397,90 @@ editor.once('load', () => {
         const data = newKitData;
 
         let evt;
-        editor.call('projects:create', data, (result) => {
-            if (!data.fork_from) {
-                editor.call('projects:getOne', result.id, (newProject) => {
-                    if (newProject) {
-                        result = newProject;
-                    }
-
-                    evt = editor.on('messenger:project.create', (msg) => {
-                        if (msg.project_id !== result.id) {
-                            return;
+        editor.call(
+            'projects:create',
+            data,
+            (result) => {
+                if (!data.fork_from) {
+                    editor.call('projects:getOne', result.id, (newProject) => {
+                        if (newProject) {
+                            result = newProject;
                         }
-                        evt.unbind();
-                        result.disabled = false;
 
-                        toggleLoader(false);
-
-                        // open confirmation modal
-                        editor.call('picker:project:newProjectConfirmation', result.id);
-                        overlay.hidden = true;  // close new project modal
-                    });
-                });
-            } else {
-                const jobId = result.id;
-
-                evt = editor.on('messenger:job.update', (msg) => {
-                    if (!jobId || jobId === msg.job.id) {
-                        evt.unbind();
-
-                        // get job
-                        editor.api.globals.rest.jobs.jobGet({ jobId: msg.job.id })
-                        .on('load', (status, response) => {
-                            const job = response.data;
-
-                            // handle job error
-                            if (job.status === 'error') {
-                                editor.call('picker:project:buildAlert', mainView, job.messages[0]);
-                            } else {
-                                window.open(`/editor/project/${job.forked_id}`);
+                        evt = editor.on('messenger:project.create', (msg) => {
+                            if (msg.project_id !== result.id) {
+                                return;
                             }
+                            evt.unbind();
+                            result.disabled = false;
 
                             toggleLoader(false);
+
+                            // open confirmation modal
+                            editor.call('picker:project:newProjectConfirmation', result.id);
+                            overlay.hidden = true; // close new project modal
                         });
-                    }
-                });
-            }
-        }, (err) => {
-            // unsubscribe from messenger job.update
-            if (data.fork_from && evt) {
-                evt.unbind();
-            }
+                    });
+                } else {
+                    const jobId = result.id;
 
-            toggleLoader(false);
+                    evt = editor.on('messenger:job.update', (msg) => {
+                        if (!jobId || jobId === msg.job.id) {
+                            evt.unbind();
 
-            if (err === 'Disk allowance exceeded') {
-                editor.call('picker:project:buildAlert', mainView, err, true, 'UPGRADE', { url: `${config.url.home}/upgrade` });
-            } else {
-                editor.call('picker:project:buildAlert', mainView, err);
+                            // get job
+                            editor.api.globals.rest.jobs
+                                .jobGet({ jobId: msg.job.id })
+                                .on('load', (status, response) => {
+                                    const job = response.data;
+
+                                    // handle job error
+                                    if (job.status === 'error') {
+                                        editor.call('picker:project:buildAlert', mainView, job.messages[0]);
+                                    } else {
+                                        window.open(`/editor/project/${job.forked_id}`);
+                                    }
+
+                                    toggleLoader(false);
+                                });
+                        }
+                    });
+                }
+            },
+            (err) => {
+                // unsubscribe from messenger job.update
+                if (data.fork_from && evt) {
+                    evt.unbind();
+                }
+
+                toggleLoader(false);
+
+                if (err === 'Disk allowance exceeded') {
+                    editor.call('picker:project:buildAlert', mainView, err, true, 'UPGRADE', {
+                        url: `${config.url.home}/upgrade`
+                    });
+                } else {
+                    editor.call('picker:project:buildAlert', mainView, err);
+                }
             }
-        });
+        );
 
-        newKitData = blankProject;  // restart new kit data
+        newKitData = blankProject; // restart new kit data
     };
 
     // handles clicks on preview button on starter kits
     const previewProject = (project_id) => {
-        editor.call('projects:getOne', project_id, (response) => {
-            const previewURL = response.primary_app_url;
-            window.open(previewURL, '_blank');
-        }, (err) => {
-            editor.call('picker:project:buildAlert', mainView, err);
-        });
+        editor.call(
+            'projects:getOne',
+            project_id,
+            (response) => {
+                const previewURL = response.primary_app_url;
+                window.open(previewURL, '_blank');
+            },
+            (err) => {
+                editor.call('picker:project:buildAlert', mainView, err);
+            }
+        );
     };
 
     // LOCAL UTILS
@@ -525,10 +517,8 @@ editor.once('load', () => {
 
     // clean up
     overlay.on('hide', () => {
-        if (kitsContainer) {
-            kitsContainer.destroy();
-        }  // delete all starter kit UI
-        editor.emit('picker:close', 'project-new');  // close panel
+        kitsContainer.destroy();
+        editor.emit('picker:close', 'project-new'); // close panel
 
         editor.call('picker:project:hideAlerts');
 
@@ -549,11 +539,8 @@ editor.once('load', () => {
     // displays the new project modal
     editor.method('picker:project:newProject', () => {
         rootUser = editor.call('picker:project:cms:rootUser');
-        currentUser = editor.call('picker:project:cms:currentUser');
-        newProjectOwner = currentUser;
-        formInputs.legacy = currentUser.flags.hasLegacyScripts ? false : null;
+        newProjectOwner = editor.call('picker:project:cms:currentUser');
         buildSidebar();
         overlay.hidden = false;
     });
-
 });

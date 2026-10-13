@@ -6,7 +6,6 @@ editor.once('load', () => {
 
     let expanded = false;
 
-
     editor.method('viewport:expand', (state?: boolean) => {
         if (state === undefined) {
             state = !expanded;
@@ -19,17 +18,16 @@ editor.once('load', () => {
         expanded = state;
 
         for (let i = 0; i < panels.length; i++) {
-            panels[i].hidden = expanded;
+            const panel = panels[i];
+            panel.hidden = expanded;
         }
 
         editor.emit('viewport:expand', state);
     });
 
-
     editor.method('viewport:expand:state', () => {
         return expanded;
     });
-
 
     // expand hotkey
     editor.call('hotkey:register', 'viewport:expand', {

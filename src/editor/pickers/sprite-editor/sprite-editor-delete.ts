@@ -65,7 +65,6 @@ editor.once('load', () => {
                 });
 
                 asset.history.enabled = history;
-
             };
 
             editor.api.globals.history.add({

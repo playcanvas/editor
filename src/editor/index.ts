@@ -1,3 +1,6 @@
+// sentry
+import '@/common/sentry';
+
 // playcanvas engine (exposes window.pc for plugins)
 import './expose';
 
@@ -17,6 +20,7 @@ import './hotkey/hotkey';
 import './layout/layout';
 import './console/console';
 import './messenger/messenger';
+import './messenger/job-error';
 import './relay/relay';
 import './history/history-hotkeys';
 import './history/history-status-text';
@@ -25,6 +29,7 @@ import './viewport/cursor/cursor';
 import './search/search';
 import './notify/notify';
 import './refocus';
+import './ready';
 
 // realtime
 import './realtime/realtime';
@@ -156,6 +161,7 @@ import './assets/assets-rename-select';
 import './assets/assets-history';
 import './assets/assets-migrate';
 import './assets/assets-srgb';
+import './assets/assets-paths-audit';
 import './assets/assets-create-folder';
 import './assets/assets-cubemap-utils';
 import './assets/assets-cubemap-prefiltering';
@@ -181,6 +187,8 @@ import './assets/assets-sprite-utils';
 import './assets/assets-bundles';
 import './assets/assets-move-to-store';
 import './assets/assets-texture-convert';
+import './assets/assets-font-generate';
+import './assets/assets-font-import';
 import './assets/assets-mapping-removal';
 import './assets/assets-thumbnail-regen';
 
@@ -283,6 +291,7 @@ import './chat/chat-system';
 import './chat/chat-notifications';
 
 // toolbar
+import './toolbar/toolbar-customization';
 import './toolbar/toolbar-logo';
 import './toolbar/toolbar-editor-settings';
 import './toolbar/toolbar-controls';
@@ -295,6 +304,11 @@ import './toolbar/toolbar-history';
 import './toolbar/toolbar-lightmapper';
 import './toolbar/toolbar-publish';
 import './toolbar/toolbar-code-editor';
+
+// mcp
+import './mcp/connection';
+import './mcp/register';
+import './mcp/toolbar';
 
 // viewport controls
 import './viewport-controls/viewport-scene';
@@ -309,11 +323,9 @@ import './alerts/alert-usage';
 import './alerts/alert-scene-limits';
 import './alerts/alert-maintenance';
 
-
 // pickers
 import './pickers/picker';
 import './pickers/picker-confirm';
-import './pickers/picker-engine';
 import './pickers/picker-color';
 import './pickers/picker-asset';
 import './pickers/picker-curve';
@@ -348,21 +360,12 @@ import './pickers/picker-scene';
 import './pickers/picker-script-create';
 
 // version control pickers
-import './pickers/version-control/picker-version-control-side-panel';
 import './pickers/version-control/picker-version-control-progress';
-import './pickers/version-control/picker-version-control-create-checkpoint';
-import './pickers/version-control/picker-version-control-restore-checkpoint';
-import './pickers/version-control/picker-version-control-hard-reset-checkpoint';
-import './pickers/version-control/picker-version-control-create-branch';
-import './pickers/version-control/picker-version-control-close-branch';
-import './pickers/version-control/picker-version-control-delete-branch';
-import './pickers/version-control/picker-version-control-merge-branches';
-import './pickers/version-control/picker-version-control-checkpoints';
-import './pickers/version-control/picker-version-control-diff-checkpoints';
 import './pickers/version-control/picker-version-control';
+import './pickers/version-control/picker-version-control-diff';
 import './pickers/version-control/picker-version-control-overlay-message';
-import './pickers/version-control/picker-version-control-messenger';
 import './pickers/version-control/picker-version-control-overlay-merge';
+import './pickers/version-control/picker-version-control-messenger';
 
 import './pickers/picker-builds-publish';
 import './pickers/picker-publish-new';
@@ -376,11 +379,7 @@ import './pickers/picker-fix-corrupted-templates';
 import './pickers/picker-team-management';
 
 // conflict manager picker
-import './pickers/conflict-manager/picker-conflict-manager-scene';
-import './pickers/conflict-manager/picker-conflict-manager-settings';
-import './pickers/conflict-manager/picker-conflict-manager-asset';
 import './pickers/conflict-manager/picker-conflict-manager';
-
 
 // sprites
 import './pickers/sprite-editor/sprite-editor-atlas-panel';

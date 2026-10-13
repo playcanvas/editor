@@ -2,7 +2,11 @@ import { Events } from '@playcanvas/observer';
 
 import type { Entity } from '../entity';
 import type { Realtime } from '../realtime';
+
 import type { RealtimeConnection } from './connection';
+import { ensureParentOps } from './ensure-parent-ops';
+import type { Op } from './ensure-parent-ops';
+import { batchRejections } from './rejections';
 
 /**
  * Represents a scene in sharedb
@@ -21,6 +25,8 @@ class RealtimeScene extends Events {
     private _loaded: boolean;
 
     private _evtConnection: any;
+
+    private _onRejected = batchRejections((err, ops) => this._realtime.emit('error:scene', err, this._uniqueId, ops));
 
     /**
      * Constructor
@@ -112,7 +118,14 @@ class RealtimeScene extends Events {
         }
 
         try {
-            this._document.submitOp([op]);
+            const ops = ensureParentOps(this._document.data, op as Op);
+
+            // a callback keeps the rejected op, which the doc 'error' event drops
+            this._document.submitOp(ops, (err: unknown) => {
+                if (err) {
+                    this._onRejected(err, ops);
+                }
+            });
         } catch (err) {
             console.error(err);
             this._realtime.emit('error:scene', err, this._uniqueId);
@@ -125,7 +138,7 @@ class RealtimeScene extends Events {
      *
      * @param callback - The callback
      */
-    whenNothingPending(callback: Function) {
+    whenNothingPending(callback: (...args: any[]) => unknown) {
         if (this._document) {
             this._document.whenNothingPending(callback);
         }
@@ -148,8 +161,9 @@ class RealtimeScene extends Events {
         }
 
         for (let i = 0; i < ops.length; i++) {
-            if (ops[i].p[0]) {
-                this._realtime.emit('scene:op', ops[i].p[0], ops[i]);
+            const op = ops[i];
+            if (op.p[0]) {
+                this._realtime.emit('scene:op', op.p[0], op);
             }
         }
     }
@@ -165,7 +179,7 @@ class RealtimeScene extends Events {
      * The scene data
      */
     get data() {
-        return ((this._loaded && this._document) ? this._document.data : null) as any;
+        return (this._loaded && this._document ? this._document.data : null) as any;
     }
 
     /**

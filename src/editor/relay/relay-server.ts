@@ -5,20 +5,20 @@ const RELAY_PING_DELAY = 10000;
 const RELAY_PONG_DELAY = 5000;
 
 /** Disconnection arguments for closing the WebSocket connection */
-interface CloseArgs {
+type CloseArgs = {
     /** The disconnection code. Defaults to 1000. */
     code?: number;
     /** The reason for the disconnection. Defaults to 'unknown'. */
     reason?: string;
-}
+};
 
 /** Authentication options when joining a room */
-interface RoomAuthentication {
+type RoomAuthentication = {
     /** The authentication type. Currently only 'project' is supported. */
     type: string;
     /** If authentication.type is 'project' then this would be the project id. */
     id: number | string;
-}
+};
 
 /**
  * Relay server client library
@@ -40,6 +40,8 @@ class RelayServer extends Events {
 
     private _rooms: Record<string, Set<number>>;
 
+    private _pendingRooms: Set<string>;
+
     private _userId: number | null;
 
     private socket: WebSocket;
@@ -54,6 +56,7 @@ class RelayServer extends Events {
         this._pingTimeout = null;
         this._pongTimeout = null;
         this._rooms = {};
+        this._pendingRooms = new Set();
         this._userId = null;
 
         this.on('welcome', (data) => {
@@ -88,7 +91,9 @@ class RelayServer extends Events {
         this.socket.onmessage = this._onmessage.bind(this);
         this.socket.onerror = () => {
             const state = this._connected ? 'connected' : this._connecting ? 'connecting' : 'disconnected';
-            this._onerror(new Error(`WebSocket error (state: ${state}, url: ${this._url}, attempts: ${this._connectAttempts})`));
+            this._onerror(
+                new Error(`WebSocket error (state: ${state}, url: ${this._url}, attempts: ${this._connectAttempts})`)
+            );
         };
         this.socket.onclose = this._onclose.bind(this);
     }
@@ -115,9 +120,12 @@ class RelayServer extends Events {
         }
 
         // start delay
-        this._reconnectDelay = setTimeout(() => {
-            this.connect(this._url);
-        }, RELAY_RECONNECT_DELAY * (this._connectAttempts + 1));
+        this._reconnectDelay = setTimeout(
+            () => {
+                this.connect(this._url);
+            },
+            RELAY_RECONNECT_DELAY * (this._connectAttempts + 1)
+        );
     }
 
     /**
@@ -150,6 +158,7 @@ class RelayServer extends Events {
             });
         }
         this._rooms = {};
+        this._pendingRooms.clear();
 
         this.emit('disconnect');
 
@@ -180,7 +189,6 @@ class RelayServer extends Events {
         if (msg.error) {
             this.emit('error', msg.error);
         } else {
-
             // keep track of rooms and connected users
             if (msg.t === 'room:join') {
                 this._handleRoomJoin(msg);
@@ -194,6 +202,8 @@ class RelayServer extends Events {
     }
 
     _handleRoomJoin(msg: { t: string; name: string; users?: number[]; userId?: number }) {
+        this._pendingRooms.delete(msg.name);
+
         if (msg.users) {
             this._rooms[msg.name] = new Set(msg.users);
         } else if (msg.userId) {
@@ -281,7 +291,7 @@ class RelayServer extends Events {
      * @param msg - The message data
      */
     send(msg: string | object) {
-        if (!this._connected) {
+        if (!this._connected || this.socket.readyState !== WebSocket.OPEN) {
             return;
         }
 
@@ -319,6 +329,11 @@ class RelayServer extends Events {
      * @param authentication - The authentication handling of the room.
      */
     joinRoom(name: string, authentication: RoomAuthentication) {
+        if (this._rooms[name] || this._pendingRooms.has(name)) {
+            return;
+        }
+
+        this._pendingRooms.add(name);
         this.send({
             t: 'room:join',
             name: name,
@@ -349,7 +364,6 @@ class RelayServer extends Events {
             t: 'room:msg',
             msg: msg,
             name: roomName
-
         });
     }
 

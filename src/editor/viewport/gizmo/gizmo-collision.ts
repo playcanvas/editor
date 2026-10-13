@@ -27,6 +27,7 @@ import {
     VertexBuffer,
     VertexFormat
 } from 'playcanvas';
+import type { AppBase, Asset, EventHandle, GraphicsDevice } from 'playcanvas';
 
 import { GIZMO_MASK } from '@/core/constants';
 import type { EntityObserver } from '@/editor-api';
@@ -51,13 +52,23 @@ editor.once('load', () => {
     const materialDefault = createColorMaterial();
     materialDefault.name = 'collision';
     materialDefault.color = colorPrimary;
-    materialDefault.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
+    materialDefault.blendState = new BlendState(
+        true,
+        BLENDEQUATION_ADD,
+        BLENDMODE_SRC_ALPHA,
+        BLENDMODE_ONE_MINUS_SRC_ALPHA
+    );
     materialDefault.update();
 
     const materialBehind = createColorMaterial();
     materialBehind.name = 'collision behind';
     materialBehind.color = colorBehind;
-    materialBehind.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
+    materialBehind.blendState = new BlendState(
+        true,
+        BLENDEQUATION_ADD,
+        BLENDMODE_SRC_ALPHA,
+        BLENDMODE_ONE_MINUS_SRC_ALPHA
+    );
     materialBehind.depthWrite = false;
     materialBehind.depthTest = true;
     materialBehind.update();
@@ -76,8 +87,8 @@ editor.once('load', () => {
     const models = {};
     const axesNames = { 0: 'x', 1: 'y', 2: 'z' };
     const poolModels = {
-        'box': [],
-        'sphere': [],
+        box: [],
+        sphere: [],
         'capsule-x': [],
         'capsule-y': [],
         'capsule-z': [],
@@ -125,6 +136,9 @@ editor.once('load', () => {
 
         asset = 0;
 
+        // pending 'load' handler for a mesh collision asset that is still loading
+        _loadHandle: EventHandle | null = null;
+
         update() {
             if (!app || !this._link?.entity) {
                 return;
@@ -149,9 +163,14 @@ editor.once('load', () => {
 
             if (this.type !== type) {
                 this.type = type;
+                this.asset = 0;
+
+                // remove whatever shape was previously displayed (pooled primitive
+                // or mesh wireframe on either the model or render component)
+                this.clearShape();
 
                 if (!this.color) {
-                    const guid = this._link.entity.getGuid();
+                    const guid = this._link.entity.guid;
                     let hash = 0;
                     for (const char of guid) {
                         hash += char.charCodeAt(0);
@@ -160,17 +179,8 @@ editor.once('load', () => {
                 }
 
                 if (models[this.type]) {
-                    // return current model to pool
-                    let model = this.entity.model.model;
-                    if (model) {
-                        layerFront.removeMeshInstances(model.meshInstances);
-                        layerBack.removeMeshInstances(model.meshInstances);
-                        this.entity.removeChild(model.getGraph());
-                        poolModels[model._type]?.push(model);
-                    }
-
                     // get from pool or clone
-                    model = poolModels[this.type]?.shift();
+                    let model = poolModels[this.type]?.shift();
                     if (!model) {
                         model = models[this.type].clone();
                         model._type = this.type;
@@ -224,21 +234,12 @@ editor.once('load', () => {
                     }
 
                     this.entity.setLocalScale(1, 1, 1);
-                } else if (this.type === 'mesh') {
-                    const isRender = !!collision.renderAsset;
-                    this.asset = isRender ? collision.renderAsset : collision.asset;
-                    this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
-                    this.createWireframe(this.asset, isRender);
-                    if (!this.asset) {
-                        this.entity.enabled = false;
-                        this.entity.model.model = null;
-                        return;
-                    }
-                } else {
+                } else if (this.type !== 'mesh') {
+                    // unknown type - nothing to display
                     this.entity.enabled = false;
-                    this.entity.model.model = null;
                     return;
                 }
+                // 'mesh' type wireframe is created below, once the asset is known
             }
 
             const radius = collision.radius || 0.00001;
@@ -285,23 +286,26 @@ editor.once('load', () => {
                     const asset = isRender ? collision.renderAsset : collision.asset;
                     if (asset !== this.asset) {
                         this.asset = asset;
+                        // the previous wireframe may live on either component depending on
+                        // whether it came from a render or model asset, so clear both
+                        this.clearShape();
                         this.createWireframe(this.asset, isRender);
-                        if (!this.asset) {
-                            this.entity.enabled = false;
-                            if (isRender) {
-                                this.entity.render.meshInstances = [];
-                            } else {
-                                this.entity.model.model = null;
-                            }
-                            return;
-                        }
+                    }
+
+                    if (!this.asset) {
+                        this.entity.enabled = false;
+                        return;
                     }
 
                     // when model collision mesh gets clicked on again, select the mesh instance
                     // Note: render does not have an equivalent of this
                     if (this.entity.model.model) {
                         const { model: entityModel } = this._link.entity;
-                        const picking = !visible && entityModel?.enabled && entityModel.type === 'asset' && entityModel.asset === collision.asset;
+                        const picking =
+                            !visible &&
+                            entityModel?.enabled &&
+                            entityModel.type === 'asset' &&
+                            entityModel.asset === collision.asset;
                         if (picking !== this.entity.model.model.__picking) {
                             this.entity.model.model.__picking = picking;
                             for (const mesh of this.entity.model.meshInstances) {
@@ -325,9 +329,11 @@ editor.once('load', () => {
             this.unlink();
             this._link = obj;
 
-            this.events.push(this._link.once('destroy', () => {
-                this.unlink();
-            }));
+            this.events.push(
+                this._link.once('destroy', () => {
+                    this.unlink();
+                })
+            );
 
             this.color = null;
 
@@ -382,17 +388,32 @@ editor.once('load', () => {
             this.type = '';
             this.asset = 0;
 
+            this.clearShape();
+            this.entity.destroy();
+        }
+
+        // removes the currently displayed shape from both the model and render
+        // components, returning pooled primitive models to their pool
+        clearShape() {
+            // cancel any wireframe asset load still in flight so it cannot
+            // build a shape for a type or asset that is no longer current
+            this._loadHandle?.off();
+            this._loadHandle = null;
+
             const model = this.entity.model.model;
             if (model) {
                 layerFront.removeMeshInstances(model.meshInstances);
                 layerBack.removeMeshInstances(model.meshInstances);
                 this.entity.removeChild(model.getGraph());
                 if (model._type) {
-                    poolModels[model._type].push(model);
+                    poolModels[model._type]?.push(model);
                 }
+                this.entity.model.model = null;
             }
 
-            this.entity.destroy();
+            if (this.entity.render.meshInstances.length) {
+                this.entity.render.meshInstances = [];
+            }
         }
 
         createWireframe(assetId: number, isRender: boolean) {
@@ -412,8 +433,13 @@ editor.once('load', () => {
                     this.entity.model.model = createModelCopy(asset.resource, this.color);
                 }
             } else {
-                this.events.push(asset.once('load', (loadedAsset: import('playcanvas').Asset) => {
-                    if (this.asset !== loadedAsset.id) {
+                // clearShape() unbinds this handle if the type or asset changes before
+                // the load completes, so only the most recent request ever builds a shape
+                this._loadHandle = asset.once('load', (loadedAsset: Asset) => {
+                    this._loadHandle = null;
+
+                    // safety net - should already be guaranteed by clearShape()
+                    if (this.type !== 'mesh' || this.asset !== loadedAsset.id) {
                         return;
                     }
 
@@ -422,7 +448,7 @@ editor.once('load', () => {
                     } else {
                         this.entity.model.model = createModelCopy(loadedAsset.resource, this.color);
                     }
-                }));
+                });
             }
         }
     }
@@ -473,7 +499,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.once('viewport:load', (application: import('playcanvas').AppBase) => {
+    editor.once('viewport:load', (application: AppBase) => {
         app = application;
 
         container = new Entity(app);
@@ -522,7 +548,7 @@ void main(void)
 
         const origFunc = materialDefault.getShaderVariant;
 
-        materialDefault.getShaderVariant = function (params: { device: import('playcanvas').GraphicsDevice; pass: number }) {
+        materialDefault.getShaderVariant = function (params: { device: GraphicsDevice; pass: number }) {
             if (params.pass === SHADER_FORWARD) {
                 if (!shaderDefault) {
                     shaderDefault = new Shader(params.device, {
@@ -537,7 +563,6 @@ void main(void)
                 return shaderDefault;
             }
             return origFunc.call(this, params);
-
         };
         materialDefault.update();
 
@@ -615,7 +640,7 @@ void main(void)
 
         const matCapsule = cloneColorMaterial(materialDefault);
         const _getCapsuleShaderVariant = matCapsule.getShaderVariant;
-        matCapsule.getShaderVariant = function (params: { device: import('playcanvas').GraphicsDevice; pass: number }) {
+        matCapsule.getShaderVariant = function (params: { device: GraphicsDevice; pass: number }) {
             if (params.pass === SHADER_FORWARD) {
                 if (!shaderCapsuleForward) {
                     shaderCapsuleForward = new Shader(params.device, {
@@ -682,17 +707,27 @@ void main(void)
 
         // ================
         // box
-        models.box = createModel(Mesh.fromGeometry(app.graphicsDevice, new BoxGeometry({
-            halfExtents: new Vec3(1, 1, 1)
-        })));
+        models.box = createModel(
+            Mesh.fromGeometry(
+                app.graphicsDevice,
+                new BoxGeometry({
+                    halfExtents: new Vec3(1, 1, 1)
+                })
+            )
+        );
 
         // ================
         // sphere
-        models.sphere = createModel(Mesh.fromGeometry(app.graphicsDevice, new SphereGeometry({
-            radius: 1,
-            latitudeBands: 32,
-            longitudeBands: 64
-        })));
+        models.sphere = createModel(
+            Mesh.fromGeometry(
+                app.graphicsDevice,
+                new SphereGeometry({
+                    radius: 1,
+                    latitudeBands: 32,
+                    longitudeBands: 64
+                })
+            )
+        );
 
         // ================
         // cones (shared mesh, rotation handles axis)
@@ -708,7 +743,10 @@ void main(void)
 
         // ================
         // cylinders (shared mesh, rotation handles axis)
-        const cylinderMesh = Mesh.fromGeometry(app.graphicsDevice, new CylinderGeometry({ radius: 1, height: 1, capSegments: 72 }));
+        const cylinderMesh = Mesh.fromGeometry(
+            app.graphicsDevice,
+            new CylinderGeometry({ radius: 1, height: 1, capSegments: 72 })
+        );
         models['cylinder-x'] = createModel(cylinderMesh);
         models['cylinder-x'].graph.setLocalEulerAngles(0, 0, -90);
         models['cylinder-y'] = createModel(cylinderMesh);
@@ -733,7 +771,7 @@ void main(void)
 
             // Top cylinder ring (aSide = +1)
             for (let j = 0; j <= capSegments; j++) {
-                const phi = j * 2 * Math.PI / capSegments - Math.PI / 2;
+                const phi = (j * 2 * Math.PI) / capSegments - Math.PI / 2;
                 const x = Math.cos(phi);
                 const z = Math.sin(phi);
 
@@ -744,7 +782,7 @@ void main(void)
 
             // Bottom cylinder ring (aSide = -1)
             for (let j = 0; j <= capSegments; j++) {
-                const phi = j * 2 * Math.PI / capSegments - Math.PI / 2;
+                const phi = (j * 2 * Math.PI) / capSegments - Math.PI / 2;
                 const x = Math.cos(phi);
                 const z = Math.sin(phi);
 
@@ -773,7 +811,7 @@ void main(void)
                 const cosTheta = Math.cos(theta);
 
                 for (let lon = 0; lon <= capSegments; lon++) {
-                    const phi = lon * 2 * Math.PI / capSegments - Math.PI / 2;
+                    const phi = (lon * 2 * Math.PI) / capSegments - Math.PI / 2;
                     const sinPhi = Math.sin(phi);
                     const cosPhi = Math.cos(phi);
 
@@ -819,7 +857,7 @@ void main(void)
                 const cosTheta = Math.cos(theta);
 
                 for (let lon = 0; lon <= capSegments; lon++) {
-                    const phi = lon * 2 * Math.PI / capSegments - Math.PI / 2;
+                    const phi = (lon * 2 * Math.PI) / capSegments - Math.PI / 2;
                     const sinPhi = Math.sin(phi);
                     const cosPhi = Math.cos(phi);
 
@@ -864,7 +902,12 @@ void main(void)
 
             const vertexCount = positions.length / 3;
             const vertexBuffer = new VertexBuffer(app.graphicsDevice, vertexFormat, vertexCount);
-            const vertexData = new Float32Array(vertexBuffer.lock());
+            const vertexStorage = vertexBuffer.lock();
+            const vertexData = new Float32Array(
+                ArrayBuffer.isView(vertexStorage) ? vertexStorage.buffer : vertexStorage,
+                ArrayBuffer.isView(vertexStorage) ? vertexStorage.byteOffset : 0,
+                vertexStorage.byteLength / 4
+            );
 
             for (let i = 0; i < vertexCount; i++) {
                 const offset = i * 7;
@@ -881,7 +924,12 @@ void main(void)
             mesh.vertexBuffer = vertexBuffer;
 
             const indexBuffer = new IndexBuffer(app.graphicsDevice, INDEXFORMAT_UINT16, indices.length);
-            const indexData = new Uint16Array(indexBuffer.lock());
+            const indexStorage = indexBuffer.lock();
+            const indexData = new Uint16Array(
+                ArrayBuffer.isView(indexStorage) ? indexStorage.buffer : indexStorage,
+                ArrayBuffer.isView(indexStorage) ? indexStorage.byteOffset : 0,
+                indexStorage.byteLength / 2
+            );
             indexData.set(indices);
             indexBuffer.unlock();
 

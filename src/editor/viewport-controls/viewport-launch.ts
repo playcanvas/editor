@@ -1,6 +1,6 @@
 import { Container, Button, BooleanInput, Label, Divider } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 import { config } from '@/editor/config';
 
 editor.once('load', () => {
@@ -41,7 +41,7 @@ editor.once('load', () => {
     });
     launch.append(buttonLaunch);
 
-    const tooltipLaunch = LegacyTooltip.attach({
+    const tooltipLaunch = TooltipHandle.attach({
         target: buttonLaunch.dom,
         text: 'Launch the scene (Shift-click to open in popup)',
         align: 'right',
@@ -50,9 +50,20 @@ editor.once('load', () => {
     // Prevent the tooltip from intercepting mouse events when moving to adjacent buttons
     tooltipLaunch.style.pointerEvents = 'none';
 
-    const launchOptions = { };
+    const launchOptions = {};
 
-    const launchApp = (deviceOptions: { webgpu?: boolean; webgl2?: boolean; webgl1?: boolean; [key: string]: boolean | undefined } = {}, popup?: boolean) => {
+    // the last launched window, so launch:start can adopt an already-open app
+    let lastLaunch: { window: Window } | null = null;
+
+    const launchApp = (
+        deviceOptions: {
+            webgpu?: boolean;
+            webgl2?: boolean;
+            webgl1?: boolean;
+            [key: string]: boolean | undefined;
+        } = {},
+        popup?: boolean
+    ) => {
         let url = config.url.launch + config.scene.id;
 
         const query = [];
@@ -85,13 +96,18 @@ editor.once('load', () => {
             query.push('ministats=true');
         }
 
+        if (launchOptions.inspector) {
+            query.push('inspector=true');
+        }
+
+        // the editor relays the launch page to MCP, so it opens no socket of its own
+        const withMcp = editor.call('mcp:status') === 'connected';
+
         const params = new URLSearchParams(location.search);
         if (params.has('use_local_engine')) {
             query.push(`use_local_engine=${params.get('use_local_engine')}`);
         } else if (releaseCandidate && launchOptions.releaseCandidate) {
             query.push(`version=${releaseCandidate}`);
-        } else if (launchOptions.force) {
-            query.push(`version=${config.engineVersions.force.version}`);
         } else {
             const engineVersion = editor.call('settings:session').get('engineVersion');
             if (engineVersion && engineVersion !== 'current') {
@@ -112,8 +128,22 @@ editor.once('load', () => {
         if (launcher) {
             launcher.opener = null;
             launcher.location = url;
+            lastLaunch = { window: launcher };
+            if (withMcp) {
+                editor.call('mcp:relay:attach', launcher);
+            }
         }
     };
+
+    editor.method('launch:window', () => lastLaunch);
+
+    // MCP reads the tick-box state so launch_start picks the same engine as the button
+    editor.method('launch:options', () => ({ ...launchOptions }));
+
+    // MCP launches record their window here too, so there is one source of truth
+    editor.method('launch:window:track', (win: Window) => {
+        lastLaunch = { window: win };
+    });
 
     buttonLaunch.on('click', (e: MouseEvent) => launchApp({}, e.shiftKey));
 
@@ -153,7 +183,9 @@ editor.once('load', () => {
     };
 
     const createOption = (name: string, title: string) => {
-        const panel = new Container();
+        const panel = new Container({
+            class: `launch-option-${name}`
+        });
         panelOptions.append(panel);
 
         const option = new BooleanInput({
@@ -186,8 +218,8 @@ editor.once('load', () => {
 
     const launchWithWebGpu = createButton('webgpu', `Launch with WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}`);
 
-    const tooltipPreferWebGpu = LegacyTooltip.attach({
-        target: launchWithWebGpu.parent.element,
+    const tooltipPreferWebGpu = TooltipHandle.attach({
+        target: launchWithWebGpu.parent.dom,
         text: `Launch the scene using WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}.`,
         align: 'right',
         root: root
@@ -195,8 +227,8 @@ editor.once('load', () => {
     tooltipPreferWebGpu.class.add('launch-tooltip');
 
     const launchWithWebGL2 = createButton('webgl2', 'Launch with WebGL 2.0');
-    const tooltipPreferWebGl2 = LegacyTooltip.attach({
-        target: launchWithWebGL2.parent.element,
+    const tooltipPreferWebGl2 = TooltipHandle.attach({
+        target: launchWithWebGL2.parent.dom,
         text: 'Launch the scene using WebGL 2.0.',
         align: 'right',
         root: root
@@ -204,8 +236,8 @@ editor.once('load', () => {
     tooltipPreferWebGl2.class.add('launch-tooltip');
 
     const launchWithWebGL1 = createButton('webgl1', 'Launch with WebGL 1.0');
-    const tooltipPreferWebGl1 = LegacyTooltip.attach({
-        target: launchWithWebGL1.parent.element,
+    const tooltipPreferWebGl1 = TooltipHandle.attach({
+        target: launchWithWebGL1.parent.dom,
         text: 'Launch the scene using WebGL 1.0.',
         align: 'right',
         root: root
@@ -214,8 +246,8 @@ editor.once('load', () => {
     launchWithWebGL1.parent.hidden = editor.projectEngineV2;
 
     const optionProfiler = createOption('profiler', 'Profiler');
-    const tooltipProfiler = LegacyTooltip.attach({
-        target: optionProfiler.parent.element,
+    const tooltipProfiler = TooltipHandle.attach({
+        target: optionProfiler.parent.dom,
         text: 'Enable the visual performance profiler in the launch page.',
         align: 'right',
         root: root
@@ -238,8 +270,8 @@ editor.once('load', () => {
         settings.set('editor.launchDebug', value);
     });
 
-    const tooltipDebug = LegacyTooltip.attach({
-        target: optionDebug.parent.element,
+    const tooltipDebug = TooltipHandle.attach({
+        target: optionDebug.parent.dom,
         text: 'Enable the logging of warning and error messages to the JavaScript console.',
         align: 'right',
         root: root
@@ -248,8 +280,8 @@ editor.once('load', () => {
 
     if (!legacyScripts) {
         const optionConcatenate = createOption('concatenate', 'Concatenate Scripts (Classic)');
-        const tooltipConcatenate = LegacyTooltip.attach({
-            target: optionConcatenate.parent.element,
+        const tooltipConcatenate = TooltipHandle.attach({
+            target: optionConcatenate.parent.dom,
             text: 'Concatenate Classic scripts on launch to reduce scene load time.',
             align: 'right',
             root: root
@@ -260,8 +292,8 @@ editor.once('load', () => {
     if (editor.call('users:hasFlag', 'hasBundles')) {
         const optionDisableBundles = createOption('disableBundles', 'Disable Asset Bundles');
 
-        const tooltipBundles = LegacyTooltip.attach({
-            target: optionDisableBundles.parent.element,
+        const tooltipBundles = TooltipHandle.attach({
+            target: optionDisableBundles.parent.dom,
             text: 'Disable loading assets from Asset Bundles.',
             align: 'right',
             root: root
@@ -280,23 +312,30 @@ editor.once('load', () => {
     optionMiniStats.on('change', (value: boolean) => {
         settings.set('editor.launchMinistats', value);
     });
-    LegacyTooltip.attach({
-        target: optionMiniStats.parent.element,
+    TooltipHandle.attach({
+        target: optionMiniStats.parent.dom,
         text: 'Show the MiniStats in the launched application.',
         align: 'right',
         root: root
     }).class.add('launch-tooltip');
 
-    // force engine version
-    const force = config.engineVersions.force;
-    const optionForce = createOption('force', `Force Engine V${force.version[0]}`);
-    const tooltipForce = LegacyTooltip.attach({
-        target: optionForce.parent.element,
-        text: `Force the launcher to use v${force.version}.`,
+    // inspector
+    const optionInspector = createOption('inspector', 'Inspector');
+    optionInspector.value = settings.get('editor.launchInspector');
+    settings.on('editor.launchInspector:set', (value: boolean) => {
+        if (value !== optionInspector.value) {
+            optionInspector.value = value;
+        }
+    });
+    optionInspector.on('change', (value: boolean) => {
+        settings.set('editor.launchInspector', value);
+    });
+    TooltipHandle.attach({
+        target: optionInspector.parent.dom,
+        text: 'Show the Inspector debug panel in the launched application. Requires Engine 2.23 or later.',
         align: 'right',
         root: root
-    });
-    tooltipForce.class.add('launch-tooltip');
+    }).class.add('launch-tooltip');
 
     // release-candidate
     if (releaseCandidate) {
@@ -310,8 +349,8 @@ editor.once('load', () => {
         optionReleaseCandidate.on('change', (value: boolean) => {
             settings.set('editor.launchReleaseCandidate', value);
         });
-        LegacyTooltip.attach({
-            target: optionReleaseCandidate.parent.element,
+        TooltipHandle.attach({
+            target: optionReleaseCandidate.parent.dom,
             text: `Launch the scene using the engine release candidate (version ${releaseCandidate}).`,
             align: 'right',
             root: root
@@ -330,7 +369,6 @@ editor.once('load', () => {
             launchApp();
         }
     });
-
 
     let timeout;
 
@@ -379,7 +417,6 @@ editor.once('load', () => {
         }, 50);
     });
 
-
     // fullscreen
     const buttonExpand = new Button({
         class: ['control-strip-btn', 'expand'],
@@ -392,7 +429,7 @@ editor.once('load', () => {
         editor.call('viewport:expand');
     });
 
-    const tooltipExpand = LegacyTooltip.attach({
+    const tooltipExpand = TooltipHandle.attach({
         target: buttonExpand.dom,
         text: 'Hide Panels',
         align: 'top',
@@ -434,7 +471,10 @@ editor.once('load', () => {
         document.querySelectorAll(buttonSelector).forEach((btn) => {
             const text = btn.getAttribute('data-full-text');
             if (text !== null) {
-                btn.textContent = text;
+                // scene:name handlers registered earlier already wrote the new name, keep it
+                if (!btn.textContent) {
+                    btn.textContent = text;
+                }
                 btn.removeAttribute('data-full-text');
             }
         });

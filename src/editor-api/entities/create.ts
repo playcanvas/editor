@@ -10,7 +10,7 @@ import { globals as api } from '../globals';
  * @param options.select - Whether to select new Entity. Defaults to false.
  * @returns The new entity
  */
-function createEntity(data: any, options: { index?: number, history?: boolean, select?: boolean } = {}): Entity {
+function createEntity(data: any, options: { index?: number; history?: boolean; select?: boolean } = {}): Entity {
     data = data || {};
 
     if (options.history === undefined) {
@@ -24,7 +24,6 @@ function createEntity(data: any, options: { index?: number, history?: boolean, s
     if (data.parent instanceof Entity) {
         data.parent = data.parent.get('resource_id');
     }
-
 
     if (data.parent && !api.entities.get(data.parent)) {
         console.error(`Cannot create entity because parent ${data.parent} was not found`);
@@ -54,7 +53,7 @@ function createEntity(data: any, options: { index?: number, history?: boolean, s
 
     // add children
     if (data.children) {
-        data.children.forEach((childData: { parent: Entity; resource_id: any; }) => {
+        data.children.forEach((childData: { parent: Entity; resource_id: any }) => {
             childData.parent = entity;
             const child = createEntity(childData, {
                 history: false,

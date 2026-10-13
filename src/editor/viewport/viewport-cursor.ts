@@ -1,3 +1,5 @@
+import type { Entity, MeshInstance } from 'playcanvas';
+
 editor.once('load', () => {
     let state = false;
     let inViewport = false;
@@ -19,17 +21,18 @@ editor.once('load', () => {
         }
     });
 
-    const checkPicked = function (node: import('playcanvas').Entity | null, picked: import('playcanvas').MeshInstance | { node: { name: string } } | null): void {
+    const checkPicked = function (node: Entity | null, picked: MeshInstance | { node: { name: string } } | null): void {
         let hover = false;
 
         // if mouse in viewport && entity model has an asset
         // then set cursor to 'crosshair' to indicate
         // that next click will select node in model asset
         if (inViewport && node && node.model && node.model.asset && node.model.model) {
-            if (editor.call('selector:type') === 'entity' &&
+            if (
+                editor.call('selector:type') === 'entity' &&
                 editor.call('selector:count') === 1 &&
-                editor.call('selector:items')[0].entity === node) {
-
+                editor.call('selector:items')[0].entity === node
+            ) {
                 hover = true;
             }
         }

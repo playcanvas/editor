@@ -16,7 +16,6 @@ editor.once('viewport:load', (app) => {
     });
 
     editor.method('camera:depth:render', (camera) => {
-
         if (!device.textureFloatRenderable) {
             if (!logged) {
                 logged = true;
@@ -27,7 +26,7 @@ editor.once('viewport:load', (app) => {
 
         if (!prePass) {
             prePass = new RenderPassPrepass(device, scene, renderer, camera, {
-                resizeSource: null  // automatically match its size with the backbuffer
+                resizeSource: null // automatically match its size with the backbuffer
             });
         }
 

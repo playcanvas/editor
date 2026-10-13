@@ -1,5 +1,6 @@
 import type { EventHandle, Observer } from '@playcanvas/observer';
-import { Canvas, GridView, GridViewItem, Menu, Container, Panel } from '@playcanvas/pcui';
+import type { Container, Panel } from '@playcanvas/pcui';
+import { Canvas, GridView, GridViewItem, Menu } from '@playcanvas/pcui';
 
 editor.once('load', () => {
     editor.method('picker:sprites:spriteassets', (args) => {
@@ -25,7 +26,8 @@ editor.once('load', () => {
                         }
                         editor.call('assets:duplicate', contextMenuAsset);
                     }
-                }, {
+                },
+                {
                     text: 'Delete',
                     icon: 'E124',
                     onSelect: () => {
@@ -93,7 +95,6 @@ editor.once('load', () => {
                         return frame && frame._data;
                     }
                     return null;
-
                 });
 
                 editor.call('picker:sprites:renderFramePreview', frames[0], canvas.dom, frames);
@@ -101,9 +102,11 @@ editor.once('load', () => {
 
             renderPreview();
 
-            spriteEvents.push(asset.on('name:set', (name: string) => {
-                spriteItem.text = name;
-            }));
+            spriteEvents.push(
+                asset.on('name:set', (name: string) => {
+                    spriteItem.text = name;
+                })
+            );
 
             const onFrameKeysUpdate = (value, index) => {
                 if (index === 0) {
@@ -115,17 +118,21 @@ editor.once('load', () => {
             spriteEvents.push(asset.on('data.frameKeys:insert', onFrameKeysUpdate));
             spriteEvents.push(asset.on('data.frameKeys:remove', onFrameKeysUpdate));
 
-            spriteEvents.push(asset.on('data.frameKeys:move', (value, indNew, indOld) => {
-                if (indNew === 0 || indOld === 0) {
+            spriteEvents.push(
+                asset.on('data.frameKeys:move', (value, indNew, indOld) => {
+                    if (indNew === 0 || indOld === 0) {
+                        spriteItem.updateFirstFrame();
+                        spriteItem.queueRender();
+                    }
+                })
+            );
+
+            spriteEvents.push(
+                asset.on('data.frameKeys:set', (value) => {
                     spriteItem.updateFirstFrame();
                     spriteItem.queueRender();
-                }
-            }));
-
-            spriteEvents.push(asset.on('data.frameKeys:set', (value) => {
-                spriteItem.updateFirstFrame();
-                spriteItem.queueRender();
-            }));
+                })
+            );
 
             // link to sprite asset
             spriteItem.on('select', () => {
@@ -134,16 +141,18 @@ editor.once('load', () => {
                 });
             });
 
-            spriteEvents.push(editor.on(`assets:remove[${asset.get('id')}]`, () => {
-                spriteItem.destroy();
-                delete spriteItems[asset.get('id')];
-                if (contextMenuAsset && contextMenuAsset.get('id') === asset.get('id')) {
-                    contextMenuAsset = null;
-                    if (!menu.hidden) {
-                        menu.hidden = true;
+            spriteEvents.push(
+                editor.on(`assets:remove[${asset.get('id')}]`, () => {
+                    spriteItem.destroy();
+                    delete spriteItems[asset.get('id')];
+                    if (contextMenuAsset && contextMenuAsset.get('id') === asset.get('id')) {
+                        contextMenuAsset = null;
+                        if (!menu.hidden) {
+                            menu.hidden = true;
+                        }
                     }
-                }
-            }));
+                })
+            );
 
             // context menu
             const contextMenu = (e: MouseEvent) => {
@@ -160,7 +169,7 @@ editor.once('load', () => {
 
             // clean up events
             spriteItem.once('destroy', (dom: HTMLElement) => {
-                spriteEvents.forEach(event => event.unbind());
+                spriteEvents.forEach((event) => event.unbind());
                 spriteEvents.length = 0;
 
                 dom.removeEventListener('contextmenu', contextMenu);
@@ -178,7 +187,8 @@ editor.once('load', () => {
         });
 
         for (let i = 0; i < spriteAssets.length; i++) {
-            createSpriteItem(spriteAssets[i][1]);
+            const spriteAsset = spriteAssets[i];
+            createSpriteItem(spriteAsset[1]);
         }
 
         const onUpdateFrame = (path: string) => {
@@ -205,69 +215,80 @@ editor.once('load', () => {
         events.push(atlasAsset.on('*:unset', onUpdateFrame));
 
         // Sprite selection event
-        events.push(editor.on('picker:sprites:spriteSelected', (sprite) => {
-            // clear selection if no sprite selected
-            if (!sprite) {
-                if (grid.selected.length > 0) {
-                    grid.deselect();
+        events.push(
+            editor.on('picker:sprites:spriteSelected', (sprite) => {
+                // clear selection if no sprite selected
+                if (!sprite) {
+                    if (grid.selected.length > 0) {
+                        grid.deselect();
+                    }
+                    return;
                 }
-                return;
-            }
 
-            const id = sprite.get('id');
-            const item = spriteItems[id];
+                const id = sprite.get('id');
+                const item = spriteItems[id];
 
-            // if something is selected and it's not the current item
-            if (grid.selected.length > 0 && grid.selected[0] !== item) {
-                grid.selected[0].selected = false;
-                item.selected = true;
-            } else if (grid.selected.length === 0) { // if nothing is selected
-                item.selected = true;
-            }
-        }));
+                // if something is selected and it's not the current item
+                if (grid.selected.length > 0 && grid.selected[0] !== item) {
+                    grid.selected[0].selected = false;
+                    item.selected = true;
+                } else if (grid.selected.length === 0) {
+                    // if nothing is selected
+                    item.selected = true;
+                }
+            })
+        );
 
         // Asset create event
-        events.push(editor.on('assets:add', (asset: Observer) => {
-            if (asset.get('type') !== 'sprite') {
-                return;
-            }
+        events.push(
+            editor.on('assets:add', (asset: Observer) => {
+                if (asset.get('type') !== 'sprite') {
+                    return;
+                }
 
-            const id = parseInt(asset.get('data.textureAtlasAsset'), 10);
-            if (id !== parseInt(atlasAsset.get('id'), 10)) {
-                return;
-            }
+                const id = parseInt(asset.get('data.textureAtlasAsset'), 10);
+                if (id !== parseInt(atlasAsset.get('id'), 10)) {
+                    return;
+                }
 
-            // Skip if item already exists (can happen on reconnect)
-            const assetId = asset.get('id');
-            if (spriteItems[assetId]) {
-                return;
-            }
+                // Skip if item already exists (can happen on reconnect)
+                const assetId = asset.get('id');
+                if (spriteItems[assetId]) {
+                    return;
+                }
 
-            spriteAssets.push(asset);
-            const item = createSpriteItem(asset);
-            if (item) {
-                item.flash();
-            }
-        }));
+                spriteAssets.push(asset);
+                const item = createSpriteItem(asset);
+                if (item) {
+                    item.flash();
+                }
+            })
+        );
 
         // Sprite edit mode
-        events.push(editor.on('picker:sprites:pickFrames:start', () => {
-            rootPanel.enabled = false;
-        }));
+        events.push(
+            editor.on('picker:sprites:pickFrames:start', () => {
+                rootPanel.enabled = false;
+            })
+        );
 
-        events.push(editor.on('picker:sprites:pickFrames:end', () => {
-            rootPanel.enabled = true;
-        }));
+        events.push(
+            editor.on('picker:sprites:pickFrames:end', () => {
+                rootPanel.enabled = true;
+            })
+        );
 
-        events.push(rootPanel.on('clear', () => {
-            grid.destroy();
-        }));
+        events.push(
+            rootPanel.on('clear', () => {
+                grid.destroy();
+            })
+        );
 
         grid.once('destroy', () => {
             menu.destroy();
             contextMenuAsset = null;
 
-            events.forEach(event => event.unbind());
+            events.forEach((event) => event.unbind());
             events.length = 0;
         });
     });

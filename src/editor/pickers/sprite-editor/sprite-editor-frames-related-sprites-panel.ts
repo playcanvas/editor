@@ -1,8 +1,5 @@
 import type { EventHandle, Observer } from '@playcanvas/observer';
-import { type Container, Label, Panel } from '@playcanvas/pcui';
-
-import { LegacyList } from '@/common/ui/list';
-import { LegacyListItem } from '@/common/ui/list-item';
+import { Container, Label, Panel } from '@playcanvas/pcui';
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:frames:relatedSprites', (args) => {
@@ -26,7 +23,7 @@ editor.once('load', () => {
         });
         panel.append(labelNoAssets);
 
-        const list = new LegacyList();
+        const list = new Container();
         list.class.add('related-assets');
         panel.append(list);
 
@@ -51,7 +48,7 @@ editor.once('load', () => {
         const createAssetPanel = (asset: Observer): void => {
             const assetEvents = [];
 
-            const item = new LegacyListItem({
+            const item = new Label({
                 text: asset.get('name')
             });
             item.class.add('type-sprite');
@@ -60,16 +57,20 @@ editor.once('load', () => {
                 editor.call('picker:sprites:selectSprite', asset);
             });
 
-            assetEvents.push(asset.on('name:set', (value) => {
-                item.text = value;
-            }));
+            assetEvents.push(
+                asset.on('name:set', (value) => {
+                    item.text = value;
+                })
+            );
 
-            assetEvents.push(asset.once('destroy', () => {
-                item.destroy();
-            }));
+            assetEvents.push(
+                asset.once('destroy', () => {
+                    item.destroy();
+                })
+            );
 
             item.once('destroy', () => {
-                assetEvents.forEach(event => event.unbind());
+                assetEvents.forEach((event) => event.unbind());
                 assetEvents.length = 0;
             });
         };
@@ -77,12 +78,14 @@ editor.once('load', () => {
         assets.forEach(([, asset]) => createAssetPanel(asset));
 
         // clean up
-        events.push(rootPanel.on('clear', () => {
-            panel.destroy();
-        }));
+        events.push(
+            rootPanel.on('clear', () => {
+                panel.destroy();
+            })
+        );
 
         panel.once('destroy', () => {
-            events.forEach(event => event.unbind());
+            events.forEach((event) => event.unbind());
             events.length = 0;
         });
     });

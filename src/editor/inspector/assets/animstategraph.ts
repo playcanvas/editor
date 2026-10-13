@@ -1,31 +1,33 @@
-import type { EventHandle, Observer } from '@playcanvas/observer';
+import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
 import { Button, Container } from '@playcanvas/pcui';
-
+import type { ContainerArgs } from '@playcanvas/pcui';
+import type { Application } from 'playcanvas';
 
 import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
+import type { History } from '@/editor-api';
 
-import { AnimstategraphAnimComponent } from '../../animstategraph/anim-component';
+import { AnimStateGraphAnimComponent } from '../../animstategraph/anim-component';
 import { AnimViewer } from '../../animstategraph/anim-viewer';
-import { AnimstategraphLayers } from '../../animstategraph/layers';
-import { AnimstategraphParameters } from '../../animstategraph/parameters';
-import { AnimstategraphState } from '../../animstategraph/state';
-import { AnimstategraphTransitions } from '../../animstategraph/transitions';
-import { AnimstategraphView } from '../../animstategraph/view';
+import { AnimStateGraphLayers } from '../../animstategraph/layers';
+import { AnimStateGraphParameters } from '../../animstategraph/parameters';
+import { AnimStateGraphState } from '../../animstategraph/state';
+import { AnimStateGraphTransitions } from '../../animstategraph/transitions';
+import { AnimStateGraphView } from '../../animstategraph/view';
 
 const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
 const CLASS_ANIMSTATEGRAPH_OPEN_BUTTON = `${CLASS_ANIMSTATEGRAPH}-open-button`;
 const CLASS_ANIMSTATEGRAPH_CLOSE_BUTTON = `${CLASS_ANIMSTATEGRAPH}-close-button`;
 const CLASS_ANIMSTATEGRAPH_CLOSE_BUTTON_TOOLTIP = `${CLASS_ANIMSTATEGRAPH_CLOSE_BUTTON}-tooltip`;
 
-const DOM = parent => [
+const DOM = (parent) => [
     {
-        layersPanel: new AnimstategraphLayers(parent, {
+        layersPanel: new AnimStateGraphLayers(parent, {
             headerText: 'LAYERS',
             collapsible: true
         })
     },
     {
-        parametersPanel: new AnimstategraphParameters({
+        parametersPanel: new AnimStateGraphParameters({
             headerText: 'PARAMETERS',
             collapsible: true,
             history: parent.history
@@ -40,30 +42,37 @@ const DOM = parent => [
     }
 ];
 
-class AnimstategraphAssetInspector extends Container {
-    _args: Record<string, unknown>;
+type AnimStateGraphAssetInspectorArgs = {
+    assets?: ObserverList;
+    history?: History;
+    entities?: ObserverList;
+    inspectorPanelSecondary?: Container;
+} & ContainerArgs;
+
+class AnimStateGraphAssetInspector extends Container {
+    _args: AnimStateGraphAssetInspectorArgs;
 
     _assets: Observer[] | null;
 
-    history: any;
+    history: History;
 
-    _view: AnimstategraphView;
+    _view: AnimStateGraphView;
 
-    _animComponentListener: AnimstategraphAnimComponent;
+    _animComponentListener: AnimStateGraphAnimComponent;
 
-    _stateContainer: AnimstategraphState;
+    _stateContainer: AnimStateGraphState;
 
-    _transitionsContainer: AnimstategraphTransitions;
+    _transitionsContainer: AnimStateGraphTransitions;
 
-    _app: any;
+    _app: Application;
 
     _animViewer: AnimViewer;
 
     _openEditorButton: Button;
 
-    _layersPanel: AnimstategraphLayers;
+    _layersPanel: AnimStateGraphLayers;
 
-    _parametersPanel: AnimstategraphParameters;
+    _parametersPanel: AnimStateGraphParameters;
 
     _assetEvents: EventHandle[];
 
@@ -77,24 +86,27 @@ class AnimstategraphAssetInspector extends Container {
 
     _inspectorPanelSecondary: Container;
 
-    constructor(args: Record<string, unknown>) {
-        args = Object.assign({
-            class: CLASS_ANIMSTATEGRAPH
-        }, args);
+    constructor(args: AnimStateGraphAssetInspectorArgs) {
+        args = Object.assign(
+            {
+                class: CLASS_ANIMSTATEGRAPH
+            },
+            args
+        );
         super(args);
         this._args = args;
         this._assets = null;
-        this._inspectorPanelSecondary = args.inspectorPanelSecondary as Container;
+        this._inspectorPanelSecondary = args.inspectorPanelSecondary;
         this.readOnly = !editor.call('permissions:write');
         this.history = args.history;
-        this._view = new AnimstategraphView(this, args);
-        this._animComponentListener = new AnimstategraphAnimComponent(args, this._view);
+        this._view = new AnimStateGraphView(this, args);
+        this._animComponentListener = new AnimStateGraphAnimComponent(args, this._view);
 
         this.buildDom(DOM(this));
 
-        this._stateContainer = new AnimstategraphState(args, this._view);
+        this._stateContainer = new AnimStateGraphState(args, this._view);
         this._inspectorPanelSecondary.append(this._stateContainer);
-        this._transitionsContainer = new AnimstategraphTransitions(args, this._view);
+        this._transitionsContainer = new AnimStateGraphTransitions(args, this._view);
         this._inspectorPanelSecondary.append(this._transitionsContainer);
         setTimeout(() => {
             this._app = editor.call('viewport:app');
@@ -205,7 +217,6 @@ class AnimstategraphAssetInspector extends Container {
         this.parent.emit('fullscreenMode:on');
 
         this._closeButton = new Button({
-            text: '',
             icon: 'E389',
             class: CLASS_ANIMSTATEGRAPH_CLOSE_BUTTON
         });
@@ -224,7 +235,6 @@ class AnimstategraphAssetInspector extends Container {
         });
         document.getElementById('layout-viewport').prepend(this._closeButton.dom);
     }
-
 
     closeFullscreenMode() {
         if (!this._closeButton) {
@@ -276,4 +286,4 @@ class AnimstategraphAssetInspector extends Container {
     }
 }
 
-export { AnimstategraphAssetInspector };
+export { AnimStateGraphAssetInspector };

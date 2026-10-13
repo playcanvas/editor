@@ -9,14 +9,14 @@ class Caller<T extends Record<string, (...args: any[]) => any>> extends Events {
     /**
      * The methods registered with the Caller.
      */
-    methods: Map<keyof T, T[keyof T]> = new Map();
+    methods = new Map<keyof T, T[keyof T]>();
 
     /**
      * @param name - The name of the Caller.
      */
-    constructor(name: string = 'Caller') {
+    constructor(name?: string) {
         super();
-        this._name = name;
+        this._name = name === undefined ? 'Caller' : name;
     }
 
     /**

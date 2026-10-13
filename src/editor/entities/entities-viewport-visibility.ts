@@ -4,7 +4,7 @@
  * visible in the editor viewport without modifying the entity's `enabled` Observer data.
  */
 editor.once('load', () => {
-    const hiddenEntities: Set<string> = new Set();
+    const hiddenEntities = new Set<string>();
 
     editor.method('entities:visibility:isHidden', (resourceId: string): boolean => {
         return hiddenEntities.has(resourceId);
@@ -30,7 +30,7 @@ editor.once('load', () => {
         editor.emit('entities:visibility:changed', resourceId, hidden);
     };
 
-    editor.method('entities:visibility:set', (resourceIds: string | string[], hidden: boolean, history: boolean = true) => {
+    editor.method('entities:visibility:set', (resourceIds: string | string[], hidden: boolean, history = true) => {
         const ids = Array.isArray(resourceIds) ? resourceIds : [resourceIds];
         const changed: string[] = [];
         for (const id of ids) {

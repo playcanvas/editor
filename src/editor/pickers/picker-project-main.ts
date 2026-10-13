@@ -6,7 +6,7 @@ editor.once('load', () => {
     // global variables
     let initialLoad = true;
     let projectSettingsChanged = false;
-    let events = [];  // holds events that need to be destroyed
+    let events = []; // holds events that need to be destroyed
     const IS_EMPTY_STATE = !config.project.id;
     let currentProject = IS_EMPTY_STATE ? null : config.project;
     let projectSettings = {
@@ -15,7 +15,6 @@ editor.once('load', () => {
         description: IS_EMPTY_STATE ? '' : currentProject.description,
         private: IS_EMPTY_STATE ? false : currentProject.private
     };
-    let panelName = IS_EMPTY_STATE ? '' : currentProject.name.toUpperCase();
 
     // UI
 
@@ -23,9 +22,9 @@ editor.once('load', () => {
         const isCurrentProject = currentProject && currentProject.id === config.project.id;
         const hasVersionControl = isCurrentProject && !config.project.settings.useLegacyScripts;
         if (hasVersionControl) {
-            return `EXPORT PROJECT (${config.self.branch.name})`;
+            return `Export Project (${config.self.branch.name})`;
         }
-        return 'EXPORT PROJECT';
+        return 'Export Project';
     };
 
     // displays or hides the AJAX loader UI when exporting project
@@ -33,9 +32,9 @@ editor.once('load', () => {
         if (toggle) {
             exportProjectButton.text = '';
             exportProjectButton.dom.setAttribute('data-icon', '');
-            loader.dom.style.display = 'block';
+            loader.style.display = 'block';
         } else {
-            loader.dom.style.display = 'none';
+            loader.style.display = 'none';
             exportProjectButton.text = getExportButtonText();
             exportProjectButton.icon = 'E228';
         }
@@ -52,7 +51,7 @@ editor.once('load', () => {
     });
 
     // register panel with project popup
-    editor.call('picker:project:registerMenu', 'project-main', 'PROJECT SETTINGS', panel, panelName);
+    editor.call('picker:project:registerMenu', 'project-main', 'PROJECT SETTINGS', panel, 'Project settings');
 
     // hide button if the user doesn't have the right permissions
     if (!editor.call('permissions:read')) {
@@ -79,18 +78,23 @@ editor.once('load', () => {
 
     const unlockButton = new Button({
         icon: 'E340',
-        text: 'UNLOCK'
+        text: 'Unlock'
     });
     lockedContainer.append(unlockButton);
-    lockedContainer.element.style.display = 'none';  // hide by default
+    lockedContainer.style.display = 'none'; // hide by default
 
     unlockButton.on('click', () => {
-        editor.call('projects:unlockOne', currentProject.id, () => {
-            editor.call('picker:project:cms:refreshProjects');
-            editor.call('picker:project:close');
-        }, (err) => {
-            editor.call('picker:project:buildAlert', panel, err);
-        });
+        editor.call(
+            'projects:unlockOne',
+            currentProject.id,
+            () => {
+                editor.call('picker:project:cms:refreshProjects');
+                editor.call('picker:project:close');
+            },
+            (err) => {
+                editor.call('picker:project:buildAlert', panel, err);
+            }
+        );
     });
 
     // project settings container
@@ -110,7 +114,7 @@ editor.once('load', () => {
     const projectNameLabel = new Label({
         text: 'Name'
     });
-    projectNameGroup.append(projectNameLabel.element);
+    projectNameGroup.append(projectNameLabel.dom);
     const projectNameInput = new TextInput({
         enabled: isAdmin(),
         class: 'form-input',
@@ -118,13 +122,13 @@ editor.once('load', () => {
         renderChanges: true,
         keyChange: true
     });
-    projectNameGroup.append(projectNameInput.element);
+    projectNameGroup.append(projectNameInput.dom);
 
     projectNameInput.on('change', () => {
         const newValue = projectNameInput.value;
         if (projectNameInput.value.length > 32) {
             projectNameInput.value = newValue.slice(0, -2);
-        }  // do not allow more than 32 character names
+        } // do not allow more than 32 character names
     });
 
     projectNameInput.on('blur', () => {
@@ -146,7 +150,7 @@ editor.once('load', () => {
     const projectDescLabel = new Label({
         text: 'Description'
     });
-    projectDescGroup.append(projectDescLabel.element);
+    projectDescGroup.append(projectDescLabel.dom);
     const projectDescInput = new TextAreaInput({
         enabled: isAdmin(),
         class: 'form-input',
@@ -162,8 +166,8 @@ editor.once('load', () => {
         saveProject({ description: descriptionBefore }, initialLoad);
     });
 
-    projectDescInput.element.id = 'description';
-    projectDescGroup.append(projectDescInput.element);
+    projectDescInput.dom.id = 'description';
+    projectDescGroup.append(projectDescInput.dom);
 
     // private settings container
     const privateSettings = new Element({
@@ -174,7 +178,7 @@ editor.once('load', () => {
     const privateLabel = new Label({
         text: 'Private Project'
     });
-    privateSettings.dom.appendChild(privateLabel.element);
+    privateSettings.dom.appendChild(privateLabel.dom);
 
     const privateToggle = new BooleanInput({
         enabled: isAdmin() && editor.call('users:allowPrivate', config.owner),
@@ -188,7 +192,7 @@ editor.once('load', () => {
         }
         editor.call('picker:project:changeVisibility', privateToggle.value ? 'Private' : 'Public');
     });
-    privateSettings.dom.appendChild(privateToggle.element);
+    privateSettings.dom.appendChild(privateToggle.dom);
 
     // project url
     const projectURLSettings = new Element({
@@ -199,21 +203,24 @@ editor.once('load', () => {
     const projectUrlLabel = new Label({
         text: 'Share Project'
     });
-    projectURLSettings.dom.appendChild(projectUrlLabel.element);
+    projectURLSettings.dom.appendChild(projectUrlLabel.dom);
 
     const projectURLButton = new Button({
-        icon: 'E357',
+        class: 'copy-url-button',
         text: 'Copy URL'
     });
-    projectURLSettings.dom.appendChild(projectURLButton.element);
+    projectURLSettings.dom.appendChild(projectURLButton.dom);
 
     projectURLButton.on('click', () => {
-        navigator.clipboard.writeText(`${config.url.home}/editor/project/${currentProject.id}`);
-
-        copiedURLPopup.dom.classList.add('open');
-        setTimeout(() => {
-            copiedURLPopup.dom.classList.remove('open');
-        }, 3000);
+        navigator.clipboard.writeText(`${config.url.home}/editor/project/${currentProject.id}`).then(
+            () => {
+                projectURLButton.class.add('copied');
+                setTimeout(() => projectURLButton.class.remove('copied'), 1500);
+            },
+            () => {
+                // intentionally empty
+            }
+        );
     });
 
     // action buttons container
@@ -237,7 +244,7 @@ editor.once('load', () => {
     const loader = new Element({
         class: ['loader', 'xsmall', 'white']
     });
-    loader.dom.style.display = 'none';
+    loader.style.display = 'none';
     exportProjectButtonContainer.append(loader);
 
     exportProjectButton.on('click', () => {
@@ -249,27 +256,16 @@ editor.once('load', () => {
     const deleteProjectButton = new Button({
         class: 'full-width-button',
         icon: 'E124',
-        text: 'DELETE PROJECT',
+        text: 'Delete Project',
         enabled: false,
         hidden: true
     });
-    deleteProjectButton.element.id = 'delete-project-button';
+    deleteProjectButton.dom.id = 'delete-project-button';
     actionButtonsContainer.append(deleteProjectButton);
 
     deleteProjectButton.on('click', () => {
         editor.call('picker:project:modal:deleteProjectConfirmation', currentProject);
     });
-
-    // copied URL to clipboard popup box
-    const copiedURLPopup = new Container({
-        class: 'copied-url-popup'
-    });
-    panel.append(copiedURLPopup);
-
-    const copiedURLText = new Label({
-        text: 'URL Copied to the clipboard!'
-    });
-    copiedURLPopup.append(copiedURLText);
 
     // CONTROLLERS
 
@@ -310,39 +306,45 @@ editor.once('load', () => {
         const hasVersionControl = isCurrentProject && !config.project.settings.useLegacyScripts;
         const branchId = hasVersionControl ? config.self.branch.id : undefined;
 
-        editor.call('projects:export', currentProject.id, branchId, (job) => {
-            jobId = job.id;
+        editor.call(
+            'projects:export',
+            currentProject.id,
+            branchId,
+            (job) => {
+                jobId = job.id;
 
-            // when job is updated get the job
-            var evt = editor.on('messenger:job.update', (msg) => {
-                if (msg.job.id === jobId) {
-                    evt.unbind();
+                // when job is updated get the job
+                const evt = editor.on('messenger:job.update', (msg) => {
+                    if (msg.job.id === jobId) {
+                        evt.unbind();
 
-                    // get job
-                    editor.api.globals.rest.jobs.jobGet({ jobId: job.id })
-                    .on('load', (status, job) => {
-                        if (job.status === 'complete') {
-                            downloadURL = job.data.url;
-                            window.open(downloadURL, '_blank');
-                        } else if (job.status === 'error') {
-                            exportError = job.messages[0] || 'There was an error while importing';
-                            editor.call('picker:project:buildAlert', panel, exportError);
-                        }
+                        // get job
+                        editor.api.globals.rest.jobs
+                            .jobGet({ jobId: job.id })
+                            .on('load', (status, job) => {
+                                if (job.status === 'complete') {
+                                    downloadURL = job.data.url;
+                                    window.open(downloadURL, '_blank');
+                                } else if (job.status === 'error') {
+                                    exportError = job.messages[0] || 'There was an error while importing';
+                                    editor.call('picker:project:buildAlert', panel, exportError);
+                                }
 
-                        toggleLoader(false);
-                    })
-                    .on('error', (error) => {
-                        editor.call('picker:project:buildAlert', panel, error);
-                    });
-                }
-            });
-            events.push(evt);
-
-        }, (error) => {
-            exportError = `Error: ${error}`;
-            editor.call('picker:project:buildAlert', panel, exportError);
-            toggleLoader(false);
-        });
+                                toggleLoader(false);
+                            })
+                            .on('error', (error) => {
+                                editor.call('picker:project:buildAlert', panel, error);
+                            });
+                    }
+                });
+                events.push(evt);
+            },
+            (error) => {
+                exportError = `Error: ${error}`;
+                editor.call('picker:project:buildAlert', panel, exportError);
+                toggleLoader(false);
+            }
+        );
     };
 
     // LOCAL UTILS
@@ -410,8 +412,6 @@ editor.once('load', () => {
             editor.call('picker:project:cms:refreshProjects');
         }
 
-        copiedURLPopup.dom.classList.remove('open');  // close clipboard popup
-
         editor.call('picker:project:hideAlerts');
         editor.call('picker:project:hideThumbnailControls');
         projectSettingsChanged = false;
@@ -443,7 +443,9 @@ editor.once('load', () => {
     // hook to reload all main elements of the screen
     editor.method('picker:project:main:refreshUI', () => {
         currentProject = editor.call('picker:project:getCurrent');
-        unlockButton.enabled = currentProject.owner_id === config.self.id || editor.call('project:management:isOrgAdmin', currentProject.owner_id, config.self);
+        unlockButton.enabled =
+            currentProject.owner_id === config.self.id ||
+            editor.call('project:management:isOrgAdmin', currentProject.owner_id, config.self);
 
         projectSettings = {
             id: currentProject.id,
@@ -451,18 +453,16 @@ editor.once('load', () => {
             description: currentProject.description,
             private: currentProject.private
         };
-        panelName = currentProject.name.toUpperCase();
-
-        editor.call('picker:project:updateProjectSettingsMenuItem', panelName);
+        editor.call('picker:project:updateProjectSettingsMenuItem', currentProject.name);
 
         // only show locked view if locked project
         if (currentProject.locked) {
-            lockedContainer.dom.style.display = 'flex';
-            settingsContainer.dom.style.display = 'none';
+            lockedContainer.style.display = 'flex';
+            settingsContainer.style.display = 'none';
         } else {
             // only show settings container if not locked project
-            settingsContainer.dom.style.display = 'flex';
-            lockedContainer.dom.style.display = 'none';
+            settingsContainer.style.display = 'flex';
+            lockedContainer.style.display = 'none';
         }
 
         // only show delete project button if not current project and admin
@@ -482,7 +482,7 @@ editor.once('load', () => {
         exportProjectButton.enabled = !exportDisabled();
         exportProjectButton.text = getExportButtonText();
 
-        initialLoad = false;  // once initial load happens, reset flag
+        initialLoad = false; // once initial load happens, reset flag
     });
 
     // hook to get current private settings
@@ -499,5 +499,4 @@ editor.once('load', () => {
     editor.method('picker:project:resetVisibilityToggle', () => {
         privateToggle.value = projectSettings.private;
     });
-
 });

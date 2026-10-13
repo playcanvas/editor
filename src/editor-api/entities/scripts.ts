@@ -1,7 +1,11 @@
-import { Entity } from '../entity';
+import type { Entity } from '../entity';
 import { globals as api } from '../globals';
 
-async function addScript(entities: Entity[], scriptName: string, options: { enabled?: boolean, attributes?: any, index?: number, history?: boolean } = {}) {
+async function addScript(
+    entities: Entity[],
+    scriptName: string,
+    options: { enabled?: boolean; attributes?: any; index?: number; history?: boolean } = {}
+) {
     entities = entities.filter((e: Entity) => !e.has(`components.script.scripts.${scriptName}`));
     if (!entities.length) {
         return;
@@ -54,11 +58,13 @@ async function addScript(entities: Entity[], scriptName: string, options: { enab
         });
 
         // start job
-        const jobId = api.jobs.start((result: { status: string; }) => {
+        const jobId = api.jobs.start((result: { status: string; message?: string; error?: string }) => {
             if (result.status === 'success') {
                 deferred.resolve();
             } else {
-                deferred.reject();
+                deferred.reject(
+                    new Error(result.message || result.error || 'Setting default script attribute values failed.')
+                );
             }
         });
 
@@ -123,7 +129,7 @@ async function addScript(entities: Entity[], scriptName: string, options: { enab
 }
 
 function removeScript(entities: Entity[], scriptName: string, options: { history?: boolean } = {}) {
-    const history = (options.history || options.history === undefined);
+    const history = options.history || options.history === undefined;
 
     let prev: Record<string, any> = {};
 
@@ -157,17 +163,21 @@ function removeScript(entities: Entity[], scriptName: string, options: { history
             name: `entities.components.script.scripts.${scriptName}`,
             combine: false,
             undo: () => {
-                entities = entities.map((e: Entity) => e.latest()).filter((e: Entity) => e && e.has('components.script') && prev[e.get('resource_id')]);
+                entities = entities
+                    .map((e: Entity) => e.latest())
+                    .filter((e: Entity) => e && e.has('components.script') && prev[e.get('resource_id')]);
 
                 entities.forEach((entity: Entity) => {
                     const prevData = prev[entity.get('resource_id')];
-                    entity.addScript(scriptName, {
-                        history: false,
-                        index: prevData.prevIndex,
-                        ...prevData.prevScript
-                    }).catch((err: unknown) => {
-                        console.error(err);
-                    });
+                    entity
+                        .addScript(scriptName, {
+                            history: false,
+                            index: prevData.prevIndex,
+                            ...prevData.prevScript
+                        })
+                        .catch((err: unknown) => {
+                            console.error(err);
+                        });
                 });
             },
             redo: () => {
@@ -197,7 +207,4 @@ function removeScript(entities: Entity[], scriptName: string, options: { history
     }
 }
 
-export {
-    addScript,
-    removeScript
-};
+export { addScript, removeScript };

@@ -55,5 +55,4 @@ editor.once('load', () => {
 
         return false;
     });
-
 });

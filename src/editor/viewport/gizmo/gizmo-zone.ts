@@ -16,6 +16,7 @@ import {
     Quat,
     Vec3
 } from 'playcanvas';
+import type { AppBase } from 'playcanvas';
 
 import { GIZMO_MASK } from '@/core/constants';
 import type { EntityObserver } from '@/editor-api';
@@ -29,7 +30,12 @@ editor.once('load', () => {
     const layerFront = editor.call('gizmo:layers', 'Bright Collision');
     const layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
 
-    const filterPicker = function (drawCall: { command?: unknown; __editor?: boolean; __zone?: boolean; layer?: number }) {
+    const filterPicker = function (drawCall: {
+        command?: unknown;
+        __editor?: boolean;
+        __zone?: boolean;
+        layer?: number;
+    }) {
         if (drawCall.command) {
             return true;
         }
@@ -70,7 +76,7 @@ editor.once('load', () => {
         editor.call('viewport:render');
     });
 
-    editor.once('viewport:load', (application: import('playcanvas').AppBase) => {
+    editor.once('viewport:load', (application: AppBase) => {
         app = application;
 
         const container = new Entity();
@@ -79,14 +85,14 @@ editor.once('load', () => {
         app.root.addChild(container);
 
         // entity gizmos
-        const entities = { };
-        let selected = { };
+        const entities = {};
+        let selected = {};
 
         // pool of gizmos
         const pool = [];
-        const models = { };
+        const models = {};
         const poolModels = {
-            'box': []
+            box: []
         };
         let zones = 0;
         let lastZone = null;
@@ -108,7 +114,7 @@ editor.once('load', () => {
         const quatB = new Quat();
         const quatC = new Quat();
 
-        const axesInd = { 'x': 0, 'y': 1, 'z': 2 };
+        const axesInd = { x: 0, y: 1, z: 2 };
         const axes = ['z', 'x', 'z', 'x', 'y', 'y'];
         const direction = [-1, 1, 1, -1, 1, -1];
         const eulers = [
@@ -117,7 +123,7 @@ editor.once('load', () => {
             [90, 0, 0], // back
             [90, -90, 0], // left
             [0, 0, 0], // top
-            [180, 0, 0]  // bottom
+            [180, 0, 0] // bottom
         ];
         const scales = [
             ['x', 'y'], // front
@@ -125,7 +131,7 @@ editor.once('load', () => {
             ['x', 'y'], // back
             ['z', 'y'], // left
             ['x', 'z'], // top
-            ['x', 'z']  // bottom
+            ['x', 'z'] // bottom
         ];
         const materials = [
             new Color(0, 0, 1),
@@ -201,12 +207,22 @@ editor.once('load', () => {
         const materialDefault = createColorMaterial(); // new pc.ShaderMaterial(shaderDesc);
         materialDefault.cull = CULLFACE_NONE;
         materialDefault.color = colorPrimary;
-        materialDefault.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
+        materialDefault.blendState = new BlendState(
+            true,
+            BLENDEQUATION_ADD,
+            BLENDMODE_SRC_ALPHA,
+            BLENDMODE_ONE_MINUS_SRC_ALPHA
+        );
         materialDefault.update();
 
         const materialBehind = createColorMaterial(); // new pc.ShaderMaterial(shaderDesc);
         materialBehind.color = colorBehind;
-        materialBehind.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
+        materialBehind.blendState = new BlendState(
+            true,
+            BLENDEQUATION_ADD,
+            BLENDMODE_SRC_ALPHA,
+            BLENDMODE_ONE_MINUS_SRC_ALPHA
+        );
         materialBehind.depthWrite = false;
         materialBehind.depthTest = true;
         materialBehind.cull = CULLFACE_NONE;
@@ -231,13 +247,23 @@ editor.once('load', () => {
 
         const materialPlaneBehind = createColorMaterial();
         materialPlaneBehind.color = new Color(1, 1, 1, 0.4);
-        materialPlaneBehind.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
+        materialPlaneBehind.blendState = new BlendState(
+            true,
+            BLENDEQUATION_ADD,
+            BLENDMODE_SRC_ALPHA,
+            BLENDMODE_ONE_MINUS_SRC_ALPHA
+        );
         materialPlaneBehind.cull = CULLFACE_NONE;
         materialPlaneBehind.update();
 
         const materialPlane = createColorMaterial();
         materialPlane.color = new Color(1, 1, 1, 0.1);
-        materialPlane.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
+        materialPlane.blendState = new BlendState(
+            true,
+            BLENDEQUATION_ADD,
+            BLENDMODE_SRC_ALPHA,
+            BLENDMODE_ONE_MINUS_SRC_ALPHA
+        );
         materialPlane.depthTest = false;
         materialPlane.cull = CULLFACE_NONE;
         materialPlane.update();
@@ -272,7 +298,7 @@ editor.once('load', () => {
 
             entity: any = null;
 
-            type: string = '';
+            type = '';
 
             color: any = null;
 
@@ -295,7 +321,7 @@ editor.once('load', () => {
 
                     if (!this.color && this._link.entity) {
                         let hash = 0;
-                        const string = this._link.entity.getGuid();
+                        const string = this._link.entity.guid;
                         for (let i = 0; i < string.length; i++) {
                             hash += string.charCodeAt(i);
                         }
@@ -362,6 +388,7 @@ editor.once('load', () => {
 
                 if (select) {
                     zones++;
+                    // eslint-disable-next-line @typescript-eslint/no-this-alias -- stores current Gizmo instance as shared state used by point drag handlers, not a lexical-this workaround
                     lastZone = this;
                 }
             }
@@ -371,11 +398,11 @@ editor.once('load', () => {
                 this.unlink();
                 this._link = obj;
 
-                const self = this;
-
-                this.events.push(this._link.once('destroy', () => {
-                    self.unlink();
-                }));
+                this.events.push(
+                    this._link.once('destroy', () => {
+                        this.unlink();
+                    })
+                );
 
                 this.entity = new Entity();
                 this.entity.addComponent('model', {
@@ -385,9 +412,7 @@ editor.once('load', () => {
                     layers: [layerBack.id, layerFront.id]
                 });
                 this.entity.model.addModelToLayers = addModelToLayers;
-                this.entity._getEntity = function () {
-                    return self._link.entity;
-                };
+                this.entity._getEntity = () => this._link.entity;
                 this.entity.setLocalScale(1, 1, 1);
                 this.entity.__editor = true;
 
@@ -401,7 +426,8 @@ editor.once('load', () => {
                 }
 
                 for (let i = 0; i < this.events.length; i++) {
-                    this.events[i].unbind();
+                    const event = this.events[i];
+                    event.unbind();
                 }
 
                 this.events = [];
@@ -426,6 +452,7 @@ editor.once('load', () => {
                 hoverPoint.entity.model.meshInstances[0].material = materials[hoverPoint.ind];
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-this-alias -- handler is shared across all points and relies on the dynamic `this` set by the emitter; converting to an arrow function would lose that binding
             hoverPoint = this;
             hoverPoint.entity.model.meshInstances[0].material = handleHighlightMaterial;
             plane.enabled = true;
@@ -451,7 +478,8 @@ editor.once('load', () => {
             editor.call(`gizmo:${dragGizmoType}:toggle`, false);
 
             for (let i = 0; i < points.length; i++) {
-                points[i].entity.enabled = false;
+                const point = points[i];
+                point.entity.enabled = false;
             }
 
             lastZone.entity.model.meshInstances[1].visible = false;
@@ -470,7 +498,8 @@ editor.once('load', () => {
             editor.call(`gizmo:${dragGizmoType}:toggle`, true);
 
             for (let i = 0; i < points.length; i++) {
-                points[i].entity.enabled = true;
+                const point = points[i];
+                point.entity.enabled = true;
             }
 
             lastZone.entity.model.meshInstances[1].visible = true;
@@ -558,17 +587,20 @@ editor.once('load', () => {
             }
 
             for (let i = 0; i < points.length; i++) {
-                points[i].entity.enabled = state;
+                const point = points[i];
+                point.entity.enabled = state;
             }
         });
 
         const pointsDestroy = function () {
             for (let i = 0; i < points.length; i++) {
-                editor.call('gizmo:point:recycle', points[i]);
+                const point = points[i];
+                editor.call('gizmo:point:recycle', point);
             }
 
             for (let i = 0; i < events.length; i++) {
-                events[i].unbind();
+                const event = events[i];
+                event.unbind();
             }
 
             events = [];
@@ -684,10 +716,11 @@ editor.once('load', () => {
         });
 
         editor.on('selector:change', (type: string, items: EntityObserver[] | undefined) => {
-            selected = { };
+            selected = {};
             if (items) {
                 for (let i = 0; i < items.length; i++) {
-                    selected[items[i].get('resource_id')] = items[i];
+                    const item = items[i];
+                    selected[item.get('resource_id')] = item;
                 }
             }
 
@@ -740,32 +773,90 @@ editor.once('load', () => {
             }
         });
 
-
         const createModels = function () {
             // ================
             // box
             const positions = [
-                0.5, 0.5, 0.5,   0.5, 0.5, -0.5,   -0.5, 0.5, -0.5,   -0.5, 0.5, 0.5, // top
-                0.5, 0.5, 0.5,   -0.5, 0.5, 0.5,   -0.5, -0.5, 0.5,   0.5, -0.5, 0.5, // front
-                0.5, 0.5, 0.5,   0.5, -0.5, 0.5,   0.5, -0.5, -0.5,   0.5, 0.5, -0.5, // right
-                0.5, 0.5, -0.5,   0.5, -0.5, -0.5,   -0.5, -0.5, -0.5,   -0.5, 0.5, -0.5, // back
-                -0.5, 0.5, 0.5,   -0.5, 0.5, -0.5,   -0.5, -0.5, -0.5,   -0.5, -0.5, 0.5, // left
-                0.5, -0.5, 0.5,   -0.5, -0.5, 0.5,   -0.5, -0.5, -0.5,   0.5, -0.5, -0.5 // bottom
+                0.5,
+                0.5,
+                0.5,
+                0.5,
+                0.5,
+                -0.5,
+                -0.5,
+                0.5,
+                -0.5,
+                -0.5,
+                0.5,
+                0.5, // top
+                0.5,
+                0.5,
+                0.5,
+                -0.5,
+                0.5,
+                0.5,
+                -0.5,
+                -0.5,
+                0.5,
+                0.5,
+                -0.5,
+                0.5, // front
+                0.5,
+                0.5,
+                0.5,
+                0.5,
+                -0.5,
+                0.5,
+                0.5,
+                -0.5,
+                -0.5,
+                0.5,
+                0.5,
+                -0.5, // right
+                0.5,
+                0.5,
+                -0.5,
+                0.5,
+                -0.5,
+                -0.5,
+                -0.5,
+                -0.5,
+                -0.5,
+                -0.5,
+                0.5,
+                -0.5, // back
+                -0.5,
+                0.5,
+                0.5,
+                -0.5,
+                0.5,
+                -0.5,
+                -0.5,
+                -0.5,
+                -0.5,
+                -0.5,
+                -0.5,
+                0.5, // left
+                0.5,
+                -0.5,
+                0.5,
+                -0.5,
+                -0.5,
+                0.5,
+                -0.5,
+                -0.5,
+                -0.5,
+                0.5,
+                -0.5,
+                -0.5 // bottom
             ];
             const normals = [
-                0, 1, 0,   0, 1, 0,   0, 1, 0,   0, 1, 0,
-                0, 0, 1,   0, 0, 1,   0, 0, 1,   0, 0, 1,
-                1, 0, 0,   1, 0, 0,   1, 0, 0,   1, 0, 0,
-                0, 0, -1,   0, 0, -1,   0, 0, -1,   0, 0, -1,
-                -1, 0, 0,   -1, 0, 0,   -1, 0, 0,   -1, 0, 0,
-                0, -1, 0,   0, -1, 0,   0, -1, 0,   0, -1, 0
+                0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0,
+                0, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, -1, 0, 0, -1, 0,
+                0, -1, 0, 0, -1, 0
             ];
             const indices = [
-                0, 1, 2, 2, 3, 0,
-                4, 5, 6, 6, 7, 4,
-                8, 9, 10, 10, 11, 8,
-                12, 13, 14, 14, 15, 12,
-                16, 17, 18, 18, 19, 16,
+                0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4, 8, 9, 10, 10, 11, 8, 12, 13, 14, 14, 15, 12, 16, 17, 18, 18, 19, 16,
                 20, 21, 22, 22, 23, 20
             ];
 
@@ -776,12 +867,78 @@ editor.once('load', () => {
             const mesh = Mesh.fromGeometry(app.graphicsDevice, geom);
 
             const wireframePositions = [
-                0.5, 0.5, 0.5,    0.5, 0.5, -0.5,   -0.5, 0.5, -0.5,   -0.5, 0.5, 0.5, // top
-                0.5, 0.5, 0.5,   -0.5, 0.5, 0.5,    -0.5, -0.5, 0.5,    0.5, -0.5, 0.5, // front
-                0.5, 0.5, 0.5,    0.5, -0.5, 0.5,    0.5, -0.5, -0.5,   0.5, 0.5, -0.5, // right
-                0.5, 0.5, -0.5,  -0.5, 0.5, -0.5,   -0.5, -0.5, -0.5,   0.5, -0.5, -0.5, // back
-                -0.5, 0.5, 0.5,   -0.5, -0.5, 0.5,   -0.5, -0.5, -0.5,  -0.5, 0.5, -0.5, // right
-                0.5, -0.5, 0.5,   0.5, -0.5, -0.5,  -0.5, -0.5, -0.5,  -0.5, -0.5, 0.5 // bottom
+                0.5,
+                0.5,
+                0.5,
+                0.5,
+                0.5,
+                -0.5,
+                -0.5,
+                0.5,
+                -0.5,
+                -0.5,
+                0.5,
+                0.5, // top
+                0.5,
+                0.5,
+                0.5,
+                -0.5,
+                0.5,
+                0.5,
+                -0.5,
+                -0.5,
+                0.5,
+                0.5,
+                -0.5,
+                0.5, // front
+                0.5,
+                0.5,
+                0.5,
+                0.5,
+                -0.5,
+                0.5,
+                0.5,
+                -0.5,
+                -0.5,
+                0.5,
+                0.5,
+                -0.5, // right
+                0.5,
+                0.5,
+                -0.5,
+                -0.5,
+                0.5,
+                -0.5,
+                -0.5,
+                -0.5,
+                -0.5,
+                0.5,
+                -0.5,
+                -0.5, // back
+                -0.5,
+                0.5,
+                0.5,
+                -0.5,
+                -0.5,
+                0.5,
+                -0.5,
+                -0.5,
+                -0.5,
+                -0.5,
+                0.5,
+                -0.5, // right
+                0.5,
+                -0.5,
+                0.5,
+                0.5,
+                -0.5,
+                -0.5,
+                -0.5,
+                -0.5,
+                -0.5,
+                -0.5,
+                -0.5,
+                0.5 // bottom
             ];
 
             const wireGeom = new Geometry();

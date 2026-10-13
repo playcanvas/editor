@@ -41,14 +41,14 @@ editor.once('load', () => {
 
     const main = new Label({
         class: 'main',
-        text: 'To help you learn PlayCanvas we\'ve created your first project. It\'s a simple ball rolling game. Complete the design of the level by adding an extra platform, then design your own levels.<br><br>We\'ll pop up some tips to help you along the way.',
+        text: "To help you learn PlayCanvas we've created your first project. It's a simple ball rolling game. Complete the design of the level by adding an extra platform, then design your own levels.<br><br>We'll pop up some tips to help you along the way.",
         unsafe: true
     });
     container.append(main);
 
     const close = new Button({
         class: 'close',
-        text: 'LET\'S GO'
+        text: "LET'S GO"
     });
     container.append(close);
     close.on('click', () => {

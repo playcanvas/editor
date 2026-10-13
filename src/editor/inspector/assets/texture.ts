@@ -1,5 +1,15 @@
 import type { EventHandle, Observer } from '@playcanvas/observer';
-import { Panel, Container, Button, InfoBox, Divider, Label, BindingTwoWay, BindingObserversToElement, BindingElementToObservers } from '@playcanvas/pcui';
+import {
+    Panel,
+    Container,
+    Button,
+    InfoBox,
+    Divider,
+    Label,
+    BindingTwoWay,
+    BindingObserversToElement,
+    BindingElementToObservers
+} from '@playcanvas/pcui';
 import { PIXELFORMAT_DXT1, PIXELFORMAT_DXT5, Texture, TextureUtils } from 'playcanvas';
 
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
@@ -9,21 +19,22 @@ import { TextureCompressor } from '../../assets/assets-textures-compress';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
-
 // util
-const makeRefAssigner = (prefix = '') => (attr) => {
-    if (attr.hasOwnProperty('reference')) {
-        return;
-    }
+const makeRefAssigner =
+    (prefix = '') =>
+    (attr) => {
+        if (Object.prototype.hasOwnProperty.call(attr, 'reference')) {
+            return;
+        }
 
-    const path = attr.alias || attr.path;
-    if (!path) {
-        return;
-    }
+        const path = attr.alias || attr.path;
+        if (!path) {
+            return;
+        }
 
-    const parts = path.split('.');
-    attr.reference = `${prefix}${parts[parts.length - 1]}`;
-};
+        const parts = path.split('.');
+        attr.reference = `${prefix}${parts[parts.length - 1]}`;
+    };
 
 const CLASS_ROOT = 'asset-texture-inspector';
 const CLASS_COMPRESS_BUTTON = `${CLASS_ROOT}-compress-button`;
@@ -224,7 +235,7 @@ const COMPRESSION_LEGACY_ATTRIBUTES: Attribute[] = [
 ];
 COMPRESSION_LEGACY_ATTRIBUTES.forEach(makeRefAssigner('asset:texture:compress:'));
 
-const DOM = parent => [
+const DOM = (parent) => [
     {
         root: {
             texturePanel: new Panel({
@@ -272,7 +283,7 @@ const DOM = parent => [
                 recompressWarning: new InfoBox({
                     icon: 'E218',
                     title: 'Warning',
-                    text: 'This texture must be recompressed due to a non-backwards compatible engine change. This texture will appear upside down if it isn\'t recompressed.'
+                    text: "This texture must be recompressed due to a non-backwards compatible engine change. This texture will appear upside down if it isn't recompressed."
                 })
             },
             {
@@ -317,9 +328,10 @@ const DOM = parent => [
                         basisDivider: new Divider()
                     }
                 ]
-            }, {
+            },
+            {
                 root: {
-                    compressionLegacyContainer: new Container()
+                    compressionLegacySection: new Container()
                 },
                 children: [
                     {
@@ -359,7 +371,10 @@ const DOM = parent => [
 class MultiPathBindingElementToObservers extends BindingElementToObservers {
     _valueFormatters: Record<string, (v: unknown) => unknown> | undefined;
 
-    constructor({ formatters, ...args }: { formatters?: Record<string, (v: unknown) => unknown> } & Record<string, unknown>) {
+    constructor({
+        formatters,
+        ...args
+    }: { formatters?: Record<string, (v: unknown) => unknown> } & Record<string, unknown>) {
         super(args);
         this._valueFormatters = formatters;
     }
@@ -389,7 +404,8 @@ class MultiPathBindingElementToObservers extends BindingElementToObservers {
         }
 
         for (let i = 0; i < paths.length; i++) {
-            if (!latest.has(paths[i])) {
+            const path = paths[i];
+            if (!latest.has(path)) {
                 return false;
             }
         }
@@ -417,7 +433,8 @@ class MultiPathBindingElementToObservers extends BindingElementToObservers {
 
         const undo = () => {
             for (let i = 0; i < observers.length; i++) {
-                const latest = observers[i].latest();
+                const observer = observers[i];
+                const latest = observer.latest();
                 if (!this._latestHasPaths(latest, paths)) {
                     continue;
                 }
@@ -427,7 +444,7 @@ class MultiPathBindingElementToObservers extends BindingElementToObservers {
                     history = latest.history.enabled;
                     latest.history.enabled = false;
                 }
-                const prev = previous.get(observers[i]);
+                const prev = previous.get(observer);
                 paths.forEach((path) => {
                     latest.set(path, prev[path]);
                 });
@@ -442,7 +459,8 @@ class MultiPathBindingElementToObservers extends BindingElementToObservers {
             previous = new WeakMap();
 
             for (let i = 0; i < observers.length; i++) {
-                const latest = observers[i].latest();
+                const observer = observers[i];
+                const latest = observer.latest();
                 if (!this._latestHasPaths(latest, paths)) {
                     continue;
                 }
@@ -458,7 +476,7 @@ class MultiPathBindingElementToObservers extends BindingElementToObservers {
                     prev[path] = latest.get(path);
                     latest.set(path, this._formatValue(value, path));
                 });
-                previous.set(observers[i], prev);
+                previous.set(observer, prev);
 
                 if (history) {
                     latest.history.enabled = true;
@@ -496,9 +514,8 @@ class SizeLabel extends Label {
 
     updateSize() {
         const format = this._format;
-        this.text = (!format.size && !format.vram) ?
-            '-' :
-            `${bytesToHuman(format.size)} [VRAM ${bytesToHuman(format.vram)}]`;
+        this.text =
+            !format.size && !format.vram ? '-' : `${bytesToHuman(format.size)} [VRAM ${bytesToHuman(format.vram)}]`;
     }
 }
 
@@ -515,7 +532,10 @@ class TextureAssetInspector extends Container {
 
     _hasLegacy: boolean;
 
-    _compressionFormats: Record<string, { size: number; vram: number; timeout?: boolean; label?: SizeLabel | undefined }>;
+    _compressionFormats: Record<
+        string,
+        { size: number; vram: number; timeout?: boolean; label?: SizeLabel | undefined }
+    >;
 
     _webgl1NonPotWithMipmapsWarning: InfoBox;
 
@@ -553,7 +573,7 @@ class TextureAssetInspector extends Container {
 
     _basisDivider: Divider;
 
-    _compressionLegacyContainer: Container;
+    _compressionLegacySection: Container;
 
     _compressionLegacyAttributesInspector: AttributesInspector;
 
@@ -602,10 +622,10 @@ class TextureAssetInspector extends Container {
         this._btnGetMeta.on('click', this._handleBtnGetMetaClick);
 
         this._btnCompressBasis.on('click', this._handleBtnCompressBasisClick);
-        this._btnCompressBasis.disabled = true;
+        this._btnCompressBasis.enabled = false;
 
         this._btnCompressLegacy.on('click', this._handleBtnCompressLegacyClick);
-        this._btnCompressLegacy.disabled = true;
+        this._btnCompressLegacy.enabled = false;
 
         // Add WebGL1 warnings below the relevant settings in the inspector
         this._webgl1NonPotWithMipmapsWarning = new InfoBox({
@@ -616,7 +636,10 @@ class TextureAssetInspector extends Container {
         });
 
         const mipmapsField = this._textureAttributesInspector.getField('data.mipmaps');
-        (mipmapsField.parent.parent as Container).appendAfter(this._webgl1NonPotWithMipmapsWarning.dom, mipmapsField.parent.dom);
+        (mipmapsField.parent.parent as Container).appendAfter(
+            this._webgl1NonPotWithMipmapsWarning.dom,
+            mipmapsField.parent.dom
+        );
 
         this._webgl1NonPotWithoutAddressClampWarning = new InfoBox({
             icon: 'E218',
@@ -626,24 +649,27 @@ class TextureAssetInspector extends Container {
         });
 
         const addressVField = this._textureAttributesInspector.getField('data.addressv');
-        (addressVField.parent.parent as Container).appendAfter(this._webgl1NonPotWithoutAddressClampWarning.dom, addressVField.parent.dom);
+        (addressVField.parent.parent as Container).appendAfter(
+            this._webgl1NonPotWithoutAddressClampWarning.dom,
+            addressVField.parent.dom
+        );
 
         const srgbField = this._textureAttributesInspector.getField('data.srgb');
         const rgbmField = this._textureAttributesInspector.getField('data.rgbm');
 
-        // Ensure that the sRGB and RGBM fields are mutually exclusive
-        rgbmField.on('change', (value) => {
-            if (value) {
-                srgbField.value = false;
+        // Ensure that the sRGB and RGBM fields are mutually exclusive, but only for a user edit.
+        // A field also emits change while its binding pushes an observer value into it, on link
+        // and on a remote edit, and clearing the other field there writes the asset back and
+        // silently drops an encoding flag.
+        const exclusive = (other: typeof srgbField) => (value: boolean) => {
+            if (!value || srgbField.binding.applyingChange || rgbmField.binding.applyingChange) {
+                return;
             }
-        });
+            other.value = false;
+        };
 
-        srgbField.on('change', (value) => {
-            if (value) {
-                rgbmField.value = false;
-            }
-        });
-
+        rgbmField.on('change', exclusive(srgbField));
+        srgbField.on('change', exclusive(rgbmField));
     }
 
     _btnGetMetaVisibility() {
@@ -651,12 +677,14 @@ class TextureAssetInspector extends Container {
 
         let visible = false;
         for (let i = 0; i < assets.length; i++) {
-            if (!visible && !assets[i].get('meta')) {
+            const asset = assets[i];
+            if (!visible && !asset.get('meta')) {
                 visible = true;
                 break;
             }
         }
         this._btnGetMeta.hidden = !visible;
+        this._btnGetMeta.enabled = true;
     }
 
     _calculateSize(format: string) {
@@ -666,34 +694,36 @@ class TextureAssetInspector extends Container {
         formats[format].size = 0;
         formats[format].vram = 0;
         for (let i = 0; i < assets.length; i++) {
-            if (!assets[i].get('file') || !assets[i].get('meta')) {
+            const asset = assets[i];
+            if (!asset.get('file') || !asset.get('meta')) {
                 continue;
             }
 
             // slightly different handling for original size
             if (format === 'original') {
-                const pixels = (assets[i].get('meta.width') || 0) * (assets[i].get('meta.height') || 0);
-                formats.original.size += (assets[i].get('file.size') || 0);
+                const pixels = (asset.get('meta.width') || 0) * (asset.get('meta.height') || 0);
+                formats.original.size += asset.get('file.size') || 0;
                 formats.original.vram += pixels * 4;
                 continue;
             }
 
-            const size = assets[i].get(`file.variants.${format}.size`) || 0;
-            const sizeGzip = assets[i].get(`file.variants.${format}.sizeGzip`) || 0;
+            const size = asset.get(`file.variants.${format}.size`) || 0;
+            const sizeGzip = asset.get(`file.variants.${format}.sizeGzip`) || 0;
 
             if (size) {
                 let vram;
                 if (format === 'basis') {
-                    const width = assets[i].get('meta.width');
-                    const height = assets[i].get('meta.height');
-                    const alpha = assets[i].get('meta.alpha');
+                    const width = asset.get('meta.width');
+                    const height = asset.get('meta.height');
+                    const alpha = asset.get('meta.alpha');
                     const pixelFormat = alpha ? PIXELFORMAT_DXT5 : PIXELFORMAT_DXT1;
-                    const mipmaps = assets[i].get('data.mipmaps');
+                    const mipmaps = asset.get('data.mipmaps');
                     const depth = 1;
                     const cubemap = false;
-                    vram = (Texture as any).calcGpuSize?.(width, height, depth, pixelFormat, mipmaps, cubemap) ??
-                           TextureUtils?.calcGpuSize?.(width, height, depth, pixelFormat, mipmaps, cubemap) ??
-                           0;
+                    vram =
+                        (Texture as any).calcGpuSize?.(width, height, depth, pixelFormat, mipmaps, cubemap) ??
+                        TextureUtils?.calcGpuSize?.(width, height, depth, pixelFormat, mipmaps, cubemap) ??
+                        0;
                 } else {
                     vram = size - 128;
                 }
@@ -729,15 +759,16 @@ class TextureAssetInspector extends Container {
     _checkCompression() {
         const assets = this._assets;
         if (!editor.call('permissions:write') || !Array.isArray(assets) || !assets.length) {
-            this._btnCompressBasis.disabled = true;
-            this._btnCompressLegacy.disabled = true;
+            this._btnCompressBasis.enabled = false;
+            this._btnCompressLegacy.enabled = false;
             return;
         }
 
         let differentBasis = false;
         let differentLegacy = false;
         for (let i = 0; i < assets.length; i++) {
-            if (!assets[i].get('file') || !!assets[i].get('task')) {
+            const asset = assets[i];
+            if (!asset.get('file') || !!asset.get('task')) {
                 continue;
             }
 
@@ -746,7 +777,7 @@ class TextureAssetInspector extends Container {
                     continue;
                 }
 
-                if (TextureCompressor.determineRequiredProcessing(assets[i], key, false) !== 'none') {
+                if (TextureCompressor.determineRequiredProcessing(asset, key, false) !== 'none') {
                     if (key === 'basis') {
                         differentBasis = true;
                     } else {
@@ -760,8 +791,8 @@ class TextureAssetInspector extends Container {
             }
         }
 
-        this._btnCompressBasis.disabled = !differentBasis;
-        this._btnCompressLegacy.disabled = !differentLegacy;
+        this._btnCompressBasis.enabled = differentBasis;
+        this._btnCompressLegacy.enabled = differentLegacy;
     }
 
     // set the enable state of the compression format checkboxes based on the selected textures
@@ -780,7 +811,6 @@ class TextureAssetInspector extends Container {
 
         for (let i = 0; i < assets.length; i++) {
             const asset = assets[i];
-
             if (!asset.get('file')) {
                 continue;
             }
@@ -816,22 +846,23 @@ class TextureAssetInspector extends Container {
             if (!showBasisPvrWarning && asset.get('meta.compress.basis')) {
                 const thisWidth = asset.get('meta.width');
                 const thisHeight = asset.get('meta.height');
-                showBasisPvrWarning = (!TextureCompressor.isPOT(thisWidth, thisHeight) || thisWidth !== thisHeight);
+                showBasisPvrWarning = !TextureCompressor.isPOT(thisWidth, thisHeight) || thisWidth !== thisHeight;
             }
         }
 
         this._hasLegacy = selected.dxt || selected.pvr || selected.etc1 || selected.etc2 || false;
 
         // enable/disable basis controls based on whether basis is enabled
-        const basisUiDisabled = !writeAccess || !selected.basis;
+        const basisUiEnabled = writeAccess && selected.basis;
         if (this._compressionBasisAttributesInspector) {
-            this._compressionBasisAttributesInspector.getField('meta.compress.normals').disabled = basisUiDisabled;
-            this._compressionBasisAttributesInspector.getField('meta.compress.compressionMode').disabled = basisUiDisabled;
-            this._compressionBasisAttributesInspector.getField('meta.compress.quality').disabled = basisUiDisabled;
+            this._compressionBasisAttributesInspector.getField('meta.compress.normals').enabled = basisUiEnabled;
+            this._compressionBasisAttributesInspector.getField('meta.compress.compressionMode').enabled =
+                basisUiEnabled;
+            this._compressionBasisAttributesInspector.getField('meta.compress.quality').enabled = basisUiEnabled;
         }
 
         if (this._containerImportBasis) {
-            this._containerImportBasis.disabled = basisUiDisabled;
+            this._containerImportBasis.enabled = basisUiEnabled;
         }
 
         if (this._compressionBasisPvrWarning) {
@@ -849,23 +880,25 @@ class TextureAssetInspector extends Container {
         const fieldEtc1 = this._compressionLegacyAttributesInspector.getField('meta.compress.etc1');
         const fieldEtc2 = this._compressionLegacyAttributesInspector.getField('meta.compress.etc2');
 
-        alphaField.disabled = (hasAlpha === 0) && !selectedAlpha;
+        alphaField.enabled = hasAlpha !== 0 || selectedAlpha;
         fieldOriginal.value = displayExt;
-        fieldDxt.disabled = !allowed.dxt && !selected.dxt;
-        fieldPvr.disabled = fieldPvrBpp.disabled = !allowed.pvr && !selected.pvr;
-        fieldEtc1.disabled = !allowed.etc1 && !selected.etc1;
-        fieldEtc2.disabled = !allowed.etc2 && !selected.etc2;
+        fieldDxt.enabled = allowed.dxt || selected.dxt;
+        fieldPvr.enabled = fieldPvrBpp.enabled = allowed.pvr || selected.pvr;
+        fieldEtc1.enabled = allowed.etc1 || selected.etc1;
+        fieldEtc2.enabled = allowed.etc2 || selected.etc2;
 
         this._updatePvrWarning();
     }
 
     _handleAssetChangeCompression(path: string) {
-        if (this._compressionChangeTicking ||
+        if (
+            this._compressionChangeTicking ||
             (path !== 'task' &&
                 !path.startsWith('meta') &&
                 !path.startsWith('file') &&
                 !path.startsWith('data.rgbm') &&
-                !path.startsWith('data.mipmaps'))) {
+                !path.startsWith('data.mipmaps'))
+        ) {
             return;
         }
 
@@ -880,13 +913,13 @@ class TextureAssetInspector extends Container {
 
     _handleBtnCompressBasisClick() {
         this._handleCompress(['basis']);
-        this._btnCompressBasis.disabled = true;
+        this._btnCompressBasis.enabled = false;
     }
 
     _handleBtnCompressLegacyClick() {
-        const { basis, ...rest } = this._compressionFormats; // eslint-disable-line no-unused-vars
+        const { basis, ...rest } = this._compressionFormats;
         this._handleCompress(Object.keys(rest));
-        this._btnCompressLegacy.disabled = true;
+        this._btnCompressLegacy.enabled = false;
     }
 
     _handleBtnGetMetaClick() {
@@ -897,13 +930,14 @@ class TextureAssetInspector extends Container {
         }
 
         for (let i = 0; i < assets.length; i++) {
-            if (assets[i].get('meta')) {
+            const asset = assets[i];
+            if (asset.get('meta')) {
                 continue;
             }
 
             editor.call('realtime:send', 'pipeline', {
                 name: 'meta',
-                id: assets[i].get('uniqueId')
+                id: asset.get('uniqueId')
             });
         }
         this._btnGetMeta.enabled = false;
@@ -919,13 +953,15 @@ class TextureAssetInspector extends Container {
     }
 
     _handleAssetChangeWebGl1PotWarnings(path: string) {
-        if (path !== 'task' &&
+        if (
+            path !== 'task' &&
             !path.startsWith('meta.width') &&
             !path.startsWith('meta.height') &&
             !path.startsWith('file') &&
             !path.startsWith('data.addressu') &&
             !path.startsWith('data.addressv') &&
-            !path.startsWith('data.mipmaps')) {
+            !path.startsWith('data.mipmaps')
+        ) {
             return;
         }
 
@@ -947,9 +983,10 @@ class TextureAssetInspector extends Container {
         legacy.class.add('pcui-inspector-subhead');
         legacy.hidden = true;
         if (this._compressionBasisAttributesInspector) {
-            this._compressionBasisAttributesInspector.getField('meta.compress.basis').parent.class.add('pcui-inspector-subhead');
+            this._compressionBasisAttributesInspector
+                .getField('meta.compress.basis')
+                .parent.class.add('pcui-inspector-subhead');
         }
-
     }
 
     _setupImportButton(panel: Container, moduleStoreName: string, wasmFilename: string) {
@@ -977,7 +1014,7 @@ class TextureAssetInspector extends Container {
             this._containerImportBasis.append(this._btnImportBasis);
 
             panel.appendAfter(this._containerImportBasis, this._compressionBasisAttributesInspector);
-            this._containerImportBasis.disabled = true;
+            this._containerImportBasis.enabled = false;
 
             const events = [];
             const handleModuleImported = (name) => {
@@ -988,7 +1025,7 @@ class TextureAssetInspector extends Container {
             events.push(editor.on('onModuleImported', handleModuleImported));
 
             this._containerImportBasis.once('destroy', () => {
-                events.forEach(evt => evt.unbind());
+                events.forEach((evt) => evt.unbind());
                 events.length = 0;
             });
         } else {
@@ -1003,14 +1040,14 @@ class TextureAssetInspector extends Container {
             history: args.history,
             bindingElementToObservers: new MultiPathBindingElementToObservers({
                 formatters: {
-                    'data.minfilter': v => `${v}_mip_${v}`
+                    'data.minfilter': (v) => `${v}_mip_${v}`
                 },
                 history: args.history,
                 historyName: 'assets.filtering'
             }),
             bindingObserversToElement: new BindingObserversToElement({
                 customUpdate: (element, observers, paths) => {
-                    const getMergedValue = observer => paths.reduce((acc, path) => acc + observer.get(path), '');
+                    const getMergedValue = (observer) => paths.reduce((acc, path) => acc + observer.get(path), '');
 
                     let value = '';
                     let valueDifferent = false;
@@ -1023,9 +1060,15 @@ class TextureAssetInspector extends Container {
                     }
 
                     if (observers.length && !valueDifferent) {
-                        if (observers[0].get('data.minfilter') === 'linear_mip_linear' && observers[0].get('data.magfilter') === 'linear') {
+                        if (
+                            observers[0].get('data.minfilter') === 'linear_mip_linear' &&
+                            observers[0].get('data.magfilter') === 'linear'
+                        ) {
                             value = 'linear';
-                        } else if (observers[0].get('data.minfilter') === 'nearest_mip_nearest' && observers[0].get('data.magfilter') === 'nearest') {
+                        } else if (
+                            observers[0].get('data.minfilter') === 'nearest_mip_nearest' &&
+                            observers[0].get('data.magfilter') === 'nearest'
+                        ) {
                             value = 'nearest';
                         }
                     }
@@ -1039,17 +1082,17 @@ class TextureAssetInspector extends Container {
 
     _setupLegacy() {
         const fieldLegacy = this._compressionLegacyAttributesInspector.getField('compress.legacy');
-        const dirty = !this._btnCompressLegacy.disabled;
+        const dirty = this._btnCompressLegacy.enabled;
         this._showHideLegacyUi(this._hasLegacy || dirty);
         fieldLegacy.value = this._hasLegacy || dirty;
-        fieldLegacy.disabled = this._hasLegacy || dirty;
+        fieldLegacy.enabled = !(this._hasLegacy || dirty);
         this._assetEvents.push(fieldLegacy.on('change', this._showHideLegacyUi));
     }
 
     _updateLegacy() {
         const fieldLegacy = this._compressionLegacyAttributesInspector.getField('compress.legacy');
-        const dirty = !this._btnCompressLegacy.disabled;
-        fieldLegacy.disabled = this._hasLegacy || dirty;
+        const dirty = this._btnCompressLegacy.enabled;
+        fieldLegacy.enabled = !(this._hasLegacy || dirty);
     }
 
     _setupPanelReferences() {
@@ -1094,7 +1137,6 @@ class TextureAssetInspector extends Container {
                 return this._compressionLegacyAttributesInspector.getField('compress.original');
             }
 
-
             if (format === 'basis') {
                 return this._compressionBasisAttributesInspector.getField(`meta.compress.${format}`);
             }
@@ -1134,9 +1176,10 @@ class TextureAssetInspector extends Container {
 
         // only show pvr warning if any selected texture is non-square and pvr is ticked
         let hidden = true;
-        if (fieldPvr.value && !fieldPvr.disabled) {
+        if (fieldPvr.value && fieldPvr.enabled) {
             for (let i = 0; i < assets.length; i++) {
-                if (assets[i].get('meta.width') !== assets[i].get('meta.height')) {
+                const asset = assets[i];
+                if (asset.get('meta.width') !== asset.get('meta.height')) {
                     hidden = false;
                     break;
                 }
@@ -1199,7 +1242,10 @@ class TextureAssetInspector extends Container {
                     if (!hideWarning) {
                         return;
                     }
-                    if (assets[0].has(`file.variants.${variant}`) && !assets[0].get(`file.variants.${variant}.noFlip`)) {
+                    if (
+                        assets[0].has(`file.variants.${variant}`) &&
+                        !assets[0].get(`file.variants.${variant}.noFlip`)
+                    ) {
                         hideWarning = false;
                     }
                 });
@@ -1234,36 +1280,46 @@ class TextureAssetInspector extends Container {
             this._assetEvents.push(asset.on('*:set', this._handleAssetChangeWebGl1PotWarnings));
 
             // show/hide Get Meta Button
-            this._assetEvents.push(asset.on('meta:set', () => {
-                this._btnGetMetaVisibility();
-                // asset meta migration...
-                // this should probably eventually be moved to the pipeline job
-                if (asset.get('meta') && !asset.has('meta.compress')) {
-                    setTimeout(() => {
-                        asset.set('meta.compress', {
-                            alpha: TextureCompressor.hasAlpha(asset),
-                            normals: false,
-                            dxt: false,
-                            pvr: false,
-                            pvrBpp: 4,
-                            etc1: false,
-                            etc2: false,
-                            basis: false,
-                            quality: 128
+            this._assetEvents.push(
+                asset.on('meta:set', () => {
+                    this._btnGetMetaVisibility();
+                    // asset meta migration...
+                    // this should probably eventually be moved to the pipeline job
+                    if (asset.get('meta') && !asset.has('meta.compress')) {
+                        setTimeout(() => {
+                            asset.set('meta.compress', {
+                                alpha: TextureCompressor.hasAlpha(asset),
+                                normals: false,
+                                dxt: false,
+                                pvr: false,
+                                pvrBpp: 4,
+                                etc1: false,
+                                etc2: false,
+                                basis: false,
+                                quality: 128
+                            });
                         });
-                    });
-                }
-            }));
-            this._assetEvents.push(asset.on('meta:unset', () => {
-                this._btnGetMeta.hidden = false;
-            }));
+                    }
+                })
+            );
+            this._assetEvents.push(
+                asset.on('meta:unset', () => {
+                    this._btnGetMetaVisibility();
+                })
+            );
 
             // recalculate size
             for (const key in this._compressionFormats) {
                 this._assetEvents.push(asset.on(`file.variants.${key}.size:set`, () => this._queueSizeCalculate(key)));
-                this._assetEvents.push(asset.on(`file.variants.${key}.size:unset`, () => this._queueSizeCalculate(key)));
-                this._assetEvents.push(asset.on(`file.variants.${key}.sizeGzip:set`, () => this._queueSizeCalculate(key)));
-                this._assetEvents.push(asset.on(`file.variants.${key}.sizeGzip:unset`, () => this._queueSizeCalculate(key)));
+                this._assetEvents.push(
+                    asset.on(`file.variants.${key}.size:unset`, () => this._queueSizeCalculate(key))
+                );
+                this._assetEvents.push(
+                    asset.on(`file.variants.${key}.sizeGzip:set`, () => this._queueSizeCalculate(key))
+                );
+                this._assetEvents.push(
+                    asset.on(`file.variants.${key}.sizeGzip:unset`, () => this._queueSizeCalculate(key))
+                );
             }
         });
     }
@@ -1284,7 +1340,7 @@ class TextureAssetInspector extends Container {
         }
         this._compressionChangeTicking = false;
 
-        this._assetEvents.forEach(e => e.unbind());
+        this._assetEvents.forEach((e) => e.unbind());
         this._assetEvents.length = 0;
         this._assets = null;
     }

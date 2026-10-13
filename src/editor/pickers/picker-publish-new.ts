@@ -1,11 +1,26 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { BooleanInput, Button, Container, Label, Progress, SelectInput, TextAreaInput, TextInput } from '@playcanvas/pcui';
+import {
+    BooleanInput,
+    Button,
+    Container,
+    Element,
+    Label,
+    Progress,
+    SelectInput,
+    TextAreaInput,
+    TextInput
+} from '@playcanvas/pcui';
 
+import { createLog } from '@/common/sentry';
 import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
-import { LegacyList } from '@/common/ui/list';
-import { LegacyListItem } from '@/common/ui/list-item';
 import { convertDatetime } from '@/common/utils';
 import { config } from '@/editor/config';
+
+const log = createLog('<PATH>');
+
+const DOWNLOAD_FORMAT_STATIC = 'static';
+const DOWNLOAD_FORMAT_WEB_LENS = 'web_lens';
+const DOWNLOAD_FORMAT_NPM = 'npm';
 
 editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
@@ -16,10 +31,11 @@ editor.once('load', () => {
     // holds events that need to be destroyed
     let events: EventHandle[] = [];
 
-    let containerOptionsWebLens: Container | null = null;
+    let containerDownloadOptions: Container | null = null;
 
     // root container
     const container = new Container({
+        flex: true,
         class: 'picker-publish-new'
     });
 
@@ -31,35 +47,67 @@ editor.once('load', () => {
 
     let primaryScene: number | null = null;
     const primarySceneKey = `publish:primaryScene:${config.project.id}:${config.self.branch.id}`;
+    const selectedScenesKey = `publish:selectedScenes:${config.project.id}:${config.self.branch.id}`;
 
     editor.method('picker:publish:new', () => {
         mode = 'publish';
         editor.call('picker:project', 'publish-new');
         container.class.remove('download-mode');
-        containerOptionsWebLens.hidden = true;
+        if (containerDownloadOptions) {
+            containerDownloadOptions.hidden = true;
+        }
+        if (fieldDownloadFormat) {
+            fieldDownloadFormat.value = DOWNLOAD_FORMAT_STATIC;
+        }
+        refreshDownloadFormatOptions();
     });
 
     editor.method('picker:publish:download', () => {
         mode = 'download';
         editor.call('picker:project', 'publish-download');
         container.class.add('download-mode');
-        if (config.self.flags.superUser) {
-            containerOptionsWebLens.hidden = false;
+        if (containerDownloadOptions) {
+            containerDownloadOptions.hidden = false;
         }
+        refreshDownloadFormatOptions();
     });
+
+    // back to builds list
+    const back = document.createElement('button');
+    back.type = 'button';
+    back.classList.add('back');
+    back.textContent = 'Back to builds';
+    back.addEventListener('click', () => {
+        editor.call('picker:builds-publish');
+    });
+    container.dom.appendChild(back);
+
+    // card-style form section with a heading (matches build detail sections)
+    const createFormSection = (className: string, title: string) => {
+        const section = new Container({
+            class: ['form-section', className]
+        });
+        const heading = document.createElement('h3');
+        heading.textContent = title;
+        section.dom.appendChild(heading);
+        container.append(section);
+        return section;
+    };
+
+    const sectionDetails = createFormSection('details', 'Build details');
 
     // info panel
     const containerInfo = new Container({
         class: 'info'
     });
-    container.append(containerInfo);
+    sectionDetails.append(containerInfo);
 
     // image
     const imageField = document.createElement('div');
     imageField.classList.add('image');
     containerInfo.append(imageField);
 
-    const blankImage = `${config.url.static}/platform/images/common/blank_project.png`;
+    const blankImage = `${config.url.frontend}static/img/blank-project.webp`;
 
     const clearAppImage = function () {
         imageField.classList.remove('progress');
@@ -106,24 +154,30 @@ editor.once('load', () => {
 
         imageField.classList.remove('blank');
         imageField.classList.add('progress');
-        imageField.style.backgroundImage = `url("${config.url.static}/platform/images/common/ajax-loader.gif")`;
+        imageField.style.backgroundImage = `url("${config.url.frontend}static/img/ajax-loader.webp")`;
 
         const file = fileInput.files[0];
         fileInput.value = null;
 
-        editor.call('images:upload', file, config.project, (data) => {
-            imageS3Key = data.s3Key;
-            isUploadingImage = false;
-            refreshButtonsState();
+        editor.call(
+            'images:upload',
+            file,
+            config.project,
+            (data) => {
+                imageS3Key = data.s3Key;
+                isUploadingImage = false;
+                refreshButtonsState();
 
-            setAppImage(data.url);
-        }, (status, data) => {
-            // error
-            isUploadingImage = false;
-            refreshButtonsState();
+                setAppImage(data.url);
+            },
+            (status, data) => {
+                // error
+                isUploadingImage = false;
+                refreshButtonsState();
 
-            clearAppImage();
-        });
+                clearAppImage();
+            }
+        );
     });
 
     const group = document.createElement('span');
@@ -162,11 +216,11 @@ editor.once('load', () => {
     group.appendChild(labelImageClick.dom);
 
     // Helper to create a text area section with label and error
-    const createTextAreaSection = (className: string, labelText: string, maxLength: number) => {
+    const createTextAreaSection = (className: string, labelText: string, maxLength: number, placeholder?: string) => {
         const sectionContainer = new Container({
             class: className
         });
-        container.append(sectionContainer);
+        sectionDetails.append(sectionContainer);
 
         const label = new Label({
             text: labelText,
@@ -182,7 +236,8 @@ editor.once('load', () => {
         sectionContainer.append(errorLabel);
 
         const input = new TextAreaInput({
-            keyChange: true
+            keyChange: true,
+            placeholder
         });
         sectionContainer.append(input);
 
@@ -200,7 +255,7 @@ editor.once('load', () => {
     const containerVersion = new Container({
         class: 'version'
     });
-    container.append(containerVersion);
+    sectionDetails.append(containerVersion);
 
     const labelVersion = new Label({
         text: 'Version',
@@ -227,7 +282,9 @@ editor.once('load', () => {
         refreshButtonsState();
     });
 
-    const inputNotes = createTextAreaSection('notes', 'Release Notes', 10000);
+    const inputNotes = createTextAreaSection('notes', 'Release Notes', 10000, "What's changed in this build?");
+
+    const sectionSettings = createFormSection('settings', 'Build settings');
 
     // engine version
     const containerEngineVersion = new Container({
@@ -241,31 +298,44 @@ editor.once('load', () => {
 
     const engineVersionDropdown = new SelectInput({
         class: 'engine-version-dropdown',
-        value: editor.call('settings:projectUser').get('editor.launchReleaseCandidate') ? 'releaseCandidate' : editor.call('settings:session').get('engineVersion'),
+        value: editor.call('settings:projectUser').get('editor.launchReleaseCandidate')
+            ? 'releaseCandidate'
+            : editor.call('settings:session').get('engineVersion'),
         options: ['previous', 'current', 'releaseCandidate']
-        .filter(type => config.engineVersions.hasOwnProperty(type))
-        .map((type) => {
-            const t = config.engineVersions[type];
-            return {
-                t: t.description,
-                v: type
-            };
-        })
+            .filter((type) => Object.prototype.hasOwnProperty.call(config.engineVersions, type))
+            .map((type) => {
+                const t = config.engineVersions[type];
+                return {
+                    t: t.description,
+                    v: type
+                };
+            })
     });
     containerEngineVersion.append(engineVersionDropdown);
-    container.append(containerEngineVersion);
+    sectionSettings.append(containerEngineVersion);
 
-    let fieldOptionsConcat: BooleanInput;
-    let fieldOptionsMinify: BooleanInput;
-    let fieldOptionsSourcemaps: BooleanInput;
-    let fieldOptionsOptimizeSceneFormat: BooleanInput;
-    let fieldOptionsWebLens: BooleanInput;
+    let fieldOptionsConcat: BooleanInput | null = null;
+    let fieldOptionsMinify: BooleanInput | null = null;
+    let fieldOptionsSourcemaps: BooleanInput | null = null;
+    let fieldOptionsOptimizeSceneFormat: BooleanInput | null = null;
+    let fieldDownloadFormat: SelectInput | null = null;
+    let containerBuildOptions: Container | null = null;
+    let rowOptionsMinify: Container | null = null;
+    let rowOptionsSourcemaps: Container | null = null;
+    let optionsBeforeNpmProject: {
+        concatenate: boolean;
+        minify: boolean;
+        sourcemaps: boolean;
+        optimizeSceneFormat: boolean;
+    } | null = null;
+    let refreshingDownloadFormatOptions = false;
 
     if (!legacyScripts) {
         const containerOptions = new Container({
             class: 'options'
         });
-        container.append(containerOptions);
+        containerBuildOptions = containerOptions;
+        sectionSettings.append(containerOptions);
 
         const labelOptions = new Label({
             text: 'Options',
@@ -297,25 +367,116 @@ editor.once('load', () => {
         const optMinify = createOption('Minify Scripts', true);
         const optSourcemaps = createOption('Generate Source Maps', false);
         const optOptimizeFormat = createOption('Optimize Scene Format', false);
-        const optWebLens = createOption('Export to WebLens Format', false);
 
         fieldOptionsConcat = optConcat.input;
         fieldOptionsMinify = optMinify.input;
         fieldOptionsSourcemaps = optSourcemaps.input;
         fieldOptionsOptimizeSceneFormat = optOptimizeFormat.input;
-        fieldOptionsWebLens = optWebLens.input;
+        rowOptionsMinify = optMinify.row;
+        rowOptionsSourcemaps = optSourcemaps.row;
 
-        containerOptionsWebLens = optWebLens.row;
-        containerOptionsWebLens.hidden = true;
-
-        fieldOptionsConcat.on('change', (value: boolean) => {
-            optMinify.row.hidden = !value;
-            optSourcemaps.row.hidden = !fieldOptionsMinify.value || !value;
+        fieldOptionsConcat.on('change', () => {
+            refreshDownloadFormatOptions();
         });
 
-        fieldOptionsMinify.on('change', (value: boolean) => {
-            optSourcemaps.row.hidden = !value;
+        fieldOptionsMinify.on('change', () => {
+            refreshDownloadFormatOptions();
         });
+    }
+
+    containerDownloadOptions = new Container({
+        class: 'options'
+    });
+    sectionSettings.append(containerDownloadOptions);
+    containerDownloadOptions.hidden = true;
+
+    const labelDownloadOptions = new Label({
+        text: 'Download Format',
+        class: 'field-label'
+    });
+    containerDownloadOptions.append(labelDownloadOptions);
+
+    const downloadFormatOptions = [
+        {
+            t: 'Static Website',
+            v: DOWNLOAD_FORMAT_STATIC
+        },
+        {
+            t: 'NPM + Vite Project (WIP)',
+            v: DOWNLOAD_FORMAT_NPM
+        }
+    ];
+
+    if (config.self.flags.superUser) {
+        downloadFormatOptions.splice(1, 0, {
+            t: 'Snapchat Web Lens',
+            v: DOWNLOAD_FORMAT_WEB_LENS
+        });
+    }
+
+    fieldDownloadFormat = new SelectInput({
+        class: 'download-format-dropdown',
+        value: DOWNLOAD_FORMAT_STATIC,
+        options: downloadFormatOptions
+    });
+    containerDownloadOptions.append(fieldDownloadFormat);
+
+    fieldDownloadFormat.on('change', () => {
+        refreshDownloadFormatOptions();
+    });
+
+    function refreshDownloadFormatOptions() {
+        if (refreshingDownloadFormatOptions) {
+            return;
+        }
+
+        refreshingDownloadFormatOptions = true;
+
+        const npmProject = fieldDownloadFormat?.value === DOWNLOAD_FORMAT_NPM;
+        if (fieldOptionsConcat && fieldOptionsMinify && fieldOptionsSourcemaps && fieldOptionsOptimizeSceneFormat) {
+            if (npmProject) {
+                if (!optionsBeforeNpmProject) {
+                    optionsBeforeNpmProject = {
+                        concatenate: fieldOptionsConcat.value,
+                        minify: fieldOptionsMinify.value,
+                        sourcemaps: fieldOptionsSourcemaps.value,
+                        optimizeSceneFormat: fieldOptionsOptimizeSceneFormat.value
+                    };
+                }
+
+                fieldOptionsConcat.value = false;
+                fieldOptionsMinify.value = false;
+                fieldOptionsSourcemaps.value = false;
+                fieldOptionsOptimizeSceneFormat.value = false;
+            } else if (optionsBeforeNpmProject) {
+                fieldOptionsConcat.value = optionsBeforeNpmProject.concatenate;
+                fieldOptionsMinify.value = optionsBeforeNpmProject.minify;
+                fieldOptionsSourcemaps.value = optionsBeforeNpmProject.sourcemaps;
+                fieldOptionsOptimizeSceneFormat.value = optionsBeforeNpmProject.optimizeSceneFormat;
+                optionsBeforeNpmProject = null;
+            }
+
+            fieldOptionsConcat.disabled = npmProject;
+            fieldOptionsMinify.disabled = npmProject;
+            fieldOptionsSourcemaps.disabled = npmProject;
+            fieldOptionsOptimizeSceneFormat.disabled = npmProject;
+        }
+
+        if (containerBuildOptions) {
+            containerBuildOptions.disabled = npmProject;
+            containerBuildOptions.hidden = npmProject;
+        }
+
+        if (!npmProject && fieldOptionsConcat && fieldOptionsMinify) {
+            if (rowOptionsMinify) {
+                rowOptionsMinify.hidden = !fieldOptionsConcat.value;
+            }
+            if (rowOptionsSourcemaps) {
+                rowOptionsSourcemaps.hidden = !fieldOptionsMinify.value || !fieldOptionsConcat.value;
+            }
+        }
+
+        refreshingDownloadFormatOptions = false;
     }
 
     // scenes
@@ -324,28 +485,41 @@ editor.once('load', () => {
     });
     container.append(containerScenes);
 
+    // header bar attached to the scene list (matches build history header)
+    const scenesHeader = new Container({
+        class: 'scenes-header'
+    });
+    containerScenes.append(scenesHeader);
+
     const labelChooseScenes = new Label({
-        text: 'Choose Scenes',
+        text: 'Scenes',
         class: 'field-label'
     });
-    containerScenes.append(labelChooseScenes);
+    scenesHeader.append(labelChooseScenes);
 
-    const selectAll = new BooleanInput();
-    containerScenes.append(selectAll);
+    const selectAllGroup = new Container({
+        class: 'select-all-group'
+    });
+    scenesHeader.append(selectAllGroup);
 
     const labelSelectAll = new Label({
         text: 'Select all',
         class: 'select-all'
     });
-    containerScenes.append(labelSelectAll);
+    selectAllGroup.append(labelSelectAll);
+
+    const selectAll = new BooleanInput();
+    selectAllGroup.append(selectAll);
 
     // scenes container
-    const sceneList = new LegacyList();
-    sceneList.class.add('scene-list');
+    const sceneList = new Container({
+        dom: 'ul',
+        class: ['ui-list', 'scene-list']
+    });
     containerScenes.append(sceneList);
 
     const containerNoScenes = new Container({
-        class: 'scenes'
+        class: 'scenes-empty'
     });
     container.append(containerNoScenes);
 
@@ -369,14 +543,14 @@ editor.once('load', () => {
     containerNoScenes.append(progressBar);
 
     // holds all scenes
-    let scenes: { id: number | string, name: string, modified: string }[] = [];
+    let scenes: { id: number | string; name: string; modified: string }[] = [];
 
     // returns a list of the selected scenes
     // with the primary scene first
     const getSelectedScenes = function () {
         const result = [];
 
-        const listItems = sceneList.innerElement.childNodes;
+        const listItems = sceneList.innerElement.childNodes as any;
         for (let i = 0; i < listItems.length; i++) {
             if (listItems[i].ui.isSelected()) {
                 result.push(listItems[i].ui.sceneId);
@@ -399,12 +573,26 @@ editor.once('load', () => {
 
     let jobInProgress = false;
 
+    // footer action buttons
+    const footer = new Container({
+        class: 'form-footer'
+    });
+    container.append(footer);
+
+    // explains why the action button is disabled
+    const footerHint = new Label({
+        class: 'footer-hint',
+        hidden: true
+    });
+    footer.append(footerHint);
+
     // publish button
     const btnPublish = new Button({
-        text: 'Publish Now',
+        text: 'Publish',
+        icon: 'E226',
         class: 'publish'
     });
-    container.append(btnPublish);
+    footer.append(btnPublish);
 
     btnPublish.on('click', () => {
         if (jobInProgress) {
@@ -415,7 +603,7 @@ editor.once('load', () => {
 
         refreshButtonsState();
 
-        const data = {
+        const data: Record<string, any> = {
             name: inputName.value,
             project_id: config.project.id,
             branch_id: config.self.branch.id,
@@ -445,7 +633,7 @@ editor.once('load', () => {
         if (fieldOptionsMinify) {
             data.scripts_minify = fieldOptionsMinify.value;
 
-            if (fieldOptionsConcat.value && fieldOptionsMinify.value && fieldOptionsSourcemaps.value) {
+            if (fieldOptionsConcat?.value && fieldOptionsMinify.value && fieldOptionsSourcemaps?.value) {
                 data.scripts_sourcemaps = true;
             }
         }
@@ -454,30 +642,28 @@ editor.once('load', () => {
             data.optimize_scene_format = fieldOptionsOptimizeSceneFormat.value;
         }
 
-        if (fieldOptionsWebLens) {
-            data.web_lens = fieldOptionsWebLens.value;
-        }
-
         data.engine_version = config.engineVersions[engineVersionDropdown.value].version;
 
-        editor.api.globals.rest.apps.appCreate(data).on('load', () => {
-            jobInProgress = false;
-            editor.call('picker:builds-publish');
-        }).on('error', (status) => {
-            jobInProgress = false;
-            editor.call('status:error', `Error while publishing: ${status}`);
-            editor.call('picker:builds-publish');
-        });
+        editor.api.globals.rest.apps
+            .appCreate(data)
+            .on('load', () => {
+                jobInProgress = false;
+                editor.call('picker:builds-publish', { reload: true });
+            })
+            .on('error', (status) => {
+                jobInProgress = false;
+                editor.call('status:error', `Error while publishing: ${status}`);
+                editor.call('picker:builds-publish');
+            });
     });
 
     // web download button
     const btnWebDownload = new Button({
         text: 'Download',
+        icon: 'E245',
         class: 'web-download'
     });
-    container.append(btnWebDownload);
-
-    let urlToDownload: string | null = null;
+    footer.append(btnWebDownload);
 
     // download app
     const download = function () {
@@ -485,85 +671,39 @@ editor.once('load', () => {
 
         refreshButtonsState();
 
+        const format = fieldDownloadFormat?.value ?? DOWNLOAD_FORMAT_STATIC;
+        const npmProject = format === DOWNLOAD_FORMAT_NPM;
+
         // post data
-        const data = {
+        const data: Record<string, any> = {
             name: inputName.value,
             project_id: config.project.id,
             branch_id: config.self.branch.id,
             scenes: getSelectedScenes(),
-            scripts_concatenate: fieldOptionsConcat ? fieldOptionsConcat.value : false,
-            scripts_minify: fieldOptionsMinify ? fieldOptionsMinify.value : false,
-            scripts_sourcemaps: fieldOptionsMinify && fieldOptionsMinify.value && fieldOptionsSourcemaps.value,
-            optimize_scene_format: fieldOptionsOptimizeSceneFormat ? fieldOptionsOptimizeSceneFormat.value : false,
-            web_lens: fieldOptionsWebLens ? fieldOptionsWebLens.value : false
+            scripts_concatenate: !npmProject && !!fieldOptionsConcat?.value,
+            scripts_minify: !npmProject && !!fieldOptionsMinify?.value,
+            scripts_sourcemaps: !npmProject && !!fieldOptionsMinify?.value && !!fieldOptionsSourcemaps?.value,
+            optimize_scene_format: !npmProject && !!fieldOptionsOptimizeSceneFormat?.value,
+            format
         };
 
         data.engine_version = config.engineVersions[engineVersionDropdown.value].version;
 
         // ajax call
-        editor.api.globals.rest.apps.appDownload(data).on('load', (status, job) => {
-            // show download progress
-            panelDownloadProgress.hidden = false;
-            btnDownloadReady.hidden = true;
-            downloadProgressIconWrapper.classList.remove('success');
-            downloadProgressIconWrapper.classList.remove('error');
+        editor.api.globals.rest.apps
+            .appDownload(data)
+            .on('load', () => {
+                jobInProgress = false;
+                editor.call('picker:builds-publish', { reload: true });
+            })
+            .on('error', (status, error) => {
+                jobInProgress = false;
 
-            downloadProgressTitle.class.remove('error');
-            downloadProgressTitle.text = 'Preparing build...';
+                refreshButtonsState();
 
-            // smoothly scroll to the bottom
-            panelDownloadProgress.scrollIntoView({
-                behavior: 'smooth',
-                block: 'end'
+                // error
+                void log.error`publish error ${status}: ${error}`;
             });
-
-            // when job is updated get the job and
-            // proceed depending on job status
-            const evt = editor.on('messenger:job.update', (msg) => {
-                if (msg.job.id === job.id) {
-                    evt.unbind();
-
-                    // get job
-                    editor.api.globals.rest.jobs.jobGet({ jobId: job.id })
-                    .on('load', (status, data) => {
-                        const job = data;
-                        // success ?
-                        if (job.status === 'complete') {
-                            downloadProgressIconWrapper.classList.add('success');
-                            downloadProgressTitle.text = 'Your build is ready';
-                            urlToDownload = job.data.download_url;
-                            btnDownloadReady.hidden = false;
-                            jobInProgress = false;
-
-                            refreshButtonsState();
-                        } else if (job.status === 'error') { // handle error
-                            downloadProgressIconWrapper.classList.add('error');
-                            downloadProgressTitle.class.add('error');
-                            downloadProgressTitle.text = job.messages[0];
-                            jobInProgress = false;
-
-                            refreshButtonsState();
-                        }
-                    }).on('error', () => {
-                        // error
-                        downloadProgressIconWrapper.classList.add('error');
-                        downloadProgressTitle.class.add('error');
-                        downloadProgressTitle.text = 'Error: Could not start download';
-                        jobInProgress = false;
-
-                        refreshButtonsState();
-                    });
-                }
-            });
-            events.push(evt);
-        }).on('error', (status, error) => {
-            jobInProgress = false;
-
-            refreshButtonsState();
-
-            // error
-            log.error(status, error);
-        });
     };
 
     btnWebDownload.on('click', () => {
@@ -574,64 +714,43 @@ editor.once('load', () => {
         download();
     });
 
-    // download progress
-    const panelDownloadProgress = document.createElement('div');
-    panelDownloadProgress.classList.add('progress');
-    panelDownloadProgress.classList.add('download');
-    container.append(panelDownloadProgress);
-
-    // icon
-    const downloadProgressIconWrapper = document.createElement('span');
-    downloadProgressIconWrapper.classList.add('icon');
-    panelDownloadProgress.appendChild(downloadProgressIconWrapper);
-
-    const downloadProgressImg = new Image();
-    downloadProgressIconWrapper.appendChild(downloadProgressImg);
-    downloadProgressImg.src = `${config.url.static}/platform/images/common/ajax-loader.gif`;
-
-    // progress info
-    const downloadProgressInfo = document.createElement('span');
-    downloadProgressInfo.classList.add('progress-info');
-    panelDownloadProgress.appendChild(downloadProgressInfo);
-
-    const downloadProgressTitle = new Label({
-        text: 'Preparing build',
-        class: 'progress-title'
-    });
-    downloadProgressInfo.appendChild(downloadProgressTitle.dom);
-
-    const btnDownloadReady = new Button({
-        text: 'Download',
-        class: 'ready'
-    });
-    downloadProgressInfo.appendChild(btnDownloadReady.dom);
-
-    btnDownloadReady.on('click', () => {
-        if (urlToDownload) {
-            window.open(urlToDownload);
-        }
-
-        editor.call('picker:publish');
-    });
-
     const refreshButtonsState = function () {
         const selectedScenes = getSelectedScenes();
-        const disabled = !inputName.value ||
-                       !selectedScenes.length ||
-                       inputName.value.length > 1000 ||
-                       inputDescription.value.length > 10000 ||
-                       inputNotes.value.length > 10000 ||
-                       inputVersion.value.length > 20 ||
-                       isUploadingImage ||
-                       jobInProgress;
 
-        btnPublish.disabled = disabled;
-        btnWebDownload.disabled = disabled;
+        let reason = '';
+        if (!inputName.value.length) {
+            reason = 'Title is required';
+        } else if (inputName.value.length > 1000) {
+            reason = 'Title cannot exceed 1000 characters';
+        } else if (selectedScenes.length === 0) {
+            reason = 'Select at least one scene';
+        } else if (inputDescription.value.length > 10000) {
+            reason = 'Description is too long';
+        } else if (inputNotes.value.length > 10000) {
+            reason = 'Release notes are too long';
+        } else if (inputVersion.value.length > 20) {
+            reason = 'Version cannot exceed 20 characters';
+        } else if (isUploadingImage) {
+            reason = 'Uploading image…';
+        }
+
+        footerHint.text = reason;
+        // while scenes are still loading the empty state explains itself
+        footerHint.hidden = !reason || !scenes.length;
+
+        const enabled = !reason && !jobInProgress;
+        btnPublish.enabled = enabled;
+        btnWebDownload.enabled = enabled;
     };
 
-    const createSceneItem = function (scene: Record<string, unknown>) {
-        const row = new LegacyListItem();
-        row.element.id = `picker-scene-${scene.id}`;
+    const createSceneItem = function (scene: any) {
+        const row: any = new Container({
+            dom: 'li',
+            id: `picker-scene-${scene.id}`,
+            class: 'ui-list-item'
+        });
+        const rowText = document.createElement('span');
+        row.dom.appendChild(rowText);
         row.sceneId = scene.id;
 
         sceneList.append(row);
@@ -648,7 +767,11 @@ editor.once('load', () => {
             text: '\uE223',
             class: 'primary'
         });
-        row.element.appendChild(primary.dom);
+        const tooltipAnchor = new Element({
+            class: 'primary-tooltip-anchor'
+        });
+        primary.dom.appendChild(tooltipAnchor.dom);
+        row.append(primary);
 
         primary.on('click', () => {
             if (!editor.call('permissions:write')) {
@@ -671,8 +794,9 @@ editor.once('load', () => {
         // show tooltip for primary scene icon
         const tooltipText = scene.id === primaryScene ? 'Primary Scene' : 'Set Primary Scene';
         tooltip().attach({
-            container: tooltipSimpleItem({ text: tooltipText }),
+            container: tooltipSimpleItem({ text: tooltipText, classNames: ['primary-scene-tooltip'] }),
             target: primary,
+            vertAlignEl: tooltipAnchor,
             align: 'right'
         });
         tooltipTargets.push(primary);
@@ -682,26 +806,31 @@ editor.once('load', () => {
             text: scene.name,
             class: 'name'
         });
-        row.element.appendChild(name.dom);
+        row.append(name);
 
         // scene date
         const date = new Label({
             text: convertDatetime(scene.modified),
             class: 'date'
         });
-        row.element.appendChild(date.dom);
+        row.append(date);
 
         // selection
         const select = new BooleanInput();
-        row.element.appendChild(select.dom);
+        row.append(select);
 
         // if selectAll changes then change this too
-        events.push(selectAll.on('change', (value) => {
-            select.value = value;
-        }));
+        events.push(
+            selectAll.on('change', (value) => {
+                select.value = value;
+            })
+        );
 
         // handle checkbox tick
-        select.on('change', refreshButtonsState);
+        select.on('change', () => {
+            editor.call('localStorage:set', selectedScenesKey, getSelectedScenes());
+            refreshButtonsState();
+        });
 
         row.select = function () {
             select.value = true;
@@ -742,14 +871,22 @@ editor.once('load', () => {
     };
 
     const refreshScenes = function () {
-        const content = document.querySelector('.ui-panel.right > .content');
-        const scrollTop = content.scrollTop;
+        const content = container.dom.parentElement;
+        const scrollTop = content?.scrollTop ?? 0;
 
-        const selectedScenes = getSelectedScenes();
+        let selectedScenes = getSelectedScenes();
+
+        // restore last persisted selection on fresh open
+        if (!selectedScenes.length) {
+            const stored = editor.call('localStorage:get', selectedScenesKey);
+            if (Array.isArray(stored)) {
+                selectedScenes = stored.filter((id) => scenes.some((scene) => scene.id === id));
+            }
+        }
 
         destroyTooltips();
         destroyEvents();
-        sceneList.element.innerHTML = '';
+        sceneList.clear();
         sortScenes(scenes);
         containerScenes.hidden = !scenes.length;
         containerNoScenes.hidden = !containerScenes.hidden;
@@ -763,22 +900,23 @@ editor.once('load', () => {
         // the primary scene
         scenes.forEach((scene) => {
             const item = createSceneItem(scene);
-            if (selectedScenes.indexOf(scene.id) !== -1 || selectedScenes.length === 0 && scene.id === primaryScene) {
+            if (selectedScenes.indexOf(scene.id) !== -1 || (selectedScenes.length === 0 && scene.id === primaryScene)) {
                 item.select();
             }
         });
 
-        content.scrollTop = scrollTop;
+        if (content) {
+            content.scrollTop = scrollTop;
+        }
     };
 
     // on show
     container.on('show', () => {
-        panelDownloadProgress.hidden = true;
         containerNoScenes.hidden = false;
         labelNoScenes.hidden = true;
         loadingScenes.hidden = false;
         progressBar.hidden = false;
-        sceneList.element.innerHTML = '';
+        sceneList.clear();
         inputName.value = config.project.name;
         inputDescription.value = config.project.description;
         inputVersion.value = '';
@@ -806,7 +944,7 @@ editor.once('load', () => {
             }
             if (!primaryScene && items.length > 0) {
                 const currentScene = parseInt(config.scene.id, 10);
-                if (items.some(scene => scene.id === currentScene)) {
+                if (items.some((scene) => scene.id === currentScene)) {
                     primaryScene = currentScene;
                 } else {
                     primaryScene = items[0].id;
@@ -869,7 +1007,6 @@ editor.once('load', () => {
         primaryScene = null;
         imageS3Key = null;
         isUploadingImage = false;
-        urlToDownload = null;
         jobInProgress = false;
         destroyTooltips();
         destroyEvents();
@@ -936,5 +1073,4 @@ editor.once('load', () => {
             refreshScenes();
         });
     });
-
 });

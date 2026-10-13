@@ -1,11 +1,7 @@
 editor.once('load', () => {
     const history = editor.api.globals.history;
 
-    const hotkeyExceptions = [
-        'curve',
-        'gradient',
-        'sprite-editor'
-    ];
+    const hotkeyExceptions = ['curve', 'gradient', 'sprite-editor'];
 
     // hotkey undo
     editor.call('hotkey:register', 'history:undo', {

@@ -2,6 +2,10 @@ import type { Observer } from '@playcanvas/observer';
 
 import { buildQueryUrl } from '../utils';
 
+type AssetList = {
+    get: (id: number | string) => Observer | null;
+};
+
 const POSITIONS = [
     [30 / 64, 22 / 64],
     [0, 22 / 64],
@@ -14,7 +18,25 @@ const POSITIONS = [
 const GRID_SIZE = 15 / 64;
 
 class CubemapThumbnailRenderer {
-    constructor(asset: Observer, canvas: HTMLCanvasElement, assetsList: any) {
+    _asset: Observer | null;
+
+    _assets: AssetList | null;
+
+    _canvas: HTMLCanvasElement | null;
+
+    _images: (HTMLImageElement | null)[] | null;
+
+    _queueRenderHandler: () => void;
+
+    _onImageLoadHandler: () => void;
+
+    _watch: unknown;
+
+    _queuedRender: boolean;
+
+    _frameRequest: number | null;
+
+    constructor(asset: Observer, canvas: HTMLCanvasElement, assetsList: AssetList) {
         this._asset = asset;
         this._assets = assetsList;
         this._canvas = canvas;
@@ -76,7 +98,6 @@ class CubemapThumbnailRenderer {
             height = width;
         }
 
-
         for (let i = 0; i < 6; i++) {
             const id = this._asset.get(`data.textures.${i}`);
             let image = null;
@@ -113,7 +134,13 @@ class CubemapThumbnailRenderer {
             }
 
             if (image) {
-                ctx.drawImage(image, POSITIONS[i][0] * width, POSITIONS[i][1] * height, width * GRID_SIZE, height * GRID_SIZE);
+                ctx.drawImage(
+                    image,
+                    POSITIONS[i][0] * width,
+                    POSITIONS[i][1] * height,
+                    width * GRID_SIZE,
+                    height * GRID_SIZE
+                );
             } else {
                 ctx.beginPath();
                 ctx.rect(POSITIONS[i][0] * width, POSITIONS[i][1] * height, width * GRID_SIZE, height * GRID_SIZE);

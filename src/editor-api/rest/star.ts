@@ -6,13 +6,13 @@ export type StarCreateData = {
         /**
          * The type of the scope
          */
-        type: string,
+        type: string;
 
         /**
          * The ID of the scope
          */
-        id: number
-    }
+        id: number;
+    };
 };
 
 /**

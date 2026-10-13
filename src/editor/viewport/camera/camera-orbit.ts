@@ -1,12 +1,14 @@
 import { PROJECTION_PERSPECTIVE, Quat, Vec2, Vec3 } from 'playcanvas';
+import type { Application } from 'playcanvas';
 
 import type { ViewportTap } from '../viewport-tap';
 
-editor.once('viewport:load', (app: import('playcanvas').Application) => {
+editor.once('viewport:load', (app: Application) => {
     // Orbit camera with virtual point of focus
     // Zooming / Flying will not move virtual point forward/backwards
 
     let orbiting = false;
+    let orbitDirty = false;
     let orbitCamera;
     const pivot = new Vec3();
     let distance = 1;
@@ -16,7 +18,6 @@ editor.once('viewport:load', (app: import('playcanvas').Application) => {
     const vec2 = new Vec2();
     const vecA = new Vec3();
     const quat = new Quat();
-
 
     editor.on('viewport:update', (dt: number) => {
         const camera = editor.call('camera:current');
@@ -28,7 +29,11 @@ editor.once('viewport:load', (app: import('playcanvas').Application) => {
         distance = Math.max(0.01, vecA.copy(pivot).sub(camera.getPosition()).length());
         pivot.copy(camera.forward).mulScalar(distance).add(camera.getPosition());
 
-        if (orbiting) {
+        // only apply + render when the orientation actually changed (set in tap:move),
+        // so holding the button without moving does not re-render every frame
+        if (orbiting && orbitDirty) {
+            orbitDirty = false;
+
             quat.setFromEulerAngles(pitch, yaw, 0);
             vecA.set(0, 0, distance);
             quat.transformVector(vecA, vecA);
@@ -36,8 +41,6 @@ editor.once('viewport:load', (app: import('playcanvas').Application) => {
 
             camera.setPosition(vecA);
             camera.setRotation(quat);
-
-            editor.call('viewport:render');
         }
 
         if (camera.focus) {
@@ -92,7 +95,7 @@ editor.once('viewport:load', (app: import('playcanvas').Application) => {
             // pitch
             const x = Math.cos(Math.asin(camera.forward.y));
             vec2.set(x, camera.forward.y).normalize();
-            pitch =  Math.max(-89.99, Math.min(89.99, Math.atan2(vec2.y, vec2.x) / (Math.PI / 180)));
+            pitch = Math.max(-89.99, Math.min(89.99, Math.atan2(vec2.y, vec2.x) / (Math.PI / 180)));
 
             // yaw — use right vector to avoid NaN when forward is near-vertical (±Y poles)
             if (camera.forward.x * camera.forward.x + camera.forward.z * camera.forward.z > 0.001) {
@@ -125,6 +128,7 @@ editor.once('viewport:load', (app: import('playcanvas').Application) => {
         pitch = Math.max(-89.99, Math.min(89.99, pitch - (tap.y - tap.ly) * sensitivity));
         yaw += (tap.lx - tap.x) * sensitivity;
 
+        orbitDirty = true;
         editor.call('viewport:render');
     });
 

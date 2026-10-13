@@ -1,5 +1,6 @@
 import type { Observer } from '@playcanvas/observer';
-import { Progress, Label, Container, Panel, BindingTwoWay } from '@playcanvas/pcui';
+import type { Panel } from '@playcanvas/pcui';
+import { Progress, Label, Container, BindingTwoWay } from '@playcanvas/pcui';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
@@ -8,7 +9,7 @@ const CLASS_ROOT = 'asset-model-inspector-mesh-instances';
 const CLASS_PICKER_MODE = `${CLASS_ROOT}-picker-mode`;
 const CLASS_PICKER_LABEL = `${CLASS_ROOT}-picker-label`;
 
-const DOM = parent => [
+const DOM = (parent) => [
     {
         progress: new Progress({ width: '100%' })
     },
@@ -98,7 +99,13 @@ class ModelAssetInspectorMeshInstances extends Container {
             this._valueBefore = this._assets[0].get(`data.mapping.${ind}.material`) || null;
             if (this._engineAsset) {
                 this._engineAsset.data.mapping[ind].material = parseInt(dropData.id, 10);
-                this._engineAsset.fire('change', this._engineAsset, 'data', this._engineAsset.data, this._engineAsset.data);
+                this._engineAsset.fire(
+                    'change',
+                    this._engineAsset,
+                    'data',
+                    this._engineAsset.data,
+                    this._engineAsset.data
+                );
                 editor.call('viewport:render');
             }
         };
@@ -123,28 +130,29 @@ class ModelAssetInspectorMeshInstances extends Container {
         this._progress.hidden = false;
 
         // FIXME: Why are we not using hash here
-        this._request = editor.api.globals.rest.home.homeFile(this._assets[0].get('file.url'))
-        .on('load', (status, data) => {
-            this._loading = 0;
+        this._request = editor.api.globals.rest.home
+            .homeFile(this._assets[0].get('file.url'))
+            .on('load', (status, data) => {
+                this._loading = 0;
 
-            this._nodes = [];
-            for (let i = 0; i < data.model.meshInstances.length; i++) {
-                this._nodes[i] = data.model.nodes[data.model.meshInstances[i].node].name;
-            }
+                this._nodes = [];
+                for (let i = 0; i < data.model.meshInstances.length; i++) {
+                    this._nodes[i] = data.model.nodes[data.model.meshInstances[i].node].name;
+                }
 
-            this._updateJsonMeshInstances();
-            this._progress.hidden = true;
-            this._request = null;
-        })
-        .on('progress', (progress) => {
-            this._progress.value = (0.1 + progress * 0.8) * 100;
-        })
-        .on('error', () => {
-            this._progress.value = 1;
-            this._progress.hidden = true;
+                this._updateJsonMeshInstances();
+                this._progress.hidden = true;
+                this._request = null;
+            })
+            .on('progress', (progress) => {
+                this._progress.value = (0.1 + progress * 0.8) * 100;
+            })
+            .on('error', () => {
+                this._progress.value = 1;
+                this._progress.hidden = true;
 
-            this._errorLoadingDetailedDataLabel.hidden = false;
-        });
+                this._errorLoadingDetailedDataLabel.hidden = false;
+            });
     }
 
     _updateJsonMeshInstances() {
@@ -194,7 +202,7 @@ class ModelAssetInspectorMeshInstances extends Container {
             let prevUserMappings = null;
 
             binding.on('history:init', () => {
-                prevUserMappings = binding.observers.map(observer => observer.has(`meta.userMapping.${ind}`));
+                prevUserMappings = binding.observers.map((observer) => observer.has(`meta.userMapping.${ind}`));
             });
 
             binding.on('history:redo', () => {
@@ -229,7 +237,6 @@ class ModelAssetInspectorMeshInstances extends Container {
                     }
 
                     observer.history.enabled = history;
-
                 });
             });
 

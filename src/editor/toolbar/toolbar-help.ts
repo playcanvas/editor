@@ -1,6 +1,6 @@
 import { Button } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 
 editor.once('load', () => {
     const toolbar = editor.call('layout.toolbar');
@@ -10,6 +10,7 @@ editor.once('load', () => {
         icon: 'E138'
     });
     toolbar.append(button);
+    editor.call('toolbar:register', { id: 'help', label: 'How Do I...?', group: 'utility', button });
 
     button.on('click', () => {
         editor.call('help:howdoi:toggle');
@@ -23,7 +24,7 @@ editor.once('load', () => {
         button.class.remove('active');
     });
 
-    LegacyTooltip.attach({
+    TooltipHandle.attach({
         target: button.dom,
         text: 'How do I...?',
         align: 'left',

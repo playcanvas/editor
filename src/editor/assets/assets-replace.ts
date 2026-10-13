@@ -1,3 +1,7 @@
+import { createLog } from '@/common/sentry';
+
+const log = createLog('<PATH>');
+
 editor.once('load', () => {
     editor.method('assets:replace', (asset, replacement) => {
         asset.apiAsset.replace(replacement.apiAsset);
@@ -22,7 +26,6 @@ editor.once('load', () => {
 
         for (let i = 0; i < entities.length; i++) {
             const obj = entities[i];
-
             const element = obj.get('components.element');
             if (element && element.textureAsset === oldId) {
                 changed.push(obj);
@@ -39,7 +42,8 @@ editor.once('load', () => {
                         combine: false,
                         undo: function () {
                             for (let i = 0; i < changed.length; i++) {
-                                const obj = changed[i].latest();
+                                const c = changed[i];
+                                const obj = c.latest();
                                 if (!obj) {
                                     continue;
                                 }
@@ -53,7 +57,8 @@ editor.once('load', () => {
 
                         redo: function () {
                             for (let i = 0; i < changed.length; i++) {
-                                const obj = changed[i].latest();
+                                const c = changed[i];
+                                const obj = c.latest();
                                 if (!obj) {
                                     continue;
                                 }

@@ -1,6 +1,17 @@
 import { WorkerServer } from '@/core/worker/worker-server';
 
-const compress = (codec: { _malloc: (n: number) => number; _free: (p: number) => void; HEAPU32: Uint32Array; HEAPU8: Uint8Array; _lodepng_encode32: (a: number, b: number, c: number, d: number, e: number) => void }, pixels: Uint8ClampedArray, width: number, height: number) => {
+const compress = (
+    codec: {
+        _malloc: (n: number) => number;
+        _free: (p: number) => void;
+        HEAPU32: Uint32Array;
+        HEAPU8: Uint8Array;
+        _lodepng_encode32: (a: number, b: number, c: number, d: number, e: number) => void;
+    },
+    pixels: Uint8ClampedArray,
+    width: number,
+    height: number
+) => {
     const resultDataPtrPtr = codec._malloc(4);
     const resultSizePtr = codec._malloc(4);
     const imageData = codec._malloc(width * height * 4);
@@ -29,7 +40,7 @@ const compress = (codec: { _malloc: (n: number) => number; _free: (p: number) =>
 const workerServer = new WorkerServer(self);
 workerServer.on('init', async (glueUrl: string, wasmUrl: string) => {
     importScripts(glueUrl);
-    // @ts-ignore
+    // @ts-expect-error - lodepng is injected globally by importScripts and not declared on WorkerGlobalScope
     const codec = await self.lodepng({ locateFile: () => wasmUrl });
 
     workerServer.on('export', (esn: string, pixels: Uint8ClampedArray, width: number, height: number) => {

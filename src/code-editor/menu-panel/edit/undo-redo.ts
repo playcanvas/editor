@@ -20,7 +20,6 @@ editor.once('load', () => {
     });
     menu.append(item);
 
-
     // hotkeys
     editor.call('hotkey:register', 'undo', {
         key: 'z',

@@ -1,6 +1,6 @@
 import { Panel, Button, Container, TextInput } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');
@@ -31,9 +31,13 @@ editor.once('load', () => {
         return chatPanel;
     });
 
-    chatPanel.element.addEventListener('mouseover', () => {
-        editor.emit('viewport:hover', false);
-    }, false);
+    chatPanel.dom.addEventListener(
+        'mouseover',
+        () => {
+            editor.emit('viewport:hover', false);
+        },
+        false
+    );
 
     // notification icon
     const notify = new Button({
@@ -42,8 +46,8 @@ editor.once('load', () => {
     });
     chatPanel.header.append(notify);
 
-    const tooltipNotify = LegacyTooltip.attach({
-        target: notify.element,
+    const tooltipNotify = TooltipHandle.attach({
+        target: notify.dom,
         text: 'Notifications (enabled)',
         align: 'bottom',
         root: root
@@ -130,7 +134,6 @@ editor.once('load', () => {
 
     typersMultiple.appendChild(document.createTextNode(' users are typing...'));
 
-
     editor.on('chat:typing', (count: number, ids: string[]) => {
         let color;
         if (count === 0) {
@@ -147,7 +150,7 @@ editor.once('load', () => {
             // user
             const user = editor.call('users:get', ids[0]);
             color = editor.call('users:color', user && user.id, 'hex');
-            typersSingleUser.textContent = user && user.username || 'user';
+            typersSingleUser.textContent = (user && user.username) || 'user';
             typersSingleUser.style.color = color;
         } else if (count === 2) {
             if (typersLast) {
@@ -158,12 +161,12 @@ editor.once('load', () => {
             // userA
             const userA = editor.call('users:get', ids[0]);
             color = editor.call('users:color', userA && userA.id, 'hex');
-            typersDoubleUserA.textContent = userA && userA.username || 'user';
+            typersDoubleUserA.textContent = (userA && userA.username) || 'user';
             typersDoubleUserA.style.color = color;
             // userB
             const userB = editor.call('users:get', ids[1]);
             color = editor.call('users:color', userB && userB.id, 'hex');
-            typersDoubleUserB.textContent = userB && userB.username || 'userB';
+            typersDoubleUserB.textContent = (userB && userB.username) || 'userB';
             typersDoubleUserB.style.color = color;
         } else {
             if (typersLast) {
@@ -171,7 +174,7 @@ editor.once('load', () => {
             }
             typersLast = typersMultiple;
             typersMultiple.classList.add('active');
-            typersMultipleUsers.textContent = count;
+            typersMultipleUsers.textContent = String(count);
         }
     });
 
@@ -202,7 +205,7 @@ editor.once('load', () => {
         number.classList.add('notify');
 
         if (!number.classList.contains('typing')) {
-            number.textContent = messagesNumber;
+            number.textContent = String(messagesNumber);
         }
     });
 
@@ -222,7 +225,7 @@ editor.once('load', () => {
                 number.style.color = '';
             }
         } else {
-            number.textContent = messagesNumber;
+            number.textContent = String(messagesNumber);
             number.classList.remove('typing');
             number.style.color = '';
         }
@@ -236,7 +239,7 @@ editor.once('load', () => {
     chatPanel.append(messages);
 
     messages.innerElement.addEventListener('contextmenu', (evt: MouseEvent) => {
-        if (evt.target.tagName !== 'A') {
+        if (!(evt.target instanceof HTMLElement) || evt.target.tagName !== 'A') {
             return;
         }
 
@@ -290,7 +293,7 @@ editor.once('load', () => {
     const clear = document.createElement('div');
     clear.innerHTML = '&#57650;';
     clear.classList.add('clear');
-    input.element.appendChild(clear);
+    input.dom.appendChild(clear);
 
     const onTypingEnd = function () {
         if (typingTimeout) {
@@ -306,10 +309,14 @@ editor.once('load', () => {
         editor.call('chat:typing', false);
     };
 
-    clear.addEventListener('click', () => {
-        input.value = '';
-        onTypingEnd();
-    }, false);
+    clear.addEventListener(
+        'click',
+        () => {
+            input.value = '';
+            onTypingEnd();
+        },
+        false
+    );
 
     input.on('change', (value: string) => {
         value = value.trim();
@@ -338,16 +345,14 @@ editor.once('load', () => {
         }
     });
 
-    input.element.addEventListener('keydown', (evt: KeyboardEvent) => {
-        if (evt.keyCode === 27) {
-            // esc
+    input.on('keydown', (evt: KeyboardEvent) => {
+        if (evt.key === 'Escape') {
             input.value = '';
             onTypingEnd();
-        } else if (evt.keyCode === 13) {
-            // enter
+        } else if (evt.key === 'Enter') {
             editor.call('chat:send', input.value);
             input.value = '';
             onTypingEnd();
         }
-    }, false);
+    });
 });

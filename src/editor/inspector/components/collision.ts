@@ -1,125 +1,160 @@
 import type { Observer } from '@playcanvas/observer';
-import { InfoBox, LabelGroup } from '@playcanvas/pcui';
+import type { LabelGroup } from '@playcanvas/pcui';
+import { InfoBox } from '@playcanvas/pcui';
 import { CollisionComponent } from 'playcanvas';
 
 import type { EntityObserver } from '@/editor-api';
 
-import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+import { ComponentInspector } from './component';
+import type { ComponentInspectorArgs } from './component';
 
-const ATTRIBUTES: Attribute[] = [{
-    label: 'Type',
-    path: 'components.collision.type',
-    reference: 'collision:type',
-    type: 'select',
-    args: {
-        type: 'string',
-        options: [{
-            v: 'box', t: 'Box'
-        }, {
-            v: 'sphere', t: 'Sphere'
-        }, {
-            v: 'capsule', t: 'Capsule'
-        }, {
-            v: 'cylinder', t: 'Cylinder'
-        }, {
-            v: 'mesh', t: 'Mesh'
-        }, {
-            v: 'compound', t: 'Compound'
-        }, {
-            v: 'cone', t: 'Cone'
-        }]
-    }
-}, {
-    label: 'Half Extents',
-    path: 'components.collision.halfExtents',
-    reference: 'collision:halfExtents',
-    type: 'vec3',
-    args: {
-        placeholder: ['X', 'Y', 'Z'],
-        precision: 3,
-        step: 0.1,
-        min: 0
-    }
-}, {
-    label: 'Radius',
-    path: 'components.collision.radius',
-    reference: 'collision:radius',
-    type: 'number',
-    args: {
-        precision: 2,
-        step: 0.1,
-        min: 0
-    }
-}, {
-    label: 'Height',
-    path: 'components.collision.height',
-    reference: 'collision:height',
-    type: 'number',
-    args: {
-        precision: 2,
-        step: 0.1,
-        min: 0
-    }
-}, {
-    label: 'Convex Hull',
-    path: 'components.collision.convexHull',
-    reference: 'collision:convexHull',
-    type: 'boolean'
-}, {
-    label: 'Axis',
-    path: 'components.collision.axis',
-    reference: 'collision:axis',
-    type: 'select',
-    args: {
+const ATTRIBUTES: Attribute[] = [
+    {
+        label: 'Type',
+        path: 'components.collision.type',
+        reference: 'collision:type',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [
+                {
+                    v: 'box',
+                    t: 'Box'
+                },
+                {
+                    v: 'sphere',
+                    t: 'Sphere'
+                },
+                {
+                    v: 'capsule',
+                    t: 'Capsule'
+                },
+                {
+                    v: 'cylinder',
+                    t: 'Cylinder'
+                },
+                {
+                    v: 'mesh',
+                    t: 'Mesh'
+                },
+                {
+                    v: 'compound',
+                    t: 'Compound'
+                },
+                {
+                    v: 'cone',
+                    t: 'Cone'
+                }
+            ]
+        }
+    },
+    {
+        label: 'Half Extents',
+        path: 'components.collision.halfExtents',
+        reference: 'collision:halfExtents',
+        type: 'vec3',
+        args: {
+            placeholder: ['X', 'Y', 'Z'],
+            precision: 3,
+            step: 0.1,
+            min: 0
+        }
+    },
+    {
+        label: 'Radius',
+        path: 'components.collision.radius',
+        reference: 'collision:radius',
         type: 'number',
-        options: [{
-            v: 0, t: 'X'
-        }, {
-            v: 1, t: 'Y'
-        }, {
-            v: 2, t: 'Z'
-        }]
+        args: {
+            precision: 2,
+            step: 0.1,
+            min: 0
+        }
+    },
+    {
+        label: 'Height',
+        path: 'components.collision.height',
+        reference: 'collision:height',
+        type: 'number',
+        args: {
+            precision: 2,
+            step: 0.1,
+            min: 0
+        }
+    },
+    {
+        label: 'Convex Hull',
+        path: 'components.collision.convexHull',
+        reference: 'collision:convexHull',
+        type: 'boolean'
+    },
+    {
+        label: 'Axis',
+        path: 'components.collision.axis',
+        reference: 'collision:axis',
+        type: 'select',
+        args: {
+            type: 'number',
+            options: [
+                {
+                    v: 0,
+                    t: 'X'
+                },
+                {
+                    v: 1,
+                    t: 'Y'
+                },
+                {
+                    v: 2,
+                    t: 'Z'
+                }
+            ]
+        }
+    },
+    {
+        label: 'Model Asset',
+        path: 'components.collision.asset',
+        reference: 'collision:asset',
+        type: 'asset',
+        args: {
+            assetType: 'model'
+        }
+    },
+    {
+        label: 'Render Asset',
+        path: 'components.collision.renderAsset',
+        reference: 'collision:renderAsset',
+        type: 'asset',
+        args: {
+            assetType: 'render'
+        }
+    },
+    {
+        label: 'Position Offset',
+        path: 'components.collision.linearOffset',
+        reference: 'collision:linearOffset',
+        type: 'vec3',
+        args: {
+            placeholder: ['X', 'Y', 'Z'],
+            precision: 3,
+            step: 0.5
+        }
+    },
+    {
+        label: 'Rotation Offset',
+        path: 'components.collision.angularOffset',
+        reference: 'collision:angularOffset',
+        type: 'vec3',
+        args: {
+            placeholder: ['X', 'Y', 'Z'],
+            precision: 3,
+            step: 5
+        }
     }
-}, {
-    label: 'Model Asset',
-    path: 'components.collision.asset',
-    reference: 'collision:asset',
-    type: 'asset',
-    args: {
-        assetType: 'model'
-    }
-}, {
-    label: 'Render Asset',
-    path: 'components.collision.renderAsset',
-    reference: 'collision:renderAsset',
-    type: 'asset',
-    args: {
-        assetType: 'render'
-    }
-}, {
-    label: 'Position Offset',
-    path: 'components.collision.linearOffset',
-    reference: 'collision:linearOffset',
-    type: 'vec3',
-    args: {
-        placeholder: ['X', 'Y', 'Z'],
-        precision: 3,
-        step: 0.5
-    }
-}, {
-    label: 'Rotation Offset',
-    path: 'components.collision.angularOffset',
-    reference: 'collision:angularOffset',
-    type: 'vec3',
-    args: {
-        placeholder: ['X', 'Y', 'Z'],
-        precision: 3,
-        step: 5
-    }
-}];
+];
 
 class CollisionComponentInspector extends ComponentInspector {
     _variedTransformScalesWarning: InfoBox;
@@ -166,7 +201,7 @@ class CollisionComponentInspector extends ComponentInspector {
             this._importAmmoPanel.hidden = editor.call('project:settings:hasPhysics');
         });
 
-        if (!CollisionComponent.prototype.hasOwnProperty('convexHull')) {
+        if (!Object.prototype.hasOwnProperty.call(CollisionComponent.prototype, 'convexHull')) {
             this._field('convexHull').hidden = true;
         } else {
             this._field('type').on('change', (value) => {
@@ -175,13 +210,18 @@ class CollisionComponentInspector extends ComponentInspector {
         }
     }
 
-    _handleTypeChange(fieldType: { value: string; binding: { on: (event: string, callback: (context: { prevHeights?: number[]; observers: Observer[] }) => void) => void } }) {
+    _handleTypeChange(fieldType: {
+        value: string;
+        binding: {
+            on: (event: string, callback: (context: { prevHeights?: number[]; observers: Observer[] }) => void) => void;
+        };
+    }) {
         // when the type changes we need to change the height of the collision
         // component to 2 if it's a capsule or 1 if it's a cylinder or cone.
         fieldType.binding.on('history:init', (context) => {
             // remember previous heights
             if (['cone', 'capsule', 'cylinder'].includes(fieldType.value)) {
-                context.prevHeights = context.observers.map(entity => entity.get('components.collision.height'));
+                context.prevHeights = context.observers.map((entity) => entity.get('components.collision.height'));
             }
         });
 
@@ -218,14 +258,13 @@ class CollisionComponentInspector extends ComponentInspector {
                 const history = entity.history.enabled;
                 entity.history.enabled = false;
                 const type = entity.get('components.collision.type');
-                const newHeight = (type === 'cone' || type === 'cylinder') ? 1 : 2;
+                const newHeight = type === 'cone' || type === 'cylinder' ? 1 : 2;
                 const height = entity.get('components.collision.height');
                 // if setting to a capsule from a cone/cylinder and height is still the default
                 // capsule height then change to new height.
                 // OR if setting to a cylinder/cone from a capsule and height is still the default
                 // cylinder / cone height then change to new height.
-                if (newHeight === 1 && height === 2 ||
-                    newHeight === 2 && height === 1) {
+                if ((newHeight === 1 && height === 2) || (newHeight === 2 && height === 1)) {
                     entity.set('components.collision.height', newHeight);
                 }
                 entity.history.enabled = history;
@@ -287,11 +326,13 @@ class CollisionComponentInspector extends ComponentInspector {
             }
             this._variedTransformScalesWarning.hidden = false;
         };
-        this._entityEvents.push(entities[0].on('*:set', (path) => {
-            if (path === 'components.collision.type' || path.indexOf('scale.') === 0) {
-                updateVariedTransformScalesWarning();
-            }
-        }));
+        this._entityEvents.push(
+            entities[0].on('*:set', (path) => {
+                if (path === 'components.collision.type' || path.indexOf('scale.') === 0) {
+                    updateVariedTransformScalesWarning();
+                }
+            })
+        );
         updateVariedTransformScalesWarning();
     }
 }

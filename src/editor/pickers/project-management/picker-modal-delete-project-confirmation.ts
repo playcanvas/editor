@@ -1,9 +1,6 @@
-import { Element, Panel, Button, Container, Label, TextInput } from '@playcanvas/pcui';
-
-import { LegacyOverlay } from '@/common/ui/overlay';
+import { Button, Container, Element, Label, Overlay, Panel, TextInput } from '@playcanvas/pcui';
 
 editor.once('load', () => {
-
     // GLOBAL VARIABLES
     let currentProject;
 
@@ -13,19 +10,20 @@ editor.once('load', () => {
     const toggleLoader = (toggle) => {
         if (toggle) {
             deleteButton.text = '';
-            loader.dom.style.display = 'block';
+            loader.style.display = 'block';
         } else {
-            loader.dom.style.display = 'none';
+            loader.style.display = 'none';
             deleteButton.text = 'DELETE';
         }
     };
 
     // overlay
     const root = editor.call('layout.root');
-    const overlay = new LegacyOverlay();
-    overlay.clickable = false;
-    overlay.hidden = true;
-    overlay.class.add('picker-delete-project');
+    const overlay = new Overlay({
+        clickable: false,
+        class: 'picker-delete-project',
+        hidden: true
+    });
     root.append(overlay);
 
     // main panel
@@ -65,7 +63,7 @@ editor.once('load', () => {
     inputElement.on('change', () => {
         validateInput(inputElement.value);
     });
-    inputElement.dom.addEventListener('paste', e => e.preventDefault());
+    inputElement.dom.addEventListener('paste', (e) => e.preventDefault());
 
     const deleteButtonContainer = new Container({
         flex: true
@@ -75,15 +73,14 @@ editor.once('load', () => {
     const deleteButton = new Button({
         class: 'delete-project-button',
         text: 'DELETE',
-        enabled: false,  // create button disabled on load
-        renderChanges: true
+        enabled: false
     });
     deleteButtonContainer.append(deleteButton);
 
     const loader = new Element({
         class: ['loader', 'small', 'white']
     });
-    loader.dom.style.display = 'none';
+    loader.style.display = 'none';
 
     deleteButtonContainer.append(loader);
 
@@ -96,9 +93,8 @@ editor.once('load', () => {
             editor.call('picker:project:close');
             editor.call('picker:project:cms:toggleProgress', true);
         });
-        inputElement.value = '';  // reset input
+        inputElement.value = ''; // reset input
     });
-
 
     // CONTROLLERS
 

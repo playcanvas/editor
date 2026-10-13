@@ -1,7 +1,6 @@
 import { Container, Label, Button } from '@playcanvas/pcui';
 
 editor.once('load', () => {
-
     // show a warning if the scene size is close to the limit of 16MB (bson size limit ~ 15MB JSON size limit)
     const SCENE_SIZE_LIMIT = 14 * 1024 * 1024;
 
@@ -26,10 +25,10 @@ editor.once('load', () => {
     });
 
     const onSceneLoaded = function (data: unknown) {
-
         const size = JSON.stringify(data).length;
         if (size > SCENE_SIZE_LIMIT) {
-            const msg = '<a href="https://developer.playcanvas.com/user-manual/scenes/#size-limit" target="_blank">here</a> about scene limits.';
+            const msg =
+                '<a href="https://developer.playcanvas.com/user-manual/scenes/#size-limit" target="_blank">here</a> about scene limits.';
             label.text = `You are close to your scene size limit. Check ${msg}`;
             container.hidden = false;
         } else {

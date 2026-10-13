@@ -1,16 +1,19 @@
-import type { Observer } from '@playcanvas/observer';
-
 import { CLASS_ERROR } from '@/common/pcui/constants';
-import { LegacyTooltip } from '@/common/ui/tooltip';
-import type { History } from '@/editor-api';
+import { TooltipHandle } from '@/common/tooltips';
+
+import type { Attribute } from '../attribute.type.d';
 
 import { BaseSettingsPanel } from './base';
-import type { Attribute } from '../attribute.type.d';
+import type { BaseSettingsPanelArgs } from './base';
+
+type LayerPanelArgs = {
+    layerKey: string;
+} & BaseSettingsPanelArgs;
 
 const CLASS_ROOT = 'layers-settings-panel';
 const CLASS_LAYER_PANEL = `${CLASS_ROOT}-layer-panel`;
 
-const htmlSymbols = ['\'', '\\', '/', '"', '<', '>', '&', '`', '='];
+const htmlSymbols = ["'", '\\', '/', '"', '<', '>', '&', '`', '='];
 
 /**
  * @param args - The attribute args
@@ -65,26 +68,20 @@ const ATTRIBUTES = (args: { layerKey: string }): Attribute[] => [
 class LayersSettingsPanelLayerPanel extends BaseSettingsPanel {
     layerKey: string;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: LayerPanelArgs) {
         args = Object.assign({}, args);
-        args.attributes = ATTRIBUTES(args as { layerKey: string });
+        args.attributes = ATTRIBUTES(args);
         args.removable = true;
         args.hideIcon = true;
 
         super(args);
-
-        this._args = args;
-        this._settings = args.settings as Observer;
-        this._projectSettings = args.projectSettings as Observer;
-        this._userSettings = args.userSettings as Observer;
-        this._sceneSettings = args.sceneSettings as Observer;
 
         this.class.add(CLASS_LAYER_PANEL);
 
         const fieldName = this._attributesInspector.getField(`layers.${this._args.layerKey}.name`);
         const nameChangeEvt = fieldName.on('change', (value) => {
             // do not allow html symbols
-            if (value === '' || htmlSymbols.some(symbol => value.includes(symbol))) {
+            if (value === '' || htmlSymbols.some((symbol) => value.includes(symbol))) {
                 fieldName.value = this.headerText;
                 fieldName.class.add(CLASS_ERROR);
             } else {
@@ -93,16 +90,16 @@ class LayersSettingsPanelLayerPanel extends BaseSettingsPanel {
             }
         });
 
-        this.disabled = args.layerKey < 1000;
+        this.enabled = args.layerKey >= 1000;
         const removeLayerEvt = this.on('click:remove', () => {
             this._removeLayer();
         });
 
         let deleteTooltip;
 
-        if (this.disabled) {
-            deleteTooltip = LegacyTooltip.attach({
-                target: this._btnRemove.element,
+        if (!this.enabled) {
+            deleteTooltip = TooltipHandle.attach({
+                target: this._btnRemove.dom,
                 text: 'You cannot delete a built-in layer',
                 align: 'bottom',
                 root: editor.call('layout.root')
@@ -158,14 +155,19 @@ class LayersSettingsPanelLayerPanel extends BaseSettingsPanel {
             const layerOrder = projectSettings.getRaw('layerOrder');
 
             for (let i = 0; i < prevSublayers.length; i++) {
-                const idx = prevSublayers[i].index;
-                const transparent = prevSublayers[i].transparent;
-                const enabled = prevSublayers[i].enabled;
-                projectSettings.insert('layerOrder', {
-                    layer: parseInt(this._args.layerKey, 10),
-                    transparent: transparent,
-                    enabled: enabled
-                }, Math.min(idx, layerOrder.length));
+                const prevSublayer = prevSublayers[i];
+                const idx = prevSublayer.index;
+                const transparent = prevSublayer.transparent;
+                const enabled = prevSublayer.enabled;
+                projectSettings.insert(
+                    'layerOrder',
+                    {
+                        layer: parseInt(this._args.layerKey, 10),
+                        transparent: transparent,
+                        enabled: enabled
+                    },
+                    Math.min(idx, layerOrder.length)
+                );
             }
 
             prevSublayers = [];
@@ -175,7 +177,7 @@ class LayersSettingsPanelLayerPanel extends BaseSettingsPanel {
         };
 
         if (this._args.history) {
-            (this._args.history as History).add({
+            this._args.history.add({
                 name: 'delete layer',
                 undo,
                 redo,

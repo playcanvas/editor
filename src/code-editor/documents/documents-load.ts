@@ -33,8 +33,11 @@
 //     });
 // };
 
-
 import type { Observer } from '@playcanvas/observer';
+
+import { createLog } from '@/common/sentry';
+
+const log = createLog('<PATH>');
 
 editor.once('load', () => {
     const documentsIndex = {};
@@ -44,13 +47,32 @@ editor.once('load', () => {
     // becomes available for example
     const queuedLoad = {};
 
+    // docs that sharedb is still tearing down, holding any load
+    // request that arrived during that - see 'documents:close'
+    const destroying = {};
+
     // the last document id the
     // user requested to focus
     let lastFocusedId = null;
 
     // Loads the editable document that corresponds to the specified asset id
-    const loadDocument = function (asset: Observer, importSubModules: boolean = true) {
+    const loadDocument = function (asset: Observer, importSubModules = true) {
         const id = asset.get('id').toString();
+
+        // already loading or loaded - re-subscribing an already loaded sharedb doc does not
+        // re-emit 'load', so a second entry would stay stuck loading and never focus
+        if (documentsIndex[id]) {
+            return;
+        }
+
+        // sharedb destroys a doc asynchronously, so loading it again now would be handed the
+        // old doc back instead of a fresh one. wait for the teardown to finish
+        if (destroying[id]) {
+            destroying[id].asset = asset;
+            destroying[id].importSubModules = importSubModules;
+            return;
+        }
+
         const uniqueId = asset.get('uniqueId').toString();
         const connection = editor.call('realtime:connection');
         const doc = connection.get('documents', uniqueId);
@@ -75,8 +97,12 @@ editor.once('load', () => {
 
         // ready to sync
         doc.on('load', () => {
-            // check if closed by the user
-            if (!documentsIndex[id]) {
+            if (!doc.type) {
+                return;
+            }
+
+            // check if closed by the user or superseded by a newer entry
+            if (documentsIndex[id] !== entry) {
                 return;
             }
 
@@ -103,10 +129,12 @@ editor.once('load', () => {
                     if (importingAssetPath) {
                         // Return the immediate dependencies of the asset
                         const deps = editor.call('utils:deps-from-string', content, importingAssetPath);
-                        const depsAsAsset = Array.from(deps).map(path => editor.call('assets:getByVirtualPath', path));
+                        const depsAsAsset = Array.from(deps)
+                            .map((path) => editor.call('assets:getByVirtualPath', path))
+                            .filter(Boolean);
 
                         // And load them, ensuring that Monaco can resolve dependencies
-                        depsAsAsset.forEach(asset => loadDocument(asset, false));
+                        depsAsAsset.forEach((asset) => loadDocument(asset, false));
                     }
                 }
 
@@ -116,7 +144,6 @@ editor.once('load', () => {
                     editor.emit('documents:dirty', id, dirty);
                 }
             });
-
         });
 
         // subscribe for realtime events
@@ -163,7 +190,6 @@ editor.once('load', () => {
 
                 queuedLoad[asset.get('id')] = evtLoad;
             }
-
         }
     });
 
@@ -171,13 +197,33 @@ editor.once('load', () => {
     editor.on('documents:close', (id: string) => {
         const entry = documentsIndex[id];
         if (entry) {
-            entry.doc.unsubscribe();
-            entry.doc.destroy();
             delete documentsIndex[id];
+
+            // sharedb defers the destroy until the unsubscribe completes, and hands the doc
+            // back to anything that asks for it in the meantime, so gate reloads until it is
+            // really gone
+            const pending: { asset?: Observer; importSubModules?: boolean } = {};
+            destroying[id] = pending;
+
+            entry.doc.unsubscribe();
+            entry.doc.destroy((err: unknown) => {
+                delete destroying[id];
+
+                if (err) {
+                    log.error(err);
+                }
+
+                if (pending.asset) {
+                    loadDocument(pending.asset, pending.importSubModules);
+                }
+            });
 
             // send close message to update whoisonline for document
             const connection = editor.call('realtime:connection');
             connection.socket.send(`close:document:${entry.uniqueId}`);
+        } else if (destroying[id]) {
+            // closed again before the teardown finished - drop the queued reload
+            delete destroying[id].asset;
         }
 
         // stop any queued load events
@@ -212,7 +258,10 @@ editor.once('load', () => {
 
         entry.error = err;
         const asset = editor.call('assets:get', id);
-        editor.call('status:error', `Realtime error for document "${asset.get('name')}": ${err}. Please reload this document.`);
+        editor.call(
+            'status:error',
+            `Realtime error for document "${asset.get('name')}": ${err}. Please reload this document.`
+        );
     });
 
     // Check if document content differs from asset file contents
@@ -247,6 +296,18 @@ editor.once('load', () => {
 
     // handle reconnections
     editor.on('realtime:authenticated', () => {
+        // clear document errors so editor can exit read-only
+        let cleared = false;
+        for (const id in documentsIndex) {
+            if (documentsIndex[id].error) {
+                documentsIndex[id].error = null;
+                cleared = true;
+            }
+        }
+        if (cleared) {
+            editor.emit('documents:error:cleared');
+        }
+
         // resume docs
         for (const id in documentsIndex) {
             const doc = documentsIndex[id].doc;

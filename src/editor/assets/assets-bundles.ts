@@ -16,13 +16,14 @@ editor.once('load', () => {
         }
 
         for (let i = 0; i < assetIds.length; i++) {
-            if (!bundlesIndex[assetIds[i]]) {
-                bundlesIndex[assetIds[i]] = [bundleAsset];
-                editor.emit('assets:bundles:insert', bundleAsset, assetIds[i]);
+            const assetId = assetIds[i];
+            if (!bundlesIndex[assetId]) {
+                bundlesIndex[assetId] = [bundleAsset];
+                editor.emit('assets:bundles:insert', bundleAsset, assetId);
             } else {
-                if (bundlesIndex[assetIds[i]].indexOf(bundleAsset) === -1) {
-                    bundlesIndex[assetIds[i]].push(bundleAsset);
-                    editor.emit('assets:bundles:insert', bundleAsset, assetIds[i]);
+                if (bundlesIndex[assetId].indexOf(bundleAsset) === -1) {
+                    bundlesIndex[assetId].push(bundleAsset);
+                    editor.emit('assets:bundles:insert', bundleAsset, assetId);
                 }
             }
         }
@@ -122,6 +123,12 @@ editor.once('load', () => {
         if (INVALID_TYPES.indexOf(asset.get('type')) !== -1) {
             return false;
         }
+        // a referenced font resolves its descriptor and atlas from sibling assets, so a bundle could
+        // only ever carry its placeholder file, not the atlas. published builds get those files baked
+        // in statically, so bundling one gains nothing
+        if (asset.get('type') === 'font' && asset.has('data.jsonAsset')) {
+            return false;
+        }
 
         if (bundleAsset) {
             const existingAssetIds = bundleAsset.getRaw('data.assets');
@@ -214,7 +221,8 @@ editor.once('load', () => {
             const history = asset.history.enabled;
             asset.history.enabled = false;
             for (let i = 0; i < assets.length; i++) {
-                asset.removeValue('data.assets', assets[i].get('id'));
+                const a = assets[i];
+                asset.removeValue('data.assets', a.get('id'));
             }
             asset.history.enabled = history;
         };
@@ -228,8 +236,9 @@ editor.once('load', () => {
             const history = asset.history.enabled;
             asset.history.enabled = false;
             for (let i = 0; i < assets.length; i++) {
-                if (isAssetValid(assets[i], asset)) {
-                    asset.insert('data.assets', assets[i].get('id'));
+                const a = assets[i];
+                if (isAssetValid(a, asset)) {
+                    asset.insert('data.assets', a.get('id'));
                 }
             }
             asset.history.enabled = history;
@@ -256,7 +265,8 @@ editor.once('load', () => {
         let size = 0;
         const assets = bundleAsset.get('data.assets');
         for (let i = 0; i < assets.length; i++) {
-            const asset = editor.call('assets:get', assets[i]);
+            const assetId = assets[i];
+            const asset = editor.call('assets:get', assetId);
             if (!asset || !asset.has('file.size')) {
                 continue;
             }

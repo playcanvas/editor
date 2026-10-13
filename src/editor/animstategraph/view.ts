@@ -1,10 +1,13 @@
 import type { Observer, EventHandle } from '@playcanvas/observer';
-import { default as PCUIGraph } from '@playcanvas/pcui-graph';
+import type { Button } from '@playcanvas/pcui';
+import Graph from '@playcanvas/pcui-graph';
 import { ANIM_INTERRUPTION_NONE } from 'playcanvas';
 
 import { diff } from '@/common/diff';
 
-import { AnimstategraphState } from './state';
+import type { AnimStateGraphAssetInspector } from '../inspector/assets/animstategraph';
+
+import { AnimStateGraphState } from './state';
 
 const GRAPH_ACTIONS = {
     ADD_NODE: 'EVENT_ADD_NODE',
@@ -36,7 +39,7 @@ const ANIM_SCHEMA = {
 };
 
 const updateNodeHeaderText = (attributes: Record<string, unknown>, nodeId: number, asset: Observer) => {
-    if (AnimstategraphState.validateStateName(nodeId, attributes.name, asset)) {
+    if (AnimStateGraphState.validateStateName(nodeId, attributes.name, asset)) {
         return attributes.name;
     }
     return null;
@@ -50,7 +53,8 @@ const animSchema = (asset: Observer) => ({
             stroke: '#20292b',
             icon: '',
             iconColor: '#FFFFFF',
-            headerTextFormatter: (attributes: Record<string, unknown>, nodeId: number) => updateNodeHeaderText(attributes, nodeId, asset),
+            headerTextFormatter: (attributes: Record<string, unknown>, nodeId: number) =>
+                updateNodeHeaderText(attributes, nodeId, asset),
             contextMenuItems: [
                 {
                     text: 'Add transition',
@@ -83,7 +87,8 @@ const animSchema = (asset: Observer) => ({
             stroke: '#20292b',
             icon: '',
             iconColor: '#FFFFFF',
-            headerTextFormatter: (attributes: Record<string, unknown>, nodeId: number) => updateNodeHeaderText(attributes, nodeId, asset),
+            headerTextFormatter: (attributes: Record<string, unknown>, nodeId: number) =>
+                updateNodeHeaderText(attributes, nodeId, asset),
             contextMenuItems: [
                 {
                     text: 'Add transition',
@@ -112,8 +117,7 @@ const animSchema = (asset: Observer) => ({
             icon: '',
             iconColor: '#14CC47',
             stroke: '#20292b',
-            contextMenuItems: [
-            ]
+            contextMenuItems: []
         },
         [ANIM_SCHEMA.NODE.ANY_STATE]: {
             name: 'anyState',
@@ -143,12 +147,8 @@ const animSchema = (asset: Observer) => ({
             stroke: '#41D37B',
             strokeWidth: 2,
             targetMarker: true,
-            from: [
-                ANIM_SCHEMA.NODE.START_STATE
-            ],
-            to: [
-                ANIM_SCHEMA.NODE.STATE
-            ],
+            from: [ANIM_SCHEMA.NODE.START_STATE],
+            to: [ANIM_SCHEMA.NODE.STATE],
             contextMenuItems: []
         },
         [ANIM_SCHEMA.EDGE.TRANSITION]: {
@@ -156,16 +156,8 @@ const animSchema = (asset: Observer) => ({
             strokeWidth: 2,
             targetMarkerStroke: '#0379EE',
             targetMarker: true,
-            from: [
-                ANIM_SCHEMA.NODE.STATE,
-                ANIM_SCHEMA.NODE.START_STATE,
-                ANIM_SCHEMA.NODE.DEFAULT_STATE
-            ],
-            to: [
-                ANIM_SCHEMA.NODE.STATE,
-                ANIM_SCHEMA.NODE.DEFAULT_STATE,
-                ANIM_SCHEMA.NODE.END_STATE
-            ],
+            from: [ANIM_SCHEMA.NODE.STATE, ANIM_SCHEMA.NODE.START_STATE, ANIM_SCHEMA.NODE.DEFAULT_STATE],
+            to: [ANIM_SCHEMA.NODE.STATE, ANIM_SCHEMA.NODE.DEFAULT_STATE, ANIM_SCHEMA.NODE.END_STATE],
             contextMenuItems: []
         },
         [ANIM_SCHEMA.EDGE.TRANSITION_FROM_ANY]: {
@@ -174,14 +166,8 @@ const animSchema = (asset: Observer) => ({
             targetMarkerStroke: '#0379EE',
             targetMarker: true,
             contextMenuItems: [],
-            from: [
-                ANIM_SCHEMA.NODE.ANY_STATE
-            ],
-            to: [
-                ANIM_SCHEMA.NODE.STATE,
-                ANIM_SCHEMA.NODE.DEFAULT_STATE,
-                ANIM_SCHEMA.NODE.END_STATE
-            ]
+            from: [ANIM_SCHEMA.NODE.ANY_STATE],
+            to: [ANIM_SCHEMA.NODE.STATE, ANIM_SCHEMA.NODE.DEFAULT_STATE, ANIM_SCHEMA.NODE.END_STATE]
         }
     }
 });
@@ -199,8 +185,8 @@ const animContextMenuItems = [
     }
 ];
 
-class AnimstategraphView {
-    _parent: { closeAsset: (asset: Observer) => void; readOnly?: boolean; _stateContainer?: { _stateName?: string; unlink: () => void; hidden?: boolean; link?: (...args: unknown[]) => void }; _transitionsContainer?: { _edge?: string; unlink: () => void; hidden?: boolean; link?: (...args: unknown[]) => void } };
+class AnimStateGraphView {
+    _parent: AnimStateGraphAssetInspector;
 
     _args: Record<string, unknown>;
 
@@ -210,7 +196,7 @@ class AnimstategraphView {
 
     _graphElement!: HTMLDivElement;
 
-    _graph!: PCUIGraph;
+    _graph!: Graph;
 
     _selectedLayer = 0;
 
@@ -218,20 +204,20 @@ class AnimstategraphView {
 
     _selectedEntity: Observer | null = null;
 
-    _selectedEntityViewButton: unknown = null;
+    _selectedEntityViewButton: Button | null = null;
 
-    _handleIncomingUpdatesEvent: EventHandle | null = null;
-
-    _viewportResizeEvent: EventHandle | null = null;
+    _events: EventHandle[] = [];
 
     _keyboardListenerBound: ((e: KeyboardEvent) => void) | null = null;
 
-    constructor(parent: { closeAsset: (asset: Observer) => void; readOnly?: boolean; _stateContainer?: { _stateName?: string; unlink: () => void; hidden?: boolean; link?: (...args: unknown[]) => void }; _transitionsContainer?: { _edge?: string; unlink: () => void; hidden?: boolean; link?: (...args: unknown[]) => void } }, args: Record<string, unknown>) {
+    constructor(parent: AnimStateGraphAssetInspector, args: Record<string, unknown>) {
         this._parent = parent;
         this._args = args;
 
         this._graphElement = document.createElement('div');
-        this._graphElement.setAttribute('style', `
+        this._graphElement.setAttribute(
+            'style',
+            `
             position: absolute;
             width: 100%;
             left: 0;
@@ -239,9 +225,9 @@ class AnimstategraphView {
             height: 100%;
             border: none;
             display: none;
-        `);
+        `
+        );
         document.getElementById('layout-viewport').prepend(this._graphElement);
-
     }
 
     get parent() {
@@ -270,33 +256,45 @@ class AnimstategraphView {
     }
 
     _keyboardListener(e: KeyboardEvent) {
-        if (e.keyCode === 27) {
-            // esc
+        if (e.key === 'Escape') {
             if (this._graph.selectedItem) {
                 this._graph.deselectItem();
             } else {
                 this.parent.closeAsset(this._assets[0]);
             }
-        } else if (e.keyCode === 46 && this._graph.selectedItem && document.activeElement.constructor.name !== 'HTMLInputElement') {
-            // del
+        } else if (
+            e.key === 'Delete' &&
+            this._graph.selectedItem &&
+            !(document.activeElement instanceof HTMLInputElement)
+        ) {
             const item = this._graph.selectedItem;
             switch (item.type) {
                 case 'NODE': {
                     const node = this._assets[0].get(`data.states.${item.id}`);
-                    if (![
-                        ANIM_SCHEMA.NODE.DEFAULT_STATE,
-                        ANIM_SCHEMA.NODE.START_STATE,
-                        ANIM_SCHEMA.NODE.END_STATE,
-                        ANIM_SCHEMA.NODE.ANY_STATE
-                    ].includes(node.nodeType)) {
-                        this._graph.deleteNode(item.id);
+                    if (
+                        ![
+                            ANIM_SCHEMA.NODE.DEFAULT_STATE,
+                            ANIM_SCHEMA.NODE.START_STATE,
+                            ANIM_SCHEMA.NODE.END_STATE,
+                            ANIM_SCHEMA.NODE.ANY_STATE
+                        ].includes(node.nodeType)
+                    ) {
+                        const data = this._assets[0].get('data');
+                        const edges = Object.keys(data.transitions).filter((key) => {
+                            const t = data.transitions[key];
+                            return t.from === item.id || t.to === item.id;
+                        });
+                        this._onDeleteNode({
+                            node: { id: item.id as number, attributes: { name: node.name } },
+                            edges: edges.map(Number)
+                        });
                     }
                     break;
                 }
                 case 'EDGE': {
                     const edge = this._assets[0].get(`data.transitions.${item.edgeId}`);
                     if (!edge.defaultTransition) {
-                        this._graph.deleteEdge(item.edgeId);
+                        this._onDeleteEdge({ edgeId: String(item.edgeId) });
                     }
                     break;
                 }
@@ -369,7 +367,7 @@ class AnimstategraphView {
                     }
                     if (state.defaultState) {
                         state.defaultState = undefined;
-                        this._assets[0].unset(`data.states.${stateKey}.defaultState`);
+                        this._assets[0].set(`data.states.${stateKey}.defaultState`, false);
                     }
                     break;
             }
@@ -453,7 +451,10 @@ class AnimstategraphView {
                         this._assets[0].set(`data.transitions.${transitionKey}.edgeType`, transition.edgeType);
                         break;
                 }
-                if ((!this._assets[0].get(`data.states.${transition.from}`)) || (!this._assets[0].get(`data.states.${transition.to}`))) {
+                if (
+                    !this._assets[0].get(`data.states.${transition.from}`) ||
+                    !this._assets[0].get(`data.states.${transition.to}`)
+                ) {
                     return;
                 }
             }
@@ -484,7 +485,6 @@ class AnimstategraphView {
                 if (updates.states) {
                     Object.keys(updates.states).forEach((stateKey) => {
                         if (stateKey.includes('__added')) {
-
                             let state = updates.states[stateKey];
                             const stateAttributes = {
                                 name: state.name,
@@ -496,10 +496,10 @@ class AnimstategraphView {
                             delete state.speed;
                             state = Object.assign(state, { attributes: stateAttributes });
 
-                            this._graph.createNode(state, undefined, true);
+                            this._graph.createNode(state);
                         }
                         if (stateKey.includes('__deleted')) {
-                            this._graph.deleteNode(updates.states[stateKey].id, true);
+                            this._graph.deleteNode(updates.states[stateKey].id);
                             if (this._parent._stateContainer._stateName === updates.states[stateKey].name) {
                                 this._parent._stateContainer.unlink();
                             }
@@ -513,19 +513,22 @@ class AnimstategraphView {
                     Object.keys(updates.transitions).forEach((transitionKey) => {
                         if (transitionKey.includes('__added')) {
                             const key = transitionKey.replace('__added', '');
-                            this._graph.createEdge(updates.transitions[transitionKey], key, true);
+                            this._graph.createEdge(updates.transitions[transitionKey], key);
                         }
                         if (transitionKey.includes('__deleted')) {
                             const key = transitionKey.replace('__deleted', '');
                             const deletedTransition = updates.transitions[transitionKey];
 
                             // Always delete the specific edge from the graph
-                            this._graph.deleteEdge(key, true);
+                            this._graph.deleteEdge(key);
 
                             // Find remaining transitions on the same from-to path in the current layer
-                            const layerTransitionIds = new Set(newValue.layers?.[this._selectedLayer]?.transitions || []);
-                            const remainingTransitions = Object.entries(newValue.transitions || {})
-                            .filter(([id, t]: [string, { from: number; to: number }]) => layerTransitionIds.has(Number(id)) &&
+                            const layerTransitionIds = new Set(
+                                newValue.layers?.[this._selectedLayer]?.transitions || []
+                            );
+                            const remainingTransitions = Object.entries(newValue.transitions || {}).filter(
+                                ([id, t]: [string, { from: number; to: number }]) =>
+                                    layerTransitionIds.has(Number(id)) &&
                                     t.from === deletedTransition.from &&
                                     t.to === deletedTransition.to
                             );
@@ -533,21 +536,24 @@ class AnimstategraphView {
                             if (remainingTransitions.length > 0) {
                                 // Re-create remaining edges to force adjustVertices to recalculate positions
                                 remainingTransitions.forEach(([id, t]) => {
-                                    this._graph.deleteEdge(id, true);
-                                    this._graph.createEdge(t, id, true);
+                                    this._graph.deleteEdge(id);
+                                    this._graph.createEdge(t, id);
                                 });
                             } else {
                                 // Only unlink if no remaining transitions exist on this path
-                                if (this._parent._transitionsContainer._edge === `${deletedTransition.from}-${deletedTransition.to}`) {
+                                if (
+                                    this._parent._transitionsContainer._edge ===
+                                    `${deletedTransition.from}-${deletedTransition.to}`
+                                ) {
                                     this._parent._transitionsContainer.unlink();
                                 }
                             }
                         }
                         const transition = updates.transitions[transitionKey];
                         if (transition.to && transition.to.__new) {
-                            this._graph.deleteEdge(transitionKey, true);
+                            this._graph.deleteEdge(transitionKey);
                             const updatedTransition = this._assets[0].get(`data.transitions.${transitionKey}`);
-                            this._graph.createEdge(updatedTransition, transitionKey, true);
+                            this._graph.createEdge(updatedTransition, transitionKey);
                         }
                     });
                 }
@@ -568,7 +574,7 @@ class AnimstategraphView {
     _createGraph() {
         this._graphElement.setAttribute('style', 'display: block;');
         const initialGraphData = this._generateGraphData(this._selectedLayer);
-        this._graph = new PCUIGraph(animSchema(this._assets[0]), {
+        this._graph = new Graph(animSchema(this._assets[0]), {
             dom: this._graphElement,
             initialData: initialGraphData,
             contextMenuItems: animContextMenuItems,
@@ -620,7 +626,10 @@ class AnimstategraphView {
         edges.forEach((edge) => {
             edge = Number(edge);
             if (data.layers[this._selectedLayer].transitions.includes(edge)) {
-                data.layers[this._selectedLayer].transitions.splice(data.layers[this._selectedLayer].transitions.indexOf(edge), 1);
+                data.layers[this._selectedLayer].transitions.splice(
+                    data.layers[this._selectedLayer].transitions.indexOf(edge),
+                    1
+                );
             }
 
             const edgeData = data.transitions[edge];
@@ -647,7 +656,7 @@ class AnimstategraphView {
     _onUpdateNodeAttribute({ node, attribute }: { node: Record<string, unknown>; attribute: string }) {
         const state = this._assets[0].get(`data.states.${node.id}`);
         if (attribute === 'name') {
-            if (!AnimstategraphState.validateStateName(node.id, node.attributes.name, this._assets[0])) {
+            if (!AnimStateGraphState.validateStateName(node.id, node.attributes.name, this._assets[0])) {
                 this._graph.setNodeAttributeErrorState(node.id, attribute, true);
                 return;
             }
@@ -658,7 +667,7 @@ class AnimstategraphView {
                     const layerName = this._assets[0].get(`data.layers.${this._selectedLayer}.name`);
                     this._args.entities.forEach((entityObserver) => {
                         if (entityObserver.get('components.anim.stateGraphAsset') === this._assets[0].get('id')) {
-                            AnimstategraphState.updateAnimationAssetName(entityObserver, layerName, prevName, newName);
+                            AnimStateGraphState.updateAnimationAssetName(entityObserver, layerName, prevName, newName);
                         }
                     });
                     const historyEnabled = this._assets[0].history.enabled;
@@ -670,7 +679,7 @@ class AnimstategraphView {
                     const layerName = this._assets[0].get(`data.layers.${this._selectedLayer}.name`);
                     this._args.entities.forEach((entityObserver) => {
                         if (entityObserver.get('components.anim.stateGraphAsset') === this._assets[0].get('id')) {
-                            AnimstategraphState.updateAnimationAssetName(entityObserver, layerName, newName, prevName);
+                            AnimStateGraphState.updateAnimationAssetName(entityObserver, layerName, newName, prevName);
                         }
                     });
                     const historyEnabled = this._assets[0].history.enabled;
@@ -696,10 +705,13 @@ class AnimstategraphView {
         if (!data.layers[this._selectedLayer].transitions.includes(edgeId)) {
             data.layers[this._selectedLayer].transitions.push(edgeId);
         }
-        data.transitions[edgeId] = Object.assign({
-            exitTime: 0,
-            interruptionSource: ANIM_INTERRUPTION_NONE
-        }, edge);
+        data.transitions[edgeId] = Object.assign(
+            {
+                exitTime: 0,
+                interruptionSource: ANIM_INTERRUPTION_NONE
+            },
+            edge
+        );
         this._assets[0].set('data', data);
     }
 
@@ -708,7 +720,10 @@ class AnimstategraphView {
         const data = this._assets[0].get('data');
 
         if (data.layers[this._selectedLayer].transitions.includes(edgeId)) {
-            data.layers[this._selectedLayer].transitions.splice(data.layers[this._selectedLayer].transitions.indexOf(edgeId), 1);
+            data.layers[this._selectedLayer].transitions.splice(
+                data.layers[this._selectedLayer].transitions.indexOf(edgeId),
+                1
+            );
         }
         delete data.transitions[edgeId];
         this._assets[0].set('data', data);
@@ -890,7 +905,10 @@ class AnimstategraphView {
         };
 
         const updateGraphSettings = (graphSettings: Record<string, unknown>) => {
-            sessionStorage.setItem(`graph-${this._assets[0].get('id')}-${this._selectedLayer}`, JSON.stringify(graphSettings));
+            sessionStorage.setItem(
+                `graph-${this._assets[0].get('id')}-${this._selectedLayer}`,
+                JSON.stringify(graphSettings)
+            );
         };
 
         this._graph.on(GRAPH_ACTIONS.UPDATE_TRANSLATE, ({ pos }) => {
@@ -909,13 +927,15 @@ class AnimstategraphView {
         this._graph.setGraphPosition(graphSettings.pos.x, graphSettings.pos.y);
         this._graph.setGraphScale(graphSettings.scale);
 
-        this._handleIncomingUpdatesEvent = this._assets[0].on('*:set', this._handleIncomingUpdates.bind(this));
+        this._events.push(this._assets[0].on('*:set', this._handleIncomingUpdates.bind(this)));
 
         const viewportCanvas = editor.call('viewport:canvas');
-        this._viewportResizeEvent = viewportCanvas.on('resize', () => {
-            this._graph.dom.style.width = viewportCanvas.style.width;
-            this._graph.dom.style.height = viewportCanvas.style.height;
-        });
+        this._events.push(
+            viewportCanvas.on('resize', () => {
+                this._graph.style.width = viewportCanvas.style.width;
+                this._graph.style.height = viewportCanvas.style.height;
+            })
+        );
 
         // add keyboard listener
         this._keyboardListenerBound = this._keyboardListener.bind(this);
@@ -924,12 +944,10 @@ class AnimstategraphView {
 
     unlink() {
         this._destroyGraph();
-        if (this._viewportResizeEvent) {
-            this._viewportResizeEvent.unbind();
-        }
-        if (this._handleIncomingUpdatesEvent) {
-            this._handleIncomingUpdatesEvent.unbind();
-        }
+
+        this._events.forEach((e) => e.unbind());
+        this._events.length = 0;
+
         // remove keyboard listener
         if (this._keyboardListenerBound) {
             window.removeEventListener('keydown', this._keyboardListenerBound);
@@ -938,4 +956,4 @@ class AnimstategraphView {
     }
 }
 
-export { AnimstategraphView };
+export { AnimStateGraphView };

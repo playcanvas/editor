@@ -1,24 +1,26 @@
 import { SHADOWUPDATE_THISFRAME } from 'playcanvas';
 
+import { hasUv1 } from '@/editor/assets/asset-flags';
+import type { EntityObserver } from '@/editor-api';
+
 editor.once('load', () => {
     const app = editor.call('viewport:app');
     if (!app) {
         return;
     } // webgl not available
 
-    let uv1MissingAssets = { };
-
+    let uv1MissingAssets = {};
 
     // bake
-    editor.method('lightmapper:bake', (entities?: import('@/editor-api').EntityObserver[]) => {
+    editor.method('lightmapper:bake', (entities?: EntityObserver[]) => {
         if (!entities) {
             entities = editor.call('entities:list').filter((e) => {
                 return e.get('components.model.lightmapped');
             });
         }
 
-        uv1MissingAssets = { };
-        const areaJobs = { };
+        uv1MissingAssets = {};
+        const areaJobs = {};
         let jobs = 0;
 
         const readyForBake = function () {
@@ -30,7 +32,6 @@ editor.once('load', () => {
         // validate lightmapped entities
         for (let i = 0; i < entities!.length; i++) {
             const obj = entities![i];
-
             // might be primitive
             if (obj.get('components.model.type') !== 'asset') {
                 continue;
@@ -49,7 +50,7 @@ editor.once('load', () => {
             }
 
             // check if asset has uv1
-            const uv1 = asset.has('meta.attributes.texCoord1');
+            const uv1 = hasUv1(asset);
             if (!uv1) {
                 // uv1 might be missing
                 if (!uv1MissingAssets[assetId]) {
@@ -65,7 +66,7 @@ editor.once('load', () => {
                 // recalculate area
                 areaJobs[assetId] = asset;
                 jobs++;
-                editor.call('assets:model:area', asset, (): void => { // eslint-disable-line no-loop-func
+                editor.call('assets:model:area', asset, (): void => {
                     jobs--;
 
                     if (jobs === 0) {
@@ -82,10 +83,15 @@ editor.once('load', () => {
         }
     });
 
-
     editor.method('entities:shadows:update', () => {
         const entities = editor.call('entities:list').filter((e) => {
-            return e.get('components.light.castShadows') && e.get('components.light.shadowUpdateMode') === 1 && e.entity && e.entity.light && e.entity.light.shadowUpdateMode === SHADOWUPDATE_THISFRAME;
+            return (
+                e.get('components.light.castShadows') &&
+                e.get('components.light.shadowUpdateMode') === 1 &&
+                e.entity &&
+                e.entity.light &&
+                e.entity.light.shadowUpdateMode === SHADOWUPDATE_THISFRAME
+            );
         });
 
         if (!entities.length) {
@@ -93,7 +99,8 @@ editor.once('load', () => {
         }
 
         for (let i = 0; i < entities.length; i++) {
-            entities[i].entity.light.light.shadowUpdateMode = SHADOWUPDATE_THISFRAME;
+            const entity = entities[i];
+            entity.entity.light.light.shadowUpdateMode = SHADOWUPDATE_THISFRAME;
         }
 
         editor.call('viewport:render');

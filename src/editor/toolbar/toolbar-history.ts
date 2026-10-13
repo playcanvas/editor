@@ -1,6 +1,6 @@
 import { Button } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');
@@ -15,6 +15,7 @@ editor.once('load', () => {
         icon: 'E114'
     });
     toolbar.append(buttonUndo);
+    editor.call('toolbar:register', { id: 'undo', label: 'Undo', group: 'main', button: buttonUndo });
 
     history.on('canUndo', (state) => {
         buttonUndo.enabled = state;
@@ -28,7 +29,7 @@ editor.once('load', () => {
         history.undo();
     });
 
-    const tooltipUndo = LegacyTooltip.attach({
+    const tooltipUndo = TooltipHandle.attach({
         target: buttonUndo.dom,
         text: 'Undo',
         align: 'left',
@@ -38,7 +39,6 @@ editor.once('load', () => {
         tooltipUndo.class.add('inactive');
     }
 
-
     // redo
     const buttonRedo = new Button({
         class: 'pc-icon',
@@ -47,6 +47,7 @@ editor.once('load', () => {
         icon: 'E115'
     });
     toolbar.append(buttonRedo);
+    editor.call('toolbar:register', { id: 'redo', label: 'Redo', group: 'main', button: buttonRedo });
 
     history.on('canRedo', (state) => {
         buttonRedo.enabled = state;
@@ -60,7 +61,7 @@ editor.once('load', () => {
         history.redo();
     });
 
-    const tooltipRedo = LegacyTooltip.attach({
+    const tooltipRedo = TooltipHandle.attach({
         target: buttonRedo.dom,
         text: 'Redo',
         align: 'left',

@@ -14,10 +14,10 @@
 
 type JsonValue = any;
 
-interface DiffOptions {
+type DiffOptions = {
     /** When true, only report structural changes (added/deleted keys), ignore value changes. */
     keysOnly?: boolean;
-}
+};
 
 /**
  * Extended typeof that distinguishes arrays and null from plain objects.

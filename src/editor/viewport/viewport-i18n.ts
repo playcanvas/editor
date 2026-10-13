@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 import { config } from '@/editor/config';
 
 editor.once('load', () => {
@@ -51,7 +53,7 @@ editor.once('load', () => {
 
     // make sure all localization assets are loaded
     // regardless of their preload flag
-    editor.on('assets:add', (asset: import('@playcanvas/observer').Observer) => {
+    editor.on('assets:add', (asset: Observer) => {
         const id = asset.get('id');
         if (assetIndex[id]) {
             const engineAsset = app.assets.get(id);
@@ -60,5 +62,4 @@ editor.once('load', () => {
             }
         }
     });
-
 });

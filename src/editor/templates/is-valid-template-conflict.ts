@@ -25,7 +25,6 @@ editor.once('load', () => {
         run() {
             if (this.ignorePath()) {
                 return false;
-
             }
             if (this.conflict.entity_ref_paths) {
                 return !editor.call(
@@ -35,31 +34,22 @@ editor.once('load', () => {
                     this.srcToDst,
                     this.scriptAttrs
                 );
-
             }
             return true;
-
         }
 
         ignorePath() {
-            return ignorePathsForAll[this.path] ||
-                templIdsReg.test(this.path) ||
-                this.ignoreForRoot();
+            return ignorePathsForAll[this.path] || templIdsReg.test(this.path) || this.ignoreForRoot();
         }
 
         ignoreForRoot() {
-            return this.isRoot &&
-                editor.call(
-                    'template:utils',
-                    'isIgnoreRootOverride',
-                    this.path
-                );
+            return this.isRoot && editor.call('template:utils', 'isIgnoreRootOverride', this.path);
         }
 
         handleEntityPathConflict() {
-            return this.areBothArrays() ?
-                this.isArrayDifferent(this.src_value, this.dst_value) :
-                this.isValueDifferent(this.src_value, this.dst_value);
+            return this.areBothArrays()
+                ? this.isArrayDifferent(this.src_value, this.dst_value)
+                : this.isValueDifferent(this.src_value, this.dst_value);
         }
 
         areBothArrays() {
@@ -74,7 +64,6 @@ editor.once('load', () => {
 
         isSomeValueDifferent(srcAr: unknown[], dstAr: unknown[]): boolean {
             return srcAr.some((src, index) => {
-
                 const dst = dstAr[index];
 
                 return this.isValueDifferent(src, dst);
@@ -102,7 +91,10 @@ editor.once('load', () => {
      * @param srcToDst - The guid mapping.
      * @returns True if the conflict should be reported as an override.
      */
-    editor.method('template:isValidTemplateConflict', (conflict: object, rootId: string, srcToDst: object, scriptAttrs: object): boolean => {
-        return new IsValidTemplateConflict(conflict, rootId, srcToDst, scriptAttrs).run();
-    });
+    editor.method(
+        'template:isValidTemplateConflict',
+        (conflict: object, rootId: string, srcToDst: object, scriptAttrs: object): boolean => {
+            return new IsValidTemplateConflict(conflict, rootId, srcToDst, scriptAttrs).run();
+        }
+    );
 });

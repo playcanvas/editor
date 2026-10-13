@@ -1,7 +1,7 @@
 import { Events, Observer, ObserverHistory } from '@playcanvas/observer';
 
 import { replace } from './assets/replace';
-import { Entity } from './entity';
+import type { Entity } from './entity';
 import { globals as api } from './globals';
 
 /**
@@ -27,7 +27,7 @@ class Asset extends Events {
 
     private _suspendOnSet: boolean;
 
-    private _history: ObserverHistory | {};
+    private _history: ObserverHistory | object;
 
     /**
      * Constructor
@@ -45,14 +45,17 @@ class Asset extends Events {
             };
         }
 
-        data = Object.assign({
-            name: 'New Asset',
-            tags: [],
-            meta: null,
-            data: null,
-            file: null,
-            path: []
-        }, data);
+        data = Object.assign(
+            {
+                name: 'New Asset',
+                tags: [],
+                meta: null,
+                data: null,
+                file: null,
+                path: []
+            },
+            data
+        );
 
         this._observer = new Observer(data, options) as AssetObserver;
         this._observer.apiAsset = this;
@@ -103,10 +106,10 @@ class Asset extends Events {
         if (this.get('has_thumbnail')) {
             const id = this.get('id');
             this.set('thumbnails', {
-                's': `/api/assets/${id}/thumbnail/small?branchId=${api.branchId}`,
-                'm': `/api/assets/${id}/thumbnail/medium?branchId=${api.branchId}`,
-                'l': `/api/assets/${id}/thumbnail/large?branchId=${api.branchId}`,
-                'xl': `/api/assets/${id}/thumbnail/xlarge?branchId=${api.branchId}`
+                s: `${api.apiUrl}/assets/${id}/thumbnail/small?branchId=${api.branchId}`,
+                m: `${api.apiUrl}/assets/${id}/thumbnail/medium?branchId=${api.branchId}`,
+                l: `${api.apiUrl}/assets/${id}/thumbnail/large?branchId=${api.branchId}`,
+                xl: `${api.apiUrl}/assets/${id}/thumbnail/xlarge?branchId=${api.branchId}`
             });
         } else {
             this.unset('thumbnails');
@@ -129,7 +132,10 @@ class Asset extends Events {
             this._resetThumbnailUrls();
         } else if (parts.length >= 3 && parts[1] === 'variants') {
             const format = parts[2];
-            this.set(`file.variants.${format}.url`, Asset.getFileUrl(this.get('id'), this.get(`file.variants.${format}.filename`)));
+            this.set(
+                `file.variants.${format}.url`,
+                Asset.getFileUrl(this.get('id'), this.get(`file.variants.${format}.filename`))
+            );
         }
 
         this._suspendOnSet = false;
@@ -222,7 +228,7 @@ class Asset extends Events {
      * Loads asset from the server without subscribing to realtime changes.
      */
     async load() {
-        const response = await fetch(`/api/assets/${this.get('id')}?branchId=${api.branchId}`);
+        const response = await fetch(`${api.apiUrl}/assets/${this.get('id')}?branchId=${api.branchId}`);
         if (!response.ok) {
             throw new Error(`${response.status}: ${response.statusText}`);
         }
@@ -305,7 +311,10 @@ class Asset extends Events {
      * @param options.extraData - Extra data passed to the backend. Used by the Editor on specific cases.
      * @returns The new entity.
      */
-    async instantiateTemplate(parent: Entity, options: { index?: number, history?: boolean, select?: boolean, extraData?: object } = {}) {
+    async instantiateTemplate(
+        parent: Entity,
+        options: { index?: number; history?: boolean; select?: boolean; extraData?: object } = {}
+    ) {
         const entities = await api.assets.instantiateTemplates([this], parent, options);
         return entities[0];
     }
@@ -342,7 +351,7 @@ class Asset extends Events {
      * @returns The file URL
      */
     static getFileUrl(id: number, filename: string) {
-        return `/api/assets/${id}/file/${encodeURIComponent(filename)}?branchId=${api.branchId}`;
+        return `${api.apiUrl}/assets/${id}/file/${encodeURIComponent(filename)}?branchId=${api.branchId}`;
     }
 }
 

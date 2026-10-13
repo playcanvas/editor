@@ -1,5 +1,7 @@
-import { BaseSettingsPanel } from './base';
 import type { Attribute } from '../attribute.type.d';
+
+import { BaseSettingsPanel } from './base';
+import type { BaseSettingsPanelArgs } from './base';
 
 /**
  * Add a section titled 'SHOW SETTINGS HISTORY'
@@ -19,7 +21,7 @@ const ATTRIBUTES: Attribute[] = [
 ];
 
 class ProjectHistorySettingsPanel extends BaseSettingsPanel {
-    constructor(args: Record<string, unknown>) {
+    constructor(args: BaseSettingsPanelArgs) {
         args = Object.assign({}, args);
         args.headerText = 'PROJECT SETTINGS HISTORY';
         args.attributes = ATTRIBUTES;

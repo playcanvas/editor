@@ -9,127 +9,161 @@ import {
 import { deepCopy } from '@/common/utils';
 import type { EntityObserver } from '@/editor-api';
 
-import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+import { ComponentInspector } from './component';
+import type { ComponentInspectorArgs } from './component';
 
-const ATTRIBUTES: (Attribute | Divider)[] = [{
-    label: 'Scroll Mode',
-    path: 'components.scrollview.scrollMode',
-    reference: 'scrollview:scrollMode',
-    type: 'select',
-    args: {
+const ATTRIBUTES: (Attribute | Divider)[] = [
+    {
+        label: 'Scroll Mode',
+        path: 'components.scrollview.scrollMode',
+        reference: 'scrollview:scrollMode',
+        type: 'select',
+        args: {
+            type: 'number',
+            options: [
+                {
+                    v: SCROLL_MODE_CLAMP,
+                    t: 'Clamp'
+                },
+                {
+                    v: SCROLL_MODE_BOUNCE,
+                    t: 'Bounce'
+                },
+                {
+                    v: SCROLL_MODE_INFINITE,
+                    t: 'Infinite'
+                }
+            ]
+        }
+    },
+    {
+        label: 'Bounce',
+        path: 'components.scrollview.bounceAmount',
+        reference: 'scrollview:bounceAmount',
         type: 'number',
-        options: [{
-            v: SCROLL_MODE_CLAMP, t: 'Clamp'
-        }, {
-            v: SCROLL_MODE_BOUNCE, t: 'Bounce'
-        }, {
-            v: SCROLL_MODE_INFINITE, t: 'Infinite'
-        }]
-    }
-}, {
-    label: 'Bounce',
-    path: 'components.scrollview.bounceAmount',
-    reference: 'scrollview:bounceAmount',
-    type: 'number',
-    args: {
-        precision: 3,
-        step: 0.01,
-        min: 0,
-        max: 10
-    }
-}, {
-    label: 'Friction',
-    path: 'components.scrollview.friction',
-    reference: 'scrollview:friction',
-    type: 'number',
-    args: {
-        precision: 3,
-        step: 0.01,
-        min: 0,
-        max: 10
-    }
-}, {
-    label: 'Use Mouse Wheel',
-    path: 'components.scrollview.useMouseWheel',
-    reference: 'scrollview:useMouseWheel',
-    type: 'boolean'
-
-}, {
-    label: 'Mouse Wheel Sensitivity',
-    path: 'components.scrollview.mouseWheelSensitivity',
-    reference: 'scrollview:mouseWheelSensitivity',
-    type: 'vec2',
-    args: {
-        precision: 2,
-        step: 0.1,
-        placeholder: ['↔', '↕']
-    }
-}, {
-    type: 'divider'
-}, {
-    label: 'Viewport',
-    path: 'components.scrollview.viewportEntity',
-    reference: 'scrollview:viewportEntity',
-    type: 'entity'
-}, {
-    label: 'Content',
-    path: 'components.scrollview.contentEntity',
-    reference: 'scrollview:contentEntity',
-    type: 'entity'
-}, {
-    type: 'divider'
-}, {
-    label: 'Horizontal',
-    path: 'components.scrollview.horizontal',
-    reference: 'scrollview:horizontal',
-    type: 'boolean'
-}, {
-    label: 'Scrollbar',
-    path: 'components.scrollview.horizontalScrollbarEntity',
-    reference: 'scrollview:horizontalScrollbarEntity',
-    type: 'entity'
-}, {
-    label: 'Visibility',
-    path: 'components.scrollview.horizontalScrollbarVisibility',
-    reference: 'scrollview:horizontalScrollbarVisibility',
-    type: 'select',
-    args: {
+        args: {
+            precision: 3,
+            step: 0.01,
+            min: 0,
+            max: 10
+        }
+    },
+    {
+        label: 'Friction',
+        path: 'components.scrollview.friction',
+        reference: 'scrollview:friction',
         type: 'number',
-        options: [{
-            v: SCROLLBAR_VISIBILITY_SHOW_ALWAYS, t: 'Show Always'
-        }, {
-            v: SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED, t: 'Show When Required'
-        }]
+        args: {
+            precision: 3,
+            step: 0.01,
+            min: 0,
+            max: 10
+        }
+    },
+    {
+        label: 'Use Mouse Wheel',
+        path: 'components.scrollview.useMouseWheel',
+        reference: 'scrollview:useMouseWheel',
+        type: 'boolean'
+    },
+    {
+        label: 'Mouse Wheel Sensitivity',
+        path: 'components.scrollview.mouseWheelSensitivity',
+        reference: 'scrollview:mouseWheelSensitivity',
+        type: 'vec2',
+        args: {
+            precision: 2,
+            step: 0.1,
+            placeholder: ['↔', '↕']
+        }
+    },
+    {
+        type: 'divider'
+    },
+    {
+        label: 'Viewport',
+        path: 'components.scrollview.viewportEntity',
+        reference: 'scrollview:viewportEntity',
+        type: 'entity'
+    },
+    {
+        label: 'Content',
+        path: 'components.scrollview.contentEntity',
+        reference: 'scrollview:contentEntity',
+        type: 'entity'
+    },
+    {
+        type: 'divider'
+    },
+    {
+        label: 'Horizontal',
+        path: 'components.scrollview.horizontal',
+        reference: 'scrollview:horizontal',
+        type: 'boolean'
+    },
+    {
+        label: 'Scrollbar',
+        path: 'components.scrollview.horizontalScrollbarEntity',
+        reference: 'scrollview:horizontalScrollbarEntity',
+        type: 'entity'
+    },
+    {
+        label: 'Visibility',
+        path: 'components.scrollview.horizontalScrollbarVisibility',
+        reference: 'scrollview:horizontalScrollbarVisibility',
+        type: 'select',
+        args: {
+            type: 'number',
+            options: [
+                {
+                    v: SCROLLBAR_VISIBILITY_SHOW_ALWAYS,
+                    t: 'Show Always'
+                },
+                {
+                    v: SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED,
+                    t: 'Show When Required'
+                }
+            ]
+        }
+    },
+    {
+        type: 'divider'
+    },
+    {
+        label: 'Vertical',
+        path: 'components.scrollview.vertical',
+        reference: 'scrollview:vertical',
+        type: 'boolean'
+    },
+    {
+        label: 'Scrollbar',
+        path: 'components.scrollview.verticalScrollbarEntity',
+        reference: 'scrollview:verticalScrollbarEntity',
+        type: 'entity'
+    },
+    {
+        label: 'Visibility',
+        path: 'components.scrollview.verticalScrollbarVisibility',
+        reference: 'scrollview:verticalScrollbarVisibility',
+        type: 'select',
+        args: {
+            type: 'number',
+            options: [
+                {
+                    v: SCROLLBAR_VISIBILITY_SHOW_ALWAYS,
+                    t: 'Show Always'
+                },
+                {
+                    v: SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED,
+                    t: 'Show When Required'
+                }
+            ]
+        }
     }
-}, {
-    type: 'divider'
-}, {
-    label: 'Vertical',
-    path: 'components.scrollview.vertical',
-    reference: 'scrollview:vertical',
-    type: 'boolean'
-}, {
-    label: 'Scrollbar',
-    path: 'components.scrollview.verticalScrollbarEntity',
-    reference: 'scrollview:verticalScrollbarEntity',
-    type: 'entity'
-}, {
-    label: 'Visibility',
-    path: 'components.scrollview.verticalScrollbarVisibility',
-    reference: 'scrollview:verticalScrollbarVisibility',
-    type: 'select',
-    args: {
-        type: 'number',
-        options: [{
-            v: SCROLLBAR_VISIBILITY_SHOW_ALWAYS, t: 'Show Always'
-        }, {
-            v: SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED, t: 'Show When Required'
-        }]
-    }
-}];
+];
 
 class ScrollviewComponentInspector extends ComponentInspector {
     _suppressToggleFields = false;

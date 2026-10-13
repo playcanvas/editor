@@ -44,15 +44,11 @@ editor.once('load', () => {
         handleCompName(compName: string): void {
             const fields = editor.call('components:getFieldsOfType', compName, 'entity');
 
-            fields.forEach(field => this.addPathToRes(compName, field));
+            fields.forEach((field) => this.addPathToRes(compName, field));
         }
 
         addPathToRes(compName: string, field: string): void {
-            const path = [
-                'components',
-                compName,
-                field
-            ];
+            const path = ['components', compName, field];
 
             this.result.push(path);
         }
@@ -109,7 +105,7 @@ editor.once('load', () => {
 
             const attrNames = Object.keys(attrs);
 
-            attrNames.forEach(attrName => this.handleAttr(attrName, scrName, attrs[attrName]));
+            attrNames.forEach((attrName) => this.handleAttr(attrName, scrName, attrs[attrName]));
         }
 
         handleAttr(attrName: string, scrName: string, attrInEnt: unknown): void {
@@ -119,7 +115,6 @@ editor.once('load', () => {
 
             if (h.type === 'entity') {
                 this.addRegularPath(scrName, attrName);
-
             } else if (editor.call('template:attrUtils', 'isJsonScriptAttr', h)) {
                 this.addJsonPaths(scrName, attrName, h, attrInEnt);
             }
@@ -134,25 +129,11 @@ editor.once('load', () => {
         addJsonPaths(scrName: string, attrName: string, attrObj: Record<string, unknown>, attrInEnt: unknown): void {
             const pref = this.makeRegularPath(scrName, attrName);
 
-            editor.call(
-                'template:attrUtils',
-                'addAllJsonEntPaths',
-                this.result,
-                attrObj,
-                pref,
-                attrInEnt
-            );
+            editor.call('template:attrUtils', 'addAllJsonEntPaths', this.result, attrObj, pref, attrInEnt);
         }
 
         makeRegularPath(scrName: string, attrName: string): string[] {
-            return [
-                'components',
-                'script',
-                'scripts',
-                scrName,
-                'attributes',
-                attrName
-            ];
+            return ['components', 'script', 'scripts', scrName, 'attributes', attrName];
         }
     }
 
@@ -172,7 +153,7 @@ editor.once('load', () => {
 
         const result = paths1.concat(paths2);
 
-        parentChildren.forEach(field => addIfPresent(entity, field, result));
+        parentChildren.forEach((field) => addIfPresent(entity, field, result));
 
         return result || [];
     });

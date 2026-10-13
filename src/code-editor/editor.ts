@@ -1,7 +1,10 @@
-import { type EditorMethods, Editor } from '@/common/editor';
+import { Editor } from '@/common/editor';
+import type { EditorMethods } from '@/common/editor';
 import { Messenger } from '@/common/messenger';
+import { setSentrySource, setSentryTags, setSentryUser } from '@/common/sentry';
 import * as api from '@/editor-api';
 
+import { config } from './config';
 
 class CodeEditor extends Editor<EditorMethods> {
     isCodeEditor = true;
@@ -38,6 +41,17 @@ class CodeEditor extends Editor<EditorMethods> {
 }
 
 window.editor = new CodeEditor();
+
+setSentryUser(config.self?.id);
+setSentryTags({
+    user_id: config.self?.id,
+    project_id: config.project?.id,
+    branch_id: config.self?.branch?.id,
+    branch_name: config.self?.branch?.name,
+    merge_in_progress: !!config.self?.branch?.merge
+});
+
+setSentrySource(config.url?.engine, config.url?.frontend);
 
 // set window name if necessary
 if (!window.name) {

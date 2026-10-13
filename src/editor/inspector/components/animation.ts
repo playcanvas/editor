@@ -1,43 +1,50 @@
 import type { ObserverList } from '@playcanvas/observer';
-import { Button, type Element as PcuiElement } from '@playcanvas/pcui';
+import { Button } from '@playcanvas/pcui';
+import type { Element as PcuiElement } from '@playcanvas/pcui';
 
 import type { EntityObserver } from '@/editor-api';
 
-import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+import { ComponentInspector } from './component';
+import type { ComponentInspectorArgs } from './component';
 
-const ATTRIBUTES: Attribute[] = [{
-    label: 'Assets',
-    path: 'components.animation.assets',
-    reference: 'animation:assets',
-    type: 'assets',
-    args: {
-        assetType: 'animation'
+const ATTRIBUTES: Attribute[] = [
+    {
+        label: 'Assets',
+        path: 'components.animation.assets',
+        reference: 'animation:assets',
+        type: 'assets',
+        args: {
+            assetType: 'animation'
+        }
+    },
+    {
+        label: 'Speed',
+        path: 'components.animation.speed',
+        reference: 'animation:speed',
+        type: 'slider',
+        args: {
+            precision: 3,
+            step: 0.1,
+            sliderMin: -2,
+            sliderMax: 2
+        }
+    },
+    {
+        label: 'Activate',
+        path: 'components.animation.activate',
+        reference: 'animation:activate',
+        type: 'boolean'
+    },
+    {
+        label: 'Loop',
+        path: 'components.animation.loop',
+        reference: 'animation:loop',
+        type: 'boolean'
     }
-}, {
-    label: 'Speed',
-    path: 'components.animation.speed',
-    reference: 'animation:speed',
-    type: 'slider',
-    args: {
-        precision: 3,
-        step: 0.1,
-        sliderMin: -2,
-        sliderMax: 2
-    }
-}, {
-    label: 'Activate',
-    path: 'components.animation.activate',
-    reference: 'animation:activate',
-    type: 'boolean'
-}, {
-    label: 'Loop',
-    path: 'components.animation.loop',
-    reference: 'animation:loop',
-    type: 'boolean'
-}];
+];
 
 const CLASS_BUTTON_PLAY = 'animation-component-inspector-play';
 
@@ -63,7 +70,10 @@ class AnimationComponentInspector extends ComponentInspector {
         this.append(this._attributesInspector);
     }
 
-    _refreshPlayButtons(entities: EntityObserver[], assetList: { listItems: { assetId: string; element: PcuiElement }[] }) {
+    _refreshPlayButtons(
+        entities: EntityObserver[],
+        assetList: { listItems: { assetId: string; element: PcuiElement }[] }
+    ) {
         const listItems = assetList.listItems;
         listItems.forEach((item) => {
             this._addPlayButtonForAnimation(entities, item.assetId, item.element);
@@ -105,31 +115,33 @@ class AnimationComponentInspector extends ComponentInspector {
         assetId = parseInt(assetId, 10);
 
         for (let i = 0; i < entities.length; i++) {
-            if (!entities[i].entity || !entities[i].entity.animation) {
+            const entity = entities[i];
+            if (!entity.entity || !entity.entity.animation) {
                 continue;
             }
 
-            if (entities[i].entity.animation.assets.indexOf(assetId) === -1) {
-                entities[i].entity.animation._stopCurrentAnimation();
+            if (entity.entity.animation.assets.indexOf(assetId) === -1) {
+                entity.entity.animation._stopCurrentAnimation();
                 continue;
             }
 
-            const name = entities[i].entity.animation.animationsIndex[assetId];
+            const name = entity.entity.animation.animationsIndex[assetId];
             if (!name) {
                 continue;
             }
 
-            entities[i].entity.animation.play(name);
+            entity.entity.animation.play(name);
         }
     }
 
     _stopAnimation(entities: EntityObserver[]) {
         for (let i = 0; i < entities.length; i++) {
-            if (!entities[i].entity || !entities[i].entity.animation) {
+            const entity = entities[i];
+            if (!entity.entity || !entity.entity.animation) {
                 continue;
             }
 
-            entities[i].entity.animation._stopCurrentAnimation();
+            entity.entity.animation._stopCurrentAnimation();
         }
     }
 

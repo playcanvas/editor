@@ -3,14 +3,14 @@
  *
  * @category Internal
  */
-class utils {
+const utils = {
     /**
      * Deep copy an object
      *
      * @param data - The data to copy
      * @returns A copy of the data
      */
-    static deepCopy(data: Record<string, any>): Record<string, any> {
+    deepCopy(data: Record<string, any>): Record<string, any> {
         if (data == null || typeof data !== 'object') {
             return data;
         }
@@ -18,22 +18,28 @@ class utils {
         if (data instanceof Array) {
             const arr = [];
             for (let i = 0; i < data.length; i++) {
-                arr[i] = this.deepCopy(data[i]);
+                arr[i] = utils.deepCopy(data[i]);
             }
             return arr;
         }
 
         const obj: Record<string, any> = {};
         for (const key in data) {
-            if (data.hasOwnProperty(key)) {
-                obj[key] = this.deepCopy(data[key]);
+            if (Object.prototype.hasOwnProperty.call(data, key)) {
+                obj[key] = utils.deepCopy(data[key]);
             }
         }
         return obj;
-    }
+    },
 
-    static expandPath(obj: any, path: string, fn: (obj: any, path: string) => void) {
-        function forEachPathInData(pathParts: string[], pathSoFar: string, startIndex: number, data: any[], fn: (obj: object, path: string) => void) {
+    expandPath(obj: any, path: string, fn: (obj: any, path: string) => void) {
+        function forEachPathInData(
+            pathParts: string[],
+            pathSoFar: string,
+            startIndex: number,
+            data: any[],
+            fn: (obj: object, path: string) => void
+        ) {
             if (!data) {
                 return;
             }
@@ -49,7 +55,7 @@ class utils {
                     }
 
                     // keep getting deeper into the object as long as each path part exists
-                    if (!current.hasOwnProperty(pathParts[i])) {
+                    if (!Object.prototype.hasOwnProperty.call(current, pathParts[i])) {
                         return;
                     }
 
@@ -126,6 +132,6 @@ class utils {
         // start breaking down each path
         forEachPathInData(parts, firstPartialPath, i + 1, json, fn);
     }
-}
+};
 
 export { utils };

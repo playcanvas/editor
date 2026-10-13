@@ -1,8 +1,11 @@
-import { type EditorMethods, Editor } from '@/common/editor';
+import { Editor } from '@/common/editor';
+import type { EditorMethods } from '@/common/editor';
 import { Messenger } from '@/common/messenger';
+import { setSentrySource, setSentryTags, setSentryUser } from '@/common/sentry';
 import { MERGE_STATUS_APPLY_STARTED, MERGE_STATUS_AUTO_STARTED, MERGE_STATUS_READY_FOR_REVIEW } from '@/core/constants';
-import { config } from '@/editor/config';
 import * as api from '@/editor-api';
+
+import { config } from './config';
 
 class MainEditor extends Editor<EditorMethods> {
     constructor() {
@@ -47,7 +50,7 @@ class MainEditor extends Editor<EditorMethods> {
             } else {
                 if (config.scene && !config.scene.id) {
                     // if no scene is loaded
-                    this.call('scenes:list', (items: Array<{ uniqueId: string }>) => {
+                    this.call('scenes:list', (items: { uniqueId: string }[]) => {
                         if (items.length === 1) {
                             this.call('scene:load', items[0].uniqueId);
                         } else {
@@ -77,13 +80,18 @@ class MainEditor extends Editor<EditorMethods> {
         api.globals.confirmFn = (text, options) => {
             return new Promise((resolve) => {
                 let resolved = false;
-                this.call('picker:confirm', text, () => {
-                    if (resolved) {
-                        return;
-                    }
-                    resolved = true;
-                    resolve(true);
-                }, options);
+                this.call(
+                    'picker:confirm',
+                    text,
+                    () => {
+                        if (resolved) {
+                            return;
+                        }
+                        resolved = true;
+                        resolve(true);
+                    },
+                    options
+                );
 
                 this.once('picker:confirm:close', () => {
                     if (resolved) {
@@ -111,13 +119,17 @@ class MainEditor extends Editor<EditorMethods> {
         // set parse script callback
         this.api.globals.assets.parseScriptCallback = (asset: { observer: unknown }) => {
             return new Promise((resolve, reject) => {
-                this.call('scripts:parse', asset.observer, (err: unknown, result: { scripts?: Record<string, unknown> }) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(Object.keys(result.scripts || {}));
+                this.call(
+                    'scripts:parse',
+                    asset.observer,
+                    (err: unknown, result: { scripts?: Record<string, unknown> }) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(Object.keys(result.scripts || {}));
+                        }
                     }
-                });
+                );
             });
         };
     }
@@ -125,3 +137,19 @@ class MainEditor extends Editor<EditorMethods> {
 
 // editor
 window.editor = new MainEditor();
+
+setSentryUser(config.self?.id);
+setSentryTags({
+    user_id: config.self?.id,
+    project_id: config.project?.id,
+    scene_id: config.scene?.id || -1,
+    branch_id: config.self?.branch?.id,
+    branch_name: config.self?.branch?.name,
+    branch_is_main: !!config.self?.branch?.id && config.self.branch.id === config.project?.masterBranch,
+    merge_in_progress: !!config.self?.branch?.merge,
+    plan: config.self?.plan?.type,
+    owner_plan: config.owner?.plan?.type,
+    engine_version: config.engineVersions?.current?.version
+});
+
+setSentrySource(config.url?.engine, config.url?.frontend);

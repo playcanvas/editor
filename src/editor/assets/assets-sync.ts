@@ -2,22 +2,14 @@ import { ObserverSync } from '@/common/observer-sync';
 
 editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
-    const syncPaths = [
-        'name',
-        'exclude',
-        'preload',
-        'tags',
-        'scope',
-        'data',
-        'meta',
-        'file',
-        'i18n'
-    ];
+    const syncPaths = ['name', 'path', 'exclude', 'preload', 'tags', 'scope', 'data', 'meta', 'file', 'i18n'];
 
     // try to detect if the browser was inactive for a while e.g.
     // if the computer went to sleep
     const IDLE_CHECK_DELAY = 2000;
     const IDLE_CHECK_SAFE_WINDOW = 10000;
+
+    const pendingOps = new Map();
 
     let lastIdleCheck = Date.now();
     let wasIdle = false;
@@ -37,19 +29,24 @@ editor.once('load', () => {
         const assets = connection.collections.assets;
 
         for (let i = 0; i < data.length; i++) {
-            if (!assets.hasOwnProperty(data[i].uniqueId)) {
+            const item = data[i];
+            if (!Object.prototype.hasOwnProperty.call(assets, item.uniqueId)) {
                 continue;
             }
 
             // force snapshot path data
-            assets[data[i].uniqueId].data.path = data[i].path;
+            assets[item.uniqueId].data.path = item.path;
 
             // sync observer
-            editor.emit('realtime:op:assets', {
-                p: ['path'],
-                oi: data[i].path,
-                od: null
-            }, data[i].uniqueId);
+            editor.emit(
+                'realtime:op:assets',
+                {
+                    p: ['path'],
+                    oi: item.path,
+                    od: null
+                },
+                item.uniqueId
+            );
         }
     });
 
@@ -147,11 +144,12 @@ editor.once('load', () => {
         const assets = [];
 
         for (let i = 0; i < list.length; i++) {
-            if (legacyScripts && list[i].get('type') === 'script') {
-                editor.emit('sourcefiles:remove', list[i]);
-                editor.api.globals.rest.projects.projectRepoSourcefilesDelete(list[i].get('filename'));
+            const item = list[i];
+            if (legacyScripts && item.get('type') === 'script') {
+                editor.emit('sourcefiles:remove', item);
+                editor.api.globals.rest.projects.projectRepoSourcefilesDelete(item.get('filename'));
             } else {
-                assets.push(list[i]);
+                assets.push(item);
             }
         }
 
@@ -175,6 +173,15 @@ editor.once('load', () => {
             editor.call('realtime:assets:op', op, asset.get('uniqueId'));
         });
 
+        // replay buffered ops that arrived before this asset was registered
+        const uniqueId = asset.get('uniqueId');
+        const ops = pendingOps.get(uniqueId);
+        if (ops) {
+            pendingOps.delete(uniqueId);
+            for (const op of ops) {
+                asset.sync.write(op);
+            }
+        }
     });
 
     // write asset operations
@@ -195,11 +202,15 @@ editor.once('load', () => {
     editor.on('realtime:op:assets', (op, uniqueId) => {
         const asset = editor.call('assets:getUnique', uniqueId);
         if (asset) {
-            // console.log('in: ' + id + ' [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-            // console.log(op);
             asset.sync.write(op);
         } else {
-            log.error(`realtime operation on missing asset: ${op.p[1]}`);
+            // buffer ops for assets not yet registered (race between subscribe and add)
+            let ops = pendingOps.get(uniqueId);
+            if (!ops) {
+                ops = [];
+                pendingOps.set(uniqueId, ops);
+            }
+            ops.push(op);
         }
     });
 
@@ -218,10 +229,11 @@ editor.once('load', () => {
                 app.assets._callbacks.clear();
             } else {
                 // compatibility with 1.64 and below
-                app.assets._callbacks = { };
+                app.assets._callbacks = {};
             }
         }
 
         editor.call('assets:clear');
+        pendingOps.clear();
     });
 });

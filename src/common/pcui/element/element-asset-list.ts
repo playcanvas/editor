@@ -1,5 +1,6 @@
 import type { Observer, ObserverList } from '@playcanvas/observer';
-import { Element, ElementArgs, Container, Button, Label, TextInput, BindingObserversToElement } from '@playcanvas/pcui';
+import type { ElementArgs } from '@playcanvas/pcui';
+import { Element, Container, Button, Label, TextInput, BindingObserversToElement } from '@playcanvas/pcui';
 
 const CLASS_ASSET_LIST = 'pcui-asset-list';
 const CLASS_ASSET_LIST_SELECTION_MODE = `${CLASS_ASSET_LIST}-selection-mode`;
@@ -16,7 +17,7 @@ const CLASS_ASSET_NOT_EVERYWHERE = `${CLASS_ASSET_LIST}-not-everywhere`;
 /**
  * The arguments for the {@link AssetList} constructor.
  */
-interface AssetListArgs extends ElementArgs {
+type AssetListArgs = {
     /** The assets list */
     assets?: ObserverList;
     /** An optional filter for a specific asset type. */
@@ -29,7 +30,7 @@ interface AssetListArgs extends ElementArgs {
     renderChanges?: boolean;
     /** The initial value (array of asset ids) */
     value?: number[];
-}
+} & ElementArgs;
 
 /**
  * Element that can allows selecting multiple assets.
@@ -59,11 +60,14 @@ class AssetList extends Element {
 
     private _selectedAssets: number[];
 
-    private _indexAssets: Record<number, {
-        element: Container,
-        label: Label,
-        count: number
-    }> = {};
+    private _indexAssets: Record<
+        number,
+        {
+            element: Container;
+            label: Label;
+            count: number;
+        }
+    > = {};
 
     private _values: number[][];
 
@@ -192,10 +196,12 @@ class AssetList extends Element {
         editor.call('drop:target', {
             ref: this,
             filter: (type: string, dropData: any) => {
-                if (dropData.id && type.startsWith('asset') &&
+                if (
+                    dropData.id &&
+                    type.startsWith('asset') &&
                     (!this._assetType || type === `asset.${this._assetType}`) &&
-                    !this.value.includes(parseInt(dropData.id, 10))) {
-
+                    !this.value.includes(parseInt(dropData.id, 10))
+                ) {
                     const asset = this._assets.get(dropData.id);
                     if (!asset || asset.get('source')) {
                         return false;
@@ -203,7 +209,10 @@ class AssetList extends Element {
 
                     // if asset already added to every observer then
                     // return false
-                    if (this._indexAssets[dropData.id] && !this._indexAssets[dropData.id].element.class.contains(CLASS_ASSET_NOT_EVERYWHERE)) {
+                    if (
+                        this._indexAssets[dropData.id] &&
+                        !this._indexAssets[dropData.id].element.class.contains(CLASS_ASSET_NOT_EVERYWHERE)
+                    ) {
                         return false;
                     }
 
@@ -280,21 +289,23 @@ class AssetList extends Element {
 
         // pick assets and filter them
         this._pickAssets((assets) => {
-            this._selectedAssets = assets.filter((asset) => {
-                if (this._filterFn) {
-                    return this._filterFn(asset);
-                }
-
-                // do not allow picking legacy scripts
-                if (asset.get('type') === 'script') {
-                    const settings = editor.call('settings:project');
-                    if (settings && settings.get('useLegacyScripts')) {
-                        return false;
+            this._selectedAssets = assets
+                .filter((asset) => {
+                    if (this._filterFn) {
+                        return this._filterFn(asset);
                     }
-                }
 
-                return true;
-            }).map(a => parseInt(a.get('id'), 10));
+                    // do not allow picking legacy scripts
+                    if (asset.get('type') === 'script') {
+                        const settings = editor.call('settings:project');
+                        if (settings && settings.get('useLegacyScripts')) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                })
+                .map((a) => parseInt(a.get('id'), 10));
 
             this._btnAdd.enabled = this._selectedAssets.length > 0;
         });
@@ -334,7 +345,6 @@ class AssetList extends Element {
                 this._indexAssets[id].element.hidden = false;
             }
         }
-
     }
 
     // Opens asset picker and allows asset selection

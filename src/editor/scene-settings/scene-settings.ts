@@ -1,8 +1,10 @@
+import type { Observer } from '@playcanvas/observer';
 import { GAMMA_NONE, GAMMA_SRGB } from 'playcanvas';
 
 import { ObserverSync } from '@/common/observer-sync';
 import { formatter as f } from '@/common/utils';
 
+import { isUnsetPriorityScripts } from './priority-scripts';
 
 editor.once('load', () => {
     const schema = editor.api.globals.schema;
@@ -26,8 +28,10 @@ editor.once('load', () => {
         }
 
         // remove priority_scripts
-        if (editor.api.globals.realtime.scenes.current.data.settings.priority_scripts === undefined &&
-            settings.has('priority_scripts')) {
+        if (
+            isUnsetPriorityScripts(editor.api.globals.realtime.scenes.current.data.settings.priority_scripts) &&
+            settings.has('priority_scripts')
+        ) {
             settings.unset('priority_scripts');
         }
 
@@ -49,7 +53,7 @@ editor.once('load', () => {
 
         // migrate entities
         // NOTE: Defaults are set so we need to force the update
-        const migrateEntity = (entity: import('@playcanvas/observer').Observer) => {
+        const migrateEntity = (entity: Observer) => {
             // Defeer the migration to the next frame to ensure entity document has been created
             setTimeout(() => {
                 entity.history.enabled = false;
@@ -93,6 +97,12 @@ editor.once('load', () => {
         migrateEntityHandle = editor.on('entities:add', migrateEntity);
 
         editor.call('status:clear');
+        if (editor.call('permissions:write')) {
+            setTimeout(() => {
+                editor.call('settings:project').set('engineV2', true);
+                window.location.reload();
+            });
+        }
     };
     if (!editor.projectEngineV2) {
         editor.on('entities:load', () => {
@@ -107,7 +117,7 @@ editor.once('load', () => {
         settings.on('render.tonemapping:set', migrateCameraSettings);
     }
 
-    editor.on('sceneSettings:load', (settings: import('@playcanvas/observer').Observer) => {
+    editor.on('sceneSettings:load', (settings: Observer) => {
         // sync scene settings
         if (!settings.sync) {
             settings.sync = new ObserverSync({

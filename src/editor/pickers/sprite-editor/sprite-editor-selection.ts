@@ -23,7 +23,7 @@ editor.once('load', () => {
 
         // check if new selection differs from old
         let dirty = false;
-        if (!keys && selected || !keys && options && options.clearSprite && spriteAsset) {
+        if ((!keys && selected) || (!keys && options && options.clearSprite && spriteAsset)) {
             dirty = true;
         } else if (keys && !selected) {
             dirty = true;
@@ -86,7 +86,6 @@ editor.once('load', () => {
 
                     if (!spriteAsset) {
                         selected = newSelection || newKeys[len - 1];
-
                     }
                 }
             }
@@ -117,7 +116,6 @@ editor.once('load', () => {
                 undo,
                 redo
             });
-
         }
 
         redo();
@@ -258,24 +256,24 @@ editor.once('load', () => {
 
         const folder = editor.call('assets:panel:currentFolder');
 
-        editor.api.globals.assets.createSprite({
-            name: name,
-            pixelsPerUnit: ppu,
-            renderMode: renderMode,
-            frameKeys: highlightedFrames,
-            textureAtlas: atlasAsset.apiAsset,
-            folder: folder && folder.apiAsset
-        })
-        .then((sprite) => {
-            selectSprite(sprite.observer);
-            if (args && args.callback) {
-                args.callback(sprite.observer);
-            }
-
-        })
-        .catch((err) => {
-            editor.call('status:error', err);
-        });
+        editor.api.globals.assets
+            .createSprite({
+                name: name,
+                pixelsPerUnit: ppu,
+                renderMode: renderMode,
+                frameKeys: highlightedFrames,
+                textureAtlas: atlasAsset.apiAsset,
+                folder: folder && folder.apiAsset
+            })
+            .then((sprite) => {
+                selectSprite(sprite.observer);
+                if (args && args.callback) {
+                    args.callback(sprite.observer);
+                }
+            })
+            .catch((err) => {
+                editor.call('status:error', err);
+            });
     });
 
     // Create sprite assets for each selected frame
@@ -292,28 +290,29 @@ editor.once('load', () => {
             name = getFilename(name);
 
             // rendermode: 0 - simple
-            editor.api.globals.assets.createSprite({
-                name: name,
-                pixelsPerUnit: 100,
-                renderMode: 0,
-                frameKeys: [frame],
-                textureAtlas: atlasAsset.apiAsset,
-                folder: folder && folder.apiAsset
-            })
-            .then((sprite) => {
-                frameCounter++;
-                if (frameCounter === highlightedFrames.length) {
-                    setTimeout(() => {
-                        selectSprite(sprite.observer);
-                        if (args && args.callback) {
-                            args.callback(sprite.observer);
-                        }
-                    });
-                }
-            })
-            .catch((err) => {
-                editor.call('status:error', err);
-            });
+            editor.api.globals.assets
+                .createSprite({
+                    name: name,
+                    pixelsPerUnit: 100,
+                    renderMode: 0,
+                    frameKeys: [frame],
+                    textureAtlas: atlasAsset.apiAsset,
+                    folder: folder && folder.apiAsset
+                })
+                .then((sprite) => {
+                    frameCounter++;
+                    if (frameCounter === highlightedFrames.length) {
+                        setTimeout(() => {
+                            selectSprite(sprite.observer);
+                            if (args && args.callback) {
+                                args.callback(sprite.observer);
+                            }
+                        });
+                    }
+                })
+                .catch((err) => {
+                    editor.call('status:error', err);
+                });
         });
     });
 
@@ -403,11 +402,13 @@ editor.once('load', () => {
     });
 
     // if the selected sprite is deleted then deselect it
-    events.push(editor.on('assets:remove', (asset) => {
-        if (spriteAsset && spriteAsset.get('id') === asset.get('id')) {
-            selectSprite(null);
-        }
-    }));
+    events.push(
+        editor.on('assets:remove', (asset) => {
+            if (spriteAsset && spriteAsset.get('id') === asset.get('id')) {
+                selectSprite(null);
+            }
+        })
+    );
 
     editor.on('picker:sprites:open', () => {
         atlasAsset = editor.call('picker:sprites:atlasAsset');
@@ -432,7 +433,7 @@ editor.once('load', () => {
         newSpriteFrames.length = 0;
         setSprite(null);
 
-        events.forEach(event => event.unbind());
+        events.forEach((event) => event.unbind());
         events.length = 0;
 
         editor.call('hotkey:unregister', 'sprite-editor-delete');

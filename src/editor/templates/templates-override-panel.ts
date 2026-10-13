@@ -1,6 +1,18 @@
 import { Observer, ObserverList } from '@playcanvas/observer';
-import { Element, Container, Label, Button, ArrayInput, VectorInput, BooleanInput, NumericInput, TextInput, LabelGroup, Panel } from '@playcanvas/pcui';
-
+import {
+    Element,
+    Container,
+    Label,
+    Button,
+    ArrayInput,
+    VectorInput,
+    BooleanInput,
+    NumericInput,
+    TextInput,
+    LabelGroup,
+    Panel
+} from '@playcanvas/pcui';
+import type { ContainerArgs } from '@playcanvas/pcui';
 
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import { AssetList } from '@/common/pcui/element/element-asset-list';
@@ -9,7 +21,6 @@ import { CurveInput } from '@/common/pcui/element/element-curve-input';
 import { EntityInput } from '@/common/pcui/element/element-entity-input';
 import { GradientInput } from '@/common/pcui/element/element-gradient-input';
 import { LayersInput } from '@/common/pcui/element/element-layers-input';
-import { LegacyLabel } from '@/common/ui/label';
 
 import { AttributesInspector } from '../inspector/attributes-inspector';
 
@@ -44,14 +55,14 @@ const CLASS_DROPDOWN_MENU = `${CLASS_ROOT}-dropdown`;
 
 // prettier component names for multiple words
 const COMPONENT_TITLES = {
-    'audiolistener': 'AUDIO LISTENER',
-    'audiosource': 'AUDIO SOURCE',
-    'layoutchild': 'LAYOUT CHILD',
-    'layoutgroup': 'LAYOUT GROUP',
-    'particlesystem': 'PARTICLE SYSTEM',
-    'rigidbody': 'RIGID BODY',
-    'scrollview': 'SCROLL VIEW',
-    'gsplat': 'GAUSSIAN SPLAT'
+    audiolistener: 'AUDIO LISTENER',
+    audiosource: 'AUDIO SOURCE',
+    layoutchild: 'LAYOUT CHILD',
+    layoutgroup: 'LAYOUT GROUP',
+    particlesystem: 'PARTICLE SYSTEM',
+    rigidbody: 'RIGID BODY',
+    scrollview: 'SCROLL VIEW',
+    gsplat: 'GAUSSIAN SPLAT'
 };
 
 const ICONS = {
@@ -61,8 +72,15 @@ const ICONS = {
     model: '&#57749;'
 };
 
+type OverrideGroupArgs = {
+    mode?: string;
+    name?: string;
+} & ContainerArgs;
+
 class OverrideGroup extends Container {
-    constructor(args: { mode?: string; name?: string }) {
+    private _icon: Label | undefined;
+
+    constructor(args: OverrideGroupArgs) {
         super(args);
 
         this.class.add(CLASS_OVERRIDE_GROUP);
@@ -75,7 +93,6 @@ class OverrideGroup extends Container {
         this.append(inner);
 
         if (args.mode === 'empty') {
-
             inner.class.add(CLASS_OVERRIDE_GROUP_PLACEHOLDER);
         } else {
             inner.class.add(CLASS_OVERRIDE_GROUP_CONTENT);
@@ -89,7 +106,6 @@ class OverrideGroup extends Container {
 
             const name = new Label({
                 text: args.name,
-                flexShrink: 1,
                 class: CLASS_OVERRIDE_GROUP_NAME
             });
 
@@ -115,21 +131,48 @@ class OverrideGroup extends Container {
     }
 }
 
+type TemplateOverridesViewArgs = {
+    assets: ObserverList;
+    entities: ObserverList;
+    projectSettings: Observer;
+} & ContainerArgs;
+
 class TemplateOverridesView extends Container {
-    constructor(args: { assets: ObserverList; entities: ObserverList; projectSettings: Observer }) {
+    private _overrides: Record<string, unknown> | null = null;
+
+    private _templateAsset: { get: (key: string) => unknown } | null = null;
+
+    private _entity: Observer | null = null;
+
+    private _assets: ObserverList;
+
+    private _entities: ObserverList;
+
+    private _templateEntities = new ObserverList({ index: 'resource_id' });
+
+    private _projectSettings: Observer;
+
+    private _containerOverrides: Container;
+
+    private _dropdownMenu: Container;
+
+    private _dropdownMarker: Label | null = null;
+
+    private _evtWindowClick = (e: MouseEvent) => {
+        if (this._dropdownMarker && this._dropdownMarker.dom.contains(e.target as Node)) {
+            return;
+        }
+
+        this._dropdownMenu.hidden = true;
+    };
+
+    constructor(args: TemplateOverridesViewArgs) {
         super(args);
 
         this.class.add(CLASS_ROOT);
 
-        this._overrides = null;
-        this._templateAsset = null;
-        this._entity = null;
-
         this._assets = args.assets;
         this._entities = args.entities;
-        this._templateEntities = new ObserverList({
-            index: 'resource_id'
-        });
         this._projectSettings = args.projectSettings;
 
         // top header
@@ -137,14 +180,18 @@ class TemplateOverridesView extends Container {
             class: CLASS_TOP_HEADER,
             flex: true
         });
-        topHeader.append(new Label({
-            text: 'TEMPLATE ASSET'
-        }));
+        topHeader.append(
+            new Label({
+                text: 'TEMPLATE ASSET'
+            })
+        );
 
-        topHeader.append(new Label({
-            text: 'TEMPLATE INSTANCE',
-            class: CLASS_MARGIN_LEFT
-        }));
+        topHeader.append(
+            new Label({
+                text: 'TEMPLATE INSTANCE',
+                class: CLASS_MARGIN_LEFT
+            })
+        );
         this.append(topHeader);
 
         const btnClose = new Button({
@@ -171,8 +218,6 @@ class TemplateOverridesView extends Container {
 
         this.append(this._dropdownMenu);
 
-        this._dropdownMarker = null;
-
         this.on('show', () => {
             editor.call('picker:open', 'templates-override-panel');
         });
@@ -181,8 +226,6 @@ class TemplateOverridesView extends Container {
             editor.call('picker:close', 'templates-override-panel');
         });
 
-        this._evtWindowClick = this._onWindowClick.bind(this);
-
         this._dropdownMenu.on('show', () => {
             window.addEventListener('click', this._evtWindowClick);
         });
@@ -190,14 +233,6 @@ class TemplateOverridesView extends Container {
         this._dropdownMenu.on('hide', () => {
             window.removeEventListener('click', this._evtWindowClick);
         });
-    }
-
-    _onWindowClick(e: MouseEvent): void {
-        if (this._dropdownMarker && this._dropdownMarker.dom.contains(e.target)) {
-            return;
-        }
-
-        this._dropdownMenu.hidden = true;
     }
 
     _appendLeft(panel: Panel, element: Element) {
@@ -294,7 +329,6 @@ class TemplateOverridesView extends Container {
                 });
             }
         } else {
-
             switch (type) {
                 case 'asset':
                     field = new AssetInput({
@@ -440,18 +474,20 @@ class TemplateOverridesView extends Container {
     _prettifyName(name: string) {
         const firstLetter = name[0];
         const rest = name.slice(1);
-        return firstLetter.toUpperCase() +
-        rest
-        // insert a space before all caps and numbers
-        .replace(/([A-Z0-9])/g, ' $1')
-        // replace special characters with spaces
-        .replace(/[^a-z0-9](.)/gi, (match, group) => {
-            return ` ${group.toUpperCase()}`;
-        });
+        return (
+            firstLetter.toUpperCase() +
+            rest
+                // insert a space before all caps and numbers
+                .replace(/([A-Z0-9])/g, ' $1')
+                // replace special characters with spaces
+                .replace(/[^a-z0-9](.)/gi, (match, group) => {
+                    return ` ${group.toUpperCase()}`;
+                })
+        );
     }
 
-    _createOverrideMarker(override: Record<string, unknown> | null, type?: string): LegacyLabel {
-        const label = new LegacyLabel({
+    _createOverrideMarker(override: Record<string, unknown> | null, type?: string) {
+        const label = new Label({
             text: override ? '&#58208;' : '',
             unsafe: true
         });
@@ -476,11 +512,26 @@ class TemplateOverridesView extends Container {
 
                 let templates;
                 if (type === 'addedEntity') {
-                    templates = editor.call('templates:findApplyCandidatesForNewEntity', this._entity, override, this._entities);
+                    templates = editor.call(
+                        'templates:findApplyCandidatesForNewEntity',
+                        this._entity,
+                        override,
+                        this._entities
+                    );
                 } else if (type === 'deletedEntity') {
-                    templates = editor.call('templates:findApplyCandidatesForDeletedEntity', this._entity, override, this._entities);
+                    templates = editor.call(
+                        'templates:findApplyCandidatesForDeletedEntity',
+                        this._entity,
+                        override,
+                        this._entities
+                    );
                 } else {
-                    templates = editor.call('templates:findApplyCandidatesForOverride', override, this._entities, this._entity);
+                    templates = editor.call(
+                        'templates:findApplyCandidatesForOverride',
+                        override,
+                        this._entities,
+                        this._entity
+                    );
                 }
 
                 templates.forEach((template) => {
@@ -518,7 +569,6 @@ class TemplateOverridesView extends Container {
                 this._dropdownMenu.append(revert);
 
                 this._positionDropdown(e);
-
             });
         } else {
             label.class.add(CLASS_OVERRIDE_MARKER_HIDDEN);
@@ -556,42 +606,58 @@ class TemplateOverridesView extends Container {
     }
 
     // Creates an override group for the left and right sides
-    _handleOverrideGroup(name: string, override: Record<string, unknown>, result: OverrideGroup[]) {
+    _handleOverrideGroup(name: string, override: Record<string, unknown>, result: (OverrideGroup | Label)[]) {
         let markerOverride = override;
 
         if (override.missing_in_dst) {
-            result.push(new OverrideGroup({
-                mode: 'empty'
-            }));
-            result.push(new OverrideGroup({
-                name: name,
-                mode: 'new'
-            }));
+            result.push(
+                new OverrideGroup({
+                    mode: 'empty'
+                })
+            );
+            result.push(
+                new OverrideGroup({
+                    name: name,
+                    mode: 'new'
+                })
+            );
         } else if (override.missing_in_src) {
-            result.push(new OverrideGroup({
-                name: name
-            }));
-            result.push(new OverrideGroup({
-                name: name,
-                mode: 'removed'
-            }));
+            result.push(
+                new OverrideGroup({
+                    name: name
+                })
+            );
+            result.push(
+                new OverrideGroup({
+                    name: name,
+                    mode: 'removed'
+                })
+            );
         } else {
             // for this case we are only adding a header on each side
             // so do not show an override marker for this
             markerOverride = null;
 
-            result.push(new OverrideGroup({
-                name: name
-            }));
-            result.push(new OverrideGroup({
-                name: name
-            }));
+            result.push(
+                new OverrideGroup({
+                    name: name
+                })
+            );
+            result.push(
+                new OverrideGroup({
+                    name: name
+                })
+            );
         }
 
         result.push(this._createOverrideMarker(markerOverride));
     }
 
-    _handleScriptComponent(result: Record<string, unknown>, override: Record<string, unknown>, pathParts: string[]): void {
+    _handleScriptComponent(
+        result: Record<string, unknown>,
+        override: Record<string, unknown>,
+        pathParts: string[]
+    ): void {
         if (pathParts[2] === 'scripts') {
             const scriptName = pathParts[3];
             if (!result.overrideGroups) {
@@ -604,11 +670,7 @@ class TemplateOverridesView extends Container {
                     properties: []
                 };
 
-                this._handleOverrideGroup(
-                    scriptName,
-                    override,
-                    result.overrideGroups[scriptName].header
-                );
+                this._handleOverrideGroup(scriptName, override, result.overrideGroups[scriptName].header);
             }
 
             let attributeName;
@@ -623,7 +685,11 @@ class TemplateOverridesView extends Container {
                     // get attribute type
                     const attributeOptions = scriptAsset.get(`data.scripts.${scriptName}.attributes.${attributeName}`);
                     if (attributeOptions) {
-                        if (pathParts.length > 6 && attributeOptions.type === 'json' && Array.isArray(attributeOptions.schema)) {
+                        if (
+                            pathParts.length > 6 &&
+                            attributeOptions.type === 'json' &&
+                            Array.isArray(attributeOptions.schema)
+                        ) {
                             // pathParts[7] would be a field of a JSON array attribute element
                             // pathParts[6] would be a field of the JSON attribute
                             let subField;
@@ -636,9 +702,10 @@ class TemplateOverridesView extends Container {
                             }
 
                             for (let i = 0; i < attributeOptions.schema.length; i++) {
-                                if (attributeOptions.schema[i].name === subField) {
-                                    type = attributeOptions.schema[i].type;
-                                    isArray = attributeOptions.schema[i].array;
+                                const schemaField = attributeOptions.schema[i];
+                                if (schemaField.name === subField) {
+                                    type = schemaField.type;
+                                    isArray = schemaField.array;
                                     break;
                                 }
                             }
@@ -650,7 +717,11 @@ class TemplateOverridesView extends Container {
                 }
             } else if (pathParts.length === 5) {
                 attributeName = pathParts[4];
-                type = editor.call('schema:getTypeForPath', config.schema.scene, `entities.$.${override.path}`);
+                type = editor.call(
+                    'schema:getTypeForPath',
+                    editor.api.globals.schema.getDocument('scene'),
+                    `entities.$.${override.path}`
+                );
             }
 
             if (attributeName) {
@@ -662,7 +733,11 @@ class TemplateOverridesView extends Container {
         }
     }
 
-    _handleSoundComponent(result: Record<string, unknown>, override: Record<string, unknown>, pathParts: string[]): void {
+    _handleSoundComponent(
+        result: Record<string, unknown>,
+        override: Record<string, unknown>,
+        pathParts: string[]
+    ): void {
         let soundSlotName;
         if (pathParts.length === 4) {
             if (override.dst_value) {
@@ -691,11 +766,7 @@ class TemplateOverridesView extends Container {
                 properties: []
             };
 
-            this._handleOverrideGroup(
-                soundSlotName,
-                override,
-                result.overrideGroups[soundSlotName].header
-            );
+            this._handleOverrideGroup(soundSlotName, override, result.overrideGroups[soundSlotName].header);
         }
 
         if (pathParts.length === 4) {
@@ -705,13 +776,21 @@ class TemplateOverridesView extends Container {
                 result.overrideGroups[soundSlotName].missingInSrc = true;
             }
         } else {
-            const type = editor.call('schema:getTypeForPath', config.schema.scene, `entities.$.${override.path}`);
+            const type = editor.call(
+                'schema:getTypeForPath',
+                editor.api.globals.schema.getDocument('scene'),
+                `entities.$.${override.path}`
+            );
             const field = this._prettifyName(pathParts[4]);
             result.overrideGroups[soundSlotName].properties.push(...this._createGridLine(field, type, override, false));
         }
     }
 
-    _handleSpriteComponent(result: Record<string, unknown>, override: Record<string, unknown>, pathParts: string[]): void {
+    _handleSpriteComponent(
+        result: Record<string, unknown>,
+        override: Record<string, unknown>,
+        pathParts: string[]
+    ): void {
         let clipName;
         if (pathParts.length === 4) {
             if (override.dst_value) {
@@ -740,11 +819,7 @@ class TemplateOverridesView extends Container {
                 properties: []
             };
 
-            this._handleOverrideGroup(
-                clipName,
-                override,
-                result.overrideGroups[clipName].header
-            );
+            this._handleOverrideGroup(clipName, override, result.overrideGroups[clipName].header);
         }
 
         if (pathParts.length === 4) {
@@ -754,14 +829,21 @@ class TemplateOverridesView extends Container {
                 result.overrideGroups[clipName].missingInSrc = true;
             }
         } else {
-            const type = editor.call('schema:getTypeForPath', config.schema.scene, `entities.$.${override.path}`);
+            const type = editor.call(
+                'schema:getTypeForPath',
+                editor.api.globals.schema.getDocument('scene'),
+                `entities.$.${override.path}`
+            );
             const field = this._prettifyName(pathParts[4]);
             result.overrideGroups[clipName].properties.push(...this._createGridLine(field, type, override, false));
         }
-
     }
 
-    _handleModelComponent(result: Record<string, unknown>, override: Record<string, unknown>, pathParts: string[]): void {
+    _handleModelComponent(
+        result: Record<string, unknown>,
+        override: Record<string, unknown>,
+        pathParts: string[]
+    ): void {
         if (pathParts[2] !== 'mapping') {
             return;
         }
@@ -776,11 +858,7 @@ class TemplateOverridesView extends Container {
             properties: []
         };
 
-        this._handleOverrideGroup(
-            name,
-            override,
-            result.overrideGroups[name].header
-        );
+        this._handleOverrideGroup(name, override, result.overrideGroups[name].header);
 
         if (!override.missing_in_dst && !override.missing_in_src) {
             result.overrideGroups[name].properties.push(...this._createGridLine('Material', 'asset', override, false));
@@ -888,15 +966,21 @@ class TemplateOverridesView extends Container {
             collapsible: true
         });
 
-        this._appendLeft(panel, new Label({
-            text: 'NO ENTITY',
-            class: CLASS_OVERRIDE_SINGLE_LABEL
-        }));
+        this._appendLeft(
+            panel,
+            new Label({
+                text: 'NO ENTITY',
+                class: CLASS_OVERRIDE_SINGLE_LABEL
+            })
+        );
 
-        this._appendRight(panel, new Label({
-            text: 'NEW ENTITY',
-            class: CLASS_OVERRIDE_SINGLE_LABEL
-        }));
+        this._appendRight(
+            panel,
+            new Label({
+                text: 'NEW ENTITY',
+                class: CLASS_OVERRIDE_SINGLE_LABEL
+            })
+        );
 
         this._appendMarker(panel, this._createOverrideMarker(entityOverride, 'addedEntity'));
 
@@ -911,15 +995,21 @@ class TemplateOverridesView extends Container {
             collapsible: true
         });
 
-        this._appendLeft(panel, new Label({
-            text: 'ENTITY EXISTS',
-            class: CLASS_OVERRIDE_SINGLE_LABEL
-        }));
+        this._appendLeft(
+            panel,
+            new Label({
+                text: 'ENTITY EXISTS',
+                class: CLASS_OVERRIDE_SINGLE_LABEL
+            })
+        );
 
-        this._appendRight(panel, new Label({
-            text: 'ENTITY REMOVED',
-            class: CLASS_OVERRIDE_SINGLE_LABEL
-        }));
+        this._appendRight(
+            panel,
+            new Label({
+                text: 'ENTITY REMOVED',
+                class: CLASS_OVERRIDE_SINGLE_LABEL
+            })
+        );
 
         this._appendMarker(panel, this._createOverrideMarker(entityOverride, 'deletedEntity'));
 
@@ -941,7 +1031,6 @@ class TemplateOverridesView extends Container {
             collapsible: true
         });
 
-
         conflicts.forEach((override) => {
             const parts = override.path.split('.');
             let type;
@@ -953,11 +1042,14 @@ class TemplateOverridesView extends Container {
                     type = 'string';
                 } else {
                     field = parts[0];
-                    type = editor.call('schema:getTypeForPath', config.schema.scene, `entities.$.${parts[0]}`);
+                    type = editor.call(
+                        'schema:getTypeForPath',
+                        editor.api.globals.schema.getDocument('scene'),
+                        `entities.$.${parts[0]}`
+                    );
                 }
 
                 fields.properties.push(...this._createGridLine(this._prettifyName(field), type, override, false));
-
             } else {
                 if (parts[0] === 'components') {
                     const component = parts[1];
@@ -978,16 +1070,20 @@ class TemplateOverridesView extends Container {
                         }
 
                         fields.components[component].override = override;
-
                     } else if (parts.length === 3) {
                         if (component === 'model' && parts[2] === 'mapping') {
                             this._handleModelComponent(fields.components.model, override, parts);
                         } else {
-                            type = editor.call('schema:getTypeForPath', config.schema.scene, `entities.$.components.${parts[1]}.${parts[2]}`);
+                            type = editor.call(
+                                'schema:getTypeForPath',
+                                editor.api.globals.schema.getDocument('scene'),
+                                `entities.$.components.${parts[1]}.${parts[2]}`
+                            );
                             field = parts[2];
-                            fields.components[component].properties.push(...this._createGridLine(this._prettifyName(field), type, override, false));
+                            fields.components[component].properties.push(
+                                ...this._createGridLine(this._prettifyName(field), type, override, false)
+                            );
                         }
-
                     } else if (parts.length > 3) {
                         if (component === 'script') {
                             this._handleScriptComponent(fields.components.script, override, parts);
@@ -997,7 +1093,7 @@ class TemplateOverridesView extends Container {
                             this._handleSpriteComponent(fields.components.sprite, override, parts);
                         } else if (component === 'model') {
                             this._handleModelComponent(fields.components.model, override, parts);
-                        } else if (component === 'anim')  {
+                        } else if (component === 'anim') {
                             this._handleDefaultComponent(override, parts, fields.components[component].properties);
                         }
                     }
@@ -1111,7 +1207,11 @@ class TemplateOverridesView extends Container {
         }
     }
 
-    showOverrides(overrides: Record<string, unknown>, templateAsset: { get: (key: string) => unknown }, templateInstance: Observer): void {
+    showOverrides(
+        overrides: Record<string, unknown>,
+        templateAsset: { get: (key: string) => unknown },
+        templateInstance: Observer
+    ): void {
         this._overrides = overrides;
         console.log(overrides);
         this._templateAsset = templateAsset;

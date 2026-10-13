@@ -1,4 +1,6 @@
 editor.once('load', () => {
+    const schema = editor.api.globals.schema;
+
     /**
      * Gets the type of a path in the settings schema
      *
@@ -6,6 +8,6 @@ editor.once('load', () => {
      * @returns The type
      */
     editor.method('schema:settings:getType', (path: string): string => {
-        return editor.call('schema:getTypeForPath', config.schema.settings, path);
+        return editor.call('schema:getTypeForPath', schema.getDocument('settings'), path);
     });
 });

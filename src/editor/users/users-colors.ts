@@ -1,17 +1,17 @@
 editor.once('load', () => {
-    const users = { };
+    const users = {};
     const palette = [
         [5, 0.63, 0.46],
         [6, 0.78, 0.57],
-        [24, 1.00, 0.41],
-        [28, 0.80, 0.52],
-        [37, 0.90, 0.51],
-        [48, 0.89, 0.50],
+        [24, 1.0, 0.41],
+        [28, 0.8, 0.52],
+        [37, 0.9, 0.51],
+        [48, 0.89, 0.5],
         [145, 0.76, 0.49],
         [146, 0.63, 0.42],
         [168, 0.76, 0.42],
         [169, 0.76, 0.36],
-        [204, 0.70, 0.53],
+        [204, 0.7, 0.53],
         [205, 0.64, 0.44],
         [282, 0.39, 0.53],
         [283, 0.44, 0.47]
@@ -58,7 +58,6 @@ editor.once('load', () => {
         return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
     };
 
-
     const hsl = palette[0];
     const rgb = hslToRgb(hsl[0] / 360, hsl[1], hsl[2]);
 
@@ -68,7 +67,6 @@ editor.once('load', () => {
         hsl: `hsl(${hsl[0]}, ${Math.round(hsl[1] * 100)}%, ${Math.round(hsl[2] * 100)}%)`,
         hex: rgbToHex(Math.round(rgb[0] * 255), Math.round(rgb[1] * 255), Math.round(rgb[2] * 255))
     };
-
 
     function addUser(id: number) {
         let hash = id % 14;
@@ -96,7 +94,7 @@ editor.once('load', () => {
             addUser(id);
         }
 
-        const color = users[id] && users[id].color || colorDefault;
+        const color = (users[id] && users[id].color) || colorDefault;
         return color[type];
     });
 });

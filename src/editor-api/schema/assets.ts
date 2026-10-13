@@ -1,13 +1,13 @@
-import { Schema } from '../schema';
+import type { Schema } from '../schema';
 import { utils } from '../utils';
 
+type Field = Record<string, unknown>;
+
 /**
- * Provides methods to access the Assets schema
+ * Provides methods to access the Assets schema.
  */
 class AssetsSchema {
     private _schemaApi: Schema;
-
-    private _schema: any;
 
     /**
      * @category Internal
@@ -15,40 +15,47 @@ class AssetsSchema {
      */
     constructor(schema: Schema) {
         this._schemaApi = schema;
-        this._schema = this._schemaApi.schema;
     }
 
     /**
-     * Gets default data for asset type
+     * Gets default data for asset type.
      *
      * @param type - The asset type
      * @returns The default data
      */
     getDefaultData(type: string) {
-        const field = `${type}Data`;
+        const schema = this._schemaApi.getAssetData(type);
+        if (!schema) return null;
 
-        if (!field || !this._schema[field]) {
-            return null;
+        const result: Record<string, unknown> = {};
+        for (const [key, block] of Object.entries(this._schemaApi.getFields(schema))) {
+            const value = this._schemaApi.getDefault(block);
+            if (value.hasDefault) result[key] = utils.deepCopy(value.value);
         }
+        return result;
+    }
 
-        const result: Record<string, any> = {};
-
-        const schema = this._schema[field];
-        for (const key in schema) {
-            if (key.startsWith('$')) {
-                continue;
-            }
-            const block = schema[key];
-            if (block.hasOwnProperty('$default')) {
-                result[key] = utils.deepCopy(block.$default);
-            }
+    resolvePath(type: string, path: string) {
+        const schema = this._schemaApi.getAssetData(type);
+        const result = schema ? this._schemaApi.resolvePath(schema, path) : null;
+        // copy the default so callers never mutate the shared catalog value
+        if (result?.hasDefault) {
+            result.default = typeof result.default === 'function' ? result.default() : utils.deepCopy(result.default);
         }
+        return result;
+    }
 
+    resolveMetaPath(type: string, path: string) {
+        const schema = this._schemaApi.getAssetMeta(type);
+        const result = schema ? this._schemaApi.resolvePath(schema, path) : null;
+        if (result?.hasDefault) {
+            result.default = typeof result.default === 'function' ? result.default() : utils.deepCopy(result.default);
+        }
         return result;
     }
 
     /**
-     * Gets a list of fields of a particular type for an asset type
+     * Gets a list of fields of a particular type for an asset type.
      *
      * @param assetType - The type of the asset.
      * @param type - The desired type
@@ -61,35 +68,28 @@ class AssetsSchema {
     getFieldsOfType(assetType: string, type: string) {
         const result: string[] = [];
 
-        const recurse = (schemaField: Record<string, any>, path: string, prefix: string = '') => {
-            if (!schemaField) {
-                return;
-            }
-
-            if (schemaField.$editorType === type || schemaField.$editorType === `array:${type}`) {
-                result.push(prefix + path);
-                return;
-            }
-
-            for (const field in schemaField) {
-                if (field.startsWith('$')) {
+        const recurse = (schema: Field, path: string, prefix = '') => {
+            for (const [name, field] of Object.entries(this._schemaApi.getFields(schema))) {
+                const current = (path ? `${path}.` : '') + name;
+                const fieldType = this._schemaApi.getType(field);
+                if (fieldType === type || fieldType === `array:${type}`) {
+                    result.push(prefix + current);
                     continue;
                 }
 
-                const p = (path ? `${path}.` : '') + field;
-                const fieldType = this._schemaApi.getType(schemaField[field]);
-                if (fieldType === type || fieldType === `array:${type}`) {
-                    result.push(prefix + p);
-                } else if (fieldType === 'object' && schemaField[field].$of) {
-                    recurse(schemaField[field].$of, `${p}.*`, prefix);
-                } else if (fieldType === 'array:object' && Array.isArray(schemaField[field].$type)) {
-                    recurse(schemaField[field].$type[0], `${p}.*`, prefix);
+                const map = this._schemaApi.getMapValue(field);
+                if (fieldType === 'object' && map) {
+                    recurse(map as Field, `${current}.*`, prefix);
+                    continue;
                 }
+
+                const item = this._schemaApi.getArrayItem(field);
+                if (fieldType === 'array:object' && item) recurse(item as Field, `${current}.*`, prefix);
             }
         };
 
-        recurse(this._schema[`${assetType}Data`], '', 'data.');
-
+        const schema = this._schemaApi.getAssetData(assetType);
+        if (schema) recurse(schema, '', 'data.');
         return result;
     }
 }

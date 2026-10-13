@@ -18,6 +18,9 @@ editor.once('load', () => {
         gizmoType = type;
 
         editor.emit('gizmo:type', type);
+
+        // render-on-demand viewport: request a frame so the new gizmo is drawn
+        editor.call('viewport:render');
     });
 
     editor.method('gizmo:coordSystem', (system?: string) => {
@@ -32,10 +35,11 @@ editor.once('load', () => {
         coordSystem = system;
 
         editor.emit('gizmo:coordSystem', system);
+        editor.call('viewport:render');
     });
 
     const checkSnap = function () {
-        const state = (snapToggle || snapShift) && (snapToggle !== snapShift);
+        const state = (snapToggle || snapShift) && snapToggle !== snapShift;
         if (snap === state) {
             return;
         }

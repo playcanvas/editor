@@ -1,23 +1,15 @@
-import type { Observer } from '@playcanvas/observer';
-
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyLabel } from '@/common/ui/label';
-import { LegacyList } from '@/common/ui/list';
-import { LegacyListItem } from '@/common/ui/list-item';
-import { LegacyPanel } from '@/common/ui/panel';
-import { LegacyTextField } from '@/common/ui/text-field';
-
+import { createButton, createLabel, createList, createListItem, createPanel, createTextInput } from './attributes-pcui';
 
 editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     const root = editor.call('layout.attributes');
 
     // get the right path from args
-    const pathAt = function (args: { path?: string; paths?: string[] }, index: number) {
+    const pathAt = function (args: any, index: number) {
         return args.paths ? args.paths[index] : args.path;
     };
 
-    const historyState = function (item: Observer, state: boolean) {
+    const historyState = function (item: any, state: boolean) {
         if (item.history !== undefined) {
             if (typeof item.history === 'boolean') {
                 item.history = state;
@@ -40,12 +32,7 @@ editor.once('load', () => {
      * @param args.filterFn - A custom function that filters assets that can be dragged on the list. The function
      * takes the asset as its only argument.
      */
-    editor.method('attributes:addAssetsList', (args: {
-        link: Observer[];
-        type?: string;
-        filterFn?: (asset: Observer) => boolean;
-        panel: LegacyPanel;
-    }) => {
+    editor.method('attributes:addAssetsList', (args: any) => {
         const link = args.link;
         const assetType = args.type;
         const assetFilterFn = args.filterFn;
@@ -54,7 +41,7 @@ editor.once('load', () => {
         // index list items by asset id
         let assetIndex = {};
 
-        const panelWidget = new LegacyPanel();
+        const panelWidget = createPanel();
         panelWidget.flex = true;
         panelWidget.class.add('asset-list');
 
@@ -62,26 +49,26 @@ editor.once('load', () => {
         let currentSelection = null;
 
         // button that enables selection mode
-        const btnSelectionMode = new LegacyButton({
+        const btnSelectionMode = createButton({
             text: 'Add Assets'
         });
         btnSelectionMode.class.add('selection-mode');
         panelWidget.append(btnSelectionMode);
 
         // panel for buttons
-        const panelButtons = new LegacyPanel();
+        const panelButtons = createPanel();
         panelButtons.class.add('buttons');
         panelButtons.flex = true;
         panelButtons.hidden = true;
 
         // label
-        const labelAdd = new LegacyLabel({
+        const labelAdd = createLabel({
             text: 'Add Assets'
         });
         panelButtons.append(labelAdd);
 
         // add button
-        const btnAdd = new LegacyButton({
+        const btnAdd = createButton({
             text: 'ADD SELECTION'
         });
         btnAdd.disabled = true;
@@ -90,7 +77,7 @@ editor.once('load', () => {
         panelButtons.append(btnAdd);
 
         // done button
-        const btnDone = new LegacyButton({
+        const btnDone = createButton({
             text: 'DONE'
         });
         btnDone.flexGrow = 1;
@@ -115,19 +102,21 @@ editor.once('load', () => {
 
             // on pick
             let evtPick = editor.on('picker:assets', (assets) => {
-                currentSelection = assets.filter((asset) => {
-                    if (assetFilterFn) {
-                        return assetFilterFn(asset);
-                    }
+                currentSelection = assets
+                    .filter((asset) => {
+                        if (assetFilterFn) {
+                            return assetFilterFn(asset);
+                        }
 
-                    if (legacyScripts && asset.get('type') === 'script') {
-                        return false;
-                    }
+                        if (legacyScripts && asset.get('type') === 'script') {
+                            return false;
+                        }
 
-                    return true;
-                }).map((asset) => {
-                    return parseInt(asset.get('id'), 10);
-                });
+                        return true;
+                    })
+                    .map((asset) => {
+                        return parseInt(asset.get('id'), 10);
+                    });
 
                 btnAdd.disabled = !currentSelection.length;
             });
@@ -153,7 +142,7 @@ editor.once('load', () => {
         });
 
         // search field
-        const fieldFilter = new LegacyTextField();
+        const fieldFilter = createTextInput();
         fieldFilter.hidden = true;
         fieldFilter.elementInput.setAttribute('placeholder', 'Type to filter');
         fieldFilter.keyChange = true;
@@ -161,8 +150,9 @@ editor.once('load', () => {
         panelWidget.append(fieldFilter);
 
         // assets
-        var fieldAssets;
-        const fieldAssetsList = new LegacyList();
+        let fieldAssets = undefined;
+        let dropRef = undefined;
+        const fieldAssetsList = createList();
         fieldAssetsList.class.add('empty');
         fieldAssetsList.flexGrow = 1;
 
@@ -284,26 +274,26 @@ editor.once('load', () => {
         };
 
         // add asset list item to the list
-        const addAssetListItem = function (assetId: number | string, after: LegacyListItem | null) {
-            assetId = parseInt(assetId, 10);
+        const addAssetListItem = function (assetId: number | string, after?: any) {
+            const id = typeof assetId === 'number' ? assetId : parseInt(assetId, 10);
 
-            let item = assetIndex[assetId];
+            let item = assetIndex[id];
             if (item) {
                 item.count++;
                 item.text = (item.count === link.length ? '' : '* ') + item._assetText;
                 return;
             }
 
-            const asset = editor.call('assets:get', assetId);
-            let text = assetId;
+            const asset = editor.call('assets:get', id);
+            let text = String(id);
             if (asset && asset.get('name')) {
                 text = asset.get('name');
             } else if (!asset) {
                 text += ' (Missing)';
             }
 
-            item = new LegacyListItem({
-                text: (link.length === 1) ? text : `* ${text}`
+            item = createListItem({
+                text: link.length === 1 ? text : `* ${text}`
             });
             if (asset) {
                 item.class.add(`type-${asset.get('type')}`);
@@ -321,20 +311,19 @@ editor.once('load', () => {
             fieldAssetsList.class.remove('empty');
             fieldFilter.hidden = false;
 
-            assetIndex[assetId] = item;
+            assetIndex[id] = item;
 
             // remove button
-            const btnRemove = new LegacyButton();
+            const btnRemove = createButton();
             btnRemove.class.add('remove');
             btnRemove.on('click', () => {
-                removeAsset(assetId);
-
+                removeAsset(id);
             });
             btnRemove.parent = item;
             item.element.appendChild(btnRemove.element);
 
             item.once('destroy', () => {
-                delete assetIndex[assetId];
+                delete assetIndex[id];
             });
         };
 
@@ -352,23 +341,26 @@ editor.once('load', () => {
                 item.destroy();
                 fieldAssets.emit('remove', item);
 
-                if (!fieldAssetsList.element.children.length) {
+                if (!fieldAssetsList.innerElement.children.length) {
                     fieldAssetsList.class.add('empty');
                     fieldFilter.hidden = true;
                 }
-
             } else {
                 item.text = (item.count === link.length ? '' : '* ') + item._assetText;
             }
         };
 
         // drop
-        var dropRef = editor.call('drop:target', {
+        dropRef = editor.call('drop:target', {
             ref: panelWidget,
             type: `asset.${assetType}`,
             filter: function (type: string, data: { id: string }) {
                 // type
-                if ((assetType && assetType !== '*' && type !== `asset.${assetType}`) || !type.startsWith('asset') || editor.call('assets:get', parseInt(data.id, 10)).get('source')) {
+                if (
+                    (assetType && assetType !== '*' && type !== `asset.${assetType}`) ||
+                    !type.startsWith('asset') ||
+                    editor.call('assets:get', parseInt(data.id, 10)).get('source')
+                ) {
                     return false;
                 }
 
@@ -398,7 +390,11 @@ editor.once('load', () => {
                 return false;
             },
             drop: function (type: string, data: { id: string }) {
-                if ((assetType && assetType !== '*' && type !== `asset.${assetType}`) || !type.startsWith('asset') || editor.call('assets:get', parseInt(data.id, 10)).get('source')) {
+                if (
+                    (assetType && assetType !== '*' && type !== `asset.${assetType}`) ||
+                    !type.startsWith('asset') ||
+                    editor.call('assets:get', parseInt(data.id, 10)).get('source')
+                ) {
                     return;
                 }
 
@@ -416,10 +412,10 @@ editor.once('load', () => {
             dropRef.disabled = true;
 
             // clear list item
-            const items = fieldAssetsList.element.children;
+            const items = fieldAssetsList.innerElement.children;
             let i = items.length;
             while (i--) {
-                if (!items[i].ui || !(items[i].ui instanceof LegacyListItem)) {
+                if (!items[i].ui?.isListItem) {
                     continue;
                 }
 
@@ -484,24 +480,25 @@ editor.once('load', () => {
                 }
             }
 
+            events.push(
+                link[i].on(`${pathAt(args, i)}:set`, (assets, assetsOld) => {
+                    if (!(assets instanceof Array)) {
+                        return;
+                    }
 
-            events.push(link[i].on(`${pathAt(args, i)}:set`, (assets, assetsOld) => {
-                if (!(assets instanceof Array)) {
-                    return;
-                }
+                    if (!(assetsOld instanceof Array)) {
+                        assetsOld = [];
+                    }
 
-                if (!(assetsOld instanceof Array)) {
-                    assetsOld = [];
-                }
+                    for (let a = 0; a < assetsOld.length; a++) {
+                        removeAssetListItem(assetsOld[a]);
+                    }
 
-                for (let a = 0; a < assetsOld.length; a++) {
-                    removeAssetListItem(assetsOld[a]);
-                }
-
-                for (let a = 0; a < assets.length; a++) {
-                    addAssetListItem(assets[a]);
-                }
-            }));
+                    for (let a = 0; a < assets.length; a++) {
+                        addAssetListItem(assets[a]);
+                    }
+                })
+            );
 
             events.push(createInsertHandler(i));
 

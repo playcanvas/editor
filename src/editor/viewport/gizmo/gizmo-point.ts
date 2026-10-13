@@ -27,7 +27,7 @@ editor.once('viewport:load', (app) => {
     container.__editor = true;
     app.root.addChild(container);
 
-    var material = createColorMaterial();
+    const material = createColorMaterial();
     material.color = new Color(1.0, 1.0, 1.0);
     material.cull = CULLFACE_NONE;
     material.update();
@@ -161,10 +161,10 @@ editor.once('viewport:load', (app) => {
             // scale to screen space
             if (camera.camera.projection === PROJECTION_PERSPECTIVE) {
                 const dot = vecA.copy(pos).sub(posCamera).dot(camera.forward);
-                const denom = 1280 / (2 * Math.tan(camera.camera.fov * math.DEG_TO_RAD / 2));
+                const denom = 1280 / (2 * Math.tan((camera.camera.fov * math.DEG_TO_RAD) / 2));
                 scale = Math.max(0.0001, (dot / denom) * 150) * gizmoSize;
             } else {
-                scale = camera.camera.orthoHeight / 3 * gizmoSize;
+                scale = (camera.camera.orthoHeight / 3) * gizmoSize;
             }
             vecA.copy(this.scale).mulScalar(scale);
             this.entity.setLocalScale(vecA);
@@ -277,13 +277,17 @@ editor.once('viewport:load', (app) => {
             vecA.copy(point).sub(pickStart);
 
             let length = vecA.length();
-            if ((vecA[dragPoint.axis] < 0 && dragPoint.dir === 1) || (vecA[dragPoint.axis] > 0 && dragPoint.dir === -1)) {
+            if (
+                (vecA[dragPoint.axis] < 0 && dragPoint.dir === 1) ||
+                (vecA[dragPoint.axis] > 0 && dragPoint.dir === -1)
+            ) {
                 length *= -1;
             }
 
             dragPoint.emit('dragMove', length);
         }
-
-        editor.call('viewport:render');
+        // no viewport:render here: this runs every rendered frame while dragging, so
+        // it would loop forever when the mouse is held still. the active-drag render
+        // in viewport-tap drives the redraw as the mouse actually moves.
     });
 });

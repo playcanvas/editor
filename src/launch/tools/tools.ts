@@ -31,11 +31,11 @@ editor.once('load', () => {
 
     editor.method('tools:time:toHuman', (ms: number, precision?: number) => {
         let s = ms / 1000;
-        const m = (`00${Math.floor(s / 60)}`).slice(-2);
+        const m = `00${Math.floor(s / 60)}`.slice(-2);
         if (precision) {
-            s = (`00.0${(s % 60).toFixed(precision)}`).slice(-4);
+            s = `00.0${(s % 60).toFixed(precision)}`.slice(-4);
         } else {
-            s = (`00${Math.floor(s % 60)}`).slice(-2);
+            s = `00${Math.floor(s % 60)}`.slice(-2);
         }
         return `${m}:${s}`;
     });
@@ -74,8 +74,7 @@ editor.once('load', () => {
             barMove: false
         }
     };
-
-    var resize;
+    let resize = undefined;
 
     editor.method('tools:enabled', () => {
         return enabled;
@@ -213,7 +212,7 @@ editor.once('load', () => {
             scroll.drag.time = scroll.time;
             scroll.drag.bar = mouse.y < 23;
             if (scroll.drag.bar) {
-                scroll.drag.barTime = ((mouse.x / (width - 300)) * timeNow) - scroll.time;
+                scroll.drag.barTime = (mouse.x / (width - 300)) * timeNow - scroll.time;
                 scroll.drag.barMove = scroll.drag.barTime >= 0 && scroll.drag.barTime <= capacity;
             }
             scroll.auto = false;
@@ -222,16 +221,16 @@ editor.once('load', () => {
         } else if (mouse.down) {
             if (scroll.drag.bar) {
                 if (scroll.drag.barMove) {
-                    scroll.time = ((mouse.x / (width - 300)) * timeNow) - scroll.drag.barTime;
+                    scroll.time = (mouse.x / (width - 300)) * timeNow - scroll.drag.barTime;
                 } else {
-                    scroll.time = ((mouse.x / (width - 300)) * timeNow) - (capacity / 2);
+                    scroll.time = (mouse.x / (width - 300)) * timeNow - capacity / 2;
                 }
             } else {
-                scroll.time = scroll.drag.time + ((scroll.drag.x - mouse.x) / scale);
+                scroll.time = scroll.drag.time + (scroll.drag.x - mouse.x) / scale;
             }
             scroll.time = Math.max(0, Math.min(timeNow - capacity, Math.floor(scroll.time)));
         } else if (mouse.up) {
-            if (Math.abs((scroll.time + capacity) - timeNow) < 32) {
+            if (Math.abs(scroll.time + capacity - timeNow) < 32) {
                 scroll.auto = true;
             }
 
@@ -254,78 +253,102 @@ editor.once('load', () => {
         flushMouse();
     };
 
-    root.addEventListener('mousemove', (evt: MouseEvent) => {
-        evt.stopPropagation();
+    root.addEventListener(
+        'mousemove',
+        (evt: MouseEvent) => {
+            evt.stopPropagation();
 
-        const rect = root.getBoundingClientRect();
-        mouse.x = evt.clientX - (rect.left + 300);
-        mouse.y = evt.clientY - rect.top;
-        mouse.hover = mouse.x > 0;
-        if (mouse.y < 23) {
-            timeHover = Math.floor((mouse.x / (width - 300)) * timeNow);
-        } else {
-            timeHover = Math.floor(mouse.x / scale + scroll.time);
-        }
-    }, false);
+            const rect = root.getBoundingClientRect();
+            mouse.x = evt.clientX - (rect.left + 300);
+            mouse.y = evt.clientY - rect.top;
+            mouse.hover = mouse.x > 0;
+            if (mouse.y < 23) {
+                timeHover = Math.floor((mouse.x / (width - 300)) * timeNow);
+            } else {
+                timeHover = Math.floor(mouse.x / scale + scroll.time);
+            }
+        },
+        false
+    );
 
-    root.addEventListener('mousedown', (evt: MouseEvent) => {
-        evt.stopPropagation();
-        evt.preventDefault();
+    root.addEventListener(
+        'mousedown',
+        (evt: MouseEvent) => {
+            evt.stopPropagation();
+            evt.preventDefault();
 
-        if (evt.button !== 0 || mouse.click || mouse.down || !mouse.hover) {
-            return;
-        }
+            if (evt.button !== 0 || mouse.click || mouse.down || !mouse.hover) {
+                return;
+            }
 
-        mouse.click = true;
-    }, false);
+            mouse.click = true;
+        },
+        false
+    );
 
-    root.addEventListener('mouseup', (evt: MouseEvent) => {
-        evt.stopPropagation();
+    root.addEventListener(
+        'mouseup',
+        (evt: MouseEvent) => {
+            evt.stopPropagation();
 
-        if (evt.button !== 0 || !mouse.down) {
-            return;
-        }
+            if (evt.button !== 0 || !mouse.down) {
+                return;
+            }
 
-        mouse.down = false;
-        mouse.up = true;
-    }, false);
+            mouse.down = false;
+            mouse.up = true;
+        },
+        false
+    );
 
-    root.addEventListener('mouseleave', (_evt: MouseEvent) => {
-        mouse.hover = false;
-        timeHover = 0;
-        if (!mouse.down) {
-            return;
-        }
+    root.addEventListener(
+        'mouseleave',
+        (_evt: MouseEvent) => {
+            mouse.hover = false;
+            timeHover = 0;
+            if (!mouse.down) {
+                return;
+            }
 
-        mouse.down = false;
-        mouse.up = true;
-    }, false);
+            mouse.down = false;
+            mouse.up = true;
+        },
+        false
+    );
 
-    root.addEventListener('mousewheel', (evt: WheelEvent) => {
-        evt.stopPropagation();
+    root.addEventListener(
+        'mousewheel',
+        (evt: WheelEvent) => {
+            evt.stopPropagation();
 
-        if (!mouse.hover) {
-            return;
-        }
+            if (!mouse.hover) {
+                return;
+            }
 
-        scroll.time = Math.max(0, Math.min(timeNow - capacity, Math.floor(scroll.time + evt.deltaX / scale)));
-        if (evt.deltaX < 0) {
-            scroll.auto = false;
-        } else if (Math.abs((scroll.time + capacity) - timeNow) < 16) {
-            scroll.auto = true;
-        }
-    }, false);
+            scroll.time = Math.max(0, Math.min(timeNow - capacity, Math.floor(scroll.time + evt.deltaX / scale)));
+            if (evt.deltaX < 0) {
+                scroll.auto = false;
+            } else if (Math.abs(scroll.time + capacity - timeNow) < 16) {
+                scroll.auto = true;
+            }
+        },
+        false
+    );
 
     // alt + t
-    window.addEventListener('keydown', (evt: KeyboardEvent) => {
-        if (evt.keyCode === 84 && evt.altKey) {
-            if (enabled) {
-                editor.call('tools:disable');
-            } else {
-                editor.call('tools:enable');
+    window.addEventListener(
+        'keydown',
+        (evt: KeyboardEvent) => {
+            if (evt.keyCode === 84 && evt.altKey) {
+                if (enabled) {
+                    editor.call('tools:disable');
+                } else {
+                    editor.call('tools:enable');
+                }
             }
-        }
-    }, false);
+        },
+        false
+    );
 
     const app = editor.call('viewport:app');
     if (!app) {
@@ -340,7 +363,7 @@ editor.once('load', () => {
         if (enabled) {
             const now = Date.now();
 
-            if ((now - frameLast) >= 40) {
+            if (now - frameLast >= 40) {
                 frameLast = now;
 
                 update();

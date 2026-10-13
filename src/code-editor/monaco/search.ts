@@ -22,7 +22,7 @@ editor.once('load', () => {
 
         let sameLine = true;
         if (lastLineClicked) {
-            sameLine = (lastLineClicked === line);
+            sameLine = lastLineClicked === line;
         }
 
         lastLineClicked = line;
@@ -39,7 +39,6 @@ editor.once('load', () => {
             } else {
                 lastMouseDown = Date.now();
             }
-
         }
     }
 
@@ -62,7 +61,9 @@ editor.once('load', () => {
             col: match.char + 1,
             callback: () => {
                 // select match and open native find widget
-                monacoEditor.setSelection(new monaco.Range(match.line + 1, match.char + 1, match.line + 1, match.char + 1 + match.length));
+                monacoEditor.setSelection(
+                    new monaco.Range(match.line + 1, match.char + 1, match.line + 1, match.char + 1 + match.length)
+                );
                 monacoEditor.trigger(null, 'actions.find');
                 // focus on document in order to properly save and restore state (scroll, selected line and position, etc)
                 editor.emit('documents:focus', assetId);
@@ -72,7 +73,7 @@ editor.once('load', () => {
 
     function setModel() {
         monacoEditor.updateOptions({
-            lineNumbers: originalLineNumber => lineNumbers[originalLineNumber] || '',
+            lineNumbers: (originalLineNumber) => lineNumbers[originalLineNumber] || '',
             folding: false,
             readOnly: true
         });
@@ -122,10 +123,12 @@ editor.once('load', () => {
         }
 
         const lastLine = model.getLineCount() + 1;
-        model.applyEdits([{
-            text: `\n\n${str}`,
-            range: new monaco.Range(lastLine, 1, lastLine, 1)
-        }]);
+        model.applyEdits([
+            {
+                text: `\n\n${str}`,
+                range: new monaco.Range(lastLine, 1, lastLine, 1)
+            }
+        ]);
     });
 
     // check if the focused tab was closed in which case
@@ -181,10 +184,12 @@ editor.once('load', () => {
         }
 
         // show progress
-        model.applyEdits([{
-            text: `${total ? 'Searched' : 'Searching'} (${done} out of ${total} searched files; excluded ${ignored} files)`,
-            range: new monaco.Range(1, 1, 1, model.getLineMaxColumn(1))
-        }]);
+        model.applyEdits([
+            {
+                text: `${total ? 'Searched' : 'Searching'} (${done} out of ${total} searched files; excluded ${ignored} files)`,
+                range: new monaco.Range(1, 1, 1, model.getLineMaxColumn(1))
+            }
+        ]);
 
         const len = results.matches.length;
         if (!len) {
@@ -197,13 +202,20 @@ editor.once('load', () => {
         totalMatches += len;
 
         // show asset name
-        model.applyEdits([{
-            text: `\n\n${asset.get('name')}:\n`,
-            range: new monaco.Range(model.getLineCount() + 1, 1, model.getLineCount() + 1, 1)
-        }]);
+        model.applyEdits([
+            {
+                text: `\n\n${asset.get('name')}:\n`,
+                range: new monaco.Range(model.getLineCount() + 1, 1, model.getLineCount() + 1, 1)
+            }
+        ]);
 
         // the range where the asset line is clickable
-        const assetRange = new monaco.Range(model.getLineCount() - 1, 1, model.getLineCount() - 1, model.getLineMaxColumn(model.getLineCount() - 1));
+        const assetRange = new monaco.Range(
+            model.getLineCount() - 1,
+            1,
+            model.getLineCount() - 1,
+            model.getLineMaxColumn(model.getLineCount() - 1)
+        );
 
         // color asset name
         decorations.push({
@@ -353,10 +365,12 @@ editor.once('load', () => {
         const lc = model.getLineCount();
         const lm = model.getLineMaxColumn(lc);
 
-        model.applyEdits([{
-            text: newText,
-            range: new monaco.Range(lc, lm, lc, lm)
-        }]);
+        model.applyEdits([
+            {
+                text: newText,
+                range: new monaco.Range(lc, lm, lc, lm)
+            }
+        ]);
         model.deltaDecorations([], decorations);
     });
 });

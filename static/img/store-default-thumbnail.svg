@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1428" height="1070" viewBox="0 0 1428 1070">
+    <defs>
+        <linearGradient id="bg" x2="0" y2="1">
+            <stop offset="0" stop-color="#323232"/>
+            <stop offset=".734" stop-color="#1c1c1c"/>
+        </linearGradient>
+        <linearGradient id="l0" gradientUnits="userSpaceOnUse" x1="563.5" y1="0" x2="563.5" y2="1006">
+            <stop offset="0" stop-color="#fff" stop-opacity="0.1"/>
+            <stop offset="0.5" stop-color="#fff" stop-opacity="0.4"/>
+            <stop offset="1" stop-color="#fff" stop-opacity="0.4"/>
+        </linearGradient>
+        <linearGradient id="l1" gradientUnits="userSpaceOnUse" x1="872.5" y1="0" x2="872.5" y2="918">
+            <stop offset="0" stop-color="#fff" stop-opacity="0.3"/>
+            <stop offset="0.5" stop-color="#fff" stop-opacity="0.3"/>
+            <stop offset="1" stop-color="#fff" stop-opacity="0.1"/>
+        </linearGradient>
+        <linearGradient id="l2" gradientUnits="userSpaceOnUse" x1="560" y1="340.6" x2="1428" y2="668.5">
+            <stop offset="0" stop-color="#fff" stop-opacity="0.3"/>
+            <stop offset="0.5" stop-color="#fff" stop-opacity="0.3"/>
+            <stop offset="1" stop-color="#fff" stop-opacity="0.4"/>
+        </linearGradient>
+        <linearGradient id="l3" gradientUnits="userSpaceOnUse" x1="0" y1="399" x2="1418" y2="934.7">
+            <stop offset="0" stop-color="#fff" stop-opacity="0.4"/>
+            <stop offset="0.3" stop-color="#fff" stop-opacity="0.4"/>
+            <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="l4" gradientUnits="userSpaceOnUse" x1="30" y1="561.7" x2="1428" y2="33.5">
+            <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+            <stop offset="0.5" stop-color="#fff" stop-opacity="0.3"/>
+            <stop offset="1" stop-color="#fff" stop-opacity="0.3"/>
+        </linearGradient>
+        <linearGradient id="l5" gradientUnits="userSpaceOnUse" x1="30" y1="796.7" x2="1388" y2="283.6">
+            <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+            <stop offset="0.6" stop-color="#fff" stop-opacity="0.4"/>
+            <stop offset="1" stop-color="#fff" stop-opacity="0.3"/>
+        </linearGradient>
+        <linearGradient id="l6" gradientUnits="userSpaceOnUse" x1="30" y1="1042.7" x2="1328" y2="552.3">
+            <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+            <stop offset="0.6" stop-color="#fff" stop-opacity="0.4"/>
+            <stop offset="1" stop-color="#fff" stop-opacity="0.4"/>
+        </linearGradient>
+    </defs>
+    <rect width="1428" height="1070" fill="url(#bg)"/>
+    <path d="M563.5 0 563.5 1006" stroke="url(#l0)" stroke-width="2" stroke-dasharray="27 21.8" stroke-dashoffset="36.8"/>
+    <path d="M872.5 0 872.5 918" stroke="url(#l1)" stroke-width="2" stroke-dasharray="27 21.8" stroke-dashoffset="37.8"/>
+    <path d="M560 340.6 1428 668.5" stroke="url(#l2)" stroke-width="2" stroke-dasharray="34.2 29.5" stroke-dashoffset="56.2"/>
+    <path d="M0 399 1418 934.7" stroke="url(#l3)" stroke-width="2" stroke-dasharray="34.2 29.5" stroke-dashoffset="52"/>
+    <path d="M30 561.7 1428 33.5" stroke="url(#l4)" stroke-width="2" stroke-dasharray="34.2 29.5" stroke-dashoffset="49.4"/>
+    <path d="M30 796.7 1388 283.6" stroke="url(#l5)" stroke-width="2" stroke-dasharray="34.2 29.5" stroke-dashoffset="49.4"/>
+    <path d="M30 1042.7 1328 552.3" stroke="url(#l6)" stroke-width="2" stroke-dasharray="34.2 29.5" stroke-dashoffset="50"/>
+    <path d="M571 354.5 861 464.1 571 573.6v-54.4L717.1 464.1 571 408.9zM861 500.4v54.4L715 610l146 55.1v54.4L571 610z" fill="#fff"/>
+</svg>

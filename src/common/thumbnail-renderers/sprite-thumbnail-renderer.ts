@@ -1,6 +1,11 @@
-import { Events, type Observer } from '@playcanvas/observer';
+import { Events } from '@playcanvas/observer';
+import type { EventHandle, Observer } from '@playcanvas/observer';
 
 import { buildQueryUrl } from '../utils';
+
+type AssetList = {
+    get: (id: number | string) => Observer | null;
+};
 
 let sceneInitialized = false;
 
@@ -20,6 +25,10 @@ const CENTER_PIVOT = [0.5, 0.5];
 // an item in the ImageCache
 // fires 'loaded' event if the Image element loads after being created
 class ImageCacheEntry extends Events {
+    value: HTMLImageElement;
+
+    status: 'loading' | 'loaded';
+
     constructor(image: HTMLImageElement) {
         super();
 
@@ -36,6 +45,8 @@ class ImageCacheEntry extends Events {
 // ImageCache holds Image objects
 // cached with some key (asset.id)
 class ImageCache {
+    _items: Record<string, ImageCacheEntry>;
+
     constructor() {
         this._items = {};
     }
@@ -78,11 +89,14 @@ function initializeScene() {
     // model
     const modelNode = new pc.GraphNode();
 
-    const meshSphere = pc.Mesh.fromGeometry(app.graphicsDevice, new pc.SphereGeometry({
-        radius: 0,
-        latitudeBands: 2,
-        longitudeBands: 2
-    }));
+    const meshSphere = pc.Mesh.fromGeometry(
+        app.graphicsDevice,
+        new pc.SphereGeometry({
+            radius: 0,
+            latitudeBands: 2,
+            longitudeBands: 2
+        })
+    );
 
     scene.modelPlaceholder = new pc.Model();
     scene.modelPlaceholder.node = modelNode;
@@ -95,7 +109,6 @@ function initializeScene() {
         layers: []
     });
     scene.lightEntity.setLocalEulerAngles(45, 135, 0);
-
 
     // camera
     scene.cameraOrigin = new pc.Entity();
@@ -124,7 +137,27 @@ function initializeScene() {
 }
 
 class SpriteThumbnailRenderer {
-    constructor(asset: Observer, canvas: HTMLCanvasElement, assetsList: any) {
+    _asset: Observer | null;
+
+    _canvas: HTMLCanvasElement | null;
+
+    _assets: AssetList | null;
+
+    _queueRenderHandler: () => void;
+
+    _watch: unknown;
+
+    _events: EventHandle[];
+
+    _frame: number;
+
+    _animating: boolean;
+
+    _queuedRender: boolean;
+
+    _frameRequest: number | null;
+
+    constructor(asset: Observer, canvas: HTMLCanvasElement, assetsList: AssetList) {
         this._asset = asset;
         this._canvas = canvas;
         this._assets = assetsList;
@@ -160,7 +193,10 @@ class SpriteThumbnailRenderer {
         });
     }
 
-    render(frame: number = 0, animating: boolean = false) {
+    render(frame?: number, animating?: boolean) {
+        frame = frame === undefined ? 0 : frame;
+        animating = animating === undefined ? false : animating;
+
         this._queuedRender = false;
         this._frameRequest = null;
 
@@ -217,7 +253,8 @@ class SpriteThumbnailRenderer {
         let topBound = Number.NEGATIVE_INFINITY;
 
         for (let i = 0; i < frameKeys.length; i++) {
-            const f = frames[frameKeys[i]];
+            const frameKey = frameKeys[i];
+            const f = frames[frameKey];
             if (!f) {
                 continue;
             }
@@ -260,13 +297,13 @@ class SpriteThumbnailRenderer {
         // calculate x and width
         const pivot = animating ? frameData.pivot : CENTER_PIVOT;
         const left = -frameData.rect[2] * pivot[0];
-        let offsetX = widthFactor * (left - leftBound) / maxWidth;
-        const targetWidth = widthFactor * frameData.rect[2] / maxWidth;
+        let offsetX = (widthFactor * (left - leftBound)) / maxWidth;
+        const targetWidth = (widthFactor * frameData.rect[2]) / maxWidth;
 
         // calculate y and height
         const top = (1 - pivot[1]) * frameData.rect[3];
         let offsetY = heightFactor * (1 - (top - bottomBound) / maxHeight);
-        const targetHeight = heightFactor * frameData.rect[3] / maxHeight;
+        const targetHeight = (heightFactor * frameData.rect[3]) / maxHeight;
 
         // center it
         offsetX += (width - widthFactor) / 2;
@@ -285,13 +322,13 @@ class SpriteThumbnailRenderer {
             if (entry.status === 'loaded') {
                 img = entry.value;
             } else {
-                this._events.push(entry.once('loaded', (entry: any) => {
-                    editor.call('assets:sprite:watch:trigger', this._asset);
-                }));
+                this._events.push(
+                    entry.once('loaded', (entry: any) => {
+                        editor.call('assets:sprite:watch:trigger', this._asset);
+                    })
+                );
             }
-
         } else {
-
             // create an image element from the asset source file
             // used in the preview if the texture contains compressed data
             img = new Image();
@@ -299,9 +336,11 @@ class SpriteThumbnailRenderer {
 
             // insert image into cache which fires an event when the image is loaded
             entry = imageCache.insert(atlas.get('file.hash'), img);
-            this._events.push(entry.once('loaded', (entry: any) => {
-                editor.call('assets:sprite:watch:trigger', this._asset);
-            }));
+            this._events.push(
+                entry.once('loaded', (entry: any) => {
+                    editor.call('assets:sprite:watch:trigger', this._asset);
+                })
+            );
         }
 
         if (!img) {
@@ -318,7 +357,7 @@ class SpriteThumbnailRenderer {
     }
 
     destroy() {
-        this._events.forEach(evt => evt.unbind());
+        this._events.forEach((evt) => evt.unbind());
         this._events.length = 0;
 
         if (this._watch) {

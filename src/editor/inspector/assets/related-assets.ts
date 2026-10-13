@@ -4,9 +4,11 @@ import { Panel, Container, Label } from '@playcanvas/pcui';
 const CLASS_ROOT = 'pcui-related-assets';
 const CLASS_RELATED_ASSET = `${CLASS_ROOT}-related-asset`;
 
-const DOM = title => [{
-    relatedAssetsPanel: new Panel({ flex: true, headerText: title })
-}];
+const DOM = (title) => [
+    {
+        relatedAssetsPanel: new Panel({ flex: true, headerText: title })
+    }
+];
 
 class RelatedAssetsInspector extends Container {
     _args: Record<string, unknown>;
@@ -40,7 +42,7 @@ class RelatedAssetsInspector extends Container {
 
     _loadRelatedAssets(sourceAsset: Observer) {
         const sourceId = parseInt(sourceAsset.get('id'), 10);
-        const relatedAssets = (this._args.assets as any).data.filter(asset => this._relatedFn(asset, sourceId));
+        const relatedAssets = (this._args.assets as any).data.filter((asset) => this._relatedFn(asset, sourceId));
         this._relatedAssets = [];
         relatedAssets.forEach((asset) => {
             const relatedAssetLabel = new Label({
@@ -77,7 +79,7 @@ class RelatedAssetsInspector extends Container {
             return;
         }
         this._removeRelatedAssets();
-        this._assetEvents.forEach(evt => evt.unbind());
+        this._assetEvents.forEach((evt) => evt.unbind());
         this._assetEvents = [];
     }
 }

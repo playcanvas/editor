@@ -1,14 +1,14 @@
 import type { CreateEntityArguments, EntityObserver } from '@/editor-api';
 
 /** Default entity data for entities:new, supporting postCreationCallback and recursive children. */
-interface EntitiesNewDefaultData {
+type EntitiesNewDefaultData = {
     parent?: { apiEntity: unknown } | string;
     noHistory?: boolean;
     noSelect?: boolean;
     postCreationCallback?: () => void;
     children?: EntitiesNewDefaultData[];
     [key: string]: unknown;
-}
+};
 
 editor.once('load', () => {
     function replacePostCreationCallback(data: EntitiesNewDefaultData): void {
@@ -18,7 +18,7 @@ editor.once('load', () => {
         }
 
         if (Array.isArray(data.children)) {
-            data.children.forEach(child => replacePostCreationCallback(child));
+            data.children.forEach((child) => replacePostCreationCallback(child));
         }
     }
 

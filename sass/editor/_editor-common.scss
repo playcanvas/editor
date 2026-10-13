@@ -55,6 +55,7 @@ $component-icons: (
     'light': '\E194',
     'model': '\E188',
     'particlesystem': '\E199',
+    'joint': '\E426',
     'rigidbody': '\E189',
     'render': '\E190',
     'screen': '\E403',
@@ -79,5 +80,27 @@ $component-icons: (
         &.type-#{$name}:after {
             content: $glyph;
         }
+    }
+}
+
+// hover tooltip for ellipsis-truncated text (see ellipsis-tooltip.ts); body-level
+// so it escapes the pickers' overflow clipping
+.ellipsis-tooltip {
+    position: fixed;
+    z-index: 1000000;
+    max-width: 420px;
+    padding: 5px 9px;
+    border: 1px solid $border-primary;
+    border-radius: 4px;
+    background-color: $bcg-darkest;
+    color: $text-primary;
+    font-size: 12px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 35%);
+    pointer-events: none;
+
+    &[hidden] {
+        display: none;
     }
 }

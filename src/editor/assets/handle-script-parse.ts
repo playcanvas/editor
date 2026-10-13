@@ -1,18 +1,20 @@
 import { buildQueryUrl } from '@/common/utils';
+import { SOURCE_MAP_URL } from '@/core/constants';
 import { WorkerClient } from '@/core/worker/worker-client';
+
+const CLASSIC_PARSE_TIMEOUT = 60000;
 
 editor.once('load', () => {
     const genGUID = () => {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-            const r = Math.random() * 16 | 0;
-            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            const r = (Math.random() * 16) | 0;
+            const v = c === 'x' ? r : (r & 0x3) | 0x8;
             return v.toString(16);
         });
     };
 
     const importEngine = async (url) => {
         if (url.endsWith('.mjs')) {
-            // @ts-ignore
             return await import(url);
         }
 
@@ -21,18 +23,20 @@ editor.once('load', () => {
         const module = {
             exports: {}
         };
-        // eslint-disable-next-line no-new-func
+
         return (Function('module', 'exports', text).call(module, module, module.exports), module).exports;
     };
 
-    const isEsmSupportedInEngine = async (url) => {
-        const pc = await importEngine(url);
-        return !!pc.Script;
+    const isEsmSupportedInEngine = (url) => {
+        // a slow or failed engine fetch must not throw out of the parse path (which
+        // would leave the parse callback unresolved); treat any failure as unsupported
+        return importEngine(url)
+            .then((pc) => !!pc?.Script)
+            .catch(() => false);
     };
 
     const workerClient = new WorkerClient(`${config.url.frontend}js/esm-script.worker.js`);
     workerClient.once('init', async () => {
-
         const typesURL = config.url.engine.replace(/(\.min|\.dbg|\.prf)?\.js$/, '.d.ts');
         const res = await fetch(typesURL);
         const types = await res.text();
@@ -94,7 +98,9 @@ editor.once('load', () => {
 
         const postUrl = (asset) => {
             const encodedFileName = encodeURIComponent(asset.get('file.filename'));
-            return buildQueryUrl(`/api/assets/${asset.get('id')}/file/${encodedFileName}`, { branchId: config.self.branch.id });
+            return buildQueryUrl(`${config.url.api}/assets/${asset.get('id')}/file/${encodedFileName}`, {
+                branchId: config.self.branch.id
+            });
         };
 
         workerClient.on('attributes:parse', (guid, scripts, scriptsInvalid) => {
@@ -120,9 +126,11 @@ editor.once('load', () => {
 
             // Get all the files that no longer exist. ie files in the cache, but not in esmScripts
             const deletedFiles = [];
-            const esmPaths = new Set(assets
-            .filter(asset => editor.call('assets:isModule', asset))
-            .map(asset => editor.call('assets:virtualPath', asset)));
+            const esmPaths = new Set(
+                assets
+                    .filter((asset) => editor.call('assets:isModule', asset))
+                    .map((asset) => editor.call('assets:virtualPath', asset))
+            );
 
             // loop over the file cache, remove any files that do no exist in the script assets
             for (const path of fileCache.keys()) {
@@ -132,66 +140,143 @@ editor.once('load', () => {
                 }
             }
 
-            const scripts = await Promise.all(assets.map(async (asset) => {
-                if (!editor.call('assets:isModule', asset)) {
-                    return;
-                }
+            const scripts = await Promise.all(
+                assets.map(async (asset) => {
+                    if (!editor.call('assets:isModule', asset)) {
+                        return;
+                    }
 
-                const path = editor.call('assets:virtualPath', asset);
-                if (pathFilter.includes(path)) {
-                    return;
-                }
+                    const path = editor.call('assets:virtualPath', asset);
+                    if (pathFilter.includes(path)) {
+                        return;
+                    }
 
-                const hash = asset.get('file.hash');
-                if (fileCache.get(path) === hash) {
-                    return;
-                }
+                    const hash = asset.get('file.hash');
+                    if (fileCache.get(path) === hash) {
+                        return;
+                    }
 
-                // Attempt to fetch the script
-                try {
-                    const url = editor.call('assets:realPath', asset);
-                    const res = await fetch(url);
-                    const content = await res.text();
-                    fileCache.set(path, hash);
-                    return [path, content];
-                } catch (e) {
-                    console.error(`Failed to fetch ESM script ${path}`, e);
-                }
-            }));
+                    // Attempt to fetch the script
+                    try {
+                        const url = editor.call('assets:realPath', asset);
+                        const res = await fetch(url);
+                        const content = await res.text();
+                        fileCache.set(path, hash);
+                        return [path, content];
+                    } catch (e) {
+                        console.error(`Failed to fetch ESM script ${path}`, e);
+                    }
+                })
+            );
 
-            return [scripts.filter(script => !!script), deletedFiles];
+            return [scripts.filter((script) => !!script), deletedFiles];
         };
 
-        const classicParse = (asset, inEditor, callback) => {
-            const worker = new Worker('/editor/scene/js/classic-script.worker.js');
-            worker.onmessage = (evt) => {
-                worker.terminate();
-                const res = evt.data;
-                const guid = genGUID();
-                handleParseResult(guid, res, asset, callback, inEditor);
-            };
+        const fetchText = async (url: string) => (await fetch(url)).text();
 
-            worker.onerror = (err) => {
+        let workerSourcePromise: Promise<string> | undefined;
+        let enginePromise: Promise<string> | undefined;
+
+        // parse untrusted classic scripts in an opaque-origin, network-less sandbox iframe
+        const classicParse = async (asset, inEditor, callback) => {
+            logStartParse(asset, inEditor);
+
+            const fail = (err) => {
                 if (inEditor) {
                     editor.call('status:error', 'There was an error while parsing a script');
                 }
-                console.log('worker onerror', err);
                 callback?.(err, undefined);
             };
 
-            logStartParse(asset, inEditor);
+            try {
+                // the network-less sandbox can't load a source map, so drop the comment
+                workerSourcePromise ??= fetchText(`${config.url.frontend}js/classic-script.worker.js`).then((t) =>
+                    t.replace(SOURCE_MAP_URL, '')
+                );
+                enginePromise ??= fetchText(config.url.engine);
+                const [workerSource, engine, script] = await Promise.all([
+                    workerSourcePromise,
+                    enginePromise,
+                    fetchText(postUrl(asset))
+                ]);
 
-            worker.postMessage({
-                url: inEditor ? asset.get('file.url') : postUrl(asset),
-                engine: config.url.engine
-            });
+                // allow scripts but omit allow-same-origin, so the sandbox runs on an opaque origin
+                const iframe = document.createElement('iframe');
+                iframe.setAttribute('sandbox', 'allow-scripts');
+                iframe.style.display = 'none';
+
+                // connect-src 'none' blocks exfil; script-src carries no host, so code can only
+                // load the blob: urls we build, never a remote collector
+                const nonce = genGUID();
+                const csp = `default-src 'none'; script-src 'nonce-${nonce}' 'unsafe-eval' blob:; worker-src blob:; connect-src 'none'`;
+
+                // spawn the parser worker from source text (never a url) and relay its result out; never
+                // revoke the worker url (webkit then blocks the worker's own blob importScripts), removing
+                // the iframe frees it
+                iframe.srcdoc = /* html */ `<!DOCTYPE html><html><head>
+<meta http-equiv="Content-Security-Policy" content="${csp}">
+</head><body><script nonce="${nonce}">
+onmessage = (e) => {
+    const { workerSource, engine, script, port } = e.data;
+    const url = URL.createObjectURL(new Blob([workerSource], { type: 'text/javascript' }));
+    const worker = new Worker(url);
+    worker.onmessage = (ev) => { port.postMessage({ result: ev.data }); worker.terminate(); };
+    worker.onerror = (ev) => { port.postMessage({ error: ev.message || 'parse error' }); worker.terminate(); };
+    worker.postMessage({ engine, script });
+};
+</script></body></html>`;
+
+                const channel = new MessageChannel();
+                let settled = false;
+                const cleanup = () => {
+                    settled = true;
+                    channel.port1.close();
+                    iframe.remove();
+                };
+
+                const timer = setTimeout(() => {
+                    if (settled) {
+                        return;
+                    }
+                    cleanup();
+                    fail(new Error('Timed out while parsing a script'));
+                }, CLASSIC_PARSE_TIMEOUT);
+
+                channel.port1.onmessage = (evt) => {
+                    if (settled) {
+                        return;
+                    }
+                    clearTimeout(timer);
+                    cleanup();
+                    const { result, error } = evt.data;
+                    if (error) {
+                        fail(new Error(error));
+                        return;
+                    }
+                    handleParseResult(genGUID(), result, asset, callback, inEditor);
+                };
+
+                iframe.onload = () => {
+                    iframe.contentWindow?.postMessage({ workerSource, engine, script, port: channel.port2 }, '*', [
+                        channel.port2
+                    ]);
+                };
+
+                document.body.appendChild(iframe);
+            } catch (err) {
+                fail(err);
+            }
         };
 
         editor.method('scripts:handleParse', async (asset, inEditor, callback) => {
             if (editor.call('assets:isModule', asset)) {
                 // FIXME: just check engine version directly
                 if (!(await isEsmSupportedInEngine(config.url.engine))) {
-                    editor.call('status:error', 'ESM scripts are not supported in this version of the engine. Please update to the latest version.');
+                    const msg =
+                        'ESM scripts are not supported in this version of the engine. Please update to the latest version.';
+                    editor.call('status:error', msg);
+                    // always settle the callback, otherwise assets.createScript() hangs
+                    callback?.(new Error(msg), undefined);
                     return;
                 }
 
@@ -218,6 +303,8 @@ editor.once('load', () => {
 
             classicParse(asset, inEditor, callback);
         });
+
+        editor.emit('scripts:parser:ready');
     });
 
     workerClient.once('ready', () => workerClient.send('init', config.url.frontend));

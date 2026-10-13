@@ -1,3 +1,5 @@
+import { config } from '@/launch/config';
+
 editor.once('load', () => {
     const app = editor.call('viewport:app');
     if (!app) {
@@ -5,24 +7,27 @@ editor.once('load', () => {
     } // webgl not available
 
     editor.once('launcher:device:ready', () => {
-
         app.loader.removeHandler('scene');
         app.loader.removeHandler('hierarchy');
         app.loader.removeHandler('scenesettings');
 
-        const loadSceneByItemId = function (itemId: number, callback: (err: unknown, scene?: { uniqueId: number }) => void) {
+        const loadSceneByItemId = function (
+            itemId: number,
+            callback: (err: unknown, scene?: { uniqueId: number }) => void
+        ) {
             // Get a specific scene from the server and pass result to callback
-            editor.api.globals.rest.scenes.sceneGet(itemId, true)
-            .on('error', (_status: number, data: unknown) => {
-                if (callback) {
-                    callback(data);
-                }
-            })
-            .on('load', (_status: number, data: unknown) => {
-                if (callback) {
-                    callback(null, data);
-                }
-            });
+            editor.api.globals.rest.scenes
+                .sceneGet(itemId, true)
+                .on('error', (_status: number, data: unknown) => {
+                    if (callback) {
+                        callback(data);
+                    }
+                })
+                .on('load', (_status: number, data: unknown) => {
+                    if (callback) {
+                        callback(null, data);
+                    }
+                });
         };
 
         const SharedSceneHandler = function (app: pc.AppBase, handler: pc.SceneHandler) {
@@ -31,8 +36,12 @@ editor.once('load', () => {
         };
 
         SharedSceneHandler.prototype = {
-            load: function (url: string, callback: (err: Error | null, scene?: unknown) => void, settingsOnly?: boolean) {
-                const id = parseInt(url.replace('/api/', '').replace('.json', ''), 10);
+            load: function (
+                url: string,
+                callback: (err: Error | null, scene?: unknown) => void,
+                settingsOnly?: boolean
+            ) {
+                const id = parseInt(url.replace(`${config.url.launch}api/`, '').replace('.json', ''), 10);
 
                 if (typeof id === 'number' && !isNaN(id)) {
                     // load scene from server to get its unique id
@@ -58,31 +67,37 @@ editor.once('load', () => {
         };
         app.loader.addHandler('scene', new SharedSceneHandler(app, new pc.SceneHandler(app)));
 
-
         const SharedHierarchyHandler = function (app: pc.AppBase, handler: pc.HierarchyHandler) {
             this._app = app;
             this._handler = handler;
         };
 
         SharedHierarchyHandler.prototype = {
-            load: function (url: string, callback: (err: Error | null, scene?: unknown) => void, settingsOnly?: boolean) {
-                const id = parseInt(url.replace('/api/', '').replace('.json', ''), 10);
+            load: function (
+                url: string,
+                callback: (err: Error | null, scene?: unknown) => void,
+                settingsOnly?: boolean
+            ) {
+                const id = parseInt(url.replace(`${config.url.launch}api/`, '').replace('.json', ''), 10);
                 if (typeof id === 'number' && !isNaN(id)) {
                     loadSceneByItemId(id, (err: unknown, scene?: { uniqueId: number }) => {
                         if (err) {
                             return callback(err as Error);
                         }
 
-                        editor.call('loadScene', scene!.uniqueId, (err: Error | null, scene: unknown) => {
-                            // do this in a timeout so that any errors raised while
-                            // initializing scripts are not swallowed by the connection error handler
-                            setTimeout(() => {
-                                callback(err, scene);
-                            });
-                        }, settingsOnly);
-
+                        editor.call(
+                            'loadScene',
+                            scene!.uniqueId,
+                            (err: Error | null, scene: unknown) => {
+                                // do this in a timeout so that any errors raised while
+                                // initializing scripts are not swallowed by the connection error handler
+                                setTimeout(() => {
+                                    callback(err, scene);
+                                });
+                            },
+                            settingsOnly
+                        );
                     });
-
                 } else {
                     // callback("Invalid URL: can't extract scene id.")
                     this._handler.load(url, callback);
@@ -105,7 +120,10 @@ editor.once('load', () => {
         };
 
         SharedSceneSettingsHandler.prototype = {
-            load: function (url: string | { load: string; original: string }, callback: (err: Error | null, scene?: unknown) => void) {
+            load: function (
+                url: string | { load: string; original: string },
+                callback: (err: Error | null, scene?: unknown) => void
+            ) {
                 if (typeof url === 'string') {
                     url = {
                         load: url,
@@ -113,18 +131,22 @@ editor.once('load', () => {
                     };
                 }
 
-                const id = parseInt(url.original.replace('/api/', '').replace('.json', ''), 10);
+                const id = parseInt(url.original.replace(`${config.url.launch}api/`, '').replace('.json', ''), 10);
                 if (typeof id === 'number') {
                     loadSceneByItemId(id, (err: unknown, scene?: { uniqueId: number }) => {
                         if (err) {
                             return callback(err as Error);
                         }
 
-                        editor.call('loadScene', scene!.uniqueId, (err: Error | null, scene: unknown) => {
-                            callback(err, scene);
-                        }, true);
+                        editor.call(
+                            'loadScene',
+                            scene!.uniqueId,
+                            (err: Error | null, scene: unknown) => {
+                                callback(err, scene);
+                            },
+                            true
+                        );
                     });
-
                 } else {
                     // callback("Invalid URL: can't extract scene id.")
                     this._handler.load(url, callback);

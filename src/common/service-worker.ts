@@ -5,7 +5,10 @@
  * @param scope - The scope of the service worker
  * @returns A promise that resolves with the service worker container and the service worker
  */
-export const registerSW = async (scriptURL = '', scope = '/'): Promise<{
+export const registerSW = async (
+    scriptURL = '',
+    scope = '/'
+): Promise<{
     error?: string;
     swc?: ServiceWorkerContainer;
     worker?: ServiceWorker;
@@ -34,7 +37,6 @@ export const registerSW = async (scriptURL = '', scope = '/'): Promise<{
         swc,
         worker: registration.active
     };
-
 };
 
 /**
@@ -45,7 +47,7 @@ export const registerSW = async (scriptURL = '', scope = '/'): Promise<{
 export const unregisterSWs = async (exclude: string[] = []) => {
     const swc = window.navigator.serviceWorker;
     const registrations = await swc.getRegistrations();
-    await Promise.all(registrations
-    .filter(sw => !exclude.includes(sw.active?.scriptURL))
-    .map(sw => sw.unregister()));
+    await Promise.all(
+        registrations.filter((sw) => !exclude.includes(sw.active?.scriptURL)).map((sw) => sw.unregister())
+    );
 };

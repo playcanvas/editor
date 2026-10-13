@@ -1,0 +1,833 @@
+// version control full-diff overlay (github desktop style)
+
+$vc-del-tint: rgb(248 81 73 / 15%);
+$vc-del-edge: #f85149;
+$vc-add-tint: rgb(63 185 80 / 15%);
+$vc-add-edge: #3fb950;
+
+.vc-diff-overlay {
+    z-index: 302; // above the vc graph (301) and project picker (300)
+
+    // absolutely centred small box (1060x600) that tweens to fullscreen; mirrors
+    // .pcui-overlay.picker-project
+    > .pcui-overlay-content {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 1060px;
+        height: 600px;
+        display: flex;
+        transform: translate(-50%, -50%);
+        transition: width 200ms ease, height 200ms ease, transform 200ms ease;
+    }
+
+    // fullscreen: fill the viewport to the right of the 40px left toolbar
+    // (#layout-root grid column) instead of underlapping it; net span is
+    // [40px, right edge] x [top, bottom]
+    &.fullscreen > .pcui-overlay-content {
+        width: calc(100% - 40px);
+        height: 100%;
+        transform: translate(calc(-50% + 20px), -50%);
+    }
+
+    // below the small-picker breakpoint: force fullscreen and hide the toggle
+    @media (max-width: 1059px) {
+        > .pcui-overlay-content {
+            width: calc(100% - 40px);
+            height: 100%;
+            transform: translate(calc(-50% + 20px), -50%);
+        }
+
+        .vc-diff-fullscreen-toggle {
+            display: none;
+        }
+    }
+}
+
+.vc-diff-shell {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+
+    // lighter $bcg-primary base (matching the version-control picker) so panels read
+    // clearly. headers/bars sit one step darker ($bcg-dark), insets + the scrollbar
+    // track sit darkest ($bcg-darkest) — ~10+ tonal steps between every region
+    background-color: $bcg-primary;
+}
+
+.vc-diff-top {
+    position: relative;
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 12px;
+    padding: 0 0 0 16px;
+
+    // match the picker-project panel header height (its content is offset by 33px)
+    height: 33px;
+    background-color: $bcg-dark;
+    border-bottom: 1px solid $border-primary;
+
+    > .vc-diff-title {
+        @extend .font-bold;
+
+        color: $text-primary;
+        font-size: 14px;
+    }
+
+    > .vc-diff-meta {
+        color: $text-dark;
+        font-size: 11px;
+    }
+
+    // fullscreen toggle — windows-style maximise/restore icon, positioned exactly
+    // like the project picker's .fullscreen-toggle (absolute, right: 30px) so the
+    // two pickers' window controls line up
+    > .vc-diff-fullscreen-toggle {
+        position: absolute;
+        top: 50%;
+        right: 30px;
+        margin: 0;
+        width: 28px;
+        padding: 0;
+        background: transparent;
+        border: 0;
+        color: $text-secondary;
+        transform: translateY(-50%);
+
+        &:hover {
+            border: 0;
+            box-shadow: none;
+            color: $text-primary;
+        }
+
+        // maximise square; morphs into the restore glyph (two squares) when active
+        &::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            box-sizing: border-box;
+            width: 11px;
+            height: 10px;
+            border: 1.5px solid currentcolor;
+            border-radius: 1px;
+            transform: translate(-50%, -50%);
+            transition: width 200ms ease, height 200ms ease, transform 200ms ease;
+        }
+
+        // back square of the restore glyph — fades/scales in when active
+        &::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            box-sizing: border-box;
+            width: 9px;
+            height: 9px;
+            border-top: 1.5px solid currentcolor;
+            border-right: 1.5px solid currentcolor;
+            border-radius: 1px;
+            opacity: 0;
+            transform: translate(-38%, -62%) scale(0.6);
+            transition: opacity 200ms ease, transform 200ms ease;
+        }
+
+        &.active {
+            color: $text-active;
+
+            &::before {
+                width: 9px;
+                height: 9px;
+                transform: translate(-62%, -38%);
+            }
+
+            &::after {
+                opacity: 1;
+                transform: translate(-38%, -62%) scale(1);
+            }
+        }
+    }
+
+    > .vc-diff-close {
+        // flush to the right edge like the project picker's header close, vertically
+        // centred in the 33px bar (the 28px button would otherwise top-align)
+        position: absolute;
+        top: 50%;
+        right: 0;
+        margin: 0;
+        transform: translateY(-50%);
+        background: transparent;
+        border: 0;
+
+        // match the version control picker's header close (picker-project .close)
+        color: $text-secondary;
+        font-size: 14px;
+
+        &:hover {
+            border: 0;
+            box-shadow: none;
+            color: $text-primary;
+        }
+    }
+}
+
+.vc-diff-body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+}
+
+// ---- sidebar ----
+.vc-diff-sidebar {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    width: 280px;
+    background-color: $bcg-primary;
+    border-right: 1px solid $border-primary;
+
+    > .vc-diff-sidebar-head {
+        @extend .font-bold;
+
+        flex: none;
+        padding: 10px 12px;
+        background-color: $bcg-dark;
+        color: $text-primary;
+        font-size: 13px;
+        border-bottom: 1px solid $border-primary;
+    }
+
+    // header bar treatment matching the branch picker's .vc-branch-filter; the
+    // $bcg-dark bar sits one step darker than the $bcg-primary base, keeping regions
+    // distinct. relative + z-index lifts the open type dropdown above the sticky bars
+    > .vc-diff-filter {
+        position: relative;
+        z-index: 2;
+        flex: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px;
+        border-bottom: 1px solid $border-primary;
+        background-color: $bcg-dark;
+
+        > .pcui-text-input {
+            @extend .font-regular;
+
+            flex: 1 1 auto;
+            margin: 0;
+            border: 1px solid $border-primary;
+            border-radius: 4px;
+            background-color: $bcg-darkest;
+            font-size: 13px;
+
+            > input::placeholder {
+                color: $text-darkest;
+            }
+        }
+
+        // type select mirrors the picker's top-bar action buttons (.vc-top-actions
+        // .pcui-button): rounded $bcg-dark chip with a $bcg-darkest outline that lifts
+        // to primary text + shadow on hover
+        > .pcui-select-input {
+            @extend %modern-picker-select;
+
+            flex: none;
+            width: 110px;
+        }
+    }
+
+    > .vc-diff-list {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    > .vc-diff-list > .vc-diff-no-match {
+        padding: 16px 12px;
+        color: $text-dark;
+        font-size: 12px;
+        text-align: center;
+    }
+
+    // section bars stick to the top of the scrolling list as you pass them, the way
+    // the history day headers do. the $bcg-dark bar reads as a darker band against the
+    // $bcg-primary rows; opaque so rows never bleed through when stuck
+    > .vc-diff-list > .vc-diff-group {
+        @extend .font-bold;
+
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        padding: 6px 12px;
+        background-color: $bcg-dark;
+        border-top: 1px solid $border-primary;
+        border-bottom: 1px solid $border-primary;
+        color: $text-primary;
+        font-size: 10px;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+
+        &:first-child {
+            border-top: none;
+        }
+    }
+
+    > .vc-diff-list > .vc-diff-row {
+        @extend .font-regular;
+
+        appearance: none;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px 8px;
+        width: 100%;
+        margin: 0;
+        padding: 7px 12px;
+        border: none;
+        border-bottom: 1px solid $border-primary;
+        background: transparent;
+        color: $text-primary;
+        font-size: 13px;
+        text-align: left;
+        cursor: pointer;
+        transition: background-color 100ms ease;
+
+        // white tints rather than the editor's #354144 — that fixed colour is
+        // invisible against the lighter $bcg-primary base, a tint reads on any tone
+        &:hover {
+            background-color: rgb(255 255 255 / 6%);
+        }
+
+        &.selected {
+            background-color: rgb(255 255 255 / 10%);
+            box-shadow: inset 2px 0 0 $text-active;
+        }
+
+        > .name {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        > .sub {
+            width: 100%;
+            order: 3;
+            color: $text-dark;
+            font-size: 11px;
+        }
+
+        > .counts {
+            order: 4;
+            font-size: 11px;
+        }
+
+        > .status {
+            @extend %vc-badge;
+
+            margin-left: auto;
+        }
+    }
+}
+
+.vc-diff-stats {
+    > .new {
+        color: #6fd088;
+    }
+
+    > .old {
+        color: #ff8a8a;
+    }
+}
+
+.vc-diff-property-count {
+    color: $text-dark;
+}
+
+// ---- main ----
+.vc-diff-main {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+
+    // shows the shell's $bcg-primary base — clearly lighter than the $bcg-darkest
+    // scrollbar track (which previously blended straight into it) and the $bcg-dark
+    // detail/section header bars
+    background-color: $bcg-primary;
+}
+
+.vc-diff-detail-head {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background-color: $bcg-dark;
+    border-bottom: 1px solid $border-primary;
+
+    > .name {
+        @extend .font-bold;
+
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: $text-primary;
+    }
+
+    > .status {
+        @extend %vc-badge;
+    }
+
+    > .stats {
+        margin-left: auto;
+        font-size: 11px;
+        color: $text-dark;
+    }
+}
+
+.vc-diff-detail {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 10px 14px;
+
+    // match the editor inspector's field sizing: the attributes panel overrides
+    // to 12px, but this overlay sits outside it and otherwise inherits body's
+    // 14px, rendering every label/value/json oversized
+    font-size: 12px;
+
+    &.has-frame {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+.vc-diff-empty {
+    padding: 24px;
+    color: $text-dark;
+    text-align: center;
+}
+
+// non-blocking "still working" banner above the loading skeleton for slow diffs (#2099)
+.vc-diff-slow-hint {
+    padding: 10px 16px;
+    border-bottom: 1px solid $border-primary;
+    color: $text-dark;
+    font-size: 12px;
+}
+
+// loading skeleton — mirrors the sidebar list (dot + line rows) and the main
+// detail layout (header + panel blocks); reuses the picker's pulse keyframe
+.vc-diff-skeleton {
+    .bone {
+        border-radius: 4px;
+        background-color: rgb(255 255 255 / 8%);
+        animation: vc-skeleton-pulse 1.4s ease-in-out infinite;
+
+        &.line {
+            flex: 1 1 auto;
+            height: 10px;
+        }
+
+        &.title {
+            flex: none;
+            width: 180px;
+            height: 14px;
+        }
+
+        &.badge {
+            flex: none;
+            width: 58px;
+            height: 16px;
+        }
+
+        &.label {
+            flex: none;
+            width: 30%;
+            max-width: 180px;
+            height: 10px;
+        }
+
+        &.value {
+            flex: 1 1 auto;
+            height: 10px;
+        }
+
+        // the sub line under the name, matching .vc-diff-row's 'material · 1 change'
+        &.sub {
+            order: 3;
+            flex-basis: 100%;
+            max-width: 110px;
+            height: 8px;
+            margin-top: 2px;
+        }
+    }
+
+    // sidebar rows: name + status badge over a sub line (matching .vc-diff-row)
+    > .skeleton-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px 10px;
+        padding: 9px 12px;
+        border-bottom: 1px solid $border-primary;
+    }
+
+    &.main {
+        // header bar matches .vc-diff-detail-head; the body is padded like .vc-diff-detail
+        > .skeleton-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            background-color: $bcg-dark;
+            border-bottom: 1px solid $border-primary;
+        }
+
+        > .skeleton-body {
+            padding: 10px 14px;
+
+            // panel: header bar over field rows, like .vc-diff-detail .vc-diff-panel
+            > .skeleton-panel {
+                margin-bottom: 10px;
+                border: 1px solid rgba($border-primary, 0.6);
+                border-radius: 3px;
+                overflow: hidden;
+
+                > .skeleton-phead {
+                    padding: 10px 12px;
+                    background-color: $bcg-darker;
+                    border-bottom: 1px solid $border-primary;
+
+                    > .bone.line {
+                        max-width: 120px;
+                    }
+                }
+
+                > .skeleton-field {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    padding: 9px 12px;
+                    border-bottom: 1px solid $border-primary;
+
+                    &:last-child {
+                        border-bottom: none;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ---- inspector sections ----
+.vc-diff-inspector {
+    display: flex;
+    flex-direction: column;
+
+    // more space between cards than within one (tree -> panels is 6px below)
+    // so each entity's breadcrumb + panels reads as a single grouped unit
+    gap: 16px;
+}
+
+.vc-diff-section {
+    > .vc-diff-entity-tree {
+        margin-bottom: 6px;
+        pointer-events: none;
+
+        // keep the breadcrumb tree at the hierarchy panel's size (body 14px): the
+        // pcui treeview dot/spine alignment is calibrated for it, so inheriting the
+        // .vc-diff-detail 12px decentres the dots
+        font-size: 14px;
+
+        // the root's own spine is the leftmost vertical and never connects to
+        // anything (each child draws its own spine + elbow), so collapse it in
+        // every case. top: only relocates the stub; height: 0 removes it.
+        > .pcui-treeview-item {
+            &::before {
+                height: 0;
+            }
+
+            // the root's horizontal elbow only dangles when the root is a leaf
+            // (single-node tree). with children the elbow is the junction to
+            // the first child's spine, so keep it — hide it for leaves only.
+            &.pcui-treeview-item-empty > .pcui-treeview-item-contents > .pcui-treeview-item-icon::before {
+                display: none;
+            }
+        }
+    }
+}
+
+.vc-diff-panel {
+    border: 1px solid rgba($border-primary, 0.6);
+    border-radius: 3px;
+    overflow: hidden;
+
+    > .pcui-panel-header > .pcui-panel-header-title {
+        text-transform: uppercase;
+    }
+
+    // settings group sub-panels sit flush inside SETTINGS (like the real settings panel);
+    // script/slot/clip sub-panels are inset like the inspector's per-script panels
+    .vc-diff-subpanel.inset {
+        margin: 6px;
+        border: 1px solid rgba($border-primary, 0.6);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+}
+
+.vc-diff-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    color: $text-secondary;
+
+    > .status {
+        @extend %vc-badge;
+    }
+}
+
+// ---- unified diff rows ----
+.vc-diff-field-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 28px;
+    padding: 2px 10px 2px 6px;
+
+    // a tall multi-item list pins the gutter + field name to the top (with a
+    // little breathing room) instead of floating them in the centre; single
+    // values stay vertically centred
+    &:has(.vc-diff-array.multi) {
+        align-items: flex-start;
+
+        // breathing room under the last pill so it isn't flush to the card edge
+        padding-bottom: 8px;
+
+        > .gutter,
+        > .label {
+            margin-top: 6px;
+        }
+
+        // align the delta count with the label rather than jamming it at the top
+        > .value {
+            margin-top: 6px;
+        }
+    }
+
+    > .gutter {
+        flex: none;
+        width: 14px;
+        text-align: center;
+        font-family: inconsolatamedium, Monaco, Menlo, monospace;
+    }
+
+    > .label {
+        flex: none;
+        width: 35%;
+        max-width: 220px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: $text-secondary;
+    }
+
+    > .value {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        min-width: 0;
+
+        // read-only widgets stay inert
+        pointer-events: none;
+
+        // text values stay selectable; the inputs are readOnly so this is safe
+        input,
+        textarea,
+        .vc-diff-chip {
+            pointer-events: auto;
+        }
+
+        // pcui inputs carry 6px margins; rows provide their own spacing
+        .pcui-element {
+            margin: 0;
+        }
+    }
+
+    &.del {
+        background-color: $vc-del-tint;
+        box-shadow: inset 2px 0 0 $vc-del-edge;
+
+        > .gutter {
+            color: #ff8a8a;
+        }
+    }
+
+    &.add {
+        background-color: $vc-add-tint;
+        box-shadow: inset 2px 0 0 $vc-add-edge;
+
+        > .gutter {
+            color: #6fd088;
+        }
+    }
+}
+
+// ---- value widgets ----
+.vc-diff-widget {
+    flex: 1;
+    min-width: 0;
+
+    &.pcui-boolean-input,
+    &.pcui-color-input {
+        flex: none;
+    }
+
+    // the swatch is read-only here, but keep the inspector's corner triangle that
+    // readonly otherwise hides so it reads as a colour field
+    &.pcui-color-input.pcui-readonly::after {
+        display: block;
+    }
+}
+
+.vc-diff-missing {
+    color: $text-darkest;
+    font-style: italic;
+}
+
+.vc-diff-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    height: 24px;
+    padding: 0 7px;
+
+    // reset the fixed-px line-height inherited from pcui so the full-size name
+    // doesn't sit low on its baseline while the small uppercase tag centres
+    line-height: normal;
+    background-color: $bcg-dark;
+    border: 1px solid $bcg-darker;
+    border-radius: 2px;
+    color: $text-secondary;
+
+    > .name {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    > .tag {
+        color: $text-darkest;
+        font-size: 10px;
+
+        // collapse the inherited line box so the small uppercase label centres
+        // against the chip instead of sitting high on its baseline
+        line-height: 1;
+        text-transform: uppercase;
+    }
+
+    > .sign {
+        flex: none;
+        line-height: 1;
+        font-family: inconsolatamedium, Monaco, Menlo, monospace;
+    }
+
+    // plain pills (tags) carry no type label — render a touch smaller
+    &.pill {
+        gap: 4px;
+        height: 20px;
+        padding: 0 6px;
+        font-size: 11px;
+    }
+
+    &.missing > .name {
+        color: $text-darkest;
+        font-style: italic;
+    }
+
+    // membership-delta chips: tint the chip (not the whole row) so a single
+    // changed list item doesn't read as the entire field being added/removed
+    &.added {
+        background-color: $vc-add-tint;
+        border-color: $vc-add-edge;
+
+        > .sign,
+        > .name {
+            color: #6fd088;
+        }
+    }
+
+    &.removed {
+        background-color: $vc-del-tint;
+        border-color: $vc-del-edge;
+
+        > .sign,
+        > .name {
+            color: #ff8a8a;
+        }
+    }
+}
+
+.vc-diff-sublayer {
+    color: $text-secondary;
+}
+
+.vc-diff-array {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    min-width: 0;
+
+    > .size {
+        margin-bottom: 6px;
+        color: $text-dark;
+        font-size: 10px;
+    }
+}
+
+// entity-id remap shown as a count; the full mapping is available on hover
+.vc-diff-entity-map {
+    color: $text-dark;
+}
+
+// ---- text diff iframe (existing behaviour) ----
+.vc-diff-frame-wrap {
+    position: relative;
+    flex: 1;
+    min-height: 320px;
+    margin-top: 12px;
+}
+
+.vc-diff-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text-dark;
+
+    // display:flex would defeat the [hidden] attribute otherwise
+    &[hidden] {
+        display: none;
+    }
+}
+
+.vc-diff-frame {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border: 1px solid $border-primary;
+    border-radius: 3px;
+    background-color: $bcg-darkest;
+}

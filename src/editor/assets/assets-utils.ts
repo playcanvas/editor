@@ -1,9 +1,10 @@
 import { RenderTarget } from 'playcanvas';
+import type { Texture } from 'playcanvas';
 
 import { WorkerClient } from '@/core/worker/worker-client';
 
 // read the pixel data of the given texture face
-const readGPUPixels = (texture: import('playcanvas').Texture, face: number) => {
+const readGPUPixels = (texture: Texture, face: number) => {
     const rt = new RenderTarget({
         name: 'ReadPrefilteredCubemapRT',
         colorBuffer: texture,
@@ -64,7 +65,4 @@ worker.once('ready', () => {
 
 worker.start();
 
-export {
-    readGPUPixels,
-    pixelsToPngBlob
-};
+export { readGPUPixels, pixelsToPngBlob };

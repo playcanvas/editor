@@ -2,15 +2,15 @@ import { Container, Panel } from '@playcanvas/pcui';
 
 import { Tooltip } from '@/common/pcui/element/element-tooltip';
 
-import { createConsolePanel } from './layout-console';
 import { AssetPanel } from '../assets/asset-panel';
+
+import { createConsolePanel } from './layout-console';
 
 const createHierarchyPanel = () => {
     const hierarchyPanel = new Panel({
         headerText: 'HIERARCHY',
         id: 'layout-hierarchy',
         flex: true,
-        enabled: true,
         width: editor.call('localStorage:get', 'editor:layout:hierarchy:width') || 256,
         panelType: 'normal',
         scrollable: true,
@@ -102,12 +102,12 @@ const createSecondaryAttributesPanel = (hierarchyPanel: { width: number }) => {
         headerText: 'INSPECTOR',
         id: 'layout-attributes-secondary',
         flex: true,
-        enabled: true,
         width: editor.call('localStorage:get', 'editor:layout:attributes-secondary:width') || 256,
         panelType: 'normal',
         collapsible: true,
         collapseHorizontally: true,
-        collapsed: editor.call('localStorage:get', 'editor:layout:attributes-secondary:collapse') || window.innerWidth <= 480,
+        collapsed:
+            editor.call('localStorage:get', 'editor:layout:attributes-secondary:collapse') || window.innerWidth <= 480,
         scrollable: true,
         resizable: 'left',
         resizeMin: 196,
@@ -151,36 +151,43 @@ editor.on('load', () => {
     };
 
     // prevent drag'n'select
-    window.addEventListener('mousedown', (evt: MouseEvent) => {
-        if (shouldNotPrevent(ignoreMouseDownClasses, evt)) {
-            return;
-        }
+    window.addEventListener(
+        'mousedown',
+        (evt: MouseEvent) => {
+            if (shouldNotPrevent(ignoreMouseDownClasses, evt)) {
+                return;
+            }
 
-        // blur inputs
-        if (window.getSelection) {
-            const focusNode = window.getSelection().focusNode;
-            if (focusNode) {
-                if (focusNode.tagName === 'INPUT') {
-                    focusNode.blur();
-                } else if (focusNode.firstChild && focusNode.firstChild.tagName === 'INPUT') {
-                    focusNode.firstChild.blur();
+            // blur inputs
+            if (window.getSelection) {
+                const focusNode = window.getSelection().focusNode;
+                if (focusNode) {
+                    if (focusNode.tagName === 'INPUT') {
+                        focusNode.blur();
+                    } else if (focusNode.firstChild && focusNode.firstChild.tagName === 'INPUT') {
+                        focusNode.firstChild.blur();
+                    }
                 }
             }
-        }
 
-        // prevent default will prevent blur, dragstart and selection
-        evt.preventDefault();
-    }, false);
-
+            // prevent default will prevent blur, dragstart and selection
+            evt.preventDefault();
+        },
+        false
+    );
 
     // prevent default context menu
-    window.addEventListener('contextmenu', (evt: MouseEvent) => {
-        if (shouldNotPrevent(ignoreContextMenuClasses, evt)) {
-            return;
-        }
+    window.addEventListener(
+        'contextmenu',
+        (evt: MouseEvent) => {
+            if (shouldNotPrevent(ignoreContextMenuClasses, evt)) {
+                return;
+            }
 
-        evt.preventDefault();
-    }, false);
+            evt.preventDefault();
+        },
+        false
+    );
 
     // main container
     const root = new Container({

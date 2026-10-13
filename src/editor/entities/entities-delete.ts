@@ -7,6 +7,6 @@ editor.once('load', () => {
      * @param entities - The entities to delete
      */
     editor.method('entities:delete', (entities: EntityObserver[]) => {
-        editor.api.globals.entities.delete(entities.map(entity => entity.apiEntity));
+        editor.api.globals.entities.delete(entities.map((entity) => entity.apiEntity));
     });
 });

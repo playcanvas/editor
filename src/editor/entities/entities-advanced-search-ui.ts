@@ -20,7 +20,7 @@ editor.once('load', () => {
     const searchClear = new Element();
     searchClear.class.add('clear');
     searchClear.dom.innerHTML = '&#57650;';
-    search.element.appendChild(searchClear.dom);
+    search.dom.appendChild(searchClear.dom);
 
     // Button for showing filters
     const showFiltersButton = new Element();
@@ -41,6 +41,7 @@ editor.once('load', () => {
 
     // Container for only the filters
     const advancedSearchFilterContainer = new Container({ flex: true });
+    let searchByField = undefined;
 
     // Advanced Search Filters
     const filterList = ['Name', 'Component Type', 'Script Name', 'Tags'].reverse();
@@ -67,7 +68,7 @@ editor.once('load', () => {
                 hierarchy._applyFilter(search.value.trim());
             }
 
-            const active = filterList.filter(name => hierarchy.getFilter(name));
+            const active = filterList.filter((name) => hierarchy.getFilter(name));
 
             // if all filters are selected then switch button name from select all to reset
             if (searchByField !== undefined) {
@@ -121,17 +122,16 @@ editor.once('load', () => {
 
     smartSearchLabel.class.add('advanced-search-label-toggle');
     smartSearchLabel.label.class.add('advanced-search-label-toggle-text');
-    smartSearchLabel.element.setAttribute('text-hover', 'Toggle whether only exact matches are shown');
+    smartSearchLabel.dom.setAttribute('text-hover', 'Toggle whether only exact matches are shown');
 
     // Search by
 
-    var searchByField = new Element();
+    searchByField = new Element();
     searchByField.dom.innerHTML = 'Select All';
     searchByField.class.add('advanced-search-select-all-button');
 
     searchByField.on('click', () => {
-
-        const active = filterList.filter(name => hierarchy.getFilter(name));
+        const active = filterList.filter((name) => hierarchy.getFilter(name));
 
         if (active.length === filterList.length) {
             filterList.forEach((name) => {
@@ -171,28 +171,32 @@ editor.once('load', () => {
 
     // if show filters button is clicked toggle whether filters are shown
 
-    showFiltersButton.on('click', () => {
-        showFilters = !showFilters;
+    showFiltersButton.on(
+        'click',
+        () => {
+            showFilters = !showFilters;
 
-        const active = filterList.filter(name => hierarchy.getFilter(name));
+            const active = filterList.filter((name) => hierarchy.getFilter(name));
 
-        // Default to search by the first filter if nothing is selected
-        if (active.length === 0) {
-            filterMap[filterList[filterList.length - 1]].field.value = true;
-        }
+            // Default to search by the first filter if nothing is selected
+            if (active.length === 0) {
+                filterMap[filterList[filterList.length - 1]].field.value = true;
+            }
 
-        if (showFilters) {
-            advancedSearchContainer.appendAfter(advancedSearchFilterContainer, searchBar);
-            showFiltersButton.class.add('showing');
-            advancedSearchContainer.class.add('showing');
-            searchBar.class.add('activated');
-        } else {
-            advancedSearchContainer.remove(advancedSearchFilterContainer);
-            showFiltersButton.class.remove('showing');
-            advancedSearchContainer.class.remove('showing');
-            searchBar.class.remove('activated');
-        }
-    }, false);
+            if (showFilters) {
+                advancedSearchContainer.appendAfter(advancedSearchFilterContainer, searchBar);
+                showFiltersButton.class.add('showing');
+                advancedSearchContainer.class.add('showing');
+                searchBar.class.add('activated');
+            } else {
+                advancedSearchContainer.remove(advancedSearchFilterContainer);
+                showFiltersButton.class.remove('showing');
+                advancedSearchContainer.class.remove('showing');
+                searchBar.class.remove('activated');
+            }
+        },
+        false
+    );
 
     const performSearch = function () {
         hierarchy.filter = lastSearch;
@@ -200,7 +204,6 @@ editor.once('load', () => {
 
     // if entity added, check if it matching query
     editor.on('entities:add', (entity) => {
-
         const query = search.value.trim();
         if (!query) {
             return;
@@ -219,7 +222,7 @@ editor.once('load', () => {
     search.on('change', (value) => {
         clearTimeout(searchTimeOut);
 
-        const active = filterList.filter(name => hierarchy.getFilter(name));
+        const active = filterList.filter((name) => hierarchy.getFilter(name));
 
         // Default to search by the first filter if nothing is selected
         if (active.length === 0) {

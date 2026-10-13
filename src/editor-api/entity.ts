@@ -34,8 +34,7 @@ export type EntityObserver = Observer & {
 class Entity extends Events {
     private _observer: EntityObserver;
 
-    private _history: ObserverHistory | {};
-
+    private _history: ObserverHistory | object;
 
     /**
      * Creates new Entity
@@ -61,9 +60,10 @@ class Entity extends Events {
             position: number[];
             rotation: number[];
             scale: number[];
-            components: {};
-            template_id?: number;
-            template_ent_ids?: Record<string, string>;
+            components: object;
+            template: number | null;
+            template_id: number | null;
+            template_ent_ids: Record<string, string> | null;
         } = {
             name: name,
             tags: data.tags || [],
@@ -74,15 +74,11 @@ class Entity extends Events {
             position: data.position || [0, 0, 0],
             rotation: data.rotation || [0, 0, 0],
             scale: data.scale || [1, 1, 1],
-            components: {}
+            components: {},
+            template: data.template !== undefined ? data.template : null,
+            template_id: data.template_id !== undefined ? data.template_id : null,
+            template_ent_ids: data.template_ent_ids !== undefined ? data.template_ent_ids : null
         };
-
-        if (data.template_id) {
-            observerData.template_id = data.template_id;
-        }
-        if (data.template_ent_ids) {
-            observerData.template_ent_ids = data.template_ent_ids;
-        }
 
         this._observer = new Observer(observerData) as EntityObserver;
 
@@ -309,21 +305,23 @@ class Entity extends Events {
         return this.filter((entity: Entity) => {
             const t = entity.get('tags');
             for (let i = 0; i < tags.length; i++) {
-                if (Array.isArray(tags[i])) {
+                const tag = tags[i];
+                if (Array.isArray(tag)) {
                     let countTags = 0;
-                    for (let j = 0; j < tags[i].length; j++) {
-                        if (t.includes(tags[i][j])) {
+                    for (let i = 0; i < tag.length; i++) {
+                        const subTag = tag[i];
+                        if (t.includes(subTag)) {
                             countTags++;
                         } else {
                             break;
                         }
                     }
 
-                    if (countTags === tags[i].length) {
+                    if (countTags === tag.length) {
                         return true;
                     }
                 } else {
-                    if (t.includes(tags[i])) {
+                    if (t.includes(tag)) {
                         return true;
                     }
                 }
@@ -445,7 +443,9 @@ class Entity extends Events {
 
         // BUG TRACKING: missing children
         if (!api.entities.get(entity.get('resource_id'))) {
-            console.error(`BUG TRACKING: inserting missing child guid ${entity.get('resource_id')} to parent ${this.get('resource_id')}`);
+            console.error(
+                `BUG TRACKING: inserting missing child guid ${entity.get('resource_id')} to parent ${this.get('resource_id')}`
+            );
         }
 
         if (result) {
@@ -456,7 +456,9 @@ class Entity extends Events {
             return true;
         }
 
-        console.error(`Cannot add duplicate child ${entity.get('resource_id')} under parent ${this.get('resource_id')}`);
+        console.error(
+            `Cannot add duplicate child ${entity.get('resource_id')} under parent ${this.get('resource_id')}`
+        );
         return false;
     }
 
@@ -482,7 +484,9 @@ class Entity extends Events {
         try {
             this.removeValue('children', entity.get('resource_id'));
         } catch (err) {
-            console.error(`Error when removing ${entity.get('resource_id')} from children of entity ${this.get('resource_id')}`);
+            console.error(
+                `Error when removing ${entity.get('resource_id')} from children of entity ${this.get('resource_id')}`
+            );
             console.error(err);
         }
         this.history.enabled = history;
@@ -518,12 +522,21 @@ class Entity extends Events {
      * door.reparent(greenHouse);
      * ```
      */
-    reparent(parent: Entity, index: number | null = null, options: { history?: boolean, preserveTransform?: boolean } = {}) {
-        api.entities.reparent([{
-            entity: this,
-            parent: parent,
-            index: index
-        }], options);
+    reparent(
+        parent: Entity,
+        index: number | null = null,
+        options: { history?: boolean; preserveTransform?: boolean } = {}
+    ) {
+        api.entities.reparent(
+            [
+                {
+                    entity: this,
+                    parent: parent,
+                    index: index
+                }
+            ],
+            options
+        );
     }
 
     /**
@@ -534,7 +547,7 @@ class Entity extends Events {
      * @param options.rename - Whether to rename the duplicated entity. Defaults to false.
      * @returns The new entity
      */
-    async duplicate(options: { history?: boolean, select?: boolean, rename?: boolean } = {}) {
+    async duplicate(options: { history?: boolean; select?: boolean; rename?: boolean } = {}) {
         const result = await api.entities.duplicate([this], options);
         return result[0];
     }
@@ -561,7 +574,7 @@ class Entity extends Events {
      * @param options.index - The desired index in the entity's scripts order to add this script.
      * @returns A promise
      */
-    addScript(scriptName: string, options: { attributes?: object, history?: boolean, index?: number } = {}) {
+    addScript(scriptName: string, options: { attributes?: object; history?: boolean; index?: number } = {}) {
         return api.entities.addScript([this], scriptName, options);
     }
 

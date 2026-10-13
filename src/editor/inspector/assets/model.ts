@@ -1,10 +1,10 @@
 import type { EventHandle, Observer } from '@playcanvas/observer';
 import { Panel, Container, Button } from '@playcanvas/pcui';
 
-import { ModelAssetInspectorMeshInstances } from './model-mesh-instances';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+import { ModelAssetInspectorMeshInstances } from './model-mesh-instances';
 
 const CLASS_ROOT = 'asset-model-inspector';
 const CLASS_AUTO_UNWRAP_PROGRESS = `${CLASS_ROOT}-auto-unwrap-progress`;
@@ -80,7 +80,7 @@ const UNWRAP_ATTRIBUTES: Attribute[] = [
     }
 ];
 
-const DOM = parent => [
+const DOM = (parent) => [
     {
         root: {
             metaPanel: new Panel({
@@ -245,7 +245,6 @@ class ModelAssetInspector extends Container {
     _resetAutoUnwrap() {
         this._unwrapProgress = [];
 
-
         this._btnAutoUnwrap.hidden = false;
         this._btnCancelAutoUnwrap.hidden = true;
         this._unwrapAttributesInspector.getField('progress').parent.hidden = true;
@@ -254,7 +253,7 @@ class ModelAssetInspector extends Container {
     }
 
     _formatMetaAttribute(attribute: string) {
-        const total = this._assets.map(asset => asset.get(attribute)).reduce((a, b) => a + b, 0);
+        const total = this._assets.map((asset) => asset.get(attribute)).reduce((a, b) => a + b, 0);
         const formattedTotal = total.toLocaleString();
         this._metaAttributesInspector.getField(attribute).values = this._assets.map((asset) => {
             return formattedTotal;
@@ -272,7 +271,7 @@ class ModelAssetInspector extends Container {
 
         const text = Object.keys(metaAttributes).join(', ');
         const field = this._metaAttributesInspector.getField('meta.attributes');
-        field.values = this._assets.map(asset => text);
+        field.values = this._assets.map((asset) => text);
         field.parent.class.add(CLASS_META_ATTRIBUTES);
     }
 
@@ -282,12 +281,11 @@ class ModelAssetInspector extends Container {
             none: 'Disabled',
             draco: 'Draco'
         };
-        const text =
-            Array.from(new Set(this._assets.map(asset => asset.get(attribute))))
-            .map(v => names[v] || v)
+        const text = Array.from(new Set(this._assets.map((asset) => asset.get(attribute))))
+            .map((v) => names[v] || v)
             .join(', ');
         const field = this._metaAttributesInspector.getField(attribute);
-        field.values = this._assets.map(asset => text);
+        field.values = this._assets.map((asset) => text);
     }
 
     _formatUV1Attribute() {
@@ -296,12 +294,15 @@ class ModelAssetInspector extends Container {
             return asset.get('meta.attributes.texCoord1');
         });
         const uv1Options = ['unavailable', 'available', 'various'];
-        const uv1FieldValue = assetsTexCoord1Values.reduce((prev, curr) => {
-            if ((curr ? 1 : 0) === prev) {
-                return prev;
-            }
-            return 2;
-        }, this._assets[0].get('meta.attributes.texCoord1') ? 1 : 0);
+        const uv1FieldValue = assetsTexCoord1Values.reduce(
+            (prev, curr) => {
+                if ((curr ? 1 : 0) === prev) {
+                    return prev;
+                }
+                return 2;
+            },
+            this._assets[0].get('meta.attributes.texCoord1') ? 1 : 0
+        );
         uv1Field.values = this._assets.map((value) => {
             return uv1Options[uv1FieldValue];
         });
@@ -332,33 +333,39 @@ class ModelAssetInspector extends Container {
 
         this._assets.forEach((asset, index) => {
             this._unwrapProgress.push(0);
-            this._assetEvents.push(editor.on(`assets:model:unwrap:progress:${asset.get('id')}`, (progress) => {
-                this._unwrapProgress[index] = progress;
-                const totalProgress = this._unwrapProgress.reduce((total, curr) => total + curr, 0) / this._assets.length;
-                this._unwrapAttributesInspector.getField('progress').value = totalProgress;
-            }));
+            this._assetEvents.push(
+                editor.on(`assets:model:unwrap:progress:${asset.get('id')}`, (progress) => {
+                    this._unwrapProgress[index] = progress;
+                    const totalProgress =
+                        this._unwrapProgress.reduce((total, curr) => total + curr, 0) / this._assets.length;
+                    this._unwrapAttributesInspector.getField('progress').value = totalProgress;
+                })
+            );
         });
 
-        this._assetEvents.push(editor.on('assets:model:unwrap', (asset) => {
-            const assetIndex = this._assets.indexOf(asset);
-            if (assetIndex === -1) {
-                return;
-            }
-            META_ATTRIBUTES.forEach((attribute) => {
-                if (!['meta.attributes', 'meta.meshCompression'].includes(attribute.path)) {
-                    this._formatMetaAttribute(attribute.path);
+        this._assetEvents.push(
+            editor.on('assets:model:unwrap', (asset) => {
+                const assetIndex = this._assets.indexOf(asset);
+                if (assetIndex === -1) {
+                    return;
                 }
-            });
-            this._formatMetaAttributesAttribute();
-            this._formatMetaAttributeMeshCompression();
-            this._formatUV1Attribute();
-            this._resetAutoUnwrap();
-        }));
+                META_ATTRIBUTES.forEach((attribute) => {
+                    if (!['meta.attributes', 'meta.meshCompression'].includes(attribute.path)) {
+                        this._formatMetaAttribute(attribute.path);
+                    }
+                });
+                this._formatMetaAttributesAttribute();
+                this._formatMetaAttributeMeshCompression();
+                this._formatUV1Attribute();
+                this._resetAutoUnwrap();
+            })
+        );
 
         this._meshInstancesPanel.hidden = assets.length > 1;
         let hidePipelinePanel = false;
         for (let i = 0; i < assets.length; i++) {
-            if (assets[i].get('file.filename').match(/.*\.glb$/)) {
+            const asset = assets[i];
+            if (asset.get('file.filename').match(/.*\.glb$/)) {
                 hidePipelinePanel = true;
                 break;
             }
@@ -374,7 +381,7 @@ class ModelAssetInspector extends Container {
         this._pipelineAttributesInspector.unlink();
         this._meshInstances.unlink();
         this._assets = [];
-        this._assetEvents.forEach(evt => evt.unbind());
+        this._assetEvents.forEach((evt) => evt.unbind());
         this._assetEvents = [];
         this._unwrapProgress = [];
     }

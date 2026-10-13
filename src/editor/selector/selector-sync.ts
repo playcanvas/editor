@@ -1,10 +1,9 @@
 editor.once('load', () => {
     let lastSelectionType = null;
     let lastIds = [];
-    const selection = { };
+    const selection = {};
     let timeout;
     let lastCheck = 0;
-
 
     const checkSelector = function () {
         timeout = null;
@@ -18,13 +17,15 @@ editor.once('load', () => {
 
         if (type === 'entity') {
             for (let i = 0; i < items.length; i++) {
-                ids.push(items[i].get('resource_id'));
+                const item = items[i];
+                ids.push(item.get('resource_id'));
             }
         } else if (type === 'asset') {
             for (let i = 0; i < items.length; i++) {
-                const id = items[i].get('id');
-                if (items[i].get('type') === 'script' && !id) {
-                    ids.push(items[i].get('filename'));
+                const item = items[i];
+                const id = item.get('id');
+                if (item.get('type') === 'script' && !id) {
+                    ids.push(item.get('filename'));
                 } else {
                     ids.push(id);
                 }
@@ -69,7 +70,7 @@ editor.once('load', () => {
             return;
         }
 
-        if ((Date.now() - lastCheck) > 500) {
+        if (Date.now() - lastCheck > 500) {
             checkSelector();
         } else {
             timeout = setTimeout(checkSelector, 500);

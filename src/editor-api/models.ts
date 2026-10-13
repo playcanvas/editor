@@ -453,3 +453,54 @@ export type Job<T extends object> = {
      */
     data: T;
 };
+
+export type BuildJobFormat = 'playcanvas' | 'static' | 'npm' | 'web_lens';
+
+export type BuildJob = {
+    id: number;
+    project_id: number;
+    app_id: number | null;
+    job_id: number | null;
+    type: 'publish' | 'download';
+    status: 'complete' | 'running' | 'error';
+    attempt: number;
+    branch: {
+        id: string;
+        name: string;
+    };
+    actor: {
+        id: number;
+        username: string;
+        name: string;
+    };
+    source: {
+        type: 'editor' | 'api';
+    };
+    settings: {
+        name: string;
+        description?: string;
+        version?: string;
+        release_notes?: string;
+        image_s3_key?: string;
+        scenes: {
+            id: number;
+            name: string;
+        }[];
+        scripts_concatenate: boolean;
+        scripts_minify: boolean;
+        scripts_sourcemaps: boolean;
+        optimize_scene_format: boolean;
+        engine_version?: string;
+        format: BuildJobFormat;
+    };
+    artifacts: {
+        type: 'app' | 'download';
+        url: string;
+        bytes: number | null;
+    }[];
+    message: string | null;
+    created_at: string;
+    modified_at: string;
+    completed_at: string | null;
+    duration_ms: number | null;
+};

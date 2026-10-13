@@ -1,10 +1,11 @@
 editor.once('load', () => {
-    const whoisonline = { };
+    const whoisonline = {};
 
     editor.method('whoisonline:set', (assetId, list) => {
         const index = {};
         for (let i = 0; i < list.length; i++) {
-            index[list[i]] = true;
+            const id = list[i];
+            index[id] = true;
         }
 
         const existing = whoisonline[assetId] || {};
@@ -55,7 +56,7 @@ editor.once('load', () => {
 
     function connectToOpenDocs() {
         const openDocuments = editor.call('documents:list');
-        openDocuments.forEach(id => onOpenDocument(id));
+        openDocuments.forEach((id) => onOpenDocument(id));
     }
 
     editor.on('relay:connected', connectToOpenDocs);

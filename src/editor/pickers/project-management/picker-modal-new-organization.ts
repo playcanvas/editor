@@ -1,9 +1,6 @@
-import { Container, Label, TextInput, Panel, Button } from '@playcanvas/pcui';
-
-import { LegacyOverlay } from '@/common/ui/overlay';
+import { Button, Container, Label, Overlay, Panel, TextInput } from '@playcanvas/pcui';
 
 editor.once('load', () => {
-
     // GLOBAL VARIABLES
     let currentUser;
 
@@ -42,10 +39,11 @@ editor.once('load', () => {
 
     // overlay
     const root = editor.call('layout.root');
-    const overlay = new LegacyOverlay();
-    overlay.clickable = false;
-    overlay.hidden = true;
-    overlay.class.add('picker-new-organization');
+    const overlay = new Overlay({
+        clickable: false,
+        class: 'picker-new-organization',
+        hidden: true
+    });
     root.append(overlay);
 
     // main panel
@@ -66,7 +64,10 @@ editor.once('load', () => {
     panel.header.append(btnClose);
 
     const orgNameInput = buildFormGroup('Organization Name', 'e.g. PlayCanvas Ltd');
-    const orgIdInput = buildFormGroup('Organization ID', 'Your organization will be available at https://playcanvas.com/<organization-id>');
+    const orgIdInput = buildFormGroup(
+        'Organization ID',
+        'Your organization will be available at https://playcanvas.com/<organization-id>'
+    );
     const orgEmailInput = buildFormGroup('Email');
 
     orgNameInput.on('change', () => {
@@ -82,8 +83,7 @@ editor.once('load', () => {
     const createButton = new Button({
         class: 'create-org-button',
         text: 'CREATE',
-        enabled: false,  // create button disabled on load
-        renderChanges: true
+        enabled: false
     });
     panel.append(createButton);
 
@@ -94,14 +94,18 @@ editor.once('load', () => {
             email: orgEmailInput.value,
             organization: true
         };
-        editor.call('users:createOne', newOrganization, (newUser) => {
-            editor.call('picker:project:cms:refreshOrgs', newUser);
-            overlay.hidden = true;
-        }, (err) => {
-            editor.call('picker:project:buildAlert', overlay, err);
-        });
+        editor.call(
+            'users:createOne',
+            newOrganization,
+            (newUser) => {
+                editor.call('picker:project:cms:refreshOrgs', newUser);
+                overlay.hidden = true;
+            },
+            (err) => {
+                editor.call('picker:project:buildAlert', overlay, err);
+            }
+        );
     });
-
 
     // CONTROLLERS
 
@@ -109,7 +113,8 @@ editor.once('load', () => {
     const validateInputs = () => {
         const isNameValid = orgNameInput.value.length > 0;
         const isIdValid = orgIdInput.value.length > 0 && !/\s/.test(orgIdInput.value);
-        const isEmailValid = /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/.test(orgEmailInput.value) && orgEmailInput.value.length > 0;
+        const isEmailValid =
+            /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/.test(orgEmailInput.value) && orgEmailInput.value.length > 0;
 
         createButton.enabled = isNameValid && isIdValid && isEmailValid;
     };
@@ -143,7 +148,7 @@ editor.once('load', () => {
     // method to display panel
     editor.method('picker:project:newOrganization', () => {
         currentUser = editor.call('picker:project:cms:currentUser');
-        orgEmailInput.value = currentUser.email;  // set email field to current user's email
+        orgEmailInput.value = currentUser.email; // set email field to current user's email
         overlay.hidden = false;
     });
 });

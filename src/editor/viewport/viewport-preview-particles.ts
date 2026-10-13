@@ -1,7 +1,8 @@
-editor.once('load', () => {
-    const index = { };
-    let render = 0;
+import type { EntityObserver } from '@/editor-api';
 
+editor.once('load', () => {
+    const index = {};
+    let render = 0;
 
     editor.on('viewport:update', () => {
         if (render !== 0) {
@@ -9,7 +10,14 @@ editor.once('load', () => {
         }
     });
 
-    const checkState = function (item: { entity: import('@/editor-api').EntityObserver; active: boolean; entity?: { entity?: { particlesystem?: { enabled: boolean } }; get: (path: string) => unknown } }, remove?: boolean): void {
+    const checkState = function (
+        item: {
+            entity: EntityObserver;
+            active: boolean;
+            entity?: { entity?: { particlesystem?: { enabled: boolean } }; get: (path: string) => unknown };
+        },
+        remove?: boolean
+    ): void {
         if (remove || !item.entity.entity || !item.entity.entity.particlesystem) {
             if (item.active) {
                 render--;
@@ -38,18 +46,20 @@ editor.once('load', () => {
         }
     };
 
-    const add = function (entity: import('@/editor-api').EntityObserver): void {
+    const add = function (entity: EntityObserver): void {
         const id = entity.get('resource_id');
 
         if (index[id]) {
             return;
         }
 
+        let item = undefined;
+
         const onCheckState = function () {
             checkState(item);
         };
 
-        var item = index[id] = {
+        item = index[id] = {
             id: id,
             entity: entity,
             active: false,
@@ -63,7 +73,12 @@ editor.once('load', () => {
         checkState(item);
     };
 
-    const remove = function (item: { id: string; evtEnable: { unbind: () => void }; evtSet: { unbind: () => void }; evtUnset: { unbind: () => void } }): void {
+    const remove = function (item: {
+        id: string;
+        evtEnable: { unbind: () => void };
+        evtSet: { unbind: () => void };
+        evtUnset: { unbind: () => void };
+    }): void {
         checkState(item, true);
 
         item.evtEnable.unbind();
@@ -77,12 +92,12 @@ editor.once('load', () => {
         const keys = Object.keys(index);
 
         for (let i = 0; i < keys.length; i++) {
-            remove(index[keys[i]]);
+            const key = keys[i];
+            remove(index[key]);
         }
     };
 
-
-    editor.on('selector:change', (type: string, items: import('@/editor-api').EntityObserver[]) => {
+    editor.on('selector:change', (type: string, items: EntityObserver[]) => {
         clear();
 
         if (type !== 'entity') {
@@ -90,7 +105,8 @@ editor.once('load', () => {
         }
 
         for (let i = 0; i < items.length; i++) {
-            add(items[i]);
+            const item = items[i];
+            add(item);
         }
     });
 });

@@ -8,19 +8,18 @@
 import { config } from '@/editor/config';
 
 editor.once('load', () => {
-
     const model = {
         currentProject: ''
     };
 
     // disables / enables field depending on permissions
     editor.method('project:management:handlePermissions', (field, success, errorFn) => {
-        field.disabled = !editor.call('permissions:write');
+        field.enabled = editor.call('permissions:write');
         return editor.on(`permissions:set:${config.self.id}`, (accessLevel) => {
             if (accessLevel === 'write' || accessLevel === 'admin') {
-                field.disabled = false;
+                field.enabled = true;
             } else {
-                field.disabled = true;
+                field.enabled = false;
             }
         });
     });
@@ -45,7 +44,7 @@ editor.once('load', () => {
         if (!user) {
             result = 'Read';
         } else {
-            if (project && user.id === project.owner.id) {
+            if (project?.owner && user.id === project.owner.id) {
                 result = 'Owner';
             } else {
                 if (user.access_level === 'read' || !user.access_level) {
@@ -83,7 +82,8 @@ editor.once('load', () => {
     editor.method('project:management:isOrgAdmin', (orgId, user) => {
         if (user && user.organizations) {
             for (let i = 0; i < user.organizations.length; i++) {
-                if (user.organizations[i].id === orgId) {
+                const organization = user.organizations[i];
+                if (organization.id === orgId) {
                     return true;
                 }
             }
@@ -102,35 +102,40 @@ editor.once('load', () => {
         let collaborators;
         let access_level;
 
-        editor.call('users:getCollaborators', config.self.id, (result) => {
-            collaborators = result.sort((a, b) => {
-                if (a.username === config.owner.username) {
-                    return -1;
-                }
-                if (b.username === config.owner.username) {
-                    return 1;
-                }
-                if (a.access_level === b.access_level) {
-                    if (a.full_name < b.full_name) {
+        editor.call(
+            'users:getCollaborators',
+            config.self.id,
+            (result) => {
+                collaborators = result.sort((a, b) => {
+                    if (a.username === config.owner.username) {
+                        return -1;
+                    }
+                    if (b.username === config.owner.username) {
+                        return 1;
+                    }
+                    if (a.access_level === b.access_level) {
+                        if (a.full_name < b.full_name) {
+                            return -1;
+                        }
+                        return 1;
+                    }
+
+                    if (a.access_level === 'admin') {
+                        return -1;
+                    }
+                    if (b.access_level === 'admin') {
+                        return 1;
+                    }
+                    if (a.access_level === 'write') {
                         return -1;
                     }
                     return 1;
-                }
-
-                if (a.access_level === 'admin') {
-                    return -1;
-                }
-                if (b.access_level === 'admin') {
-                    return 1;
-                }
-                if (a.access_level === 'write') {
-                    return -1;
-                }
-                return 1;
-            });
-        }, (err) => {
-            console.log(err);
-        });
+                });
+            },
+            (err) => {
+                console.log(err);
+            }
+        );
 
         if (config.self) {
             if (collaborators) {
@@ -152,7 +157,7 @@ editor.once('load', () => {
                 owner: config.owner.username,
                 name: '',
                 fork_from: fork,
-                private: !!((editor.call('project:management:isEnterprise') || allowPrivate)),
+                private: !!(editor.call('project:management:isEnterprise') || allowPrivate),
                 settings: {
                     useLegacyScripts: false,
                     vr: false
@@ -195,5 +200,4 @@ editor.once('load', () => {
     editor.method('project:management:getModel', () => {
         return model;
     });
-
 });

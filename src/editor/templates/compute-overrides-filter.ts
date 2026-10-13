@@ -5,11 +5,9 @@ editor.once('load', () => {
             return overrides;
         }
 
-        filterRemovableConflicts(
-            overrides, 'children', 'templates:handleChildrenConflict');
+        filterRemovableConflicts(overrides, 'children', 'templates:handleChildrenConflict');
 
-        filterRemovableConflicts(
-            overrides, 'components.script.order', 'templates:handleScriptOrderConflict');
+        filterRemovableConflicts(overrides, 'components.script.order', 'templates:handleScriptOrderConflict');
 
         editor.call('template:utils', 'markAddRmScriptConflicts', overrides);
 
@@ -22,14 +20,11 @@ editor.once('load', () => {
         setNumOverrides(overrides);
 
         return overrides;
-
     });
 
     function filterRemovableConflicts(overrides: Record<string, unknown>, path: string, method: string): void {
         const a = overrides.conflicts.map((h) => {
-            return h.path === path ?
-                editor.call(method, h, overrides) :
-                h;
+            return h.path === path ? editor.call(method, h, overrides) : h;
         });
 
         overrides.conflicts = editor.call('template:utils', 'rmFalsey', a);
@@ -48,7 +43,7 @@ editor.once('load', () => {
 
         const h = editor.call('template:utils', 'entArrayToMap', a);
 
-        overrides[type] = a.filter(ent => !h[ent.parent]);
+        overrides[type] = a.filter((ent) => !h[ent.parent]);
     }
 
     function setNumOverrides(overrides: Record<string, unknown>): void {

@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/playwright:v1.58.2-noble AS base
+FROM mcr.microsoft.com/playwright:v1.59.1-noble AS base
 LABEL org.opencontainers.image.source=https://github.com/playcanvas/editor
 WORKDIR /usr/src/test
 
@@ -14,6 +14,7 @@ COPY lib ./lib
 COPY test ./test
 COPY globals.d.ts ./
 COPY playwright.config.mjs ./
+COPY playwright.clean.config.mjs ./
 COPY package.json package-lock.json ./
 COPY tsconfig.json ./
 

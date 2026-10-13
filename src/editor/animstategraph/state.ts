@@ -1,21 +1,30 @@
-import type { Observer, EventHandle } from '@playcanvas/observer';
+import type { Observer, ObserverList, EventHandle } from '@playcanvas/observer';
 import { Panel, Label, Button, BindingTwoWay } from '@playcanvas/pcui';
+import type { PanelArgs } from '@playcanvas/pcui';
 
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
+import type { EntityObserver, History } from '@/editor-api';
 
 import type { Attribute } from '../inspector/attribute.type.d';
 import { AttributesInspector } from '../inspector/attributes-inspector';
 
+import type { AnimStateGraphView } from './view';
 
 const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
 const CLASS_ANIMSTATEGRAPH_STATE = `${CLASS_ANIMSTATEGRAPH}-state`;
 const CLASS_ANIMSTATEGRAPH_STATE_VIEW_BUTTON = `${CLASS_ANIMSTATEGRAPH_STATE}-view-button`;
 const CLASS_ANIMSTATEGRAPH_STATE_TRANSITION = `${CLASS_ANIMSTATEGRAPH_STATE}-transition`;
 
-class AnimstategraphState extends Panel {
-    _args!: Record<string, unknown>;
+type AnimStateGraphStateArgs = {
+    assets?: ObserverList;
+    history?: History;
+    entities?: ObserverList;
+} & PanelArgs;
 
-    _view: { ANIM_SCHEMA: { NODE: { START_STATE: number; ANY_STATE: number; END_STATE: number } }; _parent: { _animViewer: { loadView: (anim: unknown, entity: import('playcanvas').Entity) => void; displayMessage: (msg: string) => void; hidden: boolean } }; selectEdgeEvent: (transition: unknown, id: number) => void; parent: { readOnly: boolean; history: { add: (action: unknown) => void } }; _selectedEntity: Observer | null; _selectedEntityViewButton: Button | null };
+class AnimStateGraphState extends Panel {
+    _args!: AnimStateGraphStateArgs;
+
+    _view: AnimStateGraphView;
 
     _assets: Observer[] | null = null;
 
@@ -47,7 +56,7 @@ class AnimstategraphState extends Panel {
 
     _enabled = false;
 
-    constructor(args: Record<string, unknown>, view: { ANIM_SCHEMA: { NODE: { START_STATE: number; ANY_STATE: number; END_STATE: number } }; _parent: { _animViewer: { loadView: (anim: unknown, entity: import('playcanvas').Entity) => void; displayMessage: (msg: string) => void; hidden: boolean } }; selectEdgeEvent: (transition: unknown, id: number) => void; parent: { readOnly: boolean; history: { add: (action: unknown) => void } }; _selectedEntity: Observer | null; _selectedEntityViewButton: Button | null }) {
+    constructor(args: AnimStateGraphStateArgs, view: AnimStateGraphView) {
         args.headerText = 'STATE';
         super(args);
         this._args = args;
@@ -61,14 +70,15 @@ class AnimstategraphState extends Panel {
 
         this._linkedEntitiesPanel = new Panel({
             headerText: 'LINKED ENTITIES',
-            collapsible: true,
-            history: ''
+            collapsible: true
         });
         this.append(this._linkedEntitiesPanel);
     }
 
-    _previewEntity(entityObserver: Observer) {
-        const animationAssetId = entityObserver.get(`components.anim.animationAssets.${this._layerName}:${this._stateName}.asset`);
+    _previewEntity(entityObserver: EntityObserver) {
+        const animationAssetId = entityObserver.get(
+            `components.anim.animationAssets.${this._layerName}:${this._stateName}.asset`
+        );
         if (animationAssetId) {
             const app = editor.call('viewport:app');
             const animationAsset = app.assets.get(animationAssetId).resource;
@@ -91,30 +101,34 @@ class AnimstategraphState extends Panel {
         this._transitionsPanel.clear();
         let hasTransitions = false;
         const data = this._assets[0].get('data');
-        data.layers[this._layer].transitions.sort((a, b) => {
-            const stateA = data.states[data.transitions[a].to];
-            const stateB = data.states[data.transitions[b].to];
-            if (!stateA || !stateB) {
-                return 1;
-            }
-            return stateA.name > stateB.name ? 1 : -1;
-        }).forEach((transitionId) => {
-            const transition = data.transitions[transitionId];
-            if (transition.from !== state.id || transition.to === undefined) {
-                return;
-            }
-            hasTransitions = true;
-            const toStateName = data.states[transition.to].name;
-            const transitionLabel = new Label({
-                text: `${toStateName}`,
-                class: CLASS_ANIMSTATEGRAPH_STATE_TRANSITION,
-                ignoreParent: true
+        data.layers[this._layer].transitions
+            .sort((a, b) => {
+                const stateA = data.states[data.transitions[a].to];
+                const stateB = data.states[data.transitions[b].to];
+                if (!stateA || !stateB) {
+                    return 1;
+                }
+                return stateA.name > stateB.name ? 1 : -1;
+            })
+            .forEach((transitionId) => {
+                const transition = data.transitions[transitionId];
+                if (transition.from !== state.id || transition.to === undefined) {
+                    return;
+                }
+                hasTransitions = true;
+                const toStateName = data.states[transition.to].name;
+                const transitionLabel = new Label({
+                    text: `${toStateName}`,
+                    class: CLASS_ANIMSTATEGRAPH_STATE_TRANSITION,
+                    ignoreParent: true
+                });
+                this._transitionsPanel.append(transitionLabel);
+                this._evts.push(
+                    transitionLabel.on('click', () => {
+                        this._view.selectEdgeEvent(transition, transition.id);
+                    })
+                );
             });
-            this._transitionsPanel.append(transitionLabel);
-            this._evts.push(transitionLabel.on('click', () => {
-                this._view.selectEdgeEvent(transition, transition.id);
-            }));
-        });
         this._transitionsPanel.hidden = !hasTransitions;
     }
 
@@ -132,9 +146,9 @@ class AnimstategraphState extends Panel {
             layer.states.forEach((layerStateId) => {
                 if (layerStateId === stateId) {
                     const nameInLayer = layer.states
-                    .filter(key => key !== stateId)
-                    .map(key => asset.get(`data.states.${key}.name`))
-                    .includes(value);
+                        .filter((key) => key !== stateId)
+                        .map((key) => asset.get(`data.states.${key}.name`))
+                        .includes(value);
                     if (nameInLayer) {
                         nameExists = true;
                     }
@@ -145,7 +159,7 @@ class AnimstategraphState extends Panel {
     }
 
     static updateAnimationAssetName(observer: Observer, layerName: string, prevState: string, newState: string) {
-        AnimstategraphState.createAnimationAsset(observer, layerName, prevState);
+        AnimStateGraphState.createAnimationAsset(observer, layerName, prevState);
         const historyEnabled = observer.history.enabled;
         observer.history.enabled = false;
         const prevAsset = observer.get(`components.anim.animationAssets.${layerName}:${prevState}`);
@@ -221,29 +235,31 @@ class AnimstategraphState extends Panel {
         this._stateInspector.link(this._assets);
 
         this._stateInspector.getField(`${path}.name`).onValidate = (value) => {
-            return AnimstategraphState.validateStateName(state.id, value, this._assets[0]);
+            return AnimStateGraphState.validateStateName(state.id, value, this._assets[0]);
         };
 
         this._loadTransitions();
-        this._evts.push(this._assets[0].on('*:set', (assetPath, value) => {
-            if (assetPath.startsWith('data.transitions')) {
-                this._loadTransitions();
-            }
-            if (assetPath === `${path}.name`) {
-                this._suppressOnNameChange = true;
-                this._stateInspector.getField(`${path}.name`).value = value;
-                this._suppressOnNameChange = false;
-                this._stateName = value;
-            }
-        }));
+        this._evts.push(
+            this._assets[0].on('*:set', (assetPath, value) => {
+                if (assetPath.startsWith('data.transitions')) {
+                    this._loadTransitions();
+                }
+                if (assetPath === `${path}.name`) {
+                    this._suppressOnNameChange = true;
+                    this._stateInspector.getField(`${path}.name`).value = value;
+                    this._suppressOnNameChange = false;
+                    this._stateName = value;
+                }
+            })
+        );
 
         this._linkedEntitiesPanel.hidden = false;
-        this.disabled = false;
+        this.enabled = true;
         this.header.hidden = false;
 
         // disable editing for start, end and any states
         if (!enabled) {
-            this.disabled = true;
+            this.enabled = false;
             this._linkedEntitiesPanel.hidden = true;
             this.header.hidden = true;
             return;
@@ -254,7 +270,6 @@ class AnimstategraphState extends Panel {
         this._linkedEntityAssets = [];
 
         this._args.entities.forEach((entityObserver) => {
-
             if (entityObserver.get('components.anim.stateGraphAsset') === this._assets[0].get('id')) {
                 const entityPanel = new Panel({
                     class: CLASS_ANIMSTATEGRAPH_STATE,
@@ -294,10 +309,13 @@ class AnimstategraphState extends Panel {
                     }),
                     enabled: !this._view.parent.readOnly
                 });
-                entityAnimationAsset.link([entityObserver], `components.anim.animationAssets.${layerName}:${state.name}.asset`);
+                entityAnimationAsset.link(
+                    [entityObserver],
+                    `components.anim.animationAssets.${layerName}:${state.name}.asset`
+                );
                 entityPanel.content.append(entityAnimationAsset);
 
-                AnimstategraphState.createAnimationAsset(entityObserver, layerName, state.name);
+                AnimStateGraphState.createAnimationAsset(entityObserver, layerName, state.name);
 
                 this._linkedEntities.push(entityObserver);
                 this._linkedEntityAssets.push(entityAnimationAsset);
@@ -317,18 +335,28 @@ class AnimstategraphState extends Panel {
 
             this._linkEntitiesEvent = this._assets[0].on(`${path}.name:set`, (value) => {
                 this._linkedEntities.forEach((entity, i) => {
-                    this._linkedEntityAssets[i].link([entity], `components.anim.animationAssets.${layerName}:${value}.asset`);
+                    this._linkedEntityAssets[i].link(
+                        [entity],
+                        `components.anim.animationAssets.${layerName}:${value}.asset`
+                    );
                 });
             });
 
-            this._evts.push(entityObserver.on('*:set', (p) => {
-                if (entityObserver === this._view._selectedEntity && p === `components.anim.animationAssets.${this._layerName}:${this._stateName}.asset`) {
-                    this._previewEntity(entityObserver);
-                }
-            }));
+            this._evts.push(
+                entityObserver.on('*:set', (p) => {
+                    if (
+                        entityObserver === this._view._selectedEntity &&
+                        p === `components.anim.animationAssets.${this._layerName}:${this._stateName}.asset`
+                    ) {
+                        this._previewEntity(entityObserver);
+                    }
+                })
+            );
 
             if (this._linkedEntities.length === 0) {
-                this._view._parent._animViewer.displayMessage('Add this anim state graph to an entity\'s anim component to preview it here.');
+                this._view._parent._animViewer.displayMessage(
+                    "Add this anim state graph to an entity's anim component to preview it here."
+                );
             }
         });
 
@@ -341,7 +369,12 @@ class AnimstategraphState extends Panel {
             const action = {
                 redo: () => {
                     this._linkedEntities.forEach((entityObserver) => {
-                        AnimstategraphState.updateAnimationAssetName(entityObserver, this._layerName, prevName, newName);
+                        AnimStateGraphState.updateAnimationAssetName(
+                            entityObserver,
+                            this._layerName,
+                            prevName,
+                            newName
+                        );
                     });
                     const historyEnabled = this._assets[0].history.enabled;
                     this._assets[0].history.enabled = false;
@@ -351,7 +384,12 @@ class AnimstategraphState extends Panel {
                 },
                 undo: () => {
                     this._linkedEntities.forEach((entityObserver) => {
-                        AnimstategraphState.updateAnimationAssetName(entityObserver, this._layerName, newName, prevName);
+                        AnimStateGraphState.updateAnimationAssetName(
+                            entityObserver,
+                            this._layerName,
+                            newName,
+                            prevName
+                        );
                     });
                     const historyEnabled = this._assets[0].history.enabled;
                     this._assets[0].history.enabled = false;
@@ -393,7 +431,7 @@ class AnimstategraphState extends Panel {
             this._linkEntitiesEvent = null;
         }
 
-        this._evts.forEach(e => e.unbind());
+        this._evts.forEach((e) => e.unbind());
         this._evts.length = 0;
 
         this.parent.headerText = 'INSPECTOR';
@@ -404,4 +442,4 @@ class AnimstategraphState extends Panel {
     }
 }
 
-export { AnimstategraphState };
+export { AnimStateGraphState };

@@ -1,6 +1,8 @@
 import { MeshInstance } from 'playcanvas';
+import type { Entity } from 'playcanvas';
 
 import { config } from '@/editor/config';
+import { unsetObserver } from '@/editor/driver/observer-unset';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');
@@ -25,7 +27,6 @@ editor.once('load', () => {
 
         if (hoverEntity.model) {
             if (hoverEntity.model.type === 'asset' && hoverEntity.model.model) {
-
                 if (hoverAsset) {
                     hoverAsset.data.mapping[hoverAsset._materialIndHover].material = hoverAsset._materialBeforeHover;
                     hoverAsset.fire('change', hoverAsset, 'data', hoverAsset.data, hoverAsset.data);
@@ -54,7 +55,7 @@ editor.once('load', () => {
         editor.call('viewport:render');
     };
 
-    const onHover = function (entity: import('playcanvas').Entity | null, meshInstance: import('playcanvas').MeshInstance | null): void {
+    const onHover = function (entity: Entity | null, meshInstance: MeshInstance | null): void {
         if (entity === hoverEntity && meshInstance === hoverMeshInstance) {
             return;
         }
@@ -71,8 +72,7 @@ editor.once('load', () => {
                     const ind = hoverEntity.model.model.meshInstances.indexOf(hoverMeshInstance);
                     if (ind !== -1) {
                         const mapping = hoverEntity.model.mapping;
-                        if (!mapping || !mapping.hasOwnProperty(ind)) {
-
+                        if (!mapping || !Object.prototype.hasOwnProperty.call(mapping, ind)) {
                             hoverAsset = app.assets.get(hoverEntity.model.asset);
                             hoverAsset._materialBeforeHover = hoverAsset.data.mapping[ind].material;
                             hoverAsset._materialIndHover = ind;
@@ -106,19 +106,18 @@ editor.once('load', () => {
                     editor.call('viewport:render');
                 }
             }
-
         }
     };
 
-    const onPick = function (node: import('playcanvas').Entity | null, picked: import('playcanvas').MeshInstance | unknown): void {
+    const onPick = function (node: Entity | null, picked: MeshInstance | unknown): void {
         let meshInstance = null;
 
         if (node && node._icon) {
             node = node._getEntity();
         }
 
-        if (!node || !editor.call('entities:get', node.getGuid())) {
-            onHover(null);
+        if (!node || !editor.call('entities:get', node.guid)) {
+            onHover(null, null);
             return;
         }
 
@@ -126,14 +125,18 @@ editor.once('load', () => {
             meshInstance = picked;
         }
 
-        if (meshInstance && (!meshInstance.node._parent || !meshInstance.node._parent._icon) && (node.model || node.render)) {
+        if (
+            meshInstance &&
+            (!meshInstance.node._parent || !meshInstance.node._parent._icon) &&
+            (node.model || node.render)
+        ) {
             onHover(node, meshInstance);
         } else {
-            onHover(null);
+            onHover(null, null);
         }
     };
 
-    editor.on('viewport:pick:hover', (node: import('playcanvas').Entity | null, picked: import('playcanvas').MeshInstance | null) => {
+    editor.on('viewport:pick:hover', (node: Entity | null, picked: MeshInstance | null) => {
         hoverNode = node;
         hoverPicked = picked;
 
@@ -157,7 +160,7 @@ editor.once('load', () => {
                 return;
             }
 
-            let entity = editor.call('entities:get', hoverEntity.getGuid());
+            let entity = editor.call('entities:get', hoverEntity.guid);
             if (!entity) {
                 return;
             }
@@ -266,14 +269,13 @@ editor.once('load', () => {
                             redo.value = mapping;
                         } else {
                             undo.path = `components.model.mapping.${ind}`;
-                            undo.value = entity.has(`components.model.mapping.${ind}`) ?
-                                entity.get(`components.model.mapping.${ind}`) :
-                                undefined;
+                            undo.value = entity.has(`components.model.mapping.${ind}`)
+                                ? entity.get(`components.model.mapping.${ind}`)
+                                : undefined;
                             redo.path = undo.path;
                             redo.value = parseInt(hoverMaterial.id, 10);
 
                             entity.set(`components.model.mapping.${ind}`, parseInt(hoverMaterial.id, 10));
-
                         }
                         entity.history.enabled = history;
 
@@ -290,7 +292,7 @@ editor.once('load', () => {
                                 item.history.enabled = false;
 
                                 if (undo.value === undefined) {
-                                    item.unset(undo.path);
+                                    unsetObserver(item, undo.path);
                                 } else {
                                     item.set(undo.path, undo.value);
                                 }
@@ -306,7 +308,7 @@ editor.once('load', () => {
                                 const history = item.history.enabled;
                                 item.history.enabled = false;
                                 if (redo.value === undefined) {
-                                    item.unset(redo.path);
+                                    unsetObserver(item, redo.path);
                                 } else {
                                     item.set(redo.path, redo.value);
                                 }
@@ -318,7 +320,6 @@ editor.once('load', () => {
                     // primitive model
                     entity.set('components.model.materialAsset', hoverMaterial.id);
                 }
-
             } else if (hoverEntity.render) {
                 const ind = hoverEntity.render.meshInstances.indexOf(hoverMeshInstance);
                 if (ind === -1) {

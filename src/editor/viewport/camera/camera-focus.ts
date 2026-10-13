@@ -1,6 +1,7 @@
 import { PROJECTION_ORTHOGRAPHIC, Vec3 } from 'playcanvas';
+import type { Application } from 'playcanvas';
 
-editor.once('viewport:load', (app: import('playcanvas').Application) => {
+editor.once('viewport:load', (app: Application) => {
     // Focusing on a point and a distance
 
     const focusTarget = new Vec3();
@@ -25,7 +26,8 @@ editor.once('viewport:load', (app: import('playcanvas').Application) => {
 
         if (camera.camera.projection === PROJECTION_ORTHOGRAPHIC) {
             focusOrthoHeight = distance / 2;
-            distance = (camera.camera.farClip - (camera.camera.nearClip || 0.0001)) / 2 + (camera.camera.nearClip || 0.0001);
+            distance =
+                (camera.camera.farClip - (camera.camera.nearClip || 0.0001)) / 2 + (camera.camera.nearClip || 0.0001);
         }
 
         focusTarget.copy(point);
@@ -62,7 +64,9 @@ editor.once('viewport:load', (app: import('playcanvas').Application) => {
 
                 if (camera.camera.projection === PROJECTION_ORTHOGRAPHIC) {
                     let orthoHeight = camera.camera.orthoHeight;
-                    orthoHeight += (focusOrthoHeight - orthoHeight) * Math.min(1.0, flySpeed * ((firstUpdate ? 1 / 60 : dt) / (1 / 60)));
+                    orthoHeight +=
+                        (focusOrthoHeight - orthoHeight) *
+                        Math.min(1.0, flySpeed * ((firstUpdate ? 1 / 60 : dt) / (1 / 60)));
                     camera.camera.orthoHeight = orthoHeight;
                 }
 

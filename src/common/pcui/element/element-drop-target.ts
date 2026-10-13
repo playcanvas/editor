@@ -1,4 +1,5 @@
-import { Element, ElementArgs } from '@playcanvas/pcui';
+import type { ElementArgs } from '@playcanvas/pcui';
+import { Element } from '@playcanvas/pcui';
 
 import type { DropManager } from './element-drop-manager';
 
@@ -11,7 +12,7 @@ const CLASS_DROP_TARGET_FRONT = `${CLASS_DROP_TARGET}-front`;
 /**
  * The arguments for the {@link DropTarget} constructor.
  */
-interface DropTargetArgs extends ElementArgs {
+type DropTargetArgs = {
     /** The type of data that is valid for this drop target. */
     dropType?: string;
     /** The drop manager. */
@@ -28,7 +29,7 @@ interface DropTargetArgs extends ElementArgs {
     onDragLeave?: () => void;
     /** A function with signature (type, data) => void that is called when something is dropped over the drop target. */
     onDrop?: (type: string, data: any) => void;
-}
+} & ElementArgs;
 
 /**
  * Defines an area where we can drag drop data.

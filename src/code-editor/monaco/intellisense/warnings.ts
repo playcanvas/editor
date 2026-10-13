@@ -1,4 +1,10 @@
-function warn(view: monaco.editor.ITextModel, condition: (view: monaco.editor.ITextModel, code: string) => Iterable<RegExpMatchArray> | null, message: string, owner: string, severity: number = monaco.MarkerSeverity.Warning) {
+function warn(
+    view: monaco.editor.ITextModel,
+    condition: (view: monaco.editor.ITextModel, code: string) => Iterable<RegExpMatchArray> | null,
+    message: string,
+    owner: string,
+    severity: number = monaco.MarkerSeverity.Warning
+) {
     const code = view.getValue();
     const markers = [];
     const matches = condition(view, code);
@@ -21,25 +27,19 @@ function warn(view: monaco.editor.ITextModel, condition: (view: monaco.editor.IT
             message,
             severity
         });
-
     }
 
     monaco.editor.setModelMarkers(view, owner, markers);
-
 }
 
 const markWarning = (ownerKey, condition, message, severity = monaco.MarkerSeverity.Warning) => {
-
     const onDocumentChange = (_, view) => warn(view, condition, message, ownerKey, severity);
 
     editor.on('views:new', onDocumentChange);
     editor.on('views:change', onDocumentChange);
-
 };
 
-
 editor.on('load', () => {
-
     // Warn when using ScriptType - @see https://github.com/playcanvas/engine/issues/6316
     markWarning(
         'error-cannot-extend-script-type-class',
@@ -53,5 +53,4 @@ editor.on('load', () => {
         (view, code) => view.uri.path.endsWith('.js') && code.matchAll(/import\([^)]+\)/g),
         'Dynamically importing a relative ".mjs" from a ".js" script is not supported. This may break in production builds.'
     );
-
 });

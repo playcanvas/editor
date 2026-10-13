@@ -83,18 +83,22 @@ function appendCreateFields(form: FormData, data: any) {
  * @param onProgress - Progress function
  * @returns The JSON response from the server
  */
-async function uploadFile(data: Record<string, any>, settings: object = null, onProgress: Function = null) {
+async function uploadFile(
+    data: Record<string, any>,
+    settings: object = null,
+    onProgress: (progress: number) => void = null
+) {
     let method;
     let url;
 
     const form = createFormData(data, settings);
     if (data.id) {
         method = 'PUT';
-        url = `/api/assets/${data.id}`;
+        url = `${api.apiUrl}/assets/${data.id}`;
     } else {
         appendCreateFields(form, data);
         method = 'POST';
-        url = '/api/assets';
+        url = `${api.apiUrl}/assets`;
     }
 
     const response = await new Promise<XMLHttpRequest['response']>((resolve) => {

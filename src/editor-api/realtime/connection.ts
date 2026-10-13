@@ -5,7 +5,7 @@ share.types.register(type);
 
 import { Deferred } from '../deferred';
 import { globals as api } from '../globals';
-import { Realtime } from '../realtime';
+import type { Realtime } from '../realtime';
 
 const RECONNECT_INTERVAL = 3;
 const MAX_ATTEMPTS = 3;
@@ -30,13 +30,13 @@ class RealtimeConnection extends Events {
 
     private _sharedb: ShareDb;
 
-    private _reconnectAttempts: number = 0;
+    private _reconnectAttempts = 0;
 
     private _reconnectInterval: number = RECONNECT_INTERVAL;
 
     private _state: 'connecting' | 'connected' | 'disconnected' = 'disconnected';
 
-    private _authenticated: boolean = false;
+    private _authenticated = false;
 
     private _active: Deferred<WebSocket> = new Deferred<WebSocket>();
 
@@ -57,6 +57,13 @@ class RealtimeConnection extends Events {
             if (document.hidden) {
                 return;
             }
+
+            // detect zombie socket from prolonged background tab
+            if (this._state === 'connected' && this._socket?.readyState !== WebSocket.OPEN) {
+                this._socket?.close();
+                return;
+            }
+
             if (this._state === 'disconnected' && this._url) {
                 this.connect(this._url);
             }
@@ -156,6 +163,8 @@ class RealtimeConnection extends Events {
         this._state = 'connecting';
 
         if (this._reconnectAttempts > MAX_ATTEMPTS) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- intentional tagged-template log call; allowTaggedTemplates is only enabled for src/editor,common,etc.
+            log.error`websocket failed to connect after ${MAX_ATTEMPTS} attempts (url: ${url})`;
             this._realtime.emit('cannotConnect');
             return;
         }
@@ -184,6 +193,10 @@ class RealtimeConnection extends Events {
             }
         };
         socket.addEventListener('message', onmessage);
+
+        socket.addEventListener('error', () => {
+            console.warn(`websocket error (state: ${this._state}, url: ${url}, attempts: ${this._reconnectAttempts})`);
+        });
 
         // ! use event listener as sharedb overrides socket.on* handlers
         socket.addEventListener('close', (reason) => {

@@ -1,5 +1,6 @@
 import type { Observer } from '@playcanvas/observer';
-import { Container, Element, SelectInput, SelectInputArgs } from '@playcanvas/pcui';
+import type { Container, SelectInputArgs } from '@playcanvas/pcui';
+import { Element, SelectInput } from '@playcanvas/pcui';
 
 const CLASS_ROOT = 'pcui-bundles-input';
 

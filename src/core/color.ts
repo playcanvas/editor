@@ -20,9 +20,9 @@ export const rgb2hsv = (rgb: number[]) => {
         if (r === v) {
             h = bb - gg;
         } else if (g === v) {
-            h = (1 / 3) + rr - bb;
+            h = 1 / 3 + rr - bb;
         } else if (b === v) {
-            h = (2 / 3) + gg - rr;
+            h = 2 / 3 + gg - rr;
         }
         if (h < 0) {
             h += 1;
@@ -88,9 +88,11 @@ export const rgbaStr = (color: number[], scale?: number) => {
     if (!scale) {
         scale = 1;
     }
-    let rgba = color.map((element: number, index: number) => {
-        return index < 3 ? Math.round(element * scale) : element;
-    }).join(',');
+    let rgba = color
+        .map((element: number, index: number) => {
+            return index < 3 ? Math.round(element * scale) : element;
+        })
+        .join(',');
     for (let i = color.length; i < 4; ++i) {
         rgba += `,${i < 3 ? scale : 1}`;
     }
@@ -98,16 +100,20 @@ export const rgbaStr = (color: number[], scale?: number) => {
 };
 
 export const hexStr = (clr: number[]) => {
-    return clr.map((v: number) => {
-        return (`00${v.toString(16)}`).slice(-2).toUpperCase();
-    }).join('');
+    return clr
+        .map((v: number) => {
+            return `00${v.toString(16)}`.slice(-2).toUpperCase();
+        })
+        .join('');
 };
 
 // rgb(a) -> hsva
 export const toHsva = (rgba: number[]) => {
-    const hsva = rgb2hsv(rgba.map((v: number) => {
-        return v * 255;
-    }));
+    const hsva = rgb2hsv(
+        rgba.map((v: number) => {
+            return v * 255;
+        })
+    );
     hsva.push(rgba.length > 3 ? rgba[3] : 1);
     return hsva;
 };
@@ -124,8 +130,5 @@ export const toRgba = (hsva: number[]) => {
 // calculate the normalized coordinate [x,y] relative to rect
 export const normalizedCoord = (widget: { element: HTMLElement }, x: number, y: number) => {
     const rect = widget.element.getBoundingClientRect();
-    return [
-        (x - rect.left) / rect.width,
-        (y - rect.top) / rect.height
-    ];
+    return [(x - rect.left) / rect.width, (y - rect.top) / rect.height];
 };

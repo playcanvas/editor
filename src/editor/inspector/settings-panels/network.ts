@@ -1,7 +1,27 @@
-import { BaseSettingsPanel } from './base';
 import type { Attribute } from '../attribute.type.d';
 
+import { BaseSettingsPanel } from './base';
+import type { BaseSettingsPanelArgs } from './base';
+
 const ATTRIBUTES: Attribute[] = [
+    {
+        observer: 'projectSettings',
+        label: 'Asset Credentials',
+        path: 'withCredentials',
+        type: 'boolean',
+        reference: 'settings:project:withCredentials'
+    },
+    {
+        observer: 'projectSettings',
+        label: 'Max Concurrent Requests',
+        path: 'maxConcurrentRequests',
+        type: 'number',
+        reference: 'settings:project:maxConcurrentRequests',
+        args: {
+            min: 0,
+            precision: 0
+        }
+    },
     {
         observer: 'projectSettings',
         label: 'Asset Retries',
@@ -16,7 +36,7 @@ const ATTRIBUTES: Attribute[] = [
 ];
 
 class NetworkSettingsPanel extends BaseSettingsPanel {
-    constructor(args: Record<string, unknown>) {
+    constructor(args: BaseSettingsPanelArgs) {
         args = Object.assign({}, args);
         args.headerText = 'NETWORK';
         args.attributes = ATTRIBUTES;

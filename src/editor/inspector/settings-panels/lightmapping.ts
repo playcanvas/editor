@@ -1,5 +1,7 @@
-import { BaseSettingsPanel } from './base';
 import type { Attribute, Divider } from '../attribute.type.d';
+
+import { BaseSettingsPanel } from './base';
+import type { BaseSettingsPanelArgs } from './base';
 
 const ATTRIBUTES: (Attribute | Divider)[] = [
     {
@@ -140,7 +142,7 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
 ];
 
 class LightmappingSettingsPanel extends BaseSettingsPanel {
-    constructor(args: Record<string, unknown>) {
+    constructor(args: BaseSettingsPanelArgs) {
         args = Object.assign({}, args);
         args.headerText = 'LIGHTMAPPING';
         args.attributes = ATTRIBUTES;

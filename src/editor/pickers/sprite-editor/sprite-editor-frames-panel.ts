@@ -1,5 +1,6 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { Button, Canvas, Container, Label, Panel } from '@playcanvas/pcui';
+import type { Panel } from '@playcanvas/pcui';
+import { Button, Canvas, Container, Label } from '@playcanvas/pcui';
 
 editor.once('load', () => {
     editor.method('picker:sprites:frames', (args) => {
@@ -67,9 +68,11 @@ editor.once('load', () => {
             });
             panel.append(fieldName);
 
-            frameEvents.push(atlasAsset.on(`data.frames.${key}.name:set`, (value) => {
-                fieldName.text = value;
-            }));
+            frameEvents.push(
+                atlasAsset.on(`data.frames.${key}.name:set`, (value) => {
+                    fieldName.text = value;
+                })
+            );
 
             // remove frame
             const btnRemove = new Button({
@@ -80,9 +83,11 @@ editor.once('load', () => {
 
             btnRemove.enabled = editor.call('permissions:write');
 
-            frameEvents.push(editor.on('permissions:writeState', (canWrite: boolean) => {
-                btnRemove.enabled = canWrite;
-            }));
+            frameEvents.push(
+                editor.on('permissions:writeState', (canWrite: boolean) => {
+                    btnRemove.enabled = canWrite;
+                })
+            );
 
             btnRemove.on('click', (e: MouseEvent) => {
                 e.stopPropagation();
@@ -151,7 +156,6 @@ editor.once('load', () => {
                             clearSprite: !spriteEditMode
                         });
                     }
-
                 } else {
                     // select single frame
                     editor.call('picker:sprites:selectFrames', key, {
@@ -176,7 +180,7 @@ editor.once('load', () => {
 
             // clean up events
             panel.once('destroy', (dom) => {
-                frameEvents.forEach(event => event.unbind());
+                frameEvents.forEach((event) => event.unbind());
                 frameEvents.length = 0;
 
                 dom.removeEventListener('mouseenter', onMouseEnter);
@@ -213,179 +217,195 @@ editor.once('load', () => {
         window.addEventListener('keyup', onKeyUp);
 
         // listen to atlas set event
-        events.push(atlasAsset.on('*:set', (path: string, value) => {
-            if (!path.startsWith('data.frames')) {
-                return;
-            }
-
-            const parts = path.split('.');
-            if (parts.length === 2) {
-                // if all frames are set then re-create all frame panels
-                panelFrames.clear();
-                panels = {};
-
-                const raw = atlasAsset.getRaw('data.frames')._data;
-
-                for (const key in value) {
-                    addFramePanel(key, raw[key]._data);
+        events.push(
+            atlasAsset.on('*:set', (path: string, value) => {
+                if (!path.startsWith('data.frames')) {
+                    return;
                 }
-            } else if (parts.length === 3) {
-                // if a frame was set and it doesn't exist create it
-                const key = parts[2];
-                if (key) {
-                    if (!panels[key]) {
-                        let panelBefore = null;
-                        let panelAfter = null;
 
-                        const search = parseInt(key, 10);
-                        for (const k in panels) {
-                            if (search < parseInt(k, 10)) {
-                                panelBefore = panels[k];
-                                break;
-                            } else {
-                                panelAfter = panels[k];
+                const parts = path.split('.');
+                if (parts.length === 2) {
+                    // if all frames are set then re-create all frame panels
+                    panelFrames.clear();
+                    panels = {};
+
+                    const raw = atlasAsset.getRaw('data.frames')._data;
+
+                    for (const key in value) {
+                        addFramePanel(key, raw[key]._data);
+                    }
+                } else if (parts.length === 3) {
+                    // if a frame was set and it doesn't exist create it
+                    const key = parts[2];
+                    if (key) {
+                        if (!panels[key]) {
+                            let panelBefore = null;
+                            let panelAfter = null;
+
+                            const search = parseInt(key, 10);
+                            for (const k in panels) {
+                                if (search < parseInt(k, 10)) {
+                                    panelBefore = panels[k];
+                                    break;
+                                } else {
+                                    panelAfter = panels[k];
+                                }
                             }
+
+                            const raw = atlasAsset.getRaw('data.frames')._data;
+                            addFramePanel(key, raw[key]._data, panelAfter, panelBefore);
                         }
-
-
-                        const raw = atlasAsset.getRaw('data.frames')._data;
-                        addFramePanel(key, raw[key]._data, panelAfter, panelBefore);
+                    }
+                } else {
+                    // if a field changed then re-render the preview for that frame
+                    const key = parts[2];
+                    if (panels[key]) {
+                        panels[key].queueRender();
                     }
                 }
-            } else {
-                // if a field changed then re-render the preview for that frame
-                const key = parts[2];
-                if (panels[key]) {
-                    panels[key].queueRender();
-                }
-            }
-        }));
+            })
+        );
 
         // listen to atlas unset event
         const checkUnsetPath = /^data\.frames\.(\d+)$/;
-        events.push(atlasAsset.on('*:unset', (path: string) => {
-            const match = path.match(checkUnsetPath);
-            if (!match) {
-                return;
-            }
+        events.push(
+            atlasAsset.on('*:unset', (path: string) => {
+                const match = path.match(checkUnsetPath);
+                if (!match) {
+                    return;
+                }
 
-            const key = match[1];
-            if (panels[key]) {
-                panels[key].destroy();
-                delete panels[key];
-            }
-        }));
+                const key = match[1];
+                if (panels[key]) {
+                    panels[key].destroy();
+                    delete panels[key];
+                }
+            })
+        );
 
         // Listen to framesSelected event to highlight panels
-        events.push(editor.on('picker:sprites:framesSelected', (keys) => {
-            const index = {};
-            let key;
+        events.push(
+            editor.on('picker:sprites:framesSelected', (keys) => {
+                const index = {};
+                let key;
 
-            if (spriteEditMode) {
-                // unhighlight old keys
-                const highlighted = panelFrames.innerElement.querySelectorAll('.frame.highlighted');
-                for (let i = 0, len = highlighted.length; i < len; i++) {
-                    if (!keys || keys.indexOf(highlighted[i].ui.frameKey) === -1) {
-                        highlighted[i].ui.class.remove('highlighted');
-                    }
-                }
-
-                if (keys) {
-                    spriteEditModeKeys = keys.slice();
-                } else {
-                    spriteEditModeKeys.length = 0;
-                }
-
-            } else {
-                const selected = panelFrames.innerElement.querySelectorAll('.frame.selected');
-                for (let i = 0, len = selected.length; i < len; i++) {
-                    if (!keys || keys.indexOf(selected[i].ui.frameKey) === -1) {
-                        selected[i].ui.class.remove('selected');
-                        selected[i].ui.class.remove('sprite-frame');
-                    }
-                }
-
-                if (keys) {
-                    selectedKeys = keys.slice();
-                } else {
-                    selectedKeys.length = 0;
-                }
-            }
-
-            // select new keys
-            if (keys && keys.length) {
-                for (let i = 0, len = keys.length; i < len; i++) {
-                    key = keys[i];
-                    index[key] = true;
-
-                    if (!panels[key]) {
-                        continue;
-                    }
-
-                    if (scrollSelectionIntoView) {
-                        let scroll = false;
-                        if (i === 0) {
-                            scroll = spriteEditMode ? !panels[key].class.contains('highlighted') : !panels[key].class.contains('selected');
-                            if (scroll) {
-                                panelFrames.innerElement.scrollTop = panels[key].dom.offsetTop;
-                            }
+                if (spriteEditMode) {
+                    // unhighlight old keys
+                    const highlighted = panelFrames.innerElement.querySelectorAll('.frame.highlighted');
+                    for (let i = 0, len = highlighted.length; i < len; i++) {
+                        if (!keys || keys.indexOf(highlighted[i].ui.frameKey) === -1) {
+                            highlighted[i].ui.class.remove('highlighted');
                         }
                     }
 
-                    panels[key].class.add(spriteEditMode ? 'highlighted' : 'selected');
-                    if (selectedSprite && (keys === selectedKeys || selectedKeys.indexOf(key) !== -1)) {
-                        panels[key].class.add('sprite-frame');
+                    if (keys) {
+                        spriteEditModeKeys = keys.slice();
+                    } else {
+                        spriteEditModeKeys.length = 0;
+                    }
+                } else {
+                    const selected = panelFrames.innerElement.querySelectorAll('.frame.selected');
+                    for (let i = 0, len = selected.length; i < len; i++) {
+                        if (!keys || keys.indexOf(selected[i].ui.frameKey) === -1) {
+                            selected[i].ui.class.remove('selected');
+                            selected[i].ui.class.remove('sprite-frame');
+                        }
+                    }
+
+                    if (keys) {
+                        selectedKeys = keys.slice();
+                    } else {
+                        selectedKeys.length = 0;
                     }
                 }
-            }
-        }));
 
-        events.push(editor.on('picker:sprites:pickFrames:start', () => {
-            spriteEditMode = true;
-        }));
+                // select new keys
+                if (keys && keys.length) {
+                    for (let i = 0, len = keys.length; i < len; i++) {
+                        key = keys[i];
+                        index[key] = true;
 
-        events.push(editor.on('picker:sprites:pickFrames:end', () => {
-            spriteEditMode = false;
+                        if (!panels[key]) {
+                            continue;
+                        }
 
-            for (const key of spriteEditModeKeys) {
-                if (panels[key]) {
-                    panels[key].class.remove('highlighted');
+                        if (scrollSelectionIntoView) {
+                            let scroll = false;
+                            if (i === 0) {
+                                scroll = spriteEditMode
+                                    ? !panels[key].class.contains('highlighted')
+                                    : !panels[key].class.contains('selected');
+                                if (scroll) {
+                                    panelFrames.innerElement.scrollTop = panels[key].dom.offsetTop;
+                                }
+                            }
+                        }
+
+                        panels[key].class.add(spriteEditMode ? 'highlighted' : 'selected');
+                        if (selectedSprite && (keys === selectedKeys || selectedKeys.indexOf(key) !== -1)) {
+                            panels[key].class.add('sprite-frame');
+                        }
+                    }
                 }
-            }
+            })
+        );
 
-            spriteEditModeKeys.length = 0;
-        }));
+        events.push(
+            editor.on('picker:sprites:pickFrames:start', () => {
+                spriteEditMode = true;
+            })
+        );
 
-        events.push(editor.on('picker:sprites:spriteSelected', (spriteAsset) => {
-            selectedSprite = spriteAsset;
-            const keys = spriteEditMode ? spriteEditModeKeys : selectedKeys;
-            for (const key of keys) {
-                const panel = panels[key];
-                if (!panel) {
-                    continue;
+        events.push(
+            editor.on('picker:sprites:pickFrames:end', () => {
+                spriteEditMode = false;
+
+                for (let i = 0; i < spriteEditModeKeys.length; i++) {
+                    const key = spriteEditModeKeys[i];
+                    if (panels[key]) {
+                        panels[key].class.remove('highlighted');
+                    }
                 }
 
-                if (selectedSprite) {
-                    panel.class.add('sprite-frame');
-                } else {
-                    panel.class.remove('sprite-frame');
+                spriteEditModeKeys.length = 0;
+            })
+        );
+
+        events.push(
+            editor.on('picker:sprites:spriteSelected', (spriteAsset) => {
+                selectedSprite = spriteAsset;
+                const keys = spriteEditMode ? spriteEditModeKeys : selectedKeys;
+                for (let i = 0; i < keys.length; i++) {
+                    const key = keys[i];
+                    const panel = panels[key];
+                    if (!panel) {
+                        continue;
+                    }
+
+                    if (selectedSprite) {
+                        panel.class.add('sprite-frame');
+                    } else {
+                        panel.class.remove('sprite-frame');
+                    }
                 }
-            }
-        }));
+            })
+        );
 
         // clean up
-        events.push(leftPanel.on('clear', () => {
-            events.forEach(event => event.unbind());
-            events.length = 0;
+        events.push(
+            leftPanel.on('clear', () => {
+                events.forEach((event) => event.unbind());
+                events.length = 0;
 
-            window.removeEventListener('keydown', onKeyDown);
-            window.removeEventListener('keyup', onKeyUp);
+                window.removeEventListener('keydown', onKeyDown);
+                window.removeEventListener('keyup', onKeyUp);
 
-            panelFrames.clear();
-            panels = {};
+                panelFrames.clear();
+                panels = {};
 
-            selectedKeys.length = 0;
-            spriteEditModeKeys.length = 0;
-        }));
+                selectedKeys.length = 0;
+                spriteEditModeKeys.length = 0;
+            })
+        );
     });
 });

@@ -4,12 +4,19 @@ let time;
 const rect = new Vec4(0, 0, 1, 1);
 
 class ViewportApplication extends Application {
-    constructor(canvas: HTMLCanvasElement, options: { editorSettings?: Record<string, unknown> }) {
+    editorSettings!: Record<string, unknown>;
+
+    redraw = false;
+
+    constructor(
+        canvas: HTMLCanvasElement,
+        options: ConstructorParameters<typeof Application>[1] & { editorSettings?: Record<string, unknown> }
+    ) {
         super(canvas, options);
 
         this._inTools = true;
         for (const system of this.systems.list) {
-            system._inTools = true;
+            (system as { _inTools: boolean })._inTools = true;
         }
 
         this.setEditorSettings(options.editorSettings);
@@ -40,7 +47,7 @@ class ViewportApplication extends Application {
                     cameraEntity.camera.toneMapping = this.editorSettings.cameraToneMapping;
                     cameraEntity.camera.gammaCorrection = this.editorSettings.cameraGammaCorrection;
                 }
-                showFog = this.editorSettings.showFog;
+                showFog = this.editorSettings.showFog as boolean;
             }
 
             this.scene.fog.type = showFog ? (editor.call('sceneSettings')?.get('render.fog') ?? FOG_NONE) : FOG_NONE;
@@ -51,7 +58,7 @@ class ViewportApplication extends Application {
     }
 
     getDt() {
-        const now = (window.performance && window.performance.now) ? performance.now() : Date.now();
+        const now = window.performance && window.performance.now ? performance.now() : Date.now();
         let dt = (now - (time || now)) / 1000.0;
         dt = math.clamp(dt, 0, 0.1); // Maximum delta is 0.1s or 10 fps.
         time = now;
@@ -59,27 +66,34 @@ class ViewportApplication extends Application {
     }
 
     makeTick() {
-        const app = this;
-        return function () {
-            requestAnimationFrame(app.tick);
+        return () => {
+            requestAnimationFrame(this.tick);
 
-            const dt = app.getDt();
+            const dt = this.getDt();
 
-            if (app.redraw) {
-                app.redraw = editor.call('viewport:keepRendering');
+            // the engine's own tick fires 'framerender' every frame, even when no frame is
+            // rendered. unified gsplat rendering depends on it: the gsplat system advances its
+            // streaming from this event (LOD loading and turning gsplat placement changes into
+            // a new world state). this tick replaces the engine's, so fire it here too —
+            // without it, adding/removing/toggling gsplat components after the first one is
+            // never picked up and the viewport renders a stale set of splats.
+            this.fire('framerender');
 
-                app.graphicsDevice.updateClientRect();
+            if (this.redraw) {
+                this.redraw = editor.call('viewport:keepRendering');
+
+                this.graphicsDevice.updateClientRect();
 
                 // Perform ComponentSystem update
                 editor.emit('viewport:preUpdate', dt);
                 editor.emit('viewport:update', dt);
-                app.systems.fire('toolsUpdate', dt);
+                this.systems.fire('toolsUpdate', dt);
                 editor.emit('viewport:postUpdate', dt);
 
                 editor.emit('viewport:gizmoUpdate', dt);
 
                 editor.emit('viewport:preRender');
-                app.render();
+                this.render();
                 editor.emit('viewport:postRender');
             }
         };

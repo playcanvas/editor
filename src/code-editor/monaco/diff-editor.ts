@@ -1,6 +1,9 @@
 import type * as Monaco from 'monaco-editor';
 
+import { createLog } from '@/common/sentry';
 import { handleCallback } from '@/common/utils';
+
+const log = createLog('<PATH>');
 
 const MODES: Record<string, string> = {
     script: 'javascript',
@@ -13,6 +16,11 @@ const MODES: Record<string, string> = {
 const REGEX_HUNK = /^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@$/gm;
 
 const LARGE_FILE_SIZE = 300000;
+
+// colour every changed line; only bail on a pathological number of edits, so a
+// large file with few changes still gets colours (gate on changed-line count,
+// not total file size)
+const MAX_DIFF_OVERLAYS = 10000;
 
 class DiffEditor {
     type: string;
@@ -39,7 +47,7 @@ class DiffEditor {
         this.monacoEditor.updateOptions({
             folding: false,
             readOnly: true,
-            lineNumbers: originalLineNumber => this.lineNumbers[originalLineNumber]
+            lineNumbers: (originalLineNumber) => this.lineNumbers[originalLineNumber]
         });
     }
 
@@ -59,7 +67,6 @@ class DiffEditor {
 
     createOverlays() {
         const content = this.content;
-        const isLarge = (content.length > LARGE_FILE_SIZE);
         let match;
 
         let hunk;
@@ -83,7 +90,10 @@ class DiffEditor {
         // depending on the line contents
         const lineCount = this.model.getLineCount();
 
+        // hunk-label overlays are always applied; per-line add/remove colours
+        // are collected separately so they can be gated by their count
         const decorations = [];
+        const lineOverlays = [];
 
         for (let i = 0, len = hunks.length; i < len; i++) {
             hunk = hunks[i];
@@ -102,16 +112,14 @@ class DiffEditor {
                 if (line.startsWith('+')) {
                     showLine = true;
                     // 'add' overlay
-                    if (!isLarge) {
-                        decorations.push(this.createLineOverlay(j + 1, 'add'));
-                    }
-                } else if (!isLarge && line.startsWith('-')) {
+                    lineOverlays.push(this.createLineOverlay(j + 1, 'add'));
+                } else if (line.startsWith('-')) {
                     // if the line was removed from the current state
                     // then don't increase the line number
                     codeLine--;
 
                     // 'remove' overlay
-                    decorations.push(this.createLineOverlay(j + 1, 'remove'));
+                    lineOverlays.push(this.createLineOverlay(j + 1, 'remove'));
                 }
 
                 // line number (only for current state)
@@ -123,10 +131,17 @@ class DiffEditor {
             }
 
             // change hunk text to something more user-friendly
-            this.model.applyEdits([{
-                text: `Lines ${hunk.hunkRightStart}-${codeLine - 1}:`,
-                range: new monaco.Range(hunk.hunkStart, 1, hunk.hunkStart, hunk.hunkLength + 1)
-            }]);
+            this.model.applyEdits([
+                {
+                    text: `Lines ${hunk.hunkRightStart}-${codeLine - 1}:`,
+                    range: new monaco.Range(hunk.hunkStart, 1, hunk.hunkStart, hunk.hunkLength + 1)
+                }
+            ]);
+        }
+
+        // skip per-line colours only when there are pathologically many edits
+        if (lineOverlays.length <= MAX_DIFF_OVERLAYS) {
+            decorations.push(...lineOverlays);
         }
 
         this.decorations = this.monacoEditor.deltaDecorations(this.decorations, decorations);
@@ -144,28 +159,31 @@ class DiffEditor {
     }
 
     run() {
-        handleCallback(editor.api.globals.rest.merge.mergeConflicts({
-            mergeId: config.self.branch.merge.id,
-            conflictId: config.self.branch.merge.conflict.id,
-            fileName: config.self.branch.merge.conflict.mergedFilePath,
-            resolved: false
-        }), (err, contents) => {
-            if (err) {
-                log.error(err);
-                editor.call('status:error', err);
-                return;
-            }
+        handleCallback(
+            editor.api.globals.rest.merge.mergeConflicts({
+                mergeId: config.self.branch.merge.id,
+                conflictId: config.self.branch.merge.conflict.id,
+                fileName: config.self.branch.merge.conflict.mergedFilePath,
+                resolved: false
+            }),
+            (err, contents) => {
+                if (err) {
+                    log.error(err);
+                    editor.call('status:error', err);
+                    return;
+                }
 
-            // stop highlighting if document is large
-            let mode = MODES[this.type];
-            if (contents.length > LARGE_FILE_SIZE) {
-                mode = 'text';
-            }
+                // stop highlighting if document is large
+                let mode = MODES[this.type];
+                if (contents.length > LARGE_FILE_SIZE) {
+                    mode = 'text';
+                }
 
-            this.model = monaco.editor.createModel(contents, mode);
-            this.content = contents;
-            this.renderDocument();
-        });
+                this.model = monaco.editor.createModel(contents, mode);
+                this.content = contents;
+                this.renderDocument();
+            }
+        );
     }
 }
 

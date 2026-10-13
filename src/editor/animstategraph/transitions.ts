@@ -1,5 +1,6 @@
-import type { Observer, EventHandle } from '@playcanvas/observer';
+import type { Observer, ObserverList, EventHandle } from '@playcanvas/observer';
 import { Container, Button, Panel, Label } from '@playcanvas/pcui';
+import type { ContainerArgs } from '@playcanvas/pcui';
 import {
     ANIM_EQUAL_TO,
     ANIM_INTERRUPTION_NONE,
@@ -9,10 +10,13 @@ import {
     ANIM_INTERRUPTION_PREV_NEXT
 } from 'playcanvas';
 
-import { AnimstategraphCondition } from './condition';
+import type { History } from '@/editor-api';
+
 import type { Attribute, Divider } from '../inspector/attribute.type.d';
 import { AttributesInspector } from '../inspector/attributes-inspector';
 
+import { AnimStateGraphCondition } from './condition';
+import type { AnimStateGraphView } from './view';
 
 const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
 const CLASS_ANIMSTATEGRAPH_TRANSITION = `${CLASS_ANIMSTATEGRAPH}-transition`;
@@ -20,7 +24,7 @@ const CLASS_ANIMSTATEGRAPH_TRANSITIONS = `${CLASS_ANIMSTATEGRAPH}-transitions`;
 const CLASS_ANIMSTATEGRAPH_TRANSITION_CONDITIONS_NOTE = `${CLASS_ANIMSTATEGRAPH_TRANSITION}-conditions-note`;
 
 // This helper function moves the the position of an item in the given array from the supplied old_index position to the new_index position.
-// Used by the AnimstategraphTransitions class to update the transitions order when the _onDragEnd event is fired.
+// Used by the AnimStateGraphTransitions class to update the transitions order when the _onDragEnd event is fired.
 function arrayMove<T>(arr: T[], old_index: number, new_index: number): T[] {
     if (new_index >= arr.length) {
         let k = new_index - arr.length + 1;
@@ -41,10 +45,15 @@ class TransitionInspector extends AttributesInspector {
     }
 }
 
-class AnimstategraphTransitions extends Container {
-    _view: Record<string, unknown>;
+type AnimStateGraphTransitionsArgs = {
+    assets?: ObserverList;
+    history?: History;
+} & ContainerArgs;
 
-    _args: Record<string, unknown>;
+class AnimStateGraphTransitions extends Container {
+    _view: AnimStateGraphView;
+
+    _args: AnimStateGraphTransitionsArgs;
 
     _assets: Observer[] | null = null;
 
@@ -64,9 +73,8 @@ class AnimstategraphTransitions extends Container {
 
     _onParamDeleteEvent: EventHandle | null = null;
 
-    constructor(args: Record<string, unknown>, view: Record<string, unknown>) {
+    constructor(args: AnimStateGraphTransitionsArgs, view: AnimStateGraphView) {
         super({
-            args: Object.assign({}, args),
             class: CLASS_ANIMSTATEGRAPH_TRANSITIONS,
             enabled: !view.parent.readOnly
         });
@@ -102,16 +110,19 @@ class AnimstategraphTransitions extends Container {
     }
 
     _onDragEnd(_inspector: unknown, newIndex: number, oldIndex: number) {
-        let transitions = this._assets[0].get(`data.layers.${this._selectedLayer}.transitions`).filter((transitionId) => {
-            const transition = this._assets[0].get(`data.transitions.${transitionId}`);
-            return this._edge === `${transition.from}-${transition.to}`;
-        }).map((transitionId) => {
-            const transition = this._assets[0].get(`data.transitions.${transitionId}`);
-            return {
-                transition,
-                id: transitionId
-            };
-        });
+        let transitions = this._assets[0]
+            .get(`data.layers.${this._selectedLayer}.transitions`)
+            .filter((transitionId) => {
+                const transition = this._assets[0].get(`data.transitions.${transitionId}`);
+                return this._edge === `${transition.from}-${transition.to}`;
+            })
+            .map((transitionId) => {
+                const transition = this._assets[0].get(`data.transitions.${transitionId}`);
+                return {
+                    transition,
+                    id: transitionId
+                };
+            });
         transitions.sort((a, b) => {
             return a.transition.priority - b.transition.priority;
         });
@@ -144,7 +155,7 @@ class AnimstategraphTransitions extends Container {
         this._assets[0].set(`data.transitions.${transitionId}.conditions`, conditions);
     }
 
-    link(assets: import('@playcanvas/observer').Observer[], layer: number, edge: { from: number; to: number }) {
+    link(assets: Observer[], layer: number, edge: { from: number; to: number }) {
         this.unlink();
         this._assets = assets;
         this._selectedLayer = layer;
@@ -264,7 +275,7 @@ class AnimstategraphTransitions extends Container {
                 removable: !transition.defaultTransition,
                 sortable: true
             });
-            transitionPanel.disabled = transition.defaultTransition;
+            transitionPanel.enabled = !transition.defaultTransition;
 
             transitionPanel.on('click:remove', () => {
                 this._view._onDeleteEdge({ edgeId: transitionId });
@@ -296,7 +307,7 @@ class AnimstategraphTransitions extends Container {
 
             transitionPanel.conditions = new Container();
             Object.keys(transition.conditions).forEach((conditionId) => {
-                const condition = new AnimstategraphCondition({
+                const condition = new AnimStateGraphCondition({
                     parameters: parameters,
                     onDelete: () => {
                         this._deleteCondition(transitionId, conditionId);
@@ -324,7 +335,7 @@ class AnimstategraphTransitions extends Container {
                 }
                 transitionPanel.conditions = new Container();
                 Object.keys(transition.conditions).forEach((conditionId) => {
-                    const condition = new AnimstategraphCondition({
+                    const condition = new AnimStateGraphCondition({
                         parameters: parameters,
                         onDelete: () => {
                             this._deleteCondition(transitionId, conditionId);
@@ -357,7 +368,8 @@ class AnimstategraphTransitions extends Container {
                 text: 'Note: No Exit Time or Conditions set - transition will activate instantly.'
             });
             const hideConditionNote = () => {
-                const hasConditions = Object.keys(this._assets[0].get(`data.transitions.${transitionId}.conditions`)).length > 0;
+                const hasConditions =
+                    Object.keys(this._assets[0].get(`data.transitions.${transitionId}.conditions`)).length > 0;
                 const hasExitTime = this._assets[0].get(`data.transitions.${transitionId}.exitTime`) > 0;
                 return hasExitTime || hasConditions;
             };
@@ -372,8 +384,12 @@ class AnimstategraphTransitions extends Container {
                     if (exitTime > 0) {
                         lastExitTimeValue = exitTime;
                     }
-                } else if (!path || path.includes('parameters') || path.includes(`transitions.${transitionId}`) && transition.conditions) {
-                    addConditions(path);
+                } else if (
+                    !path ||
+                    path.includes('parameters') ||
+                    (path.includes(`transitions.${transitionId}`) && transition.conditions)
+                ) {
+                    addConditions();
                     conditionNote.hidden = hideConditionNote();
                 }
             });
@@ -383,7 +399,6 @@ class AnimstategraphTransitions extends Container {
                     addConditions();
                 }
             });
-
         });
         this._newTransitionButton.hidden = edge.defaultTransition;
         this.parent.headerText = 'TRANSITION';
@@ -414,4 +429,4 @@ class AnimstategraphTransitions extends Container {
     }
 }
 
-export { AnimstategraphTransitions };
+export { AnimStateGraphTransitions };

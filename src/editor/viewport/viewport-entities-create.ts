@@ -1,14 +1,14 @@
 import { Entity } from 'playcanvas';
 
-import { type EntityObserver } from '@/editor-api';
+import type { EntityObserver } from '@/editor-api';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');
 
     // entities indexes for parenting
-    const childIndex = { };
-    const entitiesIndex = { };
-    const unknowns = { };
+    const childIndex = {};
+    const entitiesIndex = {};
+    const unknowns = {};
 
     // queue for hierarchy resync
     let awaitingResyncHierarchy = false;
@@ -33,19 +33,13 @@ editor.once('load', () => {
         entitiesIndex[obj.get('resource_id')] = entity;
 
         entity.name = obj.get('name');
-        entity.setGuid(obj.get('resource_id'));
+        entity.guid = obj.get('resource_id');
         entity.setLocalPosition(obj.get('position.0'), obj.get('position.1'), obj.get('position.2'));
         entity.setLocalEulerAngles(obj.get('rotation.0'), obj.get('rotation.1'), obj.get('rotation.2'));
         entity.setLocalScale(obj.get('scale.0'), obj.get('scale.1'), obj.get('scale.2'));
         const observerEnabled = obj.has('enabled') ? obj.get('enabled') : true;
         const viewportHidden = editor.call('entities:visibility:isHidden', obj.get('resource_id'));
         entity._enabled = observerEnabled && !viewportHidden;
-
-        if (obj.has('labels')) {
-            obj.get('labels').forEach((label) => {
-                entity.addLabel(label);
-            });
-        }
 
         entity.template = obj.get('template');
 
@@ -56,10 +50,10 @@ editor.once('load', () => {
         // try to insert the node at the right index
         for (let i = 0, len = parent._children.length; i < len; i++) {
             const child = parent._children[i];
-            if (child instanceof Entity && childIndex[child.getGuid()]) {
+            if (child instanceof Entity && childIndex[child.guid]) {
                 // if our index is less than this child's index
                 // then put the item here
-                if (index < childIndex[child.getGuid()].index) {
+                if (index < childIndex[child.guid].index) {
                     parent.insertChild(node, i);
                     return;
                 }
@@ -76,7 +70,7 @@ editor.once('load', () => {
         } // webgl not available
 
         // create entity
-        const entity = obj.entity = createEntity(obj);
+        const entity = (obj.entity = createEntity(obj));
 
         const children = obj.get('children');
         for (let i = 0; i < children.length; i++) {
@@ -106,7 +100,6 @@ editor.once('load', () => {
     };
 
     const processEntityComponents = function (entity: Entity | null, obj: EntityObserver): void {
-
         if (!entity) {
             return;
         }
@@ -183,7 +176,8 @@ editor.once('load', () => {
             delete entitiesIndex[obj.get('resource_id')];
             const children = obj.get('children');
             for (let i = 0; i < children.length; i++) {
-                delete childIndex[children[i]];
+                const child = children[i];
+                delete childIndex[child];
             }
         });
 

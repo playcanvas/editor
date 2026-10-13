@@ -1,32 +1,37 @@
 import { Button } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');
     const toolbar = editor.call('layout.toolbar');
 
     let activeGizmo = null;
-    const gizmoButtons = { };
+    const gizmoButtons = {};
 
     // create gizmo type buttons
-    [{
-        icon: 'E111',
-        tooltip: 'Translate',
-        op: 'translate'
-    }, {
-        icon: 'E113',
-        tooltip: 'Rotate',
-        op: 'rotate'
-    }, {
-        icon: 'E112',
-        tooltip: 'Scale',
-        op: 'scale'
-    }, {
-        icon: 'E142',
-        tooltip: 'Resize Element Component',
-        op: 'resize'
-    }].forEach((item, index) => {
+    [
+        {
+            icon: 'E111',
+            tooltip: 'Translate',
+            op: 'translate'
+        },
+        {
+            icon: 'E113',
+            tooltip: 'Rotate',
+            op: 'rotate'
+        },
+        {
+            icon: 'E112',
+            tooltip: 'Scale',
+            op: 'scale'
+        },
+        {
+            icon: 'E142',
+            tooltip: 'Resize Element Component',
+            op: 'resize'
+        }
+    ].forEach((item, index) => {
         const button = new Button({
             class: 'pc-icon',
             hidden: !editor.call('permissions:write'),
@@ -51,8 +56,14 @@ editor.once('load', () => {
         });
 
         toolbar.append(button);
+        editor.call('toolbar:register', {
+            id: `gizmo-${item.op}`,
+            label: item.tooltip,
+            group: 'main',
+            button
+        });
 
-        button.tooltip = LegacyTooltip.attach({
+        button.tooltip = TooltipHandle.attach({
             target: button.dom,
             text: item.tooltip,
             align: 'left',
@@ -74,6 +85,7 @@ editor.once('load', () => {
         icon: 'E118'
     });
     toolbar.append(buttonWorld);
+    editor.call('toolbar:register', { id: 'gizmo-space', label: 'World / Local', group: 'main', button: buttonWorld });
 
     buttonWorld.on('click', () => {
         if (buttonWorld.class.contains('active')) {
@@ -86,14 +98,13 @@ editor.once('load', () => {
         editor.call('gizmo:coordSystem', buttonWorld.class.contains('active') ? 'world' : 'local');
     });
 
-    const tooltipWorld = LegacyTooltip.attach({
+    const tooltipWorld = TooltipHandle.attach({
         target: buttonWorld.dom,
         align: 'left',
         root: root
     });
     tooltipWorld.html = '<span style="color:#fff">World</span> / Local';
     tooltipWorld.class.add('inactive');
-
 
     // toggle grid snap
     const buttonSnap = new Button({
@@ -112,15 +123,15 @@ editor.once('load', () => {
         editor.call('gizmo:snap', buttonSnap.class.contains('active'));
     });
     toolbar.append(buttonSnap);
+    editor.call('toolbar:register', { id: 'gizmo-snap', label: 'Snap', group: 'main', button: buttonSnap });
 
-    const tooltipSnap = LegacyTooltip.attach({
+    const tooltipSnap = TooltipHandle.attach({
         target: buttonSnap.dom,
         text: 'Snap',
         align: 'left',
         root: root
     });
     tooltipSnap.class.add('inactive');
-
 
     editor.on('permissions:writeState', (state) => {
         for (const key in gizmoButtons) {
@@ -130,7 +141,6 @@ editor.once('load', () => {
         buttonWorld.hidden = !state;
         buttonSnap.hidden = !state;
     });
-
 
     // focus on entity
     const buttonFocus = new Button({
@@ -142,6 +152,7 @@ editor.once('load', () => {
         editor.call('viewport:focus');
     });
     toolbar.append(buttonFocus);
+    editor.call('toolbar:register', { id: 'gizmo-focus', label: 'Focus', group: 'main', button: buttonFocus });
 
     editor.on('attributes:clear', () => {
         buttonFocus.enabled = false;
@@ -156,14 +167,13 @@ editor.once('load', () => {
         }
     });
 
-    const tooltipFocus = LegacyTooltip.attach({
+    const tooltipFocus = TooltipHandle.attach({
         target: buttonFocus.dom,
         text: 'Focus',
         align: 'left',
         root: root
     });
     tooltipFocus.class.add('inactive');
-
 
     // translate hotkey
     editor.call('hotkey:register', 'gizmo:translate', {

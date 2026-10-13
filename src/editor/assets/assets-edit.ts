@@ -3,14 +3,16 @@ import { LegacyScriptPreviewOverlay } from './legacy-script-preview-overlay';
 editor.once('load', () => {
     const types = new Set(['css', 'html', 'json', 'script', 'shader', 'text']);
 
-    editor.method('assets:edit', async (asset) => {
+    editor.method('assets:edit', async (asset, ide?: string) => {
         const type = asset.get('type');
         const useLegacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
         if (type === 'script' && useLegacyScripts) {
             const filename = asset.get('filename') || asset.get('name');
             try {
-                const text = await editor.api.globals.rest.projects.projectRepoSourcefile('directory', filename).promisify();
+                const text = await editor.api.globals.rest.projects
+                    .projectRepoSourcefile('directory', filename)
+                    .promisify();
                 const preview = new LegacyScriptPreviewOverlay({
                     name: filename,
                     code: text
@@ -20,7 +22,7 @@ editor.once('load', () => {
                 console.error('Error fetching script:', error);
             }
         } else {
-            editor.call('picker:codeeditor', asset);
+            editor.call('picker:codeeditor', asset, undefined, undefined, ide);
         }
     });
 

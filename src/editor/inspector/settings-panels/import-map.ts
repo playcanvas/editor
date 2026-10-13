@@ -1,9 +1,11 @@
 import { Container, Button } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
+
+import type { Attribute } from '../attribute.type.d';
 
 import { BaseSettingsPanel } from './base';
-import type { Attribute } from '../attribute.type.d';
+import type { BaseSettingsPanelArgs } from './base';
 
 const ATTRIBUTES: Attribute[] = [
     {
@@ -51,11 +53,11 @@ class ImportMapSettingsPanel extends BaseSettingsPanel {
 
     _buttonContainer: Container;
 
-    _selectExistingTooltip: LegacyTooltip;
+    _selectExistingTooltip: TooltipHandle;
 
-    _createDefaultTooltip: LegacyTooltip;
+    _createDefaultTooltip: TooltipHandle;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: BaseSettingsPanelArgs) {
         args = Object.assign({}, args);
         args.headerText = 'IMPORT MAP';
         args.attributes = ATTRIBUTES;
@@ -73,16 +75,15 @@ class ImportMapSettingsPanel extends BaseSettingsPanel {
             }
         });
 
-
-        this._selectExistingTooltip = LegacyTooltip.attach({
-            target: this._selectExistingButton.element,
+        this._selectExistingTooltip = TooltipHandle.attach({
+            target: this._selectExistingButton.dom,
             text: 'Select an existing Import Map',
             align: 'bottom',
             root: editor.call('layout.root')
         });
 
-        this._createDefaultTooltip = LegacyTooltip.attach({
-            target: this._createDefaultButton.element,
+        this._createDefaultTooltip = TooltipHandle.attach({
+            target: this._createDefaultButton.dom,
             text: 'Create a default Import Map',
             align: 'bottom',
             root: editor.call('layout.root')
@@ -142,14 +143,14 @@ class ImportMapSettingsPanel extends BaseSettingsPanel {
     }
 
     _clickCreateDefault() {
-        this._createDefaultButton.disabled = true;
+        this._createDefaultButton.enabled = false;
         editor.call('assets:create:json', {
-            name: 'Import Map',
+            name: 'import-map.json',
             json: JSON.stringify({ imports: {} }, null, 2),
             spaces: 2,
             noSelect: true,
             callback: (err, id) => {
-                this._createDefaultButton.disabled = false;
+                this._createDefaultButton.enabled = true;
                 if (err) {
                     console.error(err);
                     return;

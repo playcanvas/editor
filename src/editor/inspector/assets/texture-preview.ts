@@ -7,11 +7,11 @@ import { AssetInspectorPreviewBase } from './asset-preview-base';
 const getPreviewUrl = (asset) => {
     const url = asset.get('file.url');
     const hash = asset.get('file.hash');
-    if (!config || !config.url || !config.url.home || !url || !hash) {
+    if (!url || !hash) {
         return null;
     }
 
-    return buildQueryUrl(config.url.home + asset.get('file.url'), { t: asset.get('file.hash') });
+    return buildQueryUrl(url, { t: hash });
 };
 
 class TextureAssetInspectorPreview extends AssetInspectorPreviewBase {
@@ -29,6 +29,7 @@ class TextureAssetInspectorPreview extends AssetInspectorPreviewBase {
         this._preview = document.createElement('div');
         this._preview.classList.add('pcui-texture-asset-preview');
         this.append(this._preview);
+        this._previewElement = this._preview;
 
         this._updatePreview = this._updatePreview.bind(this);
     }
@@ -62,7 +63,7 @@ class TextureAssetInspectorPreview extends AssetInspectorPreviewBase {
 
                 // decode RGBM in-place
                 for (let i = 0; i < numPixels; ++i) {
-                    const a = data[i * 4 + 3] / 255 * 8;
+                    const a = (data[i * 4 + 3] / 255) * 8;
                     data[i * 4 + 0] = Math.min(255, data[i * 4 + 0] * a);
                     data[i * 4 + 1] = Math.min(255, data[i * 4 + 1] * a);
                     data[i * 4 + 2] = Math.min(255, data[i * 4 + 2] * a);
@@ -97,7 +98,7 @@ class TextureAssetInspectorPreview extends AssetInspectorPreviewBase {
     unlink() {
         super.unlink();
 
-        this._assetEvents.forEach(e => e.unbind());
+        this._assetEvents.forEach((e) => e.unbind());
         this._assetEvents.length = 0;
         this._assets = null;
     }

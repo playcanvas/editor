@@ -31,11 +31,14 @@ editor.once('load', () => {
         assetsPanel.assets = null;
     });
 
-
     editor.method('assets:panel:currentFolder', (asset) => {
         if (asset === undefined) {
             // special case for legacy scripts
-            if (config.project.settings.useLegacyScripts && assetsPanel.currentFolder && assetsPanel.currentFolder.get('id') === AssetPanel.LEGACY_SCRIPTS_ID) {
+            if (
+                config.project.settings.useLegacyScripts &&
+                assetsPanel.currentFolder &&
+                assetsPanel.currentFolder.get('id') === AssetPanel.LEGACY_SCRIPTS_ID
+            ) {
                 return 'scripts';
             }
 

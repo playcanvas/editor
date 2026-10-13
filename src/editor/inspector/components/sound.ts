@@ -4,155 +4,181 @@ import { Panel, Container, Button } from '@playcanvas/pcui';
 import { deepCopy } from '@/common/utils';
 import type { EntityObserver } from '@/editor-api';
 
-import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+import { ComponentInspector } from './component';
+import type { ComponentInspectorArgs } from './component';
 
-const COMPONENT_ATTRIBUTES: Attribute[] = [{
-    label: 'Positional',
-    path: 'components.sound.positional',
-    type: 'boolean',
-    reference: 'sound:positional'
-}, {
-    label: 'Volume',
-    path: 'components.sound.volume',
-    type: 'slider',
-    args: {
-        precision: 2,
-        step: 0.01,
-        min: 0,
-        max: 1
+const COMPONENT_ATTRIBUTES: Attribute[] = [
+    {
+        label: 'Positional',
+        path: 'components.sound.positional',
+        type: 'boolean',
+        reference: 'sound:positional'
     },
-    reference: 'sound:volume'
-}, {
-    label: 'Pitch',
-    path: 'components.sound.pitch',
-    type: 'number',
-    args: {
-        min: 0,
-        step: 0.1
+    {
+        label: 'Volume',
+        path: 'components.sound.volume',
+        type: 'slider',
+        args: {
+            precision: 2,
+            step: 0.01,
+            min: 0,
+            max: 1
+        },
+        reference: 'sound:volume'
     },
-    reference: 'sound:pitch'
-}, {
-    label: 'Ref Distance',
-    path: 'components.sound.refDistance',
-    type: 'number',
-    args: {
-        min: 0,
-        step: 1,
-        precision: 2
+    {
+        label: 'Pitch',
+        path: 'components.sound.pitch',
+        type: 'number',
+        args: {
+            min: 0,
+            step: 0.1
+        },
+        reference: 'sound:pitch'
     },
-    reference: 'sound:refDistance'
-}, {
-    label: 'Max Distance',
-    path: 'components.sound.maxDistance',
-    type: 'number',
-    args: {
-        min: 0,
-        step: 1,
-        precision: 2
+    {
+        label: 'Ref Distance',
+        path: 'components.sound.refDistance',
+        type: 'number',
+        args: {
+            min: 0,
+            step: 1,
+            precision: 2
+        },
+        reference: 'sound:refDistance'
     },
-    reference: 'sound:maxDistance'
-}, {
-    label: 'Distance Model',
-    path: 'components.sound.distanceModel',
-    type: 'select',
-    args: {
+    {
+        label: 'Max Distance',
+        path: 'components.sound.maxDistance',
+        type: 'number',
+        args: {
+            min: 0,
+            step: 1,
+            precision: 2
+        },
+        reference: 'sound:maxDistance'
+    },
+    {
+        label: 'Distance Model',
+        path: 'components.sound.distanceModel',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [
+                {
+                    v: 'linear',
+                    t: 'Linear'
+                },
+                {
+                    v: 'exponential',
+                    t: 'Exponential'
+                },
+                {
+                    v: 'inverse',
+                    t: 'Inverse'
+                }
+            ]
+        },
+        reference: 'sound:distanceModel'
+    },
+    {
+        label: 'Roll-off Factor',
+        path: 'components.sound.rollOffFactor',
+        type: 'number',
+        args: {
+            min: 0,
+            precision: 2,
+            step: 0.1
+        },
+        reference: 'sound:rollOffFactor'
+    }
+];
+
+const SLOT_ATTRIBUTES: Attribute[] = [
+    {
+        label: 'Name',
+        path: 'components.sound.slots.$.name',
         type: 'string',
-        options: [{
-            v: 'linear', t: 'Linear'
-        }, {
-            v: 'exponential', t: 'Exponential'
-        }, {
-            v: 'inverse', t: 'Inverse'
-        }]
+        reference: 'sound:slot:name'
     },
-    reference: 'sound:distanceModel'
-}, {
-    label: 'Roll-off Factor',
-    path: 'components.sound.rollOffFactor',
-    type: 'number',
-    args: {
-        min: 0,
-        precision: 2,
-        step: 0.1
+    {
+        label: 'Asset',
+        type: 'asset',
+        path: 'components.sound.slots.$.asset',
+        args: {
+            assetType: 'audio'
+        },
+        reference: 'sound:slot:asset'
     },
-    reference: 'sound:rollOffFactor'
-}];
-
-const SLOT_ATTRIBUTES: Attribute[] = [{
-    label: 'Name',
-    path: 'components.sound.slots.$.name',
-    type: 'string',
-    reference: 'sound:slot:name'
-}, {
-    label: 'Asset',
-    type: 'asset',
-    path: 'components.sound.slots.$.asset',
-    args: {
-        assetType: 'audio'
+    {
+        label: 'Start Time',
+        type: 'number',
+        path: 'components.sound.slots.$.startTime',
+        args: {
+            min: 0,
+            precision: 2,
+            step: 0.01
+        },
+        reference: 'sound:slot:startTime'
     },
-    reference: 'sound:slot:asset'
-}, {
-    label: 'Start Time',
-    type: 'number',
-    path: 'components.sound.slots.$.startTime',
-    args: {
-        min: 0,
-        precision: 2,
-        step: 0.01
+    {
+        label: 'Duration',
+        type: 'number',
+        path: 'components.sound.slots.$.duration',
+        args: {
+            min: 0,
+            precision: 2,
+            step: 0.01,
+            allowNull: true
+        },
+        reference: 'sound:slot:duration'
     },
-    reference: 'sound:slot:startTime'
-}, {
-    label: 'Duration',
-    type: 'number',
-    path: 'components.sound.slots.$.duration',
-    args: {
-        min: 0,
-        precision: 2,
-        step: 0.01,
-        allowNull: true
+    {
+        label: 'Auto Play',
+        type: 'boolean',
+        path: 'components.sound.slots.$.autoPlay',
+        reference: 'sound:slot:autoPlay'
     },
-    reference: 'sound:slot:duration'
-}, {
-    label: 'Auto Play',
-    type: 'boolean',
-    path: 'components.sound.slots.$.autoPlay',
-    reference: 'sound:slot:autoPlay'
-}, {
-    label: 'Overlap',
-    type: 'boolean',
-    path: 'components.sound.slots.$.overlap',
-    reference: 'sound:slot:overlap'
-}, {
-    label: 'Loop',
-    type: 'boolean',
-    path: 'components.sound.slots.$.loop',
-    reference: 'sound:slot:loop'
-}, {
-    label: 'Volume',
-    type: 'slider',
-    path: 'components.sound.slots.$.volume',
-    args: {
-        min: 0,
-        max: 1,
-        precision: 2,
-        step: 0.01
+    {
+        label: 'Overlap',
+        type: 'boolean',
+        path: 'components.sound.slots.$.overlap',
+        reference: 'sound:slot:overlap'
     },
-    reference: 'sound:slot:volume'
-}, {
-    label: 'Pitch',
-    type: 'number',
-    path: 'components.sound.slots.$.pitch',
-    args: {
-        precision: 2,
-        step: 0.1,
-        min: 0
+    {
+        label: 'Loop',
+        type: 'boolean',
+        path: 'components.sound.slots.$.loop',
+        reference: 'sound:slot:loop'
     },
-    reference: 'sound:slot:pitch'
-}];
+    {
+        label: 'Volume',
+        type: 'slider',
+        path: 'components.sound.slots.$.volume',
+        args: {
+            min: 0,
+            max: 1,
+            precision: 2,
+            step: 0.01
+        },
+        reference: 'sound:slot:volume'
+    },
+    {
+        label: 'Pitch',
+        type: 'number',
+        path: 'components.sound.slots.$.pitch',
+        args: {
+            precision: 2,
+            step: 0.1,
+            min: 0
+        },
+        reference: 'sound:slot:pitch'
+    }
+];
 
 const CLASS_SLOT = 'sound-component-inspector-slot';
 
@@ -170,10 +196,13 @@ class SoundSlotInspector extends Panel {
     _inspector: AttributesInspector;
 
     constructor(args: Record<string, unknown>) {
-        args = Object.assign({
-            headerText: args.slot.name || 'New Slot',
-            collapsible: true
-        }, args);
+        args = Object.assign(
+            {
+                headerText: args.slot.name || 'New Slot',
+                collapsible: true
+            },
+            args
+        );
 
         super(args);
 
@@ -252,7 +281,7 @@ class SoundSlotInspector extends Panel {
 
         this._entities = null;
 
-        this._slotEvents.forEach(e => e.unbind());
+        this._slotEvents.forEach((e) => e.unbind());
         this._slotEvents.length = 0;
 
         this._inspector.unlink();
@@ -386,33 +415,37 @@ class SoundComponentInspector extends ComponentInspector {
             this._btnAddSlot.hidden = false;
 
             // event for new slots
-            this._entityEvents.push(entities[0].on('*:set', (path, value) => {
-                const matches = path.match(/^components.sound.slots.(\d+)$/);
-                if (!matches) {
-                    return;
-                }
+            this._entityEvents.push(
+                entities[0].on('*:set', (path, value) => {
+                    const matches = path.match(/^components.sound.slots.(\d+)$/);
+                    if (!matches) {
+                        return;
+                    }
 
-                // if inspector already exists then do not create a new one
-                if (this._slotInspectors[matches[1]]) {
-                    return;
-                }
+                    // if inspector already exists then do not create a new one
+                    if (this._slotInspectors[matches[1]]) {
+                        return;
+                    }
 
-                this._createSlotInspector(entities[0], matches[1], value);
-            }));
+                    this._createSlotInspector(entities[0], matches[1], value);
+                })
+            );
 
             // event for deleted slots
-            this._entityEvents.push(entities[0].on('*:unset', (path) => {
-                const matches = path.match(/^components.sound.slots.(\d+)$/);
-                if (!matches) {
-                    return;
-                }
+            this._entityEvents.push(
+                entities[0].on('*:unset', (path) => {
+                    const matches = path.match(/^components.sound.slots.(\d+)$/);
+                    if (!matches) {
+                        return;
+                    }
 
-                const inspector = this._slotInspectors[matches[1]];
-                if (inspector) {
-                    inspector.destroy();
-                    delete this._slotInspectors[matches[1]];
-                }
-            }));
+                    const inspector = this._slotInspectors[matches[1]];
+                    if (inspector) {
+                        inspector.destroy();
+                        delete this._slotInspectors[matches[1]];
+                    }
+                })
+            );
 
             // create all existing slots
             const slots = entities[0].get('components.sound.slots');
@@ -421,9 +454,7 @@ class SoundComponentInspector extends ComponentInspector {
             }
 
             // register click add slots
-            this._entityEvents.push(
-                this._btnAddSlot.on('click', () => this._onClickAddSlot(entities[0]))
-            );
+            this._entityEvents.push(this._btnAddSlot.on('click', () => this._onClickAddSlot(entities[0])));
         }
     }
 

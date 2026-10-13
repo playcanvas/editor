@@ -1,8 +1,17 @@
-import type { Observer } from '@playcanvas/observer';
-import { Progress, TreeView, TreeViewItem, Panel } from '@playcanvas/pcui';
+import type { EventHandle, Observer } from '@playcanvas/observer';
+import type { Panel } from '@playcanvas/pcui';
+import { Progress, TextInput, TreeView, TreeViewItem } from '@playcanvas/pcui';
+
+const TEXT_TYPES = new Set(['css', 'html', 'json', 'script', 'shader', 'text']);
+const RENAME_CLASS = 'pcui-treeview-item-rename';
+const POPUP_GAP = 4;
+
+type FileTreeItem = TreeViewItem & {
+    _assetId: string;
+};
 
 editor.once('load', () => {
-    const icons: Map<string, string> = new Map();
+    const icons = new Map<string, string>();
     icons.set('css', 'E206');
     icons.set('folder', 'E139');
     icons.set('html', 'E205');
@@ -21,10 +30,82 @@ editor.once('load', () => {
     });
     panel.append(tree);
 
+    const root = editor.call('layout.root');
+    const renamePopup = document.createElement('div');
+    renamePopup.className = 'files-rename-error-popup';
+    renamePopup.hidden = true;
+    root.dom.appendChild(renamePopup);
+
+    let activeRename: (() => void) | null = null;
+    let suspendRename = false;
+
+    const hideRenameError = () => {
+        renamePopup.hidden = true;
+        renamePopup.textContent = '';
+    };
+
+    const positionRenameError = (input: TextInput) => {
+        const rootRect = root.dom.getBoundingClientRect();
+        const inputRect = input.dom.getBoundingClientRect();
+        const popupRect = renamePopup.getBoundingClientRect();
+        const x = Math.max(4, Math.min(rootRect.width - popupRect.width - 4, inputRect.left - rootRect.left));
+        const y = Math.max(
+            4,
+            Math.min(rootRect.height - popupRect.height - 4, inputRect.bottom - rootRect.top + POPUP_GAP)
+        );
+
+        renamePopup.style.left = `${x}px`;
+        renamePopup.style.top = `${y}px`;
+    };
+
+    const showRenameError = (input: TextInput, text: string) => {
+        renamePopup.textContent = text;
+        renamePopup.hidden = false;
+        requestAnimationFrame(() => positionRenameError(input));
+    };
+
+    const getParent = (asset: Observer) => {
+        const path = asset.get('path');
+        return path && path.length ? path[path.length - 1] : null;
+    };
+
+    const getRenameError = (asset: Observer, name: string) => {
+        const type = asset.get('type');
+        if (!TEXT_TYPES.has(type) && type !== 'folder') {
+            return null;
+        }
+
+        const id = asset.get('id');
+        const parent = getParent(asset);
+        const target = name.toLowerCase();
+        const collision = (editor.call('assets:list') || []).some((item: Observer) => {
+            if (item.get('id') === id) {
+                return false;
+            }
+
+            return getParent(item) === parent && item.get('name').toLowerCase() === target;
+        });
+
+        return collision
+            ? `An asset named "${name}" already exists in this folder. Please choose a different name.`
+            : null;
+    };
+
+    const getItemAsset = (item: TreeViewItem) => {
+        return editor.call('assets:get', (item as FileTreeItem)._assetId);
+    };
+
     // Handle tree item renaming via the context menu
     tree.on('rename', (item: TreeViewItem, name: string) => {
-        const asset = editor.call('assets:get', item._assetId);
-        editor.call('assets:rename', asset, name);
+        if (suspendRename) {
+            return;
+        }
+
+        const asset = getItemAsset(item);
+        const error = editor.call('assets:rename', asset, name);
+        if (error) {
+            item.text = asset.get('name');
+        }
     });
 
     // Loading progress bar (doesn't actually work since the UI never get a chance to update)
@@ -37,9 +118,11 @@ editor.once('load', () => {
     });
 
     const isTreeEditable = () => {
-        return editor.call('permissions:write') &&
-               editor.call('realtime:isConnected') &&
-               !editor.call('errors:hasRealtime');
+        return (
+            editor.call('permissions:write') &&
+            editor.call('realtime:isConnected') &&
+            !editor.call('errors:hasRealtime')
+        );
     };
 
     const refreshTreePermissions = () => {
@@ -51,6 +134,126 @@ editor.once('load', () => {
     editor.on('permissions:writeState', refreshTreePermissions);
     editor.on('realtime:authenticated', refreshTreePermissions);
     editor.on('realtime:disconnected', refreshTreePermissions);
+
+    editor.method('files:rename:start', (item: TreeViewItem) => {
+        if (!editor.call('permissions:write')) {
+            return;
+        }
+
+        const asset = getItemAsset(item);
+        if (!asset) {
+            return;
+        }
+
+        if (activeRename) {
+            activeRename();
+        }
+
+        const contents = item.dom.childNodes[0] as HTMLElement & { ui: { append: (element: TextInput) => void } };
+        const input = new TextInput({
+            blurOnEnter: false,
+            blurOnEscape: false,
+            class: 'files-rename-input',
+            renderChanges: false,
+            value: asset.get('name')
+        });
+
+        let closing = false;
+        let destroyed = false;
+        let destroyEvt: EventHandle | null = null;
+
+        const close = () => {
+            if (closing) {
+                return;
+            }
+
+            closing = true;
+            if (activeRename === close) {
+                activeRename = null;
+            }
+
+            hideRenameError();
+            destroyEvt?.unbind();
+            if (!destroyed) {
+                input.input.removeEventListener('input', clearError);
+                item.class.remove(RENAME_CLASS);
+                input.destroy();
+                item.focus();
+            }
+        };
+
+        const fail = (text: string) => {
+            input.error = true;
+            showRenameError(input, text);
+            requestAnimationFrame(() => {
+                if (!closing) {
+                    input.focus();
+                }
+            });
+        };
+
+        const commit = () => {
+            const name = input.value.trim();
+            if (!name || name === asset.get('name')) {
+                close();
+                return true;
+            }
+
+            const error = getRenameError(asset, name) || editor.call('assets:rename', asset, name);
+            if (error) {
+                fail(error);
+                return false;
+            }
+
+            suspendRename = true;
+            item.text = name;
+            suspendRename = false;
+            close();
+            return true;
+        };
+
+        function clearError() {
+            input.error = false;
+            hideRenameError();
+        }
+
+        input.on('keydown', (evt: KeyboardEvent) => {
+            if (evt.key === 'Enter') {
+                evt.preventDefault();
+                evt.stopPropagation();
+                commit();
+            } else if (evt.key === 'Escape') {
+                evt.preventDefault();
+                evt.stopPropagation();
+                close();
+            }
+        });
+
+        input.on('blur', () => {
+            if (!closing && !commit()) {
+                requestAnimationFrame(() => {
+                    if (!closing) {
+                        input.focus();
+                    }
+                });
+            }
+        });
+
+        input.input.addEventListener('input', clearError);
+        destroyEvt = item.once('destroy', () => {
+            destroyed = true;
+            closing = true;
+            if (activeRename === close) {
+                activeRename = null;
+            }
+            hideRenameError();
+        });
+        activeRename = close;
+
+        item.class.add(RENAME_CLASS);
+        contents.ui.append(input);
+        input.focus(true);
+    });
 
     const treeRoot = new TreeViewItem({
         allowSelect: false,
@@ -65,7 +268,7 @@ editor.once('load', () => {
     /**
      * Map asset id to tree view item.
      */
-    const idToItem: Map<string, TreeViewItem> = new Map();
+    const idToItem = new Map<string, TreeViewItem>();
 
     // contains <folder id, nodes that wait for folder id to be added>
     const waitingParent = {};
@@ -120,7 +323,7 @@ editor.once('load', () => {
 
         const rect = this.getBoundingClientRect();
 
-        if (!item.numChildren || (evt.clientX - rect.left) >= 0) {
+        if (!item.numChildren || evt.clientX - rect.left >= 0) {
             const asset = editor.call('assets:get', item._assetId);
             if (!asset || asset.get('type') === 'folder') {
                 return;
@@ -145,7 +348,7 @@ editor.once('load', () => {
         }
 
         const text = item.text.toLowerCase();
-        const folder  = item.icon === icons.get('folder');
+        const folder = item.icon === icons.get('folder');
         let low = 0;
         let hi = children.length - 1;
         let mid, node, nodeText, nodeFolder;
@@ -204,7 +407,8 @@ editor.once('load', () => {
             delete waitingParent[id];
 
             for (let i = 0; i < items.length; i++) {
-                append(items[i], item);
+                const child = items[i];
+                append(child, item);
             }
         }
     };
@@ -312,6 +516,7 @@ editor.once('load', () => {
 
         // tree done
         editor.emit('files:load');
+        document.body.classList.add('code-editor-ready');
     });
 
     // Delete tree node for removed assets
@@ -374,9 +579,9 @@ editor.once('load', () => {
     });
 
     // Select file by id (which can be passed as a string or number)
-    editor.method('files:select', (id: number|string) => {
+    editor.method('files:select', (id: number | string) => {
         const item = idToItem.get(String(id));
-        if (item) {
+        if (item && !item.destroyed) {
             tree.deselect();
             item.selected = true;
         }
@@ -389,12 +594,14 @@ editor.once('load', () => {
 
     // Get selected assets
     editor.method('assets:selected', () => {
-        return tree.selected.map((item) => {
-            if (!item._assetId) {
-                return null;
-            }
-            return editor.call('assets:get', item._assetId);
-        }).filter(asset => !!asset);
+        return tree.selected
+            .map((item) => {
+                if (!item._assetId) {
+                    return null;
+                }
+                return editor.call('assets:get', item._assetId);
+            })
+            .filter((asset) => !!asset);
     });
 
     // Get selected folder or folder that the selected asset is in if no specific folder is selected
@@ -432,7 +639,7 @@ editor.once('load', () => {
     });
 
     // handle reparenting
-    tree.on('reparent', (reparented: Array<{ item: { _assetId: string }; newParent: { _assetId: string } }>) => {
+    tree.on('reparent', (reparented: { item: { _assetId: string }; newParent: { _assetId: string } }[]) => {
         if (!reparented.length) {
             return;
         }

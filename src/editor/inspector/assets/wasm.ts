@@ -4,22 +4,25 @@ import { Panel } from '@playcanvas/pcui';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+const ATTRIBUTES: Attribute[] = [
+    {
+        label: 'Name',
+        path: 'data.moduleName',
+        type: 'string'
+    },
+    {
+        label: 'Glue script',
+        path: 'data.glueScriptId',
+        type: 'asset'
+    },
+    {
+        label: 'Fallback script',
+        path: 'data.fallbackScriptId',
+        type: 'asset'
+    }
+];
 
-const ATTRIBUTES: Attribute[] = [{
-    label: 'Name',
-    path: 'data.moduleName',
-    type: 'string'
-}, {
-    label: 'Glue script',
-    path: 'data.glueScriptId',
-    type: 'asset'
-}, {
-    label: 'Fallback script',
-    path: 'data.fallbackScriptId',
-    type: 'asset'
-}];
-
-const DOM = parent => [
+const DOM = (parent) => [
     {
         attributesInspector: new AttributesInspector({
             assets: parent._args.assets,

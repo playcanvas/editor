@@ -1,9 +1,6 @@
 import { ADDRESS_CLAMP_TO_EDGE, ADDRESS_REPEAT, reprojectTexture, Texture } from 'playcanvas';
 
-import {
-    readGPUPixels,
-    pixelsToPngBlob
-} from './assets-utils';
+import { readGPUPixels, pixelsToPngBlob } from './assets-utils';
 
 const removeExtension = (name) => {
     const parts = name.split('.');
@@ -17,12 +14,14 @@ const removeExtension = (name) => {
 editor.method('assets:textureToCubemap', (textureAsset, callback) => {
     // validate texture asset
     if (textureAsset.get('type') !== 'texture' || textureAsset.get('source')) {
+        callback?.(new Error('An editable texture asset is required.'));
         return;
     }
 
     // get the app
     const app = editor.call('viewport:app');
     if (!app) {
+        callback?.(new Error('The viewport must be loaded to create a cubemap.'));
         return;
     }
 
@@ -71,20 +70,30 @@ editor.method('assets:textureToCubemap', (textureAsset, callback) => {
 
         const faceNames = ['px', 'nx', 'py', 'ny', 'pz', 'nz'];
         faceBlobs.forEach((faceBlob, index) => {
-            promises.push(new Promise((resolve, reject) => {
-                editor.call('assets:uploadFile', {
-                    name: `${nameBase}_${faceNames[index]}.png`,
-                    type: 'texture',
-                    filename: `${filenameBase}_${faceNames[index]}.png`,
-                    file: faceBlob,
-                    data: {
-                        rgbm: textureAsset.get('data.rgbm')
-                    },
-                    parent: folder
-                }, (err, data) => {
-                    resolve(data.id);
-                });
-            }));
+            promises.push(
+                new Promise((resolve, reject) => {
+                    editor.call(
+                        'assets:uploadFile',
+                        {
+                            name: `${nameBase}_${faceNames[index]}.png`,
+                            type: 'texture',
+                            filename: `${filenameBase}_${faceNames[index]}.png`,
+                            file: faceBlob,
+                            data: {
+                                rgbm: textureAsset.get('data.rgbm')
+                            },
+                            parent: folder
+                        },
+                        (err, data) => {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                resolve(data.id);
+                            }
+                        }
+                    );
+                })
+            );
         });
 
         return Promise.all(promises);
@@ -93,25 +102,32 @@ editor.method('assets:textureToCubemap', (textureAsset, callback) => {
     const onLoaded = async (sourceTexture) => {
         const faceBlobs = await createFaceBlobs(sourceTexture);
         const faceIds = await createFaceAssets(faceBlobs);
-        const faceAssets = faceIds.map(id => editor.call('assets:get', id));
+        const faceAssets = faceIds.map((id) => editor.call('assets:get', id));
 
         // create the cubemap asset
-        editor.api.globals.assets.createCubemap({
+        return editor.api.globals.assets.createCubemap({
             name: `${nameBase}_cubemap`,
             textures: faceAssets,
             folder: folder
         });
     };
 
+    const done = (promise) => {
+        promise.then((asset) => callback?.(null, asset)).catch((err) => callback?.(err));
+    };
+
     const asset = app.assets.get(parseInt(textureAsset.get('id'), 10));
     if (asset) {
         if (asset.resource) {
-            onLoaded(asset.resource);
+            done(onLoaded(asset.resource));
         } else {
             asset.once('load', (asset) => {
-                onLoaded(asset.resource);
+                done(onLoaded(asset.resource));
             });
+            asset.once('error', (err) => callback?.(err || new Error('Failed to load the texture resource.')));
             app.assets.load(asset);
         }
+    } else {
+        callback?.(new Error(`Texture resource ${textureAsset.get('id')} is not loaded.`));
     }
 });

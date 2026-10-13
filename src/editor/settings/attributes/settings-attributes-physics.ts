@@ -5,14 +5,12 @@ editor.once('load', () => {
 
     // check legacy physics include flag
     editor.method('project:settings:hasLegacyPhysics', () => {
-        return projectSettings.get('useLegacyAmmoPhysics') &&
-               projectSettings.get('use3dPhysics');
+        return projectSettings.get('useLegacyAmmoPhysics') && projectSettings.get('use3dPhysics');
     });
 
     // method for checking whether the current project has physics (either legacy or module)
     editor.method('project:settings:hasPhysics', () => {
-        return editor.call('project:settings:hasLegacyPhysics') ||
-                editor.call('project:module:hasModule', 'ammo');
+        return editor.call('project:settings:hasLegacyPhysics') || editor.call('project:module:hasModule', 'ammo');
     });
 
     // append the physics module controls to the provided panel
@@ -41,28 +39,33 @@ editor.once('load', () => {
 
         // enable state is based on write permissions and state of legacy physics
         function updateEnableState() {
-            group.enabled = !editor.call('project:settings:hasLegacyPhysics') &&
-                             editor.call('permissions:write');
+            group.enabled = !editor.call('project:settings:hasLegacyPhysics') && editor.call('permissions:write');
         }
 
         const events = [];
 
-        events.push(editor.on('permissions:writeState', (write) => {
-            updateEnableState();
-        }));
-        events.push(editor.on('onUse3dPhysicsChanged', () => {
-            updateEnableState();
-        }));
-        events.push(editor.on('onModuleImported', (name) => {
-            if (name === 'ammo.js') {
-                group.enabled = false;
-            }
-        }));
+        events.push(
+            editor.on('permissions:writeState', (write) => {
+                updateEnableState();
+            })
+        );
+        events.push(
+            editor.on('onUse3dPhysicsChanged', () => {
+                updateEnableState();
+            })
+        );
+        events.push(
+            editor.on('onModuleImported', (name) => {
+                if (name === 'ammo.js') {
+                    group.enabled = false;
+                }
+            })
+        );
 
         updateEnableState();
 
         group.on('destroy', () => {
-            events.forEach(evt => evt.unbind());
+            events.forEach((evt) => evt.unbind());
             events.length = 0;
         });
 

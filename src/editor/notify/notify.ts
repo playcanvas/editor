@@ -2,7 +2,7 @@ editor.once('load', () => {
     const TIMEOUT = 5000;
     const TIMEOUT_OVERLAP = 500;
     let last;
-    const logo = 'https://playcanvas.com/static-assets/platform/images/logo/playcanvas-logo-360.jpg';
+    const logo = `${config.url.frontend}static/img/playcanvas-logo-360.webp`;
 
     editor.method('notify:state', () => {
         if (!window.Notification) {
@@ -27,66 +27,71 @@ editor.once('load', () => {
         }
     });
 
-    editor.method('notify', (args: { title?: string; body?: string; icon?: string; timeout?: number; click?: (evt: Event) => void } = {}) => {
-        // no supported
-        if (!window.Notification || !args.title || document.visibilityState === 'visible') {
-            return;
-        }
-
-        let timeout;
-        const queueClose = function (item: Notification) {
-            setTimeout(() => {
-                item.close();
-            }, TIMEOUT_OVERLAP);
-        };
-        const notify = function () {
-            if (last) {
-                queueClose(last);
-                last = null;
+    editor.method(
+        'notify',
+        (
+            args: { title?: string; body?: string; icon?: string; timeout?: number; click?: (evt: Event) => void } = {}
+        ) => {
+            // no supported
+            if (!window.Notification || !args.title || document.visibilityState === 'visible') {
+                return;
             }
 
-            const notification = last = new Notification(args.title, {
-                body: args.body,
-                icon: args.icon || logo
-            });
-
-            timeout = setTimeout(() => {
-                notification.close();
-            }, args.timeout || TIMEOUT);
-
-            notification.onclick = function (evt: Event) {
-                evt.preventDefault();
-                notification.close();
-
-                if (args.click) {
-                    args.click(evt);
-                }
+            let timeout;
+            const queueClose = function (item: Notification) {
+                setTimeout(() => {
+                    item.close();
+                }, TIMEOUT_OVERLAP);
             };
-
-            notification.onclose = function (_evt: Event) {
-                clearTimeout(timeout);
-                timeout = null;
-
-                if (last === notification) {
+            const notify = function () {
+                if (last) {
+                    queueClose(last);
                     last = null;
                 }
-            };
-        };
 
-        if (Notification.permission === 'granted') {
-            // allowed
-            notify();
-        } else if (Notification.permission !== 'denied') {
-            // ask for permission
-            editor.call('notify:permission', (permission: string) => {
-                if (permission === 'granted') {
-                    notify();
-                }
-            });
-        } else {
-            // no permission
+                const notification = (last = new Notification(args.title, {
+                    body: args.body,
+                    icon: args.icon || logo
+                }));
+
+                timeout = setTimeout(() => {
+                    notification.close();
+                }, args.timeout || TIMEOUT);
+
+                notification.onclick = function (evt: Event) {
+                    evt.preventDefault();
+                    notification.close();
+
+                    if (args.click) {
+                        args.click(evt);
+                    }
+                };
+
+                notification.onclose = function (_evt: Event) {
+                    clearTimeout(timeout);
+                    timeout = null;
+
+                    if (last === notification) {
+                        last = null;
+                    }
+                };
+            };
+
+            if (Notification.permission === 'granted') {
+                // allowed
+                notify();
+            } else if (Notification.permission !== 'denied') {
+                // ask for permission
+                editor.call('notify:permission', (permission: string) => {
+                    if (permission === 'granted') {
+                        notify();
+                    }
+                });
+            } else {
+                // no permission
+            }
         }
-    });
+    );
 
     editor.method('notify:title', (title: string) => {
         document.title = title;

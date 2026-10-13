@@ -2,32 +2,64 @@ import { Defer } from '@/common/defer';
 
 const { rest } = editor.api.globals;
 
-export const diffCreate = (args: Parameters<typeof rest.diff.diffCreate>[0]) => {
-    const defer = new Defer<Awaited<ReturnType<ReturnType<typeof rest.diff.diffCreate>['promisify']>>>();
+type JobStart<T extends object> = {
+    promisify: () => Promise<{ id: number; data: T }>;
+};
+
+type DiffJob = Awaited<ReturnType<ReturnType<typeof rest.diff.diffCreate>['promisify']>>;
+type Checkpoint = Awaited<ReturnType<ReturnType<typeof rest.checkpoints.checkpointGet>['promisify']>>;
+
+const waitForJob = <T extends object>(request: JobStart<T>, message: string) => {
+    const defer = new Defer<{ id: number; data: T }>();
     const promise = new Promise((resolve, reject) => {
-        const jobUpdate = editor.on('messenger:job.update', async ({ job: jobData }) => {
-            const job = await defer.promise;
-            if (jobData.id !== job.id) {
-                return;
-            }
-            jobUpdate.unbind();
+        const jobUpdate = editor.on('messenger:job.update', ({ job: jobData }: { job: { id: number } }) => {
+            defer.promise
+                .then((job) => {
+                    if (jobData.id !== job.id) {
+                        return;
+                    }
+                    jobUpdate.unbind();
 
-            try {
-                // Verify the job completed successfully
-                const completedJob = await rest.jobs.jobGet({ jobId: job.id }).promisify();
-                if (completedJob.status === 'error') {
-                    throw new Error(completedJob.messages?.[0] ?? 'Checkpoint diff failed');
-                }
-
-                // Fetch the full diff payload from S3 (the job document only
-                // stores summary metadata to stay under the MongoDB 16MB limit).
-                const diff = await rest.diff.diffGet({ id: job.data.merge_id }).promisify();
-                resolve(diff);
-            } catch (err) {
-                reject(err);
-            }
+                    rest.jobs
+                        .jobGet({ jobId: job.id })
+                        .promisify()
+                        .then((completedJob) => {
+                            if (completedJob.status === 'error') {
+                                reject(new Error(completedJob.messages?.[0] ?? message));
+                                return;
+                            }
+                            resolve({
+                                job,
+                                completedJob
+                            });
+                        })
+                        .catch(reject);
+                })
+                .catch(reject);
         });
+
+        request
+            .promisify()
+            .then(defer.resolve)
+            .catch((err) => {
+                jobUpdate.unbind();
+                reject(err);
+            });
     });
-    rest.diff.diffCreate(args).promisify().then(defer.resolve).catch(defer.reject);
     return promise;
+};
+
+export const checkpointCreate = (args: Parameters<typeof rest.checkpoints.checkpointCreate>[0]) => {
+    return waitForJob(rest.checkpoints.checkpointCreate(args), 'Checkpoint create failed').then(({ completedJob }) => {
+        return completedJob.data as Checkpoint;
+    });
+};
+
+export const diffCreate = (args: Parameters<typeof rest.diff.diffCreate>[0]) => {
+    return waitForJob<DiffJob['data']>(rest.diff.diffCreate(args), 'Checkpoint diff failed').then(({ job }) => {
+        if (!job.data.merge_id) {
+            return Promise.reject(new Error('Checkpoint diff missing merge id'));
+        }
+        return rest.diff.diffGet({ id: job.data.merge_id }).promisify();
+    });
 };

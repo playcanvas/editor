@@ -1,8 +1,8 @@
 import { Observer } from '@playcanvas/observer';
 
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyPanel } from '@/common/ui/panel';
 import { deepCopy } from '@/common/utils';
+
+import { createButton, createPanel } from './attributes-pcui';
 
 editor.once('load', () => {
     const defaults = {
@@ -25,6 +25,8 @@ editor.once('load', () => {
         return args.paths ? args.paths[index] : args.path;
     };
 
+    let getDefaultValue = undefined;
+
     // Creates an array widget
     editor.method('attributes:addArrayField', (args) => {
         const events = [];
@@ -34,7 +36,7 @@ editor.once('load', () => {
         const arrayElements = [];
         let timeoutRefreshElements = null;
 
-        const panel = new LegacyPanel();
+        const panel = createPanel();
         panel.class.add('attributes-array');
         panel.flex = true;
         panel.flexGrow = 1;
@@ -47,7 +49,11 @@ editor.once('load', () => {
         });
 
         if (args.canOverrideTemplate && (args.path || args.paths)) {
-            editor.call('attributes:registerOverridePath', pathAt(args, 0), args.panel ? args.panel.element : panel.element);
+            editor.call(
+                'attributes:registerOverridePath',
+                pathAt(args, 0),
+                args.panel ? args.panel.element : panel.element
+            );
         }
 
         panel.parent.flex = true;
@@ -79,6 +85,8 @@ editor.once('load', () => {
 
         fieldSize.parent.flexGrow = 1;
 
+        let changeArraySize = undefined;
+
         fieldSize.on('change', (value) => {
             // check fieldSize._changing otherwise this will
             // cause changeArraySize to be called twice - once in
@@ -90,7 +98,7 @@ editor.once('load', () => {
         });
 
         // container for array elements
-        const panelElements = new LegacyPanel();
+        const panelElements = createPanel();
         panelElements.class.add('attributes-array-elements');
         panelElements.flex = true;
         panelElements.flexGrow = 1;
@@ -153,7 +161,7 @@ editor.once('load', () => {
                 arrayElements.push(field);
 
                 // button to remove array element
-                const btnRemove = new LegacyButton({
+                const btnRemove = createButton({
                     text: '&#57636;',
                     unsafe: true
                 });
@@ -266,7 +274,8 @@ editor.once('load', () => {
                 row++;
 
                 for (let i = 0; i < allArrays.length; i++) {
-                    if (!allArrays[i] || (!(allArrays[i] instanceof Array)) || allArrays[i].length <= row) {
+                    const arr = allArrays[i];
+                    if (!arr || !(arr instanceof Array) || arr.length <= row) {
                         rowExistsEverywhere = false;
                         break;
                     }
@@ -317,7 +326,7 @@ editor.once('load', () => {
         });
 
         // Undoable action - change the size of the array of each link
-        var changeArraySize = function (size: number) {
+        changeArraySize = function (size: number) {
             let prev;
 
             const redo = function () {
@@ -436,7 +445,7 @@ editor.once('load', () => {
 
     // Returns the default value for a new array element
     // based on the args provided
-    var getDefaultValue = function (args: { type?: string; color?: unknown[]; curves?: unknown[] }) {
+    getDefaultValue = function (args: { type?: string; color?: unknown[]; curves?: unknown[] }) {
         let result = null;
 
         if (defaults[args.type] !== undefined) {
@@ -451,7 +460,6 @@ editor.once('load', () => {
                         for (let c = 0; c < len; c++) {
                             result.keys.push([0, 0]);
                         }
-
                     }
                 }
             }
@@ -459,5 +467,4 @@ editor.once('load', () => {
 
         return result;
     };
-
 });

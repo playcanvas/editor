@@ -39,39 +39,40 @@ editor.once('load', () => {
             return;
         }
 
-        editor.api.globals.rest.assets.assetGetFile(id, asset.get('file.filename'), { branchId: config.self.branch.id })
-        .on('load', (status, data) => {
-            // replace \r and \r\n with \n
-            data = data.replace(/\r\n?/g, '\n');
+        editor.api.globals.rest.assets
+            .assetGetFile(id, asset.get('file.filename'), { branchId: config.self.branch.id })
+            .on('load', (status, data) => {
+                // replace \r and \r\n with \n
+                data = data.replace(/\r\n?/g, '\n');
 
-            // store in cache
-            store(asset, data);
+                // store in cache
+                store(asset, data);
 
-            const requests = loadRequests[id];
-            if (!requests) {
-                return;
-            }
+                const requests = loadRequests[id];
+                if (!requests) {
+                    return;
+                }
 
-            for (let i = 0, len = requests.length; i < len; i++) {
-                requests[i](null, data);
-            }
+                for (let i = 0, len = requests.length; i < len; i++) {
+                    requests[i](null, data);
+                }
 
-            delete loadRequests[id];
-        })
-        .on('error', (status, err) => {
-            const requests = loadRequests[id];
-            if (!requests) {
-                return;
-            }
+                delete loadRequests[id];
+            })
+            .on('error', (status, err) => {
+                const requests = loadRequests[id];
+                if (!requests) {
+                    return;
+                }
 
-            err = err || new Error(`Status: ${status}`);
+                err = err || new Error(`Status: ${status}`);
 
-            for (let i = 0, len = requests.length; i < len; i++) {
-                requests[i](err);
-            }
+                for (let i = 0, len = requests.length; i < len; i++) {
+                    requests[i](err);
+                }
 
-            delete loadRequests[id];
-        });
+                delete loadRequests[id];
+            });
     });
 
     // Gets the file contents of the asset - tries to use cached data if they are up to date
@@ -83,5 +84,4 @@ editor.once('load', () => {
 
         editor.call('assets:loadFile', asset, fn);
     });
-
 });

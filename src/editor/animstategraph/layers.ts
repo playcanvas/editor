@@ -1,9 +1,11 @@
-import type { Observer, EventHandle } from '@playcanvas/observer';
+import type { Observer, ObserverList, EventHandle } from '@playcanvas/observer';
 import { Panel, Container, Button, SelectInput } from '@playcanvas/pcui';
+import type { PanelArgs } from '@playcanvas/pcui';
+
+import type { History } from '@/editor-api';
 
 import type { Attribute } from '../inspector/attribute.type.d';
 import { AttributesInspector } from '../inspector/attributes-inspector';
-
 
 const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
 const CLASS_ANIMSTATEGRAPH_LAYER = `${CLASS_ANIMSTATEGRAPH}-layer`;
@@ -24,8 +26,13 @@ const ANIM_SCHEMA = {
     }
 };
 
-class AnimstategraphLayers extends Panel {
-    _args!: Record<string, unknown>;
+type AnimStateGraphLayersArgs = {
+    assets?: ObserverList;
+    history?: History;
+} & PanelArgs;
+
+class AnimStateGraphLayers extends Panel {
+    _args!: AnimStateGraphLayersArgs;
 
     _assets: Observer[] | null = null;
 
@@ -45,7 +52,7 @@ class AnimstategraphLayers extends Panel {
 
     _layerPanels: Panel[] = [];
 
-    constructor(parent: Panel, args: Record<string, unknown>) {
+    constructor(parent: Panel, args: AnimStateGraphLayersArgs) {
         args = Object.assign({ enabled: !parent.readOnly }, args);
         super(args);
         this._parent = parent;
@@ -109,7 +116,6 @@ class AnimstategraphLayers extends Panel {
     }
 
     _addNewLayer(name?: string) {
-
         const data = this._assets[0].get('data');
         const prevData = Object.assign({}, data);
         const prevLayer = this._layerSelect.value;
@@ -165,7 +171,6 @@ class AnimstategraphLayers extends Panel {
             conditions: {}
         };
         data.transitions[transitionId] = newTransition;
-
 
         const layers = this._assets[0].get('data.layers');
         const maxKey = Math.max(...Object.keys(layers));
@@ -252,22 +257,24 @@ class AnimstategraphLayers extends Panel {
         if (!states) {
             return;
         }
-        defaultStateSelect.options = states.map((stateKey) => {
-            const state = this._assets[0].get('data.states')[stateKey];
-            if (!state) {
-                return {};
-            }
-            if (state.nodeType === ANIM_SCHEMA.NODE.DEFAULT_STATE) {
-                defaultStateSelect.value = stateKey;
-            }
-            return {
-                v: stateKey,
-                t: state.name,
-                nodeType: state.nodeType
-            };
-        }).filter((option) => {
-            return option.nodeType === ANIM_SCHEMA.NODE.STATE || option.nodeType === ANIM_SCHEMA.NODE.DEFAULT_STATE;
-        });
+        defaultStateSelect.options = states
+            .map((stateKey) => {
+                const state = this._assets[0].get('data.states')[stateKey];
+                if (!state) {
+                    return {};
+                }
+                if (state.nodeType === ANIM_SCHEMA.NODE.DEFAULT_STATE) {
+                    defaultStateSelect.value = stateKey;
+                }
+                return {
+                    v: stateKey,
+                    t: state.name,
+                    nodeType: state.nodeType
+                };
+            })
+            .filter((option) => {
+                return option.nodeType === ANIM_SCHEMA.NODE.STATE || option.nodeType === ANIM_SCHEMA.NODE.DEFAULT_STATE;
+            });
     }
 
     _onDragEnd(inspector: unknown, sortedNewId: number, sortedOldId: number) {
@@ -461,14 +468,15 @@ class AnimstategraphLayers extends Panel {
             this._layerPanels = [];
         }
         if (this._assetEvents) {
-            this._assetEvents.forEach(evt => evt.unbind());
+            this._assetEvents.forEach((evt) => evt.unbind());
             this._assetEvents = [];
         }
         try {
             document.getElementById('layout-viewport').removeChild(this._layerSelect.dom);
         } catch (e) {
+            // element already removed
         }
     }
 }
 
-export { AnimstategraphLayers };
+export { AnimStateGraphLayers };

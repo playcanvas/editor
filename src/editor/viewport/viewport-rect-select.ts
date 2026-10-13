@@ -1,5 +1,7 @@
+import type { Canvas } from '@playcanvas/pcui';
+
 editor.once('load', () => {
-    const canvas = editor.call('viewport:canvas');
+    const canvas = editor.call('viewport:canvas') as Canvas | null;
     if (!canvas) {
         return;
     }
@@ -14,7 +16,7 @@ editor.once('load', () => {
         display: none;
         z-index: 100;
     `;
-    canvas.element.parentElement.appendChild(rectOverlay);
+    canvas.dom.parentElement.appendChild(rectOverlay);
 
     const updateRect = (x1: number, y1: number, x2: number, y2: number) => {
         const minX = Math.min(x1, x2);

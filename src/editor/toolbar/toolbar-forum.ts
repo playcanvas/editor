@@ -1,6 +1,6 @@
 import { Button } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 
 editor.once('load', () => {
     const toolbar = editor.call('layout.toolbar');
@@ -10,8 +10,9 @@ editor.once('load', () => {
         icon: 'E119'
     });
     toolbar.append(contact);
+    editor.call('toolbar:register', { id: 'forum', label: 'Forum', group: 'utility', button: contact });
 
-    LegacyTooltip.attach({
+    TooltipHandle.attach({
         target: contact.dom,
         text: 'Ask for help on our Forum',
         align: 'left',

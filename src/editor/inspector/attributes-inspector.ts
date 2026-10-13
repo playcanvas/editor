@@ -1,46 +1,65 @@
 import type { Observer, ObserverList } from '@playcanvas/observer';
-import { Element, type IBindable, Container, LabelGroup, Panel, Button, ArrayInput, BindingTwoWay, Label, type ContainerArgs } from '@playcanvas/pcui';
+import { Element, Container, LabelGroup, Panel, Button, ArrayInput, BindingTwoWay, Label } from '@playcanvas/pcui';
+import type { IBindable, ContainerArgs } from '@playcanvas/pcui';
 
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
-import { tooltip, tooltipRefItem } from '@/common/tooltips';
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { createLog } from '@/common/sentry';
+import { tooltip, tooltipRefItem, TooltipHandle } from '@/common/tooltips';
 import type { History } from '@/editor-api';
 
-import type { Attribute } from './attribute.type.d';
 import '../storage/clipboard-context-menu';
 import type { TemplateOverrideInspector } from '../templates/templates-override-inspector.js';
 
-const isEnabledAttribute = ({ label, type }: { label?: string; type?: string }) => label === 'enabled' && type === 'boolean';
+import type { Attribute, Divider } from './attribute.type.d';
+
+const log = createLog('<PATH>');
+
+type AttributesInspectorArgs = {
+    history?: History;
+    assets?: ObserverList;
+    entities?: ObserverList;
+    settings?: Observer;
+    projectSettings?: Observer;
+    userSettings?: Observer;
+    sceneSettings?: Observer;
+    sessionSettings?: Observer;
+    attributes?: (Attribute | Divider)[];
+    templateOverridesInspector?: TemplateOverrideInspector;
+    _skipEnabledInBody?: boolean;
+} & ContainerArgs;
+
+const isEnabledAttribute = ({ label, type }: { label?: string; type?: string }) =>
+    label === 'enabled' && type === 'boolean';
 
 const CLASS_ROOT = 'pcui-inspector';
 
-let tooltipCopy: LegacyTooltip | null = null;
-let tooltipPaste: LegacyTooltip | null = null;
+let tooltipCopy: TooltipHandle | null = null;
+let tooltipPaste: TooltipHandle | null = null;
 
 class AttributesInspector extends Container {
     private _observers: Observer[] | null;
 
-    private _history: History;
+    private _history: History | undefined;
 
-    private _assets: ObserverList;
+    private _assets: ObserverList | undefined;
 
-    private _entities: ObserverList;
+    private _entities: ObserverList | undefined;
 
-    private _settings: Observer;
+    private _settings: Observer | undefined;
 
-    private _projectSettings: Observer;
+    private _projectSettings: Observer | undefined;
 
-    private _userSettings: Observer;
+    private _userSettings: Observer | undefined;
 
-    private _sceneSettings: Observer;
+    private _sceneSettings: Observer | undefined;
 
-    private _sessionSettings: Observer;
+    private _sessionSettings: Observer | undefined;
 
-    private _fields: Record<string, Element & IBindable>;
+    protected _fields: Record<string, Element & IBindable>;
 
     private _fieldAttributes: Record<string, Attribute>;
 
-    private _templateOverridesInspector: TemplateOverrideInspector;
+    private _templateOverridesInspector: TemplateOverrideInspector | undefined;
 
     private _clipboardTypes: Set<string> | null;
 
@@ -50,22 +69,13 @@ class AttributesInspector extends Container {
 
     private _onAttributeChangeHandler: () => void;
 
-    constructor(args: {
-        history?: History;
-        assets?: ObserverList;
-        entities?: ObserverList;
-        settings?: Observer;
-        projectSettings?: Observer;
-        userSettings?: Observer;
-        sceneSettings?: Observer;
-        sessionSettings?: Observer;
-        attributes?: Attribute[];
-        templateOverridesInspector?: TemplateOverrideInspector;
-        _skipEnabledInBody?: boolean;
-    } & ContainerArgs = {}) {
-        args = Object.assign({
-            flex: true
-        }, args);
+    constructor(args: AttributesInspectorArgs = {}) {
+        args = Object.assign(
+            {
+                flex: true
+            },
+            args
+        );
 
         super(args);
 
@@ -95,7 +105,7 @@ class AttributesInspector extends Container {
         this._clipboardTypes = editor.call('clipboard:types') ?? null;
 
         // entity attributes
-        args.attributes.forEach((attr) => {
+        (args.attributes ?? []).forEach((attr) => {
             this.addAttribute(attr);
         });
     }
@@ -141,10 +151,12 @@ class AttributesInspector extends Container {
             // Optional warnings section (if provided by caller)
             if (tooltipData?.warnings && tooltipData.warnings.length > 0) {
                 tooltipData.warnings.forEach((warningText: string) => {
-                    tooltipItem.append(new Label({
-                        class: ['warning-item', 'script-asset-inspector-warning'],
-                        text: warningText
-                    }));
+                    tooltipItem.append(
+                        new Label({
+                            class: ['warning-item', 'script-asset-inspector-warning'],
+                            text: warningText
+                        })
+                    );
                 });
             }
 
@@ -166,16 +178,64 @@ class AttributesInspector extends Container {
      * @returns The created field
      */
     createFieldForAttribute(attr: Attribute): Element {
-        const fieldArgs = Object.assign({
-            binding: new BindingTwoWay({
-                history: this._history
-            }),
-            assets: this._assets,
-            entities: this._entities,
-            projectSettings: this._projectSettings
-        }, attr.args);
+        const fieldArgs = Object.assign(
+            {
+                binding: new BindingTwoWay({
+                    history: this._history
+                }),
+                assets: this._assets,
+                entities: this._entities,
+                projectSettings: this._projectSettings
+            },
+            attr.args
+        );
 
         const field = Element.create(attr.type, fieldArgs);
+
+        // pcui can display a clamped value without changing the observer
+        if (attr.type === 'number' || attr.type === 'slider') {
+            let edited = false;
+            const edit = (evt: Event) => {
+                if (evt.type === 'input') {
+                    edited = true;
+                } else if (evt instanceof KeyboardEvent && evt.key === 'Escape') {
+                    edited = false;
+                }
+            };
+            const commit = (evt: Event) => {
+                if (evt instanceof KeyboardEvent && evt.key !== 'Enter') {
+                    return;
+                }
+                if (evt.type === 'focusout' && !edited) {
+                    return;
+                }
+                edited = false;
+                const { binding, value } = field;
+                if (!field.enabled || field.readOnly || !binding || !Number.isFinite(value)) {
+                    return;
+                }
+                if (
+                    binding.observers.some(
+                        (observer, i) => observer.get(binding.paths[i] ?? binding.paths[0]) !== value
+                    )
+                ) {
+                    binding.setValue(value);
+                }
+            };
+            field.dom.addEventListener('input', edit);
+            field.dom.addEventListener('keydown', edit, true);
+            field.dom.addEventListener('change', commit);
+            field.dom.addEventListener('keydown', commit);
+            field.dom.addEventListener('focusout', commit);
+            field.once('destroy', () => {
+                field.dom.removeEventListener('input', edit);
+                field.dom.removeEventListener('keydown', edit, true);
+                field.dom.removeEventListener('change', commit);
+                field.dom.removeEventListener('keydown', commit);
+                field.dom.removeEventListener('focusout', commit);
+            });
+        }
+
         let evtChange = field.on('change', this._onAttributeChangeHandler);
         field.once('destroy', () => {
             if (!evtChange) {
@@ -211,6 +271,9 @@ class AttributesInspector extends Container {
                     if (type === 'slider') {
                         type = 'number';
                     }
+                    if (type === 'shadow-cascade-mask') {
+                        type = 'number';
+                    }
                     if ((type === 'asset' || type === 'array:asset') && attr.args?.assetType) {
                         type += `:${attr.args.assetType}`;
                     }
@@ -218,9 +281,7 @@ class AttributesInspector extends Container {
                     // try to bring context menu
                     const onContextMenu = (evt: MouseEvent) => {
                         // do not interfere with inputs and buttons
-                        if (evt.target.tagName === 'BUTTON' ||
-                            evt.target.tagName === 'INPUT') {
-
+                        if (evt.target.tagName === 'BUTTON' || evt.target.tagName === 'INPUT') {
                             return;
                         }
 
@@ -229,7 +290,16 @@ class AttributesInspector extends Container {
                         evt.preventDefault();
 
                         // call context menu
-                        editor.call('clipboard:contextmenu:open', evt.clientX + 1, evt.clientY, attr.path, type, options, target.dom, field.enabled);
+                        editor.call(
+                            'clipboard:contextmenu:open',
+                            evt.clientX + 1,
+                            evt.clientY,
+                            attr.path,
+                            type,
+                            options,
+                            target.dom,
+                            field.enabled
+                        );
                     };
 
                     let element = target.dom;
@@ -241,8 +311,8 @@ class AttributesInspector extends Container {
                         element = null;
                     });
 
-                    if (((target instanceof LabelGroup) || (target instanceof AssetInput)) && type !== 'label') {
-                        target.label.dom.style.position = 'relative';
+                    if ((target instanceof LabelGroup || target instanceof AssetInput) && type !== 'label') {
+                        target.label.style.position = 'relative';
 
                         // paste button
                         const btnPaste = new Button({
@@ -277,14 +347,15 @@ class AttributesInspector extends Container {
                                 btnPaste.enabled = false;
                             } else {
                                 // toggle paste button
-                                btnPaste.enabled = field.enabled && editor.call('clipboard:validPaste', attr.path, type, options);
+                                btnPaste.enabled =
+                                    field.enabled && editor.call('clipboard:validPaste', attr.path, type, options);
                                 editor.call('clipboard:flashElement', target.dom);
                             }
                         });
 
                         // tooltip on hover for copy
                         if (!tooltipCopy) {
-                            tooltipCopy = LegacyTooltip.create({
+                            tooltipCopy = TooltipHandle.make({
                                 text: 'Copy',
                                 align: 'bottom',
                                 class: 'pcui-tooltip-clipboard',
@@ -294,7 +365,7 @@ class AttributesInspector extends Container {
 
                         // tooltip on hover for paste
                         if (!tooltipPaste) {
-                            tooltipPaste = LegacyTooltip.create({
+                            tooltipPaste = TooltipHandle.make({
                                 text: 'Paste',
                                 align: 'bottom',
                                 class: 'pcui-tooltip-clipboard',
@@ -312,7 +383,8 @@ class AttributesInspector extends Container {
                                 btnCopy.hidden = false;
                                 btnPaste.hidden = false;
                                 btnCopy.enabled = true;
-                                btnPaste.enabled = field.enabled && editor.call('clipboard:validPaste', attr.path, type, options);
+                                btnPaste.enabled =
+                                    field.enabled && editor.call('clipboard:validPaste', attr.path, type, options);
 
                                 tooltipCopy.attach(btnCopy.dom);
                                 tooltipPaste.attach(btnPaste.dom);
@@ -320,7 +392,10 @@ class AttributesInspector extends Container {
                                 const humanReadableType = editor.call('clipboard:typeToHuman', type);
                                 tooltipCopy.text = `Copy ${humanReadableType}`;
 
-                                const clipboardType = editor.call('clipboard:typeToHuman', editor.call('clipboard:type'));
+                                const clipboardType = editor.call(
+                                    'clipboard:typeToHuman',
+                                    editor.call('clipboard:type')
+                                );
                                 tooltipPaste.text = `Paste${clipboardType ? ` ${clipboardType}` : ''}`;
                                 tooltipPaste.innerElement.classList.toggle('pcui-tooltip-disabled', !btnPaste.enabled);
                             }
@@ -358,9 +433,8 @@ class AttributesInspector extends Container {
      * @param attr - Attribute data
      * @param index - Index to insert the attribute at
      */
-    addAttribute(attr: Attribute, index?: number) {
+    addAttribute(attr: Attribute | Divider, index?: number) {
         try {
-
             // If the attribute has an 'enabled' boolean sub-attribute, promote it to the panel header as a toggle
             const enabledSubAttribute = attr.args?.attributes?.find(isEnabledAttribute);
 
@@ -377,7 +451,11 @@ class AttributesInspector extends Container {
                     const labelGroup = new LabelGroup({
                         text: attr.label,
                         field: field,
-                        labelAlignTop: attr.type === 'assets' || attr.type.startsWith('array') || attr.type === 'layers' || attr.type === 'json'
+                        labelAlignTop:
+                            attr.type === 'assets' ||
+                            attr.type.startsWith('array') ||
+                            attr.type === 'layers' ||
+                            attr.type === 'json'
                     });
 
                     if (!(isEnabledAttribute(attr) && this._skipEnabledInBody)) {
@@ -472,10 +550,14 @@ class AttributesInspector extends Container {
             if (this._templateOverridesInspector) {
                 if (attr.path) {
                     const field = this.getField(attr.path);
-                    this._templateOverridesInspector.registerElementForPath(attr.path, attr.type === 'asset' ? field : field.parent, tooltipGroup);
+                    this._templateOverridesInspector.registerElementForPath(
+                        attr.path,
+                        attr.type === 'asset' ? field : field.parent,
+                        tooltipGroup
+                    );
 
                     if (field instanceof ArrayInput) {
-                        const pathsIndex: Record<number, { path: string, element: Element }> = {};
+                        const pathsIndex: Record<number, { path: string; element: Element }> = {};
 
                         // register each array element for template overrides
                         field.on('linkElement', (element: Element, index: number, path: string) => {
@@ -493,7 +575,10 @@ class AttributesInspector extends Container {
 
                         field.on('unlinkElement', (element: Element, index: number) => {
                             if (pathsIndex[index]) {
-                                this._templateOverridesInspector.unregisterElementForPath(pathsIndex[index].path, pathsIndex[index].element);
+                                this._templateOverridesInspector.unregisterElementForPath(
+                                    pathsIndex[index].path,
+                                    pathsIndex[index].element
+                                );
                                 delete pathsIndex[index];
                             }
                         });
@@ -503,7 +588,11 @@ class AttributesInspector extends Container {
                         // use first path to get field as subsequent paths
                         // are not going to be used to index the field in the attribute inspector
                         const field = this.getField(attr.paths[0]);
-                        this._templateOverridesInspector.registerElementForPath(path, attr.type === 'asset' ? field : field.parent, tooltipGroup);
+                        this._templateOverridesInspector.registerElementForPath(
+                            path,
+                            attr.type === 'asset' ? field : field.parent,
+                            tooltipGroup
+                        );
                     });
                 }
             }
@@ -542,7 +631,7 @@ class AttributesInspector extends Container {
             if (observer) {
                 field.link([observer], attr.path || attr.paths);
             } else {
-                log.error(`This attributes inspector does not contain a valid observer for attr: "${key}". attr.observer is currently: "${attr.observer}".`);
+                void log.error`attributes inspector does not contain a valid observer for attr: ${key}. attr.observer is currently: ${attr.observer}`;
             }
         } else {
             field.link(this._observers, attr.path || attr.paths);
@@ -614,7 +703,7 @@ class AttributesInspector extends Container {
         for (const key in this._fields) {
             const parts = key.split('.');
             const valuePath = parts[parts.length - 1];
-            if (value.hasOwnProperty(valuePath)) {
+            if (Object.prototype.hasOwnProperty.call(value, valuePath)) {
                 this._fields[key].value = value[valuePath];
             }
         }
@@ -642,7 +731,7 @@ class AttributesInspector extends Container {
         for (const key in this._fields) {
             const parts = key.split('.');
             const valuePath = parts[parts.length - 1];
-            this._fields[key].values = values.map(val => val[valuePath]);
+            this._fields[key].values = values.map((val) => val[valuePath]);
         }
 
         this._suspendChangeEvt = suspend;

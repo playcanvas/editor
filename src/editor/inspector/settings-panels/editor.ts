@@ -1,7 +1,9 @@
 import { TONEMAPPING } from '@/core/constants';
 
-import { BaseSettingsPanel } from './base';
 import type { Attribute, Divider } from '../attribute.type.d';
+
+import { BaseSettingsPanel } from './base';
+import type { BaseSettingsPanelArgs } from './base';
 
 const ATTRIBUTES: (Attribute | Divider)[] = [
     {
@@ -250,11 +252,43 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
         reference: 'settings:lightmapperAutoBake',
         label: 'Lightmapper Auto Bake',
         type: 'boolean'
+    },
+    {
+        alias: 'divider:3',
+        type: 'divider'
+    },
+    {
+        observer: 'settings',
+        path: 'editor.codeEditor',
+        reference: 'settings:codeEditor',
+        label: 'Code Editor',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [
+                {
+                    v: 'web',
+                    t: 'Web'
+                },
+                {
+                    v: 'vscode',
+                    t: 'VS Code'
+                },
+                {
+                    v: 'cursor',
+                    t: 'Cursor'
+                },
+                {
+                    v: 'antigravity-ide',
+                    t: 'Antigravity IDE'
+                }
+            ]
+        }
     }
 ];
 
 class EditorSettingsPanel extends BaseSettingsPanel {
-    constructor(args: Record<string, unknown>) {
+    constructor(args: BaseSettingsPanelArgs) {
         args = Object.assign({}, args);
         args.headerText = 'EDITOR';
         args.attributes = ATTRIBUTES;

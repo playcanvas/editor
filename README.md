@@ -15,28 +15,31 @@ The PlayCanvas Editor is a visual editing environment for building WebGL/WebGPU/
 
 You can see more projects built using the Editor on the [PlayCanvas website](https://playcanvas.com/explore).
 
+> [!TIP]
+> **AI-assisted development:** The Editor includes a built-in [Model Context Protocol (MCP) integration](https://github.com/playcanvas/editor-mcp-server), allowing AI assistants to inspect and modify projects directly through an open Editor session.
+
 ## Local Development
 
 To initialize a local development environment for the Editor Frontend, ensure you have [Node.js](https://nodejs.org/) 18 or later installed. Follow these steps:
 
 1. Clone the repository:
 
-   ```sh
-   git clone https://github.com/playcanvas/editor.git
-   cd editor
-   ```
+    ```sh
+    git clone https://github.com/playcanvas/editor.git
+    cd editor
+    ```
 
 2. Install dependencies:
 
-   ```sh
-   npm install
-   ```
+    ```sh
+    npm install
+    ```
 
 3. Build the Editor frontend and start a local web server:
 
-   ```sh
-   npm run develop
-   ```
+    ```sh
+    npm run dev
+    ```
 
 4. Open the Editor at [playcanvas.com](https://playcanvas.com) and append the query parameter `use_local_frontend` to load the development build:
 
@@ -44,7 +47,7 @@ To initialize a local development environment for the Editor Frontend, ensure yo
     https://playcanvas.com/editor/scene/<YOUR_SCENE_ID>?use_local_frontend
     ```
 
-   This will load the Editor frontend from `http://localhost:3487` instead of the production build.
+    This will load the Editor frontend from `http://localhost:3487` instead of the production build.
 
 > [!NOTE]
 > This query parameter is also supported in the code editor and launch page
@@ -53,12 +56,12 @@ To initialize a local development environment for the Editor Frontend, ensure yo
 
 The Editor is built on the following open source libraries:
 
-| Library                                                       | Details                                     |
-| ------------------------------------------------------------- | ------------------------------------------- |
-| [PlayCanvas Engine](https://github.com/playcanvas/engine)     | Powers the Editor's 3D View and Launch Page |
-| [Observer](https://github.com/playcanvas/observer)            | Data binding and history                    |
-| [PCUI](https://github.com/playcanvas/pcui)                    | Front-end component library                 |
-| [PCUI-Graph](https://github.com/playcanvas/pcui-graph)        | PCUI plugin for rendering node-based graphs |
+| Library                                                   | Details                                     |
+| --------------------------------------------------------- | ------------------------------------------- |
+| [PlayCanvas Engine](https://github.com/playcanvas/engine) | Powers the Editor's 3D View and Launch Page |
+| [Observer](https://github.com/playcanvas/observer)        | Data binding and history                    |
+| [PCUI](https://github.com/playcanvas/pcui)                | Front-end component library                 |
+| [PCUI-Graph](https://github.com/playcanvas/pcui-graph)    | PCUI plugin for rendering node-based graphs |
 
 To test the integration of these libraries, use [npm link](https://docs.npmjs.com/cli/v9/commands/npm-link). Follow these steps:
 
@@ -128,11 +131,11 @@ To create new tests, ensure you have [Node.js](https://nodejs.org/) 18 or later 
 
 1. Install dependencies:
 
-   ```sh
-   cd test-suite
-   npx playwright install --with-deps
-   npm install
-   ```
+    ```sh
+    cd test-suite
+    npx playwright install --with-deps
+    npm install
+    ```
 
 2. Create tests and put them into the respective folders. For dynamic recording of tests run this command:
 

@@ -27,14 +27,16 @@ editor.once('load', () => {
 
             if (type === 'assets') {
                 for (let i = 0; i < data.ids.length; i++) {
-                    const asset = app.assets.get(data.ids[i]);
+                    const id = data.ids[i];
+                    const asset = app.assets.get(id);
                     if (!asset || asset.type !== 'template') {
                         return false;
                     }
                 }
 
                 for (let i = 0; i < data.ids.length; i++) {
-                    const asset = app.assets.get(data.ids[i]);
+                    const id = data.ids[i];
+                    const asset = app.assets.get(id);
                     app.assets.load(asset);
                 }
 
@@ -55,7 +57,8 @@ editor.once('load', () => {
                 }
             } else if (type === 'assets') {
                 for (let i = 0; i < data.ids.length; i++) {
-                    const asset = editor.call('assets:get', parseInt(data.ids[i], 10));
+                    const id = data.ids[i];
+                    const asset = editor.call('assets:get', parseInt(id, 10));
                     if (asset && asset.get('type') === 'template') {
                         assets.push(asset);
                     }
@@ -86,42 +89,46 @@ editor.once('load', () => {
                 cameraPos = camera.getPosition().clone();
             }
 
-            editor.api.globals.assets.instantiateTemplates(assets.map(a => a.apiAsset), parent.apiEntity, {
-                index: parent.get('children').length,
-                select: true
-            })
-            .then((entities) => {
-                const entityObservers = entities.map(e => e.observer);
-                const vec = new Vec3();
+            editor.api.globals.assets
+                .instantiateTemplates(
+                    assets.map((a) => a.apiAsset),
+                    parent.apiEntity,
+                    {
+                        index: parent.get('children').length,
+                        select: true
+                    }
+                )
+                .then((entities) => {
+                    const entityObservers = entities.map((e) => e.observer);
+                    const vec = new Vec3();
 
-                if (ctrlDown) {
-                    // position entities in front of camera based on aabb
-                    const aabb = editor.call('entities:aabb', entityObservers);
-                    vec.copy(cameraForward).mulScalar(aabb.halfExtents.length() * 2.2);
-                    vec.add(cameraPos);
+                    if (ctrlDown) {
+                        // position entities in front of camera based on aabb
+                        const aabb = editor.call('entities:aabb', entityObservers);
+                        vec.copy(cameraForward).mulScalar(aabb.halfExtents.length() * 2.2);
+                        vec.add(cameraPos);
 
-                    const tmp = new Entity();
-                    parent.entity.addChild(tmp);
-                    tmp.setPosition(vec);
-                    vec.copy(tmp.getLocalPosition());
-                    tmp.destroy();
-                } else {
-                    vec.set(0, 0, 0);
-                }
+                        const tmp = new Entity();
+                        parent.entity.addChild(tmp);
+                        tmp.setPosition(vec);
+                        vec.copy(tmp.getLocalPosition());
+                        tmp.destroy();
+                    } else {
+                        vec.set(0, 0, 0);
+                    }
 
-                entityObservers.forEach((e) => {
-                    e.history.enabled = false;
-                    e.set('position', [vec.x, vec.y, vec.z]);
-                    e.history.enabled = true;
+                    entityObservers.forEach((e) => {
+                        e.history.enabled = false;
+                        e.set('position', [vec.x, vec.y, vec.z]);
+                        e.history.enabled = true;
+                    });
+
+                    editor.call('viewport:render');
+                    editor.call('viewport:focus');
+                })
+                .catch((err) => {
+                    editor.call('status:error', err);
                 });
-
-                editor.call('viewport:render');
-                editor.call('viewport:focus');
-
-            })
-            .catch((err) => {
-                editor.call('status:error', err);
-            });
         }
     });
 });

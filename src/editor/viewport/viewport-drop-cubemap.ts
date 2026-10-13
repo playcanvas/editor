@@ -1,4 +1,5 @@
 import { MeshInstance } from 'playcanvas';
+import type { Entity } from 'playcanvas';
 
 import { config } from '@/editor/config';
 
@@ -15,7 +16,15 @@ editor.once('load', () => {
     let hoverCubemap = null;
     let hoverEntity;
     let hoverMeshInstance = null;
-    const hoverSkyboxFields = ['cubeMap', 'prefilteredCubeMap128', 'prefilteredCubeMap64', 'prefilteredCubeMap32', 'prefilteredCubeMap16', 'prefilteredCubeMap8', 'prefilteredCubeMap4'];
+    const hoverSkyboxFields = [
+        'cubeMap',
+        'prefilteredCubeMap128',
+        'prefilteredCubeMap64',
+        'prefilteredCubeMap32',
+        'prefilteredCubeMap16',
+        'prefilteredCubeMap8',
+        'prefilteredCubeMap4'
+    ];
 
     const onLeave = function () {
         if (hoverSkybox) {
@@ -26,7 +35,8 @@ editor.once('load', () => {
 
         if (hoverMaterial) {
             for (let i = 0; i < hoverSkyboxFields.length; i++) {
-                hoverMaterial[hoverSkyboxFields[i]] = hoverMaterial._hoverCubeMap[hoverSkyboxFields[i]];
+                const field = hoverSkyboxFields[i];
+                hoverMaterial[field] = hoverMaterial._hoverCubeMap[field];
             }
             hoverMaterial.update();
             delete hoverMaterial._hoverCubeMap;
@@ -42,9 +52,10 @@ editor.once('load', () => {
 
             if (hoverMaterial) {
                 if (!hoverMaterial._hoverCubeMap) {
-                    hoverMaterial._hoverCubeMap = { };
+                    hoverMaterial._hoverCubeMap = {};
                     for (let i = 0; i < hoverSkyboxFields.length; i++) {
-                        hoverMaterial._hoverCubeMap[hoverSkyboxFields[i]] = hoverMaterial[hoverSkyboxFields[i]];
+                        const field = hoverSkyboxFields[i];
+                        hoverMaterial._hoverCubeMap[field] = hoverMaterial[field];
                     }
                 }
 
@@ -76,7 +87,7 @@ editor.once('load', () => {
         }
     };
 
-    const onHover = function (entity: import('playcanvas').Entity | null, meshInstance: import('playcanvas').MeshInstance | null): void {
+    const onHover = function (entity: Entity | null, meshInstance: MeshInstance | null): void {
         if (entity === hoverEntity && meshInstance === hoverMeshInstance) {
             return;
         }
@@ -89,7 +100,7 @@ editor.once('load', () => {
         setCubemap();
     };
 
-    const onPickHover = function (node: import('playcanvas').Entity | null, picked: import('playcanvas').MeshInstance | unknown): void {
+    const onPickHover = function (node: Entity | null, picked: MeshInstance | unknown): void {
         let meshInstance = null;
 
         if (node && node._icon) {
@@ -97,7 +108,7 @@ editor.once('load', () => {
         }
 
         if (!node) {
-            onHover(null);
+            onHover(null, null);
             return;
         }
 
@@ -108,7 +119,7 @@ editor.once('load', () => {
         if (node.model && meshInstance && (!meshInstance.node._parent || !meshInstance.node._parent._icon)) {
             onHover(node, meshInstance);
         } else {
-            onHover(null);
+            onHover(null, null);
         }
     };
 

@@ -1,17 +1,18 @@
 import type { Observer } from '@playcanvas/observer';
-import { Element, SelectInput, SelectInputArgs } from '@playcanvas/pcui';
+import type { SelectInputArgs } from '@playcanvas/pcui';
+import { Element, SelectInput } from '@playcanvas/pcui';
 
 const CLASS_ROOT = 'pcui-layers-input';
 
 /**
  * The arguments for the {@link LayersInput} constructor.
  */
-interface LayersInputArgs extends SelectInputArgs {
+type LayersInputArgs = {
     /** The project settings observer */
     projectSettings?: Observer;
     /** Layer IDs to exclude from the options */
     excludeLayers?: number[];
-}
+} & SelectInputArgs;
 
 /**
  * A select input for choosing layers.
@@ -41,7 +42,7 @@ class LayersInput extends SelectInput {
     }
 
     protected _updateOptions() {
-        const options: { v: number, t: string }[] = [];
+        const options: { v: number; t: string }[] = [];
         const layers = this._projectSettings?.get('layers');
 
         if (layers) {
@@ -51,7 +52,8 @@ class LayersInput extends SelectInput {
 
             for (const key in layers) {
                 options.push({
-                    v: parseInt(key, 10), t: layers[key].name
+                    v: parseInt(key, 10),
+                    t: layers[key].name
                 });
             }
         }

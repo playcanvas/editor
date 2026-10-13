@@ -1,7 +1,10 @@
+import { captureException } from '@/common/sentry';
+import { SOURCE_MAP_URL } from '@/core/constants';
+
 class WorkerClient {
     _transfer: (ArrayBuffer | MessagePort | ImageBitmap)[] = [];
 
-    _callbacks: Map<string, Function[]> = new Map();
+    _callbacks = new Map<string, ((...args: any[]) => void)[]>();
 
     url: string;
 
@@ -24,7 +27,8 @@ class WorkerClient {
         }
         const callbacks = this._callbacks.get(type).slice();
         for (let i = 0; i < callbacks.length; i++) {
-            callbacks[i](...args);
+            const callback = callbacks[i];
+            callback(...args);
         }
     }
 
@@ -40,6 +44,14 @@ class WorkerClient {
      * @param event - The error event.
      */
     private _onError(event: ErrorEvent) {
+        // uncaught worker exceptions surface only here and the worker stack does not cross realms,
+        // so report them with the worker name and the throw location before notifying listeners
+        const name = this.url.split('/').pop()?.replace(/\.js$/, '') || this.url;
+        const err = event.error instanceof Error ? event.error : new Error(event.message || `${name} worker error`);
+        console.error(err);
+        captureException(err, `worker/${name}`, {
+            worker: { filename: event.filename, lineno: event.lineno, colno: event.colno }
+        });
         this._fireCallback('error', event.message);
     }
 
@@ -51,8 +63,14 @@ class WorkerClient {
             this.worker = new Worker(this.url);
         } else {
             const res = await fetch(this.url);
-            const blob = await res.blob();
-            const url = URL.createObjectURL(blob);
+            const base = new URL(this.url, location.href);
+
+            // a relative source map would resolve against the blob url, so anchor it to the worker url
+            const src = (await res.text()).replace(
+                SOURCE_MAP_URL,
+                (_, map) => `//# sourceMappingURL=${new URL(map, base).href}`
+            );
+            const url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
             this.worker = new Worker(url);
             URL.revokeObjectURL(url);
         }
@@ -102,7 +120,7 @@ class WorkerClient {
      * @param type - The type of the message.
      * @param callback - The callback function.
      */
-    on(type: string, callback: Function) {
+    on(type: string, callback: (...args: any[]) => void) {
         if (!this._callbacks.has(type)) {
             this._callbacks.set(type, []);
         }
@@ -115,7 +133,7 @@ class WorkerClient {
      * @param type - The type of the message.
      * @param callback - The callback function.
      */
-    once(type: string, callback: Function) {
+    once(type: string, callback: (...args: any[]) => void) {
         const onceCallback = (...args: unknown[]) => {
             this.off(type, onceCallback);
             callback(...args);
@@ -129,7 +147,7 @@ class WorkerClient {
      * @param type - The type of the message.
      * @param callback - The callback function.
      */
-    off(type: string, callback: Function) {
+    off(type: string, callback: (...args: any[]) => void) {
         if (!this._callbacks.has(type)) {
             return;
         }

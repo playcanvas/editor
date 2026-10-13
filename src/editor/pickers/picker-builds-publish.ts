@@ -1,59 +1,115 @@
-import { Container, Label, Progress, Button } from '@playcanvas/pcui';
+import { Container, Label, Menu, MenuItem, Button } from '@playcanvas/pcui';
 
-import { LegacyList } from '@/common/ui/list';
-import { LegacyListItem } from '@/common/ui/list-item';
-import { LegacyMenu } from '@/common/ui/menu';
-import { LegacyTooltip } from '@/common/ui/tooltip';
-import { bytesToHuman, convertDatetime } from '@/common/utils';
+import { installEllipsisTooltips } from '@/common/ellipsis-tooltip';
+import { bytesToHuman, convertDatetime, countToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
 const APP_LIMIT = 16;
+const APP_INDEX_PAGE = 128;
+const FILTER_ALL = 'all';
+const BUILD_FILTERS = [
+    {
+        key: 'type',
+        label: 'Type'
+    },
+    {
+        key: 'format',
+        label: 'Format'
+    },
+    {
+        key: 'status',
+        label: 'Status'
+    },
+    {
+        key: 'branch',
+        label: 'Branch'
+    },
+    {
+        key: 'actor',
+        label: 'Actor'
+    }
+];
+const FILTER_ORDER = {
+    type: ['publish', 'download'],
+    format: ['playcanvas', 'static', 'npm', 'web_lens'],
+    status: ['complete', 'running', 'error']
+};
+const FORMAT_FILTERS = [
+    {
+        value: 'playcanvas',
+        label: 'playcanvas'
+    },
+    {
+        value: 'static',
+        label: 'static'
+    },
+    {
+        value: 'npm',
+        label: 'npm'
+    },
+    {
+        value: 'web_lens',
+        label: 'web_lens',
+        superUser: true
+    }
+];
+const STATUS_FILTERS = [
+    {
+        value: 'complete',
+        label: 'Succeeded'
+    },
+    {
+        value: 'running',
+        label: 'Running'
+    },
+    {
+        value: 'error',
+        label: 'Failed'
+    }
+];
+const BUILD_OPTIONS = [
+    ['scripts_concatenate', 'Concatenate scripts'],
+    ['scripts_minify', 'Minify scripts'],
+    ['scripts_sourcemaps', 'Source maps'],
+    ['optimize_scene_format', 'Optimize scene format']
+];
 
 editor.once('load', () => {
     // global variables
     const projectSettings = editor.call('settings:project');
-    let dropdownApp = null;  // app whose dropdown was last clicked
-    let apps = [];  // all loaded builds
-    let tooltips = [];  // holds all tooltips
-    let events = [];  // holds events that need to be destroyed
+    let detailApp = null; // app whose detail page is currently open
+    let menuApp = null; // app whose row action menu is open
+    let activeKebab = null; // kebab button that opened the menu
+    let apps = []; // all loaded builds
+    let appIndex: Record<string, any> = {};
+    let appList = [];
+    let loadedAppIndex = false;
+    let tooltips = []; // holds all tooltips
+    const events = new Map<HTMLElement, { unbind: () => void }[]>();
+    let detailEvents = []; // holds detail panel events
+    let openingDetail = false;
+    let openingBuildForm = false;
+    let openingBuilds = false;
+    let reloadOnNextShow = false;
+    let primaryFallback = null; // primary app fetched by id when missing from the loaded pages
+    let primaryFallbackId = null; // last id fetched for the fallback (one attempt per id)
+    const filters: Record<string, string> = {};
+    const filterButtons: Record<string, Button> = {};
+    const filterMenus: Record<string, Menu> = {};
+    BUILD_FILTERS.forEach((filter) => {
+        filters[filter.key] = FILTER_ALL;
+    });
 
     // disables / enables field depending on permissions
-    const handlePermissions = function (field: { disabled: boolean }) {
-        field.disabled = !editor.call('permissions:write');
+    const handlePermissions = function (field: { enabled: boolean }) {
+        field.enabled = editor.call('permissions:write');
         return editor.on(`permissions:set:${config.self.id}`, (accessLevel) => {
             if (accessLevel === 'write' || accessLevel === 'admin') {
-                field.disabled = false;
+                field.enabled = true;
             } else {
-                field.disabled = true;
+                field.enabled = false;
             }
         });
-    };
-
-    // collapses publish and download buttons
-    const toggleCollapsingPublishButtons = (collapse = true) => {
-        if (collapse) {
-            labelDownloadIcon.dom.style.display = 'none';
-            labelDownloadDesc.dom.style.display = 'none';
-            labelPublishDesc.dom.style.display = 'none';
-            labelPublishIcon.dom.style.display = 'none';
-
-            btnPublish.dom.classList.add('collapsed');
-            btnDownload.dom.classList.add('collapsed');
-
-            panelPlaycanvas.dom.classList.add('collapsed');
-            panelSelfHost.dom.classList.add('collapsed');
-        } else {
-            labelDownloadIcon.dom.style.display = 'block';
-            labelDownloadDesc.dom.style.display = 'block';
-            labelPublishDesc.dom.style.display = 'block';
-            labelPublishIcon.dom.style.display = 'block';
-
-            btnPublish.dom.classList.remove('collapsed');
-            btnDownload.dom.classList.remove('collapsed');
-
-            panelPlaycanvas.dom.classList.remove('collapsed');
-            panelSelfHost.dom.classList.remove('collapsed');
-        }
     };
 
     // main panel
@@ -61,110 +117,117 @@ editor.once('load', () => {
         flex: true,
         class: 'picker-builds-publish'
     });
-    // panel.class.add('picker-builds-publish');
 
-    // progress bar and loading label
-    const loading = new Label({
-        text: 'Loading...'
-    });
-    panel.append(loading);
-
-    const progressBar = new Progress({ progress: 1 });
-    progressBar.hidden = true;
-    panel.append(progressBar);
-
-    // published build section
-    const publishedBuild = new Label({
-        text: `Your primary build is available at <a href="${config.project.playUrl}" target="_blank">${config.project.playUrl}</a>.`,
-        unsafe: true
-    });
-    publishedBuild.class.add('build');
-    panel.append(publishedBuild);
-
-    // publish buttons container
-    const publishButtons = new Container({
+    const primaryBuildHeader = new Container({
         flex: true,
-        class: 'publish-buttons-container'
+        class: 'primary-build-header'
     });
-    panel.append(publishButtons);
+    panel.append(primaryBuildHeader);
 
-    // playcanv.as
-    const panelPlaycanvas = new Container({
+    const primaryBuildHeading = new Label({
+        text: 'Primary build',
+        class: 'primary-build-heading',
+        hidden: true
+    });
+    primaryBuildHeader.append(primaryBuildHeading);
+
+    // top toolbar: publish (primary) + download (secondary)
+    const toolbar = new Container({
         flex: true,
-        class: 'buttons'
+        class: 'builds-toolbar'
     });
-    publishButtons.append(panelPlaycanvas);
+    primaryBuildHeader.append(toolbar);
 
-    const labelPublishIcon = new Label({
-        text: '&#57960;',
-        unsafe: true,
-        class: 'icon'
-    });
-    panelPlaycanvas.append(labelPublishIcon);
-
-    const labelPublishDesc = new Label({
-        text: 'Publish your project publicly on PlayCanvas.',
-        class: 'desc'
-    });
-    panelPlaycanvas.append(labelPublishDesc);
-
-    // publish button
-    const btnPublish = new Button({
-        text: 'Publish To PlayCanvas',
-        class: 'publish'
-    });
-    handlePermissions(btnPublish);
-    panelPlaycanvas.append(btnPublish);
-
-    handlePermissions(panelPlaycanvas);
-    panelPlaycanvas.on('click', () => {
-        editor.call('picker:publish:new');
-    });
-
-    // self host
-    const panelSelfHost = new Container({
-        flex: true,
-        class: 'buttons'
-    });
-    publishButtons.append(panelSelfHost);
-
-    const labelDownloadIcon = new Label({
-        text: '&#57925;',
-        class: 'icon',
-        unsafe: true
-    });
-    panelSelfHost.append(labelDownloadIcon);
-
-    const labelDownloadDesc = new Label({
-        text: 'Download build and host it on your own server.',
-        class: 'desc'
-    });
-    panelSelfHost.append(labelDownloadDesc);
-
-    // download button
     const btnDownload = new Button({
-        text: 'Download .zip',
+        text: 'Download',
+        icon: 'E245',
         class: 'download'
     });
     handlePermissions(btnDownload);
-    panelSelfHost.append(btnDownload);
-
-    handlePermissions(panelSelfHost);
-    panelSelfHost.on('click', () => {
+    btnDownload.on('click', () => {
+        openingBuildForm = true;
         editor.call('picker:publish:download');
+        openingBuildForm = false;
     });
+    toolbar.append(btnDownload);
+
+    const btnPublish = new Button({
+        text: 'Publish',
+        icon: 'E226',
+        class: 'publish'
+    });
+    handlePermissions(btnPublish);
+    btnPublish.on('click', () => {
+        openingBuildForm = true;
+        editor.call('picker:publish:new');
+        openingBuildForm = false;
+    });
+    toolbar.append(btnPublish);
+
+    const primaryBuild = new Container({ class: 'primary-build-summary' });
+    primaryBuild.hidden = true;
+    panel.append(primaryBuild);
+
+    const historyHeader = new Container({
+        flex: true,
+        class: 'builds-history-header'
+    });
+    panel.append(historyHeader);
 
     // Existing builds label
     const existingBuildsLabel = new Label({
-        text: 'Existing builds',
+        text: 'Build history',
         class: 'builds-list-heading'
     });
-    panel.append(existingBuildsLabel);
+    historyHeader.append(existingBuildsLabel);
+
+    const filterBar = new Container({
+        flex: true,
+        class: 'builds-filter-bar'
+    });
+    historyHeader.append(filterBar);
+
+    // shimmer placeholder rows shown while builds load
+    const skeleton = new Container({
+        class: 'builds-skeleton',
+        hidden: true
+    });
+    for (let i = 0; i < 4; i++) {
+        const row = document.createElement('div');
+        row.classList.add('skeleton-row');
+
+        const dot = document.createElement('span');
+        dot.classList.add('bone', 'dot');
+        row.appendChild(dot);
+
+        const body = document.createElement('div');
+        body.classList.add('skeleton-body');
+        row.appendChild(body);
+
+        const title = document.createElement('span');
+        title.classList.add('bone', 'line', 'title');
+        body.appendChild(title);
+
+        const sub = document.createElement('span');
+        sub.classList.add('bone', 'line', 'sub');
+        body.appendChild(sub);
+
+        const pill = document.createElement('span');
+        pill.classList.add('bone', 'pill');
+        row.appendChild(pill);
+
+        const meta = document.createElement('span');
+        meta.classList.add('bone', 'line', 'meta');
+        row.appendChild(meta);
+
+        skeleton.dom.appendChild(row);
+    }
+    panel.append(skeleton);
 
     // no builds message
-    let noBuildsText = 'You have not published any builds.';
+    let noBuildsText = 'You have not created any builds.';
     if (!projectSettings.get('useLegacyScripts')) {
-        noBuildsText += ' Click PUBLISH to create a new build.';
+        noBuildsText += ' Click Publish or Download to create a new build.';
     }
 
     const noBuilds = new Label({
@@ -174,65 +237,200 @@ editor.once('load', () => {
     });
     panel.append(noBuilds);
 
+    const noMatchingBuilds = new Container({
+        class: 'no-filtered-builds-label',
+        hidden: true
+    });
+
+    const noMatchingText = new Label({
+        text: 'No builds match the selected filters.'
+    });
+    noMatchingBuilds.append(noMatchingText);
+
+    const clearFilters = document.createElement('button');
+    clearFilters.type = 'button';
+    clearFilters.classList.add('clear-filters');
+    clearFilters.textContent = 'Clear filters';
+    clearFilters.addEventListener('click', () => {
+        resetBuildFilters();
+        loadApps();
+    });
+    noMatchingBuilds.dom.appendChild(clearFilters);
+
     // container for builds
-    const container = new LegacyList();
+    const container = new Container({ class: 'builds-list' });
+    container.dom.appendChild(noMatchingBuilds.dom);
     panel.append(container);
 
-    // load more builds button
-    const loadMore = new Button({
-        text: 'Load More',
-        class: 'load-more'
+    const detailPanel = new Container({
+        flex: true,
+        class: 'picker-build-detail'
     });
-    panel.append(loadMore);
-    handlePermissions(loadMore);
+
+    installEllipsisTooltips(panel.dom);
+    installEllipsisTooltips(detailPanel.dom);
+
+    // pagination state for infinite scroll
     let skip = 0;
-    loadMore.on('click', () => {
-        editor.api.globals.rest.projects.projectApps(APP_LIMIT, skip += APP_LIMIT).on('load', (status, data) => {
-            const results = data.result;
-            if (results.length === 0) {
-                loadMore.hidden = true;
-                return;
+    let hasMore = true;
+    let loadingMore = false;
+    let loadGen = 0; // invalidates in-flight responses when filters change
+    let scrollContainer: HTMLElement | null = null;
+
+    // values the backend can filter on; anything else stays client-side only
+    const SERVER_FILTER_GUARDS: Record<string, (value: string) => boolean> = {
+        type: (value) => FILTER_ORDER.type.includes(value),
+        format: (value) => FORMAT_FILTERS.some((option) => option.value === value),
+        status: (value) => STATUS_FILTERS.some((option) => option.value === value),
+        branch: (value) => value.length > 0,
+        actor: (value) => /^\d+$/.test(value)
+    };
+
+    const getServerFilters = function () {
+        const result: Record<string, string> = {};
+        BUILD_FILTERS.forEach((filter) => {
+            const value = filters[filter.key];
+            if (value !== FILTER_ALL && SERVER_FILTER_GUARDS[filter.key]?.(value)) {
+                result[filter.key] = value;
             }
-            apps.push(...results);
-            results.forEach(createAppItem);
         });
-    });
+        return result;
+    };
 
-    const dropdownMenu = LegacyMenu.fromData({
-        'app-delete': {
-            title: 'Delete',
-            filter: function () {
-                return editor.call('permissions:write');
-            },
-            select: function () {
-                editor.call('picker:confirm', 'Are you sure you want to delete this build?');
-                editor.once('picker:confirm:yes', () => {
-                    removeApp(dropdownApp);
-                    editor.api.globals.rest.apps.appDelete(dropdownApp.id);
-                });
-            }
+    const loadMoreBuilds = function () {
+        if (loadingMore || !hasMore || panel.hidden || detailApp) {
+            return;
         }
-    });
+        loadingMore = true;
+        skip += APP_LIMIT;
+        const gen = loadGen;
+        editor.api.globals.rest.projects
+            .projectBuilds(APP_LIMIT, skip, getServerFilters())
+            .on('load', (status, data) => {
+                loadingMore = false;
+                if (gen !== loadGen) {
+                    return;
+                }
+                const previous = apps.slice();
+                const results = data.result.map(normalizeBuildJob);
+                const ids = getPublishAppIds(results);
+                if (ids.size) {
+                    apps = apps.filter(
+                        (app) => app.build_job_id || app.type !== 'publish' || !ids.has(String(app.app_id))
+                    );
+                }
+                apps.push(...results);
+                apps.sort(compareBuildDate);
+                hasMore = data.pagination
+                    ? skip + results.length < data.pagination.total
+                    : results.length === APP_LIMIT;
+                refreshApps(previous);
+                fillViewport();
+            });
+    };
 
-    // add menu
-    editor.call('layout.root').append(dropdownMenu);
+    // keep loading until the list fills the scroll area, so scrolling can trigger more
+    const fillViewport = function () {
+        const needsFilteredRows = hasActiveFilters() && getFilteredApps().length === 0;
+        if (
+            scrollContainer &&
+            hasMore &&
+            !loadingMore &&
+            !panel.hidden &&
+            !detailApp &&
+            (needsFilteredRows || scrollContainer.scrollHeight <= scrollContainer.clientHeight)
+        ) {
+            loadMoreBuilds();
+        }
+    };
 
-    // on closing menu remove 'clicked' class from respective dropdown
-    dropdownMenu.on('open', (open) => {
-        if (!open && dropdownApp) {
-            const item = document.getElementById(`app-${dropdownApp.id}`);
-            if (item) {
-                const clicked = item.querySelector('.clicked');
-                if (clicked) {
-                    clicked.innerHTML = '&#57689;';
-                    clicked.classList.remove('clicked');
+    const onScroll = function () {
+        if (!scrollContainer || loadingMore || !hasMore || panel.hidden || detailApp) {
+            return;
+        }
+        if (scrollContainer.scrollHeight - scrollContainer.scrollTop - scrollContainer.clientHeight < 240) {
+            loadMoreBuilds();
+        }
+    };
+
+    const isPrimaryBuild = function (app: any) {
+        return !!app && app.type === 'publish' && config.project.primaryApp === app.app_id;
+    };
+
+    const isPickerVisible = function () {
+        return !panel.hidden || !detailPanel.hidden;
+    };
+
+    const canSetPrimaryBuild = function (app: any) {
+        return (
+            !!app && app.type === 'publish' && app.task.status === 'complete' && !!app.app_id && !isPrimaryBuild(app)
+        );
+    };
+
+    const canDeleteBuild = function (app: any) {
+        if (!app) {
+            return false;
+        }
+
+        return !!app.build_job_id || (app.type === 'publish' && Number(app.app_id) > 0);
+    };
+
+    const setPrimaryBuild = function (app: any) {
+        if (!editor.call('permissions:write') || !canSetPrimaryBuild(app)) {
+            return;
+        }
+
+        editor.call('projects:setPrimaryApp', String(app.app_id), undefined, syncPrimaryBuildUi);
+        syncPrimaryBuildUi();
+    };
+
+    // shared per-row action menu (opened from the kebab button on each row)
+    const rowMenu = new Menu({
+        class: 'picker-builds-menu',
+        items: [
+            {
+                text: 'Set Primary Build',
+                class: 'primary',
+                onIsVisible: () => menuApp?.type === 'publish',
+                onIsEnabled: () => editor.call('permissions:write') && canSetPrimaryBuild(menuApp),
+                onSelect: () => menuApp && setPrimaryBuild(menuApp)
+            },
+            {
+                text: 'View',
+                onSelect: () => menuApp && openBuildDetail(menuApp)
+            },
+            {
+                text: 'Delete',
+                class: 'delete',
+                onIsEnabled: () => editor.call('permissions:write') && canDeleteBuild(menuApp),
+                onSelect: () => {
+                    deleteBuild(menuApp);
                 }
             }
-        }
+        ]
     });
+    editor.call('layout.root').append(rowMenu);
+
+    rowMenu.on('hide', () => {
+        activeKebab?.classList.remove('active');
+        activeKebab = null;
+    });
+
+    const openRowMenu = function (app: any, kebab: HTMLElement) {
+        menuApp = app;
+        activeKebab = kebab;
+        kebab.classList.add('active');
+        rowMenu.hidden = false;
+
+        const rect = kebab.getBoundingClientRect();
+        const items = rowMenu.dom.querySelector('.pcui-menu-items') as HTMLElement;
+        rowMenu.position(rect.right - items.clientWidth, rect.bottom);
+        rowMenu.focus();
+    };
 
     // register panel with project popup
     editor.call('picker:project:registerMenu', 'builds-publish', 'Builds', panel, 'BUILDS & PUBLISH');
+    editor.call('picker:project:registerPanel', 'build-detail', 'Build Details', detailPanel);
 
     // hide button if the user doesn't have the right permissions
     if (!editor.call('permissions:read')) {
@@ -247,308 +445,1368 @@ editor.once('load', () => {
     // UI
 
     const toggleProgress = function (toggle: boolean) {
-        loading.hidden = !toggle;
-        progressBar.hidden = !toggle;
+        skeleton.hidden = !toggle;
         container.hidden = toggle || apps.length === 0;
-        publishedBuild.hidden = toggle || !config.project.primaryApp;
+        // only hide the primary card on the initial empty load; reloads (e.g. filter
+        // changes) keep it in place so the layout doesn't jump
+        if (apps.length === 0) {
+            primaryBuildHeading.hidden = true;
+            primaryBuild.hidden = true;
+        }
         noBuilds.hidden = toggle || apps.length > 0;
+        noMatchingBuilds.hidden = true;
     };
 
-    // create UI for single app
-    const createAppItem = function (app: Record<string, unknown>) {
-        const item = new LegacyListItem();
-        item.element.id = `app-${app.id}`;
-
-        container.append(item);
-
-        if (config.project.primaryApp === app.id) {
-            item.class.add('primary');
+    // job rows depend on this index for app metadata like the view count, and the
+    // endpoint treats limit 0 as 16, so page through every app explicitly
+    const loadAppIndex = function (done: () => void) {
+        if (loadedAppIndex) {
+            done();
+            return;
         }
 
-        item.class.add(app.task.status);
+        const fetched = [];
+        const fetchPage = function (skip: number) {
+            editor.api.globals.rest.projects.projectApps(APP_INDEX_PAGE, skip).on('load', (status, data) => {
+                const page = data?.result || [];
+                fetched.push(...page);
+                if (page.length === APP_INDEX_PAGE) {
+                    fetchPage(skip + APP_INDEX_PAGE);
+                    return;
+                }
+                appList = fetched.slice();
+                appIndex = {};
+                appList.forEach((app) => {
+                    appIndex[String(app.id)] = app;
+                });
+                loadedAppIndex = true;
+                done();
+            });
+        };
+        fetchPage(0);
+    };
 
-        // primary app button
-        const primary = new Button({
-            icon: 'E223',
-            class: 'primary'
+    const compareBuildDate = function (a: any, b: any) {
+        const at = new Date(a.created_at || a.completed_at || 0).getTime() || 0;
+        const bt = new Date(b.created_at || b.completed_at || 0).getTime() || 0;
+        return bt - at;
+    };
+
+    const normalizeBuildJob = function (job: any) {
+        const raw = job.settings || {};
+        const artifacts = job.artifacts || [];
+        const artifact = artifacts[0];
+        const meta = job.app_id ? appIndex[String(job.app_id)] : null;
+        const name = raw.name || meta?.name || job.app?.name || 'Untitled';
+        const description = raw.description || meta?.description || job.app?.description || '';
+        const version = raw.version || meta?.version || job.app?.version || '';
+        const releaseNotes =
+            raw.release_notes ||
+            raw.releaseNotes ||
+            meta?.release_notes ||
+            meta?.releaseNotes ||
+            job.app?.release_notes ||
+            job.app?.releaseNotes ||
+            '';
+        const size = artifact && artifact.bytes !== undefined ? artifact.bytes : (meta?.size ?? job.app?.size ?? null);
+        const url = (artifact && artifact.url) || meta?.url || job.app?.url;
+        const rowArtifacts = artifacts.length
+            ? artifacts
+            : url
+              ? [{ type: job.type === 'publish' ? 'app' : job.type, url, bytes: size }]
+              : artifacts;
+        const settings = Object.assign({}, raw, {
+            name,
+            description,
+            version,
+            release_notes: releaseNotes
         });
-        events.push(handlePermissions(primary));
-        if (!primary.disabled && app.task.status !== 'complete') {
-            primary.disabled = true;
-        }
-        item.element.appendChild(primary.element);
 
-        // set primary app
-        events.push(primary.on('click', () => {
-            if (config.project.primaryApp === app.id || app.task.status !== 'complete') {
+        return {
+            id: job.app_id || `job-${job.id}`,
+            app_id: job.app_id,
+            job_id: job.job_id,
+            build_job_id: job.id,
+            type: job.type,
+            actor: job.actor,
+            settings,
+            artifacts: rowArtifacts,
+            branch: job.branch,
+            name,
+            description,
+            version,
+            release_notes: releaseNotes,
+            created_at: job.created_at,
+            completed_at: job.completed_at,
+            duration_ms: job.duration_ms,
+            source: job.source,
+            size,
+            views: meta?.views ?? job.app?.views ?? job.views ?? 0,
+            url,
+            task: {
+                status: job.status,
+                message: job.message || ''
+            }
+        };
+    };
+
+    const normalizeLegacyApp = function (app: any) {
+        const bytes = app.size ?? null;
+        const url = app.url;
+        return {
+            id: app.id,
+            app_id: app.id,
+            build_job_id: null,
+            type: 'publish',
+            settings: {
+                name: app.name,
+                description: app.description,
+                version: app.version,
+                release_notes: app.release_notes || app.releaseNotes,
+                format: 'playcanvas'
+            },
+            artifacts: url ? [{ type: 'app', url, bytes }] : [],
+            branch: app.branch,
+            name: app.name || 'Untitled',
+            description: app.description || '',
+            version: app.version || '',
+            release_notes: app.release_notes || app.releaseNotes || '',
+            created_at: app.created_at,
+            completed_at: app.completed_at,
+            duration_ms: null,
+            source: { type: 'legacy' },
+            size: bytes,
+            views: app.views ?? 0,
+            url,
+            task: app.task || { status: 'complete', message: '' }
+        };
+    };
+
+    const getPublishAppIds = function (rows: any[]) {
+        return new Set(
+            rows
+                .filter((item) => item.type === 'publish' && item.app_id !== null && item.app_id !== undefined)
+                .map((item) => String(item.app_id))
+        );
+    };
+
+    const isSameBuild = function (a: any, b: any) {
+        if (!a || !b) {
+            return false;
+        }
+        if (a.build_job_id && b.build_job_id) {
+            return Number(a.build_job_id) === Number(b.build_job_id);
+        }
+        if (a.app_id && b.app_id) {
+            return String(a.app_id) === String(b.app_id);
+        }
+        return a.id === b.id;
+    };
+
+    const getStatusLabel = function (app: any) {
+        if (app.task.status === 'complete') {
+            return 'Succeeded';
+        }
+        if (app.task.status === 'error') {
+            return 'Failed';
+        }
+        if (app.task.status === 'running') {
+            return 'Running';
+        }
+        return app.task.status || 'Pending';
+    };
+
+    const getTypeLabel = function (app: any) {
+        return app.type === 'publish' ? 'Publish' : 'Download';
+    };
+
+    const getFormatValue = function (app: any) {
+        return (app.settings && app.settings.format) || app.version || app.type || '';
+    };
+
+    const getBranchLabel = function (app: any) {
+        return (app.branch && app.branch.name) || 'main';
+    };
+
+    const getActorLabel = function (app: any) {
+        return (app.actor && (app.actor.name || app.actor.username)) || '';
+    };
+
+    const getFilterValue = function (app: any, key: string) {
+        if (key === 'type') {
+            return app.type || '';
+        }
+        if (key === 'format') {
+            return getFormatValue(app);
+        }
+        if (key === 'status') {
+            return app.task.status || '';
+        }
+        if (key === 'branch') {
+            return getBranchLabel(app);
+        }
+        if (key === 'actor') {
+            return app.actor && app.actor.id !== undefined ? String(app.actor.id) : getActorLabel(app);
+        }
+        return '';
+    };
+
+    const getFilterLabel = function (app: any, key: string) {
+        if (key === 'type') {
+            return getTypeLabel(app);
+        }
+        if (key === 'status') {
+            return getStatusLabel(app);
+        }
+        if (key === 'branch') {
+            return getBranchLabel(app);
+        }
+        if (key === 'actor') {
+            return getActorLabel(app);
+        }
+        return getFormatValue(app);
+    };
+
+    // accumulated across loads so an active server-side filter doesn't shrink its own menu
+    let knownFilterLabels: Record<string, Record<string, string>> = {};
+
+    const getFilterOptions = function (key: string) {
+        const labels = knownFilterLabels[key] || (knownFilterLabels[key] = {});
+        if (key === 'format') {
+            FORMAT_FILTERS.forEach((option) => {
+                if (!option.superUser || config.self.flags.superUser) {
+                    labels[option.value] = option.label;
+                }
+            });
+        } else if (key === 'status') {
+            STATUS_FILTERS.forEach((option) => {
+                labels[option.value] = option.label;
+            });
+        }
+        apps.forEach((app) => {
+            const value = getFilterValue(app, key);
+            if (value) {
+                labels[value] = getFilterLabel(app, key);
+            }
+        });
+
+        const order = (FILTER_ORDER as any)[key] || [];
+        return Object.keys(labels)
+            .map((value) => ({
+                value,
+                label: labels[value]
+            }))
+            .sort((a, b) => {
+                const ai = order.indexOf(a.value);
+                const bi = order.indexOf(b.value);
+                if (ai !== -1 || bi !== -1) {
+                    return (ai === -1 ? order.length : ai) - (bi === -1 ? order.length : bi);
+                }
+                return a.label.localeCompare(b.label);
+            });
+    };
+
+    const getFilterValueLabel = function (key: string, value: string) {
+        const option = getFilterOptions(key).find((item) => item.value === value);
+        return option ? option.label : value;
+    };
+
+    const hasActiveFilters = function () {
+        return BUILD_FILTERS.some((filter) => filters[filter.key] !== FILTER_ALL);
+    };
+
+    const getFilteredApps = function () {
+        return apps.filter((app) => {
+            return BUILD_FILTERS.every((filter) => {
+                const value = filters[filter.key];
+                return value === FILTER_ALL || getFilterValue(app, filter.key) === value;
+            });
+        });
+    };
+
+    const hideFilterMenus = function () {
+        BUILD_FILTERS.forEach((filter) => {
+            filterMenus[filter.key].hidden = true;
+        });
+    };
+
+    const updateFilterButtons = function () {
+        BUILD_FILTERS.forEach((filter) => {
+            const value = filters[filter.key];
+            const button = filterButtons[filter.key];
+            button.text =
+                value === FILTER_ALL ? filter.label : `${filter.label}: ${getFilterValueLabel(filter.key, value)}`;
+            if (value === FILTER_ALL) {
+                button.class.remove('selected');
+            } else {
+                button.class.add('selected');
+            }
+        });
+    };
+
+    const setBuildFilter = function (key: string, value: string) {
+        if (filters[key] === value) {
+            hideFilterMenus();
+            return;
+        }
+
+        filters[key] = value;
+        updateFilterButtons();
+        hideFilterMenus();
+        loadApps();
+    };
+
+    const resetBuildFilters = function () {
+        BUILD_FILTERS.forEach((filter) => {
+            filters[filter.key] = FILTER_ALL;
+        });
+        updateFilterButtons();
+        hideFilterMenus();
+    };
+
+    const updateFilterMenu = function (filter: any) {
+        const menu = filterMenus[filter.key];
+        menu.clear();
+
+        const selected = filters[filter.key];
+        menu.append(
+            new MenuItem({
+                text: 'All',
+                class: selected === FILTER_ALL ? 'selected' : '',
+                onSelect: () => setBuildFilter(filter.key, FILTER_ALL)
+            })
+        );
+
+        getFilterOptions(filter.key).forEach((option) => {
+            menu.append(
+                new MenuItem({
+                    text: option.label,
+                    class: option.value === selected ? 'selected' : '',
+                    onSelect: () => setBuildFilter(filter.key, option.value)
+                })
+            );
+        });
+    };
+
+    const openFilterMenu = function (filter: any) {
+        const button = filterButtons[filter.key];
+        const menu = filterMenus[filter.key];
+        updateFilterMenu(filter);
+        hideFilterMenus();
+        button.class.add('active');
+        menu.hidden = false;
+
+        const rect = button.dom.getBoundingClientRect();
+        const items = menu.dom.querySelector('.pcui-menu-items') as HTMLElement;
+        menu.position(rect.right - items.clientWidth, rect.bottom);
+        menu.focus();
+    };
+
+    BUILD_FILTERS.forEach((filter) => {
+        const button = new Button({
+            text: filter.label,
+            class: 'build-filter-button'
+        });
+        filterButtons[filter.key] = button;
+        filterBar.append(button);
+        button.on('click', () => openFilterMenu(filter));
+
+        const menu = new Menu({ class: 'picker-builds-filter-menu' });
+        filterMenus[filter.key] = menu;
+        editor.call('layout.root').append(menu);
+        menu.on('hide', () => {
+            button.class.remove('active');
+        });
+    });
+    updateFilterButtons();
+
+    // GitHub-style copy button; swaps to a check while the copy is fresh
+    const createCopyButton = function (text: string, label = 'Copy') {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.classList.add('copy-button');
+        btn.title = label;
+        btn.setAttribute('aria-label', label);
+        btn.addEventListener('click', (e: MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            navigator.clipboard.writeText(text).then(
+                () => {
+                    btn.classList.add('copied');
+                    setTimeout(() => btn.classList.remove('copied'), 1500);
+                },
+                () => {
+                    // intentionally empty
+                }
+            );
+        });
+        return btn;
+    };
+
+    const createValue = function (row: any) {
+        const value = row.value;
+        const val = document.createElement('span');
+        // 'selectable' exempts text from the global mousedown preventDefault in layout.ts
+        val.classList.add('value', 'selectable');
+        if (row.variant) {
+            val.classList.add(`metadata-${row.variant}`);
+        }
+        if (row.class) {
+            val.classList.add(row.class);
+        }
+        if (value instanceof Node) {
+            val.appendChild(value);
+        } else {
+            val.textContent = String(value);
+        }
+        if (row.copy) {
+            val.appendChild(createCopyButton(String(row.copy)));
+        }
+        return val;
+    };
+
+    const createSection = function (title: string, rows: any[]) {
+        const section = document.createElement('section');
+        section.classList.add('detail-section');
+
+        const heading = document.createElement('h3');
+        heading.classList.add('selectable');
+        heading.textContent = title;
+        section.appendChild(heading);
+
+        const grid = document.createElement('div');
+        grid.classList.add('metadata-grid', 'selectable');
+        section.appendChild(grid);
+
+        rows.forEach((row) => {
+            const value = row.value;
+            if (value === undefined || value === null || value === '') {
                 return;
             }
 
-            editor.call('projects:setPrimaryApp', app.id, null, () => {
-                // error - refresh apps again to go back to previous state
-                refreshApps();
-            });
+            const item = document.createElement('div');
+            item.classList.add('detail-row');
 
-            // refresh apps instantly
-            refreshApps();
+            const key = document.createElement('span');
+            key.classList.add('key', 'selectable');
+            key.textContent = row.label;
+            item.appendChild(key);
 
-            // collapse publish and download buttons
-            toggleCollapsingPublishButtons(true);
-        }));
-
-        // primary icon tooltip
-        const tooltipText = config.project.primaryApp === app.id ? 'Primary build' : 'Change the projects\'s primary build';
-        const tooltip = LegacyTooltip.attach({
-            target: primary.element,
-            text: tooltipText,
-            align: 'right',
-            root: editor.call('layout.root')
+            item.appendChild(createValue(row));
+            grid.appendChild(item);
         });
-        tooltips.push(tooltip);
 
-        // status icon or image
-        const status = document.createElement('span');
-        status.classList.add('status');
-        item.element.appendChild(status);
+        return section;
+    };
 
-        let img;
+    // checklist of all build options with on / off state
+    const getBuildOptions = function (settings: any) {
+        const list = document.createElement('span');
+        list.classList.add('options-list', 'selectable');
+        list.setAttribute('role', 'list');
+        BUILD_OPTIONS.forEach(([key, label]) => {
+            const item = document.createElement('span');
+            item.setAttribute('role', 'listitem');
+            item.classList.add('option', 'selectable');
+            if (!settings[key]) {
+                item.classList.add('off');
+            }
+            item.textContent = label;
+            list.appendChild(item);
+        });
+        return list;
+    };
 
-        if (app.task.status === 'complete') {
-            img = new Image();
-            img.src = app.thumbnails ? app.thumbnails.s : (config.project.thumbnails.s || `${config.url.static}/platform/images/common/blank_project.png`);
-            status.appendChild(img);
-        } else if (app.task.status === 'running') {
-            img = new Image();
-            img.src = `${config.url.static}/platform/images/common/ajax-loader.gif`;
-            status.appendChild(img);
+    const createArtifactCard = function (app: any, artifact: any) {
+        const card = document.createElement('div');
+        card.classList.add('artifact-card', app.type === 'download' ? 'zip' : 'app');
+
+        const icon = document.createElement('span');
+        icon.classList.add('artifact-icon');
+        card.appendChild(icon);
+
+        const body = document.createElement('div');
+        body.classList.add('artifact-body');
+        card.appendChild(body);
+
+        const title = document.createElement('div');
+        title.classList.add('artifact-title', 'selectable');
+        title.textContent = app.type === 'download' ? 'zip' : 'app';
+        body.appendChild(title);
+
+        if (artifact.bytes !== null && artifact.bytes !== undefined) {
+            const meta = document.createElement('div');
+            meta.classList.add('artifact-meta', 'selectable');
+            meta.textContent = bytesToHuman(artifact.bytes);
+            body.appendChild(meta);
         }
+
+        if (artifact.url) {
+            const link = document.createElement('a');
+            link.classList.add('artifact-action');
+            link.href = artifact.url;
+            link.target = '_blank';
+            link.rel = 'noopener';
+            link.textContent = app.type === 'publish' ? 'Open app' : 'Download';
+            card.appendChild(link);
+        }
+
+        return card;
+    };
+
+    const createArtifactSection = function (app: any, artifacts: any[]) {
+        if (!artifacts.length) {
+            return createSection('Artifacts', [
+                {
+                    label: 'Artifacts',
+                    value: 'None'
+                }
+            ]);
+        }
+
+        const section = document.createElement('section');
+        section.classList.add('detail-section', 'artifact-section');
+
+        const heading = document.createElement('h3');
+        heading.classList.add('selectable');
+        heading.textContent = 'Artifacts';
+        section.appendChild(heading);
+
+        const list = document.createElement('div');
+        list.classList.add('artifact-list');
+        section.appendChild(list);
+
+        artifacts.forEach((artifact) => {
+            list.appendChild(createArtifactCard(app, artifact));
+        });
+
+        return section;
+    };
+
+    // created → build → completed step strip derived from the build timestamps
+    const createTimeline = function (app: any) {
+        const section = document.createElement('section');
+        section.classList.add('detail-section', 'timeline-section');
+
+        const heading = document.createElement('h3');
+        heading.classList.add('selectable');
+        heading.textContent = 'Timeline';
+        section.appendChild(heading);
+
+        const strip = document.createElement('div');
+        strip.classList.add('timeline');
+        section.appendChild(strip);
+
+        const status = app.task.status;
+        const duration = app.duration_ms ? `${Math.round(app.duration_ms / 1000)}s` : null;
+        const buildState =
+            status === 'running'
+                ? 'active'
+                : status === 'error'
+                  ? 'failed'
+                  : status === 'complete'
+                    ? 'done'
+                    : 'pending';
+        const steps = [
+            {
+                label: 'Created',
+                state: app.created_at ? 'done' : 'pending',
+                sub: app.created_at ? formatBuildDate(app.created_at) : null
+            },
+            {
+                label: 'Build',
+                state: buildState,
+                sub: status === 'running' ? 'In progress' : duration
+            },
+            {
+                label: 'Completed',
+                state: status === 'complete' ? 'done' : 'pending',
+                sub: status === 'complete' && app.completed_at ? formatBuildDate(app.completed_at) : null
+            }
+        ];
+
+        steps.forEach((step, i) => {
+            if (i) {
+                const connector = document.createElement('span');
+                connector.classList.add('connector');
+                strip.appendChild(connector);
+            }
+
+            const item = document.createElement('div');
+            item.classList.add('step', step.state);
+            strip.appendChild(item);
+
+            const head = document.createElement('div');
+            head.classList.add('step-head');
+            item.appendChild(head);
+
+            const dot = document.createElement('span');
+            dot.classList.add('dot');
+            head.appendChild(dot);
+
+            const label = document.createElement('span');
+            label.classList.add('step-label', 'selectable');
+            label.textContent = step.label;
+            head.appendChild(label);
+
+            if (step.sub) {
+                const sub = document.createElement('div');
+                sub.classList.add('step-sub', 'selectable');
+                sub.textContent = step.sub;
+                item.appendChild(sub);
+            }
+        });
+
+        return section;
+    };
+
+    const createDetails = function (app: any) {
+        const settings = app.settings || {};
+        const artifacts = app.artifacts || [];
+        const scenes = settings.scenes || [];
+        const actor = app.actor && (app.actor.name || app.actor.username);
+        const source = app.source && (app.source.name || app.source.type);
+        const details = document.createElement('div');
+        details.classList.add('detail-body', 'selectable');
+
+        details.appendChild(createTimeline(app));
+
+        details.appendChild(
+            createSection('Build info', [
+                {
+                    label: 'Status',
+                    value: getStatusLabel(app),
+                    variant: 'badge'
+                },
+                {
+                    label: 'Build',
+                    value: app.build_job_id ? `#${app.build_job_id}` : null,
+                    variant: 'code',
+                    copy: app.build_job_id
+                },
+                {
+                    label: 'Job',
+                    value: app.job_id ? `#${app.job_id}` : null,
+                    variant: 'code',
+                    copy: app.job_id
+                },
+                {
+                    label: 'Created',
+                    value: app.created_at ? convertDatetime(app.created_at) : null
+                },
+                {
+                    label: 'Completed',
+                    value: app.completed_at ? convertDatetime(app.completed_at) : null
+                },
+                {
+                    label: 'Duration',
+                    value: app.duration_ms ? `${Math.round(app.duration_ms / 1000)}s` : null
+                },
+                {
+                    label: 'Created by',
+                    value: actor
+                }
+            ])
+        );
+
+        if (app.type === 'publish') {
+            details.appendChild(
+                createSection('Publish details', [
+                    {
+                        label: 'Title',
+                        value: app.name
+                    },
+                    {
+                        label: 'Description',
+                        value: app.description
+                    },
+                    {
+                        label: 'Version',
+                        value: app.version
+                    },
+                    {
+                        label: 'Release notes',
+                        value: app.release_notes
+                    }
+                ])
+            );
+        }
+
+        details.appendChild(
+            createSection('Source and settings', [
+                {
+                    label: 'Type',
+                    value: getTypeLabel(app),
+                    variant: 'badge',
+                    class: app.type
+                },
+                {
+                    label: 'Format',
+                    value: getFormatValue(app),
+                    variant: 'badge'
+                },
+                {
+                    label: 'Engine',
+                    value: settings.engine_version,
+                    variant: 'code'
+                },
+                {
+                    label: 'Branch',
+                    value: getBranchLabel(app),
+                    variant: 'branch'
+                },
+                {
+                    label: 'Source',
+                    value: source,
+                    variant: 'badge'
+                },
+                {
+                    label: 'Options',
+                    value: getBuildOptions(settings)
+                }
+            ])
+        );
+
+        details.appendChild(
+            createSection(
+                'Scenes',
+                scenes.length
+                    ? scenes.map((scene) => {
+                          return {
+                              label: scene.name || 'Untitled scene',
+                              value: scene.id ? `ID ${scene.id}` : 'Included',
+                              variant: scene.id ? 'code' : null
+                          };
+                      })
+                    : [
+                          {
+                              label: 'Scenes',
+                              value: 'None'
+                          }
+                      ]
+            )
+        );
+
+        details.appendChild(createArtifactSection(app, artifacts));
+
+        return details;
+    };
+
+    // relative time for builds created today (just now / x minutes / x hours ago), absolute date otherwise
+    const formatBuildDate = function (value: any) {
+        const d = new Date(value);
+        const now = new Date();
+        const sameDay =
+            d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+        if (!sameDay) {
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        const mins = Math.max(0, Math.floor((now.getTime() - d.getTime()) / 60000));
+        if (mins < 1) {
+            return 'just now';
+        }
+        if (mins < 60) {
+            return mins === 1 ? '1 minute ago' : `${mins} minutes ago`;
+        }
+        const hours = Math.floor(mins / 60);
+        return hours === 1 ? '1 hour ago' : `${hours} hours ago`;
+    };
+
+    const openBuildsPanel = function () {
+        editor.call('picker:builds-publish');
+    };
+
+    const deleteBuild = function (app: any) {
+        if (!canDeleteBuild(app) || !editor.call('permissions:write')) {
+            return;
+        }
+
+        editor.call('picker:confirm', 'Are you sure you want to delete this build?');
+        editor.once('picker:confirm:yes', () => {
+            if (app.build_job_id) {
+                editor.api.globals.rest.projects.projectBuildDelete(app.build_job_id);
+            } else {
+                editor.api.globals.rest.apps.appDelete(Number(app.app_id));
+            }
+            removeApp(app);
+        });
+    };
+
+    const renderDetail = function (app: any) {
+        destroyDetailEvents();
+        detailPanel.element.innerHTML = '';
+
+        const isComplete = app.task.status === 'complete';
+        const canPrimary = app.type === 'publish' && !!app.app_id;
+        const canDelete = canDeleteBuild(app);
+        const isPrimary = isPrimaryBuild(app);
+
+        const back = document.createElement('button');
+        back.type = 'button';
+        back.classList.add('back');
+        back.textContent = 'Back to builds';
+        back.addEventListener('click', openBuildsPanel);
+        detailEvents.push({ unbind: () => back.removeEventListener('click', openBuildsPanel) });
+        detailPanel.element.appendChild(back);
+
+        const header = document.createElement('div');
+        header.classList.add('detail-hero');
+        detailPanel.element.appendChild(header);
+
+        const thumb = document.createElement('img');
+        thumb.classList.add('thumb');
+        thumb.alt = '';
+        thumb.src =
+            (config.project.thumbnails && (config.project.thumbnails.m || config.project.thumbnails.s)) ||
+            `${config.url.frontend}static/img/blank-project.webp`;
+        header.appendChild(thumb);
+
+        const heading = document.createElement('div');
+        heading.classList.add('heading');
+        header.appendChild(heading);
 
         const nameRow = document.createElement('div');
         nameRow.classList.add('name-row');
-        item.element.appendChild(nameRow);
+        heading.appendChild(nameRow);
 
-        // app name
+        const status = document.createElement('span');
+        status.classList.add('status', app.task.status);
+        nameRow.appendChild(status);
+
+        const name = document.createElement('span');
+        name.classList.add('name', 'selectable');
+        name.textContent = app.name;
+        nameRow.appendChild(name);
+
+        const typeBadge = document.createElement('span');
+        typeBadge.classList.add('badge', app.type);
+        typeBadge.textContent = getTypeLabel(app);
+        nameRow.appendChild(typeBadge);
+
+        const formatBadge = document.createElement('span');
+        formatBadge.classList.add('badge');
+        formatBadge.textContent = getFormatValue(app);
+        nameRow.appendChild(formatBadge);
+
+        if (isPrimary) {
+            const primaryBadge = document.createElement('span');
+            primaryBadge.classList.add('badge', 'primary-badge');
+            primaryBadge.textContent = 'Primary';
+            nameRow.appendChild(primaryBadge);
+        }
+
+        if (app.type === 'publish') {
+            const stats = document.createElement('div');
+            stats.classList.add('detail-stats');
+            heading.appendChild(stats);
+
+            const views = document.createElement('span');
+            views.classList.add('metric', 'views', 'selectable');
+            views.title = 'Views';
+            views.textContent = String(app.views ?? 0);
+            stats.appendChild(views);
+        }
+
+        const sub = document.createElement('div');
+        sub.classList.add('sub', 'selectable');
+        sub.textContent = [
+            getStatusLabel(app),
+            app.build_job_id ? `Build #${app.build_job_id}` : null,
+            app.job_id ? `Job #${app.job_id}` : null,
+            app.created_at ? `Created ${formatBuildDate(app.created_at)}` : null
+        ]
+            .filter(Boolean)
+            .join(' · ');
+        heading.appendChild(sub);
+
+        const actions = document.createElement('div');
+        actions.classList.add('detail-actions');
+        header.appendChild(actions);
+
+        if (isComplete && app.url) {
+            const artifact = document.createElement('a');
+            artifact.classList.add('detail-button');
+            artifact.href = app.url;
+            artifact.target = '_blank';
+            artifact.rel = 'noopener';
+            artifact.textContent = app.type === 'publish' ? 'Open' : 'Download';
+            actions.appendChild(artifact);
+
+            actions.appendChild(createCopyButton(app.url, 'Copy URL'));
+        }
+
+        if (canPrimary) {
+            const primary = new Button({ text: 'Set primary', class: 'set-primary' });
+            const update = () => {
+                primary.enabled = editor.call('permissions:write') && canSetPrimaryBuild(app);
+            };
+            update();
+            detailEvents.push(editor.on(`permissions:set:${config.self.id}`, update));
+            detailEvents.push(primary.on('click', () => setPrimaryBuild(app)));
+            actions.appendChild(primary.dom);
+        }
+
+        if (canDelete) {
+            const del = new Button({ text: 'Delete', class: 'delete' });
+            detailEvents.push(handlePermissions(del));
+            detailEvents.push(del.on('click', () => deleteBuild(app)));
+            actions.appendChild(del.dom);
+        }
+
+        if (app.task.status === 'error' && app.task.message) {
+            const error = document.createElement('div');
+            error.classList.add('error', 'selectable');
+            error.textContent = app.task.message;
+            detailPanel.element.appendChild(error);
+        }
+
+        detailPanel.element.appendChild(createDetails(app));
+    };
+
+    const openBuildDetail = function (app: any) {
+        detailApp = app;
+        renderDetail(app);
+        openingDetail = true;
+        editor.call('picker:project', 'build-detail');
+        openingDetail = false;
+    };
+
+    // create UI for single app
+    const createAppItem = function (app: any, list: Container = container, options: any = {}) {
+        const item = document.createElement('div');
+        const itemEvents = [];
+        item.classList.add('build-item', app.task.status, app.type);
+        item.id = options.summary ? `primary-app-${app.id}` : `app-${app.id}`;
+
+        if (isPrimaryBuild(app)) {
+            item.classList.add('primary');
+        }
+
+        list.dom.appendChild(item);
+
+        const row = document.createElement('div');
+        row.classList.add('build-row');
+        item.appendChild(row);
+
+        const status = document.createElement('span');
+        status.classList.add('status', app.task.status);
+        if (app.task.status === 'complete') {
+            status.setAttribute('aria-label', 'Succeeded');
+        } else if (app.task.status === 'error') {
+            status.setAttribute('aria-label', 'Failed');
+        }
+        row.appendChild(status);
+
+        const body = document.createElement('div');
+        body.classList.add('body');
+        row.appendChild(body);
+
+        const nameRow = document.createElement('div');
+        nameRow.classList.add('name-row');
+        body.appendChild(nameRow);
+
         const name = new Label({
             text: app.name,
             class: 'name'
         });
-        nameRow.appendChild(name.element);
+        nameRow.appendChild(name.dom);
 
-        // app version
-        const version = new Label({
-            text: app.version,
-            class: 'version'
-        });
-        nameRow.appendChild(version.element);
+        const type = document.createElement('span');
+        type.classList.add('badge', app.type);
+        type.textContent = getTypeLabel(app);
+        nameRow.appendChild(type);
 
-        // row below name
-        const info = document.createElement('div');
-        info.classList.add('info');
-        item.element.appendChild(info);
+        const format = document.createElement('span');
+        format.classList.add('badge');
+        format.textContent = getFormatValue(app);
+        nameRow.appendChild(format);
 
-        // date
-        const date = new Label({
-            text: convertDatetime(app.created_at),
-            class: 'date',
-            hidden: app.task.status === 'error'
-        });
-        info.appendChild(date.element);
-
-        // views
-        const views = new Label({
-            text: numberWithCommas(app.views),
-            class: 'views',
-            hidden: app.task.status !== 'complete'
-        });
-        info.appendChild(views.element);
-
-        // size
-        const size = new Label({
-            text: bytesToHuman(app.size),
-            class: 'size',
-            hidden: app.task.status !== 'complete'
-        });
-        info.appendChild(size.element);
-
-        // branch
-        const branch = new Label({
-            text: app.branch && app.branch.name || 'main',
-            class: 'branch',
-            hidden: app.task.status !== 'complete' || projectSettings.get('useLegacyScripts')
-        });
-        info.appendChild(branch.element);
-
-        // error message
-        const error = new Label({
-            text: app.task.message,
-            class: 'error',
-            hidden: app.task.status !== 'error'
-        });
-        item.element.appendChild(error.element);
-
-        // release notes
-        let releaseNotes = app.release_notes || '';
-        const indexOfNewLine = releaseNotes.indexOf('\n');
-        if (indexOfNewLine !== -1) {
-            releaseNotes = releaseNotes.substring(0, indexOfNewLine);
-        }
-        const notes = new Label({
-            text: app.release_notes,
-            class: 'notes',
-            hidden: !error.hidden,
-            renderChanges: false
-        });
-        item.element.appendChild(notes.element);
-
-        // dropdown
-        const dropdown = new Button({
-            class: 'dropdown'
-        });
-        dropdown.element.innerHTML = '&#57689;';
-        item.element.appendChild(dropdown.element);
-
-        events.push(dropdown.on('click', () => {
-            dropdown.class.add('clicked');
-            // change arrow
-            dropdown.element.innerHTML = '&#57687;';
-            dropdownApp = app;
-
-            // open menu
-            dropdownMenu.open = true;
-
-            // position dropdown menu
-            const rect = dropdown.element.getBoundingClientRect();
-            dropdownMenu.position(rect.right - dropdownMenu.innerElement.clientWidth, rect.bottom);
-        }));
-
-        const more = new Button({
-            text: 'more...',
-            class: 'more',
-            hidden: true
-        });
-        item.element.appendChild(more.element);
-
-        events.push(more.on('click', () => {
-            if (notes.class.contains('no-wrap')) {
-                notes.text = app.release_notes;
-                notes.class.remove('no-wrap');
-                more.text = 'less...';
-            } else {
-                notes.class.add('no-wrap');
-                more.text = 'more...';
-                notes.text = releaseNotes;
-            }
-        }));
-
-        if (notes.element.clientHeight > 22) {
-            more.hidden = false;
-            notes.class.add('no-wrap');
-            notes.text = releaseNotes;
+        if (isPrimaryBuild(app)) {
+            const primaryBadge = document.createElement('span');
+            primaryBadge.classList.add('badge', 'primary-badge');
+            primaryBadge.textContent = 'Primary';
+            nameRow.appendChild(primaryBadge);
         }
 
-        if (app.task.status === 'complete') {
-            // handle row click
-            const validTargets = [
-                status,
-                img,
-                info,
-                item.element,
-                name.element,
-                date.element,
-                size.element,
-                views.element,
-                notes.element
-            ];
+        const sub = document.createElement('div');
+        sub.classList.add('sub');
+        const actor = app.actor && (app.actor.name || app.actor.username);
+        sub.textContent = [app.build_job_id ? `#${app.build_job_id}` : null, actor ? `by ${actor}` : null]
+            .filter(Boolean)
+            .join(' · ');
+        body.appendChild(sub);
 
-            events.push(item.on('click', (e) => {
-                if (validTargets.indexOf(e.target) !== -1) {
-                    e.stopPropagation();
-                    window.open(app.url);
-                }
-            }));
+        const branch = document.createElement('div');
+        branch.classList.add('branch');
+        const branchName = document.createElement('span');
+        branchName.classList.add('branch-name');
+        branchName.textContent = (app.branch && app.branch.name) || 'main';
+        branch.appendChild(branchName);
+        row.appendChild(branch);
+
+        // views only exist for published builds; placeholder keeps the subgrid columns aligned
+        const views = document.createElement('span');
+        views.classList.add('row-views');
+        if (app.type === 'publish') {
+            const count = Number(app.views) || 0;
+            views.textContent = countToHuman(count);
+            views.title = count === 1 ? '1 view' : `${count} views`;
+        } else {
+            views.classList.add('placeholder');
+            views.setAttribute('aria-hidden', 'true');
+        }
+        row.appendChild(views);
+
+        const artifact = document.createElement('a');
+        artifact.classList.add('row-artifact');
+        if (app.task.status === 'complete' && app.url) {
+            artifact.href = app.url;
+            artifact.target = '_blank';
+            artifact.rel = 'noopener';
+            artifact.classList.add(app.type === 'publish' ? 'open' : 'download');
+            artifact.setAttribute('aria-label', app.type === 'publish' ? 'Open build' : 'Download build');
+            const stop = function (e: MouseEvent) {
+                e.stopPropagation();
+            };
+            artifact.addEventListener('click', stop);
+            itemEvents.push({
+                unbind: () => artifact.removeEventListener('click', stop)
+            });
+        } else {
+            artifact.classList.add('placeholder');
+            artifact.setAttribute('aria-hidden', 'true');
+        }
+        row.appendChild(artifact);
+
+        const rightMeta = document.createElement('div');
+        rightMeta.classList.add('right-meta');
+
+        const date = document.createElement('span');
+        date.classList.add('date');
+        date.textContent = formatBuildDate(app.created_at);
+        date.title = convertDatetime(app.created_at);
+        rightMeta.appendChild(date);
+
+        if (app.duration_ms) {
+            const duration = document.createElement('span');
+            duration.classList.add('duration');
+            duration.textContent = `${Math.round(app.duration_ms / 1000)}s`;
+            rightMeta.appendChild(duration);
         }
 
+        row.appendChild(rightMeta);
+
+        const kebab = document.createElement('button');
+        kebab.type = 'button';
+        kebab.classList.add('kebab');
+        kebab.setAttribute('aria-label', 'Build actions');
+        const openKebab = function (e: MouseEvent) {
+            e.preventDefault();
+            e.stopPropagation();
+            openRowMenu(app, kebab);
+        };
+        kebab.addEventListener('click', openKebab);
+        itemEvents.push({
+            unbind: () => kebab.removeEventListener('click', openKebab)
+        });
+        row.appendChild(kebab);
+
+        const onItemClick = () => openBuildDetail(app);
+        item.addEventListener('click', onItemClick);
+        itemEvents.push({
+            unbind: () => item.removeEventListener('click', onItemClick)
+        });
+
+        events.set(item, itemEvents);
 
         return item;
     };
 
     // CONTROLLERS
 
-    // load app list
-    const loadApps = function () {
-        toggleProgress(true);
+    // load build job list
+    const loadApps = function (showProgress = true, includeNew = false) {
+        const previous = apps.slice();
+        const loaded = previous.filter((app) => app.build_job_id).length;
+        const limit = showProgress ? APP_LIMIT : Math.max(APP_LIMIT, loaded + Number(includeNew));
+        skip = 0;
+        hasMore = true;
+        loadingMore = false;
+        const gen = ++loadGen;
 
-        editor.api.globals.rest.projects.projectApps().on('load', (status, data) => {
-            const results = data.result;
-            apps = results;
-            toggleProgress(false);
+        if (showProgress) {
+            toggleProgress(true);
+        }
 
-            if (apps.length > 0) {
-                panelPlaycanvas.element.classList.add('collapsed');
-                panelSelfHost.element.classList.add('collapsed');
-            }
+        loadAppIndex(() => {
+            editor.api.globals.rest.projects.projectBuilds(limit, 0, getServerFilters()).on('load', (status, data) => {
+                if (gen !== loadGen) {
+                    return;
+                }
+                const rows = data.result.map(normalizeBuildJob);
+                const ids = getPublishAppIds(rows);
+                const legacy = appList.filter((app) => !ids.has(String(app.id))).map(normalizeLegacyApp);
+                apps = rows.concat(legacy).sort(compareBuildDate);
+                hasMore = data.pagination ? rows.length < data.pagination.total : data.result.length === limit;
+                skip = Math.max(0, rows.length - APP_LIMIT);
 
-            toggleCollapsingPublishButtons(apps.length > 0);
+                if (showProgress) {
+                    toggleProgress(false);
+                }
 
-            refreshApps();
+                refreshApps(previous);
+                fillViewport();
+            });
         });
     };
 
     // removes an app from the UI
-    const removeApp = function (app: { id: string }) {
-        const item = document.getElementById(`app-${app.id}`);
-        if (item) {
-            item.remove();
+    const removeApp = function (app: any) {
+        const previous = apps.slice();
+        const target = apps.find((item) => isSameBuild(item, app)) || app;
+        const removedDetail = detailApp && isSameBuild(detailApp, target);
+
+        const index = apps.findIndex((item) => isSameBuild(item, target));
+        if (index !== -1) {
+            apps.splice(index, 1);
         }
 
-        // remove from apps array
-        for (let i = 0; i < apps.length; i++) {
-            if (apps[i].id === app.id) {
-                // close dropdown menu if current app deleted
-                if (dropdownApp === apps[i]) {
-                    dropdownMenu.open = false;
-                }
-
-                apps.splice(i, 1);
-                break;
-            }
+        if (removedDetail) {
+            detailApp = null;
         }
+        refreshApps(previous);
 
-        container.hidden = apps.length === 0;
+        if (removedDetail) {
+            openBuildsPanel();
+        }
     };
 
-    // recreate app list UI
-    const refreshApps = function () {
-        dropdownMenu.open = false;
+    const removeBuildJob = function (id: number) {
+        const app = apps.find((item) => item.build_job_id === id);
+        if (app) {
+            removeApp(app);
+        } else if (detailApp?.build_job_id === id) {
+            openBuildsPanel();
+        }
+    };
+
+    const destroyAppEvents = function (item: HTMLElement) {
+        events.get(item)?.forEach((evt) => evt.unbind());
+        events.delete(item);
+    };
+
+    // reconcile the list so status updates only replace their row
+    const refreshApps = function (previous: typeof apps) {
         destroyTooltips();
-        destroyEvents();
-        container.element.innerHTML = '';
-        hoistPrimaryBuild(apps);
-        container.hidden = apps.length === 0;
-        loadMore.hidden = apps.length === 0;
-        apps.forEach(createAppItem);
+        const prev = new Map(previous.map((app) => [app.id, JSON.stringify(app)]));
+        const changed = new Set(apps.filter((app) => prev.get(app.id) !== JSON.stringify(app)).map((app) => app.id));
+        const primary = apps.find(isPrimaryBuild);
+        const oldPrimary = previous.find(isPrimaryBuild);
+        if (!primaryBuild.dom.firstChild || primary?.id !== oldPrimary?.id || (primary && changed.has(primary.id))) {
+            renderPrimaryBuild();
+        }
+        const ids = new Set(apps.map((app) => `app-${app.id}`));
+        container.dom.querySelectorAll<HTMLElement>(':scope > .build-item').forEach((item) => {
+            if (!ids.has(item.id)) {
+                destroyAppEvents(item);
+                item.remove();
+            }
+        });
+
+        let anchor = noMatchingBuilds.dom;
+        apps.forEach((app) => {
+            let item = document.getElementById(`app-${app.id}`);
+            if (!item || changed.has(app.id)) {
+                const next = createAppItem(app);
+                if (item) {
+                    destroyAppEvents(item);
+                    item.replaceWith(next);
+                }
+                item = next;
+            }
+            if (anchor.nextSibling !== item) {
+                anchor.after(item);
+            }
+            anchor = item;
+        });
+        refreshFilterVisibility();
+
+        // keep the detail page in sync if one is open
+        if (detailApp) {
+            const updated = apps.find((item) => isSameBuild(item, detailApp));
+            if (updated) {
+                detailApp = updated;
+                renderDetail(updated);
+            } else if (!detailPanel.hidden) {
+                renderDetail(detailApp);
+            }
+        }
     };
 
     // LOCAL UTILS
 
-    // hoists primary app to the top of the list
-    const hoistPrimaryBuild = function (apps: { id: string }[]) {
-        return apps.sort((a, b) => {
-            if (config.project.primaryApp === a.id) {
-                return -1;
+    // Vercel-style summary card for the primary build (richer than the history rows)
+    const createPrimaryCard = function (app: any) {
+        primaryBuild.dom.innerHTML = '';
+
+        const card = document.createElement('div');
+        card.classList.add('primary-build-card', app.task.status);
+        card.id = `primary-app-${app.id}`;
+
+        // project thumbnail — the icon that the history rows dropped for the status check/cross/spinner
+        const thumb = document.createElement('img');
+        thumb.classList.add('thumb');
+        thumb.alt = '';
+        thumb.src =
+            (config.project.thumbnails && (config.project.thumbnails.m || config.project.thumbnails.s)) ||
+            `${config.url.frontend}static/img/blank-project.webp`;
+        card.appendChild(thumb);
+
+        const body = document.createElement('div');
+        body.classList.add('body');
+        card.appendChild(body);
+
+        const nameRow = document.createElement('div');
+        nameRow.classList.add('name-row');
+        body.appendChild(nameRow);
+
+        const status = document.createElement('span');
+        status.classList.add('status', app.task.status);
+        nameRow.appendChild(status);
+
+        const name = document.createElement('span');
+        name.classList.add('name');
+        name.textContent = app.name;
+        nameRow.appendChild(name);
+
+        const typeBadge = document.createElement('span');
+        typeBadge.classList.add('badge', app.type);
+        typeBadge.textContent = getTypeLabel(app);
+        nameRow.appendChild(typeBadge);
+
+        const formatBadge = document.createElement('span');
+        formatBadge.classList.add('badge');
+        formatBadge.textContent = getFormatValue(app);
+        nameRow.appendChild(formatBadge);
+
+        const primaryBadge = document.createElement('span');
+        primaryBadge.classList.add('badge', 'primary-badge');
+        primaryBadge.textContent = 'Primary';
+        nameRow.appendChild(primaryBadge);
+
+        const sub = document.createElement('div');
+        sub.classList.add('sub');
+        const actor = app.actor && (app.actor.name || app.actor.username);
+        sub.textContent = [`Last published ${formatBuildDate(app.created_at)}`, actor ? `by ${actor}` : null]
+            .filter(Boolean)
+            .join(' · ');
+        body.appendChild(sub);
+
+        // the permalink always points at the current primary build, unlike the build-specific url
+        const url = config.project.playUrl || app.url;
+        if (url) {
+            const urlRow = document.createElement('div');
+            urlRow.classList.add('url-row');
+            body.appendChild(urlRow);
+
+            const link = document.createElement('a');
+            link.classList.add('url');
+            link.href = url;
+            link.target = '_blank';
+            link.rel = 'noopener';
+            link.textContent = url;
+            urlRow.appendChild(link);
+
+            urlRow.appendChild(createCopyButton(url, 'Copy URL'));
+        }
+
+        const open = document.createElement('a');
+        open.classList.add('open-external');
+        open.target = '_blank';
+        open.rel = 'noopener';
+        open.setAttribute('aria-label', 'Open published build');
+        if (url) {
+            open.href = url;
+        }
+        card.appendChild(open);
+
+        // click the card to open its detail page; links open the published app
+        const onCardClick = (e: MouseEvent) => {
+            if ((e.target as HTMLElement).closest('a')) {
+                return;
             }
-            if (config.project.primaryApp === b.id) {
-                return 1;
+            openBuildDetail(app);
+        };
+        card.addEventListener('click', onCardClick);
+
+        primaryBuild.dom.appendChild(card);
+    };
+
+    // the builds and apps endpoints are paginated, so a primary build older than the
+    // loaded pages may be missing from the list; fetch the app row directly by id
+    const fetchPrimaryFallback = function (id: number) {
+        if (primaryFallbackId === id) {
+            return;
+        }
+        primaryFallbackId = id;
+        editor.api.globals.rest.apps.appGet(id).on('load', (status, data) => {
+            if (config.project.primaryApp !== id || !data) {
+                return;
             }
-            return 0;
+            primaryFallback = normalizeLegacyApp(data);
+            renderPrimaryBuild();
         });
     };
 
-    // adds commas every 3 decimals
-    const numberWithCommas = function (number: number) {
-        const parts = number.toString().split('.');
-        parts[0] = parts[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, ',');
-        return parts.join('.');
+    const renderPrimaryBuild = function () {
+        const primaryId = config.project.primaryApp;
+        // the card stays visible while filtering so the layout doesn't jump
+        let app = primaryId ? apps.find((item) => item.type === 'publish' && item.app_id === primaryId) : null;
+        if (!app && primaryId) {
+            if (primaryFallback && primaryFallback.app_id === primaryId) {
+                app = primaryFallback;
+            } else {
+                fetchPrimaryFallback(primaryId);
+            }
+        }
+        primaryBuildHeading.hidden = !app;
+        primaryBuild.hidden = !app;
+
+        if (app) {
+            createPrimaryCard(app);
+        }
+    };
+
+    const syncPrimaryBuildUi = function () {
+        renderPrimaryBuild();
+        apps.forEach((app) => {
+            const item = document.getElementById(`app-${app.id}`);
+            if (!item) {
+                return;
+            }
+
+            const primary = isPrimaryBuild(app);
+            const badge = item.querySelector('.primary-badge');
+            item.classList.toggle('primary', primary);
+
+            if (primary && !badge) {
+                const newBadge = document.createElement('span');
+                newBadge.classList.add('badge', 'primary-badge');
+                newBadge.textContent = 'Primary';
+                item.querySelector('.name-row')?.appendChild(newBadge);
+            } else if (!primary && badge) {
+                badge.remove();
+            }
+        });
+
+        if (detailApp && !detailPanel.hidden) {
+            const updated = apps.find((item) => isSameBuild(item, detailApp));
+            detailApp = updated || detailApp;
+            renderDetail(detailApp);
+        }
+
+        fillViewport();
     };
 
     const destroyTooltips = function () {
@@ -559,94 +1817,167 @@ editor.once('load', () => {
     };
 
     const destroyEvents = function () {
-        events.forEach((evt) => {
+        events.forEach((items) => {
+            items.forEach((evt) => evt.unbind());
+        });
+        events.clear();
+    };
+
+    const destroyDetailEvents = function () {
+        detailEvents.forEach((evt) => {
             evt.unbind();
         });
-        events = [];
+        detailEvents = [];
+    };
+
+    const resetBuildsState = function () {
+        loadGen++;
+        resetBuildFilters();
+        knownFilterLabels = {};
+        apps = [];
+        appIndex = {};
+        appList = [];
+        loadedAppIndex = false;
+        detailApp = null;
+        reloadOnNextShow = false;
+        primaryFallback = null;
+        primaryFallbackId = null;
+        primaryBuild.dom.innerHTML = '';
+        container.dom.innerHTML = '';
+        container.dom.appendChild(noMatchingBuilds.dom);
+        detailPanel.element.innerHTML = '';
+        destroyTooltips();
+        destroyEvents();
+        destroyDetailEvents();
+        skeleton.hidden = true;
+        container.hidden = true;
+        primaryBuildHeading.hidden = true;
+        primaryBuild.hidden = true;
+        noBuilds.hidden = true;
+        noMatchingBuilds.hidden = true;
+    };
+
+    const refreshFilterVisibility = function () {
+        const filteredApps = getFilteredApps();
+        const visible = new Set(filteredApps.map((app) => `app-${app.id}`));
+
+        apps.forEach((app) => {
+            const item = document.getElementById(`app-${app.id}`);
+            if (item) {
+                item.hidden = !visible.has(item.id);
+            }
+        });
+
+        // with server-side filtering, zero rows under an active filter means "no
+        // matches", not "no builds"; the list box stays visible to host that message
+        const filtering = hasActiveFilters();
+        container.hidden = apps.length === 0 && !filtering;
+        noBuilds.hidden = apps.length > 0 || filtering;
+        noMatchingBuilds.hidden = filteredApps.length > 0 || !filtering;
+        fillViewport();
     };
 
     // EVENTS
 
     // handle external updates to primary app
     editor.on('projects:primaryApp', (newValue, oldValue) => {
-        if (panel.hidden) {
+        if (!isPickerVisible()) {
             return;
         }
 
-        if (!newValue) {
-            publishedBuild.hidden = true;
-            return;
-        }
-
-        publishedBuild.hidden = false;
-
-        // check if we need to refresh UI
-        const currentPrimary = document.getElementById(`app-${newValue}`);
-        if (currentPrimary && currentPrimary.classList.contains('primary')) {
-            return;
-        }
-
-        refreshApps();
+        syncPrimaryBuildUi();
     });
 
     // handle app created externally
-    editor.on('messenger:app.new', (data) => {
-        if (panel.hidden) {
+    editor.on('messenger:app.new', () => {
+        if (!isPickerVisible()) {
             return;
         }
 
-        // get app from server
-        editor.api.globals.rest.apps.appGet(data.app.id).on('load', (status, app) => {
-            // add app if it's not already inside the apps array
-            let found = false;
-            for (let i = 0; i < apps.length; i++) {
-                if (apps[i].id === data.app.id) {
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
-                apps.push(app);
-                refreshApps();
-            }
-        });
+        loadedAppIndex = false;
+        loadApps(apps.length === 0, true);
     });
 
     // handle external delete
     editor.on('messenger:app.delete', (data) => {
-        if (panel.hidden) {
+        if (!isPickerVisible()) {
             return;
         }
 
         removeApp(data.app);
     });
 
-    // handle external app updates
-    editor.on('messenger:app.update', (data) => {
-        if (panel.hidden) {
+    editor.on('messenger:build_job.delete', (data) => {
+        if (!isPickerVisible() || !data.build_job) {
             return;
         }
 
-        // get app from server
-        editor.api.globals.rest.apps.appGet(data.app.id).on('load', (status, app) => {
-            for (let i = 0; i < apps.length; i++) {
-                if (apps[i].id === app.id) {
-                    apps[i] = app;
-                }
-            }
-            refreshApps();
-        });
+        removeBuildJob(Number(data.build_job.id));
+    });
+
+    // handle external app updates
+    editor.on('messenger:app.update', () => {
+        if (!isPickerVisible()) {
+            return;
+        }
+
+        loadedAppIndex = false;
+        loadApps(apps.length === 0);
+    });
+
+    editor.on('messenger:job.update', (msg: any) => {
+        if (!isPickerVisible() || !msg.job) {
+            return;
+        }
+
+        const id = Number(msg.job.id);
+        if (!apps.some((app) => app.job_id === id) && detailApp?.job_id !== id) {
+            return;
+        }
+
+        loadApps(false);
     });
 
     // open publishing popup
-    editor.method('picker:builds-publish', () => {
+    editor.method('picker:builds-publish', (options: { reload?: boolean } = {}) => {
+        reloadOnNextShow = !!options.reload;
+        detailApp = null;
+        if (!detailPanel.hidden) {
+            openingBuilds = true;
+            destroyDetailEvents();
+            detailPanel.element.innerHTML = '';
+        }
+
         editor.call('picker:project', 'builds-publish');
+        openingBuilds = false;
+
+        if (reloadOnNextShow && !panel.hidden) {
+            loadApps(apps.length === 0, true);
+            reloadOnNextShow = false;
+        }
     });
 
     // on show
     panel.on('show', () => {
-        loadApps();
+        detailApp = null;
+        destroyDetailEvents();
+        detailPanel.element.innerHTML = '';
+
+        // the picker scrolls its content panel; watch it for infinite scroll
+        scrollContainer = panel.dom.parentElement;
+        scrollContainer?.addEventListener('scroll', onScroll);
+
+        if (reloadOnNextShow || apps.length === 0) {
+            loadApps(apps.length === 0, reloadOnNextShow);
+            reloadOnNextShow = false;
+        } else {
+            // cached (unfiltered) list is still in the DOM: show it instantly,
+            // re-apply visibility, and refresh in the background — no skeleton,
+            // no teardown, and the list only rebuilds if something changed
+            refreshFilterVisibility();
+            loadedAppIndex = false;
+            loadApps(false, true);
+        }
 
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', false);
@@ -655,17 +1986,58 @@ editor.once('load', () => {
 
     // on hide
     panel.on('hide', () => {
-        apps = [];
-        destroyTooltips();
-        destroyEvents();
+        scrollContainer?.removeEventListener('scroll', onScroll);
+        scrollContainer = null;
+
+        if (openingDetail || openingBuildForm) {
+            return;
+        }
+
+        // cache the loaded builds for an instant, reflow-free reopen; only a
+        // filtered session can't be reused (its rows are server-filtered), so
+        // reset just that case to keep the filter bar and data in sync
+        if (hasActiveFilters()) {
+            resetBuildsState();
+        }
 
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', true);
         }
     });
 
+    detailPanel.on('show', () => {
+        if (editor.call('viewport:inViewport')) {
+            editor.emit('viewport:hover', false);
+        }
+    });
+
+    detailPanel.on('hide', () => {
+        destroyDetailEvents();
+        detailPanel.element.innerHTML = '';
+
+        if (openingBuilds) {
+            return;
+        }
+
+        // preserve the cache; only a filtered session needs a full reset (see
+        // the builds panel hide handler)
+        if (hasActiveFilters()) {
+            resetBuildsState();
+        }
+
+        if (editor.call('viewport:inViewport')) {
+            editor.emit('viewport:hover', true);
+        }
+    });
+
+    editor.on('picker:close', (name) => {
+        if (name === 'project' && panel.hidden && detailPanel.hidden && hasActiveFilters()) {
+            resetBuildsState();
+        }
+    });
+
     editor.on('viewport:hover', (state) => {
-        if (state && !panel.hidden) {
+        if (state && isPickerVisible()) {
             setTimeout(() => {
                 editor.emit('viewport:hover', false);
             }, 0);

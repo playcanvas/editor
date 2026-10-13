@@ -1,14 +1,7 @@
+import { BooleanInput, Button, Canvas, Container, Label, NumericInput, Overlay, SelectInput } from '@playcanvas/pcui';
 import { Curve, CurveSet, math } from 'playcanvas';
 
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyCanvas } from '@/common/ui/canvas';
-import { LegacyCheckbox } from '@/common/ui/checkbox';
-import { LegacyLabel } from '@/common/ui/label';
-import { LegacyNumberField } from '@/common/ui/number-field';
-import { LegacyOverlay } from '@/common/ui/overlay';
-import { LegacyPanel } from '@/common/ui/panel';
-import { LegacySelectField } from '@/common/ui/select-field';
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 
 editor.once('load', () => {
     // used to disable event handlers
@@ -18,11 +11,13 @@ editor.once('load', () => {
     let changing = false;
 
     // overlay
-    const overlay = new LegacyOverlay();
-    overlay.class.add('picker-curve');
-    overlay.center = false;
-    overlay.transparent = true;
-    overlay.hidden = true;
+    const overlay = new Overlay({
+        class: 'picker-curve',
+        clickable: true,
+        hidden: true,
+        transparent: true
+    });
+    overlay.domContent.classList.add('content');
 
     // color variables
     const colors = {
@@ -30,7 +25,12 @@ editor.once('load', () => {
         gridLines: '#20292b',
         anchors: ['rgb(255, 0, 0)', 'rgb(0, 255, 0)', 'rgb(133, 133, 252)', 'rgb(255, 255, 255)'],
         curves: ['rgb(255, 0, 0)', 'rgb(0, 255, 0)', 'rgb(133, 133, 252)', 'rgb(255, 255, 255)'],
-        curveFilling: ['rgba(255, 0, 0, 0.5)', 'rgba(0, 255, 0, 0.5)', 'rgba(133, 133, 252, 0.5)', 'rgba(255, 255, 255, 0.5)'],
+        curveFilling: [
+            'rgba(255, 0, 0, 0.5)',
+            'rgba(0, 255, 0, 0.5)',
+            'rgba(133, 133, 252, 0.5)',
+            'rgba(255, 255, 255, 0.5)'
+        ],
         text: 'white',
         highlightedLine: 'yellow'
     };
@@ -87,15 +87,20 @@ editor.once('load', () => {
     overlay.append(panel);
 
     // header
-    const header = new LegacyPanel();
+    const header = new Container({
+        flex: true,
+        flexDirection: 'row'
+    });
     header.class.add('picker-curve-header');
+    header.domContent.classList.add('content');
 
-    panel.appendChild(header.element);
+    panel.appendChild(header.dom);
 
-    header.append(new LegacyLabel({
+    const labelType = new Label({
         text: 'Type'
-    }));
-
+    });
+    labelType.class.add('ui-label');
+    header.append(labelType);
 
     // esc to close
     editor.call('hotkey:register', 'picker:curve:close', {
@@ -109,21 +114,21 @@ editor.once('load', () => {
         }
     });
 
-
     // type selector
-    const fieldType = new LegacySelectField({
-        options: {
-            0: 'Linear',
-            1: 'Smooth Step',
-            2: 'Legacy Spline', // catmull, deprecated
-            // 3: 'Spline (Legacy)', // cardinal, deprecated
-            4: 'Spline',  // spline
-            5: 'Step'
-        },
+    const fieldType = new SelectInput({
+        options: [
+            { v: 0, t: 'Linear' },
+            { v: 1, t: 'Smooth Step' },
+            { v: 2, t: 'Legacy Spline' }, // catmull, deprecated
+            // { v: 3, t: 'Spline (Legacy)' }, // cardinal, deprecated
+            { v: 4, t: 'Spline' }, // spline
+            { v: 5, t: 'Step' }
+        ],
         type: 'number'
     });
 
     fieldType.style['font-size'] = '11px';
+    fieldType.class.add('ui-select-field', 'noSelect');
     fieldType.value = 1;
 
     fieldType.on('change', (value) => {
@@ -150,14 +155,17 @@ editor.once('load', () => {
     header.append(fieldType);
 
     // randomize
-    const labelRandomize = new LegacyLabel({
+    const labelRandomize = new Label({
         text: 'Randomize'
     });
 
+    labelRandomize.class.add('ui-label');
     labelRandomize.style['margin-left'] = '25px';
     header.append(labelRandomize);
 
-    const fieldRandomize = new LegacyCheckbox();
+    const fieldRandomize = new BooleanInput({
+        type: 'toggle'
+    });
     fieldRandomize.class.add('component-toggle');
     fieldRandomize.on('change', (value: boolean) => {
         let i;
@@ -237,65 +245,89 @@ editor.once('load', () => {
     };
 
     for (let i = 0; i < colors.curves.length; i++) {
-        const btn = new LegacyButton();
-        btn.class.add('picker-curve-toggle', 'active');
-        btn.element.style.color = colors.curves[3 - i];
-        curveToggles.splice(0, 0, btn);
+        const btn = new Button();
+        btn.class.add('ui-button', 'picker-curve-toggle', 'active');
+        btn.style.color = colors.curves[i];
+        if (i === 0) {
+            btn.style['margin-left'] = 'auto';
+        }
+        curveToggles.push(btn);
         header.append(btn);
 
         btn.on('click', onCurveToggleClick.bind(btn));
     }
 
     // canvas
-    const canvas = new LegacyCanvas({ useDevicePixelRatio: true });
+    const canvas = new Canvas({ useDevicePixelRatio: true });
+    const canvasDom = canvas.dom as HTMLCanvasElement;
     canvas.resize(panel.clientWidth, 200);
-    panel.appendChild(canvas.element);
+    panel.appendChild(canvasDom);
 
     // canvas for checkerboard pattern
-    const checkerboardCanvas = new LegacyCanvas();
+    const checkerboardCanvas = new Canvas();
+    const checkerboardDom = checkerboardCanvas.dom as HTMLCanvasElement;
     checkerboardCanvas.width = 16;
     checkerboardCanvas.height = 16;
-    const pctx = checkerboardCanvas.element.getContext('2d');
+    const pctx = checkerboardDom.getContext('2d');
     pctx.fillStyle = '#949a9c';
     pctx.fillRect(0, 0, 8, 8);
     pctx.fillRect(8, 8, 8, 8);
     pctx.fillStyle = '#657375';
     pctx.fillRect(8, 0, 8, 8);
     pctx.fillRect(0, 8, 8, 8);
-    const checkerboardPattern = canvas.element.getContext('2d').createPattern(checkerboardCanvas.element, 'repeat');
+    const checkerboardPattern = canvasDom.getContext('2d').createPattern(checkerboardDom, 'repeat');
 
     // gradient canvas
-    const gradientCanvas = new LegacyCanvas();
+    const gradientCanvas = new Canvas();
+    const gradientCanvasDom = gradientCanvas.dom as HTMLCanvasElement;
     gradientCanvas.resize(panel.clientWidth, 32);
     gradientCanvas.style.display = 'block';
-    panel.appendChild(gradientCanvas.element);
+    panel.appendChild(gradientCanvasDom);
+
+    function resizeCanvases() {
+        const width = Math.round(overlay.domContent.getBoundingClientRect().width || panel.clientWidth);
+        canvas.resize(width, 200);
+        context.setTransform(canvas.pixelRatio, 0, 0, canvas.pixelRatio, 0, 0);
+        gradientCanvas.resize(width, 32);
+    }
 
     // footer
-    const footer = new LegacyPanel();
+    const footer = new Container({
+        flex: true,
+        flexDirection: 'row'
+    });
     footer.class.add('picker-curve-footer');
-    panel.appendChild(footer.element);
+    footer.domContent.classList.add('content');
+    panel.appendChild(footer.dom);
 
     // time input field
-    const fieldTime = new LegacyNumberField({
+    const fieldTime = new NumericInput({
         min: 0,
         max: 1,
-        step: 0.1
+        step: 0.1,
+        hideSlider: true,
+        renderChanges: false,
+        value: 0,
+        flexGrow: 1,
+        placeholder: 'Time'
     });
 
-    fieldTime.renderChanges = false;
-    fieldTime.value = 0;
+    fieldTime.class.add('ui-number-field');
+    fieldTime.input.classList.add('field');
     fieldTime.on('change', onFieldChanged);
-    fieldTime.flexGrow = 1;
-    fieldTime.placeholder = 'Time';
     footer.append(fieldTime);
 
     // value input field
-    const fieldValue = new LegacyNumberField();
-    fieldValue.renderChanges = false;
-    fieldValue.value = 0;
+    const fieldValue = new NumericInput({
+        hideSlider: true,
+        renderChanges: false,
+        value: 0,
+        flexGrow: 1,
+        placeholder: 'Value'
+    });
+    fieldValue.class.add('ui-number-field');
+    fieldValue.input.classList.add('field');
     fieldValue.on('change', onFieldChanged);
-    fieldValue.flexGrow = 1;
-    fieldValue.placeholder = 'Value';
     footer.append(fieldValue);
 
     // called when time or value field change value
@@ -324,10 +356,12 @@ editor.once('load', () => {
     }
 
     // reset zoom
-    const btnResetZoom = new LegacyButton({
-        text: '&#57623;'
+    const btnResetZoom = new Button({
+        text: '&#57623;',
+        unsafe: true
     });
 
+    btnResetZoom.class.add('ui-button');
     btnResetZoom.flexGrow = 1;
 
     btnResetZoom.on('click', () => {
@@ -338,22 +372,24 @@ editor.once('load', () => {
 
     footer.append(btnResetZoom);
 
-    LegacyTooltip.attach({
-        target: btnResetZoom.element,
+    TooltipHandle.attach({
+        target: btnResetZoom.dom,
         text: 'Reset Zoom',
         align: 'bottom',
         root: root
     });
 
     // reset curve
-    const btnResetCurve = new LegacyButton({
-        text: '&#57680;'
+    const btnResetCurve = new Button({
+        text: '&#57680;',
+        unsafe: true
     });
 
+    btnResetCurve.class.add('ui-button');
     btnResetCurve.flexGrow = 1;
 
-    LegacyTooltip.attach({
-        target: btnResetCurve.element,
+    TooltipHandle.attach({
+        target: btnResetCurve.dom,
         text: 'Reset Curve',
         align: 'bottom',
         root: root
@@ -375,10 +411,12 @@ editor.once('load', () => {
 
     footer.append(btnResetCurve);
 
-    const btnCopy = new LegacyButton({
-        text: '&#58193'
+    const btnCopy = new Button({
+        text: '&#58193',
+        unsafe: true
     });
 
+    btnCopy.class.add('ui-button');
     btnCopy.on('click', () => {
         const data = {
             primaryKeys: [],
@@ -406,8 +444,8 @@ editor.once('load', () => {
         editor.call('localStorage:set', 'playcanvas_editor_clipboard_curves', data);
     });
 
-    LegacyTooltip.attach({
-        target: btnCopy.element,
+    TooltipHandle.attach({
+        target: btnCopy.dom,
         text: 'Copy',
         align: 'bottom',
         root: root
@@ -415,10 +453,12 @@ editor.once('load', () => {
 
     footer.append(btnCopy);
 
-    const btnPaste = new LegacyButton({
-        text: '&#58184'
+    const btnPaste = new Button({
+        text: '&#58184',
+        unsafe: true
     });
 
+    btnPaste.class.add('ui-button');
     btnPaste.on('click', () => {
         const data = editor.call('localStorage:get', 'playcanvas_editor_clipboard_curves');
         if (!data) {
@@ -512,8 +552,8 @@ editor.once('load', () => {
         render();
     });
 
-    LegacyTooltip.attach({
-        target: btnPaste.element,
+    TooltipHandle.attach({
+        target: btnPaste.dom,
         text: 'Paste',
         align: 'bottom',
         root: root
@@ -521,8 +561,12 @@ editor.once('load', () => {
 
     footer.append(btnPaste);
 
-    const context = canvas.element.getContext('2d');
+    const context = canvasDom.getContext('2d');
     context.setTransform(canvas.pixelRatio, 0, 0, canvas.pixelRatio, 0, 0);
+    let getColorSwizzle = undefined;
+    let onMouseMove = undefined;
+    let onMouseUp = undefined;
+    let onMouseWheel = undefined;
 
     function cleanup() {
         selectedCurve = null;
@@ -534,7 +578,7 @@ editor.once('load', () => {
         scrolling = false;
         window.removeEventListener('mouseup', onMouseUp);
         window.removeEventListener('mousemove', onMouseMove);
-        canvas.element.removeEventListener('wheel', onMouseWheel);
+        canvasDom.removeEventListener('wheel', onMouseWheel);
     }
 
     function resetCurve(curve: Curve) {
@@ -568,7 +612,18 @@ editor.once('load', () => {
     }
 
     // Sets value for the picker and render it
-    function setValue(value: { keys: number[][]; betweenCurves?: boolean; type?: number }[], args: { gradient?: boolean; hideRandomize?: boolean; max?: number; min?: number; curves?: string[]; keepZoom?: boolean; verticalValue?: number }) {
+    function setValue(
+        value: { keys: number[][]; betweenCurves?: boolean; type?: number }[],
+        args: {
+            gradient?: boolean;
+            hideRandomize?: boolean;
+            max?: number;
+            min?: number;
+            curves?: string[];
+            keepZoom?: boolean;
+            verticalValue?: number;
+        }
+    ) {
         // sanity checks mostly for script 'curve' attributes
         if (!(value instanceof Array) || value.length === 0 || value[0].keys === undefined) {
             return;
@@ -577,9 +632,13 @@ editor.once('load', () => {
         const suspend = suspendEvents;
         suspendEvents = true;
 
-        numCurves = value[0].keys[0].length ? value[0].keys.length : 1;
+        numCurves = Array.isArray(value[0].keys[0]) ? value[0].keys.length : 1;
 
         betweenCurves = value[0].betweenCurves;
+        if (betweenCurves && value.length === 1) {
+            value = [value[0], value[0]];
+        }
+
         fieldRandomize.value = betweenCurves;
 
         curveType = value[0].type;
@@ -606,18 +665,21 @@ editor.once('load', () => {
             }
         }
 
+        const getCurveKeys = (keys: any, i: number) => {
+            const data = Array.isArray(keys?.[0]) ? keys[i] : keys;
+            if (!Array.isArray(data)) {
+                return [];
+            }
+            return Array.isArray(data[0]) ? data[0] : data;
+        };
+
         curves.length = 0;
-        value.forEach((data: { keys: number[][] }) => {
-            if (numCurves === 1) {
-                const c = new Curve(data.keys);
+        value.forEach((data: { keys: number[] | number[][] }) => {
+            const keys = data?.keys || value[0].keys;
+            for (let i = 0; i < numCurves; i++) {
+                const c = new Curve(getCurveKeys(keys, i));
                 c.type = curveType;
                 curves.push(c);
-            } else {
-                data.keys.forEach((keys: number[]) => {
-                    const c = new Curve(keys);
-                    c.type = curveType;
-                    curves.push(c);
-                });
             }
         });
 
@@ -682,12 +744,12 @@ editor.once('load', () => {
 
         // draw grid
         for (i = 0; i < 5; i++) {
-            const y = gridTop() + gridHeight() * i / 4;
+            const y = gridTop() + (gridHeight() * i) / 4;
             drawLine([gridLeft(), y], [gridRight(), y], colors.gridLines);
         }
 
         for (i = 0; i < 11; i++) {
-            const x = gridLeft() + gridWidth() * i / 10;
+            const x = gridLeft() + (gridWidth() * i) / 10;
             drawLine([x, gridTop()], [x, gridBottom()], colors.gridLines);
         }
     }
@@ -768,7 +830,6 @@ editor.once('load', () => {
             return curves[numCurves + ind];
         }
         return curves[ind - numCurves];
-
     }
 
     // Draws a pair of curves with their in-between filling. If the second
@@ -790,7 +851,7 @@ editor.once('load', () => {
         const width = canvas.width;
 
         for (x = precision; x <= Math.ceil(width / precision); x++) {
-            time = x * precision / width;
+            time = (x * precision) / width;
             value = curve1.value(time);
             coords = calculateAnchorCoords([time, value]);
             context.lineTo(coords[0], coords[1]);
@@ -798,7 +859,7 @@ editor.once('load', () => {
 
         if (curve2) {
             for (x = Math.ceil(width / precision); x >= 0; x--) {
-                time = x * precision / width;
+                time = (x * precision) / width;
                 value = curve2.value(time);
                 coords = calculateAnchorCoords([time, value]);
                 context.lineTo(coords[0], coords[1]);
@@ -820,7 +881,7 @@ editor.once('load', () => {
         coords[0] = gridLeft() + time * gridWidth();
 
         const top = gridTop();
-        coords[1] = top + gridHeight() * (value - verticalTopValue) / (verticalBottomValue - verticalTopValue);
+        coords[1] = top + (gridHeight() * (value - verticalTopValue)) / (verticalBottomValue - verticalTopValue);
 
         return coords;
     }
@@ -887,7 +948,11 @@ editor.once('load', () => {
         // draw vertical axis values
         const left = gridLeft() - textSize * 2;
         drawText(+verticalTopValue.toFixed(2), left, gridTop() + textSize * 0.5);
-        drawText(+((verticalTopValue + verticalBottomValue) * 0.5).toFixed(2), left, gridTop() + (gridHeight() + textSize) * 0.5);
+        drawText(
+            +((verticalTopValue + verticalBottomValue) * 0.5).toFixed(2),
+            left,
+            gridTop() + (gridHeight() + textSize) * 0.5
+        );
         drawText(+verticalBottomValue.toFixed(2), left, gridBottom() + textSize * 0.5);
 
         // draw horizontal axis values
@@ -898,7 +963,7 @@ editor.once('load', () => {
     // if we only have one curve then
     // use 'swizzle' - an array of indexes
     // that remaps other arrays to different colors
-    var getColorSwizzle = function () {
+    getColorSwizzle = function () {
         let result = [0, 1, 2, 3];
         if (gradient && curves.length === 1) {
             if (curveNames[0] === 'g') {
@@ -915,7 +980,7 @@ editor.once('load', () => {
 
     // Draws color gradient for a set of curves
     function renderColorGradient() {
-        const ctx = gradientCanvas.element.getContext('2d');
+        const ctx = gradientCanvasDom.getContext('2d');
         let t;
         const rgb = [];
         const precision = 2;
@@ -939,12 +1004,10 @@ editor.once('load', () => {
         const gradient = ctx.createLinearGradient(0, 0, gradientCanvas.width, gradientCanvas.height);
 
         for (t = 0; t <= gradientCanvas.width; t += precision) {
-
             curveset.value(t / gradientCanvas.width, rgb);
-            const rgba = `${Math.round((rgb[swizzle[0]] || 0) * 255)},${
-                Math.round((rgb[swizzle[1]] || 0) * 255)},${
-                Math.round((rgb[swizzle[2]] || 0) * 255)},${
-                isNaN(rgb[swizzle[3]]) ? 1 : rgb[swizzle[3]]}`;
+            const rgba = `${Math.round((rgb[swizzle[0]] || 0) * 255)},${Math.round(
+                (rgb[swizzle[1]] || 0) * 255
+            )},${Math.round((rgb[swizzle[2]] || 0) * 255)},${isNaN(rgb[swizzle[3]]) ? 1 : rgb[swizzle[3]]}`;
 
             gradient.addColorStop(t / gradientCanvas.width, `rgba(${rgba})`);
         }
@@ -975,7 +1038,7 @@ editor.once('load', () => {
             delta = -maxDelta;
         }
 
-        const speed = delta * (verticalTopValue - verticalBottomValue) / 10;
+        const speed = (delta * (verticalTopValue - verticalBottomValue)) / 10;
 
         let verticalTop = verticalTopValue - speed;
         let verticalBottom = verticalBottomValue + speed;
@@ -1095,7 +1158,7 @@ editor.once('load', () => {
     }
 
     function getTargetCoords(e: MouseEvent) {
-        const rect = canvas.element.getBoundingClientRect();
+        const rect = canvasDom.getBoundingClientRect();
         const left = Math.floor(rect.left);
         const top = Math.floor(rect.top);
 
@@ -1104,15 +1167,13 @@ editor.once('load', () => {
 
     // Returns true if the specified coordinates are within the grid bounds
     function areCoordsInGrid(coords: number[]) {
-        return coords[0] >= gridLeft() &&
-               coords[0] <= gridRight() &&
-               coords[1] >= gridTop() &&
-               coords[1] <= gridBottom();
+        return (
+            coords[0] >= gridLeft() && coords[0] <= gridRight() && coords[1] >= gridTop() && coords[1] <= gridBottom()
+        );
     }
 
     function areCoordsClose(coords1: number[], coords2: number[], range: number) {
-        return Math.abs(coords1[0] - coords2[0]) <= range &&
-               Math.abs(coords1[1] - coords2[1]) <= range;
+        return Math.abs(coords1[0] - coords2[0]) <= range && Math.abs(coords1[1] - coords2[1]) <= range;
     }
 
     // If there are any anchors with the same time, collapses them to one
@@ -1145,7 +1206,6 @@ editor.once('load', () => {
             }
         });
 
-
         if (!suspendEvents) {
             for (const index in changedCurves) {
                 const curve = curves[parseInt(index, 10)];
@@ -1169,7 +1229,6 @@ editor.once('load', () => {
                 editor.emit('picker:curve:change', paths, values);
             }
         }
-
     }
 
     // Creates and returns an anchor and fires change event
@@ -1223,7 +1282,6 @@ editor.once('load', () => {
             return curveIndex >= numCurves ? `1.keys.${curveIndex - numCurves}` : `0.keys.${curveIndex}`;
         }
         return curveIndex === 0 ? '0.keys' : '1.keys';
-
     }
 
     function serializeCurveKeys(curve: Curve) {
@@ -1267,10 +1325,10 @@ editor.once('load', () => {
 
         // Change the mouse cursor to a pointer
         if (curve || anchor) {
-            canvas.element.style.cursor = 'pointer';
+            canvasDom.style.cursor = 'pointer';
             updateFields(anchor);
         } else {
-            canvas.element.style.cursor = '';
+            canvasDom.style.cursor = '';
             updateFields(selectedAnchor);
         }
     }
@@ -1298,7 +1356,6 @@ editor.once('load', () => {
                 }
             }
 
-
             sendCurveToFront(curve);
         } else {
             selectedCurveIndex = -1;
@@ -1308,9 +1365,10 @@ editor.once('load', () => {
 
     // Return the hovered anchor and graph
     function getHoveredAnchor(coords: number[]) {
-        const result = {
+        const result: any = {
             graph: null,
-            anchor: null
+            anchor: null,
+            curve: null
         };
 
         const hoveredTime = calculateAnchorTime(coords);
@@ -1431,8 +1489,8 @@ editor.once('load', () => {
     }
 
     // Handles mouse down
-    canvas.element.addEventListener('mousedown', (e: MouseEvent) => {
-        if (e.target !== canvas.element) {
+    canvasDom.addEventListener('mousedown', (e: MouseEvent) => {
+        if (e.target !== canvasDom) {
             return;
         }
 
@@ -1457,7 +1515,6 @@ editor.once('load', () => {
 
             // if we are clicking on an empty area
             if (!hoveredAnchor) {
-
                 if (!inGrid) {
                     return;
                 }
@@ -1466,7 +1523,6 @@ editor.once('load', () => {
 
                 // create a new anchor
                 if (curve) {
-
                     const time = calculateAnchorTime(point);
                     const value = calculateAnchorValue(point);
                     const anchor = createAnchor(curve, time, value);
@@ -1496,7 +1552,7 @@ editor.once('load', () => {
     });
 
     // Handles mouse move
-    var onMouseMove = function (e: MouseEvent) {
+    onMouseMove = function (e: MouseEvent) {
         const coords = getTargetCoords(e);
 
         // if we are dragging the selected anchor
@@ -1525,7 +1581,6 @@ editor.once('load', () => {
 
             render();
         } else {
-
             if (scrolling) {
                 scroll(e.y - mouseY);
                 mouseY = e.y;
@@ -1541,7 +1596,7 @@ editor.once('load', () => {
     };
 
     // Handles mouse up
-    var onMouseUp = function (e: MouseEvent) {
+    onMouseUp = function (e: MouseEvent) {
         toggleTextSelection(true);
 
         if (e.button === 0) {
@@ -1579,7 +1634,7 @@ editor.once('load', () => {
     };
 
     // Handle mouse wheel
-    var onMouseWheel = function (e: WheelEvent) {
+    onMouseWheel = function (e: WheelEvent) {
         e.stopPropagation();
         if (e.deltaY > 0) {
             adjustZoom(-0.3);
@@ -1592,6 +1647,7 @@ editor.once('load', () => {
     editor.method('picker:curve', (value: { keys: number[][] }[], args?: Record<string, unknown>) => {
         // show overlay
         overlay.hidden = false;
+        resizeCanvases();
 
         const suspend = suspendEvents;
         suspendEvents = true;
@@ -1601,10 +1657,17 @@ editor.once('load', () => {
         suspendEvents = suspend;
 
         setValue(value, args || {});
+        requestAnimationFrame(() => {
+            if (overlay.hidden) {
+                return;
+            }
+            resizeCanvases();
+            render();
+        });
 
         window.addEventListener('mouseup', onMouseUp);
         window.addEventListener('mousemove', onMouseMove);
-        canvas.element.addEventListener('wheel', onMouseWheel);
+        canvasDom.addEventListener('wheel', onMouseWheel);
     });
 
     editor.method('picker:curve:close', () => {
@@ -1615,7 +1678,7 @@ editor.once('load', () => {
     });
 
     editor.method('picker:curve:rect', () => {
-        return overlay.rect;
+        return overlay.domContent.getBoundingClientRect();
     });
 
     // position picker
@@ -1626,6 +1689,8 @@ editor.once('load', () => {
         }
 
         overlay.position(x, y);
+        resizeCanvases();
+        render();
     });
 
     // update value of picker

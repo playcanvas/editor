@@ -1,4 +1,7 @@
+import { createLog } from '@/common/sentry';
 import { config } from '@/editor/config';
+
+const log = createLog('<PATH>');
 
 editor.once('start', () => {
     const realtime = editor.api.globals.realtime;
@@ -20,7 +23,7 @@ editor.once('start', () => {
     });
 
     realtime.on('error', (err: unknown) => {
-        console.error('realtime error', err);
+        log.error(err);
         editor.emit('realtime:error', err);
     });
 
@@ -28,12 +31,12 @@ editor.once('start', () => {
         editor.call('status:error', err);
     });
 
-    realtime.on('error:scene', (err: unknown) => {
-        editor.emit('realtime:scene:error', err);
+    realtime.on('error:scene', (err: unknown, _id: number, op?: unknown[]) => {
+        editor.emit('realtime:scene:error', err, op);
     });
 
-    realtime.on('error:asset', (err: unknown) => {
-        editor.emit('realtime:asset:error', err);
+    realtime.on('error:asset', (err: unknown, uniqueId: number, op?: unknown[]) => {
+        editor.emit('realtime:assets:error', err, op, uniqueId);
     });
 
     realtime.on('disconnect', (reason: string) => {
@@ -91,7 +94,7 @@ editor.once('start', () => {
     });
 
     // write scene operations
-    editor.method('realtime:scene:op', (op: unknown) => {
+    editor.method('realtime:scene:op', (op: object) => {
         if (!editor.call('permissions:write') || !realtime.scenes.current) {
             return;
         }

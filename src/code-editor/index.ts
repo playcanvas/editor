@@ -1,3 +1,6 @@
+// sentry
+import '@/common/sentry';
+
 // extensions
 import '@/common/extensions';
 
@@ -77,7 +80,6 @@ import './status-panel/status-connection';
 import './monaco/languages/glsl';
 import './monaco/monaco';
 import './monaco/document';
-import './monaco/copilot/autocomplete';
 import './monaco/intellisense/attribute-autofill';
 import './monaco/intellisense/path-completion';
 import './monaco/intellisense/warnings';
@@ -148,6 +150,9 @@ import './monaco/integration';
 
 // urls
 import './urls';
+
+// alerts
+import './alerts/alert-vscode-extension';
 
 // version control pickers (from main editor)
 import '../editor/pickers/version-control/picker-version-control-overlay-message';

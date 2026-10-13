@@ -1,7 +1,9 @@
+import { createLog } from '@/common/sentry';
 import { WorkerClient } from '@/core/worker/worker-client';
 
-editor.once('load', () => {
+const log = createLog('<PATH>');
 
+editor.once('load', () => {
     const SUPPORTED_FORMATS = ['avif', 'jpeg', 'png', 'webp'];
 
     editor.method('assets:texture:convert', async (id, targetFormat, callback) => {
@@ -25,7 +27,12 @@ editor.once('load', () => {
             const parent = path.length ? path[path.length - 1] : null;
 
             // FIXME: No way to use arrayBuffer with AJAX
-            const response = await fetch(`/api/assets/${id}/download?branchId=${config.self.branch.id}`);
+            const response = await fetch(`${config.url.api}/assets/${id}/download?branchId=${config.self.branch.id}`);
+            if (!response.ok) {
+                void log.error`texture download failed ${response.status}: ${response.statusText}`;
+                callback(new Error(`Texture download failed (${response.status} ${response.statusText}).`));
+                return;
+            }
             const buffer = await response.arrayBuffer();
 
             // N.B. Update to use frontend URL
@@ -34,19 +41,28 @@ editor.once('load', () => {
                 workerClient.on('convert', (data) => {
                     const file = new Blob([data], { type: `image/${targetFormat}` });
 
-                    editor.call('assets:uploadFile', {
-                        name: targetFilename,
-                        type: 'texture',
-                        filename: targetFilename,
-                        file,
-                        parent
-                    }, () => {
-                        callback();
-                        workerClient.stop();
-                    });
+                    editor.call(
+                        'assets:uploadFile',
+                        {
+                            name: targetFilename,
+                            type: 'texture',
+                            filename: targetFilename,
+                            file,
+                            parent
+                        },
+                        (err, data) => {
+                            callback(err, data);
+                            workerClient.stop();
+                        }
+                    );
                 });
 
                 workerClient.with([buffer]).send('convert', config.url.frontend, buffer, sourceFormat, targetFormat);
+            });
+
+            workerClient.on('error', (err) => {
+                callback(err);
+                workerClient.stop();
             });
 
             workerClient.start();

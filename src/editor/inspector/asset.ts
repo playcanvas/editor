@@ -1,13 +1,12 @@
 import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
-import { Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
-
+import { Container, Button, Menu, BindingObserversToElement, Label } from '@playcanvas/pcui';
 
 import { bytesToHuman, convertDatetime } from '@/common/utils';
 import { LOAD_SCRIPT_AS_ASSET, LOAD_SCRIPT_BEFORE_ENGINE, LOAD_SCRIPT_AFTER_ENGINE } from '@/core/constants';
 
 import { AnimationAssetInspector } from './assets/animation';
 import { AnimationAssetInspectorPreview } from './assets/animation-preview';
-import { AnimstategraphAssetInspector } from './assets/animstategraph';
+import { AnimStateGraphAssetInspector } from './assets/animstategraph';
 import type { AssetInspectorPreviewBase } from './assets/asset-preview-base';
 import { AudioAssetInspector } from './assets/audio';
 import { BundleAssetInspector } from './assets/bundle';
@@ -41,10 +40,9 @@ import { WasmAssetInspector } from './assets/wasm';
 import type { Attribute } from './attribute.type.d';
 import { AttributesInspector } from './attributes-inspector';
 
-
-const assetInspectors: Map<string, new (...args: any[]) => any> = new Map();
+const assetInspectors = new Map<string, new (...args: any[]) => any>();
 assetInspectors.set('animation', AnimationAssetInspector);
-assetInspectors.set('animstategraph', AnimstategraphAssetInspector);
+assetInspectors.set('animstategraph', AnimStateGraphAssetInspector);
 assetInspectors.set('audio', AudioAssetInspector);
 assetInspectors.set('bundle', BundleAssetInspector);
 assetInspectors.set('container', ContainerAssetInspector);
@@ -62,15 +60,15 @@ assetInspectors.set('shader', ShaderAssetInspector);
 assetInspectors.set('sprite', SpriteAssetInspector);
 assetInspectors.set('text', TextAssetInspector);
 assetInspectors.set('texture', TextureAssetInspector);
-assetInspectors.set('textureAtlas', TextureAssetInspector);
+assetInspectors.set('textureatlas', TextureAssetInspector);
 assetInspectors.set('wasm', WasmAssetInspector);
 
-const sourceAssetInspectors: Map<string, new (...args: any[]) => any> = new Map();
+const sourceAssetInspectors = new Map<string, new (...args: any[]) => any>();
 sourceAssetInspectors.set('font', FontSourceAssetInspector);
 sourceAssetInspectors.set('scene', SceneSourceAssetInspector);
 sourceAssetInspectors.set('texture', TextureSourceAssetInspector);
 
-const assetInspectorPreviews: Map<string, new (...args: any[]) => any> = new Map();
+const assetInspectorPreviews = new Map<string, new (...args: any[]) => any>();
 assetInspectorPreviews.set('animation', AnimationAssetInspectorPreview);
 assetInspectorPreviews.set('cubemap', CubemapAssetInspectorPreview);
 assetInspectorPreviews.set('font', FontAssetInspectorPreview);
@@ -80,202 +78,167 @@ assetInspectorPreviews.set('render', RenderAssetInspectorPreview);
 assetInspectorPreviews.set('sprite', SpriteAssetInspectorPreview);
 assetInspectorPreviews.set('texture', TextureAssetInspectorPreview);
 assetInspectorPreviews.set('template', TemplateAssetInspectorPreview);
-assetInspectorPreviews.set('textureAtlas', TextureAssetInspectorPreview);
+assetInspectorPreviews.set('textureatlas', TextureAssetInspectorPreview);
 
 const CLASS_ROOT = 'asset-inspector';
 
-const ATTRIBUTES: Attribute[] = [{
-    label: 'ID',
-    alias: 'id',
-    path: 'id',
-    reference: 'asset:id',
-    type: 'label',
-    args: {
-        allowTextSelection: true
+const ATTRIBUTES: Attribute[] = [
+    {
+        label: 'ID',
+        alias: 'id',
+        path: 'id',
+        reference: 'asset:id',
+        type: 'label',
+        args: {
+            allowTextSelection: true
+        }
+    },
+    {
+        label: 'Assets',
+        path: 'assets',
+        type: 'label'
+    },
+    {
+        label: 'Name',
+        path: 'name',
+        reference: 'asset:name',
+        type: 'string'
+    },
+    {
+        label: 'Filename',
+        path: 'filename',
+        type: 'label'
+    },
+    {
+        label: 'Tags',
+        alias: 'tags',
+        path: 'tags',
+        reference: 'asset:tags',
+        type: 'tags',
+        args: {
+            type: 'string',
+            placeholder: 'Add Tags'
+        }
+    },
+    {
+        label: 'Runtime',
+        alias: 'source',
+        type: 'label',
+        reference: 'asset:runtime'
+    },
+    {
+        label: 'Type',
+        alias: 'type',
+        reference: 'asset:type',
+        type: 'label',
+        args: {
+            renderChanges: false
+        }
+    },
+    {
+        label: 'Exclude',
+        path: 'exclude',
+        reference: 'asset:exclude',
+        type: 'boolean'
+    },
+    {
+        label: 'Preload',
+        path: 'preload',
+        alias: 'preload',
+        reference: 'asset:preload',
+        type: 'boolean'
+    },
+    {
+        label: 'Loading Order',
+        alias: 'loadingOrder',
+        type: 'button',
+        reference: 'asset:script:order',
+        args: {
+            text: 'MANAGE'
+        }
+    },
+    {
+        label: 'Loading Type',
+        path: 'data.loadingType',
+        type: 'select',
+        reference: 'asset:script:loadingType',
+        args: {
+            type: 'number',
+            options: [
+                { v: LOAD_SCRIPT_AS_ASSET, t: 'Asset' },
+                { v: LOAD_SCRIPT_BEFORE_ENGINE, t: 'Before Engine' },
+                { v: LOAD_SCRIPT_AFTER_ENGINE, t: 'After Engine' }
+            ]
+        }
+    },
+    {
+        label: 'Size',
+        alias: 'size',
+        reference: 'asset:size',
+        type: 'label',
+        args: {
+            renderChanges: false
+        }
+    },
+    {
+        label: 'Source',
+        alias: 'source_asset_id',
+        type: 'label',
+        reference: 'asset:source',
+        args: {
+            renderChanges: false
+        }
+    },
+    {
+        label: 'Created',
+        type: 'label',
+        path: 'createdAt',
+        alias: 'created',
+        reference: 'asset:created',
+        args: {
+            renderChanges: false
+        }
+    },
+    {
+        label: 'License',
+        alias: 'license',
+        reference: 'asset:license',
+        type: 'label',
+        args: {
+            allowTextSelection: true
+        }
+    },
+    {
+        label: 'Author',
+        alias: 'author',
+        reference: 'asset:author',
+        type: 'label',
+        args: {
+            allowTextSelection: true
+        }
     }
-}, {
-    label: 'Assets',
-    path: 'assets',
-    type: 'label'
-}, {
-    label: 'Name',
-    path: 'name',
-    reference: 'asset:name',
-    type: 'string'
-}, {
-    label: 'Filename',
-    path: 'filename',
-    type: 'label'
-}, {
-    label: 'Tags',
-    alias: 'tags',
-    path: 'tags',
-    reference: 'asset:tags',
-    type: 'tags',
-    args: {
-        type: 'string',
-        placeholder: 'Add Tags'
-    }
-}, {
-    label: 'Runtime',
-    alias: 'source',
-    type: 'label',
-    reference: 'asset:runtime'
-}, {
-    label: 'Type',
-    alias: 'type',
-    reference: 'asset:type',
-    type: 'label',
-    args: {
-        renderChanges: false
-    }
-}, {
-    label: 'Exclude',
-    path: 'exclude',
-    reference: 'asset:exclude',
-    type: 'boolean'
-}, {
-    label: 'Preload',
-    path: 'preload',
-    alias: 'preload',
-    reference: 'asset:preload',
-    type: 'boolean'
-}, {
-    label: 'Loading Order',
-    alias: 'loadingOrder',
-    type: 'button',
-    reference: 'asset:script:order',
-    args: {
-        text: 'MANAGE'
-    }
-}, {
-    label: 'Loading Type',
-    path: 'data.loadingType',
-    type: 'select',
-    reference: 'asset:script:loadingType',
-    args: {
-        type: 'number',
-        options: [
-            { v: LOAD_SCRIPT_AS_ASSET, t: 'Asset' },
-            { v: LOAD_SCRIPT_BEFORE_ENGINE, t: 'Before Engine' },
-            { v: LOAD_SCRIPT_AFTER_ENGINE, t: 'After Engine' }
-        ]
-    }
-}, {
-    label: 'Size',
-    alias: 'size',
-    reference: 'asset:size',
-    type: 'label',
-    args: {
-        renderChanges: false
-    }
-}, {
-    label: 'Source',
-    alias: 'source_asset_id',
-    type: 'label',
-    reference: 'asset:source',
-    args: {
-        renderChanges: false
-    }
-}, {
-    label: 'Created',
-    type: 'label',
-    path: 'createdAt',
-    alias: 'created',
-    reference: 'asset:created',
-    args: {
-        renderChanges: false
-    }
-}, {
-    label: 'License',
-    alias: 'license',
-    reference: 'asset:license',
-    type: 'label',
-    args: {
-        allowTextSelection: true
-    }
-}, {
-    label: 'Author',
-    alias: 'author',
-    reference: 'asset:author',
-    type: 'label',
-    args: {
-        allowTextSelection: true
-    }
-}];
+];
 
 // Hide fields based on current asset type
 const HIDDEN_FIELDS = {
-    'tags': [
-        'folder.source',
-        'scene.source',
-        'texture.source',
-        'font.source',
-        'legacyScripts'
-    ],
-    'source_asset_id': [
-        'folder.source',
-        'scene.source',
-        'texture.source',
-        'font.source',
-        'legacyScripts'
-    ],
-    'exclude': [
-        'folder.source',
-        'scene.source',
-        'texture.source',
-        'font.source',
-        'legacyScripts'
-    ],
-    'preload': [
-        'folder.source',
-        'scene.source',
-        'texture.source',
-        'font.source',
-        'legacyScripts'
-    ],
-    'assets': [
-        'single',
-        'legacyScripts'
-    ],
-    'id': [
-        'multi',
-        'legacyScripts'
-    ],
-    'size': [
-        'folder.source',
-        'legacyScripts'
-    ],
-    'source': [
-        'legacyScripts'
-    ],
-    'name': [
-        'multi',
-        'legacyScripts'
-    ],
-    'filename': [
-        'notLegacyScripts'
-    ],
+    tags: ['folder.source', 'scene.source', 'texture.source', 'font.source', 'legacyScripts'],
+    source_asset_id: ['folder.source', 'scene.source', 'texture.source', 'font.source', 'legacyScripts'],
+    exclude: ['folder.source', 'scene.source', 'texture.source', 'font.source', 'legacyScripts'],
+    preload: ['folder.source', 'scene.source', 'texture.source', 'font.source', 'legacyScripts'],
+    assets: ['single', 'legacyScripts'],
+    id: ['multi', 'legacyScripts'],
+    size: ['folder.source', 'legacyScripts'],
+    source: ['legacyScripts'],
+    name: ['multi', 'legacyScripts'],
+    filename: ['notLegacyScripts'],
     // license and author fields are available for source scene assets only for now
-    'license': [
-        'container',
-        'render',
-        'folder',
-        'folder.source',
-        'legacyScripts'
-    ],
-    'author': [
-        'container',
-        'render',
-        'folder',
-        'folder.source',
-        'legacyScripts'
-    ]
+    license: ['container', 'render', 'folder', 'folder.source', 'legacyScripts'],
+    author: ['container', 'render', 'folder', 'folder.source', 'legacyScripts']
 };
 
 const isModelAsset = (asset) => {
     const filename = asset.get('file.filename');
-    return (filename && String(filename).match(/\.glb$/) !== null) || (asset.get('type') === 'gsplat');
+    return (filename && String(filename).match(/\.glb$/) !== null) || asset.get('type') === 'gsplat';
 };
 
 const isTextureAsset = (asset) => {
@@ -344,6 +307,10 @@ class AssetInspector extends Container {
 
     private _btnEditAsset: Button;
 
+    private _btnEditDropdown: Button;
+
+    private _menuEditAsset: Menu;
+
     private _btnEditSprite: Button;
 
     private _typedAssetInspectors: Record<string, any> = {};
@@ -355,6 +322,8 @@ class AssetInspector extends Container {
     private _assets: Observer[] | null = null;
 
     private _assetEvents: EventHandle[] = [];
+
+    private _renameError: Label | null = null;
 
     constructor(args: Record<string, unknown> = {}) {
         args.flex = true;
@@ -368,7 +337,7 @@ class AssetInspector extends Container {
         this._projectSettings = args.projectSettings as Observer;
         this._editableTypes = args.editableTypes as Record<string, boolean>;
 
-        this._assetTypes = editor.call('schema:assets:list');
+        this._assetTypes = editor.call('schema:assets:list').map((type) => type.toLowerCase());
         this._attributesInspector = new AttributesInspector({
             history: args.history,
             attributes: ATTRIBUTES
@@ -406,7 +375,6 @@ class AssetInspector extends Container {
         this._btnOpenInViewer.on('click', this._onClickOpenInViewer.bind(this));
 
         // add edit button
-
         this._btnEditAsset = new Button({
             text: editor.call('permissions:write') ? 'EDIT' : 'VIEW',
             icon: 'E130',
@@ -422,6 +390,49 @@ class AssetInspector extends Container {
         this._btnEditAsset.on('click', this._onClickEditAsset.bind(this));
         this._containerButtons.append(this._btnEditAsset);
 
+        // dropdown arrow to pick a specific editor
+        this._btnEditDropdown = new Button({
+            class: 'pc-icon',
+            icon: 'E235',
+            ignoreParent: true
+        });
+        this._btnEditDropdown.style.flexShrink = '0';
+        this._btnEditDropdown.style.marginLeft = '-4px';
+        this._containerButtons.append(this._btnEditDropdown);
+
+        const writeLabel = editor.call('permissions:write') ? 'Edit' : 'View';
+        this._menuEditAsset = new Menu({
+            items: [
+                {
+                    text: `${writeLabel} in Web`,
+                    icon: 'E130',
+                    onSelect: () => editor.call('assets:edit', this._assets[0], 'web')
+                },
+                {
+                    text: `${writeLabel} in VS Code`,
+                    icon: 'E130',
+                    onSelect: () => editor.call('assets:edit', this._assets[0], 'vscode')
+                },
+                {
+                    text: `${writeLabel} in Cursor`,
+                    icon: 'E130',
+                    onSelect: () => editor.call('assets:edit', this._assets[0], 'cursor')
+                },
+                {
+                    text: `${writeLabel} in Antigravity IDE`,
+                    icon: 'E130',
+                    onSelect: () => editor.call('assets:edit', this._assets[0], 'antigravity-ide')
+                }
+            ]
+        });
+        editor.call('layout.root').append(this._menuEditAsset);
+
+        this._btnEditDropdown.on('click', () => {
+            const rect = this._btnEditDropdown.dom.getBoundingClientRect();
+            this._menuEditAsset.hidden = false;
+            this._menuEditAsset.position(rect.right, rect.bottom);
+        });
+
         // add edit button
         this._btnEditSprite = new Button({
             text: 'SPRITE EDITOR',
@@ -435,9 +446,16 @@ class AssetInspector extends Container {
 
         // one way binding from observers to element for name field
         // because the other way is handled by calling assets:rename
-        this._attributesInspector.getField('name').binding = new BindingObserversToElement({
+        const nameField = this._attributesInspector.getField('name');
+        nameField.binding = new BindingObserversToElement({
             history: args.history
         });
+        this._renameError = new Label({
+            class: 'asset-rename-error',
+            hidden: true
+        });
+        nameField.parent.class.add('asset-rename-error-group');
+        nameField.parent.append(this._renameError);
 
         this._assetTypes.forEach((assetType) => {
             // check if class exists
@@ -532,11 +550,13 @@ class AssetInspector extends Container {
             return;
         }
 
-        const totalSize = this._assets.map((asset) => {
-            return asset.has('file.size') ? asset.get('file.size') : 0;
-        }).reduce((total, curr) => {
-            return total + curr;
-        });
+        const totalSize = this._assets
+            .map((asset) => {
+                return asset.has('file.size') ? asset.get('file.size') : 0;
+            })
+            .reduce((total, curr) => {
+                return total + curr;
+            });
 
         this._attributesInspector.getField('size').values = this._assets.map((asset) => {
             return bytesToHuman(totalSize);
@@ -549,13 +569,12 @@ class AssetInspector extends Container {
         }
 
         this._attributesInspector.getField('createdAt').values = this._assets.map((asset) => {
-            return asset.get('createdAt') &&  convertDatetime(asset.get('createdAt'));
+            return asset.get('createdAt') && convertDatetime(asset.get('createdAt'));
         });
     }
 
     _buildLicenseHtml(licenseId: string) {
-
-        const licenseData = this._licenseTypes.find(el => el.id === licenseId);
+        const licenseData = this._licenseTypes.find((el) => el.id === licenseId);
         if (!licenseData) {
             return '<Error>';
         }
@@ -581,7 +600,7 @@ class AssetInspector extends Container {
         }
 
         const licenses = this._assets.map((asset) => {
-            return asset.get('license') &&  this._buildLicenseHtml(asset.get('license.id'));
+            return asset.get('license') && this._buildLicenseHtml(asset.get('license.id'));
         });
 
         if (licenses.length > 0) {
@@ -597,7 +616,10 @@ class AssetInspector extends Container {
         }
 
         const authors = this._assets.map((asset) => {
-            return asset.get('license') &&  this._buildAuthorHtml(asset.get('license.author'), asset.get('license.authorUrl'));
+            return (
+                asset.get('license') &&
+                this._buildAuthorHtml(asset.get('license.author'), asset.get('license.authorUrl'))
+            );
         });
 
         if (authors.length > 0) {
@@ -609,14 +631,27 @@ class AssetInspector extends Container {
                 }
             }
 
-            this._attributesInspector.getField('author').dom.innerHTML  = authorHtml;
+            this._attributesInspector.getField('author').dom.innerHTML = authorHtml;
         }
     }
 
     _updateOpenInViewerButton() {
-        const allModel = this._assets.every(a => isModelAsset(a));
-        const allTexture = !allModel && this._assets.every(a => isTextureAsset(a));
+        const allModel = this._assets.every((a) => isModelAsset(a));
+        const allTexture = !allModel && this._assets.every((a) => isTextureAsset(a));
         this._btnOpenInViewer.hidden = !allModel && !allTexture;
+    }
+
+    // a font loads its descriptor and atlas itself, so their own preload does nothing — the font's
+    // flag is the only one that decides, as it was when a font was a single asset. shown but disabled,
+    // and it comes back as soon as the asset stops being a font's mirror
+    _updatePreloadField() {
+        const field = this._attributesInspector.getField('preload');
+        if (!field) {
+            return;
+        }
+        const isMirror = !!this._assets?.length && this._assets.every((a) => editor.call('fonts:isMirror', a));
+        field.enabled = !isMirror;
+        field.parent.class[isMirror ? 'add' : 'remove']('pcui-disabled');
     }
 
     _updateDownloadButton() {
@@ -638,12 +673,15 @@ class AssetInspector extends Container {
         if (this._assets) {
             if (this._assets[0].get('type') === 'script' && this._projectSettings.get('useLegacyScripts')) {
                 hidden = true;
-            } else if (this._assets.length > 1 || ['folder', 'sprite', 'render', 'template'].includes(this._assets[0].get('type'))) {
+            } else if (
+                this._assets.length > 1 ||
+                ['folder', 'sprite', 'render', 'template'].includes(this._assets[0].get('type'))
+            ) {
                 hidden = true;
             }
         }
 
-        this._btnDownloadAsset.disabled = disabled;
+        this._btnDownloadAsset.enabled = !disabled;
         this._btnDownloadAsset.hidden = hidden;
     }
 
@@ -658,9 +696,24 @@ class AssetInspector extends Container {
 
     _updateAssetName(value: string) {
         if (!value) {
+            this._setRenameError();
             return;
         }
-        editor.call('assets:rename', this._assets[0], value);
+        const error = editor.call('assets:rename', this._assets[0], value);
+        if (error) {
+            this._setRenameError(error);
+        } else {
+            this._setRenameError();
+        }
+    }
+
+    _setRenameError(text = '') {
+        const field = this._attributesInspector.getField('name');
+        field.error = !!text;
+        if (this._renameError) {
+            this._renameError.text = text;
+            this._renameError.hidden = !text;
+        }
     }
 
     link(assets: Observer[]) {
@@ -673,6 +726,7 @@ class AssetInspector extends Container {
         this._assets = assets;
 
         this._containerButtons.hidden = false;
+        this._setRenameError();
 
         const legacyScripts = this._projectSettings.get('useLegacyScripts');
 
@@ -697,6 +751,7 @@ class AssetInspector extends Container {
 
         assets.forEach((asset) => {
             this._assetEvents.push(asset.on('file.size:set', this._updateFileSize.bind(this)));
+            this._assetEvents.push(asset.on('name:set', () => this._setRenameError()));
         });
 
         this._attributesInspector.getField('source_asset_id').values = assets.map((asset) => {
@@ -733,7 +788,11 @@ class AssetInspector extends Container {
                 if (clsSource) {
                     let shouldDisplayTypedInspector = true;
                     assets.forEach((asset) => {
-                        if (asset.get('type') !== assetType.toLowerCase() || !asset.get('source') || !asset.get('type') === 'scene') {
+                        if (
+                            asset.get('type') !== assetType.toLowerCase() ||
+                            !asset.get('source') ||
+                            !asset.get('type') === 'scene'
+                        ) {
                             shouldDisplayTypedInspector = false;
                         }
                     });
@@ -764,12 +823,16 @@ class AssetInspector extends Container {
 
         // Determine if the Edit/View button should be displayed
         this._btnEditAsset.hidden = assets.length > 1 || !this._editableTypes[assets[0].get('type')];
+        this._btnEditDropdown.hidden = this._btnEditAsset.hidden;
 
         // Determine the Download button state
         this._updateDownloadButton();
 
         // Determine the open in viewer button state
         this._updateOpenInViewerButton();
+
+        // Determine whether preload is the font's to decide rather than this asset's
+        this._updatePreloadField();
 
         if (assets[0].get('type') === 'cubemap') {
             this._updateDownloadButton.bind(this)();
@@ -788,15 +851,13 @@ class AssetInspector extends Container {
         this._toggleAssetField('data.loadingType');
 
         // Set source asset attribute link
-        this._assetEvents.push(this._attributesInspector.getField('source_asset_id').on(
-            'click',
-            this._onClickSourceAsset.bind(this)
-        ));
+        this._assetEvents.push(
+            this._attributesInspector.getField('source_asset_id').on('click', this._onClickSourceAsset.bind(this))
+        );
         // Set name in S3 on change
-        this._assetEvents.push(this._attributesInspector.getField('name').on(
-            'change',
-            this._updateAssetName.bind(this)
-        ));
+        this._assetEvents.push(
+            this._attributesInspector.getField('name').on('change', this._updateAssetName.bind(this))
+        );
         this._attributesInspector.getField('source_asset_id').class.add('pcui-selectable');
 
         this.hidden = false;
@@ -814,15 +875,24 @@ class AssetInspector extends Container {
                 assetType += '.source';
             }
 
-            if ((attribute === 'license' || attribute === 'author')  && !asset.get('license')) {
+            if ((attribute === 'license' || attribute === 'author') && !asset.get('license')) {
                 hiddenForAnyAsset = true;
             }
 
-            if (legacyScripts && hiddenField && hiddenField.includes('legacyScripts') && asset.get('type') === 'script') {
+            if (
+                legacyScripts &&
+                hiddenField &&
+                hiddenField.includes('legacyScripts') &&
+                asset.get('type') === 'script'
+            ) {
                 hiddenForAnyAsset = true;
             }
 
-            if (hiddenField && hiddenField.includes('notLegacyScripts') && (asset.get('type') !== 'script' || !legacyScripts)) {
+            if (
+                hiddenField &&
+                hiddenField.includes('notLegacyScripts') &&
+                (asset.get('type') !== 'script' || !legacyScripts)
+            ) {
                 hiddenForAnyAsset = true;
             }
 
@@ -835,7 +905,8 @@ class AssetInspector extends Container {
             }
         });
 
-        if (hiddenForAnyAsset ||
+        if (
+            hiddenForAnyAsset ||
             (hiddenField && hiddenField.includes('multi') && this._assets.length > 1) ||
             (hiddenField && hiddenField.includes('single') && this._assets.length === 1)
         ) {
@@ -843,11 +914,11 @@ class AssetInspector extends Container {
         } else {
             this._attributesInspector.getField(attribute).parent.hidden = false;
         }
-
     }
 
     unlink() {
         super.unlink();
+        this._setRenameError();
 
         if (!this._assets) {
             return;
@@ -855,7 +926,7 @@ class AssetInspector extends Container {
 
         this._containerButtons.hidden = true;
 
-        this._assetEvents.forEach(evt => evt.unbind());
+        this._assetEvents.forEach((evt) => evt.unbind());
         this._assetEvents.length = 0;
 
         this._assets = null;

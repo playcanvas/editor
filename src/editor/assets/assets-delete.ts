@@ -26,16 +26,21 @@ editor.once('load', () => {
             msg = `Permanently delete ${items.length} assets?`;
         }
 
-        editor.call('picker:confirm', msg, () => {
-            if (!editor.call('permissions:write')) {
-                return;
-            }
+        editor.call(
+            'picker:confirm',
+            msg,
+            () => {
+                if (!editor.call('permissions:write')) {
+                    return;
+                }
 
-            editor.call('assets:delete', items);
-        }, {
-            yesText: 'Delete',
-            noText: 'Cancel'
-        });
+                editor.call('assets:delete', items);
+            },
+            {
+                yesText: 'Delete',
+                noText: 'Cancel'
+            }
+        );
     });
 
     const deleteCallback = function () {

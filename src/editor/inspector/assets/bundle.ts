@@ -3,7 +3,7 @@ import { Panel, BindingTwoWay } from '@playcanvas/pcui';
 
 import { AssetList } from '@/common/pcui/element/element-asset-list';
 
-const DOM = parent => [
+const DOM = (parent) => [
     {
         assetList: new AssetList({
             assets: parent._args.assets,

@@ -1,24 +1,27 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { Container, type TextInput } from '@playcanvas/pcui';
+import { Container } from '@playcanvas/pcui';
+import type { TextInput } from '@playcanvas/pcui';
 
-import type { History } from '@/editor-api';
+import type { Attribute } from '../attribute.type.d';
 
 import { BaseSettingsPanel } from './base';
+import type { BaseSettingsPanelArgs } from './base';
 import { BatchGroupsSettingsPanelItem } from './batchgroups-item';
-import type { Attribute } from '../attribute.type.d';
 
 const CLASS_ROOT = 'batchgroups-settings-panel';
 const CLASS_ITEM = `${CLASS_ROOT}-item`;
 
-const ATTRIBUTES: Attribute[] = [{
-    label: '',
-    alias: 'addGroupButton',
-    type: 'button',
-    args: {
-        text: 'ADD GROUP',
-        icon: 'E120'
+const ATTRIBUTES: Attribute[] = [
+    {
+        label: '',
+        alias: 'addGroupButton',
+        type: 'button',
+        args: {
+            text: 'ADD GROUP',
+            icon: 'E120'
+        }
     }
-}];
+];
 
 class BatchGroupsSettingsPanel extends BaseSettingsPanel {
     _items: BatchGroupsSettingsPanelItem[] = [];
@@ -27,7 +30,7 @@ class BatchGroupsSettingsPanel extends BaseSettingsPanel {
 
     _itemsContainer: Container;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: BaseSettingsPanelArgs) {
         args = Object.assign({}, args);
         args.headerText = 'BATCH GROUPS';
         args.attributes = ATTRIBUTES;
@@ -144,7 +147,7 @@ class BatchGroupsSettingsPanel extends BaseSettingsPanel {
         };
 
         if (this._args.history) {
-            (this._args.history as History).add({
+            this._args.history.add({
                 name: `remove projectSettings.batchGroups.${groupId}`,
                 undo,
                 redo,
@@ -156,11 +159,11 @@ class BatchGroupsSettingsPanel extends BaseSettingsPanel {
     }
 
     _removeItems() {
-        this._items.forEach(item => this._itemsContainer.remove(item));
+        this._items.forEach((item) => this._itemsContainer.remove(item));
         this._items = [];
     }
 
-    _loadItems(initialLoad: boolean = false) {
+    _loadItems(initialLoad = false) {
         const batchGroups = this._projectSettings.get('batchGroups') || {};
         // remove batch group panel items that are no longer in project settings
         const keepItems = [];
@@ -174,8 +177,7 @@ class BatchGroupsSettingsPanel extends BaseSettingsPanel {
         this._items = keepItems;
 
         Object.keys(batchGroups).forEach((batchGroupId) => {
-
-            let item = this._items.find(item => item.id === batchGroupId);
+            let item = this._items.find((item) => item.id === batchGroupId);
             if (!item) {
                 // load new batch groups into this panel
                 item = new BatchGroupsSettingsPanelItem({

@@ -13,7 +13,7 @@ const search = (id: string, text: string, query: RegExp) => {
     let newLinesLength = 0;
     const findNewLines = /\n/g;
 
-    while (match = findNewLines.exec(text)) { // eslint-disable-line no-cond-assign
+    while ((match = findNewLines.exec(text))) {
         newLines.push(match.index);
         newLinesLength++;
     }
@@ -22,8 +22,7 @@ const search = (id: string, text: string, query: RegExp) => {
     query.lastIndex = 0;
 
     // start matching
-    while (match = query.exec(text)) { // eslint-disable-line no-cond-assign
-
+    while ((match = query.exec(text))) {
         // binary search the line of the match
         const index = match.index;
         let low = 0;

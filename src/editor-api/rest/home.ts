@@ -37,7 +37,7 @@ export const homeBranch = () => {
  * @param notJson - If the file is not JSON
  * @returns The request object
  */
-export const homeFile = (url: string, notJson: boolean = false) => {
+export const homeFile = (url: string, notJson = false) => {
     return Ajax.get({
         url: `${url}`,
         notJson

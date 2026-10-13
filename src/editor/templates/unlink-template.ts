@@ -11,7 +11,7 @@ editor.once('load', () => {
         if (!Array.isArray(entities)) {
             entities = [entities];
         }
-        return entities.filter(e => e.get('template_id')).map(e => e.get('resource_id'));
+        return entities.filter((e) => e.get('template_id')).map((e) => e.get('resource_id'));
     }
 
     editor.method('templates:unlink', (entities: EntityObserver | EntityObserver[]) => {
@@ -73,8 +73,8 @@ editor.once('load', () => {
 
                 const history = entity.history.enabled;
                 entity.history.enabled = false;
-                entity.unset('template_id');
-                entity.unset('template_ent_ids');
+                entity.set('template_id', null);
+                entity.set('template_ent_ids', null);
                 entity.history.enabled = history;
             });
         }

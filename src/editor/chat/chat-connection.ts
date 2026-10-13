@@ -3,5 +3,4 @@ editor.once('load', () => {
     editor.on('relay:connected', () => {
         editor.call('relay:joinRoom', `project-${config.project.id}`);
     });
-
 });

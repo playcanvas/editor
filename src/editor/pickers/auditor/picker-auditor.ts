@@ -1,7 +1,20 @@
 import { Overlay, Label, Button, Container } from '@playcanvas/pcui';
 
 editor.on('load', () => {
-    let callback = null;
+    // badge-count aggregator: each audit source reports under a name; emit the combined total
+    const reports = new Map<string, { issues: number; errors: number }>();
+    editor.method('assets:auditor:report', (name: string, issues: number, errors: number) => {
+        reports.set(name, { issues, errors });
+        let totalIssues = 0;
+        let totalErrors = 0;
+        for (const r of reports.values()) {
+            totalIssues += r.issues;
+            totalErrors += r.errors;
+        }
+        editor.emit('assets:auditor:issues', totalIssues, totalErrors);
+    });
+
+    const callbacks: (() => void)[] = [];
 
     // overlay
     const overlay = new Overlay({
@@ -14,9 +27,11 @@ editor.on('load', () => {
         class: 'picker-auditor-container',
         hidden: true
     });
-    fallbackContainer.append(new Label({
-        text: 'No audits found'
-    }));
+    fallbackContainer.append(
+        new Label({
+            text: 'No audits found'
+        })
+    );
     overlay.append(fallbackContainer);
 
     // main container
@@ -41,8 +56,8 @@ editor.on('load', () => {
         text: 'Action'
     });
     btnAction.on('click', () => {
-        if (callback) {
-            callback();
+        for (const cb of callbacks) {
+            cb();
         }
         overlay.hidden = true;
     });
@@ -61,24 +76,28 @@ editor.on('load', () => {
 
         if (evt.key === 'Escape') {
             btnCancel.emit('click');
-        } else if (evt.key === 'Enter') { // click focused button
-            if (document.activeElement === btnCancel.element) {
-                if (!btnCancel.disabled) {
+        } else if (evt.key === 'Enter') {
+            // click focused button
+            if (document.activeElement === btnCancel.dom) {
+                if (btnCancel.enabled) {
                     btnCancel.emit('click');
                 }
-            } else if (!btnAction.disabled) {
+            } else if (btnAction.enabled) {
                 btnAction.emit('click');
             }
-        } else if (evt.key === 'Tab') { // focus yes / no buttons
-            if (document.activeElement === btnCancel.element) {
-                btnAction.element.focus();
+        } else if (evt.key === 'Tab') {
+            // focus yes / no buttons
+            if (document.activeElement === btnCancel.dom) {
+                btnAction.focus();
             } else {
-                btnCancel.element.focus();
+                btnCancel.focus();
             }
-        } else if (evt.key === 'ArrowRight') { // focus right button (Yes)
-            btnAction.element.focus();
-        } else if (evt.key === 'ArrowLeft') { // focus left button (No)
-            btnCancel.element.focus();
+        } else if (evt.key === 'ArrowRight') {
+            // focus right button (Yes)
+            btnAction.focus();
+        } else if (evt.key === 'ArrowLeft') {
+            // focus left button (No)
+            btnCancel.focus();
         }
     };
 
@@ -165,13 +184,54 @@ editor.on('load', () => {
         return root;
     };
 
-    const showTextureAuditor = () => {
-        const issues: { fixes: Set<number>, conflicts: Set<number> } = editor.call('assets:srgb:issues');
-        if (!issues) {
-            return;
-        }
-        const { fixes, conflicts } = issues;
-        if (!fixes || !conflicts || fixes.size + conflicts.size === 0) {
+    /**
+     * @param fixes - Set of asset ids whose path contains duplicate folder ids
+     * @returns UI element
+     */
+    const pathsUI = (fixes: Set<string>): HTMLElement => {
+        const root = document.createElement('div');
+
+        const title = document.createElement('div');
+        title.classList.add('title');
+        title.textContent = 'Path Audits';
+        root.appendChild(title);
+
+        const description = document.createElement('div');
+        description.classList.add('description');
+        description.textContent = [
+            `${fixes.size} asset${fixes.size === 1 ? '' : 's'} have a path that contains duplicate folder ids.`,
+            'This was caused by a previous bug in copy/move operations and has since been prevented.'
+        ].join(' ');
+        root.appendChild(description);
+
+        const header = document.createElement('div');
+        header.classList.add('header');
+        header.textContent = `Fixes: ${fixes.size}`;
+        root.appendChild(header);
+
+        const body = document.createElement('div');
+        body.classList.add('body');
+        body.textContent = 'These issues can be fixed automatically.';
+        root.appendChild(body);
+
+        return root;
+    };
+
+    const showAuditor = () => {
+        callbacks.length = 0;
+        mainContainer.clear();
+
+        const srgbIssues: { fixes: Set<number>; conflicts: Set<number> } = editor.call('assets:srgb:issues');
+        const pathIssues: { fixes: Set<string> } = editor.call('assets:paths:issues');
+
+        const srgbFixes = srgbIssues?.fixes ?? new Set<number>();
+        const srgbConflicts = srgbIssues?.conflicts ?? new Set<number>();
+        const pathFixes = pathIssues?.fixes ?? new Set<string>();
+
+        const totalIssues = srgbFixes.size + srgbConflicts.size + pathFixes.size;
+        const fixCount = srgbFixes.size + pathFixes.size;
+
+        if (totalIssues === 0) {
             fallbackContainer.hidden = false;
             mainContainer.hidden = true;
 
@@ -180,8 +240,6 @@ editor.on('load', () => {
             btnCancel.hidden = false;
             btnCancel.text = 'OK';
 
-            callback = null;
-
             overlay.clickable = true;
             overlay.hidden = false;
             return;
@@ -189,24 +247,30 @@ editor.on('load', () => {
 
         fallbackContainer.hidden = true;
         mainContainer.hidden = false;
-        mainContainer.clear();
-        mainContainer.append(textureUI(fixes, conflicts));
 
-        btnAction.hidden = fixes.size === 0;
+        if (srgbFixes.size + srgbConflicts.size > 0) {
+            mainContainer.append(textureUI(srgbFixes, srgbConflicts));
+            if (srgbFixes.size > 0) {
+                callbacks.push(() => editor.emit('assets:srgb:fixes:apply'));
+            }
+        }
+
+        if (pathFixes.size > 0) {
+            mainContainer.append(pathsUI(pathFixes));
+            callbacks.push(() => editor.emit('assets:paths:fixes:apply'));
+        }
+
+        btnAction.hidden = fixCount === 0;
         btnAction.text = 'Fix issues';
 
         btnCancel.hidden = false;
         btnCancel.text = 'Cancel';
-
-        callback = () => {
-            editor.emit('assets:srgb:fixes:apply');
-        };
 
         overlay.clickable = true;
         overlay.hidden = false;
     };
 
     editor.method('picker:auditor', () => {
-        showTextureAuditor();
+        showAuditor();
     });
 });

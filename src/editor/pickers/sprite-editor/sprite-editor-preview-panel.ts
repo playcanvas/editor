@@ -1,10 +1,11 @@
 import type { EventHandle, Observer } from '@playcanvas/observer';
-import { Container, type ContainerArgs } from '@playcanvas/pcui';
+import { Container } from '@playcanvas/pcui';
+import type { ContainerArgs } from '@playcanvas/pcui';
 
-interface SpritePreviewContainerArgs extends ContainerArgs {
+type SpritePreviewContainerArgs = {
     atlasAsset: Observer;
     frames: string[];
-}
+} & ContainerArgs;
 
 /**
  * A container that displays an animated preview of sprite frames.
@@ -19,17 +20,17 @@ export class SpritePreviewContainer extends Container {
 
     private _canvas: HTMLCanvasElement;
 
-    private _time: number = 0;
+    private _time = 0;
 
-    private _playing: boolean = true;
+    private _playing = true;
 
-    private _fps: number = 10;
+    private _fps = 10;
 
-    private _frame: number = 0;
+    private _frame = 0;
 
     private _lastTime: number = Date.now();
 
-    private _renderQueued: boolean = false;
+    private _renderQueued = false;
 
     private _resizeTarget: Container | null = null;
 
@@ -43,7 +44,7 @@ export class SpritePreviewContainer extends Container {
 
         this._atlasAsset = args.atlasAsset;
         this._frames = args.frames;
-        this._frameObservers = this._frames.map(f => this._atlasAsset.getRaw(`data.frames.${f}`));
+        this._frameObservers = this._frames.map((f) => this._atlasAsset.getRaw(`data.frames.${f}`));
 
         this._canvas = document.createElement('canvas');
         this._canvas.width = 256;
@@ -110,7 +111,7 @@ export class SpritePreviewContainer extends Container {
      */
     set resizeTarget(target: Container | null) {
         // Unbind previous events
-        this._resizeEvents.forEach(e => e.unbind());
+        this._resizeEvents.forEach((e) => e.unbind());
         this._resizeEvents.length = 0;
 
         this._resizeTarget = target;
@@ -132,7 +133,7 @@ export class SpritePreviewContainer extends Container {
      */
     setFrames(frames: string[]): void {
         this._frames = frames;
-        this._frameObservers = this._frames.map(f => this._atlasAsset.getRaw(`data.frames.${f}`));
+        this._frameObservers = this._frames.map((f) => this._atlasAsset.getRaw(`data.frames.${f}`));
     }
 
     override destroy(): void {
@@ -145,7 +146,7 @@ export class SpritePreviewContainer extends Container {
         this._resizeTarget?.class.remove('asset-preview', 'animate', 'large');
         this._resizeTarget = null;
 
-        this._resizeEvents.forEach(event => event.unbind());
+        this._resizeEvents.forEach((event) => event.unbind());
         this._resizeEvents.length = 0;
 
         this._canvas.removeEventListener('click', this._onCanvasClick);

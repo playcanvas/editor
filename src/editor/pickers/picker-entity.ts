@@ -1,12 +1,15 @@
-import { LegacyOverlay } from '@/common/ui/overlay';
+import { Overlay } from '@playcanvas/pcui';
+
+import { addSidePanelOverlayClose } from './side-panel-overlay';
 
 const CLASS_ENTITY_PICKER_MODE = 'entity-picker-mode';
 
 editor.once('load', () => {
-    const overlay = new LegacyOverlay();
-    overlay.class.add('picker-entity');
-    overlay.center = false;
-    overlay.hidden = true;
+    const overlay = new Overlay({
+        class: 'picker-entity',
+        hidden: true
+    });
+    addSidePanelOverlayClose(overlay);
 
     const root = editor.call('layout.root');
     root.append(overlay);
@@ -47,7 +50,6 @@ editor.once('load', () => {
         overlay.hidden = true;
     });
 
-
     // on close entity picker
     overlay.on('hide', () => {
         // fold back hierarchy panel if needed
@@ -76,7 +78,6 @@ editor.once('load', () => {
         hierarchyPanel.style.zIndex = '';
         hierarchyPanel.style.overflow = '';
     });
-
 
     // open entity picker
     editor.method('picker:entity', (resourceId, fn) => {
@@ -126,11 +127,10 @@ editor.once('load', () => {
             if (selected.length) {
                 selected[0].focus();
             } else {
-                hierarchy.element.focus();
+                hierarchy.dom.focus();
             }
         }, 100);
     });
-
 
     // close entity picker
     editor.method('picker:entity:close', () => {

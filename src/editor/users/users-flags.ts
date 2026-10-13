@@ -9,11 +9,11 @@ editor.once('load', () => {
     };
 
     editor.method('users:hasOpenedEditor', () => {
-        return (config.self && config.self.flags.openedEditor);
+        return config.self && config.self.flags.openedEditor;
     });
 
     editor.method('users:isSuperUser', () => {
-        return (config.self && config.self.flags.superUser);
+        return config.self && config.self.flags.superUser;
     });
 
     editor.method('users:hasFlag', (flag: string) => {

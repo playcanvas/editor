@@ -52,15 +52,24 @@ type UploadCompleteData = {
  * @param data - The data for the upload
  * @returns A promise that resolves with the upload ID and s3 key
  */
-export const uploadStart = (data: UploadStartData): Promise<{ uploadId: string, key: string }> => {
+const check = (res: Response) => {
+    if (!res.ok) {
+        throw new Error(`upload error ${res.status}: ${res.statusText}`);
+    }
+    return res;
+};
+
+export const uploadStart = (data: UploadStartData): Promise<{ uploadId: string; key: string }> => {
     return fetch(`${api.apiUrl}/upload/start-upload`, {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
-            'Authorization': `Bearer ${api.accessToken}`,
+            Authorization: `Bearer ${api.accessToken}`,
             'Content-Type': 'application/json'
         }
-    }).then(res => res.json());
+    })
+        .then(check)
+        .then((res) => res.json());
 };
 
 /**
@@ -74,10 +83,12 @@ export const uploadUrls = (data: UploadUrlsData): Promise<{ signedUrls: string[]
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
-            'Authorization': `Bearer ${api.accessToken}`,
+            Authorization: `Bearer ${api.accessToken}`,
             'Content-Type': 'application/json'
         }
-    }).then(res => res.json());
+    })
+        .then(check)
+        .then((res) => res.json());
 };
 
 /**
@@ -91,8 +102,8 @@ export const uploadComplete = (data: UploadCompleteData): Promise<Response> => {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
-            'Authorization': `Bearer ${api.accessToken}`,
+            Authorization: `Bearer ${api.accessToken}`,
             'Content-Type': 'application/json'
         }
-    });
+    }).then(check);
 };

@@ -1,8 +1,8 @@
-import { Entity } from '../entity';
+import type { Entity } from '../entity';
 import { globals as api } from '../globals';
+import { utils } from '../utils';
 
 let ASSET_PATHS: string[] = null;
-const REGEX_CONTAINS_STAR = /\.\*\./;
 
 /**
  * Stores asset paths in the assets dictionary by converting the array of
@@ -31,8 +31,9 @@ function storeAssetPaths(assetIds: number[], assets: Record<number, any>) {
 
         const path = asset.get('path');
         if (path && path.length) {
-            for (let j = 0; j < path.length; j++) {
-                const a = api.assets.get(path[j]);
+            for (let i = 0; i < path.length; i++) {
+                const pathId = path[i];
+                const a = api.assets.get(pathId);
                 if (!a) {
                     continue;
                 }
@@ -78,41 +79,10 @@ function gatherDependencies(entity: Entity, data: Record<string, any>) {
     // and store their path + name
     for (let i = 0; i < ASSET_PATHS.length; i++) {
         const path = ASSET_PATHS[i];
-
-        // handle paths that contain a '*' as a wildcard
-        if (REGEX_CONTAINS_STAR.test(path)) {
-            const parts = path.split('.*.');
-            if (!entity.has(parts[0])) {
-                continue;
-            }
-
-            const obj = entity.get(parts[0]);
-            if (!obj) {
-                continue;
-            }
-
-            for (const key in obj) {
-                const fullKey = `${parts[0]}.${key}.${parts[1]}`;
-                if (!entity.has(fullKey)) {
-                    continue;
-                }
-
-                const assets = entity.get(fullKey);
-                if (!assets) {
-                    continue;
-                }
-
-                storeAssetPaths(assets, data.assets);
-            }
-        } else if (entity.has(path)) {
-            // handle path without '*'
+        utils.expandPath(entity, path, (entity, path) => {
             const assets = entity.get(path);
-            if (!assets) {
-                continue;
-            }
-
-            storeAssetPaths(assets, data.assets);
-        }
+            if (assets) storeAssetPaths(assets, data.assets);
+        });
     }
 
     // gather script attributes
@@ -141,7 +111,6 @@ function gatherDependencies(entity: Entity, data: Record<string, any>) {
                             if (attr.defaultValue) {
                                 storeAssetPaths(attr.defaultValue, data.assets);
                             }
-
                         }
                     }
                 }
@@ -179,9 +148,10 @@ function gatherDependencies(entity: Entity, data: Record<string, any>) {
                                     const field = schema[i];
                                     if (field.type === 'asset') {
                                         if (Array.isArray(componentAttribute)) {
-                                            for (let j = 0; j < componentAttribute.length; j++) {
-                                                if (componentAttribute[j] && componentAttribute[j][field.name]) {
-                                                    storeAssetPaths(componentAttribute[j][field.name], data.assets);
+                                            for (let i = 0; i < componentAttribute.length; i++) {
+                                                const attr = componentAttribute[i];
+                                                if (attr && attr[field.name]) {
+                                                    storeAssetPaths(attr[field.name], data.assets);
                                                 }
                                             }
                                         } else if (componentAttribute[field.name]) {
@@ -190,7 +160,6 @@ function gatherDependencies(entity: Entity, data: Record<string, any>) {
                                     }
                                 }
                             }
-
                         }
                     }
                 }
@@ -200,7 +169,8 @@ function gatherDependencies(entity: Entity, data: Record<string, any>) {
 
     const children = entity.get('children');
     for (let i = 0; i < children.length; i++) {
-        gatherDependencies(api.entities.get(children[i]), data);
+        const child = children[i];
+        gatherDependencies(api.entities.get(child), data);
     }
 }
 
@@ -268,7 +238,6 @@ function copyEntities(entities: Entity[]) {
 
     for (let i = 0; i < entities.length; i++) {
         const e = entities[i];
-
         let p = e.parent;
         let isParentSelected = false;
         while (p) {

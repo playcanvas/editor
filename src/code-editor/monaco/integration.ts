@@ -5,7 +5,10 @@ editor.once('load', () => {
 
     const events = {};
 
-    const highlight = function (id: string, options: { line?: number; col?: number; error?: boolean; callback?: () => void }) {
+    const highlight = function (
+        id: string,
+        options: { line?: number; col?: number; error?: boolean; callback?: () => void }
+    ) {
         const line = options.line || 1;
         const col = options.col || 1;
         const view = editor.call('views:get', id);
@@ -46,7 +49,10 @@ editor.once('load', () => {
         });
     };
 
-    const selectAndHighlight = function (id: string, options?: { line?: number; col?: number; error?: boolean; callback?: () => void }) {
+    const selectAndHighlight = function (
+        id: string,
+        options?: { line?: number; col?: number; error?: boolean; callback?: () => void }
+    ) {
         if (events[id]) {
             events[id].unbind();
         }

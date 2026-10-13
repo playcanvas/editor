@@ -1,15 +1,15 @@
 import { Button, Container, Label, SelectInput } from '@playcanvas/pcui';
 
+import { createLog } from '@/common/sentry';
 import { handleCallback } from '@/common/utils';
 
-editor.once('load', () => {
-    const icon = document.createElement('div');
-    icon.classList.add('icon');
-    icon.innerHTML = '&#57880;';
+const log = createLog('<PATH>');
 
+editor.once('load', () => {
     const overlay = editor.call('picker:versioncontrol:createOverlay', {
-        message: 'Please wait until merging has been completed',
-        icon: icon
+        title: 'Merge in progress',
+        message: 'Resolve the active merge before continuing.',
+        status: 'merge'
     });
     overlay.class.add('merge-overlay');
 
@@ -29,19 +29,22 @@ editor.once('load', () => {
 
     const btnSwitch = new Button({
         enabled: false,
-        text: 'SWITCH'
+        text: 'Switch'
     });
     panelSwitch.append(btnSwitch);
-    overlay.innerElement.querySelector('.right').ui.append(panelSwitch);
+    overlay.innerElement.querySelector('.vc-overlay-body').ui.append(panelSwitch);
 
     // switch to branch
     btnSwitch.on('click', () => {
         overlay.innerElement.classList.add('hidden'); // hide the inner contents of the overlay but not the whole overlay
-        handleCallback(editor.api.globals.rest.branches.branchCheckout({
-            branchId: dropdownBranches.value
-        }), () => {
-            // FIXME: Refresh handled by messenger
-        });
+        handleCallback(
+            editor.api.globals.rest.branches.branchCheckout({
+                branchId: dropdownBranches.value
+            }),
+            () => {
+                // FIXME: Refresh handled by messenger
+            }
+        );
     });
 
     // bottom buttons panel
@@ -57,18 +60,22 @@ editor.once('load', () => {
 
     const btnForceStopMerge = new Button({
         enabled: editor.call('permissions:write'),
-        text: 'FORCE STOP MERGE'
+        text: 'Stop merge',
+        class: 'danger'
     });
     panelBottom.append(btnForceStopMerge);
     btnForceStopMerge.on('click', () => {
         editor.call('picker:confirm', 'Are you sure you want to force stop this merge process?', () => {
             overlay.innerElement.classList.add('hidden'); // hide the inner contents of the overlay but not the whole overlay
 
-            handleCallback(editor.api.globals.rest.merge.mergeDelete({
-                mergeId: config.self.branch.merge.id
-            }), () => {
-                // FIXME: Refresh handled by messenger
-            });
+            handleCallback(
+                editor.api.globals.rest.merge.mergeDelete({
+                    mergeId: config.self.branch.merge.id
+                }),
+                () => {
+                    // FIXME: Refresh handled by messenger
+                }
+            );
         });
     });
 
@@ -81,6 +88,7 @@ editor.once('load', () => {
         }
         handleCallback(editor.api.globals.rest.projects.projectBranches(params), (err, data) => {
             if (err) {
+                overlay.setLoading(false);
                 log.error(err);
                 return;
             }
@@ -106,16 +114,20 @@ editor.once('load', () => {
     };
 
     overlay.on('show', () => {
+        branches = [];
+        overlay.setLoading(true);
         loadBranches(null, () => {
+            overlay.setLoading(false);
             if (!branches.length) {
                 return;
             }
 
             // update dropdown
-            btnSwitch.disabled = false;
+            btnSwitch.enabled = true;
             dropdownBranches.options = branches.map((branch) => {
                 return {
-                    v: branch.id, t: branch.name
+                    v: branch.id,
+                    t: branch.name
                 };
             });
             dropdownBranches.value = branches[0].id;
@@ -123,9 +135,10 @@ editor.once('load', () => {
     });
 
     overlay.on('hide', () => {
+        overlay.setLoading(false);
         dropdownBranches.options = [];
         dropdownBranches.value = null;
-        btnSwitch.disabled = true;
+        btnSwitch.enabled = false;
     });
 
     editor.method('picker:versioncontrol:mergeOverlay', () => {

@@ -38,16 +38,13 @@ editor.once('load', () => {
         return entities.get(resourceId);
     });
 
-
     // list entities
     editor.method('entities:list', () => {
         return entities.array();
     });
 
-
     // get root entity
     editor.method('entities:root', () => {
         return editor.api.globals.entities.root && editor.api.globals.entities.root.observer;
     });
-
 });

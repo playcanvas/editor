@@ -67,7 +67,7 @@ describe('normalizeScriptName', () => {
         expect(normalizeScriptName('script`.js')).to.be.null;
         expect(normalizeScriptName('script&.js')).to.be.null;
         expect(normalizeScriptName('script=.js')).to.be.null;
-        expect(normalizeScriptName('script\'.js')).to.be.null;
+        expect(normalizeScriptName("script'.js")).to.be.null;
         expect(normalizeScriptName('script{.js')).to.be.null;
         expect(normalizeScriptName('script}.js')).to.be.null;
         expect(normalizeScriptName('script@.js')).to.be.null;

@@ -24,8 +24,5 @@ COPY --from=install /temp/dev/package.json /temp/dev/package-lock.json ./
 COPY --from=install /temp/dev/node_modules ./node_modules
 COPY --from=builder /usr/src/app/dist ./dist
 
-CMD ["/bin/bash", "-c", "npm run serve & SERVE_PID=$!; \
-    npm run test --prefix /usr/src/test; \
-    TEST_EXIT_CODE=$?; \
-    kill $SERVE_PID; \
-    exit $TEST_EXIT_CODE"]
+ENV PC_FRONTEND_DIR=/usr/src/app
+CMD ["npm", "run", "test", "--prefix", "/usr/src/test"]

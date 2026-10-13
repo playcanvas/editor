@@ -1,5 +1,7 @@
+import type { EntityObserver } from '@/editor-api';
+
 editor.once('load', () => {
-    editor.on('entities:add:entity', (entity: import('@/editor-api').EntityObserver) => {
+    editor.on('entities:add:entity', (entity: EntityObserver) => {
         if (entity.get('components.camera')) {
             editor.call('camera:add', entity.entity);
         }

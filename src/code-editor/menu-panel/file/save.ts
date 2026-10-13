@@ -35,15 +35,17 @@ editor.once('load', () => {
     });
     menu.append(item);
 
-    menu.append(new MenuItem({
-        text: 'Save All Files',
-        onIsEnabled: () => {
-            return editor.call('editor:command:can:saveAll');
-        },
-        onSelect: () => {
-            return editor.call('editor:command:saveAll');
-        }
-    }));
+    menu.append(
+        new MenuItem({
+            text: 'Save All Files',
+            onIsEnabled: () => {
+                return editor.call('editor:command:can:saveAll');
+            },
+            onSelect: () => {
+                return editor.call('editor:command:saveAll');
+            }
+        })
+    );
 
     // hotkeys
     editor.call('hotkey:register', 'save', {
@@ -55,43 +57,53 @@ editor.once('load', () => {
     });
 
     const ctxMenu = editor.call('files:contextmenu');
-    ctxMenu.append(new MenuItem({
-        text: 'Save',
-        onIsEnabled: () => {
-            const selected = editor.call('files:contextmenu:selected');
-            for (const doc of selected) {
-                const id = doc.get('id');
-                if (editor.call('editor:command:can:save', id)) {
-                    return true;
+    ctxMenu.append(
+        new MenuItem({
+            text: 'Save',
+            onIsEnabled: () => {
+                const selected = editor.call('files:contextmenu:selected');
+                for (let i = 0; i < selected.length; i++) {
+                    const doc = selected[i];
+                    const id = doc.get('id');
+                    if (editor.call('editor:command:can:save', id)) {
+                        return true;
+                    }
+                }
+            },
+            onSelect: () => {
+                const selected = editor.call('files:contextmenu:selected');
+                for (let i = 0; i < selected.length; i++) {
+                    const doc = selected[i];
+                    const id = doc.get('id');
+                    if (editor.call('editor:command:can:save', id)) {
+                        editor.call('editor:command:save', id);
+                    }
                 }
             }
-        },
-        onSelect: () => {
-            const selected = editor.call('files:contextmenu:selected');
-            for (const doc of selected) {
-                const id = doc.get('id');
-                if (editor.call('editor:command:can:save', id)) {
-                    editor.call('editor:command:save', id);
-                }
-            }
-        }
-    }));
+        })
+    );
 
     // documents currently being saved
-    const saving: Set<string> = new Set();
+    const saving = new Set<string>();
 
     // documents that need to be saved after the current save completes
-    const pendingSave: Set<string> = new Set();
+    const pendingSave = new Set<string>();
 
     // Returns true if we can save
     editor.method('editor:command:can:save', (id?: string) => {
-        if (editor.call('permissions:write') && editor.call('realtime:isConnected') && !editor.call('errors:hasRealtime')) {
+        if (
+            editor.call('permissions:write') &&
+            editor.call('realtime:isConnected') &&
+            !editor.call('errors:hasRealtime')
+        ) {
             const focused = id || editor.call('documents:getFocused');
 
-            return focused &&
-                   !saving.has(focused) &&
-                   !editor.call('documents:isLoading', focused) &&
-                   editor.call('documents:isDirty', focused);
+            return (
+                focused &&
+                !saving.has(focused) &&
+                !editor.call('documents:isLoading', focused) &&
+                editor.call('documents:isDirty', focused)
+            );
         }
 
         return false;
@@ -169,7 +181,11 @@ editor.once('load', () => {
     });
 
     editor.method('editor:command:can:saveSelected', () => {
-        if (editor.call('permissions:write') && editor.call('realtime:isConnected') && !editor.call('errors:hasRealtime')) {
+        if (
+            editor.call('permissions:write') &&
+            editor.call('realtime:isConnected') &&
+            !editor.call('errors:hasRealtime')
+        ) {
             let hasDirty = false;
             const selected = editor.call('assets:selected');
             for (const doc of selected) {
@@ -203,7 +219,11 @@ editor.once('load', () => {
     });
 
     editor.method('editor:command:can:saveAll', () => {
-        if (editor.call('permissions:write') && editor.call('realtime:isConnected') && !editor.call('errors:hasRealtime')) {
+        if (
+            editor.call('permissions:write') &&
+            editor.call('realtime:isConnected') &&
+            !editor.call('errors:hasRealtime')
+        ) {
             let hasDirty = false;
             const open = editor.call('documents:list');
             for (const id of open) {

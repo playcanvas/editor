@@ -1,3 +1,5 @@
+import { config } from '@/launch/config';
+
 editor.once('load', () => {
     // console
     const panel = document.createElement('div');
@@ -7,16 +9,24 @@ editor.once('load', () => {
 
     let errorCount = 0;
 
-    panel.addEventListener('mousedown', (evt: MouseEvent) => {
-        evt.stopPropagation();
-    }, false);
-    panel.addEventListener('click', (evt: MouseEvent) => {
-        evt.stopPropagation();
-    }, false);
+    panel.addEventListener(
+        'mousedown',
+        (evt: MouseEvent) => {
+            evt.stopPropagation();
+        },
+        false
+    );
+    panel.addEventListener(
+        'click',
+        (evt: MouseEvent) => {
+            evt.stopPropagation();
+        },
+        false
+    );
 
     // close button img
     const closeBtn = document.createElement('img');
-    closeBtn.src = 'https://playcanvas.com/static-assets/images/icons/fa/16x16/remove.png';
+    closeBtn.src = `${config.url.frontend}static/img/remove.svg`;
     panel.appendChild(closeBtn);
 
     closeBtn.addEventListener('click', () => {
@@ -74,6 +84,7 @@ editor.once('load', () => {
     };
 
     const onError = function (msg: string, url: string | undefined, line: number, col: number, e?: Error) {
+        const ide = editor.call('settings:projectUser')?.get('editor.codeEditor');
         if (url) {
             // check if this is a playcanvas script
             let codeEditorUrl = '';
@@ -96,13 +107,31 @@ editor.once('load', () => {
 
                 codeEditorUrl = config.url.home + target;
                 query = `?line=${line}&col=${col}&error=true`;
-            } else if (!editor.call('settings:project').get('useLegacyScripts') && url.includes('/api/assets/') && (url.includes('.js') || url.includes('.mjs'))) {
+            } else if (
+                !editor.call('settings:project').get('useLegacyScripts') &&
+                url.includes(`${config.url.launch}api/assets/`) &&
+                (url.includes('.js') || url.includes('.mjs'))
+            ) {
                 const match = url.match(/\/api\/assets\/files\/.+?id=(\d+)/);
                 if (match) {
                     assetId = parseInt(match[1], 10);
-                    target = `codeeditor:${config.project.id}`;
-                    codeEditorUrl = `${config.url.home}/editor/code/${config.project.id}`;
-                    query = `?tabs=${assetId}&line=${line}&col=${col}&error=true`;
+                    switch (ide) {
+                        case 'vscode':
+                        case 'cursor':
+                        case 'antigravity-ide': {
+                            const asset = editor.call('assets:get', assetId);
+                            target = `${ide}:${config.project.id}`;
+                            codeEditorUrl = editor.call('assets:idePath', ide, asset);
+                            query = `?line=${line}&col=${col}&error=true`;
+                            break;
+                        }
+                        default: {
+                            target = `codeeditor:${config.project.id}`;
+                            codeEditorUrl = `${config.url.home}/editor/code/${config.project.id}`;
+                            query = `?tabs=${assetId}&line=${line}&col=${col}&error=true`;
+                            break;
+                        }
+                    }
                 } else {
                     codeEditorUrl = url;
                 }
@@ -114,11 +143,27 @@ editor.once('load', () => {
             const relativeUrl = url.slice(slash + 1);
             errorCount++;
 
-            append(pc.string.format('<a href="{0}{1}" target="{2} class="code-link" id="{6}">[{3}:{4}]</a>: {5}', codeEditorUrl, query, target, relativeUrl, line, msg, `error-${errorCount}`), 'error');
+            append(
+                pc.string.format(
+                    '<a href="{0}{1}" target="{2}" class="code-link" id="{6}">[{3}:{4}]</a>: {5}',
+                    codeEditorUrl,
+                    query,
+                    target,
+                    relativeUrl,
+                    line,
+                    msg,
+                    `error-${errorCount}`
+                ),
+                'error'
+            );
 
             if (assetId) {
                 const link = document.getElementById(`error-${errorCount}`);
                 link.addEventListener('click', (e: MouseEvent) => {
+                    if (ide === 'vscode' || ide === 'cursor' || ide === 'antigravity-ide') {
+                        window.open(codeEditorUrl + query, target);
+                        return;
+                    }
                     const existing = window.open('', target);
                     try {
                         if (existing) {
@@ -199,5 +244,4 @@ editor.once('load', () => {
             }
         });
     };
-
 });

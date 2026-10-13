@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 import { config } from '@/editor/config';
 
 editor.once('load', () => {
@@ -11,13 +13,12 @@ editor.once('load', () => {
         const bubble = editor.call(
             'guide:bubble',
             'Complete this level (1 / 4)',
-            'Let\'s duplicate one of those platforms. Click on a platform in the 3D view to select it.',
+            "Let's duplicate one of those platforms. Click on a platform in the 3D view to select it.",
             '50%',
             '50%',
             'left',
             editor.call('layout.viewport')
         );
-
 
         return bubble;
     };
@@ -32,7 +33,6 @@ editor.once('load', () => {
             'left',
             editor.call('layout.viewport')
         );
-
 
         return bubble;
     };
@@ -55,7 +55,7 @@ editor.once('load', () => {
         return editor.call(
             'guide:bubble',
             'Complete this level (4 / 4)',
-            'Click <span class=\'font-icon\'>&#57649;</span> <strong>Launch</strong> to play the game. Use the arrow keys to move the ball. The game will open in a new tab so just switch back to the Editor tab when you\'re done.<br/><br/>Any changes you make to the scene will automatically update the launched game.',
+            "Click <span class='font-icon'>&#57649;</span> <strong>Launch</strong> to play the game. Use the arrow keys to move the ball. The game will open in a new tab so just switch back to the Editor tab when you're done.<br/><br/>Any changes you make to the scene will automatically update the launched game.",
             180,
             40,
             'top-right',
@@ -115,7 +115,7 @@ editor.once('load', () => {
         const bubble = editor.call(
             'guide:bubble',
             'Store',
-            '<img width="424" height="133" src="https://playcanvas.com/static-assets/instructions/asset_library.jpg"/><br/><br/>Click the <strong>STORE</strong> button to open the Store. Add free 3D models and assets from the Store into your scene with a single click.',
+            `<img width="424" height="133" src="${config.url.frontend}static/img/asset_library.webp"/><br/><br/>Click the <strong>STORE</strong> button to open the Store. Add free 3D models and assets from the Store into your scene with a single click.`,
             '95%',
             0,
             'bottom-right',
@@ -130,7 +130,7 @@ editor.once('load', () => {
         const bubble = editor.call(
             'guide:bubble',
             'Main Menu',
-            'The <span style="display:inline-block;background-image:url(\'https://playcanvas.com/static-assets/images/editor_logo.png\');width:18px;height:18px;background-size:36px 18px;background-position:-18px 0;vertical-align:text-bottom;"></span> main menu and toolbar has every command available in the Editor. If you can’t find a button or remember a hot key, you will always find the command in the menu.',
+            `The <span style="display:inline-block;background-image:url('${config.url.frontend}static/img/editor_logo.svg');width:18px;height:18px;background-size:36px 18px;background-position:-18px 0;vertical-align:text-bottom;"></span> main menu and toolbar has every command available in the Editor. If you can’t find a button or remember a hot key, you will always find the command in the menu.`,
             18,
             40,
             'top'
@@ -151,8 +151,8 @@ editor.once('load', () => {
             editor.call('layout.toolbar')
         );
 
-        bubble.element.style.top = '';
-        bubble.element.style.bottom = '119px';
+        bubble.style.top = '';
+        bubble.style.bottom = '119px';
         return bubble;
     };
 
@@ -167,8 +167,8 @@ editor.once('load', () => {
             editor.call('layout.viewport')
         );
 
-        bubble.element.style.left = '';
-        bubble.element.style.right = '6px';
+        bubble.style.left = '';
+        bubble.style.right = '6px';
 
         return bubble;
     };
@@ -187,7 +187,13 @@ editor.once('load', () => {
         return bubble;
     };
 
-    const showBubble = function (name: string, bubbleFn: () => { on: (event: string, cb: () => void) => void; destroy: () => void }, delay: number, force?: boolean, callback?: () => void) {
+    const showBubble = function (
+        name: string,
+        bubbleFn: () => { on: (event: string, cb: () => void) => void; destroy: () => void },
+        delay: number,
+        force?: boolean,
+        callback?: () => void
+    ) {
         if (!force && config.self.flags.tips[name] !== false) {
             return false;
         }
@@ -220,10 +226,18 @@ editor.once('load', () => {
         return true;
     };
 
-    editor.method('guide:bubble:show', (name: string, bubbleFn: () => { on: (event: string, cb: () => void) => void; destroy: () => void }, delay: number, force?: boolean, callback?: () => void) => {
-        showBubble(name, bubbleFn, delay, force, callback);
-    });
-
+    editor.method(
+        'guide:bubble:show',
+        (
+            name: string,
+            bubbleFn: () => { on: (event: string, cb: () => void) => void; destroy: () => void },
+            delay: number,
+            force?: boolean,
+            callback?: () => void
+        ) => {
+            showBubble(name, bubbleFn, delay, force, callback);
+        }
+    );
 
     let selectEvents = null;
     const showBubbles = function (initialDelay: number) {
@@ -260,7 +274,7 @@ editor.once('load', () => {
 
         // entity bubble on select entity
         if (config.self.flags.tips.entityInspector === false) {
-            var evtEntitySelect = editor.on('selector:change', (type: string | null, items: import('@playcanvas/observer').Observer[]) => {
+            const evtEntitySelect = editor.on('selector:change', (type: string | null, items: Observer[]) => {
                 if (type !== 'entity') {
                     return;
                 }
@@ -273,8 +287,7 @@ editor.once('load', () => {
 
         // sound component bubble
         if (!config.self.flags.tips.soundComponent) {
-            var evtEntityWithSoundSelect = editor.on('selector:change', (type: string | null, items: import('@playcanvas/observer').Observer[]) => {
-
+            const evtEntityWithSoundSelect = editor.on('selector:change', (type: string | null, items: Observer[]) => {
                 if (selectEvents) {
                     selectEvents.forEach((evt: { unbind: () => void }) => {
                         evt.unbind();
@@ -301,7 +314,8 @@ editor.once('load', () => {
                 };
 
                 for (let i = 0; i < items.length; i++) {
-                    if (items[i].has('components.sound')) {
+                    const item = items[i];
+                    if (item.has('components.sound')) {
                         showSoundBubble();
                         return;
                     }
@@ -313,11 +327,11 @@ editor.once('load', () => {
                 }
 
                 for (let i = 0; i < items.length; i++) {
-                    selectEvents.push(items[i].on('components.sound:set', showSoundBubble));
+                    const item = items[i];
+                    selectEvents.push(item.on('components.sound:set', showSoundBubble));
                 }
             });
         }
-
     };
 
     editor.method('editor:tips:reset', () => {
@@ -330,7 +344,8 @@ editor.once('load', () => {
 
         editor.api.globals.rest.home.homeSceneTip(config.scene.id, 'reset');
 
-        ['hierarchy',
+        [
+            'hierarchy',
             'assets',
             'store',
             'dashboard',
@@ -339,7 +354,8 @@ editor.once('load', () => {
             'mainMenu',
             'controls',
             'launch',
-            'howdoi'].forEach((tip) => {
+            'howdoi'
+        ].forEach((tip) => {
             config.self.flags.tips[tip] = false;
         });
 

@@ -1,6 +1,7 @@
 @use 'sass:color';
 @import 'pcui/pcui';
 @import 'common/fonts';
+@import 'common/monaco-merge';
 
 // Variables
 $bcg-primary: #324447;
@@ -351,6 +352,12 @@ strong {
         font-size: 16px;
     }
 
+    .pcui-treeview-item.pcui-treeview-item-rename {
+        .files-rename-input.pcui-error {
+            border-bottom: 2px solid $status-error !important;
+        }
+    }
+
     .pcui-treeview-item.dirty {
         .pcui-treeview-item-contents:not(.pcui-treeview-item-selected) {
             color: color.adjust($muted-yellow, $alpha: -0.15);
@@ -359,6 +366,32 @@ strong {
         .pcui-treeview-item-contents.pcui-treeview-item-selected {
             color: $muted-yellow;
         }
+    }
+}
+
+.files-rename-error-popup {
+    position: absolute;
+    z-index: 10002;
+    max-width: 320px;
+    box-sizing: border-box;
+    padding: 6px 8px;
+    background: $status-error;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 35%);
+    color: white;
+    font-size: 12px;
+    line-height: 16px;
+    pointer-events: none;
+    white-space: normal;
+    word-break: break-word;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: -4px;
+        left: 12px;
+        border-right: 4px solid transparent;
+        border-bottom: 4px solid $status-error;
+        border-left: 4px solid transparent;
     }
 }
 
@@ -405,10 +438,15 @@ strong {
         }
 
         > .validate {
-            float: right;
-            margin: 2px 0 0;
+            margin: 0 0 8px;
             font-size: 12px;
             color: #f30;
+            white-space: normal;
+            word-break: break-word;
+
+            &:not(.pcui-hidden) {
+                display: block;
+            }
         }
     }
 }
@@ -609,36 +647,6 @@ strong {
     visibility: hidden;
 }
 
-.dst-branch {
-    background: rgba(#0b3b76, 0.5);
-
-    > .ui-button {
-        background: #2460aa;
-        border: 1px solid #20292b;
-    }
-}
-
-.src-branch {
-    background: rgba(#15515e, 0.5);
-
-    > .ui-button {
-        background: #1d6d7f;
-        border: 1px solid #20292b;
-    }
-}
-
-.diff-overlay-hunk {
-    background: $bcg-primary;
-}
-
-.diff-overlay-add {
-    background: rgb(0 128 0 / 20%);
-}
-
-.diff-overlay-remove {
-    background: rgb(255 0 0 / 20%);
-}
-
 .pcui-tooltip {
     padding: 8px;
     background: black;
@@ -648,5 +656,88 @@ strong {
     margin: 0;
 }
 
-@import 'common/ui-common';
+.vscode-ext-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    height: 34px;
+    flex-shrink: 0;
+    background-color: #f60;
+    color: white;
+    padding: 0 10px;
+    font-size: 13px;
+
+    > .pcui-label {
+        color: white;
+        margin: 0;
+    }
+
+    > .ide-icons {
+        display: inline-flex;
+        align-items: center;
+        overflow: visible;
+        margin: 0 8px;
+        width: 22px;
+        min-width: 22px;
+        height: 34px;
+        line-height: 34px;
+
+        svg {
+            display: block;
+            overflow: visible;
+        }
+    }
+
+    > .install {
+        background-color: transparent;
+        border: 1px solid white;
+        border-radius: 0;
+        color: white;
+        font-size: 12px;
+        height: 24px;
+        line-height: 22px;
+        padding: 0 12px;
+        margin: 0 8px;
+        cursor: pointer;
+
+        &:hover {
+            background-color: rgb(255 255 255 / 20%);
+            box-shadow: none;
+        }
+    }
+
+    > .close {
+        background-color: transparent;
+        color: white;
+        border: 0;
+        padding: 0;
+        margin: 0;
+        position: absolute;
+        right: 5px;
+        font-size: 14px;
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+        cursor: pointer;
+
+        &:hover {
+            background-color: rgb(255 255 255 / 20%);
+            color: white;
+            box-shadow: none;
+        }
+    }
+}
+
+#ui-root.has-ext-banner {
+    #ui-center {
+        height: calc(100vh - 98px);
+    }
+
+    &.file-only-mode .vscode-ext-banner {
+        display: none;
+    }
+}
+
+@import 'common/shared-overlays';
 @import 'common/version-control';

@@ -1,9 +1,11 @@
 import type { Observer } from '@playcanvas/observer';
 import { Button } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 
 editor.once('load', () => {
+    const projectUserSettings = editor.call('settings:projectUser');
+
     const toolbar = editor.call('layout.toolbar');
 
     const button = new Button({
@@ -13,69 +15,84 @@ editor.once('load', () => {
 
     const publishButton = toolbar.dom.querySelector('.publish-download');
     toolbar.appendBefore(button, publishButton);
+    editor.call('toolbar:register', { id: 'code-editor', label: 'Code Editor', group: 'main', button });
 
     button.on('click', (e: MouseEvent) => {
         editor.call('picker:codeeditor', undefined, undefined, e.shiftKey);
     });
 
-    editor.method('picker:codeeditor', (asset?: Observer, options?: Record<string, unknown>, popup?: boolean) => {
-        // open the new code editor - try to focus existing tab if it exists
-
-        const projectId = config.project?.id;
-        let url = `/editor/code/${projectId}`;
-
-        const query = [];
-        const params = new URLSearchParams(location.search);
-        if (asset) {
-            query.push(`tabs=${asset.get('id')}`);
-        }
-        if (params.has('version')) {
-            query.push('version');
-        }
-        if (params.has('use_local_frontend')) {
-            query.push(`use_local_frontend=${params.get('use_local_frontend')}`);
-        }
-        if (query.length) {
-            url += `?${query.join('&')}`;
-        }
-
-        const baseName = `codeeditor:${projectId}`;
-        const name = popup ? `${baseName}:popup` : baseName;
-        const features = popup ? 'popup' : undefined;
-
-        const wnd = window.open('', name, features);
-        try {
-            // check if the window is already open and if it has the code editor loaded
-            if (wnd?.editor?.isCodeEditor) {
+    editor.method(
+        'picker:codeeditor',
+        (asset?: Observer, options?: Record<string, unknown>, popup?: boolean, ideOverride?: string) => {
+            // open the code editor external editor
+            const ide = ideOverride || projectUserSettings.get('editor.codeEditor');
+            if (ide === 'vscode' || ide === 'cursor' || ide === 'antigravity-ide') {
                 if (asset) {
-                    wnd.editor.call('integration:selectWhenReady', asset.get('id'), options || {});
+                    window.open(editor.call('assets:idePath', ide, asset));
+                    return;
                 }
-                wnd?.focus();
-                return;
             }
 
-            // if the window is not open or does not have the code editor loaded, set the location
-            // and wait for the code editor to mark itself as ready
+            // open the new code editor - try to focus existing tab if it exists
+            const projectId = config.project?.id;
+            let url = `/editor/code/${projectId}`;
+
+            const query = [];
+            const params = new URLSearchParams(location.search);
             if (asset) {
-                const onmessage = (event: MessageEvent) => {
-                    if (event.data !== 'ready') {
-                        return;
-                    }
-                    wnd.editor.call('integration:selectWhenReady', asset.get('id'), options || {});
-                    window.removeEventListener('message', onmessage);
-                };
-                window.addEventListener('message', onmessage);
+                query.push(`tabs=${asset.get('id')}`);
             }
-            wnd.location = url;
-            wnd?.focus();
-        } catch (ex) {
-            // accessing wnd will throw an exception if it is at a different domain
-            const newWnd = window.open(url, name, features);
-            newWnd?.focus();
-        }
-    });
+            if (params.has('version')) {
+                query.push('version');
+            }
+            if (params.has('use_local_frontend')) {
+                query.push(`use_local_frontend=${params.get('use_local_frontend')}`);
+            }
+            if (params.has('use_local_engine')) {
+                query.push(`use_local_engine=${params.get('use_local_engine')}`);
+            }
+            if (query.length) {
+                url += `?${query.join('&')}`;
+            }
 
-    LegacyTooltip.attach({
+            const baseName = `codeeditor:${projectId}`;
+            const name = popup ? `${baseName}:popup` : baseName;
+            const features = popup ? 'popup' : undefined;
+
+            const wnd = window.open('', name, features);
+            try {
+                // check if the window is already open and if it has the code editor loaded
+                if (wnd?.editor?.isCodeEditor) {
+                    if (asset) {
+                        wnd.editor.call('integration:selectWhenReady', asset.get('id'), options || {});
+                    }
+                    wnd?.focus();
+                    return;
+                }
+
+                // if the window is not open or does not have the code editor loaded, set the location
+                // and wait for the code editor to mark itself as ready
+                if (asset) {
+                    const onmessage = (event: MessageEvent) => {
+                        if (event.data !== 'ready') {
+                            return;
+                        }
+                        wnd.editor.call('integration:selectWhenReady', asset.get('id'), options || {});
+                        window.removeEventListener('message', onmessage);
+                    };
+                    window.addEventListener('message', onmessage);
+                }
+                wnd.location = url;
+                wnd?.focus();
+            } catch (ex) {
+                // accessing wnd will throw an exception if it is at a different domain
+                const newWnd = window.open(url, name, features);
+                newWnd?.focus();
+            }
+        }
+    );
+
+    TooltipHandle.attach({
         target: button.dom,
         text: 'Code Editor (Shift-click to open in popup)',
         align: 'left',

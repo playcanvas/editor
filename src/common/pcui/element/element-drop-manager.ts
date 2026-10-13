@@ -1,7 +1,9 @@
-import { Container, ContainerArgs, Element } from '@playcanvas/pcui';
+import type { ContainerArgs, Element } from '@playcanvas/pcui';
+import { Container } from '@playcanvas/pcui';
+
+import { CLASS_HIDDEN } from '../constants';
 
 import { DropTarget } from './element-drop-target';
-import { CLASS_HIDDEN } from '../constants';
 
 const CLASS_DROP_MANAGER = 'pcui-dropmanager';
 const CLASS_DROP_MANAGER_WALL = `${CLASS_DROP_MANAGER}-wall`;
@@ -152,7 +154,6 @@ class DropManager extends Container {
             dropTarget.hidden = !dropTarget.onFilter(this.dropType, this.dropData);
 
             if (!dropTarget.hidden && dropTarget.hole) {
-
                 const rect = dropTarget.rect;
                 if (top > rect.top) {
                     top = rect.top;
@@ -190,7 +191,6 @@ class DropManager extends Container {
                 }
             }
         }
-
 
         this.emit('activate');
     }

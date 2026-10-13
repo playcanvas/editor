@@ -39,7 +39,7 @@ editor.once('load', () => {
         lastX = evt.clientX;
         lastY = evt.clientY;
 
-        if (tooltip.hidden && (Date.now() - hiddenTime) > 100) {
+        if (tooltip.hidden && Date.now() - hiddenTime > 100) {
             return;
         }
 

@@ -1,9 +1,6 @@
-import { Panel, Button, Container, Label, TextInput } from '@playcanvas/pcui';
-
-import { LegacyOverlay } from '@/common/ui/overlay';
+import { Button, Container, Label, Overlay, Panel, TextInput } from '@playcanvas/pcui';
 
 editor.once('load', () => {
-
     // GLOBAL VARIABLES
     let rootUser;
     let organization;
@@ -13,10 +10,11 @@ editor.once('load', () => {
 
     // overlay
     const root = editor.call('layout.root');
-    const overlay = new LegacyOverlay();
-    overlay.clickable = false;
-    overlay.hidden = true;
-    overlay.class.add('picker-delete-organization');
+    const overlay = new Overlay({
+        clickable: false,
+        class: 'picker-delete-organization',
+        hidden: true
+    });
     root.append(overlay);
 
     // main panel
@@ -67,20 +65,18 @@ editor.once('load', () => {
     inputElement.on('change', () => {
         validateInput();
     });
-    inputElement.dom.addEventListener('paste', e => e.preventDefault());
+    inputElement.dom.addEventListener('paste', (e) => e.preventDefault());
 
     // delete button
 
     const deleteButton = new Button({
         class: 'delete-org-button',
         text: 'DELETE',
-        enabled: false,  // create button disabled on load
-        renderChanges: true
+        enabled: false
     });
     panel.append(deleteButton);
 
     deleteButton.on('click', () => {
-
         // If organization contains projects, make sure to transfer them to root user before deleting account
         if (organizationProjects.length > 0) {
             const promises = [];
@@ -97,9 +93,7 @@ editor.once('load', () => {
         } else {
             deleteOrganization();
         }
-
     });
-
 
     // CONTROLLERS
 
@@ -122,13 +116,18 @@ editor.once('load', () => {
 
     // controller that handles the deletion of organizations as well as relevant error states
     const deleteOrganization = () => {
-        editor.call('users:deleteOne', organization.id, (response) => {
-            editor.call('picker:project:cms:refreshOrgs', organization, true);
-            editor.call('picker:project:cms:resetFilter');
-            overlay.hidden = true;
-        }, (err) => {
-            editor.call('picker:project:buildAlert', editor.call('picker:project:cms:getPanel'), err);
-        });
+        editor.call(
+            'users:deleteOne',
+            organization.id,
+            (response) => {
+                editor.call('picker:project:cms:refreshOrgs', organization, true);
+                editor.call('picker:project:cms:resetFilter');
+                overlay.hidden = true;
+            },
+            (err) => {
+                editor.call('picker:project:buildAlert', editor.call('picker:project:cms:getPanel'), err);
+            }
+        );
     };
 
     // EVENTS
@@ -163,7 +162,7 @@ editor.once('load', () => {
         organization = editor.call('picker:project:cms:dropdownOrg');
         organizationProjects = projects;
         labelElement.text = `Type the organization name, "${organization.full_name}" in the text box to delete this organization permanently. This action cannot be undone!`;
-        projectsWarning.element.style.display = organizationProjects.length === 0 ? 'none' : 'block';
+        projectsWarning.style.display = organizationProjects.length === 0 ? 'none' : 'block';
         overlay.hidden = false;
     });
 });

@@ -1,19 +1,23 @@
 import type { EventHandle } from '@playcanvas/observer';
 import { Button, Container, Label, Panel } from '@playcanvas/pcui';
 
+import { createLog } from '@/common/sentry';
+
+const log = createLog('<PATH>');
+
 const BUTTON_TEXT = 'UPLOAD TEXTURE PACKER JSON';
 
-interface TexturePackerFrame {
+type TexturePackerFrame = {
     frame: { x: number; y: number; w: number; h: number };
     pivot?: { x: number; y: number };
     borders?: { x: number; y: number; w: number; h: number };
     filename?: string;
-}
+};
 
-interface TexturePackerData {
+type TexturePackerData = {
     meta: { size: { w: number; h: number } };
     frames: Record<string, TexturePackerFrame>;
-}
+};
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:importFrames', (args) => {
@@ -30,9 +34,11 @@ editor.once('load', () => {
 
         panel.enabled = editor.call('permissions:write');
 
-        events.push(editor.on('permissions:writeState', (canWrite: boolean) => {
-            panel.enabled = canWrite;
-        }));
+        events.push(
+            editor.on('permissions:writeState', (canWrite: boolean) => {
+                panel.enabled = canWrite;
+            })
+        );
 
         const panelError = new Panel({
             headerText: 'Invalid TexturePacker JSON file',
@@ -78,7 +84,7 @@ editor.once('load', () => {
 
         const resetButton = (): void => {
             btnImport.text = BUTTON_TEXT;
-            btnImport.disabled = false;
+            btnImport.enabled = true;
         };
 
         const showError = (message: string): void => {
@@ -93,9 +99,13 @@ editor.once('load', () => {
             const hasFrames = Object.keys(currentFrames).length > 0;
 
             if (hasFrames) {
-                editor.call('picker:confirm', 'Uploading frame data will replace all current frames - Are you sure you want to upload?', () => {
-                    hiddenInput.click();
-                });
+                editor.call(
+                    'picker:confirm',
+                    'Uploading frame data will replace all current frames - Are you sure you want to upload?',
+                    () => {
+                        hiddenInput.click();
+                    }
+                );
             } else {
                 hiddenInput.click();
             }
@@ -106,7 +116,7 @@ editor.once('load', () => {
                 return;
             }
 
-            btnImport.disabled = true;
+            btnImport.enabled = false;
             btnImport.text = 'PROCESSING...';
 
             const reader = new FileReader();
@@ -119,18 +129,26 @@ editor.once('load', () => {
                 let data: TexturePackerData;
                 try {
                     data = JSON.parse(text);
-                } catch (err) {
-                    log.error(err);
-                    showError('File is not valid JSON. Please ensure the file is a properly formatted TexturePacker export.');
+                } catch {
+                    showError(
+                        'File is not valid JSON. Please ensure the file is a properly formatted TexturePacker export.'
+                    );
                     resetButton();
                     return;
                 }
 
                 try {
-                    importFramesFromTexturePacker(data);
+                    const error = importFramesFromTexturePacker(data);
+                    if (error) {
+                        showError(error);
+                    }
                 } catch (err) {
                     log.error(err);
-                    showError(err instanceof Error ? err.message : 'Unknown error - please check the contents of the file and try again');
+                    showError(
+                        err instanceof Error
+                            ? err.message
+                            : 'Unknown error - please check the contents of the file and try again'
+                    );
                 } finally {
                     resetButton();
                 }
@@ -145,18 +163,26 @@ editor.once('load', () => {
             reader.readAsText(hiddenInput.files[0]);
         });
 
-        const createFrame = (name: string, frameData: TexturePackerFrame, height: number, scaleWidth: number, scaleHeight: number) => {
+        const createFrame = (
+            name: string,
+            frameData: TexturePackerFrame,
+            height: number,
+            scaleWidth: number,
+            scaleHeight: number
+        ) => {
             // the free version of texturepacker doesn't include the pivot data, so provide defaults if necessary
             const pivot = frameData.pivot ?? { x: 0.5, y: 0.5 };
 
             return {
                 name,
-                border: frameData.borders ? [
-                    Math.max(0, frameData.borders.x),
-                    Math.max(0, frameData.frame.h - frameData.borders.y - frameData.borders.h),
-                    Math.max(0, frameData.frame.w - frameData.borders.x - frameData.borders.w),
-                    Math.max(0, frameData.borders.y)
-                ] : [0, 0, 0, 0],
+                border: frameData.borders
+                    ? [
+                          Math.max(0, frameData.borders.x),
+                          Math.max(0, frameData.frame.h - frameData.borders.y - frameData.borders.h),
+                          Math.max(0, frameData.frame.w - frameData.borders.x - frameData.borders.w),
+                          Math.max(0, frameData.borders.y)
+                      ]
+                    : [0, 0, 0, 0],
                 rect: [
                     frameData.frame.x * scaleWidth,
                     (height - frameData.frame.y - frameData.frame.h) * scaleHeight,
@@ -167,27 +193,29 @@ editor.once('load', () => {
             };
         };
 
-        const importFramesFromTexturePacker = (data: TexturePackerData): void => {
+        const importFramesFromTexturePacker = (data: TexturePackerData) => {
             // Validate TexturePacker JSON structure
             if (!data?.meta?.size?.w || !data?.meta?.size?.h || !data?.frames) {
-                throw new Error('Invalid TexturePacker JSON format: missing required meta.size or frames data');
+                return 'Invalid TexturePacker JSON format: missing required meta.size or frames data';
             }
 
             // Check for empty frames
             const frameKeys = Object.keys(data.frames);
             if (frameKeys.length === 0) {
-                throw new Error('No frames found in TexturePacker file');
+                return 'No frames found in TexturePacker file';
             }
 
             // Validate individual frame data
             for (const key of frameKeys) {
                 const frameData = data.frames[key];
-                if (!frameData?.frame ||
+                if (
+                    !frameData?.frame ||
                     typeof frameData.frame.x !== 'number' ||
                     typeof frameData.frame.y !== 'number' ||
                     typeof frameData.frame.w !== 'number' ||
-                    typeof frameData.frame.h !== 'number') {
-                    throw new Error(`Invalid frame data for "${key}": missing required frame coordinates (x, y, w, h)`);
+                    typeof frameData.frame.h !== 'number'
+                ) {
+                    return `Invalid frame data for "${key}": missing required frame coordinates (x, y, w, h)`;
                 }
             }
 
@@ -239,12 +267,14 @@ editor.once('load', () => {
             atlasAsset.set('data.frames', newFrames);
         };
 
-        events.push(rootPanel.on('clear', () => {
-            panel.destroy();
-        }));
+        events.push(
+            rootPanel.on('clear', () => {
+                panel.destroy();
+            })
+        );
 
         panel.once('destroy', () => {
-            events.forEach(event => event.unbind());
+            events.forEach((event) => event.unbind());
             events.length = 0;
         });
     });

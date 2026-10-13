@@ -10,7 +10,7 @@ editor.once('load', () => {
             }
         }
 
-        return editor.call('entities:get', targetNode.getGuid()) || null;
+        return editor.call('entities:get', targetNode.guid) || null;
     };
 
     editor.on('viewport:pick:clear', () => {
@@ -64,7 +64,6 @@ editor.once('load', () => {
 
                 let stop = false;
                 meshInstances.forEach((instance, i) => {
-
                     if (stop) {
                         return;
                     }
@@ -93,7 +92,9 @@ editor.once('load', () => {
 
                     // highlight selected node
                     setTimeout(() => {
-                        const node = editor.call('attributes.rootPanel').dom.querySelector(`.pcui-asset-input.node-${index}`);
+                        const node = editor
+                            .call('attributes.rootPanel')
+                            .dom.querySelector(`.pcui-asset-input.node-${index}`);
                         if (node) {
                             node.classList.add('active');
                         }

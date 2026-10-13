@@ -1,4 +1,4 @@
-import { Asset } from '../asset';
+import type { Asset } from '../asset';
 import { findAssetReferencesInComponents, updateReferences } from '../entities/references';
 import { globals as api } from '../globals';
 import { utils } from '../utils';
@@ -15,7 +15,7 @@ function replaceEntityRefs(oldAsset: Asset, newAsset: Asset) {
     const refs = findAssetReferencesInComponents(api.entities.root) as any;
     if (refs[oldId]) {
         // remember previous values
-        refs[oldId].forEach((ref: { entityId: string; path: any; }) => {
+        refs[oldId].forEach((ref: { entityId: string; path: any }) => {
             const entity = api.entities.get(ref.entityId);
             records.push({
                 obj: entity,
@@ -71,9 +71,12 @@ function replaceAssetRefs(oldAsset: Asset, newAsset: Asset) {
                 const history = asset.history.enabled;
                 asset.history.enabled = false;
                 if (Array.isArray(value)) {
-                    asset.set(path, value.map((id) => {
-                        return oldId === id ? newId : id;
-                    }));
+                    asset.set(
+                        path,
+                        value.map((id) => {
+                            return oldId === id ? newId : id;
+                        })
+                    );
                 } else {
                     asset.set(path, newId);
                 }

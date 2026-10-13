@@ -1,4 +1,5 @@
 import { Color, Vec3 } from 'playcanvas';
+import type { AppBase } from 'playcanvas';
 
 editor.once('load', () => {
     const positions = [];
@@ -14,7 +15,7 @@ editor.once('load', () => {
 
     let visible = true;
 
-    editor.once('viewport:load', (app: import('playcanvas').AppBase) => {
+    editor.once('viewport:load', (app: AppBase) => {
         editor.method('gizmo:element:visible', (state) => {
             if (visible !== state) {
                 visible = state;

@@ -1,55 +1,59 @@
 import type { EventHandle, Observer } from '@playcanvas/observer';
-import { Panel, Container, Label, LabelGroup } from '@playcanvas/pcui';
+import type { LabelGroup } from '@playcanvas/pcui';
+import { Panel, Container, Label } from '@playcanvas/pcui';
 
-import { RelatedAssetsInspector } from './related-assets';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+import { RelatedAssetsInspector } from './related-assets';
 
 const CLASS_ROOT = 'scene-asset-inspector';
 const CLASS_ASSET = `${CLASS_ROOT}-asset`;
 
-const ATTRIBUTES: Attribute[] = [{
-    label: 'Animation',
-    alias: 'animation',
-    type: 'container',
-    args: {
-        flex: true,
-        flexDirection: 'row',
-        flexWrap: 'wrap'
+const ATTRIBUTES: Attribute[] = [
+    {
+        label: 'Animation',
+        alias: 'animation',
+        type: 'container',
+        args: {
+            flex: true,
+            flexDirection: 'row',
+            flexWrap: 'wrap'
+        }
+    },
+    {
+        label: 'Textures',
+        alias: 'textures',
+        type: 'container',
+        args: {
+            flex: true,
+            flexDirection: 'row',
+            flexWrap: 'wrap'
+        }
+    },
+    {
+        label: 'Materials',
+        alias: 'materials',
+        type: 'container',
+        args: {
+            flex: true,
+            flexDirection: 'row',
+            flexWrap: 'wrap'
+        }
+    },
+    {
+        label: 'Scene',
+        alias: 'scene',
+        type: 'container',
+        args: {
+            flex: true,
+            flexDirection: 'row',
+            flexWrap: 'wrap'
+        }
     }
-},
-{
-    label: 'Textures',
-    alias: 'textures',
-    type: 'container',
-    args: {
-        flex: true,
-        flexDirection: 'row',
-        flexWrap: 'wrap'
-    }
-},
-{
-    label: 'Materials',
-    alias: 'materials',
-    type: 'container',
-    args: {
-        flex: true,
-        flexDirection: 'row',
-        flexWrap: 'wrap'
-    }
-}, {
-    label: 'Scene',
-    alias: 'scene',
-    type: 'container',
-    args: {
-        flex: true,
-        flexDirection: 'row',
-        flexWrap: 'wrap'
-    }
-}];
+];
 
-const DOM = args => [
+const DOM = (args) => [
     {
         root: {
             contentPanel: new Panel({ headerText: 'CONTENTS' })
@@ -111,7 +115,7 @@ class SceneSourceAssetInspector extends Container {
         this._getContainer('animation').append(this._createSmallLabel(available ? 'yes' : 'no'));
     }
 
-    _addTextures(textures?: Array<{ name: string }>) {
+    _addTextures(textures?: { name: string }[]) {
         if (textures && textures.length > 0) {
             textures.forEach((texture) => {
                 const textureLabel = new Label({ text: texture.name, class: CLASS_ASSET });
@@ -126,7 +130,7 @@ class SceneSourceAssetInspector extends Container {
         this._getContainer('textures').clear();
     }
 
-    _addMaterials(materials?: Array<{ name: string }>) {
+    _addMaterials(materials?: { name: string }[]) {
         if (materials && materials.length > 0) {
             materials.forEach((material) => {
                 const materialLabel = new Label({ text: material.name, class: CLASS_ASSET });
@@ -160,34 +164,44 @@ class SceneSourceAssetInspector extends Container {
         this._animationCheck(assets[0].get('meta.animation.available'));
         this._assetEvents.push(assets[0].on('meta.animation.available:set', this._animationCheck.bind(this)));
         this._addTextures(assets[0].get('meta.textures'));
-        this._assetEvents.push(assets[0].on('meta.textures:set', () => {
-            this._removeTextures();
-            this._addTextures(assets[0].get('meta.textures'));
-        }));
-        this._assetEvents.push(assets[0].on('meta.textures:unset', () => {
-            this._removeTextures();
-            this._addTextures(assets[0].get('meta.textures'));
-        }));
+        this._assetEvents.push(
+            assets[0].on('meta.textures:set', () => {
+                this._removeTextures();
+                this._addTextures(assets[0].get('meta.textures'));
+            })
+        );
+        this._assetEvents.push(
+            assets[0].on('meta.textures:unset', () => {
+                this._removeTextures();
+                this._addTextures(assets[0].get('meta.textures'));
+            })
+        );
         this._addMaterials(assets[0].get('meta.materials'));
-        this._assetEvents.push(assets[0].on('meta.materials:set', () => {
-            this._removeMaterials();
-            this._addMaterials(assets[0].get('meta.materials'));
-        }));
-        this._assetEvents.push(assets[0].on('meta.materials:unset', () => {
-            this._removeMaterials();
-            this._addMaterials(assets[0].get('meta.materials'));
-        }));
+        this._assetEvents.push(
+            assets[0].on('meta.materials:set', () => {
+                this._removeMaterials();
+                this._addMaterials(assets[0].get('meta.materials'));
+            })
+        );
+        this._assetEvents.push(
+            assets[0].on('meta.materials:unset', () => {
+                this._removeMaterials();
+                this._addMaterials(assets[0].get('meta.materials'));
+            })
+        );
         this._addScene(assets[0].get('meta.scene'));
-        this._assetEvents.push(assets[0].on('meta.scene:set', () => {
-            this._removeScene();
-            this._addScene(assets[0].get('meta.scene'));
-        }));
+        this._assetEvents.push(
+            assets[0].on('meta.scene:set', () => {
+                this._removeScene();
+                this._addScene(assets[0].get('meta.scene'));
+            })
+        );
     }
 
     unlink() {
         this._contentAttributes.unlink();
         this._relatedAssetsInspector.unlink();
-        this._assetEvents.forEach(evt => evt.unbind());
+        this._assetEvents.forEach((evt) => evt.unbind());
         this._assetEvents = [];
         this._removeTextures();
         this._removeMaterials();

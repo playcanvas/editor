@@ -599,19 +599,43 @@ describe('api.Entities tests', function () {
         expect(parent2.children).to.deep.equal([child, child2]);
     });
 
-    it('reparent child to one of its children is not allowed', function () {
+    it('reparent rejects invalid hierarchy targets before mutation', function () {
         const root = api.globals.entities.create();
         const parent = api.globals.entities.create({ parent: root });
         const child = api.globals.entities.create({ parent: parent });
+        const sibling = api.globals.entities.create({ parent: root });
 
-        api.globals.entities.reparent([{
+        expect(() => api.globals.entities.reparent([{
             entity: parent,
             parent: child
-        }]);
+        }])).to.throw('An entity cannot be parented to itself or its descendant.');
+        expect(() => api.globals.entities.reparent([{
+            entity: parent,
+            parent
+        }])).to.throw('An entity cannot be parented to itself or its descendant.');
+        expect(() => api.globals.entities.reparent([{
+            entity: root,
+            parent
+        }])).to.throw('The root entity cannot be reparented.');
+        expect(() => api.globals.entities.reparent([{
+            entity: child,
+            parent: root,
+            index: -1
+        }])).to.throw('Invalid child index: -1.');
+        expect(() => api.globals.entities.reparent([{
+            entity: child,
+            parent: root,
+            index: 10
+        }])).to.throw('Invalid child index: 10.');
+        expect(() => api.globals.entities.reparent([
+            { entity: parent, parent: sibling },
+            { entity: sibling, parent }
+        ])).to.throw('An entity cannot be parented to itself or its descendant.');
 
         expect(child.children).to.deep.equal([]);
         expect(parent.parent).to.equal(root);
         expect(parent.children).to.deep.equal([child]);
+        expect(sibling.parent).to.equal(root);
     });
 
     it('undo / redo reparent', async function () {
@@ -1225,6 +1249,11 @@ describe('api.Entities tests', function () {
         const e = api.globals.entities.create();
         api.globals.entities.copyToClipboard([e]);
 
+        const json = api.globals.clipboard.value.hierarchy[e.get('resource_id')];
+        for (const field of ['template', 'template_id', 'template_ent_ids']) {
+            expect(json).to.have.own.property(field, null);
+        }
+
         expect(JSON.stringify(api.globals.clipboard.value)).to.equal(JSON.stringify({
             project: api.globals.projectId,
             scene: 1,
@@ -1351,6 +1380,29 @@ describe('api.Entities tests', function () {
             type: 'entity',
             value: [e.get('resource_id'), e2.get('resource_id')]
         }));
+    });
+
+    it('copy and cross-project paste preserve model material mappings', async function () {
+        prepareCopyTest();
+
+        const source = new api.Asset({ id: 1, type: 'material', path: [], name: 'mat' });
+        api.globals.assets.add(source);
+        const root = api.globals.entities.create();
+        const e = api.globals.entities.create({ parent: root });
+        e.addComponent('model', { mapping: { 0: source.get('id') } });
+
+        api.globals.entities.copyToClipboard([e]);
+        expect(api.globals.clipboard.value.assets).to.deep.equal({
+            1: { path: ['mat'], type: 'material' }
+        });
+
+        api.globals.projectId = 2;
+        api.globals.assets.remove(source);
+        const target = new api.Asset({ id: 2, type: 'material', path: [], name: 'mat' });
+        api.globals.assets.add(target);
+
+        const pasted = await api.globals.entities.pasteFromClipboard(root);
+        expect(pasted[0].get('components.model.mapping.0')).to.equal(target.get('id'));
     });
 
     it('copy picks up assets from script attributes', function () {

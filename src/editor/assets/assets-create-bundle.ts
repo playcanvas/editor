@@ -11,7 +11,7 @@ editor.once('load', () => {
             data: {
                 assets: []
             },
-            parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
+            parent: args.parent !== undefined ? args.parent : editor.call('assets:panel:currentFolder'),
             scope: {
                 type: 'project',
                 id: config.project.id

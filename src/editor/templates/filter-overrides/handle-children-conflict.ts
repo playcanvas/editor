@@ -21,22 +21,13 @@ editor.once('load', () => {
 
             this.rmReparented();
 
-            return this.isReorder() ?
-                this.prepReorderConflict() : null;
+            return this.isReorder() ? this.prepReorderConflict() : null;
         }
 
         setMaps() {
-            this.addedIds = editor.call(
-                'template:utils',
-                'entArrayToMap',
-                this.overrides.addedEntities
-            );
+            this.addedIds = editor.call('template:utils', 'entArrayToMap', this.overrides.addedEntities);
 
-            this.dstToSrc = editor.call(
-                'template:utils',
-                'invertMap',
-                this.overrides.srcToDst
-            );
+            this.dstToSrc = editor.call('template:utils', 'invertMap', this.overrides.srcToDst);
         }
 
         rmAdded() {
@@ -54,8 +45,7 @@ editor.once('load', () => {
         }
 
         isReorder() {
-            return this.conflict.src_value.length >= 2 &&
-                !this.sameSrcDstOrder();
+            return this.conflict.src_value.length >= 2 && !this.sameSrcDstOrder();
         }
 
         sameSrcDstOrder() {

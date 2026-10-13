@@ -9,6 +9,7 @@
     position: static;
     max-width: 300px;
     flex-shrink: 0;
+    pointer-events: none;
 
     > .pcui-label {
         white-space: normal;

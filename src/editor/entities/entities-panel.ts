@@ -1,7 +1,8 @@
 import type { Observer } from '@playcanvas/observer';
-import { Button, Container, TreeViewItem } from '@playcanvas/pcui';
+import type { TreeViewItem } from '@playcanvas/pcui';
+import { Button, Container } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 
 import { EntitiesTreeView } from './entities-treeview';
 
@@ -9,13 +10,13 @@ const CLASS_VISIBILITY_TOGGLE = 'entities-treeview-visibility-toggle';
 const CLASS_VISIBILITY_HIDDEN = 'entities-treeview-visibility-hidden';
 const CLASS_ROW_HOVERED = 'entities-treeview-row-hovered';
 
-interface EyeEntry {
+type EyeEntry = {
     button: Button;
-    tooltip: LegacyTooltip;
+    tooltip: TooltipHandle;
     onMouseEnter: () => void;
     onMouseLeave: () => void;
     contentsRow: HTMLElement;
-}
+};
 
 editor.once('load', () => {
     const panel = editor.call('layout.hierarchy');
@@ -57,7 +58,7 @@ editor.once('load', () => {
     treeView.createDropTarget(wrapper);
 
     // Eye icon management
-    const eyeEntries: Map<string, EyeEntry> = new Map();
+    const eyeEntries = new Map<string, EyeEntry>();
 
     const createEyeIcon = (resourceId: string, contentsRow: HTMLElement): EyeEntry => {
         const button = new Button({
@@ -66,7 +67,7 @@ editor.once('load', () => {
             ignoreParent: true
         });
 
-        const tooltip = LegacyTooltip.attach({
+        const tooltip = TooltipHandle.attach({
             target: button.dom,
             text: 'Hide in viewport',
             align: 'left',
@@ -109,7 +110,7 @@ editor.once('load', () => {
         const columnRect = visibilityColumn.dom.getBoundingClientRect();
 
         // Phase 1: Read all geometry (no writes — single layout recalc)
-        const updates: Array<{ button: Button; top: number; visible: boolean }> = [];
+        const updates: { button: Button; top: number; visible: boolean }[] = [];
         eyeEntries.forEach(({ button }, resourceId) => {
             const treeItem = treeView.getTreeItemForEntity(resourceId);
             if (!treeItem) {
@@ -126,7 +127,7 @@ editor.once('load', () => {
         for (const { button, top, visible } of updates) {
             if (visible) {
                 button.hidden = false;
-                button.dom.style.top = `${top}px`;
+                button.style.top = `${top}px`;
             } else {
                 button.hidden = true;
             }

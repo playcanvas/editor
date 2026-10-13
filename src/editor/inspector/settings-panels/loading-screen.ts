@@ -1,10 +1,12 @@
 import { Container, Button } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 import type { Asset } from '@/editor-api';
 
-import { BaseSettingsPanel } from './base';
 import type { Attribute } from '../attribute.type.d';
+
+import { BaseSettingsPanel } from './base';
+import type { BaseSettingsPanelArgs } from './base';
 
 const ATTRIBUTES: Attribute[] = [
     {
@@ -52,11 +54,11 @@ class LoadingScreenSettingsPanel extends BaseSettingsPanel {
 
     _buttonContainer: Container;
 
-    _selectExistingTooltip: LegacyTooltip;
+    _selectExistingTooltip: TooltipHandle;
 
-    _createDefaultTooltip: LegacyTooltip;
+    _createDefaultTooltip: TooltipHandle;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: BaseSettingsPanelArgs) {
         args = Object.assign({}, args);
         args.headerText = 'LOADING SCREEN';
         args.attributes = ATTRIBUTES;
@@ -74,16 +76,15 @@ class LoadingScreenSettingsPanel extends BaseSettingsPanel {
             }
         });
 
-
-        this._selectExistingTooltip = LegacyTooltip.attach({
-            target: this._selectExistingButton.element,
+        this._selectExistingTooltip = TooltipHandle.attach({
+            target: this._selectExistingButton.dom,
             text: 'Select an existing loading screen script',
             align: 'bottom',
             root: editor.call('layout.root')
         });
 
-        this._createDefaultTooltip = LegacyTooltip.attach({
-            target: this._createDefaultButton.element,
+        this._createDefaultTooltip = TooltipHandle.attach({
+            target: this._createDefaultButton.dom,
             text: 'Create a default loading script',
             align: 'bottom',
             root: editor.call('layout.root')
@@ -144,15 +145,25 @@ class LoadingScreenSettingsPanel extends BaseSettingsPanel {
 
     _clickCreateDefault() {
         const folder = editor.call('sourcefiles:loadingScreen:skeleton');
-        editor.call('picker:script-create', (filename) => {
-            editor.call('assets:create:script', {
-                filename: filename,
-                parent: folder && folder.apiAsset,
-                text: editor.call('sourcefiles:loadingScreen:skeleton')
-            }, (asset: Asset) => {
-                this._setLoadingScreen(asset.observer);
-            });
-        });
+        const validate = (name: string) => editor.call('assets:script:checkCollision', name, folder && folder.apiAsset);
+        editor.call(
+            'picker:script-create',
+            (filename) => {
+                editor.call(
+                    'assets:create:script',
+                    {
+                        filename: filename,
+                        parent: folder && folder.apiAsset,
+                        text: editor.call('sourcefiles:loadingScreen:skeleton')
+                    },
+                    (asset: Asset) => {
+                        this._setLoadingScreen(asset.observer);
+                    }
+                );
+            },
+            undefined,
+            validate
+        );
     }
 }
 

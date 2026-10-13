@@ -123,7 +123,8 @@ editor.once('load', () => {
             // pass any buffered messages that came before
             // authentication to the connection
             for (let i = 0; i < msgBuffer.length; i++) {
-                connection.socket.onmessage(msgBuffer[i]);
+                const msg = msgBuffer[i];
+                connection.socket.onmessage(msg);
             }
             msgBuffer.length = 0;
         };
@@ -153,6 +154,9 @@ editor.once('load', () => {
         socket.onopen = onOpen;
         socket.onclose = onClose;
         socket.onmessage = onMessage;
+        socket.onerror = () => {
+            console.warn(`code-editor websocket error (url: ${config.url.realtime.http})`);
+        };
     };
 
     // Raw socket send

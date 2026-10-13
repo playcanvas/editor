@@ -1,5 +1,6 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { Button, Container, Panel, type SelectInput, type VectorInput } from '@playcanvas/pcui';
+import { Button, Container, Panel } from '@playcanvas/pcui';
+import type { SelectInput, VectorInput } from '@playcanvas/pcui';
 
 import type { Attribute } from '@/editor/inspector/attribute.type.d';
 import { AttributesInspector } from '@/editor/inspector/attributes-inspector';
@@ -158,9 +159,11 @@ editor.once('load', () => {
 
         panel.enabled = editor.call('permissions:write');
 
-        events.push(editor.on('permissions:writeState', (canWrite: boolean) => {
-            panel.enabled = canWrite;
-        }));
+        events.push(
+            editor.on('permissions:writeState', (canWrite: boolean) => {
+                panel.enabled = canWrite;
+            })
+        );
 
         const fieldType = inspector.getField('type');
         const fieldFrameCount = inspector.getField('frameCount');
@@ -175,7 +178,8 @@ editor.once('load', () => {
             fieldFrameCount.parent.hidden = typeValue !== TYPE_GRID_BY_FRAME_COUNT;
             fieldFrameSize.parent.hidden = typeValue !== TYPE_GRID_BY_FRAME_SIZE;
             fieldOffset.parent.hidden = typeValue !== TYPE_GRID_BY_FRAME_COUNT && typeValue !== TYPE_GRID_BY_FRAME_SIZE;
-            fieldSpacing.parent.hidden = typeValue !== TYPE_GRID_BY_FRAME_COUNT && typeValue !== TYPE_GRID_BY_FRAME_SIZE;
+            fieldSpacing.parent.hidden =
+                typeValue !== TYPE_GRID_BY_FRAME_COUNT && typeValue !== TYPE_GRID_BY_FRAME_SIZE;
         };
 
         toggleFields();
@@ -213,20 +217,7 @@ editor.once('load', () => {
                 const history = asset.history.enabled;
                 asset.history.enabled = false;
 
-                const frameCountValue = (fieldFrameCount as VectorInput).value;
-                const frameSizeValue = (fieldFrameSize as VectorInput).value;
-
-                if (type === TYPE_GRID_BY_FRAME_COUNT) {
-                    sliceGridByCount(frameCountValue[0], frameCountValue[1], newFrames);
-
-                    // set frames and manually emit 'set' event
-                    // to avoid huge performance hit if there's a lot of frames
-                    setFrames(asset, newFrames);
-                } else if (type === TYPE_GRID_BY_FRAME_SIZE) {
-                    sliceGridBySize(frameSizeValue[0], frameSizeValue[1], newFrames);
-                    setFrames(asset, newFrames);
-                }
-
+                setFrames(asset, newFrames);
                 asset.history.enabled = history;
             };
 
@@ -251,6 +242,16 @@ editor.once('load', () => {
             // do this in a timeout to give a chance to the button to
             // appear disabled
             setTimeout(() => {
+                const frameCountValue = (fieldFrameCount as VectorInput).value;
+                const frameSizeValue = (fieldFrameSize as VectorInput).value;
+
+                // generate once so redo restores the original frames and settings
+                if (type === TYPE_GRID_BY_FRAME_COUNT) {
+                    sliceGridByCount(frameCountValue[0], frameCountValue[1], newFrames);
+                } else if (type === TYPE_GRID_BY_FRAME_SIZE) {
+                    sliceGridBySize(frameSizeValue[0], frameSizeValue[1], newFrames);
+                }
+
                 redo();
                 btnGenerate.enabled = true;
             }, 50);
@@ -428,12 +429,14 @@ editor.once('load', () => {
             return imageData.data[alpha] === 0;
         };
 
-        events.push(rootPanel.on('clear', () => {
-            panel.destroy();
-        }));
+        events.push(
+            rootPanel.on('clear', () => {
+                panel.destroy();
+            })
+        );
 
         panel.once('destroy', () => {
-            events.forEach(event => event.unbind());
+            events.forEach((event) => event.unbind());
             events.length = 0;
         });
     });

@@ -1,17 +1,15 @@
-import { Panel, Button, Label } from '@playcanvas/pcui';
-
-import { LegacyOverlay } from '@/common/ui/overlay';
+import { Button, Label, Overlay, Panel } from '@playcanvas/pcui';
 
 editor.once('load', () => {
-
     // UI
 
     // overlay
     const root = editor.call('layout.root');
-    const overlay = new LegacyOverlay();
-    overlay.clickable = false;
-    overlay.hidden = true;
-    overlay.class.add('picker-modal-confirmation');
+    const overlay = new Overlay({
+        clickable: false,
+        class: 'picker-modal-confirmation',
+        hidden: true
+    });
     root.append(overlay);
 
     // main panel
@@ -60,7 +58,6 @@ editor.once('load', () => {
         returnToCMS();
     });
 
-
     // CONTROLLERS
 
     // helper method to close current panel and return to CMS
@@ -97,5 +94,4 @@ editor.once('load', () => {
     editor.method('picker:project:deleteSelfConfirmation', () => {
         overlay.hidden = false;
     });
-
 });

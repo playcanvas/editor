@@ -1,7 +1,6 @@
 import { Button } from '@playcanvas/pcui';
 
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');
@@ -9,7 +8,7 @@ editor.once('load', () => {
 
     // manage if uv1 is missing
     let uv1Missing = false;
-    let uv1MissingAssets = { };
+    let uv1MissingAssets = {};
 
     // coordinate system
     const buttonBake = new Button({
@@ -17,6 +16,7 @@ editor.once('load', () => {
         icon: 'E191'
     });
     toolbar.append(buttonBake);
+    editor.call('toolbar:register', { id: 'lightmapper', label: 'Bake Lightmaps', group: 'main', button: buttonBake });
 
     buttonBake.on('click', () => {
         editor.call('lightmapper:bake');
@@ -31,7 +31,7 @@ editor.once('load', () => {
     });
 
     // tooltip
-    const tooltipBake = LegacyTooltip.attach({
+    const tooltipBake = TooltipHandle.attach({
         target: buttonBake.dom,
         align: 'left',
         root: root
@@ -60,11 +60,10 @@ editor.once('load', () => {
     elUV1.textContent = 'UV1 is missing on some models. Please upload models with UV1 or use ';
     tooltipBake.innerElement.appendChild(elUV1);
 
-    const btnAutoUnwrap = new LegacyButton({
+    const btnAutoUnwrap = new Button({
         text: 'Auto-Unwrap'
     });
-    btnAutoUnwrap.parent = tooltipBake;
-    elUV1.appendChild(btnAutoUnwrap.element);
+    elUV1.appendChild(btnAutoUnwrap.dom);
     btnAutoUnwrap.on('click', () => {
         if (!uv1Missing) {
             return;
@@ -72,11 +71,12 @@ editor.once('load', () => {
 
         const assetIds = Object.keys(uv1MissingAssets);
         for (let i = 0; i < assetIds.length; i++) {
-            if (!uv1MissingAssets.hasOwnProperty(assetIds[i])) {
+            const assetId = assetIds[i];
+            if (!Object.prototype.hasOwnProperty.call(uv1MissingAssets, assetId)) {
                 continue;
             }
 
-            const asset = uv1MissingAssets[assetIds[i]];
+            const asset = uv1MissingAssets[assetId];
             editor.call('assets:model:unwrap', asset);
         }
     });

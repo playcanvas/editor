@@ -1,7 +1,8 @@
-import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+import { ComponentInspector } from './component';
+import type { ComponentInspectorArgs } from './component';
 
 const ATTRIBUTES: Attribute[] = [];
 

@@ -1,4 +1,4 @@
-import { Button, Menu } from '@playcanvas/pcui';
+import type { Button, Menu } from '@playcanvas/pcui';
 
 editor.once('load', () => {
     const panel = editor.call('layout.top');
@@ -32,7 +32,6 @@ editor.once('load', () => {
                 menu.hidden = false;
             }
         });
-
 
         button.on('click', (e: MouseEvent) => {
             e.stopPropagation();

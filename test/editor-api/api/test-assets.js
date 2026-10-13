@@ -10,6 +10,7 @@ describe('Assets API tests', function () {
         api.globals.messenger = null;
         api.globals.history = null;
         api.globals.assets = new api.Assets();
+        api.globals.apiUrl = '/api';
         assets = api.globals.assets;
         sandbox = sinon.createSandbox();
     });
@@ -57,6 +58,22 @@ ${className}.prototype.update = function(dt) {
         const asset = new api.Asset({ type: 'material', id: 1, uniqueId: 2 });
         assets.add(asset);
         expect(assets.getUnique(2)).to.equal(asset);
+    });
+
+    it('replace updates model material mappings', function () {
+        api.globals.schema = new api.Schema(schema);
+        api.globals.entities = new api.Entities();
+        const root = api.globals.entities.create();
+        const entity = api.globals.entities.create({ parent: root });
+        entity.addComponent('model', { mapping: { 0: 1 } });
+
+        const oldAsset = new api.Asset({ type: 'material', id: 1 });
+        const newAsset = new api.Asset({ type: 'material', id: 2 });
+        assets.add(oldAsset);
+        assets.add(newAsset);
+        oldAsset.replace(newAsset, { history: false });
+
+        expect(entity.get('components.model.mapping.0')).to.equal(2);
     });
 
     it('add does not add duplicate asset', function () {
@@ -301,13 +318,54 @@ ${className}.prototype.update = function(dt) {
         const data = requests[0].requestBody;
         expect(data.get('branchId')).to.equal('branch');
         expect(data.get('projectId')).to.equal('1');
-        expect(data.get('filename')).to.equal('asset.css');
+        expect(data.get('filename')).to.equal('name');
         expect(data.get('file') instanceof Blob).to.equal(true);
         expect(await data.get('file').text()).to.equal('text');
         expect(data.get('type')).to.equal('css');
         expect(data.get('name')).to.equal('name');
         expect(data.get('parent')).to.equal('10');
         expect(data.get('preload')).to.equal('true');
+    });
+
+    it('uses default name new.css when none supplied', function () {
+        const xhr = sandbox.useFakeXMLHttpRequest();
+        const requests = [];
+        xhr.onCreate = (fake) => {
+            requests.push(fake);
+        };
+
+        api.globals.branchId = 'branch';
+        api.globals.projectId = 1;
+
+        api.globals.assets.createCss({});
+
+        expect(requests.length).to.equal(1);
+        const data = requests[0].requestBody;
+        expect(data.get('name')).to.equal('new.css');
+        expect(data.get('filename')).to.equal('new.css');
+    });
+
+    it('suffixes css name when sibling exists', function () {
+        const xhr = sandbox.useFakeXMLHttpRequest();
+        const requests = [];
+        xhr.onCreate = (fake) => {
+            requests.push(fake);
+        };
+
+        api.globals.branchId = 'branch';
+        api.globals.projectId = 1;
+
+        const folder = new api.Asset({ id: 10 });
+        const sibling = new api.Asset({ id: 11, type: 'css', name: 'new.css', path: [10] });
+        api.globals.assets.add(folder);
+        api.globals.assets.add(sibling);
+
+        api.globals.assets.createCss({ folder });
+
+        expect(requests.length).to.equal(1);
+        const data = requests[0].requestBody;
+        expect(data.get('name')).to.equal('new (1).css');
+        expect(data.get('filename')).to.equal('new (1).css');
     });
 
     it('creates cubemap asset', function () {
@@ -406,7 +464,7 @@ ${className}.prototype.update = function(dt) {
         const data = requests[0].requestBody;
         expect(data.get('branchId')).to.equal('branch');
         expect(data.get('projectId')).to.equal('1');
-        expect(data.get('filename')).to.equal('asset.html');
+        expect(data.get('filename')).to.equal('name');
         expect(data.get('file') instanceof Blob).to.equal(true);
         expect(await data.get('file').text()).to.equal('text');
         expect(data.get('type')).to.equal('html');
@@ -437,7 +495,7 @@ ${className}.prototype.update = function(dt) {
         const data = requests[0].requestBody;
         expect(data.get('branchId')).to.equal('branch');
         expect(data.get('projectId')).to.equal('1');
-        expect(data.get('filename')).to.equal('asset.json');
+        expect(data.get('filename')).to.equal('name');
         expect(data.get('file') instanceof Blob).to.equal(true);
         expect(await data.get('file').text()).to.equal('{"test":1}');
         expect(data.get('type')).to.equal('json');
@@ -467,7 +525,7 @@ ${className}.prototype.update = function(dt) {
         const data = requests[0].requestBody;
         expect(data.get('branchId')).to.equal('branch');
         expect(data.get('projectId')).to.equal('1');
-        expect(data.get('filename')).to.equal('asset.json');
+        expect(data.get('filename')).to.equal('name');
         expect(data.get('file') instanceof Blob).to.equal(true);
         expect(await data.get('file').text()).to.equal(JSON.stringify({
             "header": {
@@ -503,7 +561,10 @@ ${className}.prototype.update = function(dt) {
         const folder = new api.Asset({ id: 10 });
         api.globals.assets.createMaterial({
             name: 'name',
-            folder: folder
+            folder: folder,
+            data: {
+                opacity: 0
+            }
         });
 
         expect(requests.length).to.equal(1);
@@ -516,8 +577,53 @@ ${className}.prototype.update = function(dt) {
         expect(data.get('parent')).to.equal('10');
         expect(data.get('preload')).to.equal('true');
         expect(data.get('data')).to.equal(JSON.stringify({
-            diffuse: [0, 0, 0]
+            diffuse: [0, 0, 0],
+            opacity: 0,
+            useLighting: false,
+            blendType: 0
         }));
+    });
+
+    it('serializes scene import pipeline options', function () {
+        const xhr = sandbox.useFakeXMLHttpRequest();
+        const requests = [];
+        xhr.onCreate = (fake) => {
+            requests.push(fake);
+        };
+        api.globals.branchId = 'branch';
+        api.globals.projectId = 1;
+
+        new api.Rest().assets.assetCreate(
+            { type: 'scene', name: 'model.glb' },
+            { meshCompression: 'draco', useUniqueIndices: false }
+        );
+
+        expect(requests.length).to.equal(1);
+        const data = requests[0].requestBody;
+        expect(data.get('meshCompression')).to.equal('draco');
+        expect(data.get('useUniqueIndices')).to.equal('false');
+    });
+
+    it('clones a user asset through the assets route', function () {
+        const xhr = sandbox.useFakeXMLHttpRequest();
+        const requests = [];
+        xhr.onCreate = (fake) => {
+            requests.push(fake);
+        };
+        api.globals.apiUrl = '/api';
+
+        new api.Rest().assets.assetClone('9', {
+            scope: { type: 'project', id: 1 },
+            targetFolderId: 10
+        });
+
+        expect(requests.length).to.equal(1);
+        expect(requests[0].method).to.equal('POST');
+        expect(requests[0].url).to.equal('/api/assets/9/clone');
+        expect(JSON.parse(requests[0].requestBody)).to.deep.equal({
+            scope: { type: 'project', id: 1 },
+            targetFolderId: 10
+        });
     });
 
     it('creates shader asset', async function () {
@@ -542,7 +648,7 @@ ${className}.prototype.update = function(dt) {
         const data = requests[0].requestBody;
         expect(data.get('branchId')).to.equal('branch');
         expect(data.get('projectId')).to.equal('1');
-        expect(data.get('filename')).to.equal('asset.glsl');
+        expect(data.get('filename')).to.equal('name');
         expect(data.get('file') instanceof Blob).to.equal(true);
         expect(await data.get('file').text()).to.equal('text');
         expect(data.get('type')).to.equal('shader');
@@ -608,7 +714,7 @@ ${className}.prototype.update = function(dt) {
         const data = requests[0].requestBody;
         expect(data.get('branchId')).to.equal('branch');
         expect(data.get('projectId')).to.equal('1');
-        expect(data.get('filename')).to.equal('asset.txt');
+        expect(data.get('filename')).to.equal('name');
         expect(data.get('file') instanceof Blob).to.equal(true);
         expect(await data.get('file').text()).to.equal('text');
         expect(data.get('type')).to.equal('text');
@@ -657,6 +763,13 @@ ${className}.prototype.update = function(dt) {
         expect(data.get('parent')).to.equal('10');
         expect(data.get('preload')).to.equal('true');
 
+        const entities = Object.values(JSON.parse(data.get('data')).entities);
+        for (const entity of entities) {
+            for (const field of ['template', 'template_id', 'template_ent_ids']) {
+                expect(entity).to.have.own.property(field, null);
+            }
+        }
+
         const expected = { entities: {} };
 
         expected.entities[guids[0]] = root.json();
@@ -668,6 +781,16 @@ ${className}.prototype.update = function(dt) {
         expected.entities[guids[1]].parent = guids[0];
 
         expect(data.get('data')).to.equal(JSON.stringify(expected));
+    });
+
+    it('returns the created template asset', async function () {
+        api.globals.schema = new api.Schema(schema);
+        api.globals.entities = new api.Entities();
+        const root = api.globals.entities.create({ name: 'root' });
+        const asset = new api.Asset({ id: 1, type: 'template' });
+        sandbox.stub(assets, 'upload').resolves(asset);
+
+        expect(await assets.createTemplate({ entity: root })).to.equal(asset);
     });
 
     it('template asset remaps entity references', function () {
@@ -845,7 +968,7 @@ ${className}.prototype.update = function(dt) {
         expected.entities[guids[0]] = root.json();
         expected.entities[guids[0]].resource_id = guids[0];
         expected.entities[guids[0]].children = [guids[1]];
-        delete expected.entities[guids[0]].template_ent_ids;
+        expected.entities[guids[0]].template_ent_ids = null;
 
         expected.entities[guids[1]] = child.json();
         expected.entities[guids[1]].resource_id = guids[1];

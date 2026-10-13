@@ -1,15 +1,34 @@
-import type { Observer } from '@playcanvas/observer';
-import { expect, test, type Page } from '@playwright/test';
+import type { BrowserContext, Page } from '@playwright/test';
 
-import { capture } from '../../lib/capture';
-import {
-    checkCookieAccept,
-    createProject,
-    deleteProject
-} from '../../lib/common';
+import { checkCookieAccept, createProject, deleteProject } from '../../lib/common';
 import { editorBlankUrl, editorUrl } from '../../lib/config';
+import { JOB_TEST_TIMEOUT, JOB_TIMEOUT } from '../../lib/constants';
+import { expect, test } from '../../lib/fixtures';
 import { middleware } from '../../lib/middleware';
-import { uniqueName, wait } from '../../lib/utils';
+import { EditorShell } from '../../lib/pages/common';
+import { HierarchyPanel } from '../../lib/pages/hierarchy';
+import {
+    armBranchDeleted,
+    armReload,
+    branchIds,
+    branchMenuAction,
+    completeMerge,
+    createBranchFromCheckpoint,
+    createCheckpoint,
+    createCheckpointApi,
+    dialogConfirm,
+    dialogInput,
+    diffOverlay,
+    mergeOverlay,
+    openSwitcher,
+    openVc,
+    selectCheckpoint,
+    setBranchFilter,
+    toggleDialogCheck,
+    waitReload
+} from '../../lib/pages/version-control';
+import { waitForEditor } from '../../lib/ready';
+import { uniqueName } from '../../lib/utils';
 
 test.describe.configure({
     mode: 'serial'
@@ -17,9 +36,14 @@ test.describe.configure({
 
 test.describe('branch/checkpoint/diff/merge', () => {
     const projectName = uniqueName('ui-vc');
+    let context: BrowserContext;
+    let setup: Page;
     let projectId: number;
-    let page: Page;
     let materialId: number;
+    let baseDiffuse: number[];
+    let parentId: string;
+    let redEntityId: string;
+    let greenEntityId: string;
 
     let mainBranchId: string;
     let mainCheckpointId: string;
@@ -29,356 +53,340 @@ test.describe('branch/checkpoint/diff/merge', () => {
     let greenBranchId: string;
     let greenCheckpointId: string;
 
-    test.describe.configure({
-        mode: 'serial'
-    });
-
-    test.beforeAll(async ({ browser }) => {
-        page = await browser.newPage();
-        await middleware(page.context());
-
-        // create a temporary project
-        await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
-        await checkCookieAccept(page);
-        projectId = await createProject(page, projectName);
+    // the vc flow mutates branches and hard resets history, so it owns its project
+    test.beforeAll(async ({ browser, authState }) => {
+        context = await browser.newContext({ storageState: authState });
+        await middleware(context);
+        setup = await context.newPage();
+        await setup.goto(editorBlankUrl());
+        await setup.locator('.picker-project-cms').waitFor();
+        await checkCookieAccept(setup);
+        projectId = await createProject(setup, projectName);
     });
 
     test.afterAll(async () => {
-        // delete temporary project
-        await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
-        await deleteProject(page, projectId);
-
-        await page.close();
+        await deleteProject(setup, projectId);
+        await context.close();
     });
 
-    test('create base checkpoint', async () => {
-        expect(await capture('editor', page, async () => {
-            await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
+    const open = async (page: Page) => {
+        await page.goto(editorUrl(projectId, { disableBubbles: true }));
+        await waitForEditor(page);
+    };
 
-            [materialId, mainBranchId, mainCheckpointId] = await page.evaluate(async () => {
-                // setup material
-                const material = await window.editor.api.globals.assets.createMaterial({ name: 'TEST_MATERIAL' });
+    const diffuse = (page: Page) => page.evaluate((id) => {
+        return window.editor.api.globals.assets.get(id)?.get('data.diffuse') as number[];
+    }, materialId);
 
-                // create checkpoint
-                const checkpoint = await window.editor.api.globals.rest.checkpoints.checkpointCreate({
-                    projectId: window.editor.api.globals.projectId,
-                    branchId: window.editor.api.globals.branchId,
-                    description: 'BASE'
-                }).promisify();
+    test('create base checkpoint', async ({ page }) => {
+        await open(page);
 
-                return [
-                    material.get('id'),
-                    window.editor.api.globals.branchId,
-                    checkpoint.id
-                ];
-            });
-        })).toStrictEqual([]);
+        materialId = await page.evaluate(async () => {
+            const material = await window.editor.api.globals.assets.createMaterial({ name: 'TEST_MATERIAL' });
+            return material.get('id') as number;
+        });
+        baseDiffuse = await diffuse(page);
+        parentId = await new HierarchyPanel(page).createEntity({ name: 'Versioned Parent' });
+        await new EditorShell(page).flushScene();
+
+        const checkpoint = await createCheckpointApi(page, 'BASE');
+        mainCheckpointId = checkpoint.id;
+        mainBranchId = await page.evaluate(() => window.editor.api.globals.branchId);
+
+        expect(materialId).toBeGreaterThan(0);
+        expect(mainCheckpointId).toMatch(/^[0-9a-f-]{36}$/);
     });
 
-    test('create red branch', async () => {
-        expect(await capture('editor', page, async () => {
-            // open version control dialog
-            await page.locator('.pcui-element.font-regular.logo').click();
-            await page.locator('span').filter({ hasText: /^Version Control$/ }).click();
+    test('create red branch', async ({ page }) => {
+        await open(page);
 
-            // create red branch
-            await page.locator(`#checkpoint-${mainCheckpointId}`).locator('.pcui-button.dropdown').click();
-            await page.locator('.pcui-menu-item').filter({ hasText: /^New Branch$/ }).first().click();
-            await page.getByRole('textbox').nth(3).fill('red');
-            await page.getByText('Create New Branch').click();
+        // open version control and branch from the base checkpoint of main
+        await openVc(page);
+        redBranchId = await createBranchFromCheckpoint(page, mainCheckpointId, 'red');
+        expect(redBranchId).not.toBe(mainBranchId);
 
-            // wait for page to reload
-            await wait(5000);
-            await page.waitForLoadState('networkidle');
-            redBranchId = await page.evaluate(() => window.editor.api.globals.branchId);
+        // set material color RED
+        await page.evaluate((materialId) => {
+            window.editor.api.globals.assets.get(materialId)!.set('data.diffuse', [1, 0, 0]);
+        }, materialId);
 
-            // set material color RED
-            await page.evaluate(async (materialId) => {
-                const material = await window.editor.api.globals.assets.findOne((asset: Observer) => asset.get('id') === materialId);
-                material.set('data.diffuse', [1, 0, 0]);
-            }, materialId);
+        const hierarchy = new HierarchyPanel(page);
+        await hierarchy.select('Versioned Parent');
+        await hierarchy.add('3D', 'Box');
+        await hierarchy.childRow('Versioned Parent', 'Box').locator('.pcui-treeview-item-text').dblclick();
+        await hierarchy.renameInput().fill('Red Child');
+        await hierarchy.renameInput().press('Enter');
+        redEntityId = (await hierarchy.selection()).ids[0];
+        await new EditorShell(page).flushScene();
 
-            // open version control dialog
-            await page.locator('.pcui-element.font-regular.logo').click();
-            await page.locator('span').filter({ hasText: /^Version Control$/ }).first().click();
+        // create checkpoint
+        await openVc(page);
+        await createCheckpoint(page, 'RED');
 
-            // create checkpoint
-            await page.getByText('Checkpoint', { exact: true }).click();
-            await page.getByRole('textbox').nth(3).fill('RED');
-            await page.getByText('Create Checkpoint', { exact: true }).click();
-            await page.getByText('RED', { exact: true }).waitFor({ state: 'visible' });
-        })).toStrictEqual([]);
+        expect(await page.evaluate(() => window.editor.api.globals.branchId)).toBe(redBranchId);
     });
 
-    test('create green branch', async () => {
-        expect(await capture('editor', page, async () => {
-            // select main branch
-            await page.getByText('main', { exact: true }).click();
+    test('create green branch', async ({ page }) => {
+        await open(page);
 
-            // create green branch
-            await page.locator(`#checkpoint-${mainCheckpointId}`).locator('.pcui-button.dropdown').click();
-            await page.locator('.pcui-menu-item').filter({ hasText: /^New Branch$/ }).first().click();
-            await page.getByRole('textbox').nth(3).fill('green');
-            await page.getByText('Create New Branch').click();
+        // open version control (currently on the red branch)
+        await openVc(page);
 
-            // wait for page to reload
-            await wait(5000);
-            await page.waitForLoadState('networkidle');
-            greenBranchId = await page.evaluate(() => window.editor.api.globals.branchId);
+        // view main and branch green from its base checkpoint too
+        await openSwitcher(page);
+        await setBranchFilter(page, 'Open');
+        await page.locator(`#branch-${mainBranchId} .name`).click();
+        greenBranchId = await createBranchFromCheckpoint(page, mainCheckpointId, 'green');
+        expect(greenBranchId).not.toBe(redBranchId);
 
-            // set material color GREEN
-            await page.evaluate(async (materialId) => {
-                const material = await window.editor.api.globals.assets.findOne((asset: Observer) => asset.get('id') === materialId);
-                material.set('data.diffuse', [0, 1, 0]);
-            }, materialId);
+        // set material color GREEN
+        await page.evaluate((materialId) => {
+            window.editor.api.globals.assets.get(materialId)!.set('data.diffuse', [0, 1, 0]);
+        }, materialId);
 
-            // open version control dialog
-            await page.locator('.pcui-element.font-regular.logo').click();
-            await page.locator('span').filter({ hasText: /^Version Control$/ }).first().click();
+        const hierarchy = new HierarchyPanel(page);
+        expect(await hierarchy.exists(redEntityId)).toBe(false);
+        await hierarchy.select('Versioned Parent');
+        await hierarchy.add('3D', 'Sphere');
+        await hierarchy.childRow('Versioned Parent', 'Sphere').locator('.pcui-treeview-item-text').dblclick();
+        await hierarchy.renameInput().fill('Green Child');
+        await hierarchy.renameInput().press('Enter');
+        greenEntityId = (await hierarchy.selection()).ids[0];
+        await new EditorShell(page).flushScene();
 
-            // create checkpoint
-            await page.getByText('Checkpoint', { exact: true }).click();
-            await page.getByRole('textbox').nth(3).fill('GREEN');
-            await page.getByText('Create Checkpoint', { exact: true }).click();
-            await page.getByText('GREEN', { exact: true }).waitFor({ state: 'visible' });
+        // create checkpoint
+        await openVc(page);
+        await createCheckpoint(page, 'GREEN');
 
-            // capture green checkpoint id
-            greenCheckpointId = await page.evaluate(async () => {
-                const checkpoints = await window.editor.api.globals.rest.branches.branchCheckpoints({
-                    branchId: window.editor.api.globals.branchId,
-                    limit: 1
-                }).promisify();
-                return checkpoints.result[0].id;
-            });
-        })).toStrictEqual([]);
+        // capture green checkpoint id
+        greenCheckpointId = await page.evaluate(async () => {
+            const checkpoints = await window.editor.api.globals.rest.branches.branchCheckpoints({
+                branchId: window.editor.api.globals.branchId,
+                limit: 1
+            }).promisify();
+            return checkpoints.result[0].id;
+        });
+        expect(greenCheckpointId).not.toBe(mainCheckpointId);
     });
 
-    test('diff between green and main branch', async () => {
-        expect(await capture('editor', page, async () => {
-            // open version control dialog
-            await page.locator('.pcui-element.font-regular.logo').click();
-            await page.locator('span').filter({ hasText: /^Version Control$/ }).first().click();
+    test('diff between green and main branch', async ({ page }) => {
+        await open(page);
 
-            // click view diff
-            await page.locator('.branch-actions').getByText('View Diff').click();
+        // open version control (currently on the green branch)
+        await openVc(page);
 
-            // select green checkpoint (left) via diff-mode checkbox
-            await page.locator(`#checkpoint-${greenCheckpointId} .ui-checkbox.tick`).click();
+        // enter compare mode and pick the green checkpoint (slot A)
+        await page.locator('.vc-top-actions').getByText('Compare', { exact: true }).click();
+        await page.locator(`#checkpoint-${greenCheckpointId}`).click();
 
-            // switch to main branch and wait for its checkpoints to load
-            await page.getByText('main', { exact: true }).click();
-            await page.locator(`#checkpoint-${mainCheckpointId}`).waitFor({ state: 'visible' });
+        // view main and pick its base checkpoint (slot B)
+        await openSwitcher(page);
+        await setBranchFilter(page, 'Open');
+        await page.locator(`#branch-${mainBranchId} .name`).click();
+        await page.locator(`#checkpoint-${mainCheckpointId}`).waitFor({ state: 'visible' });
+        await page.locator(`#checkpoint-${mainCheckpointId}`).click();
 
-            // select main checkpoint (right) via diff-mode checkbox
-            await page.locator(`#checkpoint-${mainCheckpointId} .ui-checkbox.tick`).click();
+        // compare
+        await page.locator('.vc-compare-bar .pcui-button:not(.pcui-disabled)').click();
 
-            // compare
-            await page.locator('.ui-button.compare:not(.disabled)').click();
+        // the diff lists the material changed on green
+        const overlay = diffOverlay(page);
+        await overlay.waitFor({ state: 'visible' });
+        await expect(overlay.locator('.vc-diff-sidebar .vc-diff-row').first()).toBeVisible();
 
-            // wait for diff to load
-            await page.waitForSelector('.picker-conflict-manager.diff');
-
-            // close diff viewer
-            await page.locator('.picker-conflict-manager .close').click();
-        })).toStrictEqual([]);
+        // close diff viewer
+        await overlay.locator('.vc-diff-close').click();
+        await expect(overlay).toBeHidden();
     });
 
-    test('switch to main branch', async () => {
-        expect(await capture('editor', page, async () => {
-            // select main branch and open its dropdown
-            await page.locator(`#branch-${mainBranchId}`).click();
-            await page.locator(`#branch-${mainBranchId}`).locator('.pcui-button.dropdown').click();
-            await page.getByText('Switch To This Branch').click();
+    test('switch to main branch', async ({ page }) => {
+        await open(page);
 
-            // wait for page to reload
-            await wait(5000);
-            await page.waitForLoadState('networkidle');
-        })).toStrictEqual([]);
+        // open version control (currently on the green branch)
+        await openVc(page);
+
+        // switch to main via the branch row action
+        await openSwitcher(page);
+        await setBranchFilter(page, 'Open');
+        const mainRow = page.locator(`#branch-${mainBranchId}`);
+        await mainRow.waitFor({ state: 'visible' });
+        await mainRow.hover();
+        await armReload(page);
+        await mainRow.locator('.switch').click();
+
+        // wait for the editor to reload onto main
+        await waitReload(page);
+        expect(await page.evaluate(() => window.editor.api.globals.branchId)).toBe(mainBranchId);
+        expect(await new HierarchyPanel(page).exists(redEntityId)).toBe(false);
+        expect(await new HierarchyPanel(page).exists(greenEntityId)).toBe(false);
     });
 
-    test('merge red branch', async () => {
-        expect(await capture('editor', page, async () => {
-            // open version control dialog
-            await page.locator('.pcui-element.font-regular.logo').click();
-            await page.locator('span').filter({ hasText: /^Version Control$/ }).click();
+    test('merge red branch', async ({ page }) => {
+        await open(page);
 
-            // start merge
-            await page.locator('li').filter({ hasText: redBranchId }).locator('.pcui-button.dropdown').click();
-            await page.getByText('Merge Into Current Branch').click();
+        // open version control (currently on the main branch)
+        await openVc(page);
 
-            // uncheck checkpoint create
-            await page.locator('div:nth-child(3) > div > div:nth-child(2) > .content > .ui-checkbox').click();
+        // start merge of red into main
+        await openSwitcher(page);
+        await setBranchFilter(page, 'Open');
+        await branchMenuAction(page, redBranchId, /^Merge Into Current Branch$/);
 
-            // check close branch
-            await page.locator('div:nth-child(3) > .content > .ui-checkbox').first().click();
+        // skip pre-merge checkpoints and close the source branch after merging
+        await page.locator('.vc-dialog').waitFor({ state: 'visible' });
+        await toggleDialogCheck(page, 'Take a checkpoint of red');
+        await toggleDialogCheck(page, 'Take a checkpoint of main');
+        await toggleDialogCheck(page, 'Close red after merging');
+        await dialogConfirm(page).click();
 
-            // create merge
-            await page.getByText('START MERGE').click();
+        await completeMerge(page);
 
-            // apply merge
-            await page.waitForSelector([
-                '.picker-conflict-manager.diff',
-                '.content',
-                '.ui-panel',
-                '.content',
-                '.left',
-                '.content',
-                '.confirm:not(.hidden)'
-            ].join(' > '));
-            await page.getByText('COMPLETE MERGE').click();
-
-            // wait for page to reload
-            await wait(5000);
-            await page.waitForLoadState('networkidle');
-        })).toStrictEqual([]);
+        // wait for the editor to reload with red's material color on main
+        await waitReload(page);
+        expect(await diffuse(page)).toStrictEqual([1, 0, 0]);
+        const hierarchy = new HierarchyPanel(page);
+        expect(await hierarchy.get(redEntityId, 'parent')).toBe(parentId);
+        expect(await hierarchy.get(redEntityId, 'components.render.type')).toBe('box');
+        await expect(hierarchy.childRow('Versioned Parent', 'Red Child')).toHaveCount(1);
     });
 
-    test('merge green branch', async () => {
-        expect(await capture('editor', page, async () => {
-            // open version control dialog
-            await page.locator('.pcui-element.font-regular.logo').click();
-            await page.locator('span').filter({ hasText: /^Version Control$/ }).click();
+    test('merge green branch', async ({ page }) => {
+        await open(page);
 
-            // start merge
-            await page.locator('li').filter({ hasText: greenBranchId }).locator('.pcui-button.dropdown').click();
-            await page.getByText('Merge Into Current Branch').click();
+        // open version control (currently on the main branch)
+        await openVc(page);
 
-            // uncheck checkpoint create
-            await page.locator('div:nth-child(3) > div > div:nth-child(2) > .content > .ui-checkbox').click();
+        // start merge of green into main
+        await openSwitcher(page);
+        await setBranchFilter(page, 'Open');
+        await branchMenuAction(page, greenBranchId, /^Merge Into Current Branch$/);
 
-            // create merge
-            await page.getByText('START MERGE').click();
+        // skip pre-merge checkpoints
+        await page.locator('.vc-dialog').waitFor({ state: 'visible' });
+        await toggleDialogCheck(page, 'Take a checkpoint of green');
+        await toggleDialogCheck(page, 'Take a checkpoint of main');
+        await dialogConfirm(page).click();
 
-            // review conflicts
-            await page.waitForSelector([
-                '.picker-conflict-manager',
-                '.content',
-                '.ui-panel',
-                '.content',
-                '.right',
-                '.content',
-                '.bottom',
-                '.content',
-                '.theirs',
-                '.content',
-                '.ui-button:not(.disabled)'
-            ].join(' > '));
-            await page.getByText('USE ALL FROM THIS BRANCH').nth(1).click();
-            await page.waitForSelector([
-                '.picker-conflict-manager',
-                '.content',
-                '.ui-panel',
-                '.content',
-                '.left',
-                '.content',
-                '.ui-button:not(.disabled)'
-            ].join(' > '));
-            await page.getByText('REVIEW MERGE').click();
+        // review conflicts (material color conflicts with the merged red change)
+        await mergeOverlay(page).waitFor({ state: 'visible' });
+        await mergeOverlay(page).getByRole('radio', { name: /Source/ }).click();
+        await mergeOverlay(page).locator('.vc-merge-resolve .pcui-button:not(.pcui-disabled)').filter({ hasText: /^Resolve$/ }).click();
+        await completeMerge(page);
 
-            // apply merge
-            await page.waitForSelector([
-                '.picker-conflict-manager.diff',
-                '.content',
-                '.ui-panel',
-                '.content',
-                '.left',
-                '.content',
-                '.confirm:not(.hidden)'
-            ].join(' > '));
-            await page.getByText('COMPLETE MERGE').click();
-
-            // wait for page to reload
-            await wait(5000);
-            await page.waitForLoadState('networkidle');
-        })).toStrictEqual([]);
+        // the resolved conflict takes green's material color
+        await waitReload(page);
+        expect(await diffuse(page)).toStrictEqual([0, 1, 0]);
+        const hierarchy = new HierarchyPanel(page);
+        expect(await hierarchy.get(redEntityId, 'parent')).toBe(parentId);
+        expect(await hierarchy.get(greenEntityId, 'parent')).toBe(parentId);
+        expect(await hierarchy.get(greenEntityId, 'components.render.type')).toBe('sphere');
+        await expect(hierarchy.childRow('Versioned Parent', 'Red Child')).toHaveCount(1);
+        await expect(hierarchy.childRow('Versioned Parent', 'Green Child')).toHaveCount(1);
     });
 
-    test('restore checkpoint', async () => {
-        expect(await capture('editor', page, async () => {
-            // open version control dialog
-            await page.locator('.pcui-element.font-regular.logo').click();
-            await page.locator('span').filter({ hasText: /^Version Control$/ }).click();
+    test('restore checkpoint', async ({ page }) => {
+        await open(page);
 
-            // start restore checkpoint
-            await page.locator(`#checkpoint-${mainCheckpointId}`).locator('.pcui-button.dropdown').click();
-            await page.locator('.pcui-menu-item').filter({ hasText: /^Restore$/ }).first().click();
+        // open version control (currently on the main branch)
+        await openVc(page);
 
-            // uncheck checkpoint create
-            await page.locator('.content > div:nth-child(2) > .content > .ui-checkbox').first().click();
+        // start restore of the base checkpoint
+        await selectCheckpoint(page, mainCheckpointId);
+        await page.locator('.vc-detail-actions').getByText('Restore', { exact: true }).click();
 
-            // restore checkpoint
-            await page.getByText('Restore Checkpoint', { exact: true }).click();
+        // skip the pre-restore checkpoint and restore
+        await page.locator('.vc-dialog').waitFor({ state: 'visible' });
+        await toggleDialogCheck(page, 'Take a checkpoint of the current state first');
+        await armReload(page);
+        await dialogConfirm(page).click();
 
-            // wait for page to reload
-            await wait(5000);
-            await page.waitForLoadState('networkidle');
-        })).toStrictEqual([]);
+        // wait for the editor to reload with the base material color back
+        await waitReload(page);
+        expect(await diffuse(page)).toStrictEqual(baseDiffuse);
+        const hierarchy = new HierarchyPanel(page);
+        expect(await hierarchy.exists(parentId)).toBe(true);
+        expect(await hierarchy.get(parentId, 'children')).toEqual([]);
+        expect(await hierarchy.exists(redEntityId)).toBe(false);
+        expect(await hierarchy.exists(greenEntityId)).toBe(false);
     });
 
-    test('hard reset checkpoint', async () => {
-        expect(await capture('editor', page, async () => {
-            // open version control dialog
-            await page.locator('.pcui-element.font-regular.logo').click();
-            await page.locator('span').filter({ hasText: /^Version Control$/ }).click();
+    test('hard reset checkpoint', async ({ page }) => {
+        await open(page);
 
-            // start hard reset
-            await page.locator(`#checkpoint-${mainCheckpointId}`).locator('.pcui-button.dropdown').click();
-            await page.locator('.pcui-menu-item').filter({ hasText: /^Hard Reset$/ }).first().click();
+        // open version control (currently on the main branch)
+        await openVc(page);
 
-            // confirm hard reset
-            await page.locator('div').filter({ hasText: /^ARE YOU SURE\?Type "hard reset" to confirm$/ })
-            .getByRole('textbox').fill('hard reset');
+        // start hard reset of the base checkpoint
+        await selectCheckpoint(page, mainCheckpointId);
+        await page.locator('.vc-detail-actions').getByText('Hard Reset', { exact: false }).click();
 
-            // hard reset
-            await page.getByText('Hard Reset To Checkpoint', { exact: true }).click();
+        // confirm by typing the checkpoint id (first 7 chars), then hard reset
+        await page.locator('.vc-dialog').waitFor({ state: 'visible' });
+        await dialogInput(page).fill(mainCheckpointId.substring(0, 7));
+        await armReload(page);
+        await dialogConfirm(page).click();
 
-            // wait for page to reload
-            await wait(5000);
-            await page.waitForLoadState('networkidle');
-        })).toStrictEqual([]);
+        // wait for the editor to reload with base as the branch head
+        await waitReload(page);
+        const head = await page.evaluate(async () => {
+            const checkpoints = await window.editor.api.globals.rest.branches.branchCheckpoints({
+                branchId: window.editor.api.globals.branchId,
+                limit: 1
+            }).promisify();
+            return checkpoints.result[0].id;
+        });
+        expect(head).toBe(mainCheckpointId);
     });
 
-    test('delete red branch', async () => {
-        expect(await capture('editor', page, async () => {
-            // open version control dialog
-            await page.locator('.pcui-element.font-regular.logo').click();
-            await page.locator('span').filter({ hasText: /^Version Control$/ }).click();
+    test('delete red branch', async ({ page }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
+        await open(page);
 
-            // change filter to closed branches
-            await page.locator('.pcui-select-input-value').filter({ hasText: 'Favorite Branches' }).click();
-            await page.getByText('Closed Branches').click();
+        // open version control (currently on the main branch)
+        await openVc(page);
 
-            // start delete red branch
-            await page.locator(`#branch-${redBranchId}`).locator('.pcui-button.dropdown').click();
-            await page.locator('div').filter({ hasText: 'Delete This Branch' }).nth(4).click();
+        // red was closed during merge -> find it under the Closed filter
+        await openSwitcher(page);
+        await setBranchFilter(page, 'Closed');
+        await branchMenuAction(page, redBranchId, /^Delete This Branch$/);
 
-            // confirm delete
-            await page.getByRole('textbox').nth(3).fill('red');
+        // confirm by typing the branch name, then delete
+        await page.locator('.vc-dialog').waitFor({ state: 'visible' });
+        await dialogInput(page).fill('red');
+        const deleted = await armBranchDeleted(page, redBranchId);
+        await dialogConfirm(page).click();
 
-            // delete branch
-            await page.getByText('Delete Branch', { exact: true }).click();
-
-            // reload page
-            // FIXME: branch list currently not updated on delete
-            await page.reload({ waitUntil: 'networkidle' });
-        })).toStrictEqual([]);
+        await deleted();
+        await expect(page.locator('.vc-dialog')).toBeHidden();
+        await openSwitcher(page);
+        await setBranchFilter(page, 'Closed');
+        await expect(page.locator(`#branch-${redBranchId}`)).toHaveCount(0, { timeout: JOB_TIMEOUT });
+        expect(await branchIds(page, true)).not.toContain(redBranchId);
     });
 
-    test('delete green branch', async () => {
-        expect(await capture('editor', page, async () => {
-            // open version control dialog
-            await page.locator('.pcui-element.font-regular.logo').click();
-            await page.locator('span').filter({ hasText: /^Version Control$/ }).click();
+    test('delete green branch', async ({ page }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
+        await open(page);
 
-            // start delete green branch
-            await page.locator(`#branch-${greenBranchId}`).locator('.pcui-button.dropdown').click();
-            await page.locator('div').filter({ hasText: 'Delete This Branch' }).nth(4).click();
+        // open version control (currently on the main branch)
+        await openVc(page);
 
-            // confirm delete
-            await page.getByRole('textbox').nth(3).fill('green');
+        // green is still open -> find it under the Open filter
+        await openSwitcher(page);
+        await setBranchFilter(page, 'Open');
+        await branchMenuAction(page, greenBranchId, /^Delete This Branch$/);
 
-            // delete branch
-            await page.getByText('Delete Branch', { exact: true }).click();
-        })).toStrictEqual([]);
+        // confirm by typing the branch name, then delete
+        await page.locator('.vc-dialog').waitFor({ state: 'visible' });
+        await dialogInput(page).fill('green');
+        const deleted = await armBranchDeleted(page, greenBranchId);
+        await dialogConfirm(page).click();
+
+        await deleted();
+        await expect(page.locator('.vc-dialog')).toBeHidden();
+        await openSwitcher(page);
+        await setBranchFilter(page, 'Open');
+        await expect(page.locator(`#branch-${greenBranchId}`)).toHaveCount(0, { timeout: JOB_TIMEOUT });
+        expect(await branchIds(page)).not.toContain(greenBranchId);
     });
 });

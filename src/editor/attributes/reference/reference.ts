@@ -1,4 +1,4 @@
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 
 import type { AttributeReference, LegacyAttributeReference } from './reference.type';
 
@@ -6,7 +6,7 @@ editor.once('load', () => {
     const root = editor.call('layout.root');
     const panel = editor.call('layout.attributes');
 
-    const legacyMissing: Set<string> = new Set();
+    const legacyMissing = new Set<string>();
     const legacyReferenceIndex: Record<string, LegacyAttributeReference> = {};
 
     const referenceIndex: Record<string, AttributeReference> = {};
@@ -53,7 +53,7 @@ editor.once('load', () => {
     });
 
     editor.method('attributes:reference', (attr: LegacyAttributeReference) => {
-        const tooltip = new LegacyTooltip({
+        const tooltip = new TooltipHandle({
             align: 'right'
         });
         tooltip.hoverable = true;
@@ -89,23 +89,26 @@ editor.once('load', () => {
         let timerHover = null;
         let timerBlur = null;
 
-        tooltip.attach = function (args: {
-            target?: HTMLElement,
-            element?: HTMLElement,
-            panel?: HTMLElement
-        }) {
+        (tooltip as any).attach = function (args: { target?: any; element?: HTMLElement; panel?: any }) {
             let target = args.target;
-            let element = args.element;
-            let targetPanel = args.panel || panel;
-            targetPanel = targetPanel.dom || targetPanel.element;
+            let element = args.element || target?.element || target?.dom || target;
+            let targetPanel: any = args.panel || panel;
+            targetPanel = targetPanel.dom || targetPanel.element || targetPanel;
+
+            if (!target || !element) {
+                return;
+            }
 
             const show = function () {
                 if (!target || target.hidden) {
                     return;
                 }
                 // fix top offset for new framework
-                const topOffset = (element.ui instanceof Element ? 6 : 16);
-                tooltip.position(targetPanel.getBoundingClientRect().left, element.getBoundingClientRect().top + topOffset);
+                const topOffset = (element as any).ui instanceof Element ? 6 : 16;
+                tooltip.position(
+                    targetPanel.getBoundingClientRect().left,
+                    element.getBoundingClientRect().top + topOffset
+                );
                 tooltip.hidden = false;
             };
 
