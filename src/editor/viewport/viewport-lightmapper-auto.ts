@@ -132,7 +132,20 @@ editor.once('load', () => {
             'components.render.castShadowsLightmap'
         ];
 
+        // transform changes bake once a gizmo drag ends, not on every step of it
+        let dragging = false;
+        const evtRebakeTransform = () => {
+            if (!dragging) {
+                evtRebakeScene();
+            }
+        };
+
         editor.on('entities:add', (entity: Observer) => {
+            // transform, set by the inspector, undo/redo or the api
+            for (const field of ['position', 'rotation', 'scale']) {
+                entity.on(`${field}:set`, evtRebakeTransform);
+            }
+
             // model
             for (let i = 0; i < fieldsLocal.length; i++) {
                 const field = fieldsLocal[i];
@@ -152,9 +165,14 @@ editor.once('load', () => {
             }
         });
 
-        editor.on('gizmo:translate:end', evtRebakeScene);
-        editor.on('gizmo:rotate:end', evtRebakeScene);
-        editor.on('gizmo:scale:end', evtRebakeScene);
+        editor.on('gizmo:transform:drag', (state: boolean) => {
+            dragging = state;
+            if (!state) {
+                evtRebakeScene();
+            }
+        });
+
+        editor.on('entities:remove', evtRebakeScene);
 
         // auto-rebake on global lightmap setting changes
 
