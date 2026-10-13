@@ -13,6 +13,9 @@ editor.on('assets:load', () => {
     // Create a map to store the asset path. This is used to retrieve the previous filename if the asset is renamed
     const assetPathMap = new Map();
 
+    // Assets whose rename and move listeners are already bound
+    const watched = new WeakSet<Observer>();
+
     // Handle
     const onAssetAdded = (asset: Observer) => {
         if (editor.call('assets:isModule', asset)) {
@@ -30,8 +33,12 @@ editor.on('assets:load', () => {
             assetPathMap.set(asset, path);
             moduleTrie.insert(path);
 
-            // Listen for a change to the filename
-            asset.once('file.filename:set', () => onAssetAdded(asset));
+            // Re-index when the file is renamed or moved to another folder
+            if (!watched.has(asset)) {
+                watched.add(asset);
+                asset.on('file.filename:set', () => onAssetAdded(asset));
+                asset.on('path:set', () => onAssetAdded(asset));
+            }
         } else if (editor.call('assets:isScript', asset)) {
             // If the asset is a script, but not an esm script, then the filename, may not have been set yet.
             // Listen for the first time the filename is set, then add the asset
