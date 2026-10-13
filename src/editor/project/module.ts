@@ -3,10 +3,13 @@ import type { Observer } from '@playcanvas/observer';
 editor.once('load', () => {
     // method if the module is included in the project
     editor.method('project:module:hasModule', (wasmFilename: string) => {
+        // module files are named <module>.js, <module>.wasm.js and <module>.wasm.wasm, so match the
+        // prefix rather than any name containing it (e.g. a user's ammoHelper.js)
+        const prefix = `${wasmFilename.toLowerCase()}.`;
         const moduleAssets = editor.call('assets:find', (item: Observer) => {
             const name = item.get('name');
             const type = item.get('type');
-            return name && name.indexOf(wasmFilename) >= 0 && (type === 'script' || type === 'wasm');
+            return name && name.toLowerCase().startsWith(prefix) && (type === 'script' || type === 'wasm');
         });
         return moduleAssets.length > 0;
     });
