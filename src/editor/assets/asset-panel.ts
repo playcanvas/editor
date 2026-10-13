@@ -370,6 +370,12 @@ class AssetPanel extends Panel {
      */
     private _suspendSelectEvents: boolean;
 
+    /**
+     * True while an arrow key is moving the selection, so listeners can tell keyboard
+     * navigation from an explicit pick
+     */
+    private _keyboardSelect = false;
+
     private _eventsEditor: EventHandle[];
 
     private _assetListEvents: EventHandle[];
@@ -772,6 +778,9 @@ class AssetPanel extends Panel {
             if (asset && OPENABLE_TYPES[asset.get('type')]) {
                 this._openAsset(asset);
             }
+            if (asset) {
+                this.emit('activate', asset.legacyScript || asset);
+            }
         });
 
         this._gridView.on('select', this._onSelectAssetElement.bind(this));
@@ -781,7 +790,23 @@ class AssetPanel extends Panel {
             if (asset && OPENABLE_TYPES[asset.get('type')]) {
                 this._openAsset(asset);
             }
+            if (asset) {
+                this.emit('activate', (item as any).asset.legacyScript || asset);
+            }
         });
+
+        // flag selections made by arrow-key navigation; the views select in their own keydown
+        // handlers, which run after this capture listener
+        const onNavKeyDown = (evt: KeyboardEvent) => {
+            if (evt.key.startsWith('Arrow')) {
+                this._keyboardSelect = true;
+                setTimeout(() => {
+                    this._keyboardSelect = false;
+                });
+            }
+        };
+        this._detailsView.dom.addEventListener('keydown', onNavKeyDown, true);
+        this._gridView.dom.addEventListener('keydown', onNavKeyDown, true);
 
         this._eventsEditor = [];
         this._eventsEditor.push(editor.on('selector:change', this._onSelectorChange.bind(this)));
@@ -1149,7 +1174,13 @@ class AssetPanel extends Panel {
         const type = asset.get('type');
         if (type === 'folder') {
             const view = this._viewMode === AssetPanel.VIEW_DETAILS ? this._detailsView : this._gridView;
-            view.once('filter:end', () => this._focusFirstVisibleItem());
+            // focus the folder's first item without selecting it, as navigating back does, or an
+            // open asset picker would take it as the pick
+            view.once('filter:end', () => {
+                this._suspendSelectEvents = true;
+                this._focusFirstVisibleItem();
+                this._suspendSelectEvents = false;
+            });
 
             this.currentFolder = asset;
 
@@ -1740,7 +1771,7 @@ class AssetPanel extends Panel {
         }
 
         editor.call('selector:add', 'asset', element.asset.legacyScript || element.asset);
-        this.emit('select', element.asset.legacyScript || element.asset);
+        this.emit('select', element.asset.legacyScript || element.asset, this._keyboardSelect);
     }
 
     _onDeselectAssetElement(element: TableRow | AssetGridViewItem) {
