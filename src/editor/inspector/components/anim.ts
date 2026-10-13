@@ -668,7 +668,9 @@ class AnimComponentInspector extends ComponentInspector {
             const normalizeWeightsField = this._attributesInspector.getField('components.anim.normalizeWeights');
             this._entityEvents.push(
                 normalizeWeightsField.on('change', () => {
-                    window.sessionStorage.removeItem(`${this._entities[0].get('resource_id')}:animNormalizeWeightsMessage`);
+                    window.sessionStorage.removeItem(
+                        `${this._entities[0].get('resource_id')}:animNormalizeWeightsMessage`
+                    );
                 })
             );
         } else {
