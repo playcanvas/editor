@@ -2,6 +2,8 @@ import type { Observer } from '@playcanvas/observer';
 
 import { Trie } from '@/core/trie';
 
+const ENGINE_MODULE = 'playcanvas';
+
 editor.on('assets:load', () => {
     // A regexp to check if this is a module path
     const MODULE_PATH_REGEXP =
@@ -83,6 +85,30 @@ editor.on('assets:load', () => {
             // If no match is found, return an empty list of suggestions
             if (!relativePath) {
                 return { suggestions: [] };
+            }
+
+            // a bare specifier can only name the engine module, so offer that rather than leave
+            // word-based suggestions (e.g. 'PlayCanvas' from a comment) as the only option
+            const specifier = relativePath[0];
+            if (!specifier.startsWith('.') && !specifier.startsWith('/')) {
+                if (!specifier || !ENGINE_MODULE.startsWith(specifier)) {
+                    return { suggestions: [] };
+                }
+                return {
+                    suggestions: [
+                        {
+                            label: ENGINE_MODULE,
+                            kind: monaco.languages.CompletionItemKind.Module,
+                            insertText: ENGINE_MODULE,
+                            range: {
+                                startLineNumber: position.lineNumber,
+                                startColumn: position.column - specifier.length,
+                                endLineNumber: position.lineNumber,
+                                endColumn: position.column
+                            }
+                        }
+                    ]
+                };
             }
 
             // Get the absolute path
