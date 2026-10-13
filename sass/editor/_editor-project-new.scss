@@ -1,0 +1,509 @@
+// new project and new organization pickers: the project picker frame with projects-page controls
+// corners: 8px kit cards, 6px controls (inputs, buttons)
+
+// shared by the new project and new organization pickers
+
+// centred title in the 33px picker header, close button on the right
+%dialog-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 33px;
+    border-bottom: 1px solid $border-primary;
+
+    > .pcui-panel-header-title {
+        flex: 1;
+        margin: 0;
+        text-align: center;
+        text-transform: uppercase;
+    }
+
+    > .pcui-button.close {
+        position: absolute;
+        top: 50%;
+        right: 4px;
+        display: inline-grid;
+        place-items: center;
+        width: 24px;
+        height: 24px;
+        margin: 0;
+        padding: 0;
+        border: none;
+        background: transparent;
+        color: $text-secondary;
+        font-size: 14px;
+        transform: translateY(-50%);
+
+        &::before {
+            margin: 0;
+        }
+
+        &:hover {
+            color: $text-primary;
+            box-shadow: none;
+        }
+    }
+}
+
+%dialog-label {
+    margin: 0;
+    color: $text-secondary;
+    font-size: 12px;
+
+    @extend .font-bold;
+}
+
+%dialog-input {
+    margin: 0;
+    border: 1px solid $border-primary;
+    border-radius: 6px;
+    background-color: $bcg-darker;
+    box-shadow: none;
+
+    > input,
+    > textarea {
+        padding: 0 10px;
+        color: $text-primary;
+        font-family: inherit;
+        font-size: 13px;
+    }
+
+    &.pcui-focus {
+        border-color: $text-darkest;
+    }
+}
+
+%dialog-button {
+    position: relative;
+    height: 32px;
+    margin: 0;
+    padding: 0 14px;
+    border: 1px solid $border-primary;
+    border-radius: 6px;
+    background-color: $bcg-primary;
+    color: $text-secondary;
+    font-size: 13px;
+    line-height: 30px;
+
+    &:hover {
+        color: $text-primary;
+        box-shadow: none;
+    }
+}
+
+%dialog-button-primary {
+    border-color: transparent;
+    background-color: $text-active;
+    color: $text-primary;
+
+    &:not(.pcui-disabled):hover {
+        background-color: hsl(24deg 100% 43%);
+    }
+}
+
+.pcui-overlay.picker-project-new {
+    z-index: 100000; // larger than drop-area's
+
+    // same frame as the project picker (.picker-project): centred 1060x600 box,
+    // 33px header with a centred title, $bcg-primary body
+    > .pcui-overlay-content {
+        width: min(1060px, calc(100vw - 32px));
+        height: min(600px, calc(100vh - 32px));
+        border: 1px solid $border-primary;
+
+        > .pcui-panel {
+            height: 100%;
+
+            > .pcui-panel-header {
+                @extend %dialog-header;
+            }
+
+            > .pcui-panel-content {
+                height: calc(100% - 33px);
+                padding: 0;
+                overflow: hidden;
+            }
+        }
+    }
+
+    .modal-new-project-container {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 300px;
+        height: 100%;
+    }
+
+    // kits
+
+    .modal-new-project-main-view {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        min-height: 0;
+        padding: 20px 24px 24px;
+        overflow: hidden auto;
+    }
+
+    .modal-new-project-heading {
+        margin: 0;
+        color: $text-primary;
+        font-size: 13px;
+
+        @extend .font-bold;
+    }
+
+    .modal-new-project-kits-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 16px;
+        margin: 0;
+    }
+
+    .starter-kit {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+        overflow: hidden;
+        border: 1px solid $border-primary;
+        border-radius: 8px;
+        background-color: $bcg-dark;
+        cursor: pointer;
+        transition: border-color 100ms, box-shadow 100ms;
+
+        &.hovered {
+            border-color: $text-darkest;
+        }
+
+        &.selected {
+            border-color: $text-active;
+            box-shadow: 0 0 0 1px $text-active;
+
+            // tick in the corner of the selected kit
+            &::after {
+                content: '';
+                position: absolute;
+                top: 8px;
+                right: 8px;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: $text-active url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 6.2l2.3 2.3 4.7-4.9'/%3E%3C/svg%3E") center / 12px no-repeat;
+            }
+        }
+
+        .thumbnail {
+            position: relative;
+            aspect-ratio: 1; // kit thumbnails are square
+            margin: 0;
+            overflow: hidden;
+            background-color: $bcg-darkest;
+
+            img {
+                display: block;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .overlay {
+                position: absolute;
+                inset: 0;
+                margin: 0;
+                pointer-events: none;
+            }
+
+            // preview opens the kit's published app
+            .preview-button {
+                position: absolute;
+                bottom: 8px;
+                left: 8px;
+                display: none;
+                width: 28px;
+                height: 28px;
+                margin: 0;
+                padding: 0;
+                border: none;
+                border-radius: 6px;
+                background-color: rgb(32 41 43 / 85%);
+                color: $text-primary;
+                pointer-events: auto;
+
+                // svg triangle: the font glyph sits off-centre; 1px right to balance it optically
+                &::before {
+                    @extend %cms-mask-icon;
+
+                    width: 10px;
+                    height: 12px;
+                    margin-left: 2px;
+                    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 12'%3E%3Cpath d='M0 0v12l10-6z'/%3E%3C/svg%3E");
+                }
+
+                &:hover {
+                    background-color: $text-active;
+                    box-shadow: none;
+                }
+            }
+        }
+
+        &.hovered .preview-button,
+        &.selected .preview-button {
+            display: inline-grid;
+            place-items: center;
+        }
+
+        h4 {
+            margin: 10px 12px 0;
+            overflow: hidden;
+            color: $text-primary;
+            font-size: 13px;
+            font-weight: normal;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            @extend .font-bold;
+        }
+
+        .kit-desc {
+            display: -webkit-box;
+            min-height: 32px;
+            margin: 4px 12px 12px;
+            overflow: hidden;
+            color: $text-dark;
+            font-size: 12px;
+            line-height: 16px;
+            white-space: normal;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+        }
+    }
+
+    // first-load placeholders, shaped like kit cards
+    .starter-kit.skeleton {
+        cursor: default;
+
+        .kit-bone {
+            @extend %cms-bone;
+
+            &.thumb {
+                aspect-ratio: 1;
+                border-radius: 0;
+            }
+
+            &.title {
+                width: 60%;
+                height: 12px;
+                margin: 12px 12px 0;
+            }
+
+            &.line {
+                width: 85%;
+                height: 10px;
+                margin: 8px 12px 14px;
+            }
+        }
+
+        &:nth-child(2n) .kit-bone {
+            animation-delay: 120ms;
+        }
+
+        &:nth-child(3n) .kit-bone {
+            animation-delay: 240ms;
+        }
+    }
+
+    // form
+
+    .modal-new-project-sidebar {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        border-left: 1px solid $border-primary;
+        background-color: $bcg-dark;
+    }
+
+    .modal-new-project-form-content {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 16px;
+        min-height: 0;
+        padding: 20px;
+        overflow-y: auto;
+
+        > .pcui-container {
+            gap: 6px;
+            margin: 0;
+        }
+
+        .pcui-label {
+            @extend %dialog-label;
+        }
+
+        .form-control {
+            @extend %dialog-input;
+        }
+
+        .pcui-text-input.form-control {
+            height: 32px;
+
+            > input {
+                height: 30px;
+            }
+        }
+
+        .pcui-text-area-input.form-control > textarea {
+            padding: 8px 10px;
+            line-height: 18px;
+            resize: none;
+        }
+
+        .pcui-boolean-input {
+            margin: 0;
+        }
+
+        // owner dropdown with avatars
+        .owner-dropdown {
+            margin: 0;
+
+            .pcui-select-input-container-value {
+                position: relative;
+            }
+
+            .owner-profile {
+                position: absolute;
+                top: 50%;
+                left: 8px;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                transform: translateY(-50%);
+            }
+
+            .pcui-select-input-value {
+                height: 32px;
+                padding-left: 36px;
+                border: 1px solid $border-primary;
+                border-radius: 6px;
+                background-color: $bcg-darker;
+                font-size: 13px;
+                line-height: 30px;
+            }
+
+            .pcui-select-input-list > * {
+                position: relative;
+                height: 32px;
+                padding-left: 36px;
+                line-height: 32px;
+            }
+        }
+    }
+
+    .create-btn-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 16px 20px;
+        border-top: 1px solid $border-primary;
+
+        .pcui-button {
+            @extend %dialog-button;
+        }
+
+        .create-btn {
+            @extend %dialog-button-primary;
+
+            min-width: 120px;
+        }
+
+        .loader {
+            position: absolute;
+            inset: 0;
+            width: 14px;
+            height: 14px;
+            margin: auto;
+            border: 2px solid rgb(255 255 255 / 35%);
+            border-top-color: $text-primary;
+            border-radius: 50%;
+            animation: cms-spin 0.8s linear infinite;
+        }
+    }
+
+    // alerts from picker:project:buildAlert sit over the kit grid
+    .modal-new-project-main-view > .alert {
+        border-radius: 6px;
+    }
+}
+
+.pcui-overlay.picker-new-organization {
+    z-index: 10000;
+
+    > .pcui-overlay-content {
+        width: min(480px, calc(100vw - 32px));
+        border: 1px solid $border-primary;
+
+        > .new-organization-panel {
+            > .pcui-panel-header {
+                @extend %dialog-header;
+            }
+
+            > .pcui-panel-content {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                padding: 20px 20px 0;
+            }
+
+            .form-group {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                margin: 0;
+            }
+
+            .form-group--label {
+                @extend %dialog-label;
+            }
+
+            .form-group--input {
+                @extend %dialog-input;
+
+                height: 32px;
+
+                > input {
+                    height: 30px;
+                }
+            }
+
+            .form-group--hint {
+                margin: 0;
+                color: $text-dark;
+                font-size: 12px;
+                white-space: normal;
+            }
+
+            .new-organization-footer {
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-end;
+                gap: 8px;
+                margin: 4px -20px 0;
+                padding: 16px 20px;
+                border-top: 1px solid $border-primary;
+
+                > .pcui-button {
+                    @extend %dialog-button;
+                }
+
+                > .create-org-button {
+                    @extend %dialog-button-primary;
+
+                    &.pcui-disabled {
+                        opacity: $element-opacity-disabled;
+                    }
+                }
+            }
+        }
+    }
+}

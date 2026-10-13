@@ -1,0 +1,1631 @@
+@use 'sass:color';
+
+// projects page (picker-cms.ts): sidebar + main panel
+// corners: 8px surfaces (cards, panels, search, popovers), 6px controls (buttons, inputs, nav items, tabs), 4px badges
+
+$cms-surface: $bcg-primary; // cards, search, buttons: a clear step up from the $bcg-darker page
+$cms-edge: color.mix($text-darkest, $bcg-primary, 25%);
+$cms-hover: color.mix($text-darkest, $bcg-primary, 15%);
+$cms-float: $bcg-primary; // menus and popovers, so they lift off the $bcg-darkest sidebar
+$cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
+
+%cms-mask-icon {
+    content: '';
+    flex: none;
+    background-color: currentcolor;
+    mask: center / contain no-repeat;
+}
+
+@keyframes cms-pulse {
+    50% {
+        box-shadow: 0 0 0 5px rgb(255 102 0 / 0%);
+    }
+}
+
+@keyframes cms-bone-pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.45;
+    }
+}
+
+@keyframes cms-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// pulsing skeleton bone (version control pattern), shared with the new project kit grid
+%cms-bone {
+    flex: none;
+    border-radius: 4px;
+    background-color: rgb(255 255 255 / 8%);
+    animation: cms-bone-pulse 1.4s ease-in-out infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: none;
+    }
+}
+
+.pcui-overlay.picker-project-cms {
+    z-index: 10000;
+
+    // component rules below set display, so hidden elements need to win explicitly
+    .pcui-hidden {
+        display: none !important;
+    }
+
+    & > .pcui-overlay-content {
+        width: 100vw;
+        height: 100vh;
+        max-width: none;
+        max-height: none;
+        border-radius: 0;
+    }
+
+    .cms-root {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        background-color: $bcg-darker;
+        color: $text-secondary;
+        font-size: 13px;
+    }
+
+    .pcui-label {
+        margin: 0;
+        color: inherit;
+        font-size: inherit;
+        line-height: inherit;
+        white-space: nowrap;
+    }
+
+    .cms-live {
+        flex: none;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: $text-active;
+        box-shadow: 0 0 0 2px rgb(255 102 0 / 28%);
+        animation: cms-pulse 2s ease-in-out infinite;
+    }
+
+    .cms-badge,
+    .cms-row-name > .pcui-label.cms-badge {
+        display: inline-flex;
+        flex: none;
+        align-items: center;
+        height: 18px;
+        padding: 0 6px;
+        border: 1px solid $cms-edge;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color: rgb(32 41 43 / 88%);
+        color: $text-dark;
+        font-size: 11px;
+        line-height: 1;
+        text-transform: uppercase;
+
+        // caps have no descenders, so trim to cap height to centre them optically
+        text-box: trim-both cap alphabetic;
+
+        &.locked {
+            color: #f3c16f;
+            border-color: rgb(225 166 62 / 45%);
+        }
+
+        &.disabled {
+            color: #ff8a8a;
+            border-color: rgb(255 138 138 / 45%);
+        }
+
+        &.public {
+            color: #6fd088;
+            border-color: rgb(111 208 136 / 45%);
+        }
+    }
+
+    .cms-button {
+        display: inline-flex;
+        align-items: center;
+        height: 32px;
+        margin: 0;
+        padding: 0 14px;
+        border: 1px solid $bcg-darkest;
+        border-radius: 6px;
+        background-color: $cms-surface;
+        color: $text-secondary;
+        font-size: 13px;
+        line-height: 30px;
+
+        &[data-icon]::before {
+            margin-right: 6px;
+            font-size: 12px;
+        }
+
+        &:not(.pcui-disabled):hover {
+            color: $text-primary;
+            box-shadow: $element-shadow-hover;
+        }
+
+        &.primary {
+            border-color: transparent;
+            background-color: $text-active;
+            color: $text-primary;
+
+            &:not(.pcui-disabled):hover {
+                background-color: hsl(24deg 100% 43%);
+            }
+        }
+
+        &.ghost {
+            border-color: transparent;
+            background-color: transparent;
+
+            &:not(.pcui-disabled):hover {
+                background-color: $cms-surface;
+                box-shadow: none;
+            }
+        }
+
+        &.small {
+            height: 26px;
+            padding: 0 10px;
+            font-size: 12px;
+            line-height: 24px;
+        }
+    }
+
+    .cms-kebab {
+        display: inline-grid;
+        flex: none;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        margin: 0;
+        padding: 0;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        background: transparent;
+        color: $text-dark;
+
+        &::before {
+            @extend %cms-mask-icon;
+
+            width: 14px;
+            height: 14px;
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='3' cy='8' r='1.4'/%3E%3Ccircle cx='8' cy='8' r='1.4'/%3E%3Ccircle cx='13' cy='8' r='1.4'/%3E%3C/svg%3E");
+        }
+
+        &:hover {
+            border-color: $bcg-darkest;
+            background-color: $bcg-darkest;
+            color: $text-primary;
+            box-shadow: none;
+        }
+    }
+
+    // sidebar
+
+    .cms-side {
+        display: flex;
+        flex: none;
+        flex-direction: column;
+        gap: 1px;
+        min-height: 0;
+        padding: 12px 10px 10px;
+        border-right: 1px solid $border-primary;
+        box-sizing: border-box;
+        background-color: $bcg-darkest;
+        overflow: hidden auto;
+    }
+
+    .cms-brand {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        height: 36px;
+        padding: 0 8px;
+        color: $text-primary;
+        font-size: 15px;
+
+        & > .cms-logo {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            background: url('../static/img/editor_logo.svg') right / 200% 100% no-repeat;
+        }
+
+        & > .cms-brand-name {
+            @extend .font-bold;
+        }
+    }
+
+    .cms-new,
+    .cms-nav {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        height: 32px;
+        margin: 0;
+        padding: 0 8px;
+        border: none;
+        border-radius: 6px;
+        background: transparent;
+        color: $text-secondary;
+        font-size: 13px;
+        line-height: 32px;
+        text-align: left;
+
+        &[data-icon]::before {
+            width: 22px;
+            margin: 0;
+            color: $text-dark;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        &:not(.pcui-disabled):hover,
+        &.active {
+            background-color: $cms-surface;
+            color: $text-primary;
+            box-shadow: none;
+        }
+
+        &.active[data-icon]::before {
+            color: $text-active;
+        }
+    }
+
+    .cms-new {
+        height: 36px;
+        margin: 10px 0 8px;
+        color: $text-primary;
+
+        &[data-icon]::before {
+            display: inline-grid;
+            place-items: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background-color: $text-active;
+            color: $text-primary;
+            font-size: 11px;
+            line-height: 1;
+            vertical-align: initial;
+        }
+    }
+
+    .cms-section > .pcui-label {
+        @extend .font-bold;
+    }
+
+    .cms-section {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        height: 28px;
+        margin-top: 14px;
+        padding: 0 8px;
+        color: $text-darkest;
+        font-size: 11px;
+        text-transform: uppercase;
+
+        @extend .font-bold;
+    }
+
+    .cms-section-add {
+        width: 20px;
+        height: 20px;
+        margin: 0;
+        padding: 0;
+        border: none;
+        border-radius: 4px;
+        background: transparent;
+        color: $text-dark;
+        font-size: 10px;
+        line-height: 20px;
+
+        &[data-icon]::before {
+            margin: 0;
+        }
+
+        &:hover {
+            background-color: $cms-surface;
+            color: $text-primary;
+            box-shadow: none;
+        }
+    }
+
+    .cms-side-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+    }
+
+    .cms-side-item {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        height: 32px;
+        padding: 0 8px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 100ms;
+
+        &:hover,
+        &.active {
+            background-color: $cms-surface;
+            color: $text-primary;
+        }
+    }
+
+    .cms-side-thumb {
+        flex: none;
+        width: 22px;
+        height: 22px;
+        border-radius: 4px;
+        object-fit: cover;
+        background-color: $bcg-darker;
+    }
+
+    .cms-side-label {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .cms-side-count {
+        color: $text-darkest;
+        font-size: 11px;
+    }
+
+    .cms-gap {
+        flex: 1;
+        min-height: 12px;
+    }
+
+    .cms-storage {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        margin-bottom: 8px;
+        padding: 10px 10px 11px;
+        border: 1px solid $border-primary;
+        border-radius: 8px;
+        background-color: $bcg-darker;
+        color: $text-dark;
+        font-size: 12px;
+        cursor: pointer;
+        transition: box-shadow 100ms;
+
+        &:hover,
+        &.open {
+            box-shadow: $element-shadow-hover;
+        }
+
+        & > .progress-icon {
+            align-self: center;
+        }
+    }
+
+    .cms-storage-row {
+        display: flex;
+        flex-direction: row;
+        align-items: baseline;
+        justify-content: space-between;
+    }
+
+    .cms-storage-title {
+        color: $text-primary;
+
+        @extend .font-bold;
+    }
+
+    .cms-storage-upgrade {
+        color: $text-active;
+    }
+
+    .cms-me {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        padding: 4px 4px 0 6px;
+    }
+
+    .cms-me-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    .cms-me-text {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .cms-me-name {
+        color: $text-primary;
+
+        @extend .font-bold;
+    }
+
+    .cms-me-plan {
+        color: $text-dark;
+        font-size: 11px;
+    }
+
+    .cms-me > .pcui-button.mcp-account {
+        display: inline-grid;
+        flex: none;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        margin: 0 -6px 0 0;
+        padding: 0;
+        border: none;
+        border-radius: 6px;
+        background: transparent;
+        color: $text-dark;
+        box-shadow: none;
+
+        .mcp-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        &:hover {
+            background-color: $bcg-darkest;
+            color: $text-primary;
+        }
+
+        &.active {
+            color: #4ea86a;
+        }
+    }
+
+    // main panel
+
+    .cms-main {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .cms-banner {
+        display: flex;
+        flex: none;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        height: 40px;
+        padding: 0 16px 0 20px;
+        border-bottom: 1px solid $border-primary;
+        background-color: rgb(255 102 0 / 8%);
+        font-size: 12px;
+
+        & > .cms-button {
+            margin-left: auto;
+        }
+    }
+
+    .cms-scroll {
+        flex: 1;
+        min-height: 0;
+        overflow: hidden auto;
+        scrollbar-gutter: stable;
+    }
+
+    .cms-col {
+        display: flex;
+        flex-direction: column;
+        padding: 32px clamp(24px, 3vw, 56px) 48px;
+        box-sizing: border-box;
+    }
+
+    .progress-container {
+        position: sticky;
+        top: 0;
+        z-index: 4;
+
+        & > .progress {
+            margin: 0 0 12px;
+        }
+
+        &.progress-container-expand > .pcui-label {
+            display: block;
+            margin-bottom: 12px;
+            color: $text-secondary;
+        }
+    }
+
+    .cms-head {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 24px;
+    }
+
+    .cms-head-text {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .cms-title {
+        color: $text-primary;
+        font-size: 30px;
+        line-height: 36px;
+        letter-spacing: -0.01em;
+
+        @extend .font-bold;
+    }
+
+    .cms-subtitle {
+        margin-top: 4px;
+        color: $text-dark;
+        font-size: 13px;
+    }
+
+    .cms-head-actions {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .cms-welcome {
+        display: grid;
+        grid-template-columns: 120px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 18px;
+        margin-bottom: 28px;
+        padding: 12px 18px 12px 12px;
+        border: 1px solid $cms-edge;
+        border-radius: 8px;
+        background-color: $cms-surface;
+        cursor: pointer;
+        transition: box-shadow 100ms, border-color 100ms;
+
+        &:hover {
+            box-shadow: $element-shadow-hover;
+        }
+
+        &.is-open {
+            border-color: $text-active;
+        }
+    }
+
+    // project thumbnails are square; keep them uncropped
+    .cms-welcome-thumb {
+        width: 120px;
+        aspect-ratio: 1;
+        border-radius: 6px;
+        object-fit: cover;
+        background-color: $bcg-darkest;
+    }
+
+    .cms-welcome-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+    }
+
+    .cms-eyebrow {
+        color: $text-dark;
+        font-size: 11px;
+        text-transform: uppercase;
+
+        @extend .font-bold;
+    }
+
+    .cms-welcome-name {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        color: $text-primary;
+        font-size: 18px;
+        line-height: 24px;
+
+        & > .pcui-label {
+            @extend .font-bold;
+        }
+    }
+
+    .cms-welcome-scenes {
+        display: flex;
+        flex-flow: row wrap;
+        align-items: center;
+        gap: 6px;
+        margin-top: 8px;
+
+        &:empty {
+            display: none;
+        }
+    }
+
+    .cms-welcome-scenes-label {
+        margin-right: 2px;
+        color: $text-dark;
+        font-size: 12px;
+    }
+
+    .cms-welcome-scenes-more {
+        color: $text-darkest;
+        font-size: 12px;
+    }
+
+    .cms-scene {
+        height: 26px;
+        margin: 0;
+        padding: 0 10px;
+        border: 1px solid $cms-edge;
+        border-radius: 6px;
+        background-color: $bcg-darkest;
+        color: $text-secondary;
+        font-size: 12px;
+        line-height: 24px;
+
+        &:not(.pcui-disabled):hover {
+            color: $text-primary;
+            box-shadow: $element-shadow-hover;
+        }
+    }
+
+    .cms-welcome-sub {
+        color: $text-dark;
+        font-size: 12px;
+    }
+
+    .cms-welcome-actions {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+    }
+
+    .cms-heading {
+        margin-bottom: 12px;
+        color: $text-primary;
+        font-size: 14px;
+
+        @extend .font-bold;
+    }
+
+    // search, filter hints, tabs, sort and layout
+
+    .cms-toolbar {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        margin: 0 -8px 16px;
+        padding: 8px 8px 12px;
+        background-color: $bcg-darker;
+        transition: box-shadow 100ms;
+
+        &.stuck {
+            box-shadow: 0 1px 0 $border-primary;
+        }
+    }
+
+    .cms-search {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        height: 44px;
+        padding: 0 10px 0 14px;
+        border: 1px solid $cms-edge;
+        border-radius: 8px;
+        background-color: $cms-surface;
+        transition: box-shadow 100ms;
+
+        &::before {
+            @extend %cms-mask-icon;
+
+            width: 16px;
+            height: 16px;
+            color: $text-dark;
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round'%3E%3Ccircle cx='7' cy='7' r='4.5'/%3E%3Cpath d='m14 14-3.6-3.6'/%3E%3C/svg%3E");
+        }
+
+        &:focus-within {
+            box-shadow: $element-shadow-active;
+        }
+    }
+
+    .cms-search-input {
+        flex: 1;
+        height: 100%;
+        margin: 0;
+        border: none;
+        background: transparent;
+        box-shadow: none;
+
+        & > input {
+            width: 100%;
+            padding: 0;
+            color: $text-primary;
+            font-family: inherit;
+            font-size: 14px;
+
+            @extend .font-regular;
+
+            &::placeholder {
+                color: $text-darkest;
+            }
+        }
+
+        &:hover,
+        &.pcui-focus {
+            background: transparent;
+            box-shadow: none;
+        }
+    }
+
+    .cms-search-clear {
+        display: grid;
+        flex: none;
+        place-items: center;
+        width: 24px;
+        height: 24px;
+        margin: 0;
+        padding: 0;
+        border: none;
+        border-radius: 6px;
+        background: transparent;
+        color: $text-dark;
+
+        &::before {
+            @extend %cms-mask-icon;
+
+            width: 12px;
+            height: 12px;
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M2.5 2.5l7 7M9.5 2.5l-7 7'/%3E%3C/svg%3E");
+        }
+
+        &:hover {
+            background-color: $cms-edge;
+            color: $text-primary;
+            box-shadow: none;
+        }
+    }
+
+    .cms-hints {
+        display: none;
+        flex-flow: row wrap;
+        align-items: center;
+        gap: 6px;
+        margin-top: 8px;
+        color: $text-dark;
+        font-size: 12px;
+    }
+
+    // only the search box opens the hints, so clicking a tab or sort doesn't shift the row mid-click
+    .cms-search:focus-within + .cms-hints,
+    .cms-toolbar.has-query .cms-hints {
+        display: flex;
+    }
+
+    .cms-hint {
+        height: 22px;
+        margin: 0;
+        padding: 0 7px;
+        border: 1px solid $cms-edge;
+        border-radius: 4px;
+        background-color: $bcg-darkest;
+        color: $text-secondary;
+        font-family: inconsolatamedium, Monaco, Menlo, monospace;
+        font-size: 12px;
+        line-height: 20px;
+
+        &:hover {
+            box-shadow: $element-shadow-hover;
+        }
+    }
+
+    .cms-hints-tip {
+        margin-left: auto;
+        color: $text-darkest;
+    }
+
+    .cms-tools {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        margin-top: 14px;
+    }
+
+    .cms-tabs {
+        display: flex;
+        flex-direction: row;
+        gap: 4px;
+        margin-right: auto;
+    }
+
+    .cms-tab,
+    .cms-sort {
+        height: 30px;
+        margin: 0;
+        padding: 0 12px;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        background: transparent;
+        color: $text-dark;
+        font-size: 13px;
+        line-height: 28px;
+
+        &:not(.pcui-disabled):hover {
+            color: $text-primary;
+            box-shadow: none;
+        }
+
+        &.active {
+            border-color: $cms-edge;
+            background-color: $cms-surface;
+            color: $text-primary;
+        }
+    }
+
+    .cms-count {
+        margin-left: 6px;
+        color: $text-darkest;
+        font-size: 11px;
+    }
+
+    .cms-sort-value {
+        margin-left: 4px;
+        color: $text-primary;
+    }
+
+    .cms-sort {
+        margin-left: auto;
+
+        &::after {
+            content: '\E159';
+            margin-left: 6px;
+            font-family: pc-icon;
+            font-size: 9px;
+        }
+
+        &:not(.pcui-disabled):hover {
+            border-color: $cms-edge;
+            background-color: $cms-surface;
+        }
+    }
+
+    .cms-layout {
+        display: flex;
+        flex-direction: row;
+        padding: 2px;
+        border: 1px solid $cms-edge;
+        border-radius: 6px;
+        background-color: $bcg-darkest;
+    }
+
+    .cms-layout-button {
+        display: inline-grid;
+        place-items: center;
+        width: 28px;
+        height: 24px;
+        margin: 0;
+        padding: 0;
+        border: none;
+        border-radius: 4px;
+        background: transparent;
+        color: $text-dark;
+
+        // svg masks: the font's list glyph sits off-centre
+        &::before {
+            @extend %cms-mask-icon;
+
+            width: 14px;
+            height: 14px;
+        }
+
+        &.grid::before {
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M0 0h4v4H0zM5 0h4v4H5zM10 0h4v4h-4zM0 5h4v4H0zM5 5h4v4H5zM10 5h4v4h-4zM0 10h4v4H0zM5 10h4v4H5zM10 10h4v4h-4z'/%3E%3C/svg%3E");
+        }
+
+        &.list::before {
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M0 1h3v3H0zM4.5 1.5H14v2H4.5zM0 5.5h3v3H0zM4.5 6H14v2H4.5zM0 10h3v3H0zM4.5 10.5H14v2H4.5z'/%3E%3C/svg%3E");
+        }
+
+        &:not(.pcui-disabled):hover {
+            color: $text-primary;
+            box-shadow: none;
+        }
+
+        &.active {
+            background-color: $cms-edge;
+            color: $text-primary;
+        }
+    }
+
+    // cards (thumbnail first) and rows (one bordered list)
+
+    .cms-list {
+        &.grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        &.rows {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid $cms-edge;
+            border-radius: 8px;
+            background-color: $cms-surface;
+            overflow: hidden;
+        }
+
+        &.rows:has(> .cms-empty) {
+            border: none;
+            background: none;
+        }
+    }
+
+    .cms-card {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        border: 1px solid $cms-edge;
+        border-radius: 8px;
+        background-color: $cms-surface;
+        overflow: hidden;
+        outline: none;
+        cursor: pointer;
+        transition: box-shadow 100ms, border-color 100ms;
+
+        &:hover,
+        &:focus-visible {
+            box-shadow: $element-shadow-hover;
+        }
+
+        &.is-open {
+            border-color: $text-active;
+        }
+
+        &.is-off {
+            opacity: $element-opacity-disabled;
+            cursor: default;
+
+            &:hover {
+                box-shadow: none;
+            }
+        }
+
+        &.is-dim .cms-card-thumb > img {
+            filter: grayscale(0.7) brightness(0.5);
+        }
+    }
+
+    .cms-card-thumb {
+        position: relative;
+        aspect-ratio: 1;
+        border-bottom: 1px solid $cms-edge;
+        background-color: $bcg-darkest;
+
+        & > img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        & > .cms-live {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 10px;
+            height: 10px;
+        }
+    }
+
+    .cms-card-tags {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        display: flex;
+        flex-direction: row;
+        gap: 4px;
+    }
+
+    .cms-card-cover {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 12px;
+        background-color: rgb(32 41 43 / 55%);
+        font-size: 12px;
+        text-align: center;
+
+        & > .pcui-label {
+            white-space: normal;
+        }
+
+        &.locked::before {
+            @extend %cms-mask-icon;
+
+            width: 20px;
+            height: 20px;
+            margin-bottom: 6px;
+            color: $text-primary;
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M5 7V5a3 3 0 0 1 6 0v2h.5A1.5 1.5 0 0 1 13 8.5v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 3 13.5v-5A1.5 1.5 0 0 1 4.5 7H5zm1.5 0h3V5a1.5 1.5 0 0 0-3 0v2z'/%3E%3C/svg%3E");
+        }
+    }
+
+    .cms-cover-title {
+        color: $text-primary;
+
+        @extend .font-bold;
+    }
+
+    .cms-card-body {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 12px 14px 14px;
+    }
+
+    .cms-card-name {
+        overflow: hidden;
+        color: $text-primary;
+        font-size: 14px;
+        line-height: 20px;
+        text-overflow: ellipsis;
+
+        @extend .font-bold;
+    }
+
+    .cms-card-desc {
+        display: -webkit-box;
+        min-height: 36px;
+        overflow: hidden;
+        color: $text-dark;
+        font-size: 12px;
+        line-height: 18px;
+        white-space: normal;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+
+        &.empty {
+            color: $text-darkest;
+        }
+    }
+
+    .cms-card-meta {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        margin-top: 6px;
+        color: $text-dark;
+        font-size: 12px;
+    }
+
+    .cms-avatar {
+        flex: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+    }
+
+    .cms-card-owner {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .cms-plays {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 4px;
+        margin-left: auto;
+        font-variant-numeric: tabular-nums;
+
+        &::before {
+            @extend %cms-mask-icon;
+
+            width: 9px;
+            height: 10px;
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 10'%3E%3Cpath d='M0 0v10l9-5z'/%3E%3C/svg%3E");
+        }
+    }
+
+    .cms-row {
+        display: grid;
+        grid-template-columns: 40px minmax(0, 1fr) 96px 72px 120px 28px;
+        align-items: center;
+        gap: 14px;
+        padding: 10px 12px 10px 14px;
+        border-bottom: 1px solid $cms-edge;
+        cursor: pointer;
+        transition: background-color 100ms;
+
+        &:last-of-type {
+            border-bottom: none;
+        }
+
+        &:hover {
+            background-color: $cms-hover;
+        }
+
+        &.is-off {
+            opacity: $element-opacity-disabled;
+            cursor: default;
+        }
+
+        &.is-dim > .cms-row-thumb {
+            filter: grayscale(0.7) brightness(0.55);
+        }
+    }
+
+    .cms-row-thumb {
+        width: 40px;
+        height: 40px;
+        border-radius: 4px;
+        object-fit: cover;
+        background-color: $bcg-darkest;
+    }
+
+    .cms-row-info {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .cms-row-name {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        color: $text-primary;
+        font-size: 14px;
+        line-height: 20px;
+
+        & > .pcui-label:not(.cms-badge) {
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            @extend .font-bold;
+        }
+    }
+
+    .cms-row-sub {
+        margin-top: 2px;
+        overflow: hidden;
+        color: $text-dark;
+        font-size: 12px;
+        text-overflow: ellipsis;
+    }
+
+    .cms-row-cell {
+        color: $text-dark;
+        font-size: 12px;
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+
+        &.muted {
+            opacity: 0.6;
+        }
+    }
+
+    .cms-empty {
+        display: flex;
+        grid-column: 1 / -1;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding: 48px 0;
+        border: 1px dashed $cms-edge;
+        border-radius: 8px;
+        color: $text-dark;
+    }
+
+    .cms-empty-title {
+        color: $text-primary;
+
+        @extend .font-bold;
+    }
+
+    .cms-more {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 56px;
+        margin-top: 8px;
+        color: $text-darkest;
+        font-size: 12px;
+    }
+
+    .cms-spin {
+        width: 12px;
+        height: 12px;
+        border: 2px solid $cms-edge;
+        border-top-color: $text-active;
+        border-radius: 50%;
+        animation: cms-spin 700ms linear infinite;
+    }
+
+    // skeleton bones while projects load (version control pattern)
+    .cms-bone {
+        @extend %cms-bone;
+
+        &.thumb {
+            width: 100%;
+            height: 100%;
+            border-radius: 0;
+        }
+
+        &.line {
+            height: 10px;
+        }
+
+        &.title {
+            width: 55%;
+            height: 12px;
+        }
+
+        &.full {
+            width: 100%;
+        }
+
+        &.part {
+            width: 70%;
+        }
+
+        &.meta {
+            width: 40%;
+            margin-top: 8px;
+        }
+
+        &.eyebrow {
+            width: 90px;
+        }
+
+        &.cell {
+            justify-self: end;
+            width: 48px;
+        }
+
+        &.label {
+            flex: 1;
+        }
+
+        &.row-thumb {
+            width: 40px;
+            height: 40px;
+        }
+
+        &.side-thumb {
+            width: 22px;
+            height: 22px;
+        }
+
+        &.welcome-thumb {
+            width: 120px;
+            aspect-ratio: 1;
+            border-radius: 6px;
+        }
+    }
+
+    .skeleton {
+        cursor: default;
+
+        &:hover {
+            background-color: transparent;
+            box-shadow: none;
+        }
+
+        .cms-card-body,
+        .cms-row-info,
+        .cms-welcome-info {
+            gap: 8px;
+        }
+    }
+
+    .cms-list > .skeleton:nth-child(2) .cms-bone,
+    .cms-side-list > .skeleton:nth-child(2) .cms-bone {
+        animation-delay: 120ms;
+    }
+
+    .cms-list > .skeleton:nth-child(3) .cms-bone,
+    .cms-side-list > .skeleton:nth-child(3) .cms-bone {
+        animation-delay: 240ms;
+    }
+
+    .cms-list > .skeleton:nth-child(n + 4) .cms-bone,
+    .cms-side-list > .skeleton:nth-child(n + 4) .cms-bone {
+        animation-delay: 360ms;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .cms-live,
+        .cms-spin {
+            animation: none;
+        }
+    }
+}
+
+.pcui-menu.cms-menu {
+    z-index: 10001;
+
+    .pcui-menu-items {
+        border-color: $border-primary;
+        background-color: $cms-float;
+        box-shadow: $cms-float-shadow;
+    }
+
+    .pcui-menu-items {
+        padding: 4px 0;
+    }
+
+    .pcui-menu-item {
+        border: none;
+        background-color: transparent;
+    }
+
+    .pcui-menu-item-content {
+        border: none;
+
+        &:hover {
+            background-color: $cms-hover;
+        }
+    }
+}
+
+.pcui-container.cms-storage-popover.pcui-hidden {
+    display: none;
+}
+
+.pcui-container.cms-storage-popover {
+    position: fixed;
+    z-index: 10001;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 280px;
+    padding: 14px;
+    border: 1px solid $border-primary;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background-color: $cms-float;
+    box-shadow: $cms-float-shadow;
+    color: $text-secondary;
+    font-size: 12px;
+
+    .pcui-label {
+        margin: 0;
+        color: inherit;
+        font-size: inherit;
+        white-space: nowrap;
+    }
+
+    .cms-pop-head,
+    .cms-pop-big,
+    .cms-pop-row {
+        display: flex;
+        flex-direction: row;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .cms-pop-big {
+        justify-content: flex-start;
+        gap: 6px;
+    }
+
+    .cms-pop-title,
+    .cms-pop-used {
+        color: $text-primary;
+
+        @extend .font-bold;
+    }
+
+    .cms-pop-title {
+        font-size: 13px;
+    }
+
+    .cms-pop-used {
+        font-size: 20px;
+    }
+
+    .cms-pop-plan,
+    .cms-pop-of {
+        color: $text-dark;
+    }
+
+    .cms-pop-rows {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding-top: 8px;
+        border-top: 1px solid $bcg-primary;
+    }
+
+    .cms-pop-key {
+        color: $text-darkest;
+        font-size: 11px;
+        text-transform: uppercase;
+
+        @extend .font-bold;
+    }
+
+    .cms-pop-row > .pcui-label:first-child {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .cms-pop-row > .value {
+        color: $text-primary;
+    }
+
+    .pcui-button {
+        height: 32px;
+        margin: 0;
+        border: none;
+        border-radius: 6px;
+        background-color: $text-active;
+        color: $text-primary;
+
+        &:hover {
+            background-color: hsl(24deg 100% 43%);
+            box-shadow: none;
+        }
+    }
+}
+
+.cms-bar {
+    height: 4px;
+    border-radius: 4px;
+    background-color: $bcg-primary;
+    overflow: hidden;
+
+    .cms-storage-popover & {
+        height: 6px;
+    }
+
+    & > .cms-bar-fill {
+        display: block;
+        height: 100%;
+        border-radius: 4px;
+        background-color: $text-active;
+    }
+}
+
+// mcp connect popover from the projects page account row (mcp/popover.ts), built from the same rows as the account menu
+.pcui-panel.mcp-popover.mcp-popover-account {
+    overflow: hidden;
+    border: 1px solid $border-primary;
+    border-radius: 6px;
+    background-color: $cms-float;
+    box-shadow: $cms-float-shadow;
+    font-size: 13px;
+
+    & > .pcui-panel-header {
+        height: 30px;
+        padding: 6px 12px 0;
+        border: none;
+        background: transparent;
+
+        & > .pcui-panel-header-title {
+            margin: 0;
+            padding: 0;
+            color: $text-primary;
+            font-size: 13px;
+            line-height: 30px;
+            text-transform: none;
+        }
+    }
+
+    & > .pcui-panel-content {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        padding: 0 12px 12px;
+        background: transparent;
+    }
+
+    .mcp-row,
+    .mcp-row:first-child {
+        gap: 8px;
+        height: 30px;
+        padding: 0;
+    }
+
+    .mcp-row-label {
+        width: 40px;
+        color: $text-dark;
+        font-size: 13px;
+    }
+
+    .mcp-status-value {
+        color: $text-secondary;
+        font-size: 13px;
+    }
+
+    .mcp-field {
+        height: 22px;
+        border: none;
+        border-radius: 4px;
+        background-color: $bcg-darkest;
+        box-shadow: none;
+
+        & > input {
+            height: 22px;
+            padding: 0 6px;
+            color: $text-secondary;
+            font-family: inherit;
+            font-size: 13px;
+        }
+
+        &.pcui-disabled {
+            opacity: 1;
+
+            & > input {
+                color: $text-dark;
+            }
+        }
+    }
+
+    .mcp-hint {
+        padding: 4px 0;
+        font-size: 12px;
+    }
+
+    // same as the page's .cms-button: orange to connect, neutral to cancel or disconnect
+    .mcp-toggle {
+        width: 100%;
+        height: 30px;
+        margin: 8px 0 0;
+        border: 1px solid $bcg-darkest;
+        border-radius: 6px;
+        background-color: $bcg-dark;
+        color: $text-secondary;
+        font-size: 13px;
+        line-height: 28px;
+
+        &:hover {
+            background-color: $bcg-darker;
+            color: $text-primary;
+            box-shadow: none;
+        }
+
+        &.primary {
+            border-color: transparent;
+            background-color: $text-active;
+            color: $text-primary;
+
+            &:hover {
+                background-color: hsl(24deg 100% 43%);
+            }
+        }
+    }
+}
