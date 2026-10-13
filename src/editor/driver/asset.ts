@@ -11,6 +11,9 @@ const MAX_TRANSFERS = 1;
 const MAX_BASE64_LENGTH = Math.ceil(MAX_FILE_BYTES / 3) * 4;
 const TRANSFER_TIMEOUT = 60_000;
 const TEXT_TYPES = ['css', 'html', 'json', 'script', 'shader', 'text'];
+
+// font source files, matching what the Editor's upload treats as a font
+const FONT_SOURCE_EXTENSION = /\.(ttf|ttc|otf|dfont)$/i;
 const MIME_TYPES: Record<string, string> = {
     css: 'text/css',
     html: 'text/html',
@@ -103,6 +106,19 @@ const uploadFile = (item: any, file: File) => {
     if (asset && asset.get('type') !== item.type) {
         throw new Error(`Asset ${item.id} is type ${asset.get('type')}, not ${item.type}.`);
     }
+
+    // a new font file goes through the Editor's font import, as an upload or drop does, which
+    // also builds the Font asset; uploading the file alone only stores the source
+    if (!asset && item.type === 'font' && FONT_SOURCE_EXTENSION.test(item.filename)) {
+        const source = new File([file], item.filename, { type: item.mime || 'application/octet-stream' });
+        return editor.call('fonts:import', source, folder?.observer).then((font: any) => {
+            if (!font) {
+                throw new Error(`Font import failed for ${item.filename}.`);
+            }
+            return waitForAsset(font.get('id'));
+        });
+    }
+
     return uploadAsset(
         {
             id: item.id,

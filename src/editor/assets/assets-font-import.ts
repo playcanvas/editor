@@ -343,11 +343,14 @@ editor.once('load', () => {
         const font = await getObserver(fontId);
         reloadFont(font);
         editor.call('selector:set', 'asset', [font]);
+        return font;
     };
 
+    // resolves with the new font asset, or undefined if the import failed
     editor.method('fonts:import', (file: File, folder: any) => {
-        importFont(file, folder).catch((err) => {
+        return importFont(file, folder).catch((err) => {
             editor.call('status:error', `Font import failed: ${err?.message ?? err}`);
+            return undefined;
         });
     });
 
