@@ -1,5 +1,7 @@
 import { Events } from '@playcanvas/observer';
 
+import { config } from '@/editor/config';
+
 import { handleRequest } from './request';
 
 const DEFAULT_PORT = 52000;
@@ -8,6 +10,9 @@ const DEFAULT_PORT = 52000;
 const HOST = '127.0.0.1';
 const RETRY_TIMEOUT = 1000;
 const PROTOCOL_VERSION = 1;
+
+// how long flushed() waits for queued frames to leave the socket
+const FLUSH_TIMEOUT = 1000;
 
 // a blocked socket looks like "nothing listening"; probe the permission on a failed open.
 // the name changed across the Chrome 145 loopback/LAN split, so try each, first match wins.
@@ -138,7 +143,10 @@ class MCPConnection extends Events {
                 JSON.stringify({
                     register: this._role,
                     protocolVersion: PROTOCOL_VERSION,
-                    methods: Array.from(this._methods.keys()).sort()
+                    methods: Array.from(this._methods.keys()).sort(),
+
+                    // null on the blank /editor page, so the server can say no project is open
+                    project: config?.project?.id ?? null
                 })
             );
             this._setStatus('connected');
@@ -191,6 +199,27 @@ class MCPConnection extends Events {
         }
         this._setStatus('disconnected');
         log('Disconnected');
+    }
+
+    /**
+     * Resolve once queued frames have left the socket, so a reply is not lost when the page
+     * navigates right after a handler returns. Waits a macrotask first because the reply is
+     * sent in the microtask after the handler resolves.
+     *
+     * @returns Resolves when the send buffer is empty, the socket is gone, or after a timeout.
+     */
+    flushed() {
+        const start = Date.now();
+        return new Promise<void>((resolve) => {
+            const check = () => {
+                if (!this._ws || this._ws.bufferedAmount === 0 || Date.now() - start >= FLUSH_TIMEOUT) {
+                    resolve();
+                    return;
+                }
+                setTimeout(check, 10);
+            };
+            setTimeout(check);
+        });
     }
 
     /**

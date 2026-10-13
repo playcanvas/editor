@@ -4,6 +4,7 @@ import './animation';
 import './animstategraph';
 import './scene';
 import './project';
+import './projects';
 import './viewport';
 import './processing';
 import './build';

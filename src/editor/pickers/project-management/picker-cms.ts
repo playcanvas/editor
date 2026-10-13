@@ -533,6 +533,11 @@ editor.once('load', () => {
         window.open(`${config.url.home}/account`, '_blank');
     });
 
+    // lets the blank page add its MCP button before the user icon
+    editor.method('picker:project:cms:addHeaderButton', (button: Element) => {
+        headerUtils.appendBefore(button, userIcon);
+    });
+
     // left panel
     const leftPanel = new Element({
         class: 'cms-left-panel'
