@@ -376,6 +376,11 @@ class AssetPanel extends Panel {
      */
     private _keyboardSelect = false;
 
+    /**
+     * Last selected asset still to be scrolled into view, once filtering (e.g. a folder switch) shows it
+     */
+    private _revealAssetId: number | null = null;
+
     private _eventsEditor: EventHandle[];
 
     private _assetListEvents: EventHandle[];
@@ -807,6 +812,9 @@ class AssetPanel extends Panel {
         };
         this._detailsView.dom.addEventListener('keydown', onNavKeyDown, true);
         this._gridView.dom.addEventListener('keydown', onNavKeyDown, true);
+
+        this._gridView.on('filter:end', () => this._revealAsset());
+        this._detailsView.on('filter:end', () => this._revealAsset());
 
         this._eventsEditor = [];
         this._eventsEditor.push(editor.on('selector:change', this._onSelectorChange.bind(this)));
@@ -2865,10 +2873,26 @@ class AssetPanel extends Panel {
                 lastRow.focus();
             }
         }
+
+        // scroll to the last selected asset, now or once a pending folder switch shows it
+        this._revealAssetId = value.length ? value[value.length - 1].get('id') : null;
+        this._revealAsset();
     }
 
     get selectedAssets() {
         return this._selectedAssets.slice();
+    }
+
+    _revealAsset() {
+        if (this._revealAssetId === null) {
+            return;
+        }
+        const index = this._viewMode === AssetPanel.VIEW_DETAILS ? this._rowsIndex : this._gridIndex;
+        const item = index[this._revealAssetId];
+        if (item && !item.hidden) {
+            item.dom.scrollIntoView({ block: 'nearest' });
+            this._revealAssetId = null;
+        }
     }
 
     get visibleAssets() {
