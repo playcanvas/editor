@@ -1,5 +1,8 @@
 const TEXT_TYPES = new Set(['css', 'html', 'json', 'script', 'shader', 'text']);
 
+// characters the server rejects in asset names
+const INVALID_NAME_CHARS = /[\\/:*?"<>|]/;
+
 editor.once('load', () => {
     const changeName = function (assetId: string | number, assetName: string, callback?: (error?: unknown) => void) {
         editor.api.globals.rest.assets
@@ -18,6 +21,10 @@ editor.once('load', () => {
         const path = asset.get('path');
         const parentId = path && path.length ? path[path.length - 1] : null;
         const enforceUnique = TEXT_TYPES.has(type) || type === 'folder';
+
+        if (INVALID_NAME_CHARS.test(newName)) {
+            return 'Names can\'t contain any of these characters: \\ / : * ? " < > |';
+        }
 
         // reject if a sibling already has the new name (case-insensitive)
         if (enforceUnique) {
