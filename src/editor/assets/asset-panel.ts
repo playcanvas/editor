@@ -2408,34 +2408,33 @@ class AssetPanel extends Panel {
 
         if (searchQuery) {
             if (this._searchTags) {
-                // check for tags
+                // check for tags, then fall through to the folder scope like a name search
                 const tags = element.asset.getRaw('tags');
-                if (tags.length === 0) {
+                if (tags.length === 0 || !this._tagsOR(this._searchTags, tags)) {
                     return false;
                 }
+            } else {
+                if (searchQuery[0] === '*' && searchQuery.length > 1) {
+                    // check for regular expression first if the query starts with '*'
+                    try {
+                        if (new RegExp(searchQuery.slice(1), 'i').test(name)) {
+                            return true;
+                        }
+                    } catch {
+                        // ignore invalid regex and continue with plain text search
+                    }
+                }
 
-                return this._tagsOR(this._searchTags, tags);
-            }
-            if (searchQuery[0] === '*' && searchQuery.length > 1) {
-                // check for regular expression first if the query starts with '*'
-                try {
-                    if (new RegExp(searchQuery.slice(1), 'i').test(name)) {
+                // check if name includes search query
+                if (!name.toLowerCase().includes(searchQuery.toLowerCase())) {
+                    // if id matches then return true immediately
+                    const id = parseInt(searchQuery, 10);
+                    if (id && element.asset.get('id') === id) {
                         return true;
                     }
-                } catch {
-                    // ignore invalid regex and continue with plain text search
-                }
-            }
 
-            // check if name includes search query
-            if (!name.toLowerCase().includes(searchQuery.toLowerCase())) {
-                // if id matches then return true immediately
-                const id = parseInt(searchQuery, 10);
-                if (id && element.asset.get('id') === id) {
-                    return true;
+                    return false;
                 }
-
-                return false;
             }
         }
 
