@@ -35,11 +35,24 @@ editor.once('load', () => {
             .catch(() => false);
     };
 
+    // parses requested before the parser has started wait here instead of being dropped
+    let parse: ((asset, inEditor, callback) => Promise<void>) | null = null;
+    const pending = [];
+    editor.method('scripts:handleParse', (asset, inEditor, callback) => {
+        if (parse) {
+            return parse(asset, inEditor, callback);
+        }
+        pending.push([asset, inEditor, callback]);
+    });
+
     const workerClient = new WorkerClient(`${config.url.frontend}js/esm-script.worker.js`);
     workerClient.once('init', async () => {
         const typesURL = config.url.engine.replace(/(\.min|\.dbg|\.prf)?\.js$/, '.d.ts');
-        const res = await fetch(typesURL);
-        const types = await res.text();
+
+        // a failed types download must not stop the parser starting, or classic scripts can't parse either
+        const types = await fetch(typesURL)
+            .then((res) => (res.ok ? res.text() : ''))
+            .catch(() => '');
         let hasIncludedTypes = false;
 
         const reqState = new Map();
@@ -268,7 +281,7 @@ onmessage = (e) => {
             }
         };
 
-        editor.method('scripts:handleParse', async (asset, inEditor, callback) => {
+        parse = async (asset, inEditor, callback) => {
             if (editor.call('assets:isModule', asset)) {
                 // FIXME: just check engine version directly
                 if (!(await isEsmSupportedInEngine(config.url.engine))) {
@@ -276,6 +289,16 @@ onmessage = (e) => {
                         'ESM scripts are not supported in this version of the engine. Please update to the latest version.';
                     editor.call('status:error', msg);
                     // always settle the callback, otherwise assets.createScript() hangs
+                    callback?.(new Error(msg), undefined);
+                    return;
+                }
+
+                // without the engine types every esm script parses as empty, which would wipe its
+                // attributes, so fail instead
+                if (!types) {
+                    const msg =
+                        "ESM scripts can't be parsed: the engine types failed to load. Reload the Editor to retry.";
+                    editor.call('status:error', msg);
                     callback?.(new Error(msg), undefined);
                     return;
                 }
@@ -302,7 +325,8 @@ onmessage = (e) => {
             }
 
             classicParse(asset, inEditor, callback);
-        });
+        };
+        pending.splice(0).forEach(([asset, inEditor, callback]) => parse(asset, inEditor, callback));
 
         editor.emit('scripts:parser:ready');
     });
