@@ -55,7 +55,11 @@ editor.once('load', () => {
 
     // derive which gizmo mesh to draw for a given light at the current camera distance
     const getGizmoType = (light: any, distanceToCamera: number): string => {
-        if (light.shape !== LIGHTSHAPE_PUNCTUAL) {
+        // with area lights disabled the shape is ignored and the light is punctual
+        if (
+            light.shape !== LIGHTSHAPE_PUNCTUAL &&
+            editor.call('sceneSettings')?.get('render.lightingAreaLightsEnabled')
+        ) {
             return areaShapeToType[light.shape] ?? light.type;
         }
         if (light.type === 'point' && distanceToCamera < light.range) {
