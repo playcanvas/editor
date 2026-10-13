@@ -171,27 +171,42 @@ class AnimComponentInspector extends ComponentInspector {
         if (!masks) {
             masks = {};
         }
+        let rootEntity = entityObserver.entity;
+
+        if (rootEntity.anim.rootBone) {
+            rootEntity = rootEntity.anim.rootBone;
+        }
+
+        if (
+            rootEntity.model &&
+            rootEntity.model.enabled &&
+            rootEntity.model.model &&
+            rootEntity.model.type === 'asset'
+        ) {
+            rootEntity = rootEntity.model.model.graph;
+        }
+
+        const hierarchyMask = this._createMask(rootEntity);
+
         if (!masks[layerId]) {
-            let rootEntity = entityObserver.entity;
-
-            if (rootEntity.anim.rootBone) {
-                rootEntity = rootEntity.anim.rootBone;
-            }
-
-            if (
-                rootEntity.model &&
-                rootEntity.model.enabled &&
-                rootEntity.model.model &&
-                rootEntity.model.type === 'asset'
-            ) {
-                rootEntity = rootEntity.model.model.graph;
-            }
-
             masks[layerId] = {
-                mask: this._createMask(rootEntity)
+                mask: hierarchyMask
             };
 
             entityObserver.set('components.anim.masks', masks);
+        } else {
+            // add nodes added to the hierarchy since the mask was made, unticked (the same as being
+            // absent from it) so they show up and can be ticked
+            const missing = Object.keys(hierarchyMask).filter((path) => !masks[layerId].mask[path]);
+            if (missing.length) {
+                missing.forEach((path) => {
+                    masks[layerId].mask[path] = { value: false };
+                });
+                const history = entityObserver.history.enabled;
+                entityObserver.history.enabled = false;
+                entityObserver.set('components.anim.masks', masks);
+                entityObserver.history.enabled = history;
+            }
         }
 
         const mask = masks[layerId].mask;
