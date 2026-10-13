@@ -896,10 +896,20 @@ class AnimStateGraphView {
             if (graphSettings) {
                 graphSettings = JSON.parse(graphSettings);
             } else {
-                graphSettings = {
-                    pos: { x: 0, y: 0 },
-                    scale: 1
-                };
+                // no saved view yet: centre the layer's states rather than the origin
+                const data = this._assets[0].get('data');
+                const states: { posX: number; posY: number }[] = (data.layers[this._selectedLayer]?.states ?? [])
+                    .map((key: number) => data.states[key])
+                    .filter((state) => Number.isFinite(state?.posX) && Number.isFinite(state?.posY));
+                const pos = { x: 0, y: 0 };
+                if (states.length) {
+                    const xs = states.map((state) => state.posX);
+                    const ys = states.map((state) => state.posY);
+                    const canvas = editor.call('viewport:canvas').dom;
+                    pos.x = canvas.clientWidth / 2 - (Math.min(...xs) + Math.max(...xs)) / 2;
+                    pos.y = canvas.clientHeight / 2 - (Math.min(...ys) + Math.max(...ys)) / 2;
+                }
+                graphSettings = { pos, scale: 1 };
             }
             return graphSettings;
         };
