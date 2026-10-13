@@ -13,6 +13,8 @@ import {
 
 import { config } from '@/editor/config';
 
+const KIT_SKELETON_COUNT = 8;
+
 editor.once('load', () => {
     // GLOBAL VARIABLES
     const blankProject = {
@@ -50,7 +52,14 @@ editor.once('load', () => {
     let selectedKitElement; // ui element of selected starter kit
     let newKitData = blankProject; // will store starterkit metadata to create project
 
-    const starterKits = { 0: blankProject, 446385: modelViewer, 435780: vr };
+    const builtInKits = { 0: blankProject, 446385: modelViewer, 435780: vr };
+    let starterKits = { ...builtInKits };
+
+    // kits are cached for the session, like the builds list: reopening shows them instantly
+    // and refreshes in the background, rebuilding only when the server list changed
+    let renderedKits = null; // signature of the kits in the grid
+    let blankKitElement = null;
+    const kitElements = new Map(); // fork id -> kit card
 
     // UI
 
@@ -61,8 +70,10 @@ editor.once('load', () => {
             class: 'starter-kit'
         });
         kitContainer.append(starterKit);
+        kitElements.set(String(fork), starterKit);
         // Blank project selected by default
         if (starterkit.name === 'Blank Project') {
+            blankKitElement = starterKit;
             selectedKitElement = starterKit;
             selectedKitElement.class.add('selected');
         }
@@ -114,7 +125,6 @@ editor.once('load', () => {
         if (starterkit !== blankProject) {
             const previewButton = new Button({
                 class: 'preview-button',
-                icon: 'E286',
                 hidden: true
             });
             thumbnailOverlay.append(previewButton);
@@ -130,6 +140,9 @@ editor.once('load', () => {
         });
         title.dom.textContent = starterkit.name;
         starterKit.append(title);
+
+        const desc = new Label({ class: 'kit-desc', text: starterkit.description });
+        starterKit.append(desc);
     };
 
     // helper method to build sidebar once data has loaded in
@@ -280,7 +293,7 @@ editor.once('load', () => {
     // helper method to toggle AJAX loader in create project button
     const toggleLoader = (loading: boolean) => {
         loader.hidden = !loading;
-        createBtn.text = loading ? '' : 'CREATE';
+        createBtn.text = loading ? '' : 'Create project';
     };
 
     // overlay
@@ -297,12 +310,6 @@ editor.once('load', () => {
         headerText: 'NEW PROJECT'
     });
     overlay.append(panel);
-
-    // playcanvas icon
-    const playcanvasIcon = new Element({
-        class: 'playcanvas-icon'
-    });
-    panel.header.append(playcanvasIcon);
 
     // close button
     const btnClose = new Button({
@@ -327,6 +334,7 @@ editor.once('load', () => {
     modalContainer.append(mainView);
 
     // kits container
+    mainView.append(new Label({ class: 'modal-new-project-heading', text: 'Start from a kit' }));
     const kitsContainer = new Container({
         class: 'modal-new-project-kits-container'
     });
@@ -350,9 +358,18 @@ editor.once('load', () => {
     });
     sidebar.append(createBtnContainer);
 
+    const cancelBtn = new Button({
+        class: 'cancel-btn',
+        text: 'Cancel'
+    });
+    cancelBtn.on('click', () => {
+        overlay.hidden = true;
+    });
+    createBtnContainer.append(cancelBtn);
+
     const createBtn = new Button({
         class: 'create-btn',
-        text: 'CREATE'
+        text: 'Create project'
     });
     createBtnContainer.append(createBtn);
 
@@ -367,27 +384,65 @@ editor.once('load', () => {
         createNewProject();
     });
 
+    // spinner sits inside the create button while it's busy
     const loader = new Element({
         class: 'loader',
         hidden: true
     });
-    createBtnContainer.append(loader);
+    createBtn.dom.appendChild(loader.dom);
 
     // CONTROLLERS
 
     // retrieves list of all starter kits through API call
+    // pulsing placeholders until the first kit list arrives
+    const renderKitSkeleton = () => {
+        kitsContainer.clear();
+        for (let i = 0; i < KIT_SKELETON_COUNT; i++) {
+            const card = new Container({ class: ['starter-kit', 'skeleton'] });
+            for (const cls of ['thumb', 'title', 'line']) {
+                card.append(new Element({ class: ['kit-bone', cls] }));
+            }
+            kitsContainer.append(card);
+        }
+    };
+
     const loadStarterKits = () => {
         editor.call('projects:listStarterKits', (rawKits) => {
+            const kits = { ...builtInKits };
             rawKits.forEach((rawkit) => {
                 const starterkit = processProject(rawkit);
-                const forkFrom = starterkit.fork_from;
-                starterKits[forkFrom] = starterkit;
+                kits[starterkit.fork_from] = starterkit;
             });
 
-            if (kitsContainer.dom) {
-                for (const [fork, starterkit] of Object.entries(starterKits)) {
-                    createStarterKitUI(starterkit, fork, kitsContainer);
-                }
+            const signature = JSON.stringify(kits);
+            if (signature === renderedKits) {
+                return;
+            }
+            renderedKits = signature;
+            starterKits = kits;
+
+            // a background refresh keeps a kit the user already picked
+            const kept =
+                selectedKitElement && selectedKitElement !== blankKitElement ? String(formInputs.fork_from) : null;
+            kitElements.clear();
+            kitsContainer.clear();
+            for (const [fork, starterkit] of Object.entries(starterKits)) {
+                createStarterKitUI(starterkit, fork, kitsContainer);
+            }
+            const keptElement = kept && kitElements.get(kept);
+            if (keptElement) {
+                selectedKitElement.class.remove('selected');
+                selectedKitElement = keptElement;
+                selectedKitElement.class.add('selected');
+            } else if (kept) {
+                // the picked kit is gone: fall back to blank, like a fresh open
+                Object.assign(formInputs, {
+                    name: blankProject.name,
+                    description: blankProject.description,
+                    private: false,
+                    fork_from: null
+                });
+                buildSidebar();
             }
         });
     };
@@ -508,6 +563,15 @@ editor.once('load', () => {
         // open picker
         editor.emit('picker:open', 'project-new');
 
+        if (renderedKits) {
+            // cached grid: back to the blank kit, matching the form reset in picker:project:newProject
+            selectedKitElement?.class.remove('selected');
+            selectedKitElement = blankKitElement;
+            selectedKitElement?.class.add('selected');
+            mainView.dom.scrollTop = 0;
+        } else {
+            renderKitSkeleton();
+        }
         loadStarterKits();
 
         if (editor.call('viewport:inViewport')) {
@@ -517,7 +581,6 @@ editor.once('load', () => {
 
     // clean up
     overlay.on('hide', () => {
-        kitsContainer.destroy();
         editor.emit('picker:close', 'project-new'); // close panel
 
         editor.call('picker:project:hideAlerts');
@@ -540,6 +603,14 @@ editor.once('load', () => {
     editor.method('picker:project:newProject', () => {
         rootUser = editor.call('picker:project:cms:rootUser');
         newProjectOwner = editor.call('picker:project:cms:currentUser');
+
+        // start from the blank kit, matching the default selection in the kit grid
+        Object.assign(formInputs, {
+            name: blankProject.name,
+            description: blankProject.description,
+            private: false,
+            fork_from: null
+        });
         buildSidebar();
         overlay.hidden = false;
     });
