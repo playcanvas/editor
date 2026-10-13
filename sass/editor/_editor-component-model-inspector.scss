@@ -5,3 +5,12 @@
         align-self: flex-start;
     }
 }
+
+// render material slot of a mesh instance picked in the viewport
+.pcui-asset-input[data-mesh-instance].active {
+    outline: 1px solid $text-active;
+
+    .pcui-label {
+        color: $text-active;
+    }
+}

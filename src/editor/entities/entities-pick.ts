@@ -102,6 +102,22 @@ editor.once('load', () => {
 
                     stop = true;
                 });
+            } else if (node.render && node.render.type === 'asset') {
+                // point at the clicked part's material slot in the render inspector
+                const index = node.render.meshInstances.findIndex(
+                    (instance) => instance === picked || instance === picked._staticSource
+                );
+                if (index !== -1) {
+                    const root = editor.call('attributes.rootPanel').dom;
+                    root.querySelectorAll('.pcui-asset-input[data-mesh-instance].active').forEach((el: Element) => {
+                        el.classList.remove('active');
+                    });
+                    const slot = root.querySelector(`.pcui-asset-input[data-mesh-instance="${index}"]`);
+                    if (slot) {
+                        slot.classList.add('active');
+                        slot.scrollIntoView({ block: 'nearest' });
+                    }
+                }
             }
         } else {
             // select entity
