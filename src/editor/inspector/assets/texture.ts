@@ -684,6 +684,7 @@ class TextureAssetInspector extends Container {
             }
         }
         this._btnGetMeta.hidden = !visible;
+        this._btnGetMeta.enabled = true;
     }
 
     _calculateSize(format: string) {
@@ -1303,7 +1304,7 @@ class TextureAssetInspector extends Container {
             );
             this._assetEvents.push(
                 asset.on('meta:unset', () => {
-                    this._btnGetMeta.hidden = false;
+                    this._btnGetMetaVisibility();
                 })
             );
 
