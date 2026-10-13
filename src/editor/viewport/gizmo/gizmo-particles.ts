@@ -139,19 +139,21 @@ editor.once('load', () => {
                 }
             }
 
+            // the engine scales the emitter shape by the entity's local scale
+            const scale = this._link.entity.getLocalScale();
             switch (this.type) {
                 case 'sphere':
                     this.entity.setLocalScale(
-                        particles.emitterRadius || 0.000001,
-                        particles.emitterRadius || 0.000001,
-                        particles.emitterRadius || 0.000001
+                        (particles.emitterRadius || 0.000001) * scale.x,
+                        (particles.emitterRadius || 0.000001) * scale.y,
+                        (particles.emitterRadius || 0.000001) * scale.z
                     );
                     break;
                 case 'box':
                     this.entity.setLocalScale(
-                        particles.emitterExtents.x / 2 || 0.00001,
-                        particles.emitterExtents.y / 2 || 0.00001,
-                        particles.emitterExtents.z / 2 || 0.00001
+                        (particles.emitterExtents.x / 2 || 0.00001) * scale.x,
+                        (particles.emitterExtents.y / 2 || 0.00001) * scale.y,
+                        (particles.emitterExtents.z / 2 || 0.00001) * scale.z
                     );
                     break;
             }
