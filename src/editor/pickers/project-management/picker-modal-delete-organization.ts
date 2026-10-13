@@ -50,7 +50,7 @@ editor.once('load', () => {
     // conditionally display information about containing projects
     const projectsWarning = new Label({
         class: 'form-group--warning',
-        text: 'WARNING: This organization contains projects. If you decide to go ahead, these will be transferred to your account.'
+        text: 'This organization has projects. Deleting it transfers them to your account.'
     });
     container.append(projectsWarning);
 
@@ -69,12 +69,21 @@ editor.once('load', () => {
 
     // delete button
 
+    const footer = new Container({ class: 'delete-organization-footer' });
+    panel.append(footer);
+
+    const cancelButton = new Button({ class: 'cancel-org-button', text: 'Cancel' });
+    cancelButton.on('click', () => {
+        overlay.hidden = true;
+    });
+    footer.append(cancelButton);
+
     const deleteButton = new Button({
         class: 'delete-org-button',
-        text: 'DELETE',
+        text: 'Delete organization',
         enabled: false
     });
-    panel.append(deleteButton);
+    footer.append(deleteButton);
 
     deleteButton.on('click', () => {
         // If organization contains projects, make sure to transfer them to root user before deleting account
@@ -161,7 +170,9 @@ editor.once('load', () => {
         rootUser = editor.call('picker:project:cms:rootUser');
         organization = editor.call('picker:project:cms:dropdownOrg');
         organizationProjects = projects;
-        labelElement.text = `Type the organization name, "${organization.full_name}" in the text box to delete this organization permanently. This action cannot be undone!`;
+        labelElement.text = `This permanently deletes ${organization.full_name}. Type its name to confirm.`;
+        inputElement.value = '';
+        inputElement.input.placeholder = organization.full_name;
         projectsWarning.style.display = organizationProjects.length === 0 ? 'none' : 'block';
         overlay.hidden = false;
     });
