@@ -1,4 +1,4 @@
-import type { EventHandle } from '@playcanvas/observer';
+import type { EventHandle, Observer } from '@playcanvas/observer';
 import { Container } from '@playcanvas/pcui';
 import type { TextInput } from '@playcanvas/pcui';
 
@@ -10,6 +10,9 @@ import { BatchGroupsSettingsPanelItem } from './batchgroups-item';
 
 const CLASS_ROOT = 'batchgroups-settings-panel';
 const CLASS_ITEM = `${CLASS_ROOT}-item`;
+
+// components that can belong to a batch group
+const BATCH_GROUP_COMPONENTS = ['model', 'render', 'element', 'sprite'];
 
 const ATTRIBUTES: Attribute[] = [
     {
@@ -80,8 +83,10 @@ class BatchGroupsSettingsPanel extends BaseSettingsPanel {
     removeItem(groupId: string) {
         let projectSettings = this._projectSettings;
         const oldValue = projectSettings.get(`batchGroups.${groupId}`);
-        const affectedModels = [];
-        const affectedElements = [];
+
+        // entities store the id as a number, the settings key is its string
+        const id = parseInt(groupId, 10);
+        const affected: [Observer, string][] = [];
 
         const redo = () => {
             projectSettings = projectSettings.latest();
@@ -90,24 +95,20 @@ class BatchGroupsSettingsPanel extends BaseSettingsPanel {
             projectSettings.unset(`batchGroups.${groupId}`);
             projectSettings.history.enabled = settingsHistory;
 
-            const entities = this._entities;
+            // the panel's entities list is a snapshot from load, so read the current one
+            const entities = editor.call('entities:list');
             for (let i = 0, len = entities.length; i < len; i++) {
                 const entity = entities[i];
 
-                if (entity.get('components.model.batchGroupId') === groupId) {
-                    const history = entity.history.enabled;
-                    entity.history.enabled = false;
-                    affectedModels.push(entity);
-                    entity.set('components.model.batchGroupId', null);
-                    entity.history.enabled = history;
-                }
-
-                if (entity.get('components.element.batchGroupId') === groupId) {
-                    const history = entity.history.enabled;
-                    entity.history.enabled = false;
-                    affectedElements.push(entity);
-                    entity.set('components.element.batchGroupId', null);
-                    entity.history.enabled = history;
+                for (const component of BATCH_GROUP_COMPONENTS) {
+                    const path = `components.${component}.batchGroupId`;
+                    if (entity.get(path) === id) {
+                        const history = entity.history.enabled;
+                        entity.history.enabled = false;
+                        affected.push([entity, path]);
+                        entity.set(path, null);
+                        entity.history.enabled = history;
+                    }
                 }
             }
         };
@@ -119,31 +120,18 @@ class BatchGroupsSettingsPanel extends BaseSettingsPanel {
             projectSettings.set(`batchGroups.${groupId}`, oldValue);
             projectSettings.history.enabled = settingsHistory;
 
-            for (let i = 0, len = affectedModels.length; i < len; i++) {
-                const entity = affectedModels[i].latest();
+            for (const [observer, path] of affected) {
+                const entity = observer.latest();
                 if (!entity) {
                     continue;
                 }
 
                 const history = entity.history.enabled;
                 entity.history.enabled = false;
-                entity.set('components.model.batchGroupId', groupId);
+                entity.set(path, id);
                 entity.history.enabled = history;
             }
-            affectedModels.length = 0;
-
-            for (let i = 0, len = affectedElements.length; i < len; i++) {
-                const entity = affectedElements[i].latest();
-                if (!entity) {
-                    continue;
-                }
-
-                const history = entity.history.enabled;
-                entity.history.enabled = false;
-                entity.set('components.element.batchGroupId', groupId);
-                entity.history.enabled = history;
-            }
-            affectedElements.length = 0;
+            affected.length = 0;
         };
 
         if (this._args.history) {
