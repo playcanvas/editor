@@ -15,6 +15,9 @@ import './editor';
 import './layout/layout';
 import './messenger/messenger';
 import './drop/drop';
+
+// storage (the MCP button saves its connected flag and port here)
+import './storage/localstorage';
 import './search/search';
 
 // users
@@ -46,3 +49,6 @@ import './pickers/picker-scene';
 
 // team management picker
 import './pickers/picker-team-management';
+
+// mcp (project tools only; the scene driver needs an open project)
+import './mcp/blank';

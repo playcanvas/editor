@@ -10,6 +10,35 @@
     height: 22px;
 }
 
+// project manager header on the blank /editor page
+.header-utils > .pcui-button.mcp-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+    cursor: pointer;
+
+    .mcp-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    &.active {
+        color: #4ea86a;
+    }
+}
+
+.mcp-popover.mcp-popover-below {
+    z-index: 10002; // above the project manager overlay (10000)
+}
+
 .mcp-popover {
     position: fixed; // centered on the toolbar button in toolbar.ts
     width: 220px;
