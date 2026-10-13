@@ -5,7 +5,9 @@ import { pickProjectFields } from '../../../src/editor/driver/project-fields';
 
 describe('pickProjectFields', () => {
     it('accepts the allowed create fields', () => {
-        expect(pickProjectFields({ name: 'Demo', description: 'Cube', private: true, owner: 7 }, 'create')).to.deep.equal({
+        expect(
+            pickProjectFields({ name: 'Demo', description: 'Cube', private: true, owner: 7 }, 'create')
+        ).to.deep.equal({
             fields: { name: 'Demo', description: 'Cube', private: true, owner: 7 }
         });
     });

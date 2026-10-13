@@ -35,7 +35,12 @@ const createMcpButton = (placement: 'right' | 'below') => {
     });
 
     // connect popover
-    const popover = new Panel({ class: ['mcp-popover', `mcp-popover-${placement}`], headerText: 'MCP SERVER', collapsible: true, hidden: true });
+    const popover = new Panel({
+        class: ['mcp-popover', `mcp-popover-${placement}`],
+        headerText: 'MCP SERVER',
+        collapsible: true,
+        hidden: true
+    });
 
     const statusValue = new Label({ class: 'mcp-status-value', text: 'Disconnected' });
     const statusRow = new Container({ class: 'mcp-row' });

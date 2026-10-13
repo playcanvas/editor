@@ -23,7 +23,8 @@ const summary = (p: any) => ({
     modified: p.modified
 });
 
-const getProject = (projectId: number) => api.rest.projects.projectGet({ projectId } as any).promisify() as Promise<any>;
+const getProject = (projectId: number) =>
+    api.rest.projects.projectGet({ projectId } as any).promisify() as Promise<any>;
 
 driver.method('project:list', async (ownerId?: number) => {
     try {
@@ -65,18 +66,24 @@ driver.method('project:create', async (input: Record<string, unknown>) => {
     try {
         // match the New Project dialog: the user owns it and it uses the current script system
         const project: any = await api.rest.projects
-            .projectCreate({ owner: config.self.id, ...fields, settings: { useLegacyScripts: false, vr: false } } as any)
+            .projectCreate({
+                owner: config.self.id,
+                ...fields,
+                settings: { useLegacyScripts: false, vr: false }
+            } as any)
             .promisify();
 
-        const initialized = ready.has(project.id) || (await new Promise<boolean>((resolve) => {
-            const timer = setTimeout(() => resolve(false), CREATE_READY_MS);
-            onReady = (id) => {
-                if (id === project.id) {
-                    clearTimeout(timer);
-                    resolve(true);
-                }
-            };
-        }));
+        const initialized =
+            ready.has(project.id) ||
+            (await new Promise<boolean>((resolve) => {
+                const timer = setTimeout(() => resolve(false), CREATE_READY_MS);
+                onReady = (id) => {
+                    if (id === project.id) {
+                        clearTimeout(timer);
+                        resolve(true);
+                    }
+                };
+            }));
         return { data: summary(project), meta: initialized ? {} : { initializing: true } };
     } catch (e: any) {
         return { error: e.message };
