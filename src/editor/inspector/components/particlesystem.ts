@@ -1,6 +1,8 @@
-import { Button, LabelGroup } from '@playcanvas/pcui';
+import { Button, Label, LabelGroup } from '@playcanvas/pcui';
+import type { Container } from '@playcanvas/pcui';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
+import { CLASS_ERROR } from '@/common/pcui/constants';
 import type { EntityObserver } from '@/editor-api';
 
 import type { Attribute } from '../attribute.type.d';
@@ -485,6 +487,8 @@ class ParticlesystemComponentInspector extends ComponentInspector {
 
     _btnPause: Button;
 
+    _preWarmNote: Label;
+
     constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'particlesystem';
@@ -500,8 +504,18 @@ class ParticlesystemComponentInspector extends ComponentInspector {
         });
         this.append(this._attributesInspector);
 
+        // pre warm stays visible since it's stored either way, with a note when it can't take effect
+        const preWarmGroup = this._field('preWarm').parent;
+        this._preWarmNote = new Label({
+            text: 'Pre Warm only takes effect when Loop is enabled.',
+            class: CLASS_ERROR,
+            hidden: true
+        });
+        (preWarmGroup.parent as Container).appendAfter(this._preWarmNote, preWarmGroup);
+
         [
             'loop',
+            'preWarm',
             'lighting',
             'emitterShape',
             'wrap',
@@ -575,7 +589,7 @@ class ParticlesystemComponentInspector extends ComponentInspector {
 
         const emitterShape = this._field('emitterShape').value;
 
-        this._field('preWarm').parent.hidden = !this._field('loop').value;
+        this._preWarmNote.hidden = !(this._field('preWarm').value && !this._field('loop').value);
         this._field('halfLambert').parent.hidden = !this._field('lighting').value;
         this._field('emitterExtents').parent.hidden = emitterShape !== 0;
         this._field('emitterExtentsInner').parent.hidden = emitterShape !== 0;
