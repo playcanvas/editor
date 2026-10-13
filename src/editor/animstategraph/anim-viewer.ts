@@ -503,6 +503,10 @@ class AnimViewer extends Container {
             this._entity = entity;
         }
 
+        // preview at the origin, where the camera frames it, whatever position the template or
+        // entity was saved at
+        this._entity.setLocalPosition(0, 0, 0);
+
         if (this._entity.anim) {
             this._entity.removeComponent('anim');
         }
