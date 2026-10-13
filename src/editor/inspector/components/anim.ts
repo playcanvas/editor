@@ -666,9 +666,13 @@ class AnimComponentInspector extends ComponentInspector {
         if (window.sessionStorage.getItem(`${this._entities[0].get('resource_id')}:animNormalizeWeightsMessage`)) {
             this._normalizeWeightsMessage.hidden = false;
             const normalizeWeightsField = this._attributesInspector.getField('components.anim.normalizeWeights');
-            normalizeWeightsField.on('change', () => {
-                window.sessionStorage.removeItem(`${this._entities[0].get('resource_id')}:animNormalizeWeightsMessage`);
-            });
+            this._entityEvents.push(
+                normalizeWeightsField.on('change', () => {
+                    window.sessionStorage.removeItem(
+                        `${this._entities[0].get('resource_id')}:animNormalizeWeightsMessage`
+                    );
+                })
+            );
         } else {
             this._normalizeWeightsMessage.hidden = true;
         }
