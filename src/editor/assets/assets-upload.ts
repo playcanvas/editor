@@ -109,13 +109,14 @@ editor.once('load', () => {
 
     editor.method('assets:uploadFile', (args, fn) => {
         let request;
+
+        // default preload scripts to true
+        args.preloadDefault =
+            args.type === 'script' ? true : projectUserSettings.get('editor.pipeline.defaultAssetPreload');
         if (args.asset) {
             const assetId = args.asset.get('id');
             request = editor.api.globals.rest.assets.assetUpdate(assetId, args, pipelineOptions(args.settings));
         } else {
-            // default preload scripts to true
-            args.preloadDefault =
-                args.type === 'script' ? true : projectUserSettings.get('editor.pipeline.defaultAssetPreload');
             request = editor.api.globals.rest.assets.assetCreate(args, pipelineOptions(args.settings));
         }
 
