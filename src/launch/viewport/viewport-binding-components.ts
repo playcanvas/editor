@@ -1,5 +1,7 @@
 import type { Observer } from '@playcanvas/observer';
 
+import { DEFAULTS } from '@/common/pcui/constants';
+
 editor.once('load', () => {
     const app = editor.call('viewport:app');
     if (!app) {
@@ -18,6 +20,43 @@ editor.once('load', () => {
         }
 
         return result;
+    };
+
+    // default value of a script attribute without one declared, as the inspector builds it
+    const attributeDefault = (attr: Record<string, any>): unknown => {
+        if (attr.default !== undefined && attr.default !== null) {
+            return structuredClone(attr.default);
+        }
+        if (attr.array) {
+            return [];
+        }
+        if (attr.type === 'json') {
+            return Object.fromEntries(
+                (attr.schema ?? []).map((field: Record<string, any>) => [field.name, attributeDefault(field)])
+            );
+        }
+        if (attr.type === 'curve' && (attr.color || attr.curves)) {
+            const count = attr.color ? attr.color.length : attr.curves.length;
+            return { type: 4, keys: Array.from({ length: count }, () => [0, attr.color ? 1 : 0]) };
+        }
+        return structuredClone(DEFAULTS[attr.type] ?? null);
+    };
+
+    // a newly added script's attribute defaults reach us in a later op, after the script is created and
+    // initialized, so fill in the missing ones from the script's attribute definitions
+    const withAttributeDefaults = (name: string, data: Record<string, any>) => {
+        const asset = editor.call('assets:list').find((a: Observer) => a.get(`data.scripts.${name}`));
+        const schema: Record<string, Record<string, any>> | undefined = asset?.get(`data.scripts.${name}.attributes`);
+        if (!schema) {
+            return data;
+        }
+        const attributes = { ...data?.attributes };
+        for (const key in schema) {
+            if (attributes[key] === undefined) {
+                attributes[key] = attributeDefault(schema[key]);
+            }
+        }
+        return { ...data, attributes };
     };
 
     editor.on('entities:add', (obj: Observer) => {
@@ -50,7 +89,7 @@ editor.once('load', () => {
                     if (parts.length === 4) {
                         // new script
                         const data = obj.get(`components.script.scripts.${parts[3]}`);
-                        entity.script.create(parts[3], data);
+                        entity.script.create(parts[3], withAttributeDefaults(parts[3], data));
                     } else if (script && parts.length === 5 && parts[4] === 'enabled') {
                         // enabled
                         script.enabled = value;
