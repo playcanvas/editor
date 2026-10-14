@@ -274,7 +274,7 @@ editor.once('load', () => {
 
         // entity bubble on select entity
         if (config.self.flags.tips.entityInspector === false) {
-            const evtEntitySelect = editor.on('selector:change', (type: string | null, items: Observer[]) => {
+            const evtEntitySelect = editor.on('selector:change', (type: string | null, _items: Observer[]) => {
                 if (type !== 'entity') {
                     return;
                 }
