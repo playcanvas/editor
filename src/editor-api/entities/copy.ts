@@ -133,6 +133,9 @@ function gatherDependencies(entity: Entity, data: Record<string, any>) {
                         continue;
                     }
 
+                    // the attribute types let a paste remap entity references before the script exists there
+                    (data.scriptAttributes ??= {})[key] = assetData;
+
                     for (const name in assetData) {
                         const componentAttribute = scriptData.attributes[name];
                         if (!componentAttribute) {
