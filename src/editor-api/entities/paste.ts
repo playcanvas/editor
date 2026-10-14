@@ -294,8 +294,11 @@ function remapEntitiesAndAssets(
                     // scripts 2.0
                     if (scripts) {
                         for (const script in scripts) {
-                            const asset = api.assets.getAssetForScript(script);
-                            if (!asset) {
+                            // a script that isn't in this project yet falls back to the attribute types the copy stored
+                            const schema =
+                                api.assets.getAssetForScript(script)?.get(`data.scripts.${script}.attributes`) ??
+                                data.scriptAttributes?.[script];
+                            if (!schema) {
                                 continue;
                             }
 
@@ -305,7 +308,7 @@ function remapEntitiesAndAssets(
                             }
 
                             for (const key in attrs) {
-                                const attrData = asset.get(`data.scripts.${script}.attributes.${key}`);
+                                const attrData = schema[key];
                                 if (attrData) {
                                     // handle json script attributes
                                     if (attrData.type === 'json' && Array.isArray(attrData.schema)) {
