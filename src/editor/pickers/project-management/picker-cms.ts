@@ -74,7 +74,7 @@ editor.once('load', () => {
     const joined = (...parts) => parts.filter(Boolean).join(' · ');
     const isOpen = (project) => !IS_EMPTY_STATE && project.id === config.project.id;
     const blocked = (project) => project.locked || project.access_level === 'none' || project.disabled;
-    const rootProjects = () => projects[rootUser.id] ?? [];
+    const rootProjects = () => projects[rootUser?.id] ?? [];
     const listFor = (id) => (isOrg(id) ? projects[id] : rootProjects()) ?? [];
     const matchTab = (project, tab) => {
         switch (tab) {
@@ -712,8 +712,10 @@ editor.once('load', () => {
             item.on('click', () => setFilter(org.id));
         });
 
-        meName.text = userName(rootUser);
-        mePlan.text = rootUser.username;
+        if (rootUser) {
+            meName.text = userName(rootUser);
+            mePlan.text = rootUser.username;
+        }
     };
 
     const renderHead = () => {
@@ -1266,6 +1268,16 @@ editor.once('load', () => {
 
     // method to display panel
     editor.method('picker:project:cms', () => {
+        // first open: show the skeleton now so the bare editor layout doesn't show while the user loads
+        if (!rootUser) {
+            loading = true;
+            title.text = greeting();
+            subtitle.text = PROMPT;
+            renderSidebar();
+            renderWelcome();
+            renderSkeleton();
+            overlay.hidden = false;
+        }
         editor.call('users:loadOne', config.self.id, (user) => {
             rootUser = user;
             currentUser = rootUser;
