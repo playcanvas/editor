@@ -57,6 +57,7 @@ class Messenger extends Events {
         messenger.on('connect', this._onConnect.bind(this));
         messenger.on('welcome', this._onWelcome.bind(this));
         messenger.on('message', this._onMessage.bind(this));
+        messenger.on('cannotConnect', () => this.emit('cannotConnect'));
     }
 
     private _onConnect() {
