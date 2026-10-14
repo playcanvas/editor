@@ -589,6 +589,7 @@ editor.once('load', () => {
     const showRowMenu = (project, anchor: Element) => {
         menuProject = project;
         menuEntry(rowMenu, 'cms-row-editor').text = isOpen(project) ? 'Return to editor' : 'Open editor';
+        menuEntry(rowMenu, 'cms-row-editor').enabled = !blocked(project);
         menuEntry(rowMenu, 'cms-row-launch').enabled = !!project.primary_app_url;
         menuEntry(rowMenu, 'cms-row-delete').hidden = !canDelete(project);
         showMenu(rowMenu, anchor, true);
@@ -759,7 +760,8 @@ editor.once('load', () => {
             title.text = `${greeting()}, ${userName(rootUser)}`;
             subtitle.text = PROMPT;
         }
-        banner.hidden = IS_EMPTY_STATE || !org;
+        // the way back shows everywhere except home, where the welcome card already offers it
+        banner.hidden = IS_EMPTY_STATE || waiting() || (!org && rootProjects().some(isOpen));
     };
 
     const renderBanner = () => {
@@ -890,6 +892,9 @@ editor.once('load', () => {
                 launch(lead);
             });
         }
+
+        // same actions menu as the cards
+        kebabFor(lead, actions);
         welcome.dom.onclick = () => openProject(lead);
     };
 
@@ -934,7 +939,9 @@ editor.once('load', () => {
             text(cover[1], null, c);
         }
         const body = box('cms-card-body', card);
-        text(project.name, 'cms-card-name', body);
+        const titleRow = box('cms-card-title', body);
+        text(project.name, 'cms-card-name', titleRow);
+        kebabFor(project, titleRow);
         text(
             project.description || 'No description',
             project.description ? 'cms-card-desc' : ['cms-card-desc', 'empty'],
@@ -1001,13 +1008,7 @@ editor.once('load', () => {
         }
         text(bytesToHuman(project.size?.total ?? 0), 'cms-row-cell', row);
         text(timeAgo(project.modified), 'cms-row-cell', row);
-        const kebab = new Button({ class: 'cms-kebab' });
-        kebab.dom.title = 'Project actions';
-        row.append(kebab);
-        kebab.on('click', (e) => {
-            e.stopPropagation();
-            showRowMenu(project, kebab);
-        });
+        kebabFor(project, row);
         bindOpen(row, project);
     };
 
@@ -1023,6 +1024,15 @@ editor.once('load', () => {
             if (e.key === 'Enter') {
                 openProject(project);
             }
+        });
+    };
+    const kebabFor = (project, parent: Container) => {
+        const kebab = new Button({ class: 'cms-kebab' });
+        kebab.dom.title = 'Project actions';
+        parent.append(kebab);
+        kebab.on('click', (e) => {
+            e.stopPropagation();
+            showRowMenu(project, kebab);
         });
     };
 
