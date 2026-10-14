@@ -2,7 +2,6 @@ import type { EventHandle, Observer } from '@playcanvas/observer';
 import { Panel, Container } from '@playcanvas/pcui';
 import * as pc from 'playcanvas';
 
-import { CLASS_MULTIPLE_VALUES } from '@/common/pcui/constants';
 import { createLog } from '@/common/sentry';
 import { pathExists } from '@/common/utils';
 import type { History } from '@/editor-api';
@@ -1836,6 +1835,7 @@ class MaterialAssetInspector extends Container {
         this._offsetTilingInspector.getField('rotation').on('change', this._onChangeRotation.bind(this));
 
         this._opacityInspector.getField('data.blendType').on('change', toggleFields);
+        this._opacityInspector.getField('data.alphaTest').on('change', toggleFields);
         this._opacityInspector.getField('data.opacityVertexColor').on('change', toggleFields);
         this._opacityInspector.getField('data.opacityFadesSpecular').on('change', toggleFields);
         this._opacityInspector.getField('data.opacityDither').on('change', toggleFields);
@@ -2006,16 +2006,12 @@ class MaterialAssetInspector extends Container {
         const opacityShadowDither = this._opacityInspector.getField('data.opacityShadowDither').value ?? 'none';
         const dithered = opacityDither !== 'none' || opacityShadowDither !== 'none';
         const alphaDitherSupported = pathExists(pc, 'StandardMaterial.prototype.alphaDither');
+        // alpha test applies whatever the blend type and compares against opacity, so while it's on
+        // both stay visible, or a material can turn invisible with nothing in the inspector to explain it
+        const alphaTest = this._opacityInspector.getField('data.alphaTest').value;
         this._opacityInspector.getField('data.opacity').parent.hidden =
-            [2, 4, 6].indexOf(blendType) === -1 && (alphaDitherSupported || !dithered);
+            [2, 4, 6].indexOf(blendType) === -1 && (alphaDitherSupported || !dithered) && !(alphaTest > 0);
         this._opacityInspector.getField('data.alphaDither').parent.hidden = !dithered || !alphaDitherSupported;
-
-        const opacityMapField = this._opacityInspector.getField('data.opacityMap');
-        const opacityVertexColorField = this._opacityInspector.getField('data.opacityVertexColor');
-
-        this._opacityInspector.getField('data.alphaTest').parent.hidden =
-            !(opacityMapField.class.contains(CLASS_MULTIPLE_VALUES) || opacityMapField.value) &&
-            !(opacityVertexColorField.value || opacityVertexColorField.class.contains(CLASS_MULTIPLE_VALUES));
 
         const opacityFadesSpecular = this._opacityInspector.getField('data.opacityFadesSpecular').value;
         this._opacityInspector.getField('data.alphaFade').parent.hidden = opacityFadesSpecular;
