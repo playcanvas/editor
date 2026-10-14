@@ -175,8 +175,16 @@ class AnimStateGraphLayers extends Panel {
         const layers = this._assets[0].get('data.layers');
         const maxKey = Math.max(...Object.keys(layers));
         const key = Number.isFinite(maxKey) ? maxKey + 1 : 0;
+
+        // anim components key their animations by layer and state name, so layer names must be unique
+        const base = name || 'New Layer';
+        const names = Object.values(layers).map((layer: { name: string }) => layer.name);
+        let layerName = base;
+        for (let i = 2; names.includes(layerName); i++) {
+            layerName = `${base} ${i}`;
+        }
         layers[key] = {
-            name: name || 'New Layer',
+            name: layerName,
             states: [startStateId, anyStateId, endStateId, stateId],
             transitions: [transitionId],
             blendType: 'OVERWRITE',
@@ -407,8 +415,18 @@ class AnimStateGraphLayers extends Panel {
 
             this._assetEvents = [];
             this._assetEvents.push(
-                this._assets[0].on('*:set', (path, value) => {
+                this._assets[0].on('*:set', (path, value, valueOld, remote) => {
                     if (path === `data.layers.${layerKey}.name`) {
+                        const layers = this._assets[0].get('data.layers');
+                        const taken = Object.keys(layers).some((k) => k !== `${layerKey}` && layers[k].name === value);
+                        if (taken && !remote) {
+                            editor.call('status:error', `A layer named "${value}" already exists.`);
+                            const history = this._assets[0].history.enabled;
+                            this._assets[0].history.enabled = false;
+                            this._assets[0].set(path, valueOld);
+                            this._assets[0].history.enabled = history;
+                            return;
+                        }
                         layerPanel.headerText = value;
                         this._updateLayerSelect(true);
                     }
