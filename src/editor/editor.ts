@@ -122,9 +122,25 @@ class MainEditor extends Editor<EditorMethods> {
                 this.call(
                     'scripts:parse',
                     asset.observer,
-                    (err: unknown, result: { scripts?: Record<string, unknown> }) => {
+                    (
+                        err: unknown,
+                        result: {
+                            scripts?: Record<string, { attributesInvalid?: string[] }>;
+                            scriptsInvalid?: string[];
+                        }
+                    ) => {
                         if (err) {
                             reject(err);
+                            return;
+                        }
+
+                        // a parse with errors isn't saved, so callers would wait for scripts that never arrive
+                        const invalid = [
+                            ...(result.scriptsInvalid ?? []),
+                            ...Object.values(result.scripts ?? {}).flatMap((script) => script.attributesInvalid ?? [])
+                        ];
+                        if (invalid.length) {
+                            reject(new Error(`Script parsing failed: ${invalid.join('; ')}`));
                         } else {
                             resolve(Object.keys(result.scripts || {}));
                         }
