@@ -129,8 +129,17 @@ editor.once('load', () => {
         const terms = parseQuery(searchInput.value);
         const key = sortKey[sortPolicy];
         const dir = sortDescending ? -1 : 1;
-        return listFor(filter)
-            .filter((p) => (isOrg(filter) || matchTab(p, filter)) && terms.every((t) => matchTerm(p, t)))
+        const list = listFor(filter);
+
+        // plain words also match names with typos, like the editor's other searches
+        const names = list.map((p) => [p.name, p]);
+        const fuzzy = terms.map(([key, value]) => (key ? null : new Set(editor.call('search:items', names, value))));
+        return list
+            .filter(
+                (p) =>
+                    (isOrg(filter) || matchTab(p, filter)) &&
+                    terms.every((t, i) => matchTerm(p, t) || fuzzy[i]?.has(p))
+            )
             .sort((a, b) => (key(a) > key(b) ? 1 : key(a) < key(b) ? -1 : 0) * dir);
     };
     const timeAgo = (date) => {
@@ -198,6 +207,20 @@ editor.once('load', () => {
         if (project.private) {
             text('Private', 'cms-badge', parent);
         }
+    };
+    // forks, views and plays, on their own line under the owner
+    const stats = (project, parent: Container) => {
+        const line = box('cms-stats', parent);
+        if (project.fork_count) {
+            text(shortCount(project.fork_count), 'cms-forks', line);
+        }
+        if (project.access_level !== 'none') {
+            text(shortCount(project.views), 'cms-views', line);
+        }
+        if (project.primary_app_url) {
+            text(shortCount(project.plays), 'cms-plays', line);
+        }
+        return line;
     };
     const editorUrl = (project) => {
         let url = `${config.url.home}/editor/project/${project.id}`;
@@ -291,6 +314,7 @@ editor.once('load', () => {
                 bone(['line', 'full'], body);
                 bone(['line', 'part'], body);
                 bone(['line', 'meta'], body);
+                bone(['line', 'stats'], box(['cms-stats', 'cms-card-foot'], card));
             } else {
                 const row = box(['cms-row', 'skeleton'], listContainer);
                 bone('row-thumb', row);
@@ -298,6 +322,7 @@ editor.once('load', () => {
                 bone(['line', 'title'], info);
                 bone(['line', 'part'], info);
                 box('cms-row-cell', row);
+                bone(['line', 'cell'], row);
                 bone(['line', 'cell'], row);
                 bone(['line', 'cell'], row);
                 bone(['line', 'cell'], row);
@@ -762,6 +787,7 @@ editor.once('load', () => {
             bone(['line', 'title'], info);
             bone(['line', 'part'], info);
             bone(['line', 'meta'], info);
+            bone(['line', 'stats'], info);
             return;
         }
         welcome.class.remove('skeleton');
@@ -777,35 +803,42 @@ editor.once('load', () => {
         // framed so the hover zoom stays inside the rounded corners, like the card thumbnails
         image(lead.thumbnails?.m ?? EMPTY_THUMBNAIL_IMAGE, null, box('cms-welcome-thumb', welcome));
         const info = box('cms-welcome-info', welcome);
-        text(open ? 'Currently open' : 'Continue editing', 'cms-eyebrow', info);
-        const name = box('cms-welcome-name', info);
+
+        // three groups: what the project is, its facts, then what you can do with it
+        const titles = box('cms-welcome-titles', info);
+        text(open ? 'Currently open' : 'Continue editing', 'cms-eyebrow', titles);
+        const name = box('cms-welcome-name', titles);
         if (open) {
             liveDot(name);
         }
         text(lead.name, null, name);
         badges(lead, name);
         if (lead.description) {
-            text(lead.description, 'cms-welcome-desc', info);
+            text(lead.description, 'cms-welcome-desc', titles);
         }
 
-        // same pieces as cards and rows: owner, plays, forks, size, last edited
-        const meta = box('cms-welcome-sub', info);
-        image(avatarUrl(lead.owner_id, 36), 'cms-avatar', meta);
-        const parts: [string, string | string[]][] = [
-            [ownerName(lead), null],
-            [lead.primary_app_url ? shortCount(lead.plays) : '', 'cms-plays'],
-            [lead.fork_count ? shortCount(lead.fork_count) : '', 'cms-forks'],
-            [bytesToHuman(lead.size?.total ?? 0), null],
-            [`edited ${timeAgo(lead.modified)}`, null]
-        ];
-        parts
-            .filter(([value]) => value)
-            .forEach(([value, cls], i) => {
-                if (i) {
-                    text('·', 'cms-dot', meta);
-                }
-                text(value, cls, meta);
-            });
+        // labelled values; counts that don't apply are left out, like on the cards
+        const facts = box('cms-facts', info);
+        const fact = (label, value) => {
+            const item = box('cms-fact', facts);
+            text(label, 'cms-fact-label', item);
+            const v = box('cms-fact-value', item);
+            text(value, null, v);
+            return v;
+        };
+        const owner = ownerName(lead);
+        if (owner) {
+            fact('Owner', owner).prepend(image(avatarUrl(lead.owner_id, 36), 'cms-avatar'));
+        }
+        fact('Edited', timeAgo(lead.modified));
+        fact('Views', shortCount(lead.views));
+        if (lead.primary_app_url) {
+            fact('Plays', shortCount(lead.plays));
+        }
+        if (lead.fork_count) {
+            fact('Forks', shortCount(lead.fork_count));
+        }
+        fact('Size', bytesToHuman(lead.size?.total ?? 0));
         if (open) {
             const scenes = box('cms-welcome-scenes', info);
             const isCurrentScene = (s: { id: number }) => String(s.id) === String(config.scene?.id);
@@ -887,6 +920,7 @@ editor.once('load', () => {
         if (isOpen(project)) {
             liveDot(thumb);
         }
+
         const cover = project.locked
             ? ['Locked', 'The owner is over their storage limit']
             : project.access_level === 'none'
@@ -908,25 +942,17 @@ editor.once('load', () => {
         );
         const meta = box('cms-card-meta', body);
         image(avatarUrl(project.owner_id, 36), 'cms-avatar', meta);
+        text(ownerName(project), 'cms-card-owner', meta);
         text(
-            joined(
-                ownerName(project),
-                sortPolicy === 'created'
-                    ? `created ${timeAgo(project.created)}`
-                    : sortPolicy === 'size'
-                      ? bytesToHuman(project.size?.total ?? 0)
-                      : timeAgo(project.modified)
-            ),
-            'cms-card-owner',
+            sortPolicy === 'created' ? `created ${timeAgo(project.created)}` : timeAgo(project.modified),
+            'cms-card-when',
             meta
         );
-        const stats = box('cms-stats', meta);
-        if (project.fork_count) {
-            text(shortCount(project.fork_count), 'cms-forks', stats);
-        }
-        if (project.primary_app_url) {
-            text(shortCount(project.plays), 'cms-plays', stats);
-        }
+
+        // counts and size get their own strip so the owner line keeps the full width
+        const foot = stats(project, card);
+        foot.class.add('cms-card-foot');
+        text(bytesToHuman(project.size?.total ?? 0), 'cms-card-size', foot);
         bindOpen(card, project);
     };
 
@@ -963,6 +989,11 @@ editor.once('load', () => {
             project.fork_count ? ['cms-row-cell', 'cms-forks'] : 'cms-row-cell',
             row
         );
+        if (project.access_level !== 'none') {
+            text(shortCount(project.views), ['cms-row-cell', 'cms-views'], row);
+        } else {
+            box('cms-row-cell', row);
+        }
         if (project.primary_app_url) {
             text(shortCount(project.plays), ['cms-row-cell', 'cms-plays'], row);
         } else {
@@ -1082,6 +1113,10 @@ editor.once('load', () => {
         scroll.dom.scrollTop = 0;
         if (org) {
             editor.call('users:loadOne', org.id, (res) => {
+                // another filter was picked while this user loaded
+                if (filter !== id) {
+                    return;
+                }
                 currentUser = res;
                 renderUsage();
                 refresh();
@@ -1242,19 +1277,19 @@ editor.once('load', () => {
     // only an editor with a scene loaded has somewhere to go back to
     const canReturn = () => !IS_EMPTY_STATE && isSceneLoaded;
 
-    // focus search with /, go back to the scene with esc unless a dialog or menu sits on top
+    // focus search with /, go back to the scene with esc, both only when no dialog or menu sits on top
     window.addEventListener('keydown', (e) => {
-        if (overlay.hidden || (e.target as HTMLElement).matches('input, textarea')) {
+        if (
+            overlay.hidden ||
+            (e.target as HTMLElement).matches('input, textarea') ||
+            document.querySelector('.pcui-overlay:not(.pcui-hidden):not(.picker-project-cms), .pcui-menu:not(.pcui-hidden)')
+        ) {
             return;
         }
         if (e.key === '/') {
             e.preventDefault();
             searchInput.focus();
-        } else if (
-            e.key === 'Escape' &&
-            canReturn() &&
-            !document.querySelector('.pcui-overlay:not(.pcui-hidden):not(.picker-project-cms), .pcui-menu:not(.pcui-hidden)')
-        ) {
+        } else if (e.key === 'Escape' && canReturn()) {
             returnToEditor();
         }
     });
@@ -1294,11 +1329,15 @@ editor.once('load', () => {
     editor.method('picker:project:cms:refreshOrgs', (organization, deleteOrg = false) => {
         if (!deleteOrg) {
             rootUser.organizations.push(organization);
-            filter = organization.id;
         } else {
             rootUser.organizations = rootUser.organizations.filter((org) => org.id !== organization.id);
         }
         loadProjects();
+
+        // open the new organization as the owner, so new projects, imports and storage are its own
+        if (!deleteOrg) {
+            setFilter(organization.id);
+        }
     });
 
     // method to display panel

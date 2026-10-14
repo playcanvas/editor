@@ -2,6 +2,7 @@ import { Button, Menu } from '@playcanvas/pcui';
 
 import { TooltipHandle } from '@/common/tooltips';
 import { formatShortcut } from '@/common/utils';
+import { config } from '@/editor/config';
 
 const DONE_ICON = '\uE133';
 
@@ -99,6 +100,12 @@ editor.once('load', () => {
                 icon: 'E140',
                 class: 'menu-item-projects',
                 onSelect: () => editor.call('picker:project:cms')
+            },
+            {
+                // the project's page on the website: team, dev log and settings
+                text: 'Project Dashboard',
+                icon: 'E139',
+                onSelect: () => window.open(`/project/${config.project.id}`, '_blank')
             },
             {
                 // Scene management (like "File" menu)
