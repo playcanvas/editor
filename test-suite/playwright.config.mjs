@@ -25,7 +25,7 @@ export default defineConfig({
     workers: AUTH_STATES.length, // one account per worker
     reporter: [['list'], ['html', { open: 'never' }], ['json', { outputFile: 'test-results/results.json' }]],
     webServer: LOCAL_FRONTEND ? {
-        command: 'npm run serve',
+        command: 'npx vite preview',
         cwd: process.env.PC_FRONTEND_DIR ?? '..',
         url: 'http://localhost:3487/js/editor.js',
         reuseExistingServer: !process.env.CI
