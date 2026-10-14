@@ -182,7 +182,8 @@ editor.once('load', () => {
         dot.dom.title = 'Open in the editor';
         parent.append(dot);
     };
-    const badges = (project, parent: Container, withPublic = true) => {
+    // public is the default, so only private gets a badge
+    const badges = (project, parent: Container) => {
         if (project.locked) {
             text('Locked', ['cms-badge', 'locked'], parent);
         }
@@ -194,8 +195,6 @@ editor.once('load', () => {
         }
         if (project.private) {
             text('Private', 'cms-badge', parent);
-        } else if (withPublic) {
-            text('Public', ['cms-badge', 'public'], parent);
         }
     };
     const editorUrl = (project) => {
@@ -348,6 +347,11 @@ editor.once('load', () => {
     side.append(newProjectSideButton);
     newProjectSideButton.on('click', () => editor.call('picker:project:newProject'));
 
+    // the sidebar holds both ways to start a project, so they're reachable from every page and scroll position
+    const importSideButton = new Button({ class: ['cms-nav', 'cms-import'], icon: 'E222', text: 'Import project' });
+    side.append(importSideButton);
+    importSideButton.on('click', () => filePicker.click());
+
     const navItem = (icon, label, onClick) => {
         const item = new Button({ class: 'cms-nav', icon, text: label });
         side.append(item);
@@ -413,6 +417,7 @@ editor.once('load', () => {
     orgMenuButton.dom.title = 'Organization actions';
     head.append(orgMenuButton);
     const headerUtils = box('cms-head-actions', head);
+    headerUtils.hidden = true; // only shown on the start screen; see refresh()
 
     // file picker
     const filePicker = document.createElement('input');
@@ -751,6 +756,7 @@ editor.once('load', () => {
             bone(['line', 'eyebrow'], info);
             bone(['line', 'title'], info);
             bone(['line', 'part'], info);
+            bone(['line', 'meta'], info);
             return;
         }
         welcome.class.remove('skeleton');
@@ -763,7 +769,8 @@ editor.once('load', () => {
         }
         const open = isOpen(lead);
         welcome.class[open ? 'add' : 'remove']('is-open');
-        image(lead.thumbnails?.m ?? EMPTY_THUMBNAIL_IMAGE, 'cms-welcome-thumb', welcome);
+        // framed so the hover zoom stays inside the rounded corners, like the card thumbnails
+        image(lead.thumbnails?.m ?? EMPTY_THUMBNAIL_IMAGE, null, box('cms-welcome-thumb', welcome));
         const info = box('cms-welcome-info', welcome);
         text(open ? 'Currently open' : 'Continue editing', 'cms-eyebrow', info);
         const name = box('cms-welcome-name', info);
@@ -771,7 +778,27 @@ editor.once('load', () => {
             liveDot(name);
         }
         text(lead.name, null, name);
-        text(joined(ownerName(lead), `edited ${timeAgo(lead.modified)}`), 'cms-welcome-sub', info);
+        badges(lead, name);
+        if (lead.description) {
+            text(lead.description, 'cms-welcome-desc', info);
+        }
+
+        // same pieces as cards and rows: owner, the play-count icon, size, last edited
+        const meta = box('cms-welcome-sub', info);
+        const parts: [string, string | string[]][] = [
+            [ownerName(lead), null],
+            [lead.primary_app_url ? shortCount(lead.plays) : '', 'cms-plays'],
+            [bytesToHuman(lead.size?.total ?? 0), null],
+            [`edited ${timeAgo(lead.modified)}`, null]
+        ];
+        parts
+            .filter(([value]) => value)
+            .forEach(([value, cls], i) => {
+                if (i) {
+                    text('·', 'cms-dot', meta);
+                }
+                text(value, cls, meta);
+            });
         if (open) {
             const scenes = box('cms-welcome-scenes', info);
             const isCurrentScene = (s: { id: number }) => String(s.id) === String(config.scene?.id);
@@ -802,15 +829,8 @@ editor.once('load', () => {
                 }
             });
         }
-        const actions = box('cms-welcome-actions', welcome);
-        if (lead.primary_app_url) {
-            const play = new Button({ class: 'cms-button', icon: 'E131', text: 'Launch' });
-            actions.append(play);
-            play.on('click', (e) => {
-                e.stopPropagation();
-                launch(lead);
-            });
-        }
+        // actions sit under the details so the card reads as one unit on wide screens
+        const actions = box('cms-welcome-actions', info);
         const edit = new Button({
             class: ['cms-button', 'primary'],
             icon: 'E130',
@@ -822,6 +842,14 @@ editor.once('load', () => {
             e.stopPropagation();
             openEditor(lead);
         });
+        if (lead.primary_app_url) {
+            const play = new Button({ class: 'cms-button', icon: 'E131', text: 'Launch' });
+            actions.append(play);
+            play.on('click', (e) => {
+                e.stopPropagation();
+                launch(lead);
+            });
+        }
         welcome.dom.onclick = () => openProject(lead);
     };
 
@@ -894,7 +922,13 @@ editor.once('load', () => {
     const buildRow = (project) => {
         const row = box(['cms-row', ...cardState(project)], listContainer);
         row.dom.tabIndex = 0;
-        image(project.thumbnails?.s ?? project.thumbnails?.m ?? EMPTY_THUMBNAIL_IMAGE, 'cms-row-thumb', row);
+        const thumbSrc = project.thumbnails?.s ?? project.thumbnails?.m ?? EMPTY_THUMBNAIL_IMAGE;
+        if (project.locked) {
+            // same lock as the card cover, over the thumbnail
+            image(thumbSrc, null, box(['cms-row-thumb', 'locked'], row));
+        } else {
+            image(thumbSrc, 'cms-row-thumb', row);
+        }
         const info = box('cms-row-info', row);
         const name = box('cms-row-name', info);
         if (isOpen(project)) {
@@ -1009,8 +1043,11 @@ editor.once('load', () => {
         }
         renderSidebar();
 
-        // nothing to browse yet: the greeting and actions take the centre, like claude code's start screen
-        rightPanel.class[!loading && !isOrg(filter) && !rootProjects().length ? 'add' : 'remove']('start');
+        // nothing to browse yet: the greeting and actions take the centre, like claude code's start screen;
+        // otherwise the sidebar's new project and import cover it
+        const start = !loading && !isOrg(filter) && !rootProjects().length;
+        rightPanel.class[start ? 'add' : 'remove']('start');
+        headerUtils.hidden = !start;
         renderHead();
         renderWelcome();
         renderTools();

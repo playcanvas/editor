@@ -40,10 +40,7 @@
             margin: 0;
         }
 
-        &:hover {
-            color: $text-primary;
-            box-shadow: none;
-        }
+        @include cms-ghost-hover($cms-fill-on-surface);
     }
 }
 
@@ -61,6 +58,7 @@
     border-radius: 6px;
     background-color: $bcg-darker;
     box-shadow: none;
+    transition: border-color $cms-ease;
 
     > input,
     > textarea {
@@ -70,8 +68,9 @@
         font-size: 13px;
     }
 
+    // same orange focus border as the projects page search
     &.pcui-focus {
-        border-color: $text-darkest;
+        border-color: $text-active;
     }
 }
 
@@ -87,10 +86,7 @@
     font-size: 13px;
     line-height: 30px;
 
-    &:hover {
-        color: $text-primary;
-        box-shadow: none;
-    }
+    @include cms-outlined-hover;
 }
 
 %dialog-button-primary {
@@ -98,9 +94,7 @@
     background-color: $text-active;
     color: $text-primary;
 
-    &:not(.pcui-disabled):hover {
-        background-color: hsl(24deg 100% 43%);
-    }
+    @include cms-primary-hover;
 }
 
 .pcui-overlay.picker-project-new {
@@ -171,10 +165,17 @@
         border-radius: 8px;
         background-color: $bcg-dark;
         cursor: pointer;
-        transition: border-color 100ms, box-shadow 100ms;
+        transition:
+            border-color $cms-ease,
+            box-shadow $cms-ease;
 
+        // same hover as the project cards
         &.hovered {
-            border-color: $text-darkest;
+            @extend %cms-hover-ring;
+
+            .thumbnail img {
+                @extend %cms-hover-zoom;
+            }
         }
 
         &.selected {
@@ -206,6 +207,7 @@
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
+                transition: transform $cms-zoom-ease;
             }
 
             .overlay {
@@ -230,6 +232,8 @@
                 background-color: rgb(32 41 43 / 85%);
                 color: $text-primary;
                 pointer-events: auto;
+
+                @include cms-interactive;
 
                 // svg triangle: the font glyph sits off-centre; 1px right to balance it optically
                 &::before {
@@ -534,7 +538,7 @@
                 height: 32px;
 
                 &:focus-within {
-                    border-color: $text-darkest;
+                    border-color: $text-active;
                 }
 
                 &.invalid {
@@ -675,6 +679,8 @@
                     border-color: transparent;
                     background-color: $error-secondary;
                     color: $text-primary;
+
+                    @include cms-interactive;
 
                     &:not(.pcui-disabled):hover {
                         background-color: color.adjust($error-secondary, $lightness: -7%);

@@ -9,11 +9,90 @@ $cms-hover: color.mix($text-darkest, $bcg-primary, 15%);
 $cms-float: $bcg-primary; // menus and popovers, so they lift off the $bcg-darkest sidebar
 $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
 
+// interaction: one duration for every control, hover fills one step lighter than what they sit on
+$cms-ease: 120ms ease-out;
+$cms-zoom-ease: 180ms ease-out; // thumbnail zoom: a touch slower so it doesn't jump
+$cms-primary-hover: hsl(24deg 100% 43%);
+$cms-fill-on-page: $cms-surface; // controls on the page or sidebar
+$cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers and dialogs
+
+// every interactive element: the shared transition and a keyboard focus ring
+@mixin cms-interactive {
+    transition:
+        color $cms-ease,
+        background-color $cms-ease,
+        border-color $cms-ease,
+        box-shadow $cms-ease;
+
+    &:focus-visible {
+        outline: 2px solid $text-active;
+        outline-offset: 2px;
+    }
+}
+
+// borderless icon and text controls: tabs, nav, kebabs, close buttons
+@mixin cms-ghost-hover($fill: $cms-fill-on-page) {
+    @include cms-interactive;
+
+    &:not(.pcui-disabled):hover {
+        background-color: $fill;
+        color: $text-primary;
+        box-shadow: none;
+    }
+}
+
+// bordered neutral buttons and chips
+@mixin cms-outlined-hover($fill: $cms-fill-on-surface) {
+    @include cms-interactive;
+
+    &:not(.pcui-disabled):hover {
+        border-color: $text-darkest;
+        background-color: $fill;
+        color: $text-primary;
+        box-shadow: none;
+    }
+}
+
+// the orange action button
+@mixin cms-primary-hover {
+    @include cms-interactive;
+
+    &:not(.pcui-disabled):hover {
+        border-color: transparent;
+        background-color: $cms-primary-hover;
+        color: $text-primary;
+        box-shadow: none;
+    }
+}
+
 %cms-mask-icon {
     content: '';
     flex: none;
     background-color: currentcolor;
     mask: center / contain no-repeat;
+}
+
+// card hover, like playcanv.as: a solid 2px orange ring (the 1px border plus a 1px shadow)
+%cms-hover-ring {
+    border-color: $text-active;
+    box-shadow: 0 0 0 1px $text-active;
+}
+
+// card hover image zoom, like playcanv.as; the thumbnail frame clips it
+%cms-hover-zoom {
+    transform: scale(1.05);
+
+    @media (prefers-reduced-motion: reduce) {
+        transform: none;
+    }
+}
+
+// locked projects: on the card cover and over the list row thumbnail
+%cms-lock-icon {
+    @extend %cms-mask-icon;
+
+    color: $text-primary;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M5 7V5a3 3 0 0 1 6 0v2h.5A1.5 1.5 0 0 1 13 8.5v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 3 13.5v-5A1.5 1.5 0 0 1 4.5 7H5zm1.5 0h3V5a1.5 1.5 0 0 0-3 0v2z'/%3E%3C/svg%3E");
 }
 
 @keyframes cms-pulse {
@@ -52,6 +131,10 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
 }
 
 .pcui-overlay.picker-project-cms {
+    // a full-screen page: pin to the window so content above the layout root (a banner)
+    // can't push it down or let the document scroll it out of view
+    position: fixed;
+    inset: 0;
     z-index: 10000;
 
     // component rules below set display, so hidden elements need to win explicitly
@@ -60,8 +143,8 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
     }
 
     & > .pcui-overlay-content {
-        width: 100vw;
-        height: 100vh;
+        width: 100%;
+        height: 100%;
         max-width: none;
         max-height: none;
         border-radius: 0;
@@ -95,7 +178,8 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
     }
 
     .cms-badge,
-    .cms-row-name > .pcui-label.cms-badge {
+    .cms-row-name > .pcui-label.cms-badge,
+    .cms-welcome-name > .pcui-label.cms-badge {
         display: inline-flex;
         flex: none;
         align-items: center;
@@ -122,11 +206,6 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
             color: #ff8a8a;
             border-color: rgb(255 138 138 / 45%);
         }
-
-        &.public {
-            color: #6fd088;
-            border-color: rgb(111 208 136 / 45%);
-        }
     }
 
     .cms-button {
@@ -147,28 +226,24 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
             font-size: 12px;
         }
 
-        &:not(.pcui-disabled):hover {
-            color: $text-primary;
-            box-shadow: $element-shadow-hover;
-        }
+        @include cms-outlined-hover;
 
         &.primary {
             border-color: transparent;
             background-color: $text-active;
             color: $text-primary;
 
-            &:not(.pcui-disabled):hover {
-                background-color: hsl(24deg 100% 43%);
-            }
+            @include cms-primary-hover;
         }
 
         &.ghost {
             border-color: transparent;
             background-color: transparent;
 
+            @include cms-ghost-hover;
+
             &:not(.pcui-disabled):hover {
-                background-color: $cms-surface;
-                box-shadow: none;
+                border-color: transparent;
             }
         }
 
@@ -201,12 +276,12 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
             mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='3' cy='8' r='1.4'/%3E%3Ccircle cx='8' cy='8' r='1.4'/%3E%3Ccircle cx='13' cy='8' r='1.4'/%3E%3C/svg%3E");
         }
 
-        &:hover {
-            border-color: $bcg-darkest;
-            background-color: $bcg-darkest;
-            color: $text-primary;
-            box-shadow: none;
-        }
+        @include cms-ghost-hover;
+    }
+
+    // on a row the page fill matches the row, so step up once more
+    .cms-row .cms-kebab {
+        @include cms-ghost-hover($cms-edge);
     }
 
     // sidebar
@@ -234,11 +309,11 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
         color: $text-primary;
         font-size: 15px;
 
+        // bare orange mark, same as playcanv.as and its favicon; 22px wide like the nav icon slot, so the name lines up with the labels below
         & > .cms-logo {
-            width: 26px;
-            height: 26px;
-            border-radius: 6px;
-            background: url('../static/img/editor_logo.svg') right / 200% 100% no-repeat;
+            width: 22px;
+            height: 24px;
+            background: url('../static/img/playcanvas-mark.svg') center / contain no-repeat;
         }
 
         & > .cms-brand-name {
@@ -270,11 +345,12 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
             text-align: center;
         }
 
-        &:not(.pcui-disabled):hover,
+        @include cms-ghost-hover;
+
+        // the active item shares the hover fill; its orange icon tells them apart
         &.active {
-            background-color: $cms-surface;
+            background-color: $cms-fill-on-page;
             color: $text-primary;
-            box-shadow: none;
         }
 
         &.active[data-icon]::before {
@@ -284,21 +360,27 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
 
     .cms-new {
         height: 36px;
-        margin: 10px 0 8px;
+        margin: 10px 0 0;
         color: $text-primary;
 
+        // a plain orange plus in the same 22px slot as the nav icons; orange marks the primary action
         &[data-icon]::before {
-            display: inline-grid;
-            place-items: center;
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
+            @extend %cms-mask-icon;
+
+            width: 12px;
+            height: 12px;
+            margin: 0 5px;
             background-color: $text-active;
-            color: $text-primary;
-            font-size: 11px;
-            line-height: 1;
-            vertical-align: initial;
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 1v10M1 6h10'/%3E%3C/svg%3E");
+
+            // centre on the capitals rather than the line box
+            transform: translateY(-0.5px);
         }
+    }
+
+    // sits under new project, then a gap before the nav
+    .cms-import {
+        margin-bottom: 8px;
     }
 
     .cms-section > .pcui-label {
@@ -336,11 +418,7 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
             margin: 0;
         }
 
-        &:hover {
-            background-color: $cms-surface;
-            color: $text-primary;
-            box-shadow: none;
-        }
+        @include cms-ghost-hover;
     }
 
     .cms-side-list {
@@ -358,11 +436,11 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
         padding: 0 8px;
         border-radius: 6px;
         cursor: pointer;
-        transition: background-color 100ms;
 
-        &:hover,
+        @include cms-ghost-hover;
+
         &.active {
-            background-color: $cms-surface;
+            background-color: $cms-fill-on-page;
             color: $text-primary;
         }
     }
@@ -405,11 +483,13 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
         color: $text-dark;
         font-size: 12px;
         cursor: pointer;
-        transition: box-shadow 100ms;
 
+        @include cms-interactive;
+
+        // a clickable surface, so it gets the card ring
         &:hover,
         &.open {
-            box-shadow: $element-shadow-hover;
+            @extend %cms-hover-ring;
         }
 
         & > .progress-icon {
@@ -447,6 +527,12 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
         height: 28px;
         border-radius: 50%;
         cursor: pointer;
+
+        @include cms-interactive;
+
+        &:hover {
+            box-shadow: 0 0 0 2px $text-active;
+        }
     }
 
     .cms-me-text {
@@ -486,10 +572,7 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
             height: 16px;
         }
 
-        &:hover {
-            background-color: $bcg-darkest;
-            color: $text-primary;
-        }
+        @include cms-ghost-hover;
 
         &.active {
             color: #4ea86a;
@@ -630,19 +713,25 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
 
     .cms-welcome {
         display: grid;
-        grid-template-columns: 120px minmax(0, 1fr) auto;
+        grid-template-columns: 160px minmax(0, 1fr);
         align-items: center;
-        gap: 18px;
+        gap: 20px;
         margin-bottom: 28px;
-        padding: 12px 18px 12px 12px;
+        padding: 14px 20px 14px 14px;
         border: 1px solid $cms-edge;
         border-radius: 8px;
         background-color: $cms-surface;
         cursor: pointer;
-        transition: box-shadow 100ms, border-color 100ms;
+        transition:
+            box-shadow $cms-ease,
+            border-color $cms-ease;
 
         &:hover {
-            box-shadow: $element-shadow-hover;
+            @extend %cms-hover-ring;
+
+            .cms-welcome-thumb > img {
+                @extend %cms-hover-zoom;
+            }
         }
 
         &.is-open {
@@ -652,11 +741,19 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
 
     // project thumbnails are square; keep them uncropped
     .cms-welcome-thumb {
-        width: 120px;
+        width: 160px;
         aspect-ratio: 1;
+        overflow: hidden;
         border-radius: 6px;
-        object-fit: cover;
         background-color: $bcg-darkest;
+
+        > img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform $cms-zoom-ease;
+        }
     }
 
     .cms-welcome-info {
@@ -683,7 +780,7 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
         font-size: 18px;
         line-height: 24px;
 
-        & > .pcui-label {
+        & > .pcui-label:not(.cms-badge) {
             @extend .font-bold;
         }
     }
@@ -722,25 +819,38 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
         font-size: 12px;
         line-height: 24px;
 
-        &:not(.pcui-disabled):hover {
-            color: $text-primary;
-            box-shadow: $element-shadow-hover;
-        }
+        @include cms-outlined-hover;
+    }
+
+    .cms-welcome-desc {
+        overflow: hidden;
+        color: $text-secondary;
+        font-size: 13px;
+        text-overflow: ellipsis;
     }
 
     .cms-welcome-sub {
+        display: flex;
+        flex-flow: row wrap;
+        align-items: center;
+        gap: 4px;
         color: $text-dark;
         font-size: 12px;
+
+        > .cms-plays {
+            margin-left: 0;
+        }
     }
 
     .cms-welcome-actions {
         display: flex;
         flex-direction: row;
         gap: 8px;
+        margin-top: 10px;
     }
 
     .cms-heading {
-        margin-bottom: 12px;
+        margin-bottom: 4px;
         color: $text-primary;
         font-size: 14px;
 
@@ -754,9 +864,11 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
         top: 0;
         z-index: 3;
         margin: 0 -8px 16px;
-        padding: 8px 8px 12px;
+
+        // room above the search once pinned to the top edge
+        padding: 16px 8px 12px;
         background-color: $bcg-darker;
-        transition: box-shadow 100ms;
+        transition: box-shadow $cms-ease;
 
         &.stuck {
             box-shadow: 0 1px 0 $border-primary;
@@ -773,7 +885,7 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
         border: 1px solid $cms-edge;
         border-radius: 8px;
         background-color: $cms-surface;
-        transition: box-shadow 100ms;
+        transition: border-color $cms-ease;
 
         &::before {
             @extend %cms-mask-icon;
@@ -784,8 +896,9 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
             mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round'%3E%3Ccircle cx='7' cy='7' r='4.5'/%3E%3Cpath d='m14 14-3.6-3.6'/%3E%3C/svg%3E");
         }
 
+        // inputs focus with an orange border, matching the hover ring
         &:focus-within {
-            box-shadow: $element-shadow-active;
+            border-color: $text-active;
         }
     }
 
@@ -839,11 +952,7 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
             mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M2.5 2.5l7 7M9.5 2.5l-7 7'/%3E%3C/svg%3E");
         }
 
-        &:hover {
-            background-color: $cms-edge;
-            color: $text-primary;
-            box-shadow: none;
-        }
+        @include cms-ghost-hover($cms-fill-on-surface);
     }
 
     .cms-hints {
@@ -874,9 +983,7 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
         font-size: 12px;
         line-height: 20px;
 
-        &:hover {
-            box-shadow: $element-shadow-hover;
-        }
+        @include cms-outlined-hover($cms-fill-on-page);
     }
 
     .cms-hints-tip {
@@ -911,10 +1018,7 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
         font-size: 13px;
         line-height: 28px;
 
-        &:not(.pcui-disabled):hover {
-            color: $text-primary;
-            box-shadow: none;
-        }
+        @include cms-ghost-hover;
 
         &.active {
             border-color: $cms-edge;
@@ -942,11 +1046,6 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
             margin-left: 6px;
             font-family: pc-icon;
             font-size: 9px;
-        }
-
-        &:not(.pcui-disabled):hover {
-            border-color: $cms-edge;
-            background-color: $cms-surface;
         }
     }
 
@@ -987,10 +1086,7 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
             mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M0 1h3v3H0zM4.5 1.5H14v2H4.5zM0 5.5h3v3H0zM4.5 6H14v2H4.5zM0 10h3v3H0zM4.5 10.5H14v2H4.5z'/%3E%3C/svg%3E");
         }
 
-        &:not(.pcui-disabled):hover {
-            color: $text-primary;
-            box-shadow: none;
-        }
+        @include cms-ghost-hover;
 
         &.active {
             background-color: $cms-edge;
@@ -1032,11 +1128,17 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
         overflow: hidden;
         outline: none;
         cursor: pointer;
-        transition: box-shadow 100ms, border-color 100ms;
+        transition:
+            box-shadow $cms-ease,
+            border-color $cms-ease;
 
         &:hover,
         &:focus-visible {
-            box-shadow: $element-shadow-hover;
+            @extend %cms-hover-ring;
+        }
+
+        &:not(.is-off):hover .cms-card-thumb > img {
+            @extend %cms-hover-zoom;
         }
 
         &.is-open {
@@ -1048,6 +1150,7 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
             cursor: default;
 
             &:hover {
+                border-color: $cms-edge;
                 box-shadow: none;
             }
         }
@@ -1060,6 +1163,7 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
     .cms-card-thumb {
         position: relative;
         aspect-ratio: 1;
+        overflow: hidden;
         border-bottom: 1px solid $cms-edge;
         background-color: $bcg-darkest;
 
@@ -1068,6 +1172,7 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: transform $cms-zoom-ease;
         }
 
         & > .cms-live {
@@ -1105,13 +1210,11 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
         }
 
         &.locked::before {
-            @extend %cms-mask-icon;
+            @extend %cms-lock-icon;
 
             width: 20px;
             height: 20px;
             margin-bottom: 6px;
-            color: $text-primary;
-            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M5 7V5a3 3 0 0 1 6 0v2h.5A1.5 1.5 0 0 1 13 8.5v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 3 13.5v-5A1.5 1.5 0 0 1 4.5 7H5zm1.5 0h3V5a1.5 1.5 0 0 0-3 0v2z'/%3E%3C/svg%3E");
         }
     }
 
@@ -1202,14 +1305,20 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
         padding: 10px 12px 10px 14px;
         border-bottom: 1px solid $cms-edge;
         cursor: pointer;
-        transition: background-color 100ms;
+
+        @include cms-interactive;
 
         &:last-of-type {
             border-bottom: none;
         }
 
+        // a ring inside one bordered list would look wrong, so rows fill instead
         &:hover {
-            background-color: $cms-hover;
+            background-color: $cms-fill-on-surface;
+        }
+
+        &:focus-visible {
+            outline-offset: -2px;
         }
 
         &.is-off {
@@ -1217,7 +1326,8 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
             cursor: default;
         }
 
-        &.is-dim > .cms-row-thumb {
+        &.is-dim > .cms-row-thumb:not(.locked),
+        &.is-dim > .cms-row-thumb.locked > img {
             filter: grayscale(0.7) brightness(0.55);
         }
     }
@@ -1228,6 +1338,29 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
         border-radius: 4px;
         object-fit: cover;
         background-color: $bcg-darkest;
+
+        &.locked {
+            position: relative;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+
+            > img {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            &::after {
+                @extend %cms-lock-icon;
+
+                position: relative;
+                width: 14px;
+                height: 14px;
+            }
+        }
     }
 
     .cms-row-info {
@@ -1368,7 +1501,7 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
         }
 
         &.welcome-thumb {
-            width: 120px;
+            width: 160px;
             aspect-ratio: 1;
             border-radius: 6px;
         }
@@ -1378,6 +1511,7 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
         cursor: default;
 
         &:hover {
+            border-color: $cms-edge;
             background-color: transparent;
             box-shadow: none;
         }
@@ -1386,6 +1520,21 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
         .cms-row-info,
         .cms-welcome-info {
             gap: 8px;
+        }
+
+        // welcome bones sized like the text they stand in for, not the full card width
+        .cms-welcome-info > .cms-bone {
+            &.title {
+                max-width: 220px;
+            }
+
+            &.part {
+                max-width: 360px;
+            }
+
+            &.meta {
+                max-width: 300px;
+            }
         }
     }
 
@@ -1433,9 +1582,7 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
     .pcui-menu-item-content {
         border: none;
 
-        &:hover {
-            background-color: $cms-hover;
-        }
+        @include cms-ghost-hover($cms-fill-on-surface);
     }
 }
 
@@ -1534,10 +1681,7 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
         background-color: $text-active;
         color: $text-primary;
 
-        &:hover {
-            background-color: hsl(24deg 100% 43%);
-            box-shadow: none;
-        }
+        @include cms-primary-hover;
     }
 }
 
@@ -1651,20 +1795,14 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
         font-size: 13px;
         line-height: 28px;
 
-        &:hover {
-            background-color: $bcg-darker;
-            color: $text-primary;
-            box-shadow: none;
-        }
+        @include cms-outlined-hover;
 
         &.primary {
             border-color: transparent;
             background-color: $text-active;
             color: $text-primary;
 
-            &:hover {
-                background-color: hsl(24deg 100% 43%);
-            }
+            @include cms-primary-hover;
         }
     }
 }
