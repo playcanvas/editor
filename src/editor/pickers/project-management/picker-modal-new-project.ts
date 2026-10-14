@@ -20,9 +20,11 @@ editor.once('load', () => {
     const blankProject = {
         name: 'Blank Project',
         description: 'A new blank project.',
-        image: `${config.url.frontend}static/img/blank-project.webp`,
+        image: `${config.url.frontend}static/img/blank-project-kit.webp`,
         tags: ['games'],
-        fork_from: null
+
+        // the blank template playcanvas.com forks, so new projects start with its scene and settings
+        fork_from: 1162945
     };
     const modelViewer = {
         name: 'Model Viewer',
@@ -44,7 +46,7 @@ editor.once('load', () => {
         name: blankProject.name,
         description: blankProject.description,
         private: false,
-        fork_from: null
+        fork_from: blankProject.fork_from
     };
 
     let rootUser;
@@ -121,18 +123,16 @@ editor.once('load', () => {
         });
         thumbnail.append(thumbnailOverlay);
 
-        // Preview Button (ignore for blank project)
-        if (starterkit !== blankProject) {
-            const previewButton = new Button({
-                class: 'preview-button',
-                hidden: true
-            });
-            thumbnailOverlay.append(previewButton);
+        // Preview Button
+        const previewButton = new Button({
+            class: 'preview-button',
+            hidden: true
+        });
+        thumbnailOverlay.append(previewButton);
 
-            previewButton.on('click', () => {
-                previewProject(starterkit.fork_from);
-            });
-        }
+        previewButton.on('click', () => {
+            previewProject(starterkit.fork_from);
+        });
 
         // Title
         const title = new Element({
@@ -292,8 +292,11 @@ editor.once('load', () => {
 
     // helper method to toggle AJAX loader in create project button
     const toggleLoader = (loading: boolean) => {
-        loader.hidden = !loading;
         createBtn.text = loading ? '' : 'Create project';
+
+        // setting text replaces the button's children, so put the spinner back
+        createBtn.dom.appendChild(loader.dom);
+        loader.hidden = !loading;
     };
 
     // overlay
@@ -440,7 +443,7 @@ editor.once('load', () => {
                     name: blankProject.name,
                     description: blankProject.description,
                     private: false,
-                    fork_from: null
+                    fork_from: blankProject.fork_from
                 });
                 buildSidebar();
             }
@@ -456,55 +459,33 @@ editor.once('load', () => {
             'projects:create',
             data,
             (result) => {
-                if (!data.fork_from) {
-                    editor.call('projects:getOne', result.id, (newProject) => {
-                        if (newProject) {
-                            result = newProject;
-                        }
+                // every kit, blank included, is a fork: wait for the fork job, then offer to open the project
+                const jobId = result.id;
 
-                        evt = editor.on('messenger:project.create', (msg) => {
-                            if (msg.project_id !== result.id) {
-                                return;
+                evt = editor.on('messenger:job.update', (msg) => {
+                    if (!jobId || jobId === msg.job.id) {
+                        evt.unbind();
+
+                        // get job
+                        editor.api.globals.rest.jobs.jobGet({ jobId: msg.job.id }).on('load', (status, response) => {
+                            const job = response.data;
+
+                            // handle job error
+                            if (job.status === 'error') {
+                                editor.call('picker:project:buildAlert', mainView, job.messages[0]);
+                            } else {
+                                editor.call('picker:project:newProjectConfirmation', job.forked_id);
+                                overlay.hidden = true; // close new project modal
                             }
-                            evt.unbind();
-                            result.disabled = false;
 
                             toggleLoader(false);
-
-                            // open confirmation modal
-                            editor.call('picker:project:newProjectConfirmation', result.id);
-                            overlay.hidden = true; // close new project modal
                         });
-                    });
-                } else {
-                    const jobId = result.id;
-
-                    evt = editor.on('messenger:job.update', (msg) => {
-                        if (!jobId || jobId === msg.job.id) {
-                            evt.unbind();
-
-                            // get job
-                            editor.api.globals.rest.jobs
-                                .jobGet({ jobId: msg.job.id })
-                                .on('load', (status, response) => {
-                                    const job = response.data;
-
-                                    // handle job error
-                                    if (job.status === 'error') {
-                                        editor.call('picker:project:buildAlert', mainView, job.messages[0]);
-                                    } else {
-                                        window.open(`/editor/project/${job.forked_id}`);
-                                    }
-
-                                    toggleLoader(false);
-                                });
-                        }
-                    });
-                }
+                    }
+                });
             },
             (err) => {
                 // unsubscribe from messenger job.update
-                if (data.fork_from && evt) {
+                if (evt) {
                     evt.unbind();
                 }
 
@@ -529,7 +510,8 @@ editor.once('load', () => {
             'projects:getOne',
             project_id,
             (response) => {
-                const previewURL = response.primary_app_url;
+                // kits without a published app, like the blank template, preview as their project page
+                const previewURL = response.primary_app_url ?? `${config.url.home}/project/${project_id}`;
                 window.open(previewURL, '_blank');
             },
             (err) => {
@@ -609,7 +591,7 @@ editor.once('load', () => {
             name: blankProject.name,
             description: blankProject.description,
             private: false,
-            fork_from: null
+            fork_from: blankProject.fork_from
         });
         buildSidebar();
         overlay.hidden = false;

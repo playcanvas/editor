@@ -840,6 +840,10 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         > .cms-plays {
             margin-left: 0;
         }
+
+        > .cms-avatar {
+            margin-right: 4px;
+        }
     }
 
     .cms-welcome-actions {
@@ -1280,6 +1284,33 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         text-overflow: ellipsis;
     }
 
+    // forks and plays sit together at the end of the card meta
+    .cms-stats {
+        display: flex;
+        flex: none;
+        gap: 10px;
+        margin-left: auto;
+
+        > .cms-plays {
+            margin-left: 0;
+        }
+    }
+
+    .cms-forks {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 4px;
+        font-variant-numeric: tabular-nums;
+
+        &::before {
+            content: '\E431';
+            font-family: pc-icon;
+            font-size: 11px;
+            line-height: 1;
+        }
+    }
+
     .cms-plays {
         display: inline-flex;
         align-items: center;
@@ -1299,7 +1330,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
 
     .cms-row {
         display: grid;
-        grid-template-columns: 40px minmax(0, 1fr) 96px 72px 120px 28px;
+        grid-template-columns: 40px minmax(0, 1fr) 48px 96px 72px 120px 28px;
         align-items: center;
         gap: 14px;
         padding: 10px 12px 10px 14px;

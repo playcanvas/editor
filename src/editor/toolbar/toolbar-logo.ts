@@ -94,6 +94,13 @@ editor.once('load', () => {
     const menu = new Menu({
         items: [
             {
+                // back to the projects page
+                text: 'All Projects',
+                icon: 'E140',
+                class: 'menu-item-projects',
+                onSelect: () => editor.call('picker:project:cms')
+            },
+            {
                 // Scene management (like "File" menu)
                 text: 'Scenes',
                 icon: 'E147',
@@ -438,6 +445,18 @@ editor.once('load', () => {
     });
     menu.position(40, 0);
     root.append(menu);
+
+    editor.call('hotkey:register', 'projects:toggle', {
+        key: 'o',
+        ctrl: true,
+        callback: () => {
+            // other pickers own the screen; the projects page itself handles going back
+            if (editor.call('picker:isOpen')) {
+                return;
+            }
+            editor.call('picker:project:cms:toggle');
+        }
+    });
 
     const tooltip = TooltipHandle.attach({
         target: logo.dom,

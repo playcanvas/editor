@@ -114,6 +114,42 @@ $control-strip-gap: 2px;
         left: $control-strip-inset;
     }
 
+    // projects › project › branch › scene share one backing, split by chevrons
+    .control-strip-crumbs {
+        display: flex;
+        align-items: center;
+        background-color: rgba($bcg-darker, 0.5);
+
+        > .control-strip-btn {
+            background-color: transparent;
+
+            &:hover,
+            &.active {
+                background-color: rgba($bcg-darker, 0.75);
+            }
+        }
+
+        > .control-strip-project {
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        > .control-strip-sep {
+            width: 10px;
+            margin: 0;
+            color: rgba($text-primary, 0.3);
+            font-size: 8px;
+            text-align: center;
+
+            &::before {
+                content: '\E164';
+                font-family: pc-icon;
+            }
+        }
+    }
+
     &.top-right {
         top: $control-strip-inset;
         right: $control-strip-inset;

@@ -18,7 +18,7 @@ editor.once('load', () => {
 
     // main panel
     const panel = new Panel({
-        headerText: 'CLOSE CURRENT PROJECT',
+        headerText: IS_EMPTY_STATE ? 'PROJECT READY' : 'CLOSE CURRENT PROJECT',
         class: 'modal-confirmation-panel'
     });
     overlay.append(panel);
@@ -35,30 +35,32 @@ editor.once('load', () => {
 
     // confirmation message
     const confirmationMessage = new Label({
-        text: 'Would you like to open your new project or continue working on your current project?'
+        text: IS_EMPTY_STATE
+            ? 'Your new project is ready. Open it now, or keep browsing your projects.'
+            : "Your new project is ready. Opening it closes the project you're working on."
     });
     panel.append(confirmationMessage);
 
-    // open project button
-    const openProjectButton = new Button({
-        class: 'negative-action-button',
-        text: IS_EMPTY_STATE ? 'Open New Project' : 'Close Current and Open New Project'
-    });
-    panel.append(openProjectButton);
-
-    openProjectButton.on('click', () => {
-        window.open(projectURL, '_self').focus();
-    });
-
     // continue button
     const continueButton = new Button({
-        class: 'positive-action-button',
-        text: IS_EMPTY_STATE ? 'Continue Browsing' : 'Continue with Current Project'
+        class: 'negative-action-button',
+        text: IS_EMPTY_STATE ? 'Keep browsing' : 'Keep working'
     });
     panel.append(continueButton);
 
     continueButton.on('click', () => {
         returnToCMS();
+    });
+
+    // open project button
+    const openProjectButton = new Button({
+        class: 'positive-action-button',
+        text: 'Open project'
+    });
+    panel.append(openProjectButton);
+
+    openProjectButton.on('click', () => {
+        window.open(projectURL, '_self').focus();
     });
 
     // CONTROLLERS
