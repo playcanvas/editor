@@ -1398,9 +1398,48 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         }
     }
 
+    // star count that toggles your star; filled and orange once starred
+    .cms-star {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 4px;
+        height: 22px;
+        margin: 0 -6px 0 0;
+        padding: 0 6px;
+        border: none;
+        border-radius: 6px;
+        background: transparent;
+        color: $text-dark;
+        font-size: 12px;
+        font-variant-numeric: tabular-nums;
+
+        @include cms-ghost-hover($cms-edge);
+
+        &::before {
+            @extend %cms-mask-icon;
+
+            width: 11px;
+            height: 11px;
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1.5l1.9 4.1 4.5.5-3.4 3 1 4.4L8 11.2l-4 2.3 1-4.4-3.4-3 4.5-.5z' fill='none' stroke='%23000' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E");
+        }
+
+        &.on {
+            color: $text-active;
+
+            &::before {
+                mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1.5l1.9 4.1 4.5.5-3.4 3 1 4.4L8 11.2l-4 2.3 1-4.4-3.4-3 4.5-.5z' stroke='%23000' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E");
+            }
+
+            &:not(.pcui-disabled):hover {
+                color: $text-active;
+            }
+        }
+    }
+
     .cms-row {
         display: grid;
-        grid-template-columns: 40px minmax(0, 1fr) 48px 56px 96px 72px 120px 28px;
+        grid-template-columns: 40px minmax(0, 1fr) 48px 56px 96px 56px 72px 120px 28px;
         align-items: center;
         gap: 14px;
         padding: 10px 12px 10px 14px;
