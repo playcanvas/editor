@@ -81,6 +81,7 @@ class Messenger extends Events {
 
         if (this._connectAttempts >= 8) {
             console.log('messenger cannot reconnect');
+            this.emit('cannotConnect');
             return;
         }
 
