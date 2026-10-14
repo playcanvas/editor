@@ -6,7 +6,7 @@ editor.on('start', () => {
 
     messenger.connect(config.url.messenger.ws);
 
-    messenger.on('connect', () => {
+    messenger.on('connected', () => {
         editor.emit('messenger:connected');
     });
 
