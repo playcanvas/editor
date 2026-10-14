@@ -877,6 +877,13 @@ editor.once('load', () => {
         overlay.clickable = closable;
     });
 
+    // closing was disallowed while no scene was loaded, unless a version control operation holds it
+    editor.on('scene:load', () => {
+        if (leftPanel.enabled) {
+            editor.call('picker:project:setClosable', true);
+        }
+    });
+
     // disable / enable the state of the left panel
     editor.method('picker:project:toggleLeftPanel', (enabled) => {
         leftPanel.enabled = enabled;

@@ -38,6 +38,19 @@ editor.once('load', () => {
     wrapper.append(visibilityColumn);
     panel.append(wrapper);
 
+    // the browser doesn't wheel-scroll while a mouse button is held from the tree's mousedown, as
+    // when dragging entities, so scroll by hand then
+    wrapper.dom.addEventListener(
+        'wheel',
+        (evt: WheelEvent) => {
+            if (evt.buttons) {
+                wrapper.dom.scrollTop += evt.deltaY;
+                evt.preventDefault();
+            }
+        },
+        { passive: false }
+    );
+
     const treeView = new EntitiesTreeView({
         allowDrag: editor.call('permissions:write'),
         allowRenaming: editor.call('permissions:write'),

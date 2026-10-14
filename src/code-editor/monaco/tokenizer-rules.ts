@@ -23,9 +23,12 @@ export const jsRules = {
             `([@]${tag})(\\s*\\[)`,
             ['keyword', { token: 'identifier', next: '@jsdocSquareBrackets' }]
         ]),
+        // a type follows a tag (`@param {T}`) and inline tags open with one (`{@link}`); any other brace is
+        // comment text such as example code
+        [/(@\w+)(\s*)(\{)/, ['keyword', 'comment.doc', { token: 'comment.doc', next: '@jsdocCurlyBrackets' }]],
         [/@\w+/, 'keyword'],
         [/(\})([^-]+)(?=-)/, ['comment.doc', 'identifier']],
-        [/\{/, 'comment.doc', '@jsdocCurlyBrackets'],
+        [/\{(?=@)/, 'comment.doc', '@jsdocCurlyBrackets'],
         [/./, 'comment.doc']
     ],
     jsdocCurlyBrackets: [

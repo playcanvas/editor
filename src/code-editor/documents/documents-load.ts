@@ -133,8 +133,10 @@ editor.once('load', () => {
                             .map((path) => editor.call('assets:getByVirtualPath', path))
                             .filter(Boolean);
 
-                        // And load them, ensuring that Monaco can resolve dependencies
-                        depsAsAsset.forEach((asset) => loadDocument(asset, false));
+                        // And load them with their own imports, so Monaco can resolve the whole
+                        // chain (e.g. members inherited from a base class two levels up). Already
+                        // loaded documents return early, which also stops import cycles
+                        depsAsAsset.forEach((asset) => loadDocument(asset, true));
                     }
                 }
 

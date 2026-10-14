@@ -376,6 +376,11 @@ class AssetPanel extends Panel {
      */
     private _keyboardSelect = false;
 
+    /**
+     * Last selected asset still to be scrolled into view, once filtering (e.g. a folder switch) shows it
+     */
+    private _revealAssetId: number | null = null;
+
     private _eventsEditor: EventHandle[];
 
     private _assetListEvents: EventHandle[];
@@ -807,6 +812,9 @@ class AssetPanel extends Panel {
         };
         this._detailsView.dom.addEventListener('keydown', onNavKeyDown, true);
         this._gridView.dom.addEventListener('keydown', onNavKeyDown, true);
+
+        this._gridView.on('filter:end', () => this._revealAsset());
+        this._detailsView.on('filter:end', () => this._revealAsset());
 
         this._eventsEditor = [];
         this._eventsEditor.push(editor.on('selector:change', this._onSelectorChange.bind(this)));
@@ -2400,34 +2408,33 @@ class AssetPanel extends Panel {
 
         if (searchQuery) {
             if (this._searchTags) {
-                // check for tags
+                // check for tags, then fall through to the folder scope like a name search
                 const tags = element.asset.getRaw('tags');
-                if (tags.length === 0) {
+                if (tags.length === 0 || !this._tagsOR(this._searchTags, tags)) {
                     return false;
                 }
+            } else {
+                if (searchQuery[0] === '*' && searchQuery.length > 1) {
+                    // check for regular expression first if the query starts with '*'
+                    try {
+                        if (new RegExp(searchQuery.slice(1), 'i').test(name)) {
+                            return true;
+                        }
+                    } catch {
+                        // ignore invalid regex and continue with plain text search
+                    }
+                }
 
-                return this._tagsOR(this._searchTags, tags);
-            }
-            if (searchQuery[0] === '*' && searchQuery.length > 1) {
-                // check for regular expression first if the query starts with '*'
-                try {
-                    if (new RegExp(searchQuery.slice(1), 'i').test(name)) {
+                // check if name includes search query
+                if (!name.toLowerCase().includes(searchQuery.toLowerCase())) {
+                    // if id matches then return true immediately
+                    const id = parseInt(searchQuery, 10);
+                    if (id && element.asset.get('id') === id) {
                         return true;
                     }
-                } catch {
-                    // ignore invalid regex and continue with plain text search
-                }
-            }
 
-            // check if name includes search query
-            if (!name.toLowerCase().includes(searchQuery.toLowerCase())) {
-                // if id matches then return true immediately
-                const id = parseInt(searchQuery, 10);
-                if (id && element.asset.get('id') === id) {
-                    return true;
+                    return false;
                 }
-
-                return false;
             }
         }
 
@@ -2865,10 +2872,26 @@ class AssetPanel extends Panel {
                 lastRow.focus();
             }
         }
+
+        // scroll to the last selected asset, now or once a pending folder switch shows it
+        this._revealAssetId = value.length ? value[value.length - 1].get('id') : null;
+        this._revealAsset();
     }
 
     get selectedAssets() {
         return this._selectedAssets.slice();
+    }
+
+    _revealAsset() {
+        if (this._revealAssetId === null) {
+            return;
+        }
+        const index = this._viewMode === AssetPanel.VIEW_DETAILS ? this._rowsIndex : this._gridIndex;
+        const item = index[this._revealAssetId];
+        if (item && !item.hidden) {
+            item.dom.scrollIntoView({ block: 'nearest' });
+            this._revealAssetId = null;
+        }
     }
 
     get visibleAssets() {
