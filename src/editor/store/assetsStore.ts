@@ -166,6 +166,13 @@ class AssetsStore extends BaseStore {
         }
         const processedAssets = this._prepareAssets(assets);
 
+        // the item's own date isn't bumped when its assets are replaced, so show the latest
+        const modified = (assets ?? []).reduce(
+            (latest: string, a: { modifiedAt?: string }) =>
+                Date.parse(a.modifiedAt) > Date.parse(latest) ? a.modifiedAt : latest,
+            item.modified
+        );
+
         const tags = [];
         for (const tag of item.tags) {
             tags.push({ name: tag, slug: tag });
@@ -175,7 +182,7 @@ class AssetsStore extends BaseStore {
             id: item.id,
             name: item.name,
             size: item.size,
-            modified: item.modified,
+            modified,
             views: item.views,
             downloads: item.downloads,
             description: item.description,
