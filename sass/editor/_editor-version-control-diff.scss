@@ -594,6 +594,28 @@ $vc-add-edge: #3fb950;
     }
 }
 
+// content of a wholly added/deleted text file
+.vc-diff-file {
+    max-height: 480px;
+    margin: 0;
+    padding: 8px 10px;
+    overflow: auto;
+    color: $text-primary;
+    font-family: inconsolatamedium, Monaco, Menlo, monospace;
+    white-space: pre;
+    user-select: text;
+
+    &.del {
+        background-color: $vc-del-tint;
+        box-shadow: inset 2px 0 0 $vc-del-edge;
+    }
+
+    &.add {
+        background-color: $vc-add-tint;
+        box-shadow: inset 2px 0 0 $vc-add-edge;
+    }
+}
+
 // ---- unified diff rows ----
 .vc-diff-field-row {
     display: flex;
