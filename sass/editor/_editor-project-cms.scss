@@ -279,8 +279,10 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         @include cms-ghost-hover;
     }
 
-    // on a row the page fill matches the row, so step up once more
-    .cms-row .cms-kebab {
+    // on a row or card the page fill matches the surface, so step up once more
+    .cms-row .cms-kebab,
+    .cms-card .cms-kebab,
+    .cms-welcome .cms-kebab {
         @include cms-ghost-hover($cms-edge);
     }
 
@@ -871,6 +873,12 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         display: flex;
         flex-flow: row wrap;
         gap: 8px;
+
+        // borderless like the card kebabs, at button height so it lines up
+        > .cms-kebab {
+            width: 32px;
+            height: 32px;
+        }
     }
 
     .cms-heading {
@@ -1269,7 +1277,21 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         padding: 12px 14px 14px;
     }
 
+    // the kebab overhangs the 20px name line so it doesn't make the card taller
+    .cms-card-title {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 4px;
+        min-width: 0;
+
+        > .cms-kebab {
+            margin: -4px -8px -4px auto;
+        }
+    }
+
     .cms-card-name {
+        min-width: 0;
         overflow: hidden;
         color: $text-primary;
         font-size: 14px;
