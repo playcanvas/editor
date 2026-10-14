@@ -15,14 +15,6 @@ editor.once('load', () => {
     editor.method('assets:model:unwrap', (asset, args, callback) => {
         const assetId = asset.get('id');
 
-        if (asset.get('type') !== 'model' || !asset.has('file.filename')) {
-            callback?.(new Error('A model asset with a source file is required.'));
-            return;
-        }
-        if (activeWorkers.has(assetId)) {
-            callback?.(new Error(`Model asset ${assetId} is already being unwrapped.`));
-            return;
-        }
         if (typeof args === 'function') {
             callback = args;
         }
@@ -31,6 +23,15 @@ editor.once('load', () => {
         }
 
         args = args || {};
+
+        if (asset.get('type') !== 'model' || !asset.has('file.filename')) {
+            callback?.(new Error('A model asset with a source file is required.'));
+            return;
+        }
+        if (activeWorkers.has(assetId)) {
+            callback?.(new Error(`Model asset ${assetId} is already being unwrapped.`));
+            return;
+        }
 
         const filename = asset.get('file.filename');
 
