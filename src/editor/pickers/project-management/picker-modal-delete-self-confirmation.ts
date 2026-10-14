@@ -49,7 +49,7 @@ editor.once('load', () => {
     // leave button
     const leaveButton = new Button({
         class: 'positive-action-button',
-        text: 'Leave Project'
+        text: 'Leave project'
     });
     panel.append(leaveButton);
 

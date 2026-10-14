@@ -606,14 +606,17 @@
     }
 }
 
-.pcui-overlay.picker-delete-organization {
+// type-to-confirm deletes share one layout
+.pcui-overlay.picker-delete-organization,
+.pcui-overlay.picker-delete-project {
     z-index: 10000;
 
     > .pcui-overlay-content {
         width: min(480px, calc(100vw - 32px));
         border: 1px solid $border-primary;
 
-        > .delete-organization-panel {
+        > .delete-organization-panel,
+        > .delete-project-panel {
             > .pcui-panel-header {
                 @extend %dialog-header;
             }
@@ -662,7 +665,8 @@
                 }
             }
 
-            .delete-organization-footer {
+            .delete-organization-footer,
+            .delete-project-footer {
                 display: flex;
                 flex-direction: row;
                 justify-content: flex-end;
@@ -675,7 +679,8 @@
                 }
 
                 // same as the version control dialogs' danger confirm
-                > .delete-org-button {
+                > .delete-org-button,
+                > .delete-project-button {
                     border-color: transparent;
                     background-color: $error-secondary;
                     color: $text-primary;
@@ -689,6 +694,70 @@
                     &.pcui-disabled {
                         opacity: $element-opacity-disabled;
                     }
+                }
+            }
+        }
+    }
+}
+
+// opens over the project picker's danger zone too
+.pcui-overlay.picker-delete-project {
+    z-index: 100000;
+
+    .delete-project-button {
+        min-width: 120px;
+    }
+
+    .loader {
+        position: absolute;
+        inset: 0;
+        width: 14px;
+        height: 14px;
+        margin: auto;
+        border: 2px solid rgb(255 255 255 / 35%);
+        border-top-color: $text-primary;
+        border-radius: 50%;
+        animation: cms-spin 0.8s linear infinite;
+    }
+}
+
+// two-choice confirmations (project ready, leaving a project, changing visibility):
+// message, then the safe choice and the primary one on the right
+.pcui-overlay.picker-modal-confirmation {
+    z-index: 100001; // larger than the projects page
+
+    > .pcui-overlay-content {
+        width: min(440px, calc(100vw - 32px));
+        border: 1px solid $border-primary;
+
+        > .pcui-panel {
+            > .pcui-panel-header {
+                @extend %dialog-header;
+            }
+
+            > .pcui-panel-content {
+                display: flex;
+                flex-flow: row wrap;
+                justify-content: flex-end;
+                gap: 8px;
+                padding: 20px;
+
+                > .pcui-label {
+                    flex: 1 0 100%;
+                    margin: 0 0 12px;
+                    color: $text-secondary;
+                    font-size: 13px;
+                    line-height: 18px;
+                    white-space: normal;
+                }
+
+                > .negative-action-button,
+                > .positive-action-button {
+                    @extend %dialog-button;
+                }
+
+                > .positive-action-button {
+                    @extend %dialog-button-primary;
                 }
             }
         }

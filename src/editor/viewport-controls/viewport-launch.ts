@@ -462,6 +462,7 @@ editor.once('load', () => {
     const topStrips = ':is(.control-strip.top-left, .control-strip.top-right)';
     const buttonSelector = [
         `${topStrips} > .pcui-button`,
+        `${topStrips} > .control-strip-crumbs > .pcui-button`,
         `${topStrips} > .render > .pcui-button`,
         `${topStrips} > .camera > .pcui-button`,
         `${topStrips} > .launch > .pcui-button`

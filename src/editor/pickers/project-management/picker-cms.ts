@@ -68,7 +68,9 @@ editor.once('load', () => {
             return userName(rootUser);
         }
         const org = orgs().find((o) => o.id === project.owner_id);
-        return org ? userName(org) : (project.owner?.full_name ?? project.owner?.username ?? '');
+
+        // the projects api sends the owner as a username string
+        return org ? userName(org) : (project.owner?.full_name ?? project.owner?.username ?? project.owner ?? '');
     };
     // shared projects can arrive without owner details, so skip empty parts instead of leaving a stray dot
     const joined = (...parts) => parts.filter(Boolean).join(' · ');
@@ -295,6 +297,7 @@ editor.once('load', () => {
                 const info = box('cms-row-info', row);
                 bone(['line', 'title'], info);
                 bone(['line', 'part'], info);
+                box('cms-row-cell', row);
                 bone(['line', 'cell'], row);
                 bone(['line', 'cell'], row);
                 bone(['line', 'cell'], row);
@@ -785,11 +788,13 @@ editor.once('load', () => {
             text(lead.description, 'cms-welcome-desc', info);
         }
 
-        // same pieces as cards and rows: owner, the play-count icon, size, last edited
+        // same pieces as cards and rows: owner, plays, forks, size, last edited
         const meta = box('cms-welcome-sub', info);
+        image(avatarUrl(lead.owner_id, 36), 'cms-avatar', meta);
         const parts: [string, string | string[]][] = [
             [ownerName(lead), null],
             [lead.primary_app_url ? shortCount(lead.plays) : '', 'cms-plays'],
+            [lead.fork_count ? shortCount(lead.fork_count) : '', 'cms-forks'],
             [bytesToHuman(lead.size?.total ?? 0), null],
             [`edited ${timeAgo(lead.modified)}`, null]
         ];
@@ -915,8 +920,12 @@ editor.once('load', () => {
             'cms-card-owner',
             meta
         );
+        const stats = box('cms-stats', meta);
+        if (project.fork_count) {
+            text(shortCount(project.fork_count), 'cms-forks', stats);
+        }
         if (project.primary_app_url) {
-            text(shortCount(project.plays), 'cms-plays', meta);
+            text(shortCount(project.plays), 'cms-plays', stats);
         }
         bindOpen(card, project);
     };
@@ -948,6 +957,11 @@ editor.once('load', () => {
                     : joined(ownerName(project), project.description),
             'cms-row-sub',
             info
+        );
+        text(
+            project.fork_count ? shortCount(project.fork_count) : '',
+            project.fork_count ? ['cms-row-cell', 'cms-forks'] : 'cms-row-cell',
+            row
         );
         if (project.primary_app_url) {
             text(shortCount(project.plays), ['cms-row-cell', 'cms-plays'], row);
@@ -1225,16 +1239,37 @@ editor.once('load', () => {
         }
     });
 
-    // focus search with /
+    // only an editor with a scene loaded has somewhere to go back to
+    const canReturn = () => !IS_EMPTY_STATE && isSceneLoaded;
+
+    // focus search with /, go back to the scene with esc unless a dialog or menu sits on top
     window.addEventListener('keydown', (e) => {
-        if (!overlay.hidden && e.key === '/' && !(e.target as HTMLElement).matches('input, textarea')) {
+        if (overlay.hidden || (e.target as HTMLElement).matches('input, textarea')) {
+            return;
+        }
+        if (e.key === '/') {
             e.preventDefault();
             searchInput.focus();
+        } else if (
+            e.key === 'Escape' &&
+            canReturn() &&
+            !document.querySelector('.pcui-overlay:not(.pcui-hidden):not(.picker-project-cms), .pcui-menu:not(.pcui-hidden)')
+        ) {
+            returnToEditor();
         }
     });
 
     editor.method('picker:project:cms:close', () => {
         overlay.hidden = true;
+    });
+
+    // the all projects shortcut opens the page, and from the page goes back to the scene
+    editor.method('picker:project:cms:toggle', () => {
+        if (overlay.hidden) {
+            editor.call('picker:project:cms');
+        } else if (canReturn()) {
+            returnToEditor();
+        }
     });
 
     editor.method('picker:project:cms:currentUser', () => {

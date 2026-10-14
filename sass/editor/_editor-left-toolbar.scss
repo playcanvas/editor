@@ -222,3 +222,8 @@
         }
     }
 }
+
+// all projects heads the logo menu; a heavier rule sets it apart from the editing commands
+.pcui-menu-item.menu-item-projects {
+    border-bottom: 3px solid $bcg-darkest;
+}
