@@ -987,6 +987,10 @@ editor.once('load', () => {
         if (shown < rows.length) {
             more.append(new Element({ class: 'cms-spin' }));
             text(`Loading more · showing ${shown} of ${rows.length}`, null, more);
+
+            // the observer only fires on changes, so re-observe to catch a sentinel still in view
+            observer.unobserve(more.dom);
+            observer.observe(more.dom);
         } else {
             text(rows.length === 1 ? '1 project shown' : `All ${rows.length} projects shown`, null, more);
         }
@@ -1029,7 +1033,7 @@ editor.once('load', () => {
     };
     const observer = new IntersectionObserver(
         (entries) => {
-            if (entries[0].isIntersecting) {
+            if (entries[entries.length - 1].isIntersecting) {
                 loadMore();
             }
         },
