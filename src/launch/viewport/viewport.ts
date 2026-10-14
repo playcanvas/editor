@@ -195,7 +195,15 @@ editor.once('load', () => {
 
     app = new pc.AppBase(canvas);
 
-    pc.createGraphicsDevice(canvas, gfxOptions).then((device) => {
+    // no device means no app, so say why in the in-game console rather than sit on the loading screen
+    const deviceReady = pc.createGraphicsDevice(canvas, gfxOptions);
+    deviceReady.catch((err: Error) => {
+        console.error(
+            `Unable to start the app: ${err?.message ?? err}. WebGL may be disabled or not supported by this browser or device.`
+        );
+    });
+
+    deviceReady.then((device) => {
         const createOptions = new pc.AppOptions();
         createOptions.graphicsDevice = device;
 
