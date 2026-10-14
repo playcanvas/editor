@@ -219,7 +219,85 @@ editor.once('load', () => {
         if (project.primary_app_url) {
             text(shortCount(project.plays), 'cms-plays', line);
         }
+        if (canStar(project)) {
+            starToggle(project, line);
+        }
         return line;
+    };
+    // starring needs read access, which a no-access project doesn't give
+    const canStar = (project) => project.access_level !== 'none';
+    // optimistic, so the count moves on click; a failed call puts it back
+    const starToggle = (project, parent: Container, cls?) => {
+        const btn = new Button({ class: ['cms-star', ...[cls ?? []].flat()] });
+        // set while a request is in flight, so the star fills before the server replies
+        let pending = null;
+        const paint = () => {
+            const on = pending ?? !!project.star_id;
+            btn.text = shortCount(project.starred);
+            btn.class[on ? 'add' : 'remove']('on');
+            btn.dom.title = on ? 'Unstar' : 'Star';
+            btn.dom.setAttribute('aria-pressed', String(on));
+        };
+        btn.on('click', (e) => {
+            e.stopPropagation();
+            if (pending !== null) {
+                return;
+            }
+            const { star_id: id, starred = 0 } = project;
+            pending = !id;
+            const settle = () => {
+                pending = null;
+                paint();
+            };
+            const revert = () => {
+                project.star_id = id;
+                project.starred = starred;
+                settle();
+            };
+            if (id) {
+                project.star_id = null;
+                project.starred = Math.max(0, starred - 1);
+                editor.call('projects:unstar', id, settle, revert);
+            } else {
+                project.starred = starred + 1;
+                editor.call(
+                    'projects:star',
+                    'project',
+                    project.id,
+                    (star) => {
+                        project.star_id = star.id;
+                        settle();
+                    },
+                    revert
+                );
+            }
+            paint();
+        });
+        paint();
+        parent.append(btn);
+        return btn;
+    };
+    const toggleWatch = (project) => {
+        const { watch_id: id, watched = 0 } = project;
+        const revert = () => {
+            project.watch_id = id;
+            project.watched = watched;
+        };
+        if (id) {
+            project.watch_id = null;
+            project.watched = Math.max(0, watched - 1);
+            editor.call('projects:unwatch', id, null, revert);
+        } else {
+            project.watched = watched + 1;
+            editor.call(
+                'projects:watch',
+                project.id,
+                (watch) => {
+                    project.watch_id = watch.id;
+                },
+                revert
+            );
+        }
     };
     const editorUrl = (project) => {
         let url = `${config.url.home}/editor/project/${project.id}`;
@@ -575,6 +653,7 @@ editor.once('load', () => {
         menuItem('cms-row-editor', 'Open editor', () => openEditor(menuProject), 'primary'),
         menuItem('cms-row-launch', 'Launch', () => launch(menuProject)),
         menuItem('cms-row-settings', 'Project settings', () => openProject(menuProject)),
+        menuItem('cms-row-watch', 'Watch', () => toggleWatch(menuProject)),
         menuItem('cms-row-copy', 'Copy link', () =>
             navigator.clipboard.writeText(`${config.url.home}/editor/project/${menuProject.id}`)
         ),
@@ -590,6 +669,8 @@ editor.once('load', () => {
         menuEntry(rowMenu, 'cms-row-editor').text = isOpen(project) ? 'Return to editor' : 'Open editor';
         menuEntry(rowMenu, 'cms-row-editor').enabled = !blocked(project);
         menuEntry(rowMenu, 'cms-row-launch').enabled = !!project.primary_app_url;
+        menuEntry(rowMenu, 'cms-row-watch').text = project.watch_id ? 'Stop watching' : 'Watch';
+        menuEntry(rowMenu, 'cms-row-watch').hidden = !canStar(project);
         menuEntry(rowMenu, 'cms-row-delete').hidden = !canDelete(project);
         showMenu(rowMenu, anchor, true);
     };
@@ -1004,6 +1085,11 @@ editor.once('load', () => {
             text(shortCount(project.plays), ['cms-row-cell', 'cms-plays'], row);
         } else {
             text('Not published', ['cms-row-cell', 'muted'], row);
+        }
+        if (canStar(project)) {
+            starToggle(project, row, 'cms-row-cell');
+        } else {
+            box('cms-row-cell', row);
         }
         text(bytesToHuman(project.size?.total ?? 0), 'cms-row-cell', row);
         text(timeAgo(project.modified), 'cms-row-cell', row);
