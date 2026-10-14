@@ -1,4 +1,4 @@
-import { Button, Container } from '@playcanvas/pcui';
+import { Button, Container, Label } from '@playcanvas/pcui';
 
 import { TooltipHandle } from '@/common/tooltips';
 import { config } from '@/editor/config';
@@ -16,19 +16,45 @@ editor.once('load', () => {
         return panel;
     });
 
-    const homeButton = new Button({
-        class: 'control-strip-btn',
-        icon: 'E140'
-    });
-    panel.append(homeButton);
+    // breadcrumb: projects page, then the project, branch and scene
+    const crumbs = new Container({ class: 'control-strip-crumbs' });
+    panel.append(crumbs);
+    const separator = () => crumbs.append(new Label({ class: 'control-strip-sep' }));
 
-    homeButton.on('click', () => {
-        window.open(`/project/${config.project.id}`, '_blank');
+    const projectsButton = new Button({
+        class: 'control-strip-btn',
+        icon: 'E140',
+        text: 'Projects'
+    });
+    crumbs.append(projectsButton);
+
+    projectsButton.on('click', () => {
+        editor.call('picker:project:cms');
     });
 
     TooltipHandle.attach({
-        target: homeButton.dom,
-        text: 'Home',
+        target: projectsButton.dom,
+        text: 'All Projects',
+        align: 'top',
+        root: root
+    });
+
+    separator();
+
+    const projectButton = new Button({
+        class: ['control-strip-btn', 'control-strip-project'],
+        icon: 'E139',
+        text: config.project.name
+    });
+    crumbs.append(projectButton);
+
+    projectButton.on('click', () => {
+        editor.call('picker:project', 'project-main');
+    });
+
+    TooltipHandle.attach({
+        target: projectButton.dom,
+        text: 'Project Settings',
         align: 'top',
         root: root
     });
@@ -37,7 +63,6 @@ editor.once('load', () => {
         class: 'control-strip-btn',
         icon: 'E134'
     });
-    panel.append(settingsButton);
 
     TooltipHandle.attach({
         target: settingsButton.dom,
@@ -63,12 +88,14 @@ editor.once('load', () => {
         if (name.length > 33) {
             name = `${name.substring(0, 30)}...`;
         }
+        const branchSeparator = new Label({ class: 'control-strip-sep' });
+        crumbs.append(branchSeparator);
         const versionControlButton = new Button({
             class: 'control-strip-btn',
             icon: 'E399',
             text: name
         });
-        panel.append(versionControlButton);
+        crumbs.append(versionControlButton);
 
         versionControlButton.on('click', () => {
             editor.call('picker:versioncontrol');
@@ -82,19 +109,21 @@ editor.once('load', () => {
         });
 
         // hide version control picker if we are not part of the team
-        if (!editor.call('permissions:read')) {
-            versionControlButton.hidden = true;
-        }
-        editor.on('permissions:set', () => {
+        const updateBranch = () => {
             versionControlButton.hidden = !editor.call('permissions:read');
-        });
+            branchSeparator.hidden = versionControlButton.hidden;
+        };
+        updateBranch();
+        editor.on('permissions:set', updateBranch);
     }
 
+    separator();
     const scenesButton = new Button({
         class: 'control-strip-btn',
         icon: 'E147'
     });
-    panel.append(scenesButton);
+    crumbs.append(scenesButton);
+    panel.append(settingsButton);
 
     editor.on('scene:name', (name) => {
         scenesButton.text = name;

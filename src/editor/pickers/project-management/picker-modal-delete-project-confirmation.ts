@@ -6,15 +6,13 @@ editor.once('load', () => {
 
     // UI
 
-    // displays or hides the AJAX loader in project delete button
-    const toggleLoader = (toggle) => {
-        if (toggle) {
-            deleteButton.text = '';
-            loader.style.display = 'block';
-        } else {
-            loader.style.display = 'none';
-            deleteButton.text = 'DELETE';
-        }
+    // swaps the delete button's label for a spinner while the request runs
+    const toggleLoader = (toggle: boolean) => {
+        deleteButton.text = toggle ? '' : 'Delete project';
+
+        // setting text replaces the button's children, so put the spinner back
+        deleteButton.dom.appendChild(loader.dom);
+        loader.hidden = !toggle;
     };
 
     // overlay
@@ -65,24 +63,27 @@ editor.once('load', () => {
     });
     inputElement.dom.addEventListener('paste', (e) => e.preventDefault());
 
-    const deleteButtonContainer = new Container({
-        flex: true
+    const footer = new Container({ class: 'delete-project-footer' });
+    panel.append(footer);
+
+    const cancelButton = new Button({ class: 'cancel-project-button', text: 'Cancel' });
+    cancelButton.on('click', () => {
+        overlay.hidden = true;
     });
-    panel.append(deleteButtonContainer);
+    footer.append(cancelButton);
 
     const deleteButton = new Button({
         class: 'delete-project-button',
-        text: 'DELETE',
+        text: 'Delete project',
         enabled: false
     });
-    deleteButtonContainer.append(deleteButton);
+    footer.append(deleteButton);
 
     const loader = new Element({
-        class: ['loader', 'small', 'white']
+        class: 'loader',
+        hidden: true
     });
-    loader.style.display = 'none';
-
-    deleteButtonContainer.append(loader);
+    deleteButton.dom.appendChild(loader.dom);
 
     deleteButton.on('click', () => {
         toggleLoader(true);
@@ -131,7 +132,10 @@ editor.once('load', () => {
     // method to display panel
     editor.method('picker:project:modal:deleteProjectConfirmation', (project) => {
         currentProject = project;
-        labelElement.text = `Type the project name (${currentProject.name}) to delete this project permanently. This action cannot be undone!`;
+        labelElement.text = `This permanently deletes ${currentProject.name} and can't be undone. Type its name to confirm.`;
+        inputElement.value = '';
+        inputElement.input.placeholder = currentProject.name;
+        deleteButton.enabled = false;
         overlay.hidden = false;
     });
 });

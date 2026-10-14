@@ -90,8 +90,8 @@ editor.once('load', () => {
     const bubbleDashboard = function () {
         return editor.call(
             'guide:bubble',
-            'Home',
-            'Click here to go to the <strong>Project Dashboard</strong>.<br/><br/>Visit your <strong>Dashboard</strong> to add to your Dev Log or create a new <strong>Project</strong>.',
+            'Projects',
+            'Click here to go back to <strong>All Projects</strong>.<br/><br/>Open another project, or create a new <strong>Project</strong>.',
             12,
             40,
             'top',

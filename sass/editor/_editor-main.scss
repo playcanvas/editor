@@ -1637,90 +1637,6 @@ strong {
     }
 }
 
-.pcui-overlay.picker-delete-project {
-    z-index: 100000;
-
-    & > .pcui-overlay-content {
-        width: 500px;
-
-        & > .delete-project-panel {
-            height: 100%;
-
-            & > .pcui-panel-header {
-                position: relative;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-
-                & > span {
-                    font-size: 12px;
-                    width: min-content;
-                    margin: 0;
-                    flex: unset;
-                }
-
-                & > .close {
-                    position: absolute;
-                    right: 0;
-                    box-shadow: none;
-                    border: none;
-                    background: none;
-                }
-            }
-
-            & > .pcui-panel-content {
-                display: flex;
-                flex-direction: column;
-                gap: 5px;
-                height: 100%;
-                padding: 25px 15px 10px;
-
-                .form-group--label {
-                    white-space: pre-wrap;
-                    margin-top: 0;
-                    margin-bottom: 5px;
-                    color: $text-primary;
-                }
-
-                .form-group--hint {
-                    margin-top: 0;
-                    font-size: 0.8em;
-                    filter: opacity(0.5);
-                }
-
-                .delete-project-button {
-                    border: none;
-                    margin-top: 10px;
-                    box-shadow: none;
-                    padding-top: 5px;
-                    padding-bottom: 5px;
-                    background-color: $error-secondary;
-                    color: $text-primary;
-                    height: fit-content;
-                    transition: all 0.3s ease-in-out;
-
-                    &.pcui-disabled {
-                        cursor: not-allowed;
-                        background-color: $bcg-dark;
-                        font-weight: 800;
-                    }
-
-                    &:hover:not(.pcui-disabled) {
-                        background-color: $error;
-                    }
-                }
-
-                .loader {
-                    position: absolute;
-                    left: 50%;
-                    top: 50%;
-                    transform: translate(-50%, -50%);
-                }
-            }
-        }
-    }
-}
-
 .pcui-overlay.picker-project {
     z-index: 300; // larger than drop-area's
 
@@ -2215,67 +2131,6 @@ strong {
 
 .pcui-overlay.picker-project.reduced-view { z-index: 100000; }
 
-.pcui-overlay.picker-modal-confirmation {
-    z-index: 100001;  // larger than CMS
-
-    > .pcui-overlay-content {
-        width: 500px;
-
-        & > .pcui-panel {
-            & > .pcui-panel-header {
-                position: relative;
-                display: flex;
-                justify-content: center;
-
-                & > span {
-                    flex: initial;
-                    margin: 0;
-                }
-
-                & > .close {
-                    position: absolute;
-                    right: 0;
-                    background-color: transparent;
-                    box-shadow: unset;
-
-                    &:hover { color: $text-active; }
-                }
-            }
-
-            & > .pcui-panel-content {
-                padding: 20px 25px;
-
-                & > span {
-                    white-space: pre-wrap;
-                    margin-bottom: 20px;
-                }
-
-                & > .positive-action-button,
-                & > .negative-action-button {
-                    width: 100%;
-                    padding: 17px;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    border: none;
-                    box-shadow: initial;
-                }
-
-                & > .positive-action-button {
-                    background-color: $text-active;
-                    color: $text-primary;
-                    transition: all 0.2s ease-in-out;
-
-                    &:hover {
-                        background-color: $text-primary;
-                        color: $text-active;
-                    }
-                }
-            }
-        }
-    }
-}
-
 // Individual Alert Popup
 .alert {
     position: absolute;
@@ -2379,6 +2234,32 @@ strong {
             content: '\2715';
             font-size: 16px;
             line-height: 1;
+        }
+    }
+}
+
+// Sorting Dropdown
+.sorting-container {
+    position: absolute;
+    display: flex;
+    background-color: $bcg-dark;
+    width: max-content;
+    padding: 5px;
+    z-index: 10000000;
+
+    & > #checkbox-menu-item {
+        & > .pcui-boolean-input:not(.pcui-boolean-input-ticked) { background-color: $bcg-darker; }
+
+        border-bottom: 2px solid $bcg-primary;
+    }
+
+    & > .sorting-menu-item {
+        padding: 5px;
+        display: flex;
+        align-items: center;
+
+        &:hover {
+            cursor: pointer;
         }
     }
 }
