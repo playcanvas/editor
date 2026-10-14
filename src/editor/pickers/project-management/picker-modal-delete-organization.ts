@@ -128,7 +128,7 @@ editor.once('load', () => {
         editor.call(
             'users:deleteOne',
             organization.id,
-            (response) => {
+            () => {
                 editor.call('picker:project:cms:refreshOrgs', organization, true);
                 editor.call('picker:project:cms:resetFilter');
                 overlay.hidden = true;

@@ -137,8 +137,7 @@ editor.once('load', () => {
         return list
             .filter(
                 (p) =>
-                    (isOrg(filter) || matchTab(p, filter)) &&
-                    terms.every((t, i) => matchTerm(p, t) || fuzzy[i]?.has(p))
+                    (isOrg(filter) || matchTab(p, filter)) && terms.every((t, i) => matchTerm(p, t) || fuzzy[i]?.has(p))
             )
             .sort((a, b) => (key(a) > key(b) ? 1 : key(a) < key(b) ? -1 : 0) * dir);
     };
@@ -1292,7 +1291,9 @@ editor.once('load', () => {
         if (
             overlay.hidden ||
             (e.target as HTMLElement).matches('input, textarea') ||
-            document.querySelector('.pcui-overlay:not(.pcui-hidden):not(.picker-project-cms), .pcui-menu:not(.pcui-hidden)')
+            document.querySelector(
+                '.pcui-overlay:not(.pcui-hidden):not(.picker-project-cms), .pcui-menu:not(.pcui-hidden)'
+            )
         ) {
             return;
         }
