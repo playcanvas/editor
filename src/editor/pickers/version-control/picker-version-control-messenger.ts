@@ -353,9 +353,18 @@ editor.once('load', () => {
         });
     }
 
-    editor.on('messenger:connected', checkValidBranch);
+    // the user's branch is read from their project settings, which the server only has once they've loaded
+    let settingsLoaded = false;
+    editor.on('settings:projectUser:load', () => {
+        settingsLoaded = true;
+        if (editor.call('messenger:isConnected')) {
+            checkValidBranch();
+        }
+    });
 
-    if (editor.call('messenger:isConnected')) {
-        checkValidBranch();
-    }
+    editor.on('messenger:connected', () => {
+        if (settingsLoaded) {
+            checkValidBranch();
+        }
+    });
 });
