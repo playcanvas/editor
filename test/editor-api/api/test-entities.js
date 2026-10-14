@@ -1454,7 +1454,10 @@ describe('api.Entities tests', function () {
             },
             assets: {},
             type: 'entity',
-            value: e.get('resource_id')
+            value: e.get('resource_id'),
+            scriptAttributes: {
+                test: scriptAsset.get('data.scripts.test.attributes')
+            }
         };
 
         for (let i = 0; i < assets.length; i++) {
@@ -1861,6 +1864,55 @@ describe('api.Entities tests', function () {
 
         const newEntities = await api.globals.entities.pasteFromClipboard(root);
         expect(newEntities[0].get('components.testcomponent.assetRef')).to.equal(4);
+    });
+
+    it('paste remaps entity script attributes in a project without the script', async function () {
+        prepareCopyTest();
+        const scriptAsset = new api.Asset({
+            id: 30,
+            uniqueId: 30,
+            type: 'script',
+            name: 'ref',
+            path: [],
+            data: {
+                scripts: {
+                    ref: {
+                        attributes: {
+                            target: {
+                                type: 'entity'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        api.globals.assets.add(scriptAsset);
+
+        const root = api.globals.entities.create();
+        const e = api.globals.entities.create({ parent: root, name: 'e' });
+        const child = api.globals.entities.create({ parent: e, name: 'child' });
+        e.addComponent('script', {
+            scripts: {
+                ref: {
+                    attributes: {
+                        target: child.get('resource_id')
+                    }
+                }
+            }
+        });
+
+        api.globals.entities.copyToClipboard([e]);
+
+        // another project, which doesn't have the script yet
+        api.globals.projectId = 2;
+        api.globals.assets.remove(scriptAsset);
+
+        const newEntities = await api.globals.entities.pasteFromClipboard(root);
+        const pastedChild = newEntities[0].children[0];
+        expect(pastedChild.get('resource_id')).to.not.equal(child.get('resource_id'));
+        expect(newEntities[0].get('components.script.scripts.ref.attributes.target')).to.equal(
+            pastedChild.get('resource_id')
+        );
     });
 
     it('undo / redo paste', async function () {
