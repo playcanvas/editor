@@ -125,6 +125,22 @@ editor.once('load', () => {
             const { callback, asset, inEditor } = reqState.get(guid);
             reqState.delete(guid);
 
+            // enum values the parser can't evaluate (e.g. `1 << 1`) come back undefined, which the server
+            // rejects without saying why, so report them like other invalid attributes
+            for (const name in scripts) {
+                const script = scripts[name];
+                for (const key in script.attributes ?? {}) {
+                    const options = script.attributes[key].enum;
+                    const unevaluated = (option: Record<string, unknown>) =>
+                        !option || Object.values(option).every((value) => value === undefined);
+                    if (Array.isArray(options) && options.some(unevaluated)) {
+                        (script.attributesInvalid ??= []).push(
+                            `attribute \`${key}\` has enum values that couldn't be evaluated; use literal values or engine constants`
+                        );
+                    }
+                }
+            }
+
             const res = {
                 scripts,
                 scriptsInvalid,
