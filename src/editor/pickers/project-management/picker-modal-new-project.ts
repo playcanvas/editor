@@ -216,7 +216,17 @@ editor.once('load', () => {
         const avatar = new Element({ dom: 'img', class: 'fork-source-avatar' });
         (avatar.dom as HTMLImageElement).src = `${config.url.api}/users/${forking.owner_id}/thumbnail?size=32`;
         meta.append(avatar);
-        meta.append(new Label({ text: forking.owner?.username ?? forking.owner ?? '' }));
+        // the owner's display name, as on the cards and in the owner picker; the username until it loads
+        const ownerLabel = new Label({ text: forking.owner?.username ?? forking.owner ?? '' });
+        meta.append(ownerLabel);
+        const known = [rootUser, ...(rootUser.organizations ?? [])].find((u) => u.id === forking.owner_id);
+        if (known) {
+            ownerLabel.text = known.full_name || known.username;
+        } else {
+            editor.call('users:loadOne', forking.owner_id, (user) => {
+                ownerLabel.text = user.full_name || user.username;
+            });
+        }
         if (forking.primary_app_url) {
             meta.append(
                 new Label({ class: 'fork-source-plays', text: `${(forking.plays ?? 0).toLocaleString()} plays` })

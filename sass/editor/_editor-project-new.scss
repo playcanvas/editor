@@ -540,8 +540,14 @@
                 background-color: transparent;
             }
 
+            // the orange border the other fields use on focus, instead of pcui's glow
             .pcui-select-input-shadow {
-                border-radius: 6px;
+                display: none;
+            }
+
+            &.pcui-focus .pcui-select-input-value,
+            &.pcui-open .pcui-select-input-value {
+                border-color: $text-active;
             }
 
             // the value and options read as field text, not as the dialog's bold labels
@@ -951,6 +957,10 @@
             min-height: 0;
             padding: 8px 12px;
             color: $text-secondary;
+        }
+
+        &.pcui-hidden {
+            display: none;
         }
     }
 

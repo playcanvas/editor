@@ -1981,7 +1981,7 @@ strong {
                         }
 
                         &.dev-log::before {
-                            content: '\E209';
+                            content: '\E336';
                         }
                     }
                 }
@@ -4940,6 +4940,11 @@ strong {
                     font-size: inherit;
                     line-height: 32px;
                 }
+            }
+
+            // rows the panel hides (forked from, activity, private source assets)
+            &.pcui-hidden {
+                display: none;
             }
         }
     }
