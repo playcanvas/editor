@@ -129,10 +129,133 @@
     }
 
     // forking has no kit grid, so the form stands alone
+    // forking: the form alone, sized to its content
     &.fork {
         > .pcui-overlay-content {
-            width: min(360px, calc(100vw - 32px));
-            height: min(480px, calc(100vh - 32px));
+            width: min(380px, calc(100vw - 32px));
+            height: auto;
+            max-height: calc(100vh - 32px);
+
+            > .pcui-panel > .pcui-panel-content {
+                height: auto;
+            }
+        }
+
+        .modal-new-project-form-content {
+            flex: none;
+        }
+
+        // source project, then "your copy"
+        .fork-source {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            border: 1px solid $border-primary;
+            border-radius: 8px;
+            background-color: $bcg-darker;
+        }
+
+        .fork-source-logo {
+            flex: none;
+            width: 56px;
+            height: 56px;
+            border-radius: 8px;
+            background-color: $bcg-darkest;
+            box-shadow: 0 0 0 1px $border-primary;
+            object-fit: cover;
+        }
+
+        .fork-source-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
+
+            .pcui-label {
+                margin: 0;
+            }
+        }
+
+        .fork-source-eyebrow {
+            color: $text-secondary;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .fork-source-name {
+            @extend .font-bold;
+
+            overflow: hidden;
+            color: $text-primary;
+            font-size: 14px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .fork-source-meta {
+            display: flex;
+            flex-flow: row wrap;
+            align-items: center;
+            gap: 4px 10px;
+            color: $text-secondary;
+            font-size: 12px;
+
+            > .pcui-label {
+                color: inherit;
+                font-size: inherit;
+            }
+        }
+
+        .fork-source-avatar {
+            width: 16px;
+            height: 16px;
+            margin-right: -4px;
+            border-radius: 50%;
+        }
+
+        .fork-divider {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+            color: $text-dark;
+            font-size: 12px;
+
+            &::before,
+            &::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background-color: $border-primary;
+            }
+        }
+
+        // a blocked fork: the reason replaces the form, and Fork project stays disabled
+        .fork-blocked {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+            padding: 10px 12px;
+            border: 1px solid rgb(251 34 47 / 45%);
+            border-radius: 6px;
+            background-color: rgb(251 34 47 / 8%);
+            color: #f3b8bc;
+            font-size: 13px;
+            line-height: 1.4;
+
+            > .pcui-label {
+                margin: 0;
+                color: inherit;
+                white-space: normal;
+            }
+
+            > a {
+                color: $text-active;
+            }
         }
 
         .modal-new-project-container {
@@ -741,25 +864,58 @@
         position: relative;
     }
 
-    // who the typed username resolves to
+    // who the typed username resolves to: a panel styled like the projects page menus, just under the field
     .transfer-recipient {
         display: flex;
+        position: relative;
         flex-direction: row;
         align-items: center;
         gap: 8px;
-        min-height: 24px;
+        min-height: 40px;
+        margin-top: -8px;
+        padding: 4px 12px;
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        background-color: $bcg-primary;
+        box-shadow: 0 4px 12px rgb(0 0 0 / 30%);
         color: $text-primary;
-        font-size: 12px;
+        font-size: 13px;
+
+        // the match is the highlighted row
+        &:not(.error)::before {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            border-radius: 4px;
+            background-color: color.adjust($bcg-primary, $lightness: 4%);
+        }
+
+        > * {
+            position: relative;
+        }
 
         &.error {
-            color: $error;
+            min-height: 0;
+            padding: 8px 12px;
+            color: $text-secondary;
         }
     }
 
     .transfer-recipient-avatar {
-        width: 24px;
-        height: 24px;
+        width: 20px;
+        height: 20px;
         border-radius: 50%;
+    }
+
+    .transfer-recipient-name {
+        margin: 0;
+        color: inherit;
+    }
+
+    .transfer-recipient-user {
+        margin: 0;
+        color: $text-dark;
+        font-size: 12px;
     }
 
     .loader {
@@ -821,20 +977,56 @@
                     font-size: 12px;
                     line-height: 16px;
 
-                    .pcui-label {
-                        margin: 0 0 6px;
+                    > .pcui-label:not(.import-report-count) {
+                        margin: 8px 0 0;
+                        color: $text-dark;
                         white-space: normal;
                     }
                 }
 
+                // the count, then one row per material like the projects list view
+                .import-report-count {
+                    @extend .font-bold;
+
+                    display: block;
+                    margin: 0 0 8px;
+                    color: $text-primary;
+                    font-size: 12px;
+                    letter-spacing: 0.04em;
+                    text-transform: uppercase;
+                }
+
                 .import-report-items {
-                    max-height: 160px;
-                    margin: 0 0 6px;
-                    padding: 8px 8px 8px 24px;
+                    max-height: 180px;
+                    margin: 0;
+                    padding: 0;
                     overflow-y: auto;
+                    list-style: none;
                     border: 1px solid $border-primary;
                     border-radius: 6px;
                     background-color: $bcg-darker;
+
+                    > li {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 2px;
+                        padding: 8px 12px;
+                        border-top: 1px solid $border-primary;
+
+                        &:first-child {
+                            border-top: none;
+                        }
+                    }
+                }
+
+                .import-report-name {
+                    color: $text-primary;
+                    font-size: 13px;
+                }
+
+                .import-report-change {
+                    color: $text-dark;
+                    font-size: 12px;
                 }
             }
         }

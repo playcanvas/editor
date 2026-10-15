@@ -5069,6 +5069,11 @@ strong {
                 opacity: $element-opacity-disabled;
                 cursor: default;
             }
+
+            // its display would otherwise beat pcui's hidden state
+            &.pcui-hidden {
+                display: none;
+            }
         }
 
         .loader {

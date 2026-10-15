@@ -3,6 +3,8 @@
 // projects page (picker-cms.ts): sidebar + main panel
 // corners: 8px surfaces (cards, panels, search, popovers), 6px controls (buttons, inputs, nav items, tabs), 4px badges
 
+$cms-transfer: #ffb27f; // pending transfer status and badge
+$cms-quiet: #7d898c; // empty list values
 $cms-surface: $bcg-primary; // cards, search, buttons: a clear step up from the $bcg-darker page
 $cms-edge: color.mix($text-darkest, $bcg-primary, 25%);
 $cms-hover: color.mix($text-darkest, $bcg-primary, 15%);
@@ -1225,9 +1227,12 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         gap: 4px;
     }
 
-    // counts and size, in a darker strip under the card body
+    // counts and size, in a darker strip under the card body; one row on every card so rows line up
     .cms-card-foot {
-        padding: 8px 12px 8px 14px;
+        box-sizing: border-box;
+        align-items: center;
+        min-height: 40px;
+        padding: 6px 12px 6px 14px;
         border-top: 1px solid $cms-edge;
         background-color: rgb(0 0 0 / 10%);
     }
@@ -1334,17 +1339,41 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         border-radius: 50%;
     }
 
+    .cms-card-meta .cms-avatar {
+        width: 22px;
+        height: 22px;
+    }
+
+    // owner over edit time, beside the avatars
+    .cms-card-byline {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        gap: 1px;
+        min-width: 0;
+    }
+
     .cms-card-owner {
         min-width: 0;
         overflow: hidden;
         color: $text-secondary;
+        line-height: 15px;
         text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .cms-card-when {
-        flex: none;
-        margin-left: auto;
+        overflow: hidden;
+        color: $text-dark;
+        font-size: 11px;
+        line-height: 14px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
         font-variant-numeric: tabular-nums;
+
+        &.transfer {
+            color: $cms-transfer;
+        }
     }
 
     // forks, views and plays sit together at the end of the card meta
@@ -1407,26 +1436,40 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
 
     // accept / decline / cancel on a project that's changing hands
     .cms-transfer {
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-end;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         gap: 8px;
+
+        &.outgoing {
+            grid-template-columns: 1fr;
+        }
+
+        > .pcui-button {
+            justify-content: center;
+            width: 100%;
+            margin: 0;
+        }
     }
 
-    .cms-row-transfer {
-        grid-column: 3 / span 5;
+    .cms-card-foot.cms-transfer {
+        padding-right: 12px;
+        padding-left: 12px;
     }
 
-    // other members, as overlapping avatars after the owner
+    .cms-badge.transfer {
+        border-color: rgb(255 102 0 / 55%);
+        color: $cms-transfer;
+    }
+
+    // the owner and other members, as one overlapping group
     .cms-members {
         display: inline-flex;
         flex: none;
         flex-direction: row;
         align-items: center;
-        margin-left: 6px;
 
         > .cms-avatar {
-            margin-left: -6px;
+            margin-left: -5px;
             box-shadow: 0 0 0 2px $cms-surface;
 
             &:first-child {
@@ -1436,7 +1479,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
     }
 
     .cms-members-more {
-        margin-left: 4px;
+        margin-left: 3px;
         color: $text-dark;
         font-size: 11px;
     }
@@ -1488,7 +1531,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
 
     .cms-row {
         display: grid;
-        grid-template-columns: 40px minmax(0, 1fr) 48px 56px 96px 56px 72px 120px 28px;
+        grid-template-columns: 40px minmax(0, 1fr) 48px 56px 56px 56px 72px 120px 28px;
         align-items: center;
         gap: 14px;
         padding: 10px 12px 10px 14px;
@@ -1556,6 +1599,53 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         display: flex;
         flex-direction: column;
         min-width: 0;
+
+        // pending transfers: status on the left, buttons on the right, inside the name column
+        &.has-actions {
+            flex-direction: row;
+            align-items: center;
+            gap: 12px;
+        }
+    }
+
+    .cms-row-text {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .cms-row-actions {
+        display: flex;
+        flex: none;
+        gap: 6px;
+
+        > .pcui-button {
+            width: auto;
+        }
+    }
+
+    // column headers for the list
+    .cms-row.cms-row-head {
+        padding-top: 8px;
+        padding-bottom: 8px;
+        background-color: transparent;
+        cursor: default;
+
+        &:hover {
+            background-color: transparent;
+        }
+
+        > .pcui-label {
+            color: $text-dark;
+            font-size: 11px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        > .cms-row-head-name {
+            grid-column: 2;
+        }
     }
 
     .cms-row-name {
@@ -1592,6 +1682,12 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
 
         &.muted {
             opacity: 0.6;
+        }
+
+        // no value: a dash, or a zero count, in a quieter grey
+        &.dash,
+        &.cms-forks.zero {
+            color: $cms-quiet;
         }
     }
 
@@ -1776,6 +1872,13 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         border: none;
 
         @include cms-ghost-hover($cms-fill-on-surface);
+    }
+
+    // a divider above the first item of each group
+    .pcui-menu-item.cms-menu-group {
+        margin-top: 4px;
+        padding-top: 4px;
+        border-top: 1px solid $border-primary;
     }
 }
 
@@ -2210,10 +2313,26 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         box-sizing: border-box;
     }
 
+    .dev-log-title-input > input,
+    .dev-log-text-input > textarea {
+        @extend .font-regular;
+
+        color: $text-primary;
+        font-size: 13px;
+
+        &::placeholder {
+            color: $text-dark;
+        }
+    }
+
+    .dev-log-title-input > input {
+        padding: 0 10px;
+    }
+
     .dev-log-text-input > textarea {
         box-sizing: border-box;
         width: 100%;
-        padding: 8px;
+        padding: 8px 10px;
         line-height: 18px;
     }
 
