@@ -14,7 +14,6 @@ $cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
 // interaction: one duration for every control, hover fills one step lighter than what they sit on
 $cms-ease: 120ms ease-out;
 $cms-zoom-ease: 180ms ease-out; // thumbnail zoom: a touch slower so it doesn't jump
-$cms-primary-hover: hsl(24deg 100% 43%);
 $cms-fill-on-page: $cms-surface; // controls on the page or sidebar
 $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers and dialogs
 

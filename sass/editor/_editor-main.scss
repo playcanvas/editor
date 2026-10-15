@@ -1,5 +1,7 @@
 @use 'sass:color';
 
+$cms-primary-hover: hsl(24deg 100% 43%); // orange buttons on hover, shared with the projects page
+
 html {
     height: 100%;
     overflow: hidden;
@@ -1839,7 +1841,7 @@ strong {
                     position: absolute;
                     bottom: 10px;
                     left: 10px;
-                    right: 50px;
+                    right: 10px;
                     width: auto;
                     height: 32px;
                     margin: 0;
@@ -1859,90 +1861,42 @@ strong {
                     }
                 }
 
+                // same as the projects page's primary buttons
                 .cms-editor-button,
                 .cms-play-button {
-                    @extend .font-bold;
-
                     position: absolute;
                     left: 10px;
                     width: calc(100% - 20px);
                     height: 32px;
                     margin: 0;
-                    border: 1px solid $border-primary;
-                    border-radius: 5px;
+                    border: 1px solid transparent;
+                    border-radius: 6px;
+                    background-color: $text-active;
+                    color: $text-primary;
+                    font-size: 13px;
+                    line-height: 30px;
                     box-shadow: none;
+                    transition: background-color 120ms ease;
+
+                    &[data-icon]::before {
+                        margin-right: 6px;
+                        font-size: 12px;
+                    }
+
+                    &:not(.pcui-disabled):hover {
+                        background-color: $cms-primary-hover;
+                        color: $text-primary;
+                    }
 
                     &.pcui-disabled { cursor: not-allowed; }
                 }
 
-                .cms-editor-button,
-                .cms-play-button {
-                    background-color: $text-active;
-                    color: $text-primary;
-
-                    &:not(.pcui-disabled):hover {
-                        color: $text-active;
-                        background-color: $text-primary;
-                    }
-                }
-
                 .cms-editor-button {
                     bottom: 48px;
-                    width: calc(100% - 60px);
                 }
 
                 .cms-play-button {
                     bottom: 10px;
-                }
-
-                // copy link (a chain-link icon): a square button beside EDITOR, or beside See all projects for the open project
-                .cms-copy-link-button {
-                    position: absolute;
-                    right: 10px;
-                    bottom: 10px;
-                    width: 32px;
-                    height: 32px;
-                    min-width: 0;
-                    margin: 0;
-                    padding: 0;
-                    border: 1px solid $border-primary;
-                    border-radius: 5px;
-
-                    // a quieter fill than the orange EDITOR and PLAY
-                    background-color: $bcg-dark;
-                    color: $text-secondary;
-                    box-shadow: none;
-
-                    &.with-editor {
-                        bottom: 48px;
-                    }
-
-                    &::before {
-                        content: '';
-                        display: block;
-                        width: 14px;
-                        height: 14px;
-                        margin: auto;
-                        background-color: currentcolor;
-                        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M7.775 3.275a.75.75 0 0 0 1.06 1.06l1.25-1.25a2 2 0 1 1 2.83 2.83l-2.5 2.5a2 2 0 0 1-2.83 0 .75.75 0 0 0-1.06 1.06 3.5 3.5 0 0 0 4.95 0l2.5-2.5a3.5 3.5 0 0 0-4.95-4.95l-1.25 1.25Zm-4.69 9.64a2 2 0 0 1 0-2.83l2.5-2.5a2 2 0 0 1 2.83 0 .75.75 0 0 0 1.06-1.06 3.5 3.5 0 0 0-4.95 0l-2.5 2.5a3.5 3.5 0 0 0 4.95 4.95l1.25-1.25a.75.75 0 0 0-1.06-1.06l-1.25 1.25a2 2 0 0 1-2.83 0Z'/%3E%3C/svg%3E") center / contain no-repeat;
-                    }
-
-                    &:not(.pcui-disabled):hover {
-                        background-color: $bcg-darker;
-                        color: $text-primary;
-                    }
-
-                    &.copied {
-                        color: #6fd088;
-
-                        &::before {
-                            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 1 1 1.06-1.06l2.72 2.72 6.72-6.72a.75.75 0 0 1 1.06 0Z'/%3E%3C/svg%3E");
-                        }
-                    }
-
-                    &.pcui-hidden {
-                        display: none;
-                    }
                 }
 
                 @keyframes slide-down {
@@ -5183,6 +5137,31 @@ strong {
                 &:not(.disabled, .pcui-disabled, .pcui-readonly):focus {
                     background-color: rgb(251 34 47 / 12%);
                     color: #ff9a9a;
+                }
+            }
+
+            // copy link: a square chain-link button, a tick once copied
+            &.copy-link-button {
+                width: 34px;
+                min-width: 0;
+                padding: 0;
+
+                &::before {
+                    content: '';
+                    width: 14px;
+                    height: 14px;
+                    background-color: currentcolor;
+                    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M7.775 3.275a.75.75 0 0 0 1.06 1.06l1.25-1.25a2 2 0 1 1 2.83 2.83l-2.5 2.5a2 2 0 0 1-2.83 0 .75.75 0 0 0-1.06 1.06 3.5 3.5 0 0 0 4.95 0l2.5-2.5a3.5 3.5 0 0 0-4.95-4.95l-1.25 1.25Zm-4.69 9.64a2 2 0 0 1 0-2.83l2.5-2.5a2 2 0 0 1 2.83 0 .75.75 0 0 0 1.06-1.06 3.5 3.5 0 0 0-4.95 0l-2.5 2.5a3.5 3.5 0 0 0 4.95 4.95l1.25-1.25a.75.75 0 0 0-1.06-1.06l-1.25 1.25a2 2 0 0 1-2.83 0Z'/%3E%3C/svg%3E") center / contain no-repeat;
+                }
+
+                &.copied,
+                &.copied:hover,
+                &.copied:focus {
+                    color: #6fd088;
+
+                    &::before {
+                        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 1 1 1.06-1.06l2.72 2.72 6.72-6.72a.75.75 0 0 1 1.06 0Z'/%3E%3C/svg%3E");
+                    }
                 }
             }
 
