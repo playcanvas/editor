@@ -945,7 +945,8 @@ editor.once('load', () => {
 
     // hook to display thumbnail controls
     editor.method('picker:project:showThumbnailControls', () => {
-        if (currentProject.access_level === 'admin') {
+        // settings can show before the project has loaded
+        if (currentProject?.access_level === 'admin') {
             thumbnailButtons.style.transform = 'scale(1)';
             thumbnailButtons.style.opacity = '1';
             thumbnailButtons.style.zIndex = '0';
