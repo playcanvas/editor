@@ -1014,19 +1014,19 @@ editor.once('load', () => {
         if (open) {
             const scenes = box('cms-welcome-scenes', info);
             const isCurrentScene = (s: { id: number }) => String(s.id) === String(config.scene?.id);
+            // labelled like the facts; only shown when there's another scene to switch to
             editor.call('scenes:list', (items: { id: number; name: string }[]) => {
-                if (!items?.length) {
+                if (!items || items.length < 2) {
                     return;
                 }
-                text('Open scene', 'cms-welcome-scenes-label', scenes);
+                text('Scenes', 'cms-fact-label', scenes);
+                const chips = box('cms-welcome-scene-chips', scenes);
                 const current = items.filter(isCurrentScene);
                 [...current, ...items.filter((s) => !isCurrentScene(s))].slice(0, 3).forEach((scene) => {
-                    const chip = new Button({
-                        class: 'cms-scene',
-                        text: `${scene.name}${isCurrentScene(scene) ? ' · current' : ''}`
-                    });
-                    chip.dom.title = `Open ${scene.name} in the editor`;
-                    scenes.append(chip);
+                    const chip = new Button({ class: 'cms-scene', text: scene.name });
+                    chip.class[isCurrentScene(scene) ? 'add' : 'remove']('current');
+                    chip.dom.title = isCurrentScene(scene) ? 'Open now' : `Open ${scene.name} in the editor`;
+                    chips.append(chip);
                     chip.on('click', (e) => {
                         e.stopPropagation();
                         if (isCurrentScene(scene)) {
@@ -1037,7 +1037,7 @@ editor.once('load', () => {
                     });
                 });
                 if (items.length > 3) {
-                    text(`+${items.length - 3} more`, 'cms-welcome-scenes-more', scenes);
+                    text(`+${items.length - 3} more`, 'cms-welcome-scenes-more', chips);
                 }
             });
         }

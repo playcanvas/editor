@@ -798,8 +798,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
 
     .cms-welcome-scenes {
         display: flex;
-        flex-flow: row wrap;
-        align-items: center;
+        flex-direction: column;
         gap: 6px;
 
         &:empty {
@@ -807,10 +806,11 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         }
     }
 
-    .cms-welcome-scenes-label {
-        margin-right: 2px;
-        color: $text-dark;
-        font-size: 12px;
+    .cms-welcome-scene-chips {
+        display: flex;
+        flex-flow: row wrap;
+        align-items: center;
+        gap: 6px;
     }
 
     .cms-welcome-scenes-more {
@@ -818,18 +818,34 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         font-size: 12px;
     }
 
+    // outlined like the other controls on the card; the open scene gets the live dot's colour
     .cms-scene {
-        height: 26px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 28px;
         margin: 0;
         padding: 0 10px;
         border: 1px solid $cms-edge;
         border-radius: 6px;
-        background-color: $bcg-darkest;
+        background-color: transparent;
         color: $text-secondary;
         font-size: 12px;
-        line-height: 24px;
+        line-height: 26px;
 
         @include cms-outlined-hover;
+
+        &.current {
+            color: $text-primary;
+
+            &::before {
+                content: '';
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background-color: $text-active;
+            }
+        }
     }
 
     .cms-welcome-desc {
