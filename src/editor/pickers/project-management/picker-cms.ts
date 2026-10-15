@@ -37,7 +37,6 @@ const SIDE_MIN_W = 200;
 const SIDE_MAX_W = 420;
 
 editor.once('load', () => {
-    let currentProject;
     let rootUser;
     let currentUser;
     let accountUsage;
@@ -75,7 +74,12 @@ editor.once('load', () => {
     // shared projects can arrive without owner details, so skip empty parts instead of leaving a stray dot
     const joined = (...parts) => parts.filter(Boolean).join(' · ');
     const isOpen = (project) => !IS_EMPTY_STATE && project.id === config.project.id;
-    const blocked = (project) => project.locked || project.access_level === 'none' || project.disabled;
+    const isPending = (project) => project.new_owner_id != null || !!project.new_owner;
+    // you, or an organization you're in, are being offered the project
+    const isRecipient = (project) => project.new_owner_id === config.self.id || isOrg(project.new_owner_id);
+    const blocked = (project) =>
+        project.locked || project.access_level === 'none' || project.disabled || isPending(project);
+    const PERMISSION_LABELS = { admin: 'Admin', write: 'Can edit', read: 'View only' };
     const rootProjects = () => projects[rootUser?.id] ?? [];
     const listFor = (id) => (isOrg(id) ? projects[id] : rootProjects()) ?? [];
     const matchTab = (project, tab) => {
@@ -139,7 +143,11 @@ editor.once('load', () => {
                 (p) =>
                     (isOrg(filter) || matchTab(p, filter)) && terms.every((t, i) => matchTerm(p, t) || fuzzy[i]?.has(p))
             )
-            .sort((a, b) => (key(a) > key(b) ? 1 : key(a) < key(b) ? -1 : 0) * dir);
+            .sort(
+                (a, b) =>
+                    Number(isPending(b)) - Number(isPending(a)) ||
+                    (key(a) > key(b) ? 1 : key(a) < key(b) ? -1 : 0) * dir
+            );
     };
     const timeAgo = (date) => {
         const minutes = Math.max(0, Math.round((Date.now() - Date.parse(date)) / 60000));
@@ -197,7 +205,7 @@ editor.once('load', () => {
         if (project.locked) {
             text('Locked', ['cms-badge', 'locked'], parent);
         }
-        if (project.access_level === 'none') {
+        if (project.access_level === 'none' && !isPending(project)) {
             text('No access', 'cms-badge', parent);
         }
         if (project.disabled) {
@@ -299,6 +307,52 @@ editor.once('load', () => {
             );
         }
     };
+    // accept/decline for the recipient, cancel for the sender; both refresh the list when done
+    const transferActions = (project, parent: Container) => {
+        const actions = box('cms-transfer', parent);
+        const act = (label, cls, call: () => Promise<unknown>) => {
+            const btn = new Button({ class: ['cms-button', 'small', ...[cls ?? []].flat()], text: label });
+            btn.on('click', (e) => {
+                e.stopPropagation();
+                actions.enabled = false;
+                call().then(refreshUI, (err) => {
+                    actions.enabled = true;
+                    editor.call(
+                        'picker:project:buildAlert',
+                        rightPanel,
+                        typeof err === 'string' ? err : 'Could not update the transfer'
+                    );
+                });
+            });
+            actions.append(btn);
+        };
+        const decline = () =>
+            new Promise((resolve, reject) => editor.call('projects:declineTransfer', project.id, resolve, reject));
+        if (isRecipient(project)) {
+            act('Decline', null, decline);
+            act('Accept', 'primary', () => editor.call('projects:acceptTransfer', project.id));
+        } else {
+            act('Cancel transfer', null, decline);
+        }
+        return actions;
+    };
+    const pendingText = (project) =>
+        isRecipient(project)
+            ? ['Transfer request', `${ownerName(project) || 'The owner'} wants to give you this project`]
+            : ['Transfer pending', `Waiting for ${project.new_owner || 'the new owner'} to accept`];
+    // up to three other members, then a count
+    const members = (project, parent: Container) => {
+        const others = (project.users ?? []).filter((id) => id !== project.owner_id);
+        if (!others.length) {
+            return;
+        }
+        const stack = box('cms-members', parent);
+        others.slice(0, 3).forEach((id) => image(avatarUrl(id, 36), 'cms-avatar', stack));
+        if (others.length > 3) {
+            text(`+${others.length - 3}`, 'cms-members-more', stack);
+        }
+        stack.dom.title = `${others.length} member${others.length === 1 ? '' : 's'}`;
+    };
     const editorUrl = (project) => {
         let url = `${config.url.home}/editor/project/${project.id}`;
         const params = new URLSearchParams(location.search);
@@ -350,6 +404,17 @@ editor.once('load', () => {
         if (project.primary_app_url) {
             window.open(project.primary_app_url, '_blank');
         }
+    };
+
+    const exportFromMenu = (project) => {
+        toggleProgress(true, 100, `Exporting ${project.name}...`);
+        editor
+            .call('project:management:export', project.id)
+            .then(
+                (url) => window.open(url, '_blank'),
+                (err) => editor.call('picker:project:buildAlert', rightPanel, err)
+            )
+            .finally(() => toggleProgress(false));
     };
 
     // displays or hides the loading bar in the CMS main panel based on parameter
@@ -654,6 +719,11 @@ editor.once('load', () => {
         menuItem('cms-row-launch', 'Launch', () => launch(menuProject)),
         menuItem('cms-row-settings', 'Project settings', () => openProject(menuProject)),
         menuItem('cms-row-watch', 'Watch', () => toggleWatch(menuProject)),
+        menuItem('cms-row-fork', 'Fork', () => editor.call('picker:project:fork', menuProject)),
+        menuItem('cms-row-export', 'Export', () => exportFromMenu(menuProject)),
+        menuItem('cms-row-transfer', 'Transfer ownership', () =>
+            editor.call('picker:project:modal:transferProject', menuProject)
+        ),
         menuItem('cms-row-copy', 'Copy link', () =>
             navigator.clipboard.writeText(`${config.url.home}/editor/project/${menuProject.id}`)
         ),
@@ -671,6 +741,11 @@ editor.once('load', () => {
         menuEntry(rowMenu, 'cms-row-launch').enabled = !!project.primary_app_url;
         menuEntry(rowMenu, 'cms-row-watch').text = project.watch_id ? 'Stop watching' : 'Watch';
         menuEntry(rowMenu, 'cms-row-watch').hidden = !canStar(project);
+        menuEntry(rowMenu, 'cms-row-fork').hidden = blocked(project);
+        menuEntry(rowMenu, 'cms-row-export').hidden =
+            blocked(project) || !editor.call('project:management:canExport', project);
+        menuEntry(rowMenu, 'cms-row-transfer').hidden =
+            blocked(project) || !editor.call('project:management:canTransfer', project);
         menuEntry(rowMenu, 'cms-row-delete').hidden = !canDelete(project);
         showMenu(rowMenu, anchor, true);
     };
@@ -1002,17 +1077,23 @@ editor.once('load', () => {
         if (project.private) {
             text('Private', 'cms-badge', tags);
         }
+        if (project.owner_id !== config.self.id && PERMISSION_LABELS[project.access_level]) {
+            text(PERMISSION_LABELS[project.access_level], 'cms-badge', tags);
+        }
         if (isOpen(project)) {
             liveDot(thumb);
         }
 
-        const cover = project.locked
-            ? ['Locked', 'The owner is over their storage limit']
-            : project.access_level === 'none'
-              ? ['No access', `Ask ${ownerName(project) || 'the owner'} for an invite`]
-              : project.disabled
-                ? ['Disabled', 'Contact support to restore it']
-                : null;
+        const pending = isPending(project);
+        const cover = pending
+            ? pendingText(project)
+            : project.locked
+              ? ['Locked', 'The owner is over their storage limit']
+              : project.access_level === 'none'
+                ? ['No access', `Ask ${ownerName(project) || 'the owner'} for an invite`]
+                : project.disabled
+                  ? ['Disabled', 'Contact support to restore it']
+                  : null;
         if (cover) {
             const c = box(project.locked ? ['cms-card-cover', 'locked'] : 'cms-card-cover', thumb);
             text(cover[0], 'cms-cover-title', c);
@@ -1021,7 +1102,9 @@ editor.once('load', () => {
         const body = box('cms-card-body', card);
         const titleRow = box('cms-card-title', body);
         text(project.name, 'cms-card-name', titleRow);
-        kebabFor(project, titleRow);
+        if (!pending) {
+            kebabFor(project, titleRow);
+        }
         text(
             project.description || 'No description',
             project.description ? 'cms-card-desc' : ['cms-card-desc', 'empty'],
@@ -1030,6 +1113,7 @@ editor.once('load', () => {
         const meta = box('cms-card-meta', body);
         image(avatarUrl(project.owner_id, 36), 'cms-avatar', meta);
         text(ownerName(project), 'cms-card-owner', meta);
+        members(project, meta);
         text(
             sortPolicy === 'created' ? `created ${timeAgo(project.created)}` : timeAgo(project.modified),
             'cms-card-when',
@@ -1037,6 +1121,10 @@ editor.once('load', () => {
         );
 
         // counts and size get their own strip so the owner line keeps the full width
+        if (pending) {
+            transferActions(project, card).class.add('cms-card-foot');
+            return;
+        }
         const foot = stats(project, card);
         foot.class.add('cms-card-foot');
         text(bytesToHuman(project.size?.total ?? 0), 'cms-card-size', foot);
@@ -1060,17 +1148,26 @@ editor.once('load', () => {
         }
         text(project.name, null, name);
         badges(project, name);
+        const pending = isPending(project);
         text(
-            project.access_level === 'none'
-                ? 'Ask the owner for access'
-                : project.locked
-                  ? 'Owner is over the storage limit'
-                  : project.disabled
-                    ? 'Disabled by support'
-                    : joined(ownerName(project), project.description),
+            pending
+                ? pendingText(project)[1]
+                : project.access_level === 'none'
+                  ? 'Ask the owner for access'
+                  : project.locked
+                    ? 'Owner is over the storage limit'
+                    : project.disabled
+                      ? 'Disabled by support'
+                      : joined(ownerName(project), project.description),
             'cms-row-sub',
             info
         );
+        if (pending) {
+            transferActions(project, row).class.add('cms-row-transfer');
+            text(timeAgo(project.modified), 'cms-row-cell', row);
+            box('cms-row-cell', row);
+            return;
+        }
         text(
             project.fork_count ? shortCount(project.fork_count) : '',
             project.fork_count ? ['cms-row-cell', 'cms-forks'] : 'cms-row-cell',
@@ -1101,7 +1198,7 @@ editor.once('load', () => {
         [
             isOpen(project) && 'is-open',
             project.disabled && 'is-off',
-            (project.locked || project.access_level === 'none') && 'is-dim'
+            (project.locked || project.access_level === 'none') && !isPending(project) && 'is-dim'
         ].filter(Boolean);
     const bindOpen = (item: Container, project) => {
         item.on('click', () => openProject(project));
@@ -1250,7 +1347,10 @@ editor.once('load', () => {
 
     // checks whether importing is allowed for current user based on permissions
     const importDisabled = () => {
-        return editor.call('project:management:getUserPermissions', currentProject, currentUser) !== 'Read';
+        return !(
+            currentUser.id === config.self.id ||
+            editor.call('project:management:isOrgAdmin', currentUser.id, config.self)
+        );
     };
 
     // handles the flow for project importing including error and loading states
@@ -1281,11 +1381,15 @@ editor.once('load', () => {
                 if (jobInfo.status === 'complete') {
                     toggleProgress(false);
 
+                    const report = jobInfo.data.import_report?.count ? jobInfo.data.import_report : null;
                     if (importer.organization) {
                         // organization viewers have no access to the new project, so list it instead of opening it
                         loadProjects();
+                        if (report) {
+                            editor.call('picker:project:newProjectConfirmation', null, report);
+                        }
                     } else {
-                        editor.call('picker:project:newProjectConfirmation', jobInfo.data.project_id);
+                        editor.call('picker:project:newProjectConfirmation', jobInfo.data.project_id, report);
                     }
                 } else if (jobInfo.status === 'error') {
                     toggleProgress(false);
@@ -1453,7 +1557,6 @@ editor.once('load', () => {
             rootUser = user;
             currentUser = rootUser;
             filter = 'all';
-            currentProject = editor.call('picker:project:getCurrent');
             renderBanner();
             refresh();
             loadProjects();

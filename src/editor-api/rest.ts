@@ -9,6 +9,7 @@ import * as invitations from './rest/invitations';
 import * as jobs from './rest/jobs';
 import * as merge from './rest/merge';
 import * as payment from './rest/payment';
+import * as posts from './rest/posts';
 import * as projects from './rest/projects';
 import * as scenes from './rest/scenes';
 import * as star from './rest/star';
@@ -81,6 +82,11 @@ class Rest {
      * The payment API
      */
     payment = payment;
+
+    /**
+     * The posts API
+     */
+    posts = posts;
 
     /**
      * The projects API

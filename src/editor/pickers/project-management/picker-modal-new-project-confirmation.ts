@@ -1,4 +1,6 @@
-import { Button, Label, Overlay, Panel } from '@playcanvas/pcui';
+import { Button, Container, Label, Overlay, Panel } from '@playcanvas/pcui';
+
+const REPORT_LIMIT = 50;
 
 editor.once('load', () => {
     // GLOBAL VARIABLES
@@ -34,12 +36,15 @@ editor.once('load', () => {
     panel.header.append(btnClose);
 
     // confirmation message
-    const confirmationMessage = new Label({
-        text: IS_EMPTY_STATE
-            ? 'Your new project is ready. Open it now, or keep browsing your projects.'
-            : "Your new project is ready. Opening it closes the project you're working on."
-    });
+    const readyText = IS_EMPTY_STATE
+        ? 'Your new project is ready. Open it now, or keep browsing your projects.'
+        : "Your new project is ready. Opening it closes the project you're working on.";
+    const confirmationMessage = new Label({ text: readyText });
     panel.append(confirmationMessage);
+
+    // what an import had to change, e.g. materials it adjusted
+    const report = new Container({ class: 'import-report', hidden: true });
+    panel.append(report);
 
     // continue button
     const continueButton = new Button({
@@ -96,7 +101,28 @@ editor.once('load', () => {
     });
 
     // method to display panel
-    editor.method('picker:project:newProjectConfirmation', (projectId) => {
+    // a null project id means there's nothing to open, e.g. an import into an organization
+    editor.method('picker:project:newProjectConfirmation', (projectId, importReport = null) => {
+        report.clear();
+        report.hidden = !importReport;
+        confirmationMessage.text = importReport ? 'Imported successfully.' : readyText;
+        if (importReport) {
+            const items = (importReport.items ?? []).slice(0, REPORT_LIMIT);
+            const more = (importReport.count ?? items.length) - items.length;
+            report.append(new Label({ class: 'import-report-message', text: importReport.message ?? '' }));
+            const list = new Container({ dom: 'ul', class: 'import-report-items' });
+            items.forEach((item) => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                list.dom.appendChild(li);
+            });
+            report.append(list);
+            if (more > 0) {
+                report.append(new Label({ text: `${more} more ${more === 1 ? 'item was' : 'items were'} adjusted.` }));
+            }
+        }
+        openProjectButton.hidden = !projectId;
+        continueButton.text = projectId ? (IS_EMPTY_STATE ? 'Keep browsing' : 'Keep working') : 'Close';
         projectURL = `/editor/project/${projectId}`;
         const params = new URLSearchParams(location.search);
         if (params.has('use_local_frontend')) {
