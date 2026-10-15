@@ -170,22 +170,25 @@
         .fork-source-info {
             display: flex;
             flex-direction: column;
-            gap: 3px;
+            gap: 4px;
             min-width: 0;
 
+            // regular text, not the form's bold labels; only the name is bold
             .pcui-label {
+                @extend .font-regular;
+
                 margin: 0;
             }
         }
 
         .fork-source-eyebrow {
-            color: $text-secondary;
+            color: $text-dark;
             font-size: 11px;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.06em;
             text-transform: uppercase;
         }
 
-        .fork-source-name {
+        .fork-source-info .fork-source-name {
             @extend .font-bold;
 
             overflow: hidden;
@@ -210,13 +213,15 @@
         }
 
         .fork-source-avatar {
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             margin-right: -4px;
             border-radius: 50%;
         }
 
         .fork-divider {
+            @extend .font-regular;
+
             display: flex;
             align-items: center;
             gap: 8px;
@@ -529,21 +534,69 @@
                 transform: translateY(-50%);
             }
 
+            // pcui's container sits behind the field: no fill or square corners of its own
+            .pcui-select-input-container-value {
+                border-radius: 6px;
+                background-color: transparent;
+            }
+
+            .pcui-select-input-shadow {
+                border-radius: 6px;
+            }
+
+            // the value and options read as field text, not as the dialog's bold labels
+            .pcui-select-input-value,
+            .pcui-select-input-list > .pcui-label {
+                @extend .font-regular;
+
+                color: $text-primary;
+                font-size: 13px;
+            }
+
             .pcui-select-input-value {
                 height: 32px;
                 padding-left: 36px;
                 border: 1px solid $border-primary;
                 border-radius: 6px;
                 background-color: $bcg-darker;
-                font-size: 13px;
                 line-height: 30px;
             }
 
-            .pcui-select-input-list > * {
-                position: relative;
+            // centred in the 32px field
+            .pcui-select-input-icon {
+                top: 0;
+                right: 10px;
                 height: 32px;
-                padding-left: 36px;
+                color: $text-dark;
                 line-height: 32px;
+            }
+
+            // the open list, styled like the projects page menus
+            .pcui-select-input-list {
+                margin: 4px 0;
+                padding: 4px;
+                border: 1px solid $border-primary;
+                border-radius: 6px;
+                background-color: $bcg-primary;
+                box-shadow: 0 4px 12px rgb(0 0 0 / 30%);
+                box-sizing: border-box;
+
+                > * {
+                    position: relative;
+                    height: 32px;
+                    padding-left: 32px;
+                    border-radius: 4px;
+                    line-height: 32px;
+                }
+
+                > *:hover,
+                > .pcui-select-input-label-highlighted {
+                    background-color: color.adjust($bcg-primary, $lightness: 4%);
+                }
+
+                .owner-profile {
+                    left: 6px;
+                }
             }
         }
     }
