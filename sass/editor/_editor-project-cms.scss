@@ -2206,8 +2206,6 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
     }
 
     .dev-log-empty-icon {
-        @extend .font-icon;
-
         display: grid;
         place-items: center;
         width: 44px;
@@ -2216,9 +2214,13 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         background-color: $bcg-darkest;
         color: $text-dark;
 
+        // the dev log's speech bubble, as in the menu
         &::before {
-            content: '\E336';
-            font-size: 18px;
+            content: '';
+            width: 20px;
+            height: 20px;
+            background-color: currentcolor;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='253.5 -1260 1293 1293'%3E%3Cpath transform='scale%281,-1%29' d='M701 536h323q40 0 54 36q4 11 4 29t-17 35t-41 17h-323q-23 0 -41 -17t-18 -41q0 -23 18 -41t41 -18zM701 771h451q24 -1 42 17t17 42q1 24 -17 42t-42 17h-451q-23 1 -41 -17t-18 -42t18 -42t41 -17zM518 1260h764q93 0 159 -66t66 -159v-630q0 -61 -30 -113t-82 -82%0At-113 -30h-396q-29 0 -51 -20l-191 -184q-16 -14 -35 -6t-19 30l2 117q0 27 -18 45t-56 18q-93 0 -159 66t-66 159v630q0 93 66 159t159 66z'/%3E%3C/svg%3E") center / contain no-repeat;
         }
     }
 
