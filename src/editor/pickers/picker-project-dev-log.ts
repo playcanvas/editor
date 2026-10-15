@@ -13,6 +13,7 @@ editor.once('load', () => {
     let project = null;
     let load = 0;
     let composer: Container | null = null;
+    let emptyState: Container | null = null; // shown while the log has no posts; it has its own button
 
     const rest = () => editor.api.globals.rest.posts;
     const canWrite = () => project?.access_level === 'write' || project?.access_level === 'admin';
@@ -38,6 +39,29 @@ editor.once('load', () => {
     panel.append(list);
 
     const message = (text: string) => list.append(new Label({ class: 'dev-log-message', text }));
+
+    // no posts yet: what the log is for, and a way to start it for people who can write
+    const empty = () => {
+        const box = new Container({ class: 'dev-log-empty' });
+        emptyState = box;
+        newButton.hidden = true;
+        box.append(new Element({ class: 'dev-log-empty-icon' }));
+        box.append(new Label({ class: 'dev-log-empty-title', text: 'No posts yet' }));
+        box.append(
+            new Label({
+                class: 'dev-log-empty-text',
+                text: canWrite()
+                    ? 'Post what changed so your team and players can follow along.'
+                    : 'Updates from the people working on this project will show here.'
+            })
+        );
+        if (canWrite()) {
+            const start = new Button({ class: ['dev-log-button', 'primary'], text: 'Write the first post' });
+            start.on('click', () => openComposer());
+            box.append(start);
+        }
+        list.append(box);
+    };
 
     // a title and markdown body, for a new post or an edit
     const buildComposer = (post, onDone: () => void) => {
@@ -93,7 +117,10 @@ editor.once('load', () => {
     const closeComposer = () => {
         composer?.destroy();
         composer = null;
-        newButton.hidden = !canWrite();
+        newButton.hidden = !canWrite() || !!emptyState;
+        if (emptyState) {
+            emptyState.hidden = false;
+        }
     };
 
     const buildPost = (post) => {
@@ -168,6 +195,7 @@ editor.once('load', () => {
     // the list leaves out post text, so each post is fetched for its body
     const loadPosts = () => {
         const id = ++load;
+        emptyState = null;
         closeComposer();
         list.clear();
         message('Loading posts...');
@@ -191,7 +219,7 @@ editor.once('load', () => {
                     }
                     list.clear();
                     if (!full.length) {
-                        message(canWrite() ? 'No posts yet. Write the first one.' : 'No posts yet.');
+                        empty();
                     }
                     full.forEach(buildPost);
                 });
@@ -204,12 +232,16 @@ editor.once('load', () => {
             });
     };
 
-    newButton.on('click', () => {
+    const openComposer = () => {
         closeComposer();
         newButton.hidden = true;
+        if (emptyState) {
+            emptyState.hidden = true;
+        }
         composer = buildComposer(null, closeComposer);
         list.dom.insertBefore(composer.dom, list.dom.firstChild);
-    });
+    };
+    newButton.on('click', openComposer);
 
     // EVENTS
 
