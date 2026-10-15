@@ -265,7 +265,7 @@ editor.once('load', () => {
     let panelsEnabled = true;
     const togglePanels = (enabled: boolean) => {
         panelsEnabled = enabled;
-        editor.call('picker:project:setClosable', enabled && config.scene.id);
+        editor.call('picker:project:setClosable', enabled);
         editor.call('picker:project:toggleLeftPanel', enabled);
         topBar.enabled = enabled;
         sidebar.enabled = enabled;

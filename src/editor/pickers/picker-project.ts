@@ -611,13 +611,8 @@ editor.once('load', () => {
 
         currentSelection = name;
 
-        // if this is not a scene URL and not in reduced CMS view, disallow closing the popup
-        if (!IS_EMPTY_STATE && !config.scene.id && !reducedView && !noAdminView) {
-            editor.call('picker:project:setClosable', false);
-        } else {
-            // reset closable state
-            editor.call('picker:project:setClosable', true);
-        }
+        // reset closable state; setClosable keeps it shut while a scene still has to be picked
+        editor.call('picker:project:setClosable', true);
 
         // hide all first
         for (const key in menuOptions) {
@@ -751,9 +746,9 @@ editor.once('load', () => {
 
     // open popup
     editor.method('picker:project', (option, cms = false) => {
+        cmsView = cms;
         editor.call('projects:getOne', config.project.id, (res) => {
             currentProject = res;
-            cmsView = cms;
 
             refreshUI();
 
@@ -878,10 +873,12 @@ editor.once('load', () => {
         overlay.clickable = suspendClickable;
     });
 
-    // prevent user closing popup
+    // prevent user closing popup; with a project but no scene open it stays shut, unless it was
+    // opened over the projects page or for another project, where closing goes back to the page
     editor.method('picker:project:setClosable', (closable) => {
-        btnClose.hidden = !closable;
-        overlay.clickable = closable;
+        const open = closable && (IS_EMPTY_STATE || !!config.scene.id || cmsView || reducedView || noAdminView);
+        btnClose.hidden = !open;
+        overlay.clickable = open;
     });
 
     // closing was disallowed while no scene was loaded, unless a version control operation holds it
