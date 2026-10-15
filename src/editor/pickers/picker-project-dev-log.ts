@@ -42,15 +42,17 @@ editor.once('load', () => {
     // a title and markdown body, for a new post or an edit
     const buildComposer = (post, onDone: () => void) => {
         const form = new Container({ class: 'dev-log-editor' });
-        const title = new TextInput({ class: 'dev-log-title-input', placeholder: 'Title', value: post?.title ?? '' });
+        // placeholders go on the native fields, so they sit inside them
+        const title = new TextInput({ class: 'dev-log-title-input', value: post?.title ?? '' });
         (title.input as HTMLInputElement).maxLength = TITLE_MAX;
+        title.input.placeholder = 'Title';
         form.append(title);
         const body = new TextAreaInput({
             class: 'dev-log-text-input',
-            placeholder: 'What changed? Markdown is supported.',
             value: post?.text ?? '',
             height: 140
         });
+        body.input.placeholder = 'What changed? Markdown is supported.';
         form.append(body);
         const error = new Label({ class: 'dev-log-error', hidden: true });
         form.append(error);

@@ -19,8 +19,9 @@ editor.once('load', () => {
     root.append(overlay);
 
     // main panel
+    const HEADER = IS_EMPTY_STATE ? 'PROJECT READY' : 'CLOSE CURRENT PROJECT';
     const panel = new Panel({
-        headerText: IS_EMPTY_STATE ? 'PROJECT READY' : 'CLOSE CURRENT PROJECT',
+        headerText: HEADER,
         class: 'modal-confirmation-panel'
     });
     overlay.append(panel);
@@ -105,15 +106,32 @@ editor.once('load', () => {
     editor.method('picker:project:newProjectConfirmation', (projectId, importReport = null) => {
         report.clear();
         report.hidden = !importReport;
-        confirmationMessage.text = importReport ? 'Imported successfully.' : readyText;
+        panel.headerText = importReport ? 'PROJECT IMPORTED' : HEADER;
+        confirmationMessage.text = importReport
+            ? `Your project is ready. ${importReport.message ?? ''}`.trim()
+            : readyText;
         if (importReport) {
             const items = (importReport.items ?? []).slice(0, REPORT_LIMIT);
-            const more = (importReport.count ?? items.length) - items.length;
-            report.append(new Label({ class: 'import-report-message', text: importReport.message ?? '' }));
+            const count = importReport.count ?? items.length;
+            const more = count - items.length;
+            report.append(
+                new Label({ class: 'import-report-count', text: `${count} material${count === 1 ? '' : 's'} adjusted` })
+            );
+            // one row per material: its name, then what changed ("Floor (ID 12): Glossiness 120 → 100.")
             const list = new Container({ dom: 'ul', class: 'import-report-items' });
             items.forEach((item) => {
+                const [name, ...change] = String(item).split(': ');
                 const li = document.createElement('li');
-                li.textContent = item;
+                const title = document.createElement('span');
+                title.className = 'import-report-name';
+                title.textContent = change.length ? name : String(item);
+                li.appendChild(title);
+                if (change.length) {
+                    const detail = document.createElement('span');
+                    detail.className = 'import-report-change';
+                    detail.textContent = change.join(': ');
+                    li.appendChild(detail);
+                }
                 list.dom.appendChild(li);
             });
             report.append(list);

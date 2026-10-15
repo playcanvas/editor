@@ -71,13 +71,15 @@ editor.once('load', () => {
     });
     inputContainer.append(inputElement);
 
-    // the user the name resolves to, or why it can't be used
+    // a suggestion panel under the field: the user the name resolves to, or why it can't be used
     const result = new Container({ class: 'transfer-recipient', hidden: true });
     inputContainer.append(result);
     const avatar = new Element({ dom: 'img', class: 'transfer-recipient-avatar' });
     result.append(avatar);
     const resultText = new Label({ class: 'transfer-recipient-name' });
     result.append(resultText);
+    const resultUser = new Label({ class: 'transfer-recipient-user' });
+    result.append(resultUser);
 
     const footer = new Container({ class: 'transfer-project-footer' });
     panel.append(footer);
@@ -109,7 +111,9 @@ editor.once('load', () => {
         if (user) {
             (avatar.dom as HTMLImageElement).src = `${config.url.api}/users/${user.id}/thumbnail?size=32`;
         }
-        resultText.text = message ?? (user ? `${user.full_name || user.username} (${user.username})` : '');
+        resultText.text = message ?? (user ? user.full_name || user.username : '');
+        resultUser.text = !message && user ? user.username : '';
+        resultUser.hidden = !resultUser.text;
         result.class[message ? 'add' : 'remove']('error');
     };
 
