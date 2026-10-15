@@ -246,9 +246,16 @@ editor.once('load', () => {
     });
     settingsContainer.append(forkedFromSettings.dom);
     forkedFromSettings.dom.appendChild(new Label({ text: 'Forked From' }).dom);
+    // the project name links to it, with its owner after
+    const forkedFromValue = document.createElement('div');
+    forkedFromValue.className = 'forked-from-value';
+    forkedFromSettings.dom.appendChild(forkedFromValue);
     const forkedFromLink = document.createElement('a');
     forkedFromLink.target = '_blank';
-    forkedFromSettings.dom.appendChild(forkedFromLink);
+    forkedFromValue.appendChild(forkedFromLink);
+    const forkedFromOwner = document.createElement('div');
+    forkedFromOwner.className = 'forked-from-owner';
+    forkedFromValue.appendChild(forkedFromOwner);
 
     // the last four weeks of editing, one cell a day, brighter for busier days
     const activitySettings = new Element({
@@ -542,7 +549,10 @@ editor.once('load', () => {
         }
 
         forkedFromSettings.hidden = !currentProject.fork_from_name;
-        forkedFromLink.textContent = `${currentProject.fork_from_username ?? ''}/${currentProject.fork_from_name ?? ''}`;
+        forkedFromLink.textContent = String(currentProject.fork_from_name ?? '');
+        forkedFromOwner.textContent = currentProject.fork_from_username
+            ? `by ${currentProject.fork_from_username}`
+            : '';
         forkedFromLink.href = `${config.url.home}/editor/project/${currentProject.fork_from}`;
 
         initialLoad = false; // once initial load happens, reset flag
