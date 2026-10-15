@@ -14,6 +14,7 @@ import {
 import { config } from '@/editor/config';
 
 const KIT_SKELETON_COUNT = 8;
+const UPGRADE_BLOCK = 'Forking a private project needs a paid plan.';
 
 editor.once('load', () => {
     // GLOBAL VARIABLES
@@ -52,7 +53,8 @@ editor.once('load', () => {
     let rootUser;
     let newProjectOwner;
     let selectedKitElement; // ui element of selected starter kit
-    let newKitData = blankProject; // will store starterkit metadata to create project
+    let newKitData: Record<string, unknown> = blankProject; // will store starterkit metadata to create project
+    let forking = null; // the project being forked; null when creating a new project
 
     const builtInKits = { 0: blankProject, 446385: modelViewer, 435780: vr };
     let starterKits = { ...builtInKits };
@@ -149,6 +151,7 @@ editor.once('load', () => {
     const buildSidebar = () => {
         // refresh UI if it already exists
         formContent.clear();
+        formInputs.private = formInputs.private && allowPrivate();
 
         // make form groups for relevant inputs
         const textName = buildFormGroup('text', 'Name', formContent);
@@ -173,6 +176,14 @@ editor.once('load', () => {
         togglePrivate.on('change', () => {
             formInputs.private = togglePrivate.value;
         });
+
+        const block = forking && forkBlock(forking);
+        createBtn.enabled = !block;
+        if (block) {
+            editor.call('picker:project:buildAlert', sidebar, block, block === UPGRADE_BLOCK, 'UPGRADE', {
+                url: `${config.url.home}/upgrade`
+            });
+        }
     };
 
     // helper method to construct UI for different form groups
@@ -220,7 +231,7 @@ editor.once('load', () => {
 
                 const toggleElement = new BooleanInput({
                     type: 'toggle',
-                    value: false,
+                    value: formInputs.private,
                     enabled: allowPrivate()
                 });
                 formGroup.append(toggleElement);
@@ -231,8 +242,7 @@ editor.once('load', () => {
 
     // helper method to construct organizations dropdown
     const buildOrgDropdown = (formContainer) => {
-        let possibleOwners = [...rootUser.organizations];
-        possibleOwners.unshift(rootUser);
+        let possibleOwners = [rootUser, ...rootUser.organizations].filter(canOwn);
 
         const ownerContainer = new Container({
             class: 'form-owner',
@@ -292,7 +302,7 @@ editor.once('load', () => {
 
     // helper method to toggle AJAX loader in create project button
     const toggleLoader = (loading: boolean) => {
-        createBtn.text = loading ? '' : 'Create project';
+        createBtn.text = loading ? '' : createLabel();
 
         // setting text replaces the button's children, so put the spinner back
         createBtn.dom.appendChild(loader.dom);
@@ -395,6 +405,8 @@ editor.once('load', () => {
     createBtn.dom.appendChild(loader.dom);
 
     // CONTROLLERS
+
+    const createLabel = () => (forking ? 'Fork project' : 'Create project');
 
     // retrieves list of all starter kits through API call
     // pulsing placeholders until the first kit list arrives
@@ -527,6 +539,23 @@ editor.once('load', () => {
         return newProjectOwner.plan_type !== 'free';
     };
 
+    // free accounts can't own a fork of a private project
+    const canOwn = (owner) => !forking?.private || owner.plan_type !== 'free';
+
+    // why a project can't be forked, matching playcanvas.com; null when it can
+    const forkBlock = (project) => {
+        if (project.settings?.useLegacyScripts && !config.self.flags?.hasLegacyScripts) {
+            return "This project uses legacy scripts, so it can't be forked.";
+        }
+        if (project.private_source_assets && project.access_level !== 'write' && project.access_level !== 'admin') {
+            return 'This project keeps its source assets private, so only its editors can fork it.';
+        }
+        if (!canOwn(newProjectOwner)) {
+            return UPGRADE_BLOCK;
+        }
+        return null;
+    };
+
     // helper method to process a project according to required schema
     const processProject = (raw) => {
         return {
@@ -545,16 +574,19 @@ editor.once('load', () => {
         // open picker
         editor.emit('picker:open', 'project-new');
 
-        if (renderedKits) {
-            // cached grid: back to the blank kit, matching the form reset in picker:project:newProject
-            selectedKitElement?.class.remove('selected');
-            selectedKitElement = blankKitElement;
-            selectedKitElement?.class.add('selected');
-            mainView.dom.scrollTop = 0;
-        } else {
-            renderKitSkeleton();
+        // the fork dialog has no kit grid
+        if (!forking) {
+            if (renderedKits) {
+                // cached grid: back to the blank kit, matching the form reset in picker:project:newProject
+                selectedKitElement?.class.remove('selected');
+                selectedKitElement = blankKitElement;
+                selectedKitElement?.class.add('selected');
+                mainView.dom.scrollTop = 0;
+            } else {
+                renderKitSkeleton();
+            }
+            loadStarterKits();
         }
-        loadStarterKits();
 
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', false);
@@ -581,8 +613,42 @@ editor.once('load', () => {
         }
     });
 
+    // the fork dialog is the sidebar alone, without the kit grid
+    const setMode = (project) => {
+        forking = project;
+        panel.headerText = project ? 'FORK PROJECT' : 'NEW PROJECT';
+        mainView.hidden = !!project;
+        overlay.class[project ? 'add' : 'remove']('fork');
+        createBtn.text = createLabel();
+        createBtn.dom.appendChild(loader.dom);
+        editor.call('picker:project:hideAlerts');
+    };
+
+    // displays the fork dialog for a project; the owner defaults to you, else its organization, else a paid one
+    editor.method('picker:project:fork', (project) => {
+        editor.call('users:loadOne', config.self.id, (self) => {
+            editor.call('projects:getOne', project.id, (full) => {
+                rootUser = self;
+                setMode(full);
+                const orgs = self.organizations ?? [];
+                newProjectOwner =
+                    [self, orgs.find((o) => o.id === full.owner_id), ...orgs].filter(Boolean).find(canOwn) ?? self;
+                Object.assign(formInputs, {
+                    name: full.name,
+                    description: full.description ?? '',
+                    private: !!full.private,
+                    fork_from: full.id
+                });
+                newKitData = { ...formInputs };
+                buildSidebar();
+                overlay.hidden = false;
+            });
+        });
+    });
+
     // displays the new project modal
     editor.method('picker:project:newProject', () => {
+        setMode(null);
         rootUser = editor.call('picker:project:cms:rootUser');
         newProjectOwner = editor.call('picker:project:cms:currentUser');
 
