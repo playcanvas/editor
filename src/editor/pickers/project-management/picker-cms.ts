@@ -765,12 +765,16 @@ editor.once('load', () => {
         showMenu(rowMenu, anchor, true);
     };
 
-    const orgDropdownMenu = addMenu('organization-dropdown', [
+    // same look as the project menu, with delete set apart in red
+    const orgDropdownMenu = addMenu('picker-builds-menu', [
         menuItem('organization-details', 'Organization details', () =>
             window.open(`${config.url.home}/user/${dropdownOrg.username}/account`, '_blank')
         ),
-        menuItem('organization-delete', 'Delete organization', () =>
-            editor.call('picker:project:deleteOrganization', projects[dropdownOrg.id])
+        menuItem(
+            'organization-delete',
+            'Delete organization',
+            () => editor.call('picker:project:deleteOrganization', projects[dropdownOrg.id]),
+            ['cms-menu-group', 'delete']
         )
     ]);
     orgMenuButton.on('click', () => {

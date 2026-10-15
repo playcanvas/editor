@@ -1620,39 +1620,6 @@ strong {
     }
 }
 
-.pcui-menu.organization-dropdown {
-    z-index: 10001;
-
-    .pcui-menu-item:not(.pcui-menu-item-has-children):hover > .pcui-menu-item-children {
-        opacity: 0;
-        visibility: hidden;
-    }
-
-    #organization-details {
-        &::after {
-            @extend .font-icon;
-
-            content: '\E435';
-            display: none;
-            position: absolute;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            margin: 0 10px;
-        }
-
-        &:hover::after {
-            display: inline-block;
-        }
-    }
-
-    #organization-delete {
-        > .pcui-menu-item-content:hover {
-            background-color: #d34141;
-        }
-    }
-}
-
 .pcui-overlay.picker-project {
     z-index: 300; // larger than drop-area's
 
