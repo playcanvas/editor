@@ -24,5 +24,9 @@ COPY --from=install /temp/dev/package.json /temp/dev/package-lock.json ./
 COPY --from=install /temp/dev/node_modules ./node_modules
 COPY --from=builder /usr/src/app/dist ./dist
 
+# some tests bundle editor source
+COPY src ./src
+COPY tsconfig.json ./
+
 ENV PC_FRONTEND_DIR=/usr/src/app
 CMD ["npm", "run", "test", "--prefix", "/usr/src/test"]

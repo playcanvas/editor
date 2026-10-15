@@ -1,9 +1,12 @@
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { expect, test } from '@playwright/test';
 import { build } from 'esbuild';
 
-const ROOT = fileURLToPath(new URL('../../..', import.meta.url));
+// the editor root, which the docker image places outside the test suite
+const ROOT = resolve(fileURLToPath(new URL('../..', import.meta.url)), process.env.PC_FRONTEND_DIR ?? '..');
 const SOURCE = /* javascript */ `
     import { Observer } from '@playcanvas/observer';
     import { History } from './src/editor-api/history';
@@ -40,6 +43,9 @@ type NumericWindow = typeof window & {
 let bundle: string;
 
 test.use({ storageState: { cookies: [], origins: [] } });
+
+// the published test image ships the suite without the editor source
+test.skip(!existsSync(`${ROOT}/src`), `no editor source at ${ROOT}`);
 
 test.beforeAll(async () => {
     const result = await build({
