@@ -72,10 +72,29 @@ jobs:
         if: ${{ github.event_name == 'push' && github.repository_owner == 'playcanvas' }}
         permissions:
             contents: write
+            pull-requests: read
         steps:
+            - name: Check out code
+              uses: actions/checkout@v7
+              with:
+                  fetch-depth: 0
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version: 24.x
+
+            # generated notes can't see cherry-picked backports, so list a patch's PRs first
+            - name: Write patch notes
+              run: node scripts/release-notes.ts > release-notes.md
+              env:
+                  TAG: ${{ github.ref_name }}
+                  GH_TOKEN: ${{ github.token }}
+
             - name: Create GitHub Release
               uses: softprops/action-gh-release@v3
               with:
+                  body_path: release-notes.md
                   generate_release_notes: true
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
