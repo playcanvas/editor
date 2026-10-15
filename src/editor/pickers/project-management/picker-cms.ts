@@ -28,6 +28,8 @@ const PROMPTS = [
     'Got an idea for a scene?'
 ];
 const PROMPT = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
+// access you have to someone else's project; admin needs no badge, it's the default on yours and your orgs'
+const PERMISSION_LABELS = { write: 'Can edit', read: 'View only' };
 const QUALIFIERS = ['name:', 'owner:', 'desc:', 'is:private', 'is:public', 'is:open', 'is:locked'];
 const IS_EMPTY_STATE = !config.project.id; // if no project loaded, CMS is in empty state
 const EMPTY_THUMBNAIL_IMAGE = `${config.url.frontend}static/img/blank-project.webp`;
@@ -79,7 +81,6 @@ editor.once('load', () => {
     const isRecipient = (project) => project.new_owner_id === config.self.id || isOrg(project.new_owner_id);
     const blocked = (project) =>
         project.locked || project.access_level === 'none' || project.disabled || isPending(project);
-    const PERMISSION_LABELS = { admin: 'Admin', write: 'Can edit', read: 'View only' };
     const rootProjects = () => projects[rootUser?.id] ?? [];
     const listFor = (id) => (isOrg(id) ? projects[id] : rootProjects()) ?? [];
     const matchTab = (project, tab) => {

@@ -479,14 +479,12 @@ editor.once('load', () => {
                         evt.unbind();
 
                         // get job
-                        editor.api.globals.rest.jobs.jobGet({ jobId: msg.job.id }).on('load', (status, response) => {
-                            const job = response.data;
-
-                            // handle job error
+                        // the job's status sits on the job; the fork's id sits in its data
+                        editor.api.globals.rest.jobs.jobGet({ jobId: msg.job.id }).on('load', (status, job) => {
                             if (job.status === 'error') {
-                                editor.call('picker:project:buildAlert', mainView, job.messages[0]);
+                                editor.call('picker:project:buildAlert', forking ? sidebar : mainView, job.messages[0]);
                             } else {
-                                editor.call('picker:project:newProjectConfirmation', job.forked_id);
+                                editor.call('picker:project:newProjectConfirmation', job.data.forked_id);
                                 overlay.hidden = true; // close new project modal
                             }
 
