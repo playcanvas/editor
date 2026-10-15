@@ -145,7 +145,12 @@ editor.once('load', () => {
 
             playBtn.hidden = false;
             playBtn.enabled = currentProject.primary_app_url;
+
+            copyLinkBtn.hidden = false;
+            copyLinkBtn.class.add('with-editor');
         } else if (noAdminView) {
+            copyLinkBtn.hidden = true;
+
             btnClose.hidden = false;
 
             // hide and disable thumbnail controls
@@ -176,6 +181,7 @@ editor.once('load', () => {
             playBtn.hidden = true;
             playBtn.enabled = false;
         } else if (lockedView) {
+            copyLinkBtn.hidden = true;
             btnClose.hidden = false;
 
             // hide and disable thumbnail controls
@@ -219,6 +225,9 @@ editor.once('load', () => {
 
             playBtn.hidden = true;
             playBtn.enabled = false;
+
+            copyLinkBtn.hidden = false;
+            copyLinkBtn.class.remove('with-editor');
 
             // ensure all panels are visible
             for (const key in menuOptions) {
@@ -530,6 +539,27 @@ editor.once('load', () => {
         }
 
         window.open(url, target);
+    });
+
+    // copy link, beside EDITOR (or See all projects for the open project)
+    const copyLinkBtn = new Button({ class: 'cms-copy-link-button' });
+    copyLinkBtn.dom.title = 'Copy link';
+    copyLinkBtn.dom.setAttribute('aria-label', 'Copy link');
+    leftPanel.append(copyLinkBtn);
+    copyLinkBtn.on('click', () => {
+        navigator.clipboard.writeText(`${config.url.home}/editor/project/${currentProject.id}`).then(
+            () => {
+                copyLinkBtn.class.add('copied');
+                copyLinkBtn.dom.title = 'Copied';
+                setTimeout(() => {
+                    copyLinkBtn.class.remove('copied');
+                    copyLinkBtn.dom.title = 'Copy link';
+                }, 1500);
+            },
+            () => {
+                // intentionally empty
+            }
+        );
     });
 
     // launch button
