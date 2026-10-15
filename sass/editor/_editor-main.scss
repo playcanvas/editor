@@ -1934,7 +1934,9 @@ strong {
 
                         @extend .font-bold;
 
-                        &.hidden {
+                        // its display would otherwise beat pcui's hidden state
+                        &.hidden,
+                        &.pcui-hidden {
                             display: none;
                         }
 
