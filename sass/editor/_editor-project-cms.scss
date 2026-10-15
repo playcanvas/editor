@@ -2002,17 +2002,31 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
 
 // project settings: forked-from link and the four-week activity strip
 .picker-project-main > .project-settings {
-    > .forked-from > a {
-        overflow: hidden;
-        color: $text-active;
-        font-size: 13px;
-        text-decoration: none;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+    .forked-from-value {
+        display: flex;
+        flex-direction: row;
+        align-items: baseline;
+        gap: 6px;
+        min-width: 0;
 
-        &:hover {
-            text-decoration: underline;
+        > a {
+            overflow: hidden;
+            color: $text-active;
+            font-size: 13px;
+            text-decoration: none;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            &:hover {
+                text-decoration: underline;
+            }
         }
+    }
+
+    .forked-from-owner {
+        flex: none;
+        color: $text-dark;
+        font-size: 12px;
     }
 
     .activity-strip {
