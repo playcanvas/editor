@@ -287,35 +287,6 @@ editor.once('load', () => {
         );
     };
 
-    // project url
-    const projectURLSettings = new Element({
-        class: 'horizontal-container'
-    });
-    settingsContainer.append(projectURLSettings.dom);
-
-    const projectUrlLabel = new Label({
-        text: 'Share Project'
-    });
-    projectURLSettings.dom.appendChild(projectUrlLabel.dom);
-
-    const projectURLButton = new Button({
-        class: 'copy-url-button',
-        text: 'Copy URL'
-    });
-    projectURLSettings.dom.appendChild(projectURLButton.dom);
-
-    projectURLButton.on('click', () => {
-        navigator.clipboard.writeText(`${config.url.home}/editor/project/${currentProject.id}`).then(
-            () => {
-                projectURLButton.class.add('copied');
-                setTimeout(() => projectURLButton.class.remove('copied'), 1500);
-            },
-            () => {
-                // intentionally empty
-            }
-        );
-    });
-
     // action buttons container
     const actionButtonsContainer = new Container({
         class: 'action-buttons',
@@ -324,7 +295,7 @@ editor.once('load', () => {
     panel.append(actionButtonsContainer);
 
     const forkProjectButton = new Button({
-        class: 'full-width-button',
+        class: ['full-width-button', 'secondary'],
         icon: 'E431',
         text: 'Fork Project'
     });
@@ -338,7 +309,7 @@ editor.once('load', () => {
 
     // export project button
     const exportProjectButton = new Button({
-        class: 'full-width-button',
+        class: ['full-width-button', 'secondary'],
         icon: 'E228',
         text: getExportButtonText()
     });
@@ -357,7 +328,7 @@ editor.once('load', () => {
 
     // delete project button
     const deleteProjectButton = new Button({
-        class: 'full-width-button',
+        class: ['full-width-button', 'danger'],
         icon: 'E124',
         text: 'Delete Project',
         enabled: false,
