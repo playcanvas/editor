@@ -115,6 +115,8 @@ editor.once('load', () => {
     };
 
     const closeComposer = () => {
+        // inserted with insertBefore, so pcui doesn't know its parent and won't detach it on destroy
+        composer?.dom.remove();
         composer?.destroy();
         composer = null;
         newButton.hidden = !canWrite() || !!emptyState;

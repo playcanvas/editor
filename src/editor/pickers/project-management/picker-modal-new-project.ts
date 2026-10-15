@@ -177,8 +177,10 @@ editor.once('load', () => {
         // make form groups for relevant inputs
         const textName = buildFormGroup('text', 'Name', formContent);
         const textDescription = buildFormGroup('text', 'Description', formContent);
-        if (forking || rootUser.organizations.length > 0) {
+        if (rootUser.organizations.length > 0) {
             buildOrgDropdown(formContent);
+        } else if (forking) {
+            buildOwnerField(formContent);
         }
         const togglePrivate = buildFormGroup('toggle', allowPrivate() ? 'Private' : 'Private (Premium)', formContent);
 
@@ -197,6 +199,19 @@ editor.once('load', () => {
         togglePrivate.on('change', () => {
             formInputs.private = togglePrivate.value;
         });
+    };
+
+    // with no organizations you're the only possible owner, so show it as a plain field, not a one-item dropdown
+    const buildOwnerField = (formContainer) => {
+        const group = new Container({ class: 'form-owner', flex: true, flexDirection: 'column' });
+        formContainer.append(group);
+        group.append(new Label({ text: 'Owner' }));
+        const field = new Container({ class: 'owner-static' });
+        group.append(field);
+        const avatar = new Element({ dom: 'img', class: 'owner-profile' });
+        (avatar.dom as HTMLImageElement).src = `${config.url.api}/users/${rootUser.id}/thumbnail?size=32`;
+        field.append(avatar);
+        field.append(new Label({ class: 'owner-static-name', text: rootUser.full_name || rootUser.username }));
     };
 
     // the project being forked: its logo, name, owner and plays

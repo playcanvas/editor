@@ -516,6 +516,33 @@
             margin: 0;
         }
 
+        // the only possible owner: the dropdown's field, without the arrow or a list
+        .owner-static {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+            height: 32px;
+            padding: 0 10px 0 8px;
+            border: 1px solid $border-primary;
+            border-radius: 6px;
+            box-sizing: border-box;
+            background-color: $bcg-darker;
+
+            > .owner-profile {
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+            }
+
+            > .owner-static-name {
+                @extend .font-regular;
+
+                color: $text-primary;
+                font-size: 13px;
+            }
+        }
+
         // owner dropdown with avatars
         .owner-dropdown {
             margin: 0;
