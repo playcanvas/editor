@@ -1825,7 +1825,7 @@ strong {
                     position: absolute;
                     bottom: 10px;
                     left: 10px;
-                    right: 10px;
+                    right: 50px;
                     width: auto;
                     height: 32px;
                     margin: 0;
@@ -1863,6 +1863,7 @@ strong {
 
                 .cms-editor-button {
                     bottom: 48px;
+                    width: calc(100% - 60px);
                     background-color: $text-active;
                     color: $text-primary;
 
@@ -1874,6 +1875,54 @@ strong {
 
                 .cms-play-button {
                     bottom: 10px;
+                }
+
+                // copy link: a square button beside EDITOR, or beside See all projects for the open project
+                .cms-copy-link-button {
+                    position: absolute;
+                    right: 10px;
+                    bottom: 10px;
+                    width: 32px;
+                    height: 32px;
+                    min-width: 0;
+                    margin: 0;
+                    padding: 0;
+                    border: 1px solid $border-primary;
+                    border-radius: 5px;
+                    background-color: $bcg-darkest;
+                    color: $text-secondary;
+                    box-shadow: none;
+
+                    &.with-editor {
+                        bottom: 48px;
+                    }
+
+                    &::before {
+                        content: '';
+                        display: block;
+                        width: 14px;
+                        height: 14px;
+                        margin: auto;
+                        background-color: currentcolor;
+                        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z'/%3E%3Cpath d='M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z'/%3E%3C/svg%3E") center / contain no-repeat;
+                    }
+
+                    &:not(.pcui-disabled):hover {
+                        background-color: $bcg-darker;
+                        color: $text-primary;
+                    }
+
+                    &.copied {
+                        color: #6fd088;
+
+                        &::before {
+                            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 1 1 1.06-1.06l2.72 2.72 6.72-6.72a.75.75 0 0 1 1.06 0Z'/%3E%3C/svg%3E");
+                        }
+                    }
+
+                    &.pcui-hidden {
+                        display: none;
+                    }
                 }
 
                 @keyframes slide-down {
@@ -4765,7 +4814,9 @@ strong {
 
 .picker-project-main {
     box-sizing: border-box;
-    min-height: 100%;
+
+    // fill the panel exactly, so the settings card scrolls and the action buttons stay put
+    height: 100%;
     padding: 16px 20px 0 !important;
     color: $text-primary;
 
@@ -4777,13 +4828,21 @@ strong {
     & > .project-settings {
         @extend %modern-picker-card;
 
+        flex: 0 1 auto;
+        min-height: 0;
         margin: 0 0 12px;
+        overflow-y: auto;
         padding: 14px 16px;
 
         &:not(.pcui-hidden) {
             display: flex;
             flex-direction: column;
             gap: 16px;
+        }
+
+        // rows keep their size; the card scrolls instead of squashing them
+        > * {
+            flex-shrink: 0;
         }
 
         .pcui-disabled {
@@ -5076,6 +5135,34 @@ strong {
             &.pcui-disabled {
                 opacity: $element-opacity-disabled;
                 cursor: default;
+            }
+
+            // fork and export: outlined, so no footer action shouts
+            &.secondary {
+                border-color: $border-primary;
+                background-color: $bcg-dark;
+                color: $text-secondary;
+
+                &:not(.disabled, .pcui-disabled, .pcui-readonly):hover,
+                &:not(.disabled, .pcui-disabled, .pcui-readonly):focus {
+                    background-color: $bcg-darker;
+                    color: $text-primary;
+                }
+            }
+
+            // delete: red outline, set apart on the left
+            &.danger {
+                order: -1;
+                margin-right: auto;
+                border-color: rgb(251 34 47 / 45%);
+                background-color: transparent;
+                color: #f37c7c;
+
+                &:not(.disabled, .pcui-disabled, .pcui-readonly):hover,
+                &:not(.disabled, .pcui-disabled, .pcui-readonly):focus {
+                    background-color: rgb(251 34 47 / 12%);
+                    color: #ff9a9a;
+                }
             }
 
             // its display would otherwise beat pcui's hidden state
