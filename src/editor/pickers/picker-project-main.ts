@@ -3,6 +3,7 @@ import { Element, Container, Label, Button, TextInput, TextAreaInput, BooleanInp
 import { config } from '@/editor/config';
 
 const DAY_MS = 86400000;
+const COPIED_MS = 1500;
 const ACTIVITY_DAYS = 28;
 const ACTIVITY_SLOTS = 288; // five-minute slots in a day, the unit the activity levels count
 
@@ -294,6 +295,27 @@ editor.once('load', () => {
     });
     panel.append(actionButtonsContainer);
 
+    // copy link, an icon button beside fork
+    const copyLinkButton = new Button({ class: ['full-width-button', 'secondary', 'copy-link-button'] });
+    copyLinkButton.dom.title = 'Copy link';
+    copyLinkButton.dom.setAttribute('aria-label', 'Copy link');
+    actionButtonsContainer.append(copyLinkButton);
+    copyLinkButton.on('click', () => {
+        navigator.clipboard.writeText(`${config.url.home}/editor/project/${currentProject.id}`).then(
+            () => {
+                copyLinkButton.class.add('copied');
+                copyLinkButton.dom.title = 'Copied';
+                setTimeout(() => {
+                    copyLinkButton.class.remove('copied');
+                    copyLinkButton.dom.title = 'Copy link';
+                }, COPIED_MS);
+            },
+            () => {
+                // intentionally empty
+            }
+        );
+    });
+
     const forkProjectButton = new Button({
         class: ['full-width-button', 'secondary'],
         icon: 'E431',
@@ -503,6 +525,7 @@ editor.once('load', () => {
         exportProjectButton.text = getExportButtonText();
 
         forkProjectButton.hidden = !!currentProject.locked;
+        copyLinkButton.hidden = !!currentProject.locked;
 
         privateAssetsSettings.hidden = !currentProject.private_source_assets;
         privateAssetsToggle.value = !!currentProject.private_source_assets;

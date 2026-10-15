@@ -158,10 +158,11 @@
             background-color: $bcg-darker;
         }
 
+        // as tall as the eyebrow, name and owner beside it
         .fork-source-logo {
             flex: none;
-            width: 56px;
-            height: 56px;
+            width: 64px;
+            height: 64px;
             border-radius: 8px;
             background-color: $bcg-darkest;
             box-shadow: 0 0 0 1px $border-primary;
