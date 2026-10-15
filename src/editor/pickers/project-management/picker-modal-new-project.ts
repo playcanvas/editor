@@ -153,10 +153,31 @@ editor.once('load', () => {
         formContent.clear();
         formInputs.private = formInputs.private && allowPrivate();
 
+        // forking: the source project first; a blocked fork shows why in place of the form
+        const block = forking && forkBlock(forking);
+        createBtn.enabled = !block;
+        if (forking) {
+            buildForkSource(formContent);
+            if (block) {
+                const reason = new Container({ class: 'fork-blocked' });
+                reason.append(new Label({ text: block }));
+                if (block === UPGRADE_BLOCK) {
+                    const upgrade = document.createElement('a');
+                    upgrade.href = `${config.url.home}/upgrade`;
+                    upgrade.target = '_blank';
+                    upgrade.textContent = 'Upgrade';
+                    reason.dom.appendChild(upgrade);
+                }
+                formContent.append(reason);
+                return;
+            }
+            formContent.append(new Label({ class: 'fork-divider', text: 'your copy' }));
+        }
+
         // make form groups for relevant inputs
         const textName = buildFormGroup('text', 'Name', formContent);
         const textDescription = buildFormGroup('text', 'Description', formContent);
-        if (rootUser.organizations.length > 0) {
+        if (forking || rootUser.organizations.length > 0) {
             buildOrgDropdown(formContent);
         }
         const togglePrivate = buildFormGroup('toggle', allowPrivate() ? 'Private' : 'Private (Premium)', formContent);
@@ -176,13 +197,30 @@ editor.once('load', () => {
         togglePrivate.on('change', () => {
             formInputs.private = togglePrivate.value;
         });
+    };
 
-        const block = forking && forkBlock(forking);
-        createBtn.enabled = !block;
-        if (block) {
-            editor.call('picker:project:buildAlert', sidebar, block, block === UPGRADE_BLOCK, 'UPGRADE', {
-                url: `${config.url.home}/upgrade`
-            });
+    // the project being forked: its logo, name, owner and plays
+    const buildForkSource = (parent) => {
+        const source = new Container({ class: 'fork-source' });
+        parent.append(source);
+        const logo = new Element({ dom: 'img', class: 'fork-source-logo' });
+        (logo.dom as HTMLImageElement).src = forking.thumbnails?.m ?? blankProject.image;
+        (logo.dom as HTMLImageElement).alt = '';
+        source.append(logo);
+        const info = new Container({ class: 'fork-source-info' });
+        source.append(info);
+        info.append(new Label({ class: 'fork-source-eyebrow', text: 'Forking from' }));
+        info.append(new Label({ class: 'fork-source-name', text: forking.name }));
+        const meta = new Container({ class: 'fork-source-meta' });
+        info.append(meta);
+        const avatar = new Element({ dom: 'img', class: 'fork-source-avatar' });
+        (avatar.dom as HTMLImageElement).src = `${config.url.api}/users/${forking.owner_id}/thumbnail?size=32`;
+        meta.append(avatar);
+        meta.append(new Label({ text: forking.owner?.username ?? forking.owner ?? '' }));
+        if (forking.primary_app_url) {
+            meta.append(
+                new Label({ class: 'fork-source-plays', text: `${(forking.plays ?? 0).toLocaleString()} plays` })
+            );
         }
     };
 
@@ -546,7 +584,8 @@ editor.once('load', () => {
             return "This project uses legacy scripts, so it can't be forked.";
         }
         if (project.private_source_assets && project.access_level !== 'write' && project.access_level !== 'admin') {
-            return 'This project keeps its source assets private, so only its editors can fork it.';
+            const owner = project.owner?.username ?? project.owner ?? 'the owner';
+            return `The owner keeps this project's source assets private, so only people who can edit it can fork it. Ask ${owner} for edit access.`;
         }
         if (!canOwn(newProjectOwner)) {
             return UPGRADE_BLOCK;

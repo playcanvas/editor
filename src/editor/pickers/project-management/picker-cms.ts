@@ -216,12 +216,9 @@ editor.once('load', () => {
             text('Private', 'cms-badge', parent);
         }
     };
-    // forks, views and plays, on their own line under the owner
+    // views, plays and stars in the card footer; forks show in list rows and the welcome card
     const stats = (project, parent: Container) => {
         const line = box('cms-stats', parent);
-        if (project.fork_count) {
-            text(shortCount(project.fork_count), 'cms-forks', line);
-        }
         if (project.access_level !== 'none') {
             text(shortCount(project.views), 'cms-views', line);
         }
@@ -310,7 +307,7 @@ editor.once('load', () => {
     };
     // accept/decline for the recipient, cancel for the sender; both refresh the list when done
     const transferActions = (project, parent: Container) => {
-        const actions = box('cms-transfer', parent);
+        const actions = box(['cms-transfer', isRecipient(project) ? 'incoming' : 'outgoing'], parent);
         const act = (label, cls, call: () => Promise<unknown>) => {
             const btn = new Button({ class: ['cms-button', 'small', ...[cls ?? []].flat()], text: label });
             btn.on('click', (e) => {
@@ -341,18 +338,25 @@ editor.once('load', () => {
         isRecipient(project)
             ? ['Transfer request', `${ownerName(project) || 'The owner'} wants to give you this project`]
             : ['Transfer pending', `Waiting for ${project.new_owner || 'the new owner'} to accept`];
-    // up to three other members, then a count
-    const members = (project, parent: Container) => {
+    // the owner, then up to two other members and a count
+    const avatarGroup = (project, parent: Container) => {
+        const group = box('cms-members', parent);
+        image(avatarUrl(project.owner_id, 44), 'cms-avatar', group);
         const others = (project.users ?? []).filter((id) => id !== project.owner_id);
-        if (!others.length) {
-            return;
+        others.slice(0, 2).forEach((id) => image(avatarUrl(id, 44), 'cms-avatar', group));
+        if (others.length > 2) {
+            text(`+${others.length - 2}`, 'cms-members-more', group);
         }
-        const stack = box('cms-members', parent);
-        others.slice(0, 3).forEach((id) => image(avatarUrl(id, 36), 'cms-avatar', stack));
-        if (others.length > 3) {
-            text(`+${others.length - 3}`, 'cms-members-more', stack);
+        if (others.length) {
+            group.dom.title = `${others.length} other member${others.length === 1 ? '' : 's'}`;
         }
-        stack.dom.title = `${others.length} member${others.length === 1 ? '' : 's'}`;
+    };
+    // a muted dash keeps a list column filled when there's no value
+    const dash = (parent: Container, title?: string) => {
+        const cell = text('—', ['cms-row-cell', 'dash'], parent);
+        if (title) {
+            cell.dom.title = title;
+        }
     };
     const editorUrl = (project) => {
         let url = `${config.url.home}/editor/project/${project.id}`;
@@ -715,18 +719,22 @@ editor.once('load', () => {
         showMenu(sortMenu, sortButton, true);
     });
 
+    // grouped: open it, about it, copies of it, then handing it over or removing it
     const rowMenu = addMenu('picker-builds-menu', [
         menuItem('cms-row-editor', 'Open editor', () => openEditor(menuProject), 'primary'),
         menuItem('cms-row-launch', 'Launch', () => launch(menuProject)),
-        menuItem('cms-row-settings', 'Project settings', () => openProject(menuProject)),
-        menuItem('cms-row-watch', 'Watch', () => toggleWatch(menuProject)),
-        menuItem('cms-row-fork', 'Fork', () => editor.call('picker:project:fork', menuProject)),
-        menuItem('cms-row-export', 'Export', () => exportFromMenu(menuProject)),
-        menuItem('cms-row-transfer', 'Transfer ownership', () =>
-            editor.call('picker:project:modal:transferProject', menuProject)
-        ),
+        menuItem('cms-row-settings', 'Project settings', () => openProject(menuProject), 'cms-menu-group'),
         menuItem('cms-row-copy', 'Copy link', () =>
             navigator.clipboard.writeText(`${config.url.home}/editor/project/${menuProject.id}`)
+        ),
+        menuItem('cms-row-watch', 'Watch', () => toggleWatch(menuProject), 'cms-menu-group'),
+        menuItem('cms-row-fork', 'Fork', () => editor.call('picker:project:fork', menuProject)),
+        menuItem('cms-row-export', 'Export', () => exportFromMenu(menuProject)),
+        menuItem(
+            'cms-row-transfer',
+            'Transfer ownership',
+            () => editor.call('picker:project:modal:transferProject', menuProject),
+            'cms-menu-group'
         ),
         menuItem(
             'cms-row-delete',
@@ -1081,13 +1089,17 @@ editor.once('load', () => {
         if (project.owner_id !== config.self.id && PERMISSION_LABELS[project.access_level]) {
             text(PERMISSION_LABELS[project.access_level], 'cms-badge', tags);
         }
+        const pending = isPending(project);
+        if (pending) {
+            text(pendingText(project)[0], ['cms-badge', 'transfer'], tags);
+        }
         if (isOpen(project)) {
             liveDot(thumb);
         }
 
-        const pending = isPending(project);
+        // pending transfers get a badge and a byline instead of a cover
         const cover = pending
-            ? pendingText(project)
+            ? null
             : project.locked
               ? ['Locked', 'The owner is over their storage limit']
               : project.access_level === 'none'
@@ -1111,15 +1123,18 @@ editor.once('load', () => {
             project.description ? 'cms-card-desc' : ['cms-card-desc', 'empty'],
             body
         );
+        // avatars, then the owner over the edit time, so the name gets the full width
         const meta = box('cms-card-meta', body);
-        image(avatarUrl(project.owner_id, 36), 'cms-avatar', meta);
-        text(ownerName(project), 'cms-card-owner', meta);
-        members(project, meta);
-        text(
-            sortPolicy === 'created' ? `created ${timeAgo(project.created)}` : timeAgo(project.modified),
-            'cms-card-when',
-            meta
-        );
+        avatarGroup(project, meta);
+        const byline = box('cms-card-byline', meta);
+        text(ownerName(project), 'cms-card-owner', byline).dom.title = ownerName(project);
+        const when = sortPolicy === 'created' ? `created ${timeAgo(project.created)}` : timeAgo(project.modified);
+        if (pending) {
+            const status = isRecipient(project) ? `Offered ${when}` : `Sent to ${project.new_owner} ${when}`;
+            text(status, ['cms-card-when', 'transfer'], byline);
+        } else {
+            text(when, 'cms-card-when', byline);
+        }
 
         // counts and size get their own strip so the owner line keeps the full width
         if (pending) {
@@ -1142,14 +1157,15 @@ editor.once('load', () => {
         } else {
             image(thumbSrc, 'cms-row-thumb', row);
         }
-        const info = box('cms-row-info', row);
-        const name = box('cms-row-name', info);
+        const pending = isPending(project);
+        const info = box(pending ? ['cms-row-info', 'has-actions'] : 'cms-row-info', row);
+        const textCol = pending ? box('cms-row-text', info) : info;
+        const name = box('cms-row-name', textCol);
         if (isOpen(project)) {
             liveDot(name);
         }
         text(project.name, null, name);
         badges(project, name);
-        const pending = isPending(project);
         text(
             pending
                 ? pendingText(project)[1]
@@ -1161,33 +1177,34 @@ editor.once('load', () => {
                       ? 'Disabled by support'
                       : joined(ownerName(project), project.description),
             'cms-row-sub',
-            info
+            textCol
         );
         if (pending) {
-            transferActions(project, row).class.add('cms-row-transfer');
+            transferActions(project, info).class.add('cms-row-actions');
+            [0, 1, 2, 3, 4].forEach(() => dash(row));
             text(timeAgo(project.modified), 'cms-row-cell', row);
             box('cms-row-cell', row);
             return;
         }
         text(
-            project.fork_count ? shortCount(project.fork_count) : '',
-            project.fork_count ? ['cms-row-cell', 'cms-forks'] : 'cms-row-cell',
+            shortCount(project.fork_count ?? 0),
+            ['cms-row-cell', 'cms-forks', ...(project.fork_count ? [] : ['zero'])],
             row
         );
         if (project.access_level !== 'none') {
             text(shortCount(project.views), ['cms-row-cell', 'cms-views'], row);
         } else {
-            box('cms-row-cell', row);
+            dash(row);
         }
         if (project.primary_app_url) {
             text(shortCount(project.plays), ['cms-row-cell', 'cms-plays'], row);
         } else {
-            text('Not published', ['cms-row-cell', 'muted'], row);
+            dash(row, 'Not published');
         }
         if (canStar(project)) {
             starToggle(project, row, 'cms-row-cell');
         } else {
-            box('cms-row-cell', row);
+            dash(row);
         }
         text(bytesToHuman(project.size?.total ?? 0), 'cms-row-cell', row);
         text(timeAgo(project.modified), 'cms-row-cell', row);
@@ -1257,6 +1274,16 @@ editor.once('load', () => {
             const action = new Button({ class: 'cms-button', text: query ? 'Clear search' : 'New project' });
             empty.append(action);
             action.on('click', () => (query ? (searchInput.value = '') : editor.call('picker:project:newProject')));
+        }
+        // column headers so every number reads against its column
+        if (layout === 'list' && rows.length) {
+            const head = box(['cms-row', 'cms-row-head'], listContainer);
+            box('cms-row-head-thumb', head);
+            text('Project', 'cms-row-head-name', head);
+            ['Forks', 'Views', 'Plays', 'Stars', 'Size', 'Edited'].forEach((label) =>
+                text(label, 'cms-row-cell', head)
+            );
+            box('cms-row-head-actions', head);
         }
         rows.slice(0, shown).forEach(layout === 'grid' ? buildCard : buildRow);
         renderMore();
