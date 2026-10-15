@@ -2184,6 +2184,57 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         gap: 12px;
     }
 
+    // empty log, like the projects page's empty list
+    .dev-log-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        padding: 40px 24px;
+        border: 1px dashed $cms-edge;
+        border-radius: 8px;
+        text-align: center;
+
+        > .pcui-label {
+            margin: 0;
+            white-space: normal;
+        }
+
+        > .dev-log-button {
+            margin-top: 8px;
+        }
+    }
+
+    .dev-log-empty-icon {
+        @extend .font-icon;
+
+        display: grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background-color: $bcg-darkest;
+        color: $text-dark;
+
+        &::before {
+            content: '\E336';
+            font-size: 18px;
+        }
+    }
+
+    .dev-log-empty-title {
+        @extend .font-bold;
+
+        color: $text-primary;
+        font-size: 14px;
+    }
+
+    .dev-log-empty-text {
+        max-width: 40ch;
+        color: $text-dark;
+        font-size: 13px;
+    }
+
     .dev-log-new,
     .dev-log-button {
         height: 28px;
@@ -2334,6 +2385,11 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         width: 100%;
         padding: 8px 10px;
         line-height: 18px;
+    }
+
+    // the panel's flex rules would otherwise beat pcui's hidden state
+    .pcui-hidden {
+        display: none;
     }
 
     .dev-log-error {
