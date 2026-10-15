@@ -10,7 +10,8 @@ const TABS = [
     ['all', 'All'],
     ['mine', 'Mine'],
     ['shared', 'Shared with me'],
-    ['private', 'Private']
+    ['private', 'Private'],
+    ['starred', 'Starred']
 ];
 const SORTS = [
     ['modified', 'Last edited'],
@@ -30,7 +31,7 @@ const PROMPTS = [
 const PROMPT = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
 // access you have to someone else's project; admin needs no badge, it's the default on yours and your orgs'
 const PERMISSION_LABELS = { write: 'Can edit', read: 'View only' };
-const QUALIFIERS = ['name:', 'owner:', 'desc:', 'is:private', 'is:public', 'is:open', 'is:locked'];
+const QUALIFIERS = ['name:', 'owner:', 'desc:', 'is:private', 'is:public', 'is:starred', 'is:open', 'is:locked'];
 const IS_EMPTY_STATE = !config.project.id; // if no project loaded, CMS is in empty state
 const EMPTY_THUMBNAIL_IMAGE = `${config.url.frontend}static/img/blank-project.webp`;
 const SIDE_KEY = 'editor:cms:sidebar:width';
@@ -91,6 +92,8 @@ editor.once('load', () => {
                 return project.owner_id !== config.self.id;
             case 'private':
                 return project.private;
+            case 'starred':
+                return !!project.star_id;
             default:
                 return true;
         }
@@ -100,6 +103,7 @@ editor.once('load', () => {
     const IS = {
         private: (p) => p.private,
         public: (p) => !p.private,
+        starred: (p) => !!p.star_id,
         open: isOpen,
         locked: (p) => !!p.locked
     };
@@ -254,6 +258,7 @@ editor.once('load', () => {
             const settle = () => {
                 pending = null;
                 paint();
+                renderTools();
             };
             const revert = () => {
                 project.star_id = id;
@@ -278,6 +283,7 @@ editor.once('load', () => {
                 );
             }
             paint();
+            renderTools();
         });
         paint();
         parent.append(btn);
@@ -722,7 +728,7 @@ editor.once('load', () => {
     // grouped: open it, about it, copies of it, then handing it over or removing it
     const rowMenu = addMenu('picker-builds-menu', [
         menuItem('cms-row-editor', 'Open editor', () => openEditor(menuProject), 'primary'),
-        menuItem('cms-row-launch', 'Launch', () => launch(menuProject)),
+        menuItem('cms-row-launch', 'Play', () => launch(menuProject)),
         menuItem('cms-row-settings', 'Project settings', () => openProject(menuProject), 'cms-menu-group'),
         menuItem('cms-row-copy', 'Copy link', () =>
             navigator.clipboard.writeText(`${config.url.home}/editor/project/${menuProject.id}`)
@@ -1049,7 +1055,7 @@ editor.once('load', () => {
             openEditor(lead);
         });
         if (lead.primary_app_url) {
-            const play = new Button({ class: 'cms-button', icon: 'E131', text: 'Launch' });
+            const play = new Button({ class: ['cms-button', 'primary'], icon: 'E286', text: 'Play' });
             actions.append(play);
             play.on('click', (e) => {
                 e.stopPropagation();
@@ -1265,15 +1271,26 @@ editor.once('load', () => {
         if (!rows.length) {
             const empty = box('cms-empty', listContainer);
             const query = searchInput.value.trim();
-            text(query ? `No projects match ${query}` : 'No projects yet', 'cms-empty-title', empty);
+            const starred = !query && filter === 'starred';
             text(
-                query ? 'Try fewer filters, or clear the search.' : 'Create one, or import a project export.',
+                query ? `No projects match ${query}` : starred ? 'No starred projects' : 'No projects yet',
+                'cms-empty-title',
+                empty
+            );
+            text(
+                query
+                    ? 'Try fewer filters, or clear the search.'
+                    : starred
+                      ? 'Star a project to keep it here.'
+                      : 'Create one, or import a project export.',
                 null,
                 empty
             );
-            const action = new Button({ class: 'cms-button', text: query ? 'Clear search' : 'New project' });
-            empty.append(action);
-            action.on('click', () => (query ? (searchInput.value = '') : editor.call('picker:project:newProject')));
+            if (!starred) {
+                const action = new Button({ class: 'cms-button', text: query ? 'Clear search' : 'New project' });
+                empty.append(action);
+                action.on('click', () => (query ? (searchInput.value = '') : editor.call('picker:project:newProject')));
+            }
         }
         // column headers so every number reads against its column
         if (layout === 'list' && rows.length) {
