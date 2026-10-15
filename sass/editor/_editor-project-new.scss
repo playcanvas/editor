@@ -128,6 +128,26 @@
         height: 100%;
     }
 
+    // forking has no kit grid, so the form stands alone
+    &.fork {
+        > .pcui-overlay-content {
+            width: min(360px, calc(100vw - 32px));
+            height: min(480px, calc(100vh - 32px));
+        }
+
+        .modal-new-project-container {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .modal-new-project-main-view {
+            display: none;
+        }
+
+        .modal-new-project-sidebar {
+            border-left: none;
+        }
+    }
+
     // kits
 
     .modal-new-project-main-view {
@@ -608,7 +628,8 @@
 
 // type-to-confirm deletes share one layout
 .pcui-overlay.picker-delete-organization,
-.pcui-overlay.picker-delete-project {
+.pcui-overlay.picker-delete-project,
+.pcui-overlay.picker-transfer-project {
     z-index: 10000;
 
     > .pcui-overlay-content {
@@ -616,7 +637,8 @@
         border: 1px solid $border-primary;
 
         > .delete-organization-panel,
-        > .delete-project-panel {
+        > .delete-project-panel,
+        > .transfer-project-panel {
             > .pcui-panel-header {
                 @extend %dialog-header;
             }
@@ -666,7 +688,8 @@
             }
 
             .delete-organization-footer,
-            .delete-project-footer {
+            .delete-project-footer,
+            .transfer-project-footer {
                 display: flex;
                 flex-direction: row;
                 justify-content: flex-end;
@@ -676,6 +699,10 @@
 
                 > .pcui-button {
                     @extend %dialog-button;
+                }
+
+                > .transfer-project-button {
+                    @extend %dialog-button-primary;
                 }
 
                 // same as the version control dialogs' danger confirm
@@ -701,11 +728,38 @@
 }
 
 // opens over the project picker's danger zone too
-.pcui-overlay.picker-delete-project {
+.pcui-overlay.picker-delete-project,
+.pcui-overlay.picker-transfer-project {
     z-index: 100000;
 
-    .delete-project-button {
+    .delete-project-button,
+    .transfer-project-button {
         min-width: 120px;
+    }
+
+    .transfer-project-button {
+        position: relative;
+    }
+
+    // who the typed username resolves to
+    .transfer-recipient {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        min-height: 24px;
+        color: $text-primary;
+        font-size: 12px;
+
+        &.error {
+            color: $error;
+        }
+    }
+
+    .transfer-recipient-avatar {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
     }
 
     .loader {
@@ -758,6 +812,29 @@
 
                 > .positive-action-button {
                     @extend %dialog-button-primary;
+                }
+
+                > .import-report {
+                    flex: 1 0 100%;
+                    margin: 0 0 12px;
+                    color: $text-secondary;
+                    font-size: 12px;
+                    line-height: 16px;
+
+                    .pcui-label {
+                        margin: 0 0 6px;
+                        white-space: normal;
+                    }
+                }
+
+                .import-report-items {
+                    max-height: 160px;
+                    margin: 0 0 6px;
+                    padding: 8px 8px 8px 24px;
+                    overflow-y: auto;
+                    border: 1px solid $border-primary;
+                    border-radius: 6px;
+                    background-color: $bcg-darker;
                 }
             }
         }

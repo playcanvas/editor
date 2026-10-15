@@ -337,6 +337,7 @@ import './pickers/picker-project';
 import './pickers/project-management/project-management';
 
 import './pickers/picker-project-main';
+import './pickers/picker-project-dev-log';
 
 // store
 import './pickers/store/picker-store';
@@ -353,6 +354,7 @@ import './pickers/project-management/picker-modal-new-project-confirmation';
 import './pickers/project-management/picker-modal-new-organization';
 import './pickers/project-management/picker-modal-delete-organization';
 import './pickers/project-management/picker-modal-delete-project-confirmation';
+import './pickers/project-management/picker-modal-transfer-project';
 import './pickers/project-management/picker-modal-delete-self-confirmation';
 import './pickers/project-management/picker-modal-visibility-confirmation';
 

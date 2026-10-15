@@ -1398,6 +1398,49 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         }
     }
 
+    .cms-button.small {
+        height: 26px;
+        padding: 0 10px;
+        font-size: 12px;
+        line-height: 24px;
+    }
+
+    // accept / decline / cancel on a project that's changing hands
+    .cms-transfer {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .cms-row-transfer {
+        grid-column: 3 / span 5;
+    }
+
+    // other members, as overlapping avatars after the owner
+    .cms-members {
+        display: inline-flex;
+        flex: none;
+        flex-direction: row;
+        align-items: center;
+        margin-left: 6px;
+
+        > .cms-avatar {
+            margin-left: -6px;
+            box-shadow: 0 0 0 2px $cms-surface;
+
+            &:first-child {
+                margin-left: 0;
+            }
+        }
+    }
+
+    .cms-members-more {
+        margin-left: 4px;
+        color: $text-dark;
+        font-size: 11px;
+    }
+
     // star count that toggles your star; sized like the other stats, filled and orange once starred
     .cms-star {
         display: inline-flex;
@@ -1954,5 +1997,216 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
 
             @include cms-primary-hover;
         }
+    }
+}
+
+// project settings: forked-from link and the four-week activity strip
+.picker-project-main > .project-settings {
+    > .forked-from > a {
+        overflow: hidden;
+        color: $text-active;
+        font-size: 13px;
+        text-decoration: none;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    .activity-strip {
+        display: grid;
+        grid-template-columns: repeat(28, 8px);
+        gap: 2px;
+
+        > div {
+            height: 16px;
+            border-radius: 2px;
+            background-color: $bcg-darkest;
+
+            &.active {
+                background-color: $text-active;
+            }
+        }
+    }
+}
+
+// dev log: newest first, a composer for new posts and edits
+.picker-project-dev-log {
+    box-sizing: border-box;
+    min-height: 100%;
+    padding: 16px 20px !important;
+    color: $text-primary;
+
+    &:not(.pcui-hidden) {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .dev-log-header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .dev-log-intro,
+    .dev-log-message {
+        margin: 0;
+        color: $text-secondary;
+        font-size: 13px;
+        white-space: normal;
+    }
+
+    .dev-log-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .dev-log-new,
+    .dev-log-button {
+        height: 28px;
+        margin: 0;
+        padding: 0 12px;
+        border: 1px solid $bcg-darkest;
+        border-radius: 6px;
+        background-color: $bcg-primary;
+        color: $text-secondary;
+        font-size: 12px;
+        line-height: 26px;
+
+        @include cms-outlined-hover;
+
+        &.primary,
+        &.dev-log-new {
+            border-color: transparent;
+            background-color: $text-active;
+            color: $text-primary;
+
+            @include cms-primary-hover;
+        }
+
+        &.delete:not(.pcui-disabled):hover {
+            color: $error-secondary;
+        }
+    }
+
+    .dev-log-post,
+    .dev-log-editor {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 14px 16px;
+        border: 1px solid $border-primary;
+        border-radius: 8px;
+        background-color: $bcg-dark;
+    }
+
+    .dev-log-post-head {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .dev-log-avatar {
+        width: 32px;
+        height: 32px;
+        flex: none;
+        border-radius: 50%;
+    }
+
+    .dev-log-post-info {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+
+        > .pcui-label {
+            margin: 0;
+            white-space: normal;
+        }
+    }
+
+    .dev-log-post-title {
+        color: $text-primary;
+        font-size: 14px;
+
+        @extend .font-bold;
+    }
+
+    .dev-log-post-meta {
+        color: $text-dark;
+        font-size: 12px;
+    }
+
+    .dev-log-post-body {
+        color: $text-secondary;
+        font-size: 13px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+
+        p,
+        ul,
+        ol,
+        pre,
+        blockquote {
+            margin: 0 0 8px;
+        }
+
+        a {
+            color: $text-active;
+        }
+
+        img {
+            max-width: 100%;
+        }
+
+        code {
+            padding: 1px 4px;
+            border-radius: 4px;
+            background-color: $bcg-darkest;
+        }
+
+        pre > code {
+            display: block;
+            padding: 8px;
+            overflow-x: auto;
+        }
+    }
+
+    .dev-log-post-actions,
+    .dev-log-editor-actions {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .dev-log-title-input,
+    .dev-log-text-input {
+        width: 100%;
+        margin: 0;
+        border: 1px solid $bcg-darkest;
+        border-radius: 4px;
+        background-color: $bcg-darker;
+        box-sizing: border-box;
+    }
+
+    .dev-log-text-input > textarea {
+        box-sizing: border-box;
+        width: 100%;
+        padding: 8px;
+        line-height: 18px;
+    }
+
+    .dev-log-error {
+        margin: 0;
+        color: $error-secondary;
+        font-size: 12px;
+        white-space: normal;
     }
 }

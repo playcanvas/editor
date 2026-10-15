@@ -8,7 +8,8 @@ const MENU_LABELS = new Map([
     ['scenes', 'Scenes'],
     ['version control', 'Version control'],
     ['builds-publish', 'Builds & Publish'],
-    ['team', 'Team']
+    ['team', 'Team'],
+    ['dev-log', 'Dev log']
 ]);
 
 editor.once('load', () => {
@@ -131,7 +132,7 @@ editor.once('load', () => {
 
             // ensure all reduced view panels are visible
             for (const key in menuOptions) {
-                if (key === 'project-main' || key === 'team') {
+                if (key === 'project-main' || key === 'team' || key === 'dev-log') {
                     menuOptions[key].item.hidden = false;
                 }
             }
@@ -162,6 +163,9 @@ editor.once('load', () => {
 
             // ensure only team management panel is visible
             menuOptions.team.item.hidden = false;
+            if (menuOptions['dev-log']) {
+                menuOptions['dev-log'].item.hidden = true;
+            }
 
             projectCMSButton.enabled = false;
             projectCMSButton.hidden = true;
@@ -181,6 +185,9 @@ editor.once('load', () => {
             menuOptions['project-main'].item.hidden = false;
             menuOptions.scenes.item.hidden = true;
             menuOptions.team.item.hidden = true;
+            if (menuOptions['dev-log']) {
+                menuOptions['dev-log'].item.hidden = true;
+            }
             if (menuOptions['builds-publish']) {
                 menuOptions['builds-publish'].item.hidden = true;
             }
