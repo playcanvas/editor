@@ -76,6 +76,7 @@
 
 %dialog-button {
     position: relative;
+    min-width: 80px;
     height: 32px;
     margin: 0;
     padding: 0 14px;
@@ -647,8 +648,6 @@
 
         .create-btn {
             @extend %dialog-button-primary;
-
-            min-width: 120px;
         }
 
         .loader {
@@ -941,11 +940,6 @@
 .pcui-overlay.picker-transfer-project {
     z-index: 100000;
 
-    .delete-project-button,
-    .transfer-project-button {
-        min-width: 120px;
-    }
-
     .transfer-project-button {
         position: relative;
     }
@@ -1087,6 +1081,8 @@
                 }
 
                 .import-report-items {
+                    @extend %rounded-scroll;
+
                     max-height: 180px;
                     margin: 0;
                     padding: 0;

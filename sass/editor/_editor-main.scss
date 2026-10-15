@@ -26,6 +26,20 @@ strong {
     background-color: rgb(0 0 0 / 8%);
 }
 
+// a scrollbar that stays inside a rounded box: no square track, rounded thumb clear of the corners
+%rounded-scroll {
+    &::-webkit-scrollbar-track {
+        margin: 4px 0;
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        border: 2px solid transparent;
+        border-radius: 4px;
+        background-clip: padding-box;
+    }
+}
+
 %modern-picker-checkbox {
     flex: none;
     appearance: none;
@@ -1877,7 +1891,7 @@ strong {
                     bottom: 10px;
                 }
 
-                // copy link (a chain-link icon): a square button beside EDITOR, or beside See all projects for the open project
+                // copy link: a square button styled like its neighbour, EDITOR or See all projects for the open project
                 .cms-copy-link-button {
                     position: absolute;
                     right: 10px;
@@ -1889,37 +1903,34 @@ strong {
                     padding: 0;
                     border: 1px solid $border-primary;
                     border-radius: 5px;
-
-                    // same fill as PLAY beneath it
-                    background-color: $bcg-dark;
-                    color: $text-secondary;
+                    background-color: $bcg-darkest;
+                    color: $text-primary;
                     box-shadow: none;
 
-                    &.with-editor {
-                        bottom: 48px;
-                    }
-
+                    // the editor's chain link glyph, a tick once copied
                     &::before {
-                        content: '';
-                        display: block;
-                        width: 14px;
-                        height: 14px;
-                        margin: auto;
-                        background-color: currentcolor;
-                        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M7.775 3.275a.75.75 0 0 0 1.06 1.06l1.25-1.25a2 2 0 1 1 2.83 2.83l-2.5 2.5a2 2 0 0 1-2.83 0 .75.75 0 0 0-1.06 1.06 3.5 3.5 0 0 0 4.95 0l2.5-2.5a3.5 3.5 0 0 0-4.95-4.95l-1.25 1.25Zm-4.69 9.64a2 2 0 0 1 0-2.83l2.5-2.5a2 2 0 0 1 2.83 0 .75.75 0 0 0 1.06-1.06 3.5 3.5 0 0 0-4.95 0l-2.5 2.5a3.5 3.5 0 0 0 4.95 4.95l1.25-1.25a.75.75 0 0 0-1.06-1.06l-1.25 1.25a2 2 0 0 1-2.83 0Z'/%3E%3C/svg%3E") center / contain no-repeat;
+                        content: '\E426';
+                        font-family: pc-icon;
+                        font-size: 14px;
+                        line-height: 30px;
                     }
 
                     &:not(.pcui-disabled):hover {
                         background-color: $bcg-darker;
-                        color: $text-primary;
                     }
 
-                    &.copied {
-                        color: #6fd088;
+                    &.with-editor {
+                        bottom: 48px;
+                        background-color: $text-active;
 
-                        &::before {
-                            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 1 1 1.06-1.06l2.72 2.72 6.72-6.72a.75.75 0 0 1 1.06 0Z'/%3E%3C/svg%3E");
+                        &:not(.pcui-disabled):hover {
+                            background-color: $text-primary;
+                            color: $text-active;
                         }
+                    }
+
+                    &.copied::before {
+                        content: '\E133';
                     }
 
                     &.pcui-hidden {
@@ -4829,6 +4840,7 @@ strong {
 
     & > .project-settings {
         @extend %modern-picker-card;
+        @extend %rounded-scroll;
 
         flex: 0 1 auto;
         min-height: 0;
