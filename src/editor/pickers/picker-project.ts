@@ -565,7 +565,7 @@ editor.once('load', () => {
     // launch button
     const playBtn = new Button({
         class: 'cms-play-button',
-        icon: 'E131',
+        icon: 'E286',
         text: 'PLAY',
         enabled: reducedView && currentProject.primary_app_url,
         hidden: !reducedView
