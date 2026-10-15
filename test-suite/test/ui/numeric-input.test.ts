@@ -1,37 +1,7 @@
-import { existsSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { expect, test } from '../../lib/fixtures';
 
-import { expect, test } from '@playwright/test';
-import { build } from 'esbuild';
-
-// the editor root, which the docker image places outside the test suite
-const ROOT = resolve(fileURLToPath(new URL('../..', import.meta.url)), process.env.PC_FRONTEND_DIR ?? '..');
-const SOURCE = /* javascript */ `
-    import { Observer } from '@playcanvas/observer';
-    import { History } from './src/editor-api/history';
-    import { AttributesInspector } from './src/editor/inspector/attributes-inspector';
-
-    window.numeric = (values, type = 'slider', args = {}) => {
-        const history = new History();
-        let changes = 0;
-        history.on('add', () => changes++);
-        const observers = values.map(reflectivity => new Observer({ data: { reflectivity } }));
-        const inspector = new AttributesInspector({ history });
-        const field = inspector.createFieldForAttribute({
-            type, path: 'data.reflectivity',
-            args: { min: 0, max: 8, precision: 3, step: 0.01, ...args }
-        });
-        document.body.replaceChildren(field.dom);
-        field.link(observers, 'data.reflectivity');
-        window.numericState = () => ({
-            values: observers.map(observer => observer.get('data.reflectivity')),
-            changes
-        });
-        window.numericUndo = () => history.undo();
-        window.numericRedo = () => history.redo();
-    };
-`;
+const INPUT = '#numeric-test input';
+const INSPECTOR = '.entity-inspector .pcui-inspector';
 
 type NumericWindow = typeof window & {
     numeric: (values: number[], type?: string, args?: { readOnly?: boolean; enabled?: boolean }) => void;
@@ -40,42 +10,61 @@ type NumericWindow = typeof window & {
     numericRedo: () => void;
 };
 
-let bundle: string;
-
-test.use({ storageState: { cookies: [], origins: [] } });
-
-// the published test image ships the suite without the editor source
-test.skip(!existsSync(`${ROOT}/src`), `no editor source at ${ROOT}`);
-
-test.beforeAll(async () => {
-    const result = await build({
-        stdin: { contents: SOURCE, resolveDir: ROOT },
-        tsconfig: `${ROOT}/tsconfig.json`,
-        bundle: true,
-        write: false,
-        external: ['node:*']
+test.beforeEach(async ({ editorPage }) => {
+    // inspectors are built on first selection, so select the root to get one
+    await editorPage.evaluate(() => {
+        const { selection, entities } = window.editor.api.globals;
+        selection.set([entities.root], { history: false });
     });
-    bundle = result.outputFiles[0].text;
+    await editorPage.locator(INSPECTOR).first().waitFor({ state: 'attached' });
+
+    await editorPage.evaluate((inspector) => {
+        // the built editor exports nothing, so take the classes from live instances
+        const AttributesInspector = (document.querySelector(inspector) as any).ui.constructor;
+        const History = (window.editor.api.globals.history as any).constructor;
+        const Observer = (window.editor.api.globals.entities.root.observer as any).constructor;
+
+        const root = document.createElement('div');
+        root.id = 'numeric-test';
+        root.style.cssText = 'position: fixed; top: 0; left: 0; width: 320px; z-index: 10000';
+        document.body.append(root);
+
+        const win = window as NumericWindow;
+        win.numeric = (values, type = 'slider', args = {}) => {
+            const history = new History();
+            let changes = 0;
+            history.on('add', () => changes++);
+            const observers = values.map(reflectivity => new Observer({ data: { reflectivity } }));
+            const inspector = new AttributesInspector({ history });
+            const field = inspector.createFieldForAttribute({
+                type,
+                path: 'data.reflectivity',
+                args: { min: 0, max: 8, precision: 3, step: 0.01, ...args }
+            });
+            root.replaceChildren(field.dom);
+            field.link(observers, 'data.reflectivity');
+            win.numericState = () => ({
+                values: observers.map(observer => observer.get('data.reflectivity')),
+                changes
+            });
+            win.numericUndo = () => history.undo();
+            win.numericRedo = () => history.redo();
+        };
+    }, INSPECTOR);
 });
 
-test.beforeEach(async ({ page }) => {
-    await page.setContent(/* html */ `
-        <html><body></body></html>
-    `);
-    await page.evaluate(() => {
-        Object.assign(window, {
-            config: { sentry: { enabled: false } },
-            editor: { method() {}, once() {}, on() {}, call() {} }
-        });
+test.afterEach(async ({ editorPage }) => {
+    await editorPage.evaluate(() => {
+        document.getElementById('numeric-test')?.remove();
+        window.editor.api.globals.selection.clear({ history: false });
     });
-    await page.addScriptTag({ content: bundle });
 });
 
 for (const type of ['slider', 'number']) {
     for (const value of [8.000000000000002, 8.0001, 9]) {
-        test(`${type}: committing displayed 8 repairs stored ${value}`, async ({ page }) => {
+        test(`${type}: committing displayed 8 repairs stored ${value}`, async ({ editorPage: page }) => {
             await page.evaluate(({ value, type }) => (window as NumericWindow).numeric([value], type), { value, type });
-            const input = page.locator('input');
+            const input = page.locator(INPUT);
             await expect(input).toHaveValue('8');
             expect(await page.evaluate(() => (window as NumericWindow).numericState())).toEqual({
                 values: [value],
@@ -103,9 +92,9 @@ for (const type of ['slider', 'number']) {
     }
 }
 
-test('does not add history for unchanged values or duplicate a normal edit', async ({ page }) => {
+test('does not add history for unchanged values or duplicate a normal edit', async ({ editorPage: page }) => {
     await page.evaluate(() => (window as NumericWindow).numeric([8]));
-    const input = page.locator('input');
+    const input = page.locator(INPUT);
     await input.press('Enter');
     expect(await page.evaluate(() => (window as NumericWindow).numericState())).toEqual({ values: [8], changes: 0 });
     await input.fill('7.999');
@@ -116,26 +105,26 @@ test('does not add history for unchanged values or duplicate a normal edit', asy
     });
 });
 
-test('commits a clamped native change and preserves undo', async ({ page }) => {
+test('commits a clamped native change and preserves undo', async ({ editorPage: page }) => {
     await page.evaluate(() => (window as NumericWindow).numeric([9]));
-    await page.locator('input').fill('10');
-    await page.locator('input').blur();
+    await page.locator(INPUT).fill('10');
+    await page.locator(INPUT).blur();
     expect(await page.evaluate(() => (window as NumericWindow).numericState())).toEqual({ values: [8], changes: 1 });
     await page.evaluate(() => (window as NumericWindow).numericUndo());
     expect(await page.evaluate(() => (window as NumericWindow).numericState())).toEqual({ values: [9], changes: 1 });
 });
 
-test('commits a retyped displayed value on blur', async ({ page }) => {
+test('commits a retyped displayed value on blur', async ({ editorPage: page }) => {
     await page.evaluate(() => (window as NumericWindow).numeric([9]));
-    const input = page.locator('input');
+    const input = page.locator(INPUT);
     await input.fill('8');
     await input.blur();
     expect(await page.evaluate(() => (window as NumericWindow).numericState())).toEqual({ values: [8], changes: 1 });
 });
 
-test('repairs a selection whose different stored values display as 8', async ({ page }) => {
+test('repairs a selection whose different stored values display as 8', async ({ editorPage: page }) => {
     await page.evaluate(() => (window as NumericWindow).numeric([8, 8.0001, 9]));
-    await page.locator('input').press('Enter');
+    await page.locator(INPUT).press('Enter');
     expect(await page.evaluate(() => (window as NumericWindow).numericState())).toEqual({
         values: [8, 8, 8],
         changes: 1
@@ -147,17 +136,17 @@ test('repairs a selection whose different stored values display as 8', async ({ 
     });
 });
 
-test('leaves an empty mixed selection unchanged on Enter', async ({ page }) => {
+test('leaves an empty mixed selection unchanged on Enter', async ({ editorPage: page }) => {
     await page.evaluate(() => (window as NumericWindow).numeric([1, 2]));
-    await expect(page.locator('input')).toHaveValue('');
-    await page.locator('input').press('Enter');
+    await expect(page.locator(INPUT)).toHaveValue('');
+    await page.locator(INPUT).press('Enter');
     expect(await page.evaluate(() => (window as NumericWindow).numericState())).toEqual({ values: [1, 2], changes: 0 });
 });
 
 for (const args of [{ readOnly: true }, { enabled: false }]) {
-    test(`does not repair a protected field ${JSON.stringify(args)}`, async ({ page }) => {
+    test(`does not repair a protected field ${JSON.stringify(args)}`, async ({ editorPage: page }) => {
         await page.evaluate(args => (window as NumericWindow).numeric([9], 'slider', args), args);
-        await page.locator('input').press('Enter');
+        await page.locator(INPUT).press('Enter');
         expect(await page.evaluate(() => (window as NumericWindow).numericState())).toEqual({
             values: [9],
             changes: 0
@@ -165,9 +154,9 @@ for (const args of [{ readOnly: true }, { enabled: false }]) {
     });
 }
 
-test('does not change stored values just by focusing, blurring or cancelling', async ({ page }) => {
+test('does not change stored values just by focusing, blurring or cancelling', async ({ editorPage: page }) => {
     await page.evaluate(() => (window as NumericWindow).numeric([9]));
-    const input = page.locator('input');
+    const input = page.locator(INPUT);
     await input.focus();
     await input.blur();
     await input.fill('7');
