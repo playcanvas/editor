@@ -66,16 +66,16 @@ const verifyDelivery = async (page: Page | Frame) => {
 
 // three .picker-modal-confirmation modals sit in the dom from load, so match the button by name
 // and by role, which never binds a hidden node
-const continueBrowsing = (page: Page) => page.getByRole('button', { name: 'Continue Browsing' });
+const continueBrowsing = (page: Page) => page.getByRole('button', { name: 'Not now' });
 
-/** the cms grid row of a project, matched on its name label */
-const cmsRow = (page: Page, name: string) => page.locator(`.project-container:has(.project-name:text-is("${name}"))`);
+/** a project's card or list row on the projects page, matched on its name */
+const cmsRow = (page: Page, name: string) => page.locator(`.cms-list > :is(.cms-card, .cms-row):has(:text-is("${name}"))`);
 
-/** delete the project whose dialog is open in the cms */
+/** delete the project whose settings are open on the projects page */
 const deleteOpenProject = async (page: Page, name: string) => {
     await page.locator('#delete-project-button').click();
     await page.locator('.picker-delete-project .form-group--input input').fill(name);
-    await page.locator('.picker-delete-project .delete-project-button').click();
+    await page.locator('.picker-delete-project .pm-button.danger').click();
 };
 
 /** drive a pcui boolean input to a known state */
@@ -98,11 +98,14 @@ test.describe('create/delete', () => {
     test('create project', async ({ blankPage }) => {
         test.setTimeout(JOB_TEST_TIMEOUT);
 
-        await blankPage.locator('.new-project-button').click();
+        // an empty project creates without forking, so it works on every environment; blank forks
+        // a template that only exists on production
+        await blankPage.locator('.cms-side .cms-new').click();
+        await blankPage.locator('.picker-project-new .starter-kit:not(.skeleton)', { hasText: 'Empty Project' }).click();
         await blankPage.locator('.modal-new-project-form-content input[type="text"]').first().fill(projectName);
 
         const created = blankPage.waitForResponse(res => res.request().method() === 'POST' && res.url().endsWith('/api/projects'));
-        await blankPage.locator('.picker-project-new .create-btn').click();
+        await blankPage.locator('.picker-project-new .create-btn-container .pm-button.primary').click();
         expect((await created).status()).toBe(201);
 
         // the dialog subscribes to messenger project.create only after a follow-up projects/<id>
@@ -187,7 +190,7 @@ test.describe('export/import', () => {
 
         // import project
         const fileChooserPromise = blankPage.waitForEvent('filechooser');
-        await blankPage.locator('.import-project-button').click();
+        await blankPage.locator('.cms-side .cms-import').click();
         const fileChooser = await fileChooserPromise;
         await fileChooser.setFiles(exportPath);
 
@@ -281,11 +284,18 @@ test.describe('navigation', () => {
 
     test('goto editor', async ({ blankPage }) => {
         await cmsRow(blankPage, projectName).click();
-        await blankPage.locator('.cms-editor-button').click();
-        await waitForEditor(blankPage);
 
-        expect(await blankPage.evaluate(() => window.config.project.id)).toBe(projectId);
-        expect(await blankPage.evaluate(() => parseInt(window.config.scene.id, 10))).toBe(sceneId);
+        // projects open in their own tab; the projects page stays put
+        const [editorTab] = await Promise.all([
+            blankPage.waitForEvent('popup'),
+            blankPage.locator('.cms-editor-button').click()
+        ]);
+        await waitForEditor(editorTab);
+
+        expect(await editorTab.evaluate(() => window.config.project.id)).toBe(projectId);
+        expect(await editorTab.evaluate(() => parseInt(window.config.scene.id, 10))).toBe(sceneId);
+        expect(new URL(blankPage.url()).pathname).toBe('/editor');
+        await editorTab.close();
     });
 
     test('goto code editor', async ({ page }) => {
