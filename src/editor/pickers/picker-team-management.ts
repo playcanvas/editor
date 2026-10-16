@@ -28,6 +28,9 @@ editor.once('load', () => {
 
     // UI
 
+    // a button the page shows in place of inviting, from picker:team:management:restriction
+    let restrictionAction: Button | null = null;
+
     // updates all visible strings in screen to allow for dynamic updates
     const updateLabels = () => {
         // Assume space left in organization
@@ -36,25 +39,24 @@ editor.once('load', () => {
 
         membersLabel.text = currentProject.access_level !== 'none' ? `${collaborators.length}/64 members` : '';
 
-        addMeAsAdminButton.hidden = true;
-        addMeAsAdminButton.enabled = false;
+        // the page can stop invites with a reason and offer its own action instead
+        const restriction = editor.call('picker:team:management:restriction', currentProject, collaborators);
+        if (restrictionAction) {
+            restrictionAction.hidden = true;
+        }
+        restrictionAction = restriction?.action ?? null;
 
         // Update invite warning label
-        if (
-            currentProject.access_level === 'none' ||
-            editor.call('picker:project:showNoAdmin', currentProject, collaborators)
-        ) {
+        if (restriction) {
             inviteInput.hidden = true;
             inviteSubmit.hidden = true;
-            inviteWarning.dom.innerHTML =
-                'You are not currently an admin for this project. Assign yourself as an admin to edit and manage this project';
-
-            addMeAsAdminButton.hidden = false;
-            addMeAsAdminButton.enabled = true;
-            addMeAsAdminButton.unbind('click').on('click', () => {
-                addAdmin(currentProject);
-                addMeAsAdminButton.enabled = false;
-            });
+            inviteWarning.dom.textContent = restriction.text;
+            if (restrictionAction) {
+                if (restrictionAction.parent !== panel) {
+                    panel.append(restrictionAction);
+                }
+                restrictionAction.hidden = false;
+            }
         } else if (!owner.limits || owner.plan_type === 'free') {
             // if organization does not belong to user or they are on a free account (limits only accessible to org owner)
             inviteWarning.dom.innerHTML = '';
@@ -262,7 +264,7 @@ editor.once('load', () => {
     });
 
     // register panel with project popup
-    editor.call('picker:project:registerMenu', 'team', 'Team', panel);
+    editor.call('picker:project:registerMenu', 'team', 'Team', panel, 'Team');
 
     // hide button if the user doesn't have the right permissions
     if (!editor.call('permissions:read')) {
@@ -373,15 +375,6 @@ editor.once('load', () => {
         activeRoleButton = null;
     });
 
-    const addMeAsAdminButton = new Button({
-        class: 'add-me-as-admin',
-        text: 'ADD ME AS ADMIN',
-        icon: 'E375',
-        hidden: true,
-        enabled: false
-    });
-    panel.append(addMeAsAdminButton);
-
     // CONTROLLERS
 
     // sorts collaborators based on ownership, access level and finally full name
@@ -411,31 +404,6 @@ editor.once('load', () => {
             }
             return 1;
         });
-    };
-
-    // allows a project with 'none' access level to be claimed by the current user
-    const addAdmin = (project) => {
-        const newCollaborator = {
-            user: config.self.username,
-            access_level: 'admin'
-        };
-        editor.call(
-            'users:createCollaborator',
-            project.id,
-            newCollaborator,
-            () => {
-                project.permissions.admin.push(config.self.username);
-                collaborators.push(config.self.username);
-                project.access_level = 'admin';
-                addMeAsAdminButton.hidden = true;
-                editor.call('picker:project:close');
-                editor.emit('picker:team:membership', currentProject);
-                editor.emit('projects:changed');
-            },
-            (err) => {
-                editor.call('picker:project:buildAlert', panel, err);
-            }
-        );
     };
 
     // creates a collaborator in the database through API call and calls createCollaboratorUI to render it on screen
@@ -711,10 +679,6 @@ editor.once('load', () => {
 
             updateLabels();
         });
-
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', false);
-        }
     });
 
     // on hide
@@ -722,18 +686,6 @@ editor.once('load', () => {
         roleMenu.hidden = true;
         destroyEvents();
         editor.call('picker:project:hideAlerts');
-
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', true);
-        }
-    });
-
-    editor.on('viewport:hover', (state) => {
-        if (state && !panel.hidden) {
-            setTimeout(() => {
-                editor.emit('viewport:hover', false);
-            }, 0);
-        }
     });
 
     // show the project management picker

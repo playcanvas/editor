@@ -419,33 +419,14 @@ editor.once('load', () => {
     // EVENTS
 
     // load and show data
+    // an editor-blocking picker while it's up, so hotkeys and the viewport leave it alone
     overlay.on('show', () => {
-        // open picker
         editor.emit('picker:open', 'project-new');
-
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', false);
-        }
     });
 
-    // clean up
     overlay.on('hide', () => {
-        editor.emit('picker:close', 'project-new'); // close panel
-
+        editor.emit('picker:close', 'project-new');
         editor.call('picker:project:hideAlerts');
-
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', true);
-        }
-    });
-
-    // prevent viewport hovering when the picker is shown
-    editor.on('viewport:hover', (state) => {
-        if (state && !overlay.hidden) {
-            setTimeout(() => {
-                editor.emit('viewport:hover', false);
-            }, 0);
-        }
     });
 
     // the fork dialog is the sidebar alone, without the kit grid

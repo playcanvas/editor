@@ -409,9 +409,6 @@ editor.once('load', () => {
     panel.on('show', () => {
         editor.call('picker:project:showThumbnailControls');
         projectSettingsChanged = false;
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', false);
-        }
     });
 
     // on hide
@@ -425,18 +422,6 @@ editor.once('load', () => {
         editor.call('picker:project:hideAlerts');
         editor.call('picker:project:hideThumbnailControls');
         projectSettingsChanged = false;
-
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', true);
-        }
-    });
-
-    editor.on('viewport:hover', (state) => {
-        if (state && !panel.hidden) {
-            setTimeout(() => {
-                editor.emit('viewport:hover', false);
-            }, 0);
-        }
     });
 
     // the footer, so pages can add their own actions

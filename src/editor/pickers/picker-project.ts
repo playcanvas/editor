@@ -3,22 +3,16 @@ import { Button, Container, Element, Label, Overlay, Panel } from '@playcanvas/p
 import { bytesToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
-const MENU_LABELS = new Map([
-    ['project-main', 'Project settings'],
-    ['scenes', 'Scenes'],
-    ['version control', 'Version control'],
-    ['builds-publish', 'Builds & Publish'],
-    ['team', 'Team'],
-    ['dev-log', 'Dev log']
-]);
-
 editor.once('load', () => {
     // GLOBAL VARIABLES
     let projectSettingsListMenu; // used to enable hot reload of sidebar menu text upon project name change
     let currentProject; // used to display project stats
     let currentUser;
-    // set by picker:project:open: the menus to show (all when unset), and whether to show stats and thumbnail controls
-    let view: { menus?: string[]; stats?: boolean; thumbnails?: boolean } = {};
+    // set by picker:project:open: the menus to show (all when unset), whether to show stats, and the thumbnail
+    // controls: always shown, shown on hover, or off (the default)
+    let view: { menus?: string[]; stats?: boolean; thumbnails?: 'shown' | 'hover' } = {};
+    // whether the picker may close right now; pages set it, e.g. the editor stays open until a scene loads
+    let canClose = () => true;
     let alerts = []; // list of alerts
     const EMPTY_THUMBNAIL_IMAGE = `url('${config.url.frontend}static/img/blank-project.webp')`;
     const FULLSCREEN_KEY = 'editor:picker:project:fullscreen';
@@ -108,25 +102,12 @@ editor.once('load', () => {
             replaceButton.style.marginRight = '6px';
         }
 
-        // a limited set of menus means another project's settings, opened over the projects page
-        const other = !!view.menus;
-        overlay.class[other ? 'add' : 'remove']('other-project');
-        if (other) {
-            btnClose.hidden = false;
-        }
-
-        // thumbnail controls for its owner, or for the project open in this editor
-        const ownsThumbnail =
-            (currentProject.access_level === 'admin' && currentProject.owner_id === config.self.id) ||
-            currentProject.id === config.project.id;
-        thumbnailButtons.enabled = view.thumbnails !== false && ownsThumbnail;
-        if (other) {
-            thumbnailButtons.style.opacity = thumbnailButtons.enabled ? '1' : '0';
-        }
+        thumbnailButtons.enabled = !!view.thumbnails;
+        thumbnailButtons.style.opacity = view.thumbnails === 'shown' ? '1' : '0';
 
         for (const key in menuOptions) {
             if (!menuOptions[key].panelOnly) {
-                menuOptions[key].item.hidden = other && !view.menus.includes(key);
+                menuOptions[key].item.hidden = !!view.menus && !view.menus.includes(key);
             }
         }
 
@@ -438,7 +419,7 @@ editor.once('load', () => {
 
         currentSelection = name;
 
-        // reset closable state; setClosable keeps it shut while a scene still has to be picked
+        // reset closable state; the page's close rule can still keep it shut
         editor.call('picker:project:setClosable', true);
 
         // hide all first
@@ -523,7 +504,7 @@ editor.once('load', () => {
                 menuItemText.textContent = value;
             }
         });
-        menuItem.text = MENU_LABELS.get(name) || displayName || name;
+        menuItem.text = displayName || name;
         menuItem.dom.appendChild(menuItemText);
 
         if (title === 'PROJECT SETTINGS') {
@@ -583,27 +564,16 @@ editor.once('load', () => {
         closeCallback = fn;
     });
 
-    // pages add their own buttons under the menu
+    // pages add their own buttons under the menu, and their own classes
     editor.method('picker:project:leftPanel', () => leftPanel);
+    editor.method('picker:project:overlay', () => overlay);
+
+    editor.method('picker:project:setCloseRule', (fn: () => boolean) => {
+        canClose = fn;
+    });
 
     // the open menu
     editor.method('picker:project:selected', () => currentSelection);
-
-    // helper method to determine whether no admin view should be displayed
-    editor.method('picker:project:showNoAdmin', (project, collaborators) => {
-        let userIsCollaborator = false;
-        collaborators.forEach((collaborator) => {
-            if (collaborator.id === currentUser.id) {
-                userIsCollaborator = true;
-            }
-        });
-        return (
-            editor.call('project:management:isOrgAdmin', project.owner_id, currentUser) &&
-            !project.locked &&
-            collaborators.length >= 0 &&
-            !userIsCollaborator
-        );
-    });
 
     // close popup
     editor.method('picker:project:close', () => {
@@ -629,9 +599,9 @@ editor.once('load', () => {
         overlay.clickable = suspendClickable;
     });
 
-    // prevent user closing popup; an editor with no scene open keeps it shut, unless it shows another project
+    // prevent user closing popup; the page's close rule can keep it shut too
     editor.method('picker:project:setClosable', (closable) => {
-        const open = closable && (!!view.menus || !config.scene || !!config.scene.id);
+        const open = closable && canClose();
         btnClose.hidden = !open;
         overlay.clickable = open;
     });
@@ -652,7 +622,7 @@ editor.once('load', () => {
     // hook to retrieve project settings sidebar menu element (to enable hot reloading)
     editor.method('picker:project:updateProjectSettingsMenuItem', (newName) => {
         projectTitle.text = newName;
-        projectSettingsListMenu.text = MENU_LABELS.get('project-main') || 'Project settings';
+        projectSettingsListMenu.text = 'Project settings';
     });
 
     // hook to upload project image
@@ -662,8 +632,8 @@ editor.once('load', () => {
 
     // hook to delete project image
     editor.method('picker:projects:deleteImage', () => {
-        config.project.thumbnails = {};
         projectImg.style.backgroundImage = EMPTY_THUMBNAIL_IMAGE;
+        editor.emit('picker:project:imageDeleted', currentProject);
     });
 
     // hook to get current project
@@ -714,14 +684,12 @@ editor.once('load', () => {
 
     // subscribe to project image
     editor.on('messenger:project.image', (data) => {
-        config.project.thumbnails = data.project.thumbnails;
         projectImg.style.backgroundImage = `url("${data.project.thumbnails && data.project.thumbnails.m}")`;
         projectImg.classList.remove('progress');
     });
 
     // subscribe to user project image (updates thumbnail on non-opened projects)
     editor.on('messenger:project.user.image', (data) => {
-        config.project.thumbnails = data.project.thumbnails;
         projectImg.style.backgroundImage = `url("${data.project.thumbnails && data.project.thumbnails.m}")`;
         projectImg.classList.remove('progress');
     });
