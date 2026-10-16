@@ -1,4 +1,4 @@
-import { config } from '@/editor/config';
+import { config } from '../../config';
 
 /** The tab the projects page runs in; projects never open in it. */
 export const PROJECTS_TAB = 'editor:projects';

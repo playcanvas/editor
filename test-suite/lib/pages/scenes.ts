@@ -97,7 +97,8 @@ export class ScenePicker {
         this.root = page.locator(PANEL);
         this.list = this.root.locator('.scene-list');
         this.newButton = this.root.locator('.toolbar .pcui-button.new');
-        this.stripButton = page.locator('.control-strip.top-left .control-strip-btn').last();
+        // the scene is the last item of the viewport breadcrumb (projects › project › branch › scene)
+        this.stripButton = page.locator('.control-strip.top-left .control-strip-crumbs .control-strip-btn').last();
     }
 
     armName() {
