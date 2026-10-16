@@ -7,6 +7,7 @@ import { config } from '@/editor/config';
 import { button } from './components/button';
 import { empty } from './components/empty';
 import { spinner } from './components/spinner';
+import { openProject as openProjectTab } from './tabs';
 
 const PAGE_SIZE = 24;
 const TABS = [
@@ -33,8 +34,7 @@ const PROMPTS = [
 ];
 const PROMPT = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
 // access you have to someone else's project; admin needs no badge, it's the default on yours and your orgs'
-const QUALIFIERS = ['name:', 'owner:', 'desc:', 'is:private', 'is:public', 'is:starred', 'is:open', 'is:locked'];
-const IS_EMPTY_STATE = !config.project.id; // if no project loaded, CMS is in empty state
+const QUALIFIERS = ['name:', 'owner:', 'desc:', 'is:private', 'is:public', 'is:starred', 'is:locked'];
 const EMPTY_THUMBNAIL_IMAGE = `${config.url.frontend}static/img/blank-project.webp`;
 const SIDE_KEY = 'editor:cms:sidebar:width';
 const SIDE_DEFAULT_W = 248;
@@ -53,7 +53,6 @@ editor.once('load', () => {
     let layout = 'grid';
     let shown = PAGE_SIZE;
     let rows = [];
-    let isSceneLoaded = !!config.scene?.id;
     let events = [];
     let loading = false;
     // first load: nothing to show yet, so counts stay blank instead of reading 0
@@ -78,7 +77,6 @@ editor.once('load', () => {
     };
     // shared projects can arrive without owner details, so skip empty parts instead of leaving a stray dot
     const joined = (...parts) => parts.filter(Boolean).join(' · ');
-    const isOpen = (project) => !IS_EMPTY_STATE && project.id === config.project.id;
     const isPending = (project) => project.new_owner_id != null || !!project.new_owner;
     // you, or an organization you're in, are being offered the project
     const isRecipient = (project) => project.new_owner_id === config.self.id || isOrg(project.new_owner_id);
@@ -106,7 +104,6 @@ editor.once('load', () => {
         private: (p) => p.private,
         public: (p) => !p.private,
         starred: (p) => !!p.star_id,
-        open: isOpen,
         locked: (p) => !!p.locked
     };
     const parseQuery = (query) => {
@@ -213,11 +210,6 @@ editor.once('load', () => {
         (img.dom as HTMLImageElement).alt = '';
         parent?.append(img);
         return img;
-    };
-    const liveDot = (parent: Container) => {
-        const dot = new Element({ class: 'cms-live' });
-        dot.dom.title = 'Open in the editor';
-        parent.append(dot);
     };
     // public is the default, so only private gets a badge
     const badges = (project, parent: Container) => {
@@ -378,14 +370,6 @@ editor.once('load', () => {
             cell.dom.title = title;
         }
     };
-    const editorUrl = (project) => {
-        let url = `${config.url.home}/editor/project/${project.id}`;
-        const params = new URLSearchParams(location.search);
-        if (params.has('use_local_frontend')) {
-            url += `?use_local_frontend=${params.get('use_local_frontend')}`;
-        }
-        return url;
-    };
     const canDelete = (project) => {
         return (
             project.owner_id === config.self.id ||
@@ -404,27 +388,12 @@ editor.once('load', () => {
             editor.call('picker:project:lockedView', project);
         } else if (project.access_level === 'none') {
             editor.call('picker:project:noAdmin', project);
-        } else if (IS_EMPTY_STATE || project.id !== config.project.id) {
+        } else {
             editor.call('picker:project:reduced', project);
-        } else {
-            editor.call('picker:project', 'project-main', true);
         }
     };
-    const returnToEditor = () => {
-        if (isSceneLoaded) {
-            editor.call('picker:project:close');
-        } else {
-            editor.call('picker:project');
-        }
-        overlay.hidden = true;
-    };
-    const openEditor = (project, newTab = false) => {
-        if (isOpen(project)) {
-            returnToEditor();
-        } else {
-            window.open(editorUrl(project), newTab ? '_blank' : '_self');
-        }
-    };
+    // projects never open in this tab: each gets its own, reused if it's already open
+    const openEditor = (project) => openProjectTab(project.id);
     const launch = (project) => {
         if (project.primary_app_url) {
             window.open(project.primary_app_url, '_blank');
@@ -586,8 +555,6 @@ editor.once('load', () => {
     // MAIN PANEL
 
     const main = box('cms-main', panel);
-    const banner = box('cms-banner', main);
-    banner.hidden = true;
     const scroll = new Element({ class: 'cms-scroll' });
     main.append(scroll);
     const rightPanel = box('cms-col'); // also the root for alerts from other pickers
@@ -769,7 +736,6 @@ editor.once('load', () => {
     ]);
     const showRowMenu = (project, anchor: Element) => {
         menuProject = project;
-        menuEntry(rowMenu, 'cms-row-editor').text = isOpen(project) ? 'Return to editor' : 'Open editor';
         menuEntry(rowMenu, 'cms-row-editor').enabled = !blocked(project);
         menuEntry(rowMenu, 'cms-row-launch').enabled = !!project.primary_app_url;
         menuEntry(rowMenu, 'cms-row-watch').text = project.watch_id ? 'Stop watching' : 'Watch';
@@ -915,9 +881,6 @@ editor.once('load', () => {
                 const item = box('cms-side-item', recentsList);
                 image(p.thumbnails?.s ?? p.thumbnails?.m ?? EMPTY_THUMBNAIL_IMAGE, 'cms-side-thumb', item);
                 text(p.name, 'cms-side-label', item);
-                if (isOpen(p)) {
-                    liveDot(item);
-                }
                 item.dom.title = p.name;
                 item.on('click', () => openProject(p));
             });
@@ -952,23 +915,9 @@ editor.once('load', () => {
             title.text = `${greeting()}, ${userName(rootUser)}`;
             subtitle.text = PROMPT;
         }
-        // the way back shows everywhere except home, where the welcome card already offers it
-        banner.hidden = IS_EMPTY_STATE || waiting() || (!org && rootProjects().some(isOpen));
     };
 
-    const renderBanner = () => {
-        banner.clear();
-        if (IS_EMPTY_STATE) {
-            return;
-        }
-        liveDot(banner);
-        text(`${config.project.name} is open in the editor`, 'cms-banner-text', banner);
-        const back = button({ kind: 'primary', size: 'sm', text: 'Return to editor' });
-        banner.append(back);
-        back.on('click', returnToEditor);
-    };
-
-    // the open project when inside the editor, otherwise the most recently edited one you can open
+    // the most recently edited project you can open
     const renderWelcome = () => {
         welcome.clear();
         const list = rootProjects();
@@ -985,26 +934,19 @@ editor.once('load', () => {
             return;
         }
         welcome.class.remove('skeleton');
-        const lead =
-            (!IS_EMPTY_STATE && list.find(isOpen)) ||
-            list.filter((p) => !blocked(p)).sort((a, b) => Date.parse(b.modified) - Date.parse(a.modified))[0];
+        const lead = list.filter((p) => !blocked(p)).sort((a, b) => Date.parse(b.modified) - Date.parse(a.modified))[0];
         welcome.hidden = !lead || isOrg(filter);
         if (!lead) {
             return;
         }
-        const open = isOpen(lead);
-        welcome.class[open ? 'add' : 'remove']('is-open');
         // framed so the hover zoom stays inside the rounded corners, like the card thumbnails
         image(lead.thumbnails?.m ?? EMPTY_THUMBNAIL_IMAGE, null, box('cms-welcome-thumb', welcome));
         const info = box('cms-welcome-info', welcome);
 
         // three groups: what the project is, its facts, then what you can do with it
         const titles = box('cms-welcome-titles', info);
-        text(open ? 'Currently open' : 'Continue editing', 'cms-eyebrow', titles);
+        text('Continue editing', 'cms-eyebrow', titles);
         const name = box('cms-welcome-name', titles);
-        if (open) {
-            liveDot(name);
-        }
         text(lead.name, null, name);
         badges(lead, name);
         if (lead.description) {
@@ -1033,39 +975,9 @@ editor.once('load', () => {
             fact('Forks', shortCount(lead.fork_count));
         }
         fact('Size', bytesToHuman(lead.size?.total ?? 0));
-        if (open) {
-            const scenes = box('cms-welcome-scenes', info);
-            const isCurrentScene = (s: { id: number }) => String(s.id) === String(config.scene?.id);
-            // labelled like the facts; only shown when there's another scene to switch to
-            editor.call('scenes:list', (items: { id: number; name: string }[]) => {
-                if (!items || items.length < 2) {
-                    return;
-                }
-                text('Scenes', 'cms-fact-label', scenes);
-                const chips = box('cms-welcome-scene-chips', scenes);
-                const current = items.filter(isCurrentScene);
-                [...current, ...items.filter((s) => !isCurrentScene(s))].slice(0, 3).forEach((scene) => {
-                    const chip = new Button({ class: 'cms-scene', text: scene.name });
-                    chip.class[isCurrentScene(scene) ? 'add' : 'remove']('current');
-                    chip.dom.title = isCurrentScene(scene) ? 'Open now' : `Open ${scene.name} in the editor`;
-                    chips.append(chip);
-                    chip.on('click', (e) => {
-                        e.stopPropagation();
-                        if (isCurrentScene(scene)) {
-                            returnToEditor();
-                        } else {
-                            window.location.href = `/editor/scene/${scene.id}${location.search}`;
-                        }
-                    });
-                });
-                if (items.length > 3) {
-                    text(`+${items.length - 3} more`, 'cms-welcome-scenes-more', chips);
-                }
-            });
-        }
         // actions sit under the details so the card reads as one unit on wide screens
         const actions = box('cms-welcome-actions', info);
-        const edit = button({ kind: 'primary', icon: 'E130', text: open ? 'Return to editor' : 'Open editor' });
+        const edit = button({ kind: 'primary', icon: 'E130', text: 'Open editor' });
         actions.append(edit);
         edit.dom.addEventListener('mousedown', (e) => e.stopPropagation());
         edit.on('click', (e) => {
@@ -1117,9 +1029,6 @@ editor.once('load', () => {
         const pending = isPending(project);
         if (pending) {
             text(pendingText(project)[0], ['cms-badge', 'transfer'], tags);
-        }
-        if (isOpen(project)) {
-            liveDot(thumb);
         }
 
         // pending transfers get a badge and a byline instead of a cover
@@ -1186,9 +1095,6 @@ editor.once('load', () => {
         const info = box(pending ? ['cms-row-info', 'has-actions'] : 'cms-row-info', row);
         const textCol = pending ? box('cms-row-text', info) : info;
         const name = box('cms-row-name', textCol);
-        if (isOpen(project)) {
-            liveDot(name);
-        }
         text(project.name, null, name);
         badges(project, name);
         text(
@@ -1239,7 +1145,6 @@ editor.once('load', () => {
 
     const cardState = (project) =>
         [
-            isOpen(project) && 'is-open',
             project.disabled && 'is-off',
             (project.locked || project.access_level === 'none') && !isPending(project) && 'is-dim'
         ].filter(Boolean);
@@ -1498,40 +1403,15 @@ editor.once('load', () => {
 
     // EVENTS
 
-    overlay.on('show', () => {
-        if (config.scene && config.scene.id) {
-            isSceneLoaded = true;
-        }
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', false);
-        }
-    });
-
     overlay.on('hide', () => {
         destroyEvents();
         toggleStoragePopover(false);
         searchInput.value = '';
         setFilter('all');
         editor.call('picker:project:hideAlerts');
-
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', true);
-        }
     });
 
-    // prevent viewport hovering when picker is shown
-    editor.on('viewport:hover', (state) => {
-        if (state && !overlay.hidden) {
-            setTimeout(() => {
-                editor.emit('viewport:hover', false);
-            }, 0);
-        }
-    });
-
-    // only an editor with a scene loaded has somewhere to go back to
-    const canReturn = () => !IS_EMPTY_STATE && isSceneLoaded;
-
-    // focus search with /, go back to the scene with esc, both only when no dialog or menu sits on top
+    // focus search with /, only when no dialog or menu sits on top
     window.addEventListener('keydown', (e) => {
         if (
             overlay.hidden ||
@@ -1545,21 +1425,6 @@ editor.once('load', () => {
         if (e.key === '/') {
             e.preventDefault();
             searchInput.focus();
-        } else if (e.key === 'Escape' && canReturn()) {
-            returnToEditor();
-        }
-    });
-
-    editor.method('picker:project:cms:close', () => {
-        overlay.hidden = true;
-    });
-
-    // the all projects shortcut opens the page, and from the page goes back to the scene
-    editor.method('picker:project:cms:toggle', () => {
-        if (overlay.hidden) {
-            editor.call('picker:project:cms');
-        } else if (canReturn()) {
-            returnToEditor();
         }
     });
 
@@ -1612,7 +1477,6 @@ editor.once('load', () => {
             rootUser = user;
             currentUser = rootUser;
             filter = 'all';
-            renderBanner();
             refresh();
             loadProjects();
             renderUsage();
@@ -1646,9 +1510,8 @@ editor.once('load', () => {
         return panel;
     });
 
-    editor.method('picker:project:cms:refreshProjects', () => {
-        refreshUI();
-    });
+    // settings, team and transfer changes elsewhere on the page
+    editor.on('projects:changed', () => refreshUI());
 
     editor.method('picker:project:cms:toggleProgress', (toggle) => {
         toggleProgress(toggle);

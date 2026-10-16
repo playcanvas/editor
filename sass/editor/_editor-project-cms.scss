@@ -37,16 +37,6 @@
         white-space: nowrap;
     }
 
-    .cms-live {
-        flex: none;
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background-color: $text-active;
-        box-shadow: 0 0 0 2px rgb(255 102 0 / 28%);
-        animation: cms-pulse 2s ease-in-out infinite;
-    }
-
     .cms-badge,
     .cms-row-name > .pcui-label.cms-badge,
     .cms-welcome-name > .pcui-label.cms-badge {
@@ -382,23 +372,6 @@
         min-width: 0;
     }
 
-    .cms-banner {
-        display: flex;
-        flex: none;
-        flex-direction: row;
-        align-items: center;
-        gap: 10px;
-        height: 40px;
-        padding: 0 16px 0 20px;
-        border-bottom: 1px solid $border-primary;
-        background-color: rgb(255 102 0 / 8%);
-        font-size: 12px;
-
-        & > .pcui-button {
-            margin-left: auto;
-        }
-    }
-
     .cms-scroll {
         flex: 1;
         min-height: 0;
@@ -528,9 +501,6 @@
             }
         }
 
-        &.is-open {
-            border-color: $text-active;
-        }
     }
 
     // project thumbnails are square; keep them uncropped
@@ -584,58 +554,6 @@
 
         & > .pcui-label:not(.cms-badge) {
             @extend .font-bold;
-        }
-    }
-
-    .cms-welcome-scenes {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-
-        &:empty {
-            display: none;
-        }
-    }
-
-    .cms-welcome-scene-chips {
-        display: flex;
-        flex-flow: row wrap;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .cms-welcome-scenes-more {
-        color: $text-meta;
-        font-size: 12px;
-    }
-
-    // outlined like the other controls on the card; the open scene gets the live dot's colour
-    .cms-scene {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        height: 28px;
-        margin: 0;
-        padding: 0 10px;
-        border: 1px solid $cms-edge;
-        border-radius: 6px;
-        background-color: transparent;
-        color: $text-secondary;
-        font-size: 12px;
-        line-height: 26px;
-
-        @include cms-outlined-hover;
-
-        &.current {
-            color: $text-primary;
-
-            &::before {
-                content: '';
-                width: 6px;
-                height: 6px;
-                border-radius: 50%;
-                background-color: $text-active;
-            }
         }
     }
 
@@ -959,10 +877,6 @@
             @extend %cms-hover-zoom;
         }
 
-        &.is-open {
-            border-color: $text-active;
-        }
-
         &.is-off {
             opacity: $element-opacity-disabled;
             cursor: default;
@@ -993,13 +907,6 @@
             transition: transform $cms-zoom-ease;
         }
 
-        & > .cms-live {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            width: 10px;
-            height: 10px;
-        }
     }
 
     .cms-card-tags {
@@ -1596,11 +1503,6 @@
         animation-delay: 360ms;
     }
 
-    @media (prefers-reduced-motion: reduce) {
-        .cms-live {
-            animation: none;
-        }
-    }
 }
 
 .pcui-menu.cms-menu {

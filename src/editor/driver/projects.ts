@@ -100,7 +100,7 @@ driver.method('project:update', async (projectId: number, input: Record<string, 
     }
     try {
         const project: any = await api.rest.projects.projectUpdate({ projectId, ...fields } as any).promisify();
-        editor.call('picker:project:cms:refreshProjects');
+        editor.emit('projects:changed');
         return { data: summary(project) };
     } catch (e) {
         return { error: message(e) };

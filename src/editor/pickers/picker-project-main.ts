@@ -103,7 +103,7 @@ editor.once('load', () => {
             'projects:unlockOne',
             currentProject.id,
             () => {
-                editor.call('picker:project:cms:refreshProjects');
+                editor.emit('projects:changed');
                 editor.call('picker:project:close');
             },
             (err) => {
@@ -337,22 +337,6 @@ editor.once('load', () => {
         exportProject();
     });
 
-    // delete project button
-    const deleteProjectButton = button({
-        kind: 'secondary',
-        tone: 'danger',
-        icon: 'E124',
-        text: 'Delete Project',
-        enabled: false,
-        hidden: true
-    });
-    deleteProjectButton.dom.id = 'delete-project-button';
-    actionButtonsContainer.append(deleteProjectButton);
-
-    deleteProjectButton.on('click', () => {
-        editor.call('picker:project:modal:deleteProjectConfirmation', currentProject);
-    });
-
     // CONTROLLERS
 
     // overwrites project settings values based on argument passed (useful for failed saves)
@@ -425,9 +409,6 @@ editor.once('load', () => {
     panel.on('show', () => {
         editor.call('picker:project:showThumbnailControls');
         projectSettingsChanged = false;
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', false);
-        }
     });
 
     // on hide
@@ -435,30 +416,16 @@ editor.once('load', () => {
         destroyEvents();
 
         if (projectSettingsChanged) {
-            editor.call('picker:project:cms:refreshProjects');
+            editor.emit('projects:changed');
         }
 
         editor.call('picker:project:hideAlerts');
         editor.call('picker:project:hideThumbnailControls');
         projectSettingsChanged = false;
-
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', true);
-        }
     });
 
-    editor.on('viewport:hover', (state) => {
-        if (state && !panel.hidden) {
-            setTimeout(() => {
-                editor.emit('viewport:hover', false);
-            }, 0);
-        }
-    });
-
-    // show the CMS view for the main project picker
-    editor.method('picker:project:main:cmsView', () => {
-        exportProjectButton.enabled = !exportDisabled();
-    });
+    // the footer, so pages can add their own actions
+    editor.method('picker:project:main:actions', () => actionButtonsContainer);
 
     // show the main project picker
     editor.method('picker:project:main', () => {
@@ -496,10 +463,6 @@ editor.once('load', () => {
             settingsContainer.style.display = 'flex';
             lockedContainer.style.display = 'none';
         }
-
-        // only show delete project button if not current project and admin
-        deleteProjectButton.hidden = currentProject.id === config.project.id;
-        deleteProjectButton.enabled = currentProject.id !== config.project.id && isAdmin();
 
         projectNameInput.enabled = isAdmin();
         projectDescInput.enabled = isAdmin();
@@ -540,6 +503,11 @@ editor.once('load', () => {
         forkedFromLink.href = `${config.url.home}/editor/project/${currentProject.fork_from}`;
 
         initialLoad = false; // once initial load happens, reset flag
+
+        // the panel opened before the project loaded, so show the thumbnail controls now
+        if (!panel.hidden) {
+            editor.call('picker:project:showThumbnailControls');
+        }
     });
 
     // hook to get current private settings

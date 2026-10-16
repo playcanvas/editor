@@ -2,23 +2,22 @@ import { Container, Label } from '@playcanvas/pcui';
 
 import { button } from './components/button';
 import { dialog } from './components/dialog';
+import { openProject } from './tabs';
 
 const REPORT_LIMIT = 50;
 
 editor.once('load', () => {
     // GLOBAL VARIABLES
-    let projectURL;
-    const IS_EMPTY_STATE = config.project.id === null;
+    let projectId;
 
     // UI
 
-    const HEADER = IS_EMPTY_STATE ? 'PROJECT READY' : 'CLOSE CURRENT PROJECT';
+    const HEADER = 'PROJECT READY';
     const { overlay, panel, footer } = dialog({ title: HEADER, class: 'picker-modal-confirmation', confirm: true });
 
     // confirmation message
-    const readyText = IS_EMPTY_STATE
-        ? 'Your new project is ready. Open it now, or keep browsing your projects.'
-        : "Your new project is ready. Opening it closes the project you're working on.";
+    // projects open in their own tab, so opening one never closes what's open here
+    const readyText = 'Your new project is ready. It opens in a new tab.';
     const confirmationMessage = new Label({ text: readyText });
     panel.append(confirmationMessage);
 
@@ -27,7 +26,7 @@ editor.once('load', () => {
     panel.append(report);
 
     // continue button
-    const continueButton = button({ kind: 'secondary', text: IS_EMPTY_STATE ? 'Keep browsing' : 'Keep working' });
+    const continueButton = button({ kind: 'secondary', text: 'Not now' });
     footer.append(continueButton);
 
     continueButton.on('click', () => {
@@ -39,7 +38,8 @@ editor.once('load', () => {
     footer.append(openProjectButton);
 
     openProjectButton.on('click', () => {
-        window.open(projectURL, '_self').focus();
+        openProject(projectId);
+        overlay.hidden = true;
     });
 
     // CONTROLLERS
@@ -51,7 +51,8 @@ editor.once('load', () => {
 
     // method to display panel
     // a null project id means there's nothing to open, e.g. an import into an organization
-    editor.method('picker:project:newProjectConfirmation', (projectId, importReport = null) => {
+    editor.method('picker:project:newProjectConfirmation', (id, importReport = null) => {
+        projectId = id;
         report.clear();
         report.hidden = !importReport;
         panel.headerText = importReport ? 'PROJECT IMPORTED' : HEADER;
@@ -88,12 +89,7 @@ editor.once('load', () => {
             }
         }
         openProjectButton.hidden = !projectId;
-        continueButton.text = projectId ? (IS_EMPTY_STATE ? 'Keep browsing' : 'Keep working') : 'Close';
-        projectURL = `/editor/project/${projectId}`;
-        const params = new URLSearchParams(location.search);
-        if (params.has('use_local_frontend')) {
-            projectURL += `?use_local_frontend=${params.get('use_local_frontend')}`;
-        }
+        continueButton.text = projectId ? 'Not now' : 'Close';
         overlay.hidden = false;
     });
 });

@@ -71,7 +71,7 @@ editor.once('load', () => {
     // ---- layout ----
     const panel = new Container({ class: ['picker-version-control', 'picker-vc'], flex: true });
     installEllipsisTooltips(panel.dom);
-    editor.call('picker:project:registerMenu', 'version control', 'Version Control', panel);
+    editor.call('picker:project:registerMenu', 'version control', 'Version Control', panel, 'Version control');
 
     if (!editor.call('permissions:read')) {
         editor.call('picker:project:toggleMenu', 'version control', false);

@@ -136,7 +136,7 @@ editor.once('load', () => {
                 toggleLoader(false);
                 overlay.hidden = true;
                 editor.call('picker:project:close');
-                editor.call('picker:project:cms:refreshProjects');
+                editor.emit('projects:changed');
             },
             (err) => {
                 toggleLoader(false);

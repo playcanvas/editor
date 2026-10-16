@@ -332,6 +332,7 @@ import './pickers/picker-curve';
 import './pickers/picker-entity';
 import './pickers/picker-node';
 import './pickers/picker-project';
+import './pickers/picker-project-editor';
 
 // project management pickers
 import './pickers/project-management/project-management';
@@ -348,13 +349,9 @@ import './pickers/auditor/picker-auditor';
 
 import './pickers/picker-message';
 
-import './pickers/project-management/picker-cms';
+// project settings dialogs; the projects page and its other dialogs live in blank.ts
 import './pickers/project-management/picker-modal-new-project';
 import './pickers/project-management/picker-modal-new-project-confirmation';
-import './pickers/project-management/picker-modal-new-organization';
-import './pickers/project-management/picker-modal-delete-organization';
-import './pickers/project-management/picker-modal-delete-project-confirmation';
-import './pickers/project-management/picker-modal-transfer-project';
 import './pickers/project-management/picker-modal-delete-self-confirmation';
 import './pickers/project-management/picker-modal-visibility-confirmation';
 
