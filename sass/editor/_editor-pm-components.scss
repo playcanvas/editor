@@ -43,6 +43,11 @@
 
     @include cms-interactive;
 
+    // the display above would otherwise beat pcui's hidden state
+    &.pcui-hidden {
+        display: none;
+    }
+
     &[data-icon]::before {
         margin: 0;
         font-size: 12px;
