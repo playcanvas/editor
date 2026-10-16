@@ -171,6 +171,8 @@ export type EditorBlankConfig = {
     metrics: Metrics;
     oneTrustDomainKey: string;
     wasmModules: WasmModule[];
+    /** The projects the projects page's built-in kits fork on this environment; 0 or missing when there is none. */
+    starterKits?: { blank: number; modelViewer: number; vr: number };
 };
 
 export type EditorConfig = {

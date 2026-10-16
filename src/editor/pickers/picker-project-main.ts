@@ -1,6 +1,13 @@
-import { Element, Container, Label, Button, TextInput, TextAreaInput, BooleanInput } from '@playcanvas/pcui';
+import { Element, Container, Label, TextInput, TextAreaInput, BooleanInput } from '@playcanvas/pcui';
 
 import { config } from '@/editor/config';
+
+import { button } from './project-management/components/button';
+
+const DAY_MS = 86400000;
+const COPIED_MS = 1500;
+const ACTIVITY_DAYS = 28;
+const ACTIVITY_SLOTS = 288; // five-minute slots in a day, the unit the activity levels count
 
 editor.once('load', () => {
     // global variables
@@ -8,7 +15,10 @@ editor.once('load', () => {
     let projectSettingsChanged = false;
     let events = []; // holds events that need to be destroyed
     const IS_EMPTY_STATE = !config.project.id;
-    let currentProject = IS_EMPTY_STATE ? null : config.project;
+    // the api project carries more fields (access level, owner, fork source) than the editor config's
+    let currentProject: (typeof config.project & Record<string, unknown>) | null = IS_EMPTY_STATE
+        ? null
+        : config.project;
     let projectSettings = {
         id: IS_EMPTY_STATE ? -1 : currentProject.id,
         name: IS_EMPTY_STATE ? '' : currentProject.name,
@@ -73,13 +83,18 @@ editor.once('load', () => {
     const lockedText = new Label({
         class: 'locked-text'
     });
-    lockedText.dom.innerHTML = `This project is locked. Unlocking this project will make it public. Another way of unlocking is to <a href="${config.url.home}/upgrade" target="_blank">UPGRADE</a>`;
     lockedContainer.append(lockedText);
 
-    const unlockButton = new Button({
-        icon: 'E340',
-        text: 'Unlock'
-    });
+    // personal plans unlock by dropping members without a subscription; other plans unlock by going public
+    const setLockedText = (owner) => {
+        const upgrade = `<a href="${config.url.home}/upgrade?account=${encodeURIComponent(owner?.username ?? '')}" target="_blank">UPGRADE</a>`;
+        lockedText.dom.innerHTML =
+            owner?.plan_type === 'personal'
+                ? "This project is locked. Unlocking it removes everyone who doesn't have a PlayCanvas subscription."
+                : `This project is locked. Unlocking this project will make it public. Another way of unlocking is to ${upgrade}`;
+    };
+
+    const unlockButton = button({ kind: 'primary', icon: 'E340', text: 'Unlock' });
     lockedContainer.append(unlockButton);
     lockedContainer.style.display = 'none'; // hide by default
 
@@ -88,7 +103,7 @@ editor.once('load', () => {
             'projects:unlockOne',
             currentProject.id,
             () => {
-                editor.call('picker:project:cms:refreshProjects');
+                editor.emit('projects:changed');
                 editor.call('picker:project:close');
             },
             (err) => {
@@ -194,34 +209,83 @@ editor.once('load', () => {
     });
     privateSettings.dom.appendChild(privateToggle.dom);
 
-    // project url
-    const projectURLSettings = new Element({
-        class: 'horizontal-container'
+    // only shown when the project already keeps its source assets private; admins can turn it off
+    const privateAssetsSettings = new Element({
+        class: 'horizontal-container',
+        hidden: true
     });
-    settingsContainer.append(projectURLSettings.dom);
-
-    const projectUrlLabel = new Label({
-        text: 'Share Project'
-    });
-    projectURLSettings.dom.appendChild(projectUrlLabel.dom);
-
-    const projectURLButton = new Button({
-        class: 'copy-url-button',
-        text: 'Copy URL'
-    });
-    projectURLSettings.dom.appendChild(projectURLButton.dom);
-
-    projectURLButton.on('click', () => {
-        navigator.clipboard.writeText(`${config.url.home}/editor/project/${currentProject.id}`).then(
+    settingsContainer.append(privateAssetsSettings.dom);
+    privateAssetsSettings.dom.appendChild(new Label({ text: 'Private Source Assets' }).dom);
+    const privateAssetsToggle = new BooleanInput({ type: 'toggle' });
+    privateAssetsSettings.dom.appendChild(privateAssetsToggle.dom);
+    privateAssetsToggle.on('change', (value) => {
+        if (initialLoad || value === !!currentProject.private_source_assets) {
+            return;
+        }
+        projectSettingsChanged = true;
+        editor.call(
+            'projects:save',
+            currentProject,
+            { private_source_assets: value },
             () => {
-                projectURLButton.class.add('copied');
-                setTimeout(() => projectURLButton.class.remove('copied'), 1500);
+                currentProject.private_source_assets = value;
             },
-            () => {
-                // intentionally empty
+            (err) => {
+                editor.call('picker:project:buildAlert', panel, `SAVE ERROR: ${err}`);
+                initialLoad = true;
+                privateAssetsToggle.value = !value;
+                initialLoad = false;
             }
         );
     });
+
+    // links to the project this one was forked from, when the caller can see it
+    const forkedFromSettings = new Element({
+        class: ['horizontal-container', 'forked-from'],
+        hidden: true
+    });
+    settingsContainer.append(forkedFromSettings.dom);
+    forkedFromSettings.dom.appendChild(new Label({ text: 'Forked From' }).dom);
+    // the project name links to it, with its owner after
+    const forkedFromValue = document.createElement('div');
+    forkedFromValue.className = 'forked-from-value';
+    forkedFromSettings.dom.appendChild(forkedFromValue);
+    const forkedFromLink = document.createElement('a');
+    forkedFromLink.target = '_blank';
+    forkedFromValue.appendChild(forkedFromLink);
+    const forkedFromOwner = document.createElement('div');
+    forkedFromOwner.className = 'forked-from-owner';
+    forkedFromValue.appendChild(forkedFromOwner);
+
+    // the last four weeks of editing, one cell a day, brighter for busier days
+    const activitySettings = new Element({
+        class: ['horizontal-container', 'activity'],
+        hidden: true
+    });
+    settingsContainer.append(activitySettings.dom);
+    activitySettings.dom.appendChild(new Label({ text: 'Activity' }).dom);
+    const activityStrip = document.createElement('div');
+    activityStrip.className = 'activity-strip';
+    activitySettings.dom.appendChild(activityStrip);
+
+    const renderActivity = (items: { day: number; level: number }[]) => {
+        const today = Math.floor(Date.now() / DAY_MS);
+        const levels = new Map(items.map((item) => [item.day, item.level]));
+        activityStrip.replaceChildren(
+            ...Array.from({ length: ACTIVITY_DAYS }, (_, i) => {
+                const day = today - (ACTIVITY_DAYS - 1 - i);
+                const level = levels.get(day) ?? 0;
+                const minutes = level * 5;
+                const cell = document.createElement('div');
+                cell.className = level ? 'active' : '';
+                cell.style.opacity = level ? String(0.25 + 0.75 * Math.min(1, level / ACTIVITY_SLOTS)) : '';
+                cell.title = `${new Date(day * DAY_MS).toLocaleDateString()}: ${
+                    !level ? 'no editing' : minutes < 60 ? `${minutes} min` : `${Math.round(minutes / 60)} h`
+                }`;
+                return cell;
+            })
+        );
+    };
 
     // action buttons container
     const actionButtonsContainer = new Container({
@@ -230,15 +294,36 @@ editor.once('load', () => {
     });
     panel.append(actionButtonsContainer);
 
+    // copy link, an icon button beside fork
+    const copyLinkButton = button({ kind: 'icon', label: 'Copy link', class: 'copy-link-button' });
+    actionButtonsContainer.append(copyLinkButton);
+    copyLinkButton.on('click', () => {
+        navigator.clipboard.writeText(`${config.url.home}/editor/project/${currentProject.id}`).then(
+            () => {
+                copyLinkButton.class.add('copied');
+                copyLinkButton.dom.title = 'Copied';
+                setTimeout(() => {
+                    copyLinkButton.class.remove('copied');
+                    copyLinkButton.dom.title = 'Copy link';
+                }, COPIED_MS);
+            },
+            () => {
+                // intentionally empty
+            }
+        );
+    });
+
+    const forkProjectButton = button({ kind: 'secondary', icon: 'E431', text: 'Fork Project' });
+    actionButtonsContainer.append(forkProjectButton);
+    forkProjectButton.on('click', () => {
+        editor.call('picker:project:fork', currentProject);
+    });
+
     const exportProjectButtonContainer = new Container({ flex: true });
     actionButtonsContainer.append(exportProjectButtonContainer);
 
     // export project button
-    const exportProjectButton = new Button({
-        class: 'full-width-button',
-        icon: 'E228',
-        text: getExportButtonText()
-    });
+    const exportProjectButton = button({ kind: 'secondary', icon: 'E228', text: getExportButtonText() });
     exportProjectButtonContainer.append(exportProjectButton);
 
     const loader = new Element({
@@ -250,21 +335,6 @@ editor.once('load', () => {
     exportProjectButton.on('click', () => {
         toggleLoader(true);
         exportProject();
-    });
-
-    // delete project button
-    const deleteProjectButton = new Button({
-        class: 'full-width-button',
-        icon: 'E124',
-        text: 'Delete Project',
-        enabled: false,
-        hidden: true
-    });
-    deleteProjectButton.dom.id = 'delete-project-button';
-    actionButtonsContainer.append(deleteProjectButton);
-
-    deleteProjectButton.on('click', () => {
-        editor.call('picker:project:modal:deleteProjectConfirmation', currentProject);
     });
 
     // CONTROLLERS
@@ -298,82 +368,22 @@ editor.once('load', () => {
 
     // handles the flow for project exporting as well as managing error and loading states
     const exportProject = () => {
-        let jobId;
-        let downloadURL;
-        let exportError;
-
         const isCurrentProject = currentProject && currentProject.id === config.project.id;
         const hasVersionControl = isCurrentProject && !config.project.settings.useLegacyScripts;
         const branchId = hasVersionControl ? config.self.branch.id : undefined;
 
-        editor.call(
-            'projects:export',
-            currentProject.id,
-            branchId,
-            (job) => {
-                jobId = job.id;
-
-                // when job is updated get the job
-                const evt = editor.on('messenger:job.update', (msg) => {
-                    if (msg.job.id === jobId) {
-                        evt.unbind();
-
-                        // get job
-                        editor.api.globals.rest.jobs
-                            .jobGet({ jobId: job.id })
-                            .on('load', (status, job) => {
-                                if (job.status === 'complete') {
-                                    downloadURL = job.data.url;
-                                    window.open(downloadURL, '_blank');
-                                } else if (job.status === 'error') {
-                                    exportError = job.messages[0] || 'There was an error while importing';
-                                    editor.call('picker:project:buildAlert', panel, exportError);
-                                }
-
-                                toggleLoader(false);
-                            })
-                            .on('error', (error) => {
-                                editor.call('picker:project:buildAlert', panel, error);
-                            });
-                    }
-                });
-                events.push(evt);
-            },
-            (error) => {
-                exportError = `Error: ${error}`;
-                editor.call('picker:project:buildAlert', panel, exportError);
-                toggleLoader(false);
-            }
-        );
+        editor
+            .call('project:management:export', currentProject.id, branchId)
+            .then(
+                (url) => window.open(url, '_blank'),
+                (err) => editor.call('picker:project:buildAlert', panel, err)
+            )
+            .finally(() => toggleLoader(false));
     };
 
     // LOCAL UTILS
 
-    // helper method to determine whether a current user can export a project based on access level
-    const exportDisabled = () => {
-        // only logged in users
-        if (!config.self) {
-            return true;
-        }
-
-        // always allow super users
-        if (config.self.flags.superUser) {
-            return false;
-        }
-
-        // only allow if we have write or admin access
-        if (currentProject.access_level !== 'write' && currentProject.access_level !== 'admin') {
-            return true;
-        }
-
-        // only allow if we are viewing our project list or one of our orgs' project list
-        if (!editor.call('project:management:showOwnerView')) {
-            return true;
-        }
-
-        // all good -- export it
-        return false;
-    };
+    const exportDisabled = () => !editor.call('project:management:canExport', currentProject);
 
     // helper method to delete all outstanding events on close
     const destroyEvents = () => {
@@ -399,9 +409,6 @@ editor.once('load', () => {
     panel.on('show', () => {
         editor.call('picker:project:showThumbnailControls');
         projectSettingsChanged = false;
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', false);
-        }
     });
 
     // on hide
@@ -409,30 +416,16 @@ editor.once('load', () => {
         destroyEvents();
 
         if (projectSettingsChanged) {
-            editor.call('picker:project:cms:refreshProjects');
+            editor.emit('projects:changed');
         }
 
         editor.call('picker:project:hideAlerts');
         editor.call('picker:project:hideThumbnailControls');
         projectSettingsChanged = false;
-
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', true);
-        }
     });
 
-    editor.on('viewport:hover', (state) => {
-        if (state && !panel.hidden) {
-            setTimeout(() => {
-                editor.emit('viewport:hover', false);
-            }, 0);
-        }
-    });
-
-    // show the CMS view for the main project picker
-    editor.method('picker:project:main:cmsView', () => {
-        exportProjectButton.enabled = !exportDisabled();
-    });
+    // the footer, so pages can add their own actions
+    editor.method('picker:project:main:actions', () => actionButtonsContainer);
 
     // show the main project picker
     editor.method('picker:project:main', () => {
@@ -457,6 +450,12 @@ editor.once('load', () => {
 
         // only show locked view if locked project
         if (currentProject.locked) {
+            setLockedText(null);
+            editor.call('users:loadOne', currentProject.owner_id, (owner) => {
+                if (owner.id === editor.call('picker:project:getCurrent')?.owner_id) {
+                    setLockedText(owner);
+                }
+            });
             lockedContainer.style.display = 'flex';
             settingsContainer.style.display = 'none';
         } else {
@@ -464,10 +463,6 @@ editor.once('load', () => {
             settingsContainer.style.display = 'flex';
             lockedContainer.style.display = 'none';
         }
-
-        // only show delete project button if not current project and admin
-        deleteProjectButton.hidden = currentProject.id === config.project.id;
-        deleteProjectButton.enabled = currentProject.id !== config.project.id && isAdmin();
 
         projectNameInput.enabled = isAdmin();
         projectDescInput.enabled = isAdmin();
@@ -482,7 +477,37 @@ editor.once('load', () => {
         exportProjectButton.enabled = !exportDisabled();
         exportProjectButton.text = getExportButtonText();
 
+        forkProjectButton.hidden = !!currentProject.locked;
+        copyLinkButton.hidden = !!currentProject.locked;
+
+        privateAssetsSettings.hidden = !currentProject.private_source_assets;
+        privateAssetsToggle.value = !!currentProject.private_source_assets;
+        privateAssetsToggle.enabled = isAdmin();
+
+        activitySettings.hidden = true;
+        if (currentProject.access_level !== 'none') {
+            const id = currentProject.id;
+            editor.call('projects:activity', id, (data) => {
+                if (id === currentProject.id) {
+                    renderActivity(data.result ?? []);
+                    activitySettings.hidden = false;
+                }
+            });
+        }
+
+        forkedFromSettings.hidden = !currentProject.fork_from_name;
+        forkedFromLink.textContent = String(currentProject.fork_from_name ?? '');
+        forkedFromOwner.textContent = currentProject.fork_from_username
+            ? `by ${currentProject.fork_from_username}`
+            : '';
+        forkedFromLink.href = `${config.url.home}/editor/project/${currentProject.fork_from}`;
+
         initialLoad = false; // once initial load happens, reset flag
+
+        // the panel opened before the project loaded, so show the thumbnail controls now
+        if (!panel.hidden) {
+            editor.call('picker:project:showThumbnailControls');
+        }
     });
 
     // hook to get current private settings

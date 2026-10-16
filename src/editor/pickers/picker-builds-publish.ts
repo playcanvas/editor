@@ -429,7 +429,7 @@ editor.once('load', () => {
     };
 
     // register panel with project popup
-    editor.call('picker:project:registerMenu', 'builds-publish', 'Builds', panel, 'BUILDS & PUBLISH');
+    editor.call('picker:project:registerMenu', 'builds-publish', 'Builds', panel, 'Builds & Publish');
     editor.call('picker:project:registerPanel', 'build-detail', 'Build Details', detailPanel);
 
     // hide button if the user doesn't have the right permissions

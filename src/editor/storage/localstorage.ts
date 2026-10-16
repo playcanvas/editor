@@ -1,4 +1,4 @@
-import { LocalStorage } from '@/editor-api';
+import { LocalStorage } from '@/editor-api/localstorage';
 
 editor.once('load', () => {
     const ls = new LocalStorage();
@@ -14,8 +14,9 @@ editor.once('load', () => {
     });
 
     // Set a key-value pair in localStorage
+    // values are JSON-encoded, so flags and numbers store as well as objects and strings
     editor.method('localStorage:set', (key: string, value: unknown) => {
-        return ls.set(key, value);
+        return ls.set(key, value as object | string);
     });
 
     // Remove a key from the local storage

@@ -1,0 +1,275 @@
+@use 'sass:color';
+
+// projects page components (src/editor/pickers/project-management/components), shared by the page,
+// its dialogs, project settings and the MCP popover
+
+// rest, keyboard focus and hover for one button kind; :focus repeats rest so pcui's focus glow never shows
+@mixin pm-button-kind($bg, $border, $color, $hover-bg, $hover-border: $border, $hover-color: $text-primary) {
+    &,
+    &:not(.pcui-disabled, .pcui-readonly):focus,
+    &:not(.pcui-disabled, .pcui-readonly):active {
+        border-color: $border;
+        background-color: $bg;
+        color: $color;
+        box-shadow: none;
+    }
+
+    &:not(.pcui-disabled, .pcui-readonly):hover {
+        border-color: $hover-border;
+        background-color: $hover-bg;
+        color: $hover-color;
+        box-shadow: none;
+    }
+}
+
+.pcui-button.pm-button {
+    @extend .font-regular;
+
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 32px;
+    max-height: none; // pcui caps buttons at their row's height; these sizes are fixed
+    margin: 0;
+    padding: 0 14px;
+    border-radius: $radius-control;
+    font-size: 13px;
+    line-height: 1;
+
+    // spinner() sits over the label while the button is busy
+    position: relative;
+
+    @include cms-interactive;
+
+    // the display above would otherwise beat pcui's hidden state
+    &.pcui-hidden {
+        display: none;
+    }
+
+    &[data-icon]::before {
+        margin: 0;
+        font-size: 12px;
+        line-height: 1;
+    }
+
+    &.sm {
+        height: 26px;
+        padding: 0 10px;
+        font-size: 12px;
+    }
+
+    &.primary {
+        @include pm-button-kind($text-active, transparent, $text-primary, $cms-primary-hover);
+    }
+
+    &.secondary {
+        @include pm-button-kind($cms-surface, $bcg-darkest, $text-secondary, $cms-hover, $text-darkest);
+    }
+
+    &.ghost {
+        @include pm-button-kind(transparent, transparent, $text-secondary, $cms-hover);
+    }
+
+    &.danger {
+        @include pm-button-kind($error-secondary, transparent, $text-primary, $danger-hover);
+    }
+
+    &.secondary.tone-danger {
+        @include pm-button-kind(transparent, $danger-edge, $danger-text, $danger-fill, $danger-edge, $danger-text);
+    }
+
+    &.ghost.tone-danger {
+        @include pm-button-kind(transparent, transparent, $danger-text, $danger-fill, transparent, $danger-text);
+    }
+
+    &.icon {
+        width: 28px;
+        height: 28px;
+        padding: 0;
+
+        @include pm-button-kind(transparent, transparent, $text-dark, $cms-hover);
+
+        &[data-icon]::before {
+            font-size: 14px;
+        }
+
+        &.sm {
+            width: 24px;
+            height: 24px;
+
+            &[data-icon]::before {
+                font-size: 12px;
+            }
+        }
+    }
+}
+
+// on cards and rows the default hover fill is too close to the surface, so step up once more
+.cms-row,
+.cms-card,
+.cms-welcome {
+    .pcui-button.pm-button.icon,
+    .pcui-button.pm-button.ghost {
+        &:not(.pcui-disabled, .pcui-readonly):hover {
+            background-color: $cms-edge;
+        }
+    }
+}
+
+// dialog(): title bar, content in a 20px column, footer pinned after the content
+.pcui-overlay.pm-dialog {
+    z-index: $z-dialog;
+
+    &.confirm {
+        z-index: $z-confirm;
+    }
+
+    > .pcui-overlay-content {
+        width: min(440px, calc(100vw - 32px));
+        border: 1px solid $border-primary;
+        box-shadow: $cms-float-shadow;
+    }
+
+    &.wide > .pcui-overlay-content {
+        width: min(480px, calc(100vw - 32px));
+    }
+
+    .pm-dialog-panel {
+        > .pcui-panel-header {
+            @extend %dialog-header;
+        }
+
+        > .pcui-panel-content {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 20px;
+            color: $text-secondary;
+            font-size: 13px;
+            line-height: 18px;
+
+            > .pcui-label {
+                margin: 0;
+                color: inherit;
+                white-space: normal;
+            }
+        }
+    }
+
+    .pm-dialog-footer {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        order: 1;
+        gap: 8px;
+        margin: 8px 0 0;
+    }
+}
+
+// callout(): a boxed warning or danger message
+.pm-callout {
+    margin: 0;
+    padding: 8px 10px;
+    border: 1px solid;
+    border-radius: $radius-control;
+    font-size: 12px;
+    line-height: 16px;
+    white-space: normal;
+
+    &.warn {
+        border-color: $warn-edge;
+        background-color: $warn-fill;
+        color: $warn-text;
+    }
+
+    &.danger {
+        border-color: $danger-edge;
+        background-color: $danger-fill;
+        color: $danger-text;
+    }
+}
+
+// spinner(): 12px inline, 16px md; white and centred inside a filled button
+.pm-spinner {
+    flex: none;
+    width: 12px;
+    height: 12px;
+    border: 2px solid $cms-edge;
+    border-top-color: $text-active;
+    border-radius: 50%;
+    box-sizing: border-box;
+    animation: cms-spin 700ms linear infinite;
+
+    &.md {
+        width: 16px;
+        height: 16px;
+    }
+
+    // a static quarter ring still reads as busy
+    @media (prefers-reduced-motion: reduce) {
+        animation: none;
+        border-right-color: $text-active;
+    }
+
+    &.pcui-hidden {
+        display: none;
+    }
+}
+
+.pcui-button > .pm-spinner {
+    position: absolute;
+    inset: 0;
+    width: 14px;
+    height: 14px;
+    margin: auto;
+    border-color: rgb(255 255 255 / 35%);
+    border-top-color: $text-primary;
+}
+
+// empty(): a dashed box with an icon, title, help text and one action
+.pm-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 40px 24px;
+    border: 1px dashed $empty-edge;
+    border-radius: $radius-surface;
+    box-sizing: border-box;
+    color: $text-meta;
+    font-size: 13px;
+    text-align: center;
+
+    > .pcui-label {
+        margin: 0;
+        white-space: normal;
+    }
+
+    > .pm-empty-title {
+        @extend .font-bold;
+
+        color: $text-primary;
+        font-size: 14px;
+    }
+
+    > .pm-empty-text {
+        max-width: 40ch;
+        color: inherit;
+    }
+
+    > .pcui-button {
+        margin-top: 8px;
+    }
+}
+
+.pm-empty-icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: $bcg-darkest;
+    color: $text-dark;
+}

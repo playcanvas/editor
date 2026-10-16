@@ -1,0 +1,1978 @@
+@use 'sass:color';
+
+.pcui-overlay.picker-project-cms {
+    // a full-screen page: pin to the window so content above the layout root (a banner)
+    // can't push it down or let the document scroll it out of view
+    position: fixed;
+    inset: 0;
+    z-index: $z-page;
+
+    // component rules below set display, so hidden elements need to win explicitly
+    .pcui-hidden {
+        display: none !important;
+    }
+
+    & > .pcui-overlay-content {
+        width: 100%;
+        height: 100%;
+        max-width: none;
+        max-height: none;
+        border-radius: 0;
+    }
+
+    .cms-root {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        background-color: $bcg-darker;
+        color: $text-secondary;
+        font-size: 13px;
+    }
+
+    .pcui-label {
+        margin: 0;
+        color: inherit;
+        font-size: inherit;
+        line-height: inherit;
+        white-space: nowrap;
+    }
+
+    .cms-badge,
+    .cms-row-name > .pcui-label.cms-badge,
+    .cms-welcome-name > .pcui-label.cms-badge {
+        display: inline-flex;
+        flex: none;
+        align-items: center;
+        height: 18px;
+        padding: 0 6px;
+        border: 1px solid $cms-edge;
+        border-radius: $radius-badge;
+        box-sizing: border-box;
+        background-color: color.change($bcg-darkest, $alpha: 0.88);
+        color: $text-dark;
+        font-size: 11px;
+        line-height: 1;
+        text-transform: uppercase;
+
+        // caps have no descenders, so trim to cap height to centre them optically
+        text-box: trim-both cap alphabetic;
+
+        &.locked {
+            color: $warn-text;
+            border-color: $warn-edge;
+        }
+
+        &.disabled {
+            color: $danger-text;
+            border-color: $danger-edge;
+        }
+
+        &.info {
+            color: $info-text;
+            border-color: $info-edge;
+        }
+    }
+
+
+    // the three-dot glyph on button({ kind: 'icon' }) menus
+    .cms-kebab::before {
+        @extend %cms-mask-icon;
+
+        width: 14px;
+        height: 14px;
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='3' cy='8' r='1.4'/%3E%3Ccircle cx='8' cy='8' r='1.4'/%3E%3Ccircle cx='13' cy='8' r='1.4'/%3E%3C/svg%3E");
+    }
+
+    // sidebar
+
+    .cms-side {
+        display: flex;
+        flex: none;
+        flex-direction: column;
+        gap: 1px;
+        min-height: 0;
+        padding: 12px 10px 10px;
+        border-right: 1px solid $border-primary;
+        box-sizing: border-box;
+        background-color: $bcg-darkest;
+        overflow: hidden auto;
+    }
+
+    .cms-brand {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        height: 36px;
+        padding: 0 8px;
+        color: $text-primary;
+        font-size: 15px;
+
+        // bare orange mark, same as playcanv.as and its favicon; 22px wide like the nav icon slot, so the name lines up with the labels below
+        & > .cms-logo {
+            width: 22px;
+            height: 24px;
+            background: url('../static/img/playcanvas-mark.svg') center / contain no-repeat;
+        }
+
+        & > .cms-brand-name {
+            @extend .font-bold;
+        }
+    }
+
+    .cms-new,
+    .cms-nav {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        height: 32px;
+        margin: 0;
+        padding: 0 8px;
+        border: none;
+        border-radius: 6px;
+        background: transparent;
+        color: $text-secondary;
+        font-size: 13px;
+        line-height: 32px;
+        text-align: left;
+
+        &[data-icon]::before {
+            width: 22px;
+            margin: 0;
+            color: $text-dark;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        @include cms-ghost-hover;
+
+        // the active item shares the hover fill; its orange icon tells them apart
+        &.active {
+            background-color: $cms-fill-on-page;
+            color: $text-primary;
+        }
+
+        &.active[data-icon]::before {
+            color: $text-active;
+        }
+    }
+
+    .cms-new {
+        height: 36px;
+        margin: 10px 0 0;
+        color: $text-primary;
+
+        // a plain orange plus in the same 22px slot as the nav icons; orange marks the primary action
+        &[data-icon]::before {
+            @extend %cms-mask-icon;
+
+            width: 12px;
+            height: 12px;
+            margin: 0 5px;
+            background-color: $text-active;
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 1v10M1 6h10'/%3E%3C/svg%3E");
+
+            // centre on the capitals rather than the line box
+            transform: translateY(-0.5px);
+        }
+    }
+
+    // sits under new project, then a gap before the nav
+    .cms-import {
+        margin-bottom: 8px;
+    }
+
+    .cms-section > .pcui-label {
+        @extend .font-bold;
+    }
+
+    .cms-section {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        height: 28px;
+        margin-top: 14px;
+        padding: 0 8px;
+        color: $text-dark;
+        font-size: 11px;
+        text-transform: uppercase;
+
+        @extend .font-bold;
+    }
+
+
+    .cms-side-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+    }
+
+    .cms-side-item {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        height: 32px;
+        padding: 0 8px;
+        border-radius: 6px;
+        cursor: pointer;
+
+        @include cms-ghost-hover;
+
+        &.active {
+            background-color: $cms-fill-on-page;
+            color: $text-primary;
+        }
+    }
+
+    .cms-side-thumb {
+        flex: none;
+        width: 22px;
+        height: 22px;
+        border-radius: 4px;
+        object-fit: cover;
+        background-color: $bcg-darker;
+    }
+
+    .cms-side-label {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .cms-side-count {
+        color: $text-dark;
+        font-size: 11px;
+    }
+
+    .cms-gap {
+        flex: 1;
+        min-height: 12px;
+    }
+
+    .cms-storage {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        margin-bottom: 8px;
+        padding: 10px 10px 11px;
+        border: 1px solid $border-primary;
+        border-radius: 8px;
+        background-color: $bcg-darker;
+        color: $text-dark;
+        font-size: 12px;
+        cursor: pointer;
+
+        @include cms-interactive;
+
+        // a clickable surface, so it gets the card ring, and the same ring for keyboard focus
+        &:hover,
+        &:focus-visible,
+        &.open {
+            @extend %cms-hover-ring;
+
+            outline: none;
+        }
+
+        & > .progress-icon {
+            align-self: center;
+        }
+    }
+
+    .cms-storage-row {
+        display: flex;
+        flex-direction: row;
+        align-items: baseline;
+        justify-content: space-between;
+    }
+
+    .cms-storage-title {
+        color: $text-primary;
+
+        @extend .font-bold;
+    }
+
+    .cms-storage-upgrade {
+        color: $text-active;
+    }
+
+    .cms-me {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        padding: 4px 4px 0 6px;
+    }
+
+    .cms-me-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        cursor: pointer;
+
+        @include cms-interactive;
+
+        &:hover {
+            box-shadow: 0 0 0 2px $text-active;
+        }
+    }
+
+    .cms-me-text {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .cms-me-name {
+        color: $text-primary;
+
+        @extend .font-bold;
+    }
+
+    .cms-me-plan {
+        color: $text-dark;
+        font-size: 11px;
+    }
+
+    .cms-me > .pcui-button.mcp-account {
+        display: inline-grid;
+        flex: none;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        margin: 0 -6px 0 0;
+        padding: 0;
+        border: none;
+        border-radius: 6px;
+        background: transparent;
+        color: $text-dark;
+        box-shadow: none;
+
+        .mcp-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        @include cms-ghost-hover;
+
+        &.active {
+            color: #4ea86a;
+        }
+    }
+
+    // main panel
+
+    .cms-main {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .cms-scroll {
+        flex: 1;
+        min-height: 0;
+        overflow: hidden auto;
+        scrollbar-gutter: stable;
+    }
+
+    .cms-col {
+        display: flex;
+        flex-direction: column;
+        padding: 32px clamp(24px, 3vw, 56px) 48px;
+        box-sizing: border-box;
+    }
+
+    .progress-container {
+        position: sticky;
+        top: 0;
+        z-index: 4;
+
+        & > .progress {
+            margin: 0 0 12px;
+        }
+
+        &.progress-container-expand > .pcui-label {
+            display: block;
+            margin-bottom: 12px;
+            color: $text-secondary;
+        }
+    }
+
+    .cms-head {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 24px;
+    }
+
+    .cms-head-text {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .cms-title {
+        color: $text-primary;
+        font-size: 30px;
+        line-height: 36px;
+        letter-spacing: -0.01em;
+
+        @extend .font-bold;
+    }
+
+    .cms-subtitle {
+        margin-top: 6px;
+        color: $text-dark;
+        font-size: 14px;
+    }
+
+    // start screen: no projects yet, so the greeting and actions sit centred
+    .cms-col.start {
+        min-height: 100%;
+        justify-content: center;
+
+        > .cms-head {
+            flex-direction: column;
+            gap: 24px;
+            margin: 0 0 12vh;
+            text-align: center;
+
+            > .cms-head-text {
+                flex: none;
+                align-items: center;
+            }
+
+            .cms-title {
+                font-size: 36px;
+                line-height: 44px;
+            }
+
+            .cms-subtitle {
+                font-size: 15px;
+            }
+
+            > .cms-head-actions {
+                flex-direction: row-reverse;
+            }
+        }
+
+        > .cms-welcome,
+        > .cms-heading,
+        > .cms-toolbar,
+        > .cms-list,
+        > .cms-more {
+            display: none;
+        }
+    }
+
+    .cms-head-actions {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .cms-welcome {
+        display: grid;
+        grid-template-columns: 200px minmax(0, 1fr);
+        align-items: center;
+        gap: 28px;
+        margin-bottom: 28px;
+        padding: 16px 24px 16px 16px;
+        border: 1px solid $cms-edge;
+        border-radius: 8px;
+        background-color: $cms-surface;
+        cursor: pointer;
+        transition:
+            box-shadow $cms-ease,
+            border-color $cms-ease;
+
+        &:hover {
+            @extend %cms-hover-ring;
+
+            .cms-welcome-thumb > img {
+                @extend %cms-hover-zoom;
+            }
+        }
+
+    }
+
+    // project thumbnails are square; keep them uncropped
+    .cms-welcome-thumb {
+        width: 200px;
+        aspect-ratio: 1;
+        overflow: hidden;
+        border-radius: 6px;
+        background-color: $bcg-darkest;
+
+        > img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform $cms-zoom-ease;
+        }
+    }
+
+    // groups sit 18px apart; the 6px inside the title group keeps it reading as one block
+    .cms-welcome-info {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        min-width: 0;
+    }
+
+    .cms-welcome-titles {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
+    }
+
+    .cms-eyebrow {
+        color: $text-meta;
+        font-size: 11px;
+        text-transform: uppercase;
+
+        @extend .font-bold;
+    }
+
+    .cms-welcome-name {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        color: $text-primary;
+        font-size: 20px;
+        line-height: 26px;
+
+        & > .pcui-label:not(.cms-badge) {
+            @extend .font-bold;
+        }
+    }
+
+    .cms-welcome-desc {
+        overflow: hidden;
+        color: $text-secondary;
+        font-size: 14px;
+        line-height: 20px;
+        text-overflow: ellipsis;
+    }
+
+    // owner, edited, counts and size as small labels over their values
+    .cms-facts {
+        display: flex;
+        flex-flow: row wrap;
+        gap: 12px 32px;
+    }
+
+    .cms-fact {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-width: 0;
+    }
+
+    .cms-fact-label {
+        color: $text-meta;
+        font-size: 11px;
+    }
+
+    .cms-fact-value {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 6px;
+        color: $text-primary;
+        font-size: 13px;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+    }
+
+    .cms-welcome-actions {
+        display: flex;
+        flex-flow: row wrap;
+        gap: 8px;
+    }
+
+    .cms-heading {
+        margin-bottom: 4px;
+        color: $text-primary;
+        font-size: 14px;
+
+        @extend .font-bold;
+    }
+
+    // search, filter hints, tabs, sort and layout
+
+    .cms-toolbar {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        margin: 0 -8px 16px;
+
+        // room above the search once pinned to the top edge
+        padding: 16px 8px 12px;
+        background-color: $bcg-darker;
+        transition: box-shadow $cms-ease;
+
+        &.stuck {
+            box-shadow: 0 1px 0 $border-primary;
+        }
+    }
+
+    .cms-search {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        height: 44px;
+        padding: 0 10px 0 14px;
+        border: 1px solid $cms-edge;
+        border-radius: 8px;
+        background-color: $cms-surface;
+        transition: border-color $cms-ease;
+
+        &::before {
+            @extend %cms-mask-icon;
+
+            width: 16px;
+            height: 16px;
+            color: $text-dark;
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round'%3E%3Ccircle cx='7' cy='7' r='4.5'/%3E%3Cpath d='m14 14-3.6-3.6'/%3E%3C/svg%3E");
+        }
+
+        // inputs focus with an orange border, matching the hover ring
+        &:focus-within {
+            border-color: $text-active;
+        }
+    }
+
+    .cms-search-input {
+        flex: 1;
+        height: 100%;
+        margin: 0;
+        border: none;
+        background: transparent;
+        box-shadow: none;
+
+        & > input {
+            width: 100%;
+            padding: 0;
+            color: $text-primary;
+            font-family: inherit;
+            font-size: 14px;
+
+            @extend .font-regular;
+
+            &::placeholder {
+                color: $text-dark;
+            }
+        }
+
+        &:hover,
+        &.pcui-focus {
+            background: transparent;
+            box-shadow: none;
+        }
+    }
+
+    .cms-search-clear::before {
+        @extend %cms-mask-icon;
+
+        width: 12px;
+        height: 12px;
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M2.5 2.5l7 7M9.5 2.5l-7 7'/%3E%3C/svg%3E");
+    }
+
+    .cms-hints {
+        display: none;
+        flex-flow: row wrap;
+        align-items: center;
+        gap: 6px;
+        margin-top: 8px;
+        color: $text-dark;
+        font-size: 12px;
+    }
+
+    // only the search box opens the hints, so clicking a tab or sort doesn't shift the row mid-click
+    .cms-search:focus-within + .cms-hints,
+    .cms-toolbar.has-query .cms-hints {
+        display: flex;
+    }
+
+    .cms-hint {
+        height: 22px;
+        margin: 0;
+        padding: 0 7px;
+        border: 1px solid $cms-edge;
+        border-radius: 4px;
+        background-color: $bcg-darkest;
+        color: $text-secondary;
+        font-family: inconsolatamedium, Monaco, Menlo, monospace;
+        font-size: 12px;
+        line-height: 20px;
+
+        @include cms-outlined-hover($cms-fill-on-page);
+    }
+
+    .cms-hints-tip {
+        margin-left: auto;
+        color: $text-dark;
+    }
+
+    .cms-tools {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        margin-top: 14px;
+    }
+
+    .cms-tabs {
+        display: flex;
+        flex-direction: row;
+        gap: 4px;
+        margin-right: auto;
+    }
+
+    .cms-tab,
+    .cms-sort {
+        height: 30px;
+        margin: 0;
+        padding: 0 12px;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        background: transparent;
+        color: $text-dark;
+        font-size: 13px;
+        line-height: 28px;
+
+        @include cms-ghost-hover;
+
+        &.active {
+            border-color: $cms-edge;
+            background-color: $cms-surface;
+            color: $text-primary;
+        }
+    }
+
+    .cms-count {
+        margin-left: 6px;
+        color: $text-dark;
+        font-size: 11px;
+    }
+
+    .cms-sort-value {
+        margin-left: 4px;
+        color: $text-primary;
+    }
+
+    .cms-sort {
+        margin-left: auto;
+
+        &::after {
+            content: '\E159';
+            margin-left: 6px;
+            font-family: pc-icon;
+            font-size: 9px;
+        }
+    }
+
+    .cms-layout {
+        display: flex;
+        flex-direction: row;
+        padding: 2px;
+        border: 1px solid $cms-edge;
+        border-radius: 6px;
+        background-color: $bcg-darkest;
+    }
+
+    .cms-layout-button {
+        display: inline-grid;
+        place-items: center;
+        width: 28px;
+        height: 24px;
+        margin: 0;
+        padding: 0;
+        border: none;
+        border-radius: 4px;
+        background: transparent;
+        color: $text-dark;
+
+        // svg masks: the font's list glyph sits off-centre
+        &::before {
+            @extend %cms-mask-icon;
+
+            width: 14px;
+            height: 14px;
+        }
+
+        &.grid::before {
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M0 0h4v4H0zM5 0h4v4H5zM10 0h4v4h-4zM0 5h4v4H0zM5 5h4v4H5zM10 5h4v4h-4zM0 10h4v4H0zM5 10h4v4H5zM10 10h4v4h-4z'/%3E%3C/svg%3E");
+        }
+
+        &.list::before {
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M0 1h3v3H0zM4.5 1.5H14v2H4.5zM0 5.5h3v3H0zM4.5 6H14v2H4.5zM0 10h3v3H0zM4.5 10.5H14v2H4.5z'/%3E%3C/svg%3E");
+        }
+
+        @include cms-ghost-hover;
+
+        &.active {
+            background-color: $cms-edge;
+            color: $text-primary;
+        }
+    }
+
+    // cards (thumbnail first) and rows (one bordered list)
+
+    .cms-list {
+        &.grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        &.rows {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid $cms-edge;
+            border-radius: 8px;
+            background-color: $cms-surface;
+            overflow: hidden;
+        }
+
+        &.rows:has(> .cms-empty) {
+            border: none;
+            background: none;
+        }
+    }
+
+    .cms-card {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        border: 1px solid $cms-edge;
+        border-radius: 8px;
+        background-color: $cms-surface;
+        overflow: hidden;
+        outline: none;
+        cursor: pointer;
+        transition:
+            box-shadow $cms-ease,
+            border-color $cms-ease;
+
+        &:hover,
+        &:focus-visible {
+            @extend %cms-hover-ring;
+        }
+
+        &:not(.is-off):hover .cms-card-thumb > img {
+            @extend %cms-hover-zoom;
+        }
+
+        &.is-off {
+            opacity: $element-opacity-disabled;
+            cursor: default;
+
+            &:hover {
+                border-color: $cms-edge;
+                box-shadow: none;
+            }
+        }
+
+        &.is-dim .cms-card-thumb > img {
+            filter: grayscale(0.7) brightness(0.5);
+        }
+    }
+
+    .cms-card-thumb {
+        position: relative;
+        aspect-ratio: 1;
+        overflow: hidden;
+        border-bottom: 1px solid $cms-edge;
+        background-color: $bcg-darkest;
+
+        & > img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform $cms-zoom-ease;
+        }
+
+    }
+
+    .cms-card-tags {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        display: flex;
+        flex-direction: row;
+        gap: 4px;
+    }
+
+    // counts and size, in a darker strip under the card body; one row on every card so rows line up
+    .cms-card-foot {
+        box-sizing: border-box;
+        align-items: center;
+        min-height: 40px;
+        padding: 6px 12px 6px 14px;
+        border-top: 1px solid $cms-edge;
+        background-color: rgb(0 0 0 / 10%);
+    }
+
+    .cms-card-size {
+        margin-left: auto;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+    }
+
+    .cms-card-cover {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 12px;
+        background-color: rgb(32 41 43 / 55%);
+        font-size: 12px;
+        text-align: center;
+
+        & > .pcui-label {
+            white-space: normal;
+        }
+
+        &.locked::before {
+            @extend %cms-lock-icon;
+
+            width: 20px;
+            height: 20px;
+            margin-bottom: 6px;
+        }
+    }
+
+    .cms-cover-title {
+        color: $text-primary;
+
+        @extend .font-bold;
+    }
+
+    .cms-card-body {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 4px;
+        padding: 12px 14px 14px;
+    }
+
+    // the kebab overhangs the 20px name line so it doesn't make the card taller
+    .cms-card-title {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 4px;
+        min-width: 0;
+
+        > .cms-kebab {
+            margin: -4px -8px -4px auto;
+        }
+    }
+
+    .cms-card-name {
+        min-width: 0;
+        overflow: hidden;
+        color: $text-primary;
+        font-size: 14px;
+        line-height: 20px;
+        text-overflow: ellipsis;
+
+        @extend .font-bold;
+    }
+
+    .cms-card-desc {
+        display: -webkit-box;
+        min-height: 36px;
+        overflow: hidden;
+        color: $text-meta;
+        font-size: 12px;
+        line-height: 18px;
+        white-space: normal;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+
+        &.empty {
+            color: $text-meta;
+        }
+    }
+
+    .cms-card-meta {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        margin-top: 6px;
+        color: $text-meta;
+        font-size: 12px;
+    }
+
+    // avatars come in three sizes: 20 in lists and cards, 28 for your account, 32 on dev log posts
+    .cms-avatar {
+        flex: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+    }
+
+    // owner over edit time, beside the avatars
+    .cms-card-byline {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        gap: 1px;
+        min-width: 0;
+    }
+
+    .cms-card-owner {
+        min-width: 0;
+        overflow: hidden;
+        color: $text-secondary;
+        line-height: 15px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .cms-card-when {
+        overflow: hidden;
+        color: $text-meta;
+        font-size: 11px;
+        line-height: 14px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+
+        &.transfer {
+            color: $cms-transfer;
+        }
+    }
+
+    // forks, views and plays sit together at the end of the card meta
+    .cms-stats {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        color: $text-meta;
+        font-size: 12px;
+
+        > .cms-plays {
+            margin-left: 0;
+        }
+    }
+
+    .cms-forks,
+    .cms-views {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 4px;
+        font-variant-numeric: tabular-nums;
+
+        &::before {
+            content: '\E431';
+            font-family: pc-icon;
+            font-size: 11px;
+            line-height: 1;
+        }
+    }
+
+    .cms-views::before {
+        content: '\E117';
+    }
+
+    .cms-plays {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 4px;
+        margin-left: auto;
+        font-variant-numeric: tabular-nums;
+
+        &::before {
+            @extend %cms-mask-icon;
+
+            width: 9px;
+            height: 10px;
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 10'%3E%3Cpath d='M0 0v10l9-5z'/%3E%3C/svg%3E");
+        }
+    }
+
+
+    // accept / decline / cancel on a project that's changing hands
+    .cms-transfer {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+
+        &.outgoing {
+            grid-template-columns: 1fr;
+        }
+
+        > .pcui-button {
+            justify-content: center;
+            width: 100%;
+            margin: 0;
+        }
+    }
+
+    .cms-card-foot.cms-transfer {
+        padding-right: 12px;
+        padding-left: 12px;
+    }
+
+    .cms-badge.transfer {
+        border-color: rgb(255 102 0 / 55%);
+        color: $cms-transfer;
+    }
+
+    // the owner and other members, as one overlapping group
+    .cms-members {
+        display: inline-flex;
+        flex: none;
+        flex-direction: row;
+        align-items: center;
+
+        > .cms-avatar {
+            margin-left: -5px;
+            box-shadow: 0 0 0 2px $cms-surface;
+
+            &:first-child {
+                margin-left: 0;
+            }
+        }
+    }
+
+    .cms-members-more {
+        margin-left: 3px;
+        color: $text-meta;
+        font-size: 11px;
+    }
+
+    // star count that toggles your star; sized like the other stats, filled and orange once starred
+    .cms-star {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 4px;
+        height: auto;
+        margin: 0;
+        padding: 0;
+        border: none;
+        background: transparent;
+        color: $text-dark;
+        font-size: 12px;
+        line-height: normal;
+        font-variant-numeric: tabular-nums;
+
+        @include cms-interactive;
+
+        &::before {
+            @extend %cms-mask-icon;
+
+            width: 11px;
+            height: 11px;
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1.5l1.9 4.1 4.5.5-3.4 3 1 4.4L8 11.2l-4 2.3 1-4.4-3.4-3 4.5-.5z' fill='none' stroke='%23000' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E");
+        }
+
+        &:not(.pcui-disabled):hover {
+            background: transparent;
+            color: $text-primary;
+            box-shadow: none;
+        }
+
+        &.on {
+            color: $text-active;
+
+            &::before {
+                mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1.5l1.9 4.1 4.5.5-3.4 3 1 4.4L8 11.2l-4 2.3 1-4.4-3.4-3 4.5-.5z' stroke='%23000' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E");
+            }
+
+            &:not(.pcui-disabled):hover {
+                color: $text-active;
+            }
+        }
+    }
+
+    .cms-row {
+        display: grid;
+        grid-template-columns: 40px minmax(0, 1fr) 48px 56px 56px 56px 72px 120px 28px;
+        align-items: center;
+        gap: 14px;
+        padding: 10px 12px 10px 14px;
+        border-bottom: 1px solid $cms-edge;
+        cursor: pointer;
+
+        @include cms-interactive;
+
+        &:last-of-type {
+            border-bottom: none;
+        }
+
+        // a ring inside one bordered list would look wrong, so rows fill instead
+        &:hover {
+            background-color: $cms-fill-on-surface;
+        }
+
+        &:focus-visible {
+            outline-offset: -2px;
+        }
+
+        &.is-off {
+            opacity: $element-opacity-disabled;
+            cursor: default;
+        }
+
+        &.is-dim > .cms-row-thumb:not(.locked),
+        &.is-dim > .cms-row-thumb.locked > img {
+            filter: grayscale(0.7) brightness(0.55);
+        }
+    }
+
+    .cms-row-thumb {
+        width: 40px;
+        height: 40px;
+        border-radius: 4px;
+        object-fit: cover;
+        background-color: $bcg-darkest;
+
+        &.locked {
+            position: relative;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+
+            > img {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            &::after {
+                @extend %cms-lock-icon;
+
+                position: relative;
+                width: 14px;
+                height: 14px;
+            }
+        }
+    }
+
+    .cms-row-info {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+
+        // pending transfers: status on the left, buttons on the right, inside the name column
+        &.has-actions {
+            flex-direction: row;
+            align-items: center;
+            gap: 12px;
+        }
+    }
+
+    .cms-row-text {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .cms-row-actions {
+        display: flex;
+        flex: none;
+        gap: 6px;
+
+        > .pcui-button {
+            width: auto;
+        }
+    }
+
+    // column headers for the list
+    .cms-row.cms-row-head {
+        padding-top: 8px;
+        padding-bottom: 8px;
+        background-color: transparent;
+        cursor: default;
+
+        &:hover {
+            background-color: transparent;
+        }
+
+        > .pcui-label {
+            color: $text-dark;
+            font-size: 11px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        > .cms-row-head-name {
+            grid-column: 2;
+        }
+    }
+
+    .cms-row-name {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        color: $text-primary;
+        font-size: 14px;
+        line-height: 20px;
+
+        & > .pcui-label:not(.cms-badge) {
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            @extend .font-bold;
+        }
+    }
+
+    .cms-row-sub {
+        margin-top: 2px;
+        overflow: hidden;
+        color: $text-dark;
+        font-size: 12px;
+        text-overflow: ellipsis;
+    }
+
+    .cms-row-cell {
+        color: $text-dark;
+        font-size: 12px;
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+
+        &.muted {
+            opacity: 0.6;
+        }
+
+        // no value: a dash, or a zero count, in a quieter grey
+        &.dash,
+        &.cms-forks.zero {
+            color: $text-dark;
+        }
+    }
+
+    // empty() spans the whole grid
+    .cms-empty {
+        grid-column: 1 / -1;
+    }
+
+
+    .cms-more {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 56px;
+        margin-top: 8px;
+        color: $text-dark;
+        font-size: 12px;
+    }
+
+
+    // skeleton bones while projects load (version control pattern)
+    .cms-bone {
+        @extend %cms-bone;
+
+        &.thumb {
+            width: 100%;
+            height: 100%;
+            border-radius: 0;
+        }
+
+        &.line {
+            height: 10px;
+        }
+
+        &.title {
+            width: 55%;
+            height: 12px;
+        }
+
+        &.full {
+            width: 100%;
+        }
+
+        &.part {
+            width: 70%;
+        }
+
+        &.meta {
+            width: 40%;
+            margin-top: 8px;
+        }
+
+        &.stats {
+            width: 30%;
+        }
+
+        &.eyebrow {
+            width: 90px;
+        }
+
+        &.cell {
+            justify-self: end;
+            width: 48px;
+        }
+
+        &.label {
+            flex: 1;
+        }
+
+        &.row-thumb {
+            width: 40px;
+            height: 40px;
+        }
+
+        &.side-thumb {
+            width: 22px;
+            height: 22px;
+        }
+
+        &.welcome-thumb {
+            width: 200px;
+            aspect-ratio: 1;
+            border-radius: 6px;
+        }
+    }
+
+    .skeleton {
+        cursor: default;
+
+        &:hover {
+            border-color: $cms-edge;
+            background-color: transparent;
+            box-shadow: none;
+        }
+
+        .cms-card-body,
+        .cms-row-info,
+        .cms-welcome-info {
+            gap: 8px;
+        }
+
+        // welcome bones sized like the text they stand in for, not the full card width
+        .cms-welcome-info > .cms-bone {
+            &.title {
+                max-width: 220px;
+            }
+
+            &.part {
+                max-width: 360px;
+            }
+
+            &.meta {
+                max-width: 300px;
+            }
+        }
+    }
+
+    .cms-list > .skeleton:nth-child(2) .cms-bone,
+    .cms-side-list > .skeleton:nth-child(2) .cms-bone {
+        animation-delay: 120ms;
+    }
+
+    .cms-list > .skeleton:nth-child(3) .cms-bone,
+    .cms-side-list > .skeleton:nth-child(3) .cms-bone {
+        animation-delay: 240ms;
+    }
+
+    .cms-list > .skeleton:nth-child(n + 4) .cms-bone,
+    .cms-side-list > .skeleton:nth-child(n + 4) .cms-bone {
+        animation-delay: 360ms;
+    }
+
+}
+
+.pcui-menu.cms-menu {
+    z-index: $z-menu;
+
+    .pcui-menu-items {
+        border-color: $border-primary;
+        background-color: $cms-float;
+        box-shadow: $cms-float-shadow;
+    }
+
+    // inset rows: 4px in from the edge, rounded like badges
+    .pcui-menu-items {
+        padding: 4px;
+    }
+
+    .pcui-menu-item {
+        border: none;
+        background-color: transparent;
+    }
+
+    .pcui-menu-item-content {
+        border: none;
+        border-radius: $radius-badge;
+
+        @include cms-ghost-hover($cms-fill-on-surface);
+    }
+
+    // a full-width divider above the first item of each group
+    .pcui-menu-item.cms-menu-group {
+        margin: 4px -4px 0;
+        padding: 4px 4px 0;
+        border-top: 1px solid $border-primary;
+    }
+
+    // destructive rows: the danger tone, readable on the menu
+    .pcui-menu-item.delete > .pcui-menu-item-content {
+        > .pcui-label {
+            color: $danger-text;
+        }
+
+        &:not(.pcui-disabled):hover {
+            background-color: $danger-fill;
+        }
+    }
+}
+
+.pcui-container.cms-storage-popover.pcui-hidden {
+    display: none;
+}
+
+.pcui-container.cms-storage-popover {
+    position: fixed;
+    z-index: $z-menu;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 280px;
+    padding: 14px;
+    border: 1px solid $border-primary;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background-color: $cms-float;
+    box-shadow: $cms-float-shadow;
+    color: $text-secondary;
+    font-size: 12px;
+
+    .pcui-label {
+        margin: 0;
+        color: inherit;
+        font-size: inherit;
+        white-space: nowrap;
+    }
+
+    .cms-pop-head,
+    .cms-pop-big,
+    .cms-pop-row {
+        display: flex;
+        flex-direction: row;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .cms-pop-big {
+        justify-content: flex-start;
+        gap: 6px;
+    }
+
+    .cms-pop-title,
+    .cms-pop-used {
+        color: $text-primary;
+
+        @extend .font-bold;
+    }
+
+    .cms-pop-title {
+        font-size: 13px;
+    }
+
+    .cms-pop-used {
+        font-size: 20px;
+    }
+
+    .cms-pop-plan,
+    .cms-pop-of {
+        color: $text-meta;
+    }
+
+    .cms-pop-rows {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding-top: 8px;
+        border-top: 1px solid $bcg-primary;
+    }
+
+    .cms-pop-key {
+        color: $text-meta;
+        font-size: 11px;
+        text-transform: uppercase;
+
+        @extend .font-bold;
+    }
+
+    .cms-pop-row > .pcui-label:first-child {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .cms-pop-row > .value {
+        color: $text-primary;
+    }
+}
+
+.cms-bar {
+    height: 4px;
+    border-radius: 4px;
+    background-color: $bcg-primary;
+    overflow: hidden;
+
+    .cms-storage-popover & {
+        height: 6px;
+    }
+
+    & > .cms-bar-fill {
+        display: block;
+        height: 100%;
+        border-radius: 4px;
+        background-color: $text-active;
+    }
+}
+
+// mcp connect popover from the projects page account row (mcp/popover.ts), built from the same rows as the account menu
+.pcui-panel.mcp-popover.mcp-popover-account {
+    overflow: hidden;
+    border: 1px solid $border-primary;
+    border-radius: 6px;
+    background-color: $cms-float;
+    box-shadow: $cms-float-shadow;
+    font-size: 13px;
+
+    & > .pcui-panel-header {
+        height: 30px;
+        padding: 6px 12px 0;
+        border: none;
+        background: transparent;
+
+        & > .pcui-panel-header-title {
+            margin: 0;
+            padding: 0;
+            color: $text-primary;
+            font-size: 13px;
+            line-height: 30px;
+            text-transform: none;
+        }
+    }
+
+    & > .pcui-panel-content {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        padding: 0 12px 12px;
+        background: transparent;
+    }
+
+    .mcp-row,
+    .mcp-row:first-child {
+        gap: 8px;
+        height: 30px;
+        padding: 0;
+    }
+
+    .mcp-row-label {
+        width: 40px;
+        color: $text-meta;
+        font-size: 13px;
+    }
+
+    .mcp-status-value {
+        color: $text-secondary;
+        font-size: 13px;
+    }
+
+    // the small dialog field: 26px, 6px corners, orange focus border
+    .mcp-field {
+        @extend %dialog-input;
+
+        height: 26px;
+
+        & > input {
+            height: 24px;
+            padding: 0 8px;
+        }
+
+        &.pcui-disabled {
+            opacity: 1;
+
+            & > input {
+                color: $text-dark;
+            }
+        }
+    }
+
+    .mcp-hint {
+        padding: 4px 0;
+        font-size: 12px;
+    }
+
+    // button(): primary to connect, secondary to cancel or disconnect
+    .mcp-toggle {
+        display: flex;
+        width: 100%;
+        margin: 8px 0 0;
+    }
+}
+
+// project settings: forked-from link and the four-week activity strip
+.picker-project-main > .project-settings {
+    .forked-from-value {
+        display: flex;
+        flex-direction: row;
+        align-items: baseline;
+        gap: 6px;
+        min-width: 0;
+
+        > a {
+            overflow: hidden;
+            color: $text-active;
+            font-size: 13px;
+            text-decoration: none;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    .forked-from-owner {
+        flex: none;
+        color: $text-meta;
+        font-size: 12px;
+    }
+
+    .activity-strip {
+        display: grid;
+        grid-template-columns: repeat(28, 8px);
+        gap: 2px;
+
+        > div {
+            height: 16px;
+            border-radius: 2px;
+            background-color: $bcg-darkest;
+
+            &.active {
+                background-color: $text-active;
+            }
+        }
+    }
+}
+
+// dev log: newest first, a composer for new posts and edits
+.picker-project-dev-log {
+    box-sizing: border-box;
+    min-height: 100%;
+    padding: 16px 20px !important;
+    color: $text-primary;
+
+    &:not(.pcui-hidden) {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .dev-log-header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .dev-log-intro,
+    .dev-log-message {
+        margin: 0;
+        color: $text-secondary;
+        font-size: 13px;
+        white-space: normal;
+    }
+
+    .dev-log-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    // the dev log's speech bubble, as in the menu, inside empty()'s round icon
+    .dev-log-empty-icon {
+        &::before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            background-color: currentcolor;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='253.5 -1260 1293 1293'%3E%3Cpath transform='scale%281,-1%29' d='M701 536h323q40 0 54 36q4 11 4 29t-17 35t-41 17h-323q-23 0 -41 -17t-18 -41q0 -23 18 -41t41 -18zM701 771h451q24 -1 42 17t17 42q1 24 -17 42t-42 17h-451q-23 1 -41 -17t-18 -42t18 -42t41 -17zM518 1260h764q93 0 159 -66t66 -159v-630q0 -61 -30 -113t-82 -82%0At-113 -30h-396q-29 0 -51 -20l-191 -184q-16 -14 -35 -6t-19 30l2 117q0 27 -18 45t-56 18q-93 0 -159 66t-66 159v630q0 93 66 159t159 66z'/%3E%3C/svg%3E") center / contain no-repeat;
+        }
+    }
+
+    .dev-log-post,
+    .dev-log-editor {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 14px 16px;
+        border: 1px solid $border-primary;
+        border-radius: 8px;
+        background-color: $bcg-dark;
+    }
+
+    .dev-log-post-head {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .dev-log-avatar {
+        width: 32px;
+        height: 32px;
+        flex: none;
+        border-radius: 50%;
+    }
+
+    .dev-log-post-info {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+
+        > .pcui-label {
+            margin: 0;
+            white-space: normal;
+        }
+    }
+
+    .dev-log-post-title {
+        color: $text-primary;
+        font-size: 14px;
+
+        @extend .font-bold;
+    }
+
+    .dev-log-post-meta {
+        color: $text-meta;
+        font-size: 12px;
+    }
+
+    .dev-log-post-body {
+        color: $text-secondary;
+        font-size: 13px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+
+        p,
+        ul,
+        ol,
+        pre,
+        blockquote {
+            margin: 0 0 8px;
+        }
+
+        a {
+            color: $text-active;
+        }
+
+        img {
+            max-width: 100%;
+        }
+
+        code {
+            padding: 1px 4px;
+            border-radius: 4px;
+            background-color: $bcg-darkest;
+        }
+
+        pre > code {
+            display: block;
+            padding: 8px;
+            overflow-x: auto;
+        }
+    }
+
+    .dev-log-post-actions,
+    .dev-log-editor-actions {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    // same field as the dialogs: 6px corners and the orange focus border
+    .dev-log-title-input,
+    .dev-log-text-input {
+        width: 100%;
+        margin: 0;
+        border: 1px solid $border-primary;
+        border-radius: $radius-control;
+        background-color: $bcg-darker;
+        box-sizing: border-box;
+        box-shadow: none;
+        transition: border-color $cms-ease;
+
+        &.pcui-focus {
+            border-color: $text-active;
+            box-shadow: none;
+        }
+    }
+
+    .dev-log-title-input > input,
+    .dev-log-text-input > textarea {
+        @extend .font-regular;
+
+        color: $text-primary;
+        font-size: 13px;
+
+        &::placeholder {
+            color: $text-dark;
+        }
+    }
+
+    .dev-log-title-input > input {
+        padding: 0 10px;
+    }
+
+    .dev-log-text-input > textarea {
+        box-sizing: border-box;
+        width: 100%;
+        padding: 8px 10px;
+        line-height: 18px;
+    }
+
+    // the panel's flex rules would otherwise beat pcui's hidden state
+    .pcui-hidden {
+        display: none;
+    }
+
+    .dev-log-error {
+        margin: 0;
+        color: $danger-text;
+        font-size: 12px;
+        white-space: normal;
+    }
+}
