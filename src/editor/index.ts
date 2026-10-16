@@ -332,6 +332,7 @@ import './pickers/picker-curve';
 import './pickers/picker-entity';
 import './pickers/picker-node';
 import './pickers/picker-project';
+import './pickers/picker-project-editor';
 
 // project management pickers
 import './pickers/project-management/project-management';

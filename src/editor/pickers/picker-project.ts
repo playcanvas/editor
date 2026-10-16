@@ -3,9 +3,6 @@ import { Button, Container, Element, Label, Overlay, Panel } from '@playcanvas/p
 import { bytesToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
-import { button } from './project-management/components/button';
-import { openProject, openProjects } from './project-management/tabs';
-
 const MENU_LABELS = new Map([
     ['project-main', 'Project settings'],
     ['scenes', 'Scenes'],
@@ -20,12 +17,9 @@ editor.once('load', () => {
     let projectSettingsListMenu; // used to enable hot reload of sidebar menu text upon project name change
     let currentProject; // used to display project stats
     let currentUser;
-    let reducedView; // alternative CMS view
-    let noAdminView; // alternative 'none' access level view
-    let lockedView; // alternative locked view
+    // set by picker:project:open: the menus to show (all when unset), and whether to show stats and thumbnail controls
+    let view: { menus?: string[]; stats?: boolean; thumbnails?: boolean } = {};
     let alerts = []; // list of alerts
-
-    const IS_EMPTY_STATE = !config.project.id;
     const EMPTY_THUMBNAIL_IMAGE = `url('${config.url.frontend}static/img/blank-project.webp')`;
     const FULLSCREEN_KEY = 'editor:picker:project:fullscreen';
 
@@ -98,7 +92,10 @@ editor.once('load', () => {
         return alertContainer;
     };
 
-    // helper method to refresh project-specific UI components depending on current view
+    // you can edit the shown project (admin implies write)
+    const canWrite = () => currentProject?.access_level === 'write' || currentProject?.access_level === 'admin';
+
+    // fills the frame for the shown project; pages add their own parts on picker:project:refresh
     const refreshUI = () => {
         if (currentProject.thumbnails) {
             projectImg.style.backgroundImage = `url("${currentProject.thumbnails.m}")`;
@@ -111,124 +108,26 @@ editor.once('load', () => {
             replaceButton.style.marginRight = '6px';
         }
 
-        if (reducedView) {
-            btnClose.hidden = false; // show close button for modal
-
-            overlay.class.add('reduced-view');
-
-            // if not admin, don't display thumbnail controls
-            thumbnailButtons.enabled =
-                (currentProject.access_level === 'admin' && currentProject.owner_id === config.self.id) ||
-                currentProject.id === config.project.id;
-            thumbnailButtons.style.opacity =
-                (currentProject.access_level === 'admin' && currentProject.owner_id === config.self.id) ||
-                currentProject.id === config.project.id
-                    ? '1'
-                    : '0';
-
-            menuOptions.scenes.item.hidden = true;
-            if (!IS_EMPTY_STATE) {
-                menuOptions['builds-publish'].item.hidden = true;
-                menuOptions['version control'].item.hidden = true;
-            }
-
-            // ensure all reduced view panels are visible
-            for (const key in menuOptions) {
-                if (key === 'project-main' || key === 'team' || key === 'dev-log') {
-                    menuOptions[key].item.hidden = false;
-                }
-            }
-
-            projectCMSButton.enabled = false;
-            projectCMSButton.hidden = true;
-
-            editorBtn.enabled = true;
-            editorBtn.hidden = false;
-
-            playBtn.hidden = false;
-            playBtn.enabled = currentProject.primary_app_url;
-        } else if (noAdminView) {
+        // a limited set of menus means another project's settings, opened over the projects page
+        const other = !!view.menus;
+        overlay.class[other ? 'add' : 'remove']('other-project');
+        if (other) {
             btnClose.hidden = false;
+        }
 
-            // hide and disable thumbnail controls
-            thumbnailButtons.enabled = false;
-            thumbnailButtons.style.opacity = '0';
+        // thumbnail controls for its owner, or for the project open in this editor
+        const ownsThumbnail =
+            (currentProject.access_level === 'admin' && currentProject.owner_id === config.self.id) ||
+            currentProject.id === config.project.id;
+        thumbnailButtons.enabled = view.thumbnails !== false && ownsThumbnail;
+        if (other) {
+            thumbnailButtons.style.opacity = thumbnailButtons.enabled ? '1' : '0';
+        }
 
-            menuOptions['project-main'].item.hidden = true;
-            menuOptions.scenes.item.hidden = true;
-            if (menuOptions['builds-publish']) {
-                menuOptions['builds-publish'].item.hidden = true;
+        for (const key in menuOptions) {
+            if (!menuOptions[key].panelOnly) {
+                menuOptions[key].item.hidden = other && !view.menus.includes(key);
             }
-            if (menuOptions['version control']) {
-                menuOptions['version control'].item.hidden = true;
-            }
-
-            // ensure only team management panel is visible
-            menuOptions.team.item.hidden = false;
-            if (menuOptions['dev-log']) {
-                menuOptions['dev-log'].item.hidden = true;
-            }
-
-            projectCMSButton.enabled = false;
-            projectCMSButton.hidden = true;
-
-            editorBtn.enabled = false;
-            editorBtn.hidden = true;
-
-            playBtn.hidden = true;
-            playBtn.enabled = false;
-        } else if (lockedView) {
-            btnClose.hidden = false;
-
-            // hide and disable thumbnail controls
-            thumbnailButtons.enabled = false;
-            thumbnailButtons.style.opacity = '0';
-
-            menuOptions['project-main'].item.hidden = false;
-            menuOptions.scenes.item.hidden = true;
-            menuOptions.team.item.hidden = true;
-            if (menuOptions['dev-log']) {
-                menuOptions['dev-log'].item.hidden = true;
-            }
-            if (menuOptions['builds-publish']) {
-                menuOptions['builds-publish'].item.hidden = true;
-            }
-            if (menuOptions['version control']) {
-                menuOptions['version control'].item.hidden = true;
-            }
-
-            projectCMSButton.enabled = false;
-            projectCMSButton.hidden = true;
-
-            editorBtn.enabled = false;
-            editorBtn.hidden = true;
-
-            playBtn.hidden = true;
-            playBtn.enabled = false;
-        } else {
-            overlay.class.remove('reduced-view');
-
-            // if admin, enable thumbnail controls
-            thumbnailButtons.enabled =
-                (currentProject.access_level === 'admin' && currentProject.owner_id === config.self.id) ||
-                currentProject.id === config.project.id;
-
-            projectCMSButton.enabled = true;
-            projectCMSButton.hidden = false;
-
-            editorBtn.hidden = true;
-            editorBtn.enabled = false;
-
-            playBtn.hidden = true;
-            playBtn.enabled = false;
-
-            // ensure all panels are visible
-            for (const key in menuOptions) {
-                if (!menuOptions[key].panelOnly) {
-                    menuOptions[key].item.hidden = false;
-                }
-            }
-            editor.call('picker:project:main:cmsView');
         }
 
         if (statsContainer) {
@@ -237,6 +136,7 @@ editor.once('load', () => {
         editor.call('picker:project:main:refreshUI');
         editor.call('picker:team:management:refreshUI');
         buildProjectStatsUI();
+        editor.emit('picker:project:refresh', currentProject, view);
     };
 
     // overlay
@@ -289,11 +189,6 @@ editor.once('load', () => {
     // project image
     const projectImg = document.createElement('div');
     projectImg.classList.add('image');
-    if (!IS_EMPTY_STATE) {
-        projectImg.style.backgroundImage = config.project.thumbnails.m
-            ? `url("${config.project.thumbnails.m}")`
-            : EMPTY_THUMBNAIL_IMAGE;
-    }
     projectSummary.dom.appendChild(projectImg);
 
     const projectSummaryText = new Container({
@@ -301,10 +196,7 @@ editor.once('load', () => {
     });
     projectSummary.append(projectSummaryText);
 
-    const projectTitle = new Label({
-        class: 'project-name',
-        text: IS_EMPTY_STATE ? '' : config.project.name
-    });
+    const projectTitle = new Label({ class: 'project-name' });
     projectSummaryText.append(projectTitle);
 
     const buildProjectStatsUI = () => {
@@ -316,7 +208,7 @@ editor.once('load', () => {
         });
         projectSummary.append(statsContainer);
 
-        if (!noAdminView) {
+        if (view.stats !== false) {
             const forksLabel = new Label({
                 text: `${currentProject.fork_count}`,
                 class: 'forks-stat'
@@ -340,11 +232,7 @@ editor.once('load', () => {
     let uploadingImage = false;
 
     const uploadProjectImage = function (file: File) {
-        if (
-            (!IS_EMPTY_STATE && !editor.call('permissions:write')) ||
-            uploadingImage ||
-            currentProject.access_level !== 'admin'
-        ) {
+        if (uploadingImage || currentProject.access_level !== 'admin') {
             return;
         }
 
@@ -388,7 +276,7 @@ editor.once('load', () => {
     const dropRef = editor.call('drop:target', {
         ref: projectImg,
         filter: function (type: string, data: File[]) {
-            return editor.call('permissions:write') && leftPanel.enabled && !uploadingImage && type === 'files';
+            return canWrite() && leftPanel.enabled && !uploadingImage && type === 'files';
         },
         drop: function (type: string, data: File[]) {
             if (type !== 'files') {
@@ -419,7 +307,7 @@ editor.once('load', () => {
 
     projectImg.addEventListener('click', () => {
         if (
-            !editor.call('permissions:write') ||
+            !canWrite() ||
             !leftPanel.enabled ||
             currentProject.access_level !== 'admin' ||
             currentProject.owner_id !== config.self.id
@@ -484,47 +372,6 @@ editor.once('load', () => {
         class: ['ui-list', 'selectable']
     });
     leftPanel.dom.appendChild(list.dom);
-
-    // project CMS button
-    const projectCMSButton = new Button({
-        class: 'project-cms-button',
-        text: 'See all projects',
-        enabled: !reducedView,
-        hidden: reducedView
-    });
-    leftPanel.append(projectCMSButton);
-
-    // the projects page has its own tab, so this one keeps the open project
-    projectCMSButton.on('click', () => openProjects());
-
-    // editor CMS button
-    const editorBtn = button({
-        kind: 'primary',
-        class: 'cms-editor-button',
-        icon: 'E294',
-        text: 'Open editor',
-        enabled: reducedView,
-        hidden: !reducedView
-    });
-    leftPanel.append(editorBtn);
-
-    // projects open in their own tab, never this one
-    editorBtn.on('click', () => openProject(currentProject.id));
-
-    // launch button
-    const playBtn = button({
-        kind: 'primary',
-        class: 'cms-play-button',
-        icon: 'E286',
-        text: 'Play',
-        enabled: reducedView && currentProject.primary_app_url,
-        hidden: !reducedView
-    });
-    leftPanel.append(playBtn);
-
-    playBtn.on('click', () => {
-        window.open(currentProject.primary_app_url, '_blank');
-    });
 
     // right side panel
     const rightPanel = new Panel({
@@ -629,13 +476,8 @@ editor.once('load', () => {
         }
 
         projectImg.classList.remove('progress');
-        if (!IS_EMPTY_STATE) {
-            projectImg.style.backgroundImage = config.project.thumbnails.m
-                ? `url("${config.project.thumbnails.m}")`
-                : EMPTY_THUMBNAIL_IMAGE;
-        }
 
-        if (editor.call('permissions:write')) {
+        if (canWrite()) {
             projectImg.classList.add('hover');
         } else {
             projectImg.classList.remove('hover');
@@ -660,10 +502,7 @@ editor.once('load', () => {
             statsContainer.hidden = true;
         }
 
-        // reset flags
-        noAdminView = false;
-        reducedView = false;
-        lockedView = false;
+        view = {};
 
         // editor-blocking picker closed
         editor.emit('picker:close', 'project');
@@ -724,83 +563,28 @@ editor.once('load', () => {
         defaultMenuOption = name;
     });
 
-    // open popup
-    editor.method('picker:project', (option) => {
-        editor.call('projects:getOne', config.project.id, (res) => {
+    // shows a project's settings: its owner for the team panel, the menu to open, and which menus and controls to show
+    editor.method('picker:project:open', (id: number, ownerId: number, option?: string, options: typeof view = {}) => {
+        view = options;
+        editor.call('projects:getOne', id, (res) => {
             currentProject = res;
-
             refreshUI();
 
-            editor.call('users:loadOne', config.owner.id, (user) => {
+            editor.call('users:loadOne', ownerId, (user) => {
                 currentUser = user;
                 overlay.hidden = false;
             });
         });
-
-        if (option === 'version control') {
-            closeCallback = () => editor.call('vcgraph:isHidden');
-        } else {
-            closeCallback = null;
-        }
-
         select(option || defaultMenuOption);
     });
 
-    // open reduced functionality popup
-    editor.method('picker:project:reduced', (project) => {
-        editor.call('projects:getOne', project.id, (res) => {
-            currentProject = res;
-            reducedView = true;
-
-            editor.call('users:loadOne', config.self.id, (user) => {
-                currentUser = user; // change this variable name
-                overlay.hidden = false;
-            });
-
-            refreshUI();
-
-            select('project-main'); // select project settings panel
-        });
+    // a check run before clicks outside close the picker, e.g. version control holding it open
+    editor.method('picker:project:setCloseGuard', (fn: (() => boolean) | null) => {
+        closeCallback = fn;
     });
 
-    // open no admin popup
-    editor.method('picker:project:noAdmin', (project) => {
-        overlay.class.add('noAdminView');
-        editor.call('projects:getOne', project.id, (res) => {
-            currentProject = res;
-            noAdminView = true;
-
-            editor.call('users:loadOne', config.self.id, (user) => {
-                currentUser = user; // change this variable name
-                overlay.hidden = false;
-            });
-
-            refreshUI();
-            btnClose.hidden = false;
-
-            select('team'); // select project settings panel
-        });
-    });
-
-    // open locked view popup
-    editor.method('picker:project:lockedView', (project) => {
-        overlay.class.add('noAdminView');
-        editor.call('projects:getOne', project.id, (res) => {
-            currentProject = res;
-            lockedView = true;
-
-            editor.call('users:loadOne', config.self.id, (user) => {
-                currentUser = user;
-                overlay.hidden = false;
-            });
-
-            refreshUI();
-            btnClose.hidden = false;
-
-            select('project-main'); // select main project panel
-            thumbnailButtons.style.opacity = '0';
-        });
-    });
+    // pages add their own buttons under the menu
+    editor.method('picker:project:leftPanel', () => leftPanel);
 
     // helper method to determine whether no admin view should be displayed
     editor.method('picker:project:showNoAdmin', (project, collaborators) => {
@@ -820,7 +604,6 @@ editor.once('load', () => {
 
     // close popup
     editor.method('picker:project:close', () => {
-        overlay.class.remove('noAdminView');
         overlay.hidden = true;
     });
 
@@ -843,19 +626,11 @@ editor.once('load', () => {
         overlay.clickable = suspendClickable;
     });
 
-    // prevent user closing popup; with a project but no scene open it stays shut, unless it was
-    // opened for another project from the projects page, where closing goes back to the page
+    // prevent user closing popup; an editor with no scene open keeps it shut, unless it shows another project
     editor.method('picker:project:setClosable', (closable) => {
-        const open = closable && (IS_EMPTY_STATE || !!config.scene.id || reducedView || noAdminView);
+        const open = closable && (!!view.menus || !config.scene || !!config.scene.id);
         btnClose.hidden = !open;
         overlay.clickable = open;
-    });
-
-    // closing was disallowed while no scene was loaded, unless a version control operation holds it
-    editor.on('scene:load', () => {
-        if (leftPanel.enabled) {
-            editor.call('picker:project:setClosable', true);
-        }
     });
 
     // disable / enable the state of the left panel

@@ -337,22 +337,6 @@ editor.once('load', () => {
         exportProject();
     });
 
-    // delete project button
-    const deleteProjectButton = button({
-        kind: 'secondary',
-        tone: 'danger',
-        icon: 'E124',
-        text: 'Delete Project',
-        enabled: false,
-        hidden: true
-    });
-    deleteProjectButton.dom.id = 'delete-project-button';
-    actionButtonsContainer.append(deleteProjectButton);
-
-    deleteProjectButton.on('click', () => {
-        editor.call('picker:project:modal:deleteProjectConfirmation', currentProject);
-    });
-
     // CONTROLLERS
 
     // overwrites project settings values based on argument passed (useful for failed saves)
@@ -455,10 +439,8 @@ editor.once('load', () => {
         }
     });
 
-    // show the CMS view for the main project picker
-    editor.method('picker:project:main:cmsView', () => {
-        exportProjectButton.enabled = !exportDisabled();
-    });
+    // the footer, so pages can add their own actions
+    editor.method('picker:project:main:actions', () => actionButtonsContainer);
 
     // show the main project picker
     editor.method('picker:project:main', () => {
@@ -496,10 +478,6 @@ editor.once('load', () => {
             settingsContainer.style.display = 'flex';
             lockedContainer.style.display = 'none';
         }
-
-        // only show delete project button if not current project and admin
-        deleteProjectButton.hidden = currentProject.id === config.project.id;
-        deleteProjectButton.enabled = currentProject.id !== config.project.id && isAdmin();
 
         projectNameInput.enabled = isAdmin();
         projectDescInput.enabled = isAdmin();

@@ -1607,7 +1607,7 @@ strong {
 .pcui-overlay.picker-project {
     z-index: 300; // larger than drop-area's
 
-    &.noAdminView { z-index: 100000; }
+    &.other-project { z-index: 100000; } // another project's settings, over the projects page
     &.vc-suspended { display: none; }
 
     > .pcui-overlay-content {
@@ -2089,7 +2089,6 @@ strong {
     }
 }
 
-.pcui-overlay.picker-project.reduced-view { z-index: 100000; }
 
 // Individual Alert Popup
 .alert {
