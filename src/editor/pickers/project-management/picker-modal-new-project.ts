@@ -349,7 +349,29 @@ editor.once('load', () => {
             'projects:create',
             data,
             (result) => {
-                // every kit, blank included, is a fork: wait for the fork job, then offer to open the project
+                // an empty project has no job: it's ready once the messenger says it was created
+                if (!data.fork_from) {
+                    evt = editor.on('messenger:project.create', (msg) => {
+                        if (msg.project_id !== result.id) {
+                            return;
+                        }
+                        evt.unbind();
+                        toggleLoader(false);
+                        if (msg.status && msg.status !== 'success') {
+                            editor.call(
+                                'picker:project:buildAlert',
+                                mainView,
+                                msg.error ?? 'Could not create the project'
+                            );
+                            return;
+                        }
+                        editor.call('picker:project:newProjectConfirmation', result.id);
+                        overlay.hidden = true; // close new project modal
+                    });
+                    return;
+                }
+
+                // every other kit is a fork: wait for the fork job, then offer to open the project
                 const jobId = result.id;
 
                 evt = editor.on('messenger:job.update', (msg) => {
@@ -476,9 +498,10 @@ editor.once('load', () => {
         overlay.hidden = false;
     });
 
-    // a kit was picked: its name, description and source fill the form
-    editor.method('picker:project:new:select', (values) => {
+    // a kit was picked: its name, description and source fill the form, and its data is what gets created
+    editor.method('picker:project:new:select', (values, data) => {
         Object.assign(formInputs, values);
+        newKitData = data;
         buildSidebar();
     });
 
