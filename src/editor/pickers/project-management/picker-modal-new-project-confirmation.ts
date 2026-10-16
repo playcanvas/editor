@@ -1,4 +1,7 @@
-import { Button, Container, Label, Overlay, Panel } from '@playcanvas/pcui';
+import { Container, Label } from '@playcanvas/pcui';
+
+import { button } from './components/button';
+import { dialog } from './components/dialog';
 
 const REPORT_LIMIT = 50;
 
@@ -9,32 +12,8 @@ editor.once('load', () => {
 
     // UI
 
-    // overlay
-    const root = editor.call('layout.root');
-    const overlay = new Overlay({
-        clickable: false,
-        class: 'picker-modal-confirmation',
-        hidden: true
-    });
-    root.append(overlay);
-
-    // main panel
     const HEADER = IS_EMPTY_STATE ? 'PROJECT READY' : 'CLOSE CURRENT PROJECT';
-    const panel = new Panel({
-        headerText: HEADER,
-        class: 'modal-confirmation-panel'
-    });
-    overlay.append(panel);
-
-    // close button
-    const btnClose = new Button({
-        class: 'close',
-        icon: 'E132'
-    });
-    btnClose.on('click', () => {
-        returnToCMS();
-    });
-    panel.header.append(btnClose);
+    const { overlay, panel, footer } = dialog({ title: HEADER, class: 'picker-modal-confirmation', confirm: true });
 
     // confirmation message
     const readyText = IS_EMPTY_STATE
@@ -48,22 +27,16 @@ editor.once('load', () => {
     panel.append(report);
 
     // continue button
-    const continueButton = new Button({
-        class: 'negative-action-button',
-        text: IS_EMPTY_STATE ? 'Keep browsing' : 'Keep working'
-    });
-    panel.append(continueButton);
+    const continueButton = button({ kind: 'secondary', text: IS_EMPTY_STATE ? 'Keep browsing' : 'Keep working' });
+    footer.append(continueButton);
 
     continueButton.on('click', () => {
         returnToCMS();
     });
 
     // open project button
-    const openProjectButton = new Button({
-        class: 'positive-action-button',
-        text: 'Open project'
-    });
-    panel.append(openProjectButton);
+    const openProjectButton = button({ kind: 'primary', text: 'Open project' });
+    footer.append(openProjectButton);
 
     openProjectButton.on('click', () => {
         window.open(projectURL, '_self').focus();
@@ -75,31 +48,6 @@ editor.once('load', () => {
     const returnToCMS = () => {
         overlay.hidden = true;
     };
-
-    // EVENTS
-
-    // load and show data
-    overlay.on('show', () => {
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', false);
-        }
-    });
-
-    // clean up
-    overlay.on('hide', () => {
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', true);
-        }
-    });
-
-    // prevent viewport hovering when picker is shown
-    editor.on('viewport:hover', (state) => {
-        if (state && !overlay.hidden) {
-            setTimeout(() => {
-                editor.emit('viewport:hover', false);
-            }, 0);
-        }
-    });
 
     // method to display panel
     // a null project id means there's nothing to open, e.g. an import into an organization

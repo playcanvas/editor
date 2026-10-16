@@ -3,6 +3,8 @@ import { Button, Container, Element, Label, Overlay, Panel } from '@playcanvas/p
 import { bytesToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
+import { button } from './project-management/components/button';
+
 const MENU_LABELS = new Map([
     ['project-main', 'Project settings'],
     ['scenes', 'Scenes'],
@@ -508,7 +510,8 @@ editor.once('load', () => {
     });
 
     // editor CMS button
-    const editorBtn = new Button({
+    const editorBtn = button({
+        kind: 'primary',
         class: 'cms-editor-button',
         icon: 'E294',
         text: 'Open editor',
@@ -533,7 +536,8 @@ editor.once('load', () => {
     });
 
     // launch button
-    const playBtn = new Button({
+    const playBtn = button({
+        kind: 'primary',
         class: 'cms-play-button',
         icon: 'E286',
         text: 'Play',

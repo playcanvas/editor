@@ -1,6 +1,7 @@
 import { Button, Container, Label, Panel, TextInput } from '@playcanvas/pcui';
 
 import { TooltipHandle } from '@/common/tooltips';
+import { button as pmButton } from '@/editor/pickers/project-management/components/button';
 
 import { DEFAULT_PORT } from './connection';
 
@@ -28,6 +29,7 @@ const createMcpButton = (placement: 'right' | 'account') => {
     const account = placement === 'account';
 
     const button = new Button({ class: ['pc-icon', 'mcp'] });
+    button.dom.setAttribute('aria-label', 'MCP server');
     button.dom.appendChild(new DOMParser().parseFromString(MCP_ICON, 'image/svg+xml').documentElement);
 
     const tooltip = TooltipHandle.attach({
@@ -55,7 +57,9 @@ const createMcpButton = (placement: 'right' | 'account') => {
     portRow.append(new Label({ class: 'mcp-row-label', text: 'Port' }));
     portRow.append(portField);
 
-    const toggle = new Button({ class: 'mcp-toggle' });
+    const toggle = account
+        ? pmButton({ kind: 'primary', text: 'Connect', class: 'mcp-toggle' })
+        : new Button({ class: 'mcp-toggle' });
 
     const hint = new Label({ class: 'mcp-hint', hidden: true });
 
@@ -81,7 +85,11 @@ const createMcpButton = (placement: 'right' | 'account') => {
         portField.enabled = state === 'disconnected';
         const label = state === 'connecting' ? 'Cancel' : state === 'connected' ? 'Disconnect' : 'Connect';
         toggle.text = account ? label : label.toUpperCase();
-        toggle.class[account && state === 'disconnected' ? 'add' : 'remove']('primary');
+        if (account) {
+            const connect = state === 'disconnected';
+            toggle.class[connect ? 'add' : 'remove']('primary');
+            toggle.class[connect ? 'remove' : 'add']('secondary');
+        }
         updateHint();
     };
     render(editor.call('mcp:status') || 'disconnected');

@@ -1,6 +1,8 @@
-import { Element, Container, Label, Button, TextInput, TextAreaInput, BooleanInput } from '@playcanvas/pcui';
+import { Element, Container, Label, TextInput, TextAreaInput, BooleanInput } from '@playcanvas/pcui';
 
 import { config } from '@/editor/config';
+
+import { button } from './project-management/components/button';
 
 const DAY_MS = 86400000;
 const COPIED_MS = 1500;
@@ -92,10 +94,7 @@ editor.once('load', () => {
                 : `This project is locked. Unlocking this project will make it public. Another way of unlocking is to ${upgrade}`;
     };
 
-    const unlockButton = new Button({
-        icon: 'E340',
-        text: 'Unlock'
-    });
+    const unlockButton = button({ kind: 'primary', icon: 'E340', text: 'Unlock' });
     lockedContainer.append(unlockButton);
     lockedContainer.style.display = 'none'; // hide by default
 
@@ -296,9 +295,7 @@ editor.once('load', () => {
     panel.append(actionButtonsContainer);
 
     // copy link, an icon button beside fork
-    const copyLinkButton = new Button({ class: ['full-width-button', 'secondary', 'copy-link-button'] });
-    copyLinkButton.dom.title = 'Copy link';
-    copyLinkButton.dom.setAttribute('aria-label', 'Copy link');
+    const copyLinkButton = button({ kind: 'icon', label: 'Copy link', class: 'copy-link-button' });
     actionButtonsContainer.append(copyLinkButton);
     copyLinkButton.on('click', () => {
         navigator.clipboard.writeText(`${config.url.home}/editor/project/${currentProject.id}`).then(
@@ -316,11 +313,7 @@ editor.once('load', () => {
         );
     });
 
-    const forkProjectButton = new Button({
-        class: ['full-width-button', 'secondary'],
-        icon: 'E431',
-        text: 'Fork Project'
-    });
+    const forkProjectButton = button({ kind: 'secondary', icon: 'E431', text: 'Fork Project' });
     actionButtonsContainer.append(forkProjectButton);
     forkProjectButton.on('click', () => {
         editor.call('picker:project:fork', currentProject);
@@ -330,11 +323,7 @@ editor.once('load', () => {
     actionButtonsContainer.append(exportProjectButtonContainer);
 
     // export project button
-    const exportProjectButton = new Button({
-        class: ['full-width-button', 'secondary'],
-        icon: 'E228',
-        text: getExportButtonText()
-    });
+    const exportProjectButton = button({ kind: 'secondary', icon: 'E228', text: getExportButtonText() });
     exportProjectButtonContainer.append(exportProjectButton);
 
     const loader = new Element({
@@ -349,8 +338,9 @@ editor.once('load', () => {
     });
 
     // delete project button
-    const deleteProjectButton = new Button({
-        class: ['full-width-button', 'danger'],
+    const deleteProjectButton = button({
+        kind: 'secondary',
+        tone: 'danger',
         icon: 'E124',
         text: 'Delete Project',
         enabled: false,

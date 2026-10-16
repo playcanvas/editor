@@ -1,142 +1,11 @@
 @use 'sass:color';
 
-// projects page (picker-cms.ts): sidebar + main panel
-// corners: 8px surfaces (cards, panels, search, popovers), 6px controls (buttons, inputs, nav items, tabs), 4px badges
-
-$cms-transfer: #ffb27f; // pending transfer status and badge
-$cms-quiet: #7d898c; // empty list values
-$cms-surface: $bcg-primary; // cards, search, buttons: a clear step up from the $bcg-darker page
-$cms-edge: color.mix($text-darkest, $bcg-primary, 25%);
-$cms-hover: color.mix($text-darkest, $bcg-primary, 15%);
-$cms-float: $bcg-primary; // menus and popovers, so they lift off the $bcg-darkest sidebar
-$cms-float-shadow: 0 4px 12px rgb(0 0 0 / 30%);
-
-// interaction: one duration for every control, hover fills one step lighter than what they sit on
-$cms-ease: 120ms ease-out;
-$cms-zoom-ease: 180ms ease-out; // thumbnail zoom: a touch slower so it doesn't jump
-$cms-fill-on-page: $cms-surface; // controls on the page or sidebar
-$cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers and dialogs
-
-// every interactive element: the shared transition and a keyboard focus ring
-@mixin cms-interactive {
-    transition:
-        color $cms-ease,
-        background-color $cms-ease,
-        border-color $cms-ease,
-        box-shadow $cms-ease;
-
-    &:focus-visible {
-        outline: 2px solid $text-active;
-        outline-offset: 2px;
-    }
-}
-
-// borderless icon and text controls: tabs, nav, kebabs, close buttons
-@mixin cms-ghost-hover($fill: $cms-fill-on-page) {
-    @include cms-interactive;
-
-    &:not(.pcui-disabled):hover {
-        background-color: $fill;
-        color: $text-primary;
-        box-shadow: none;
-    }
-}
-
-// bordered neutral buttons and chips
-@mixin cms-outlined-hover($fill: $cms-fill-on-surface) {
-    @include cms-interactive;
-
-    &:not(.pcui-disabled):hover {
-        border-color: $text-darkest;
-        background-color: $fill;
-        color: $text-primary;
-        box-shadow: none;
-    }
-}
-
-// the orange action button
-@mixin cms-primary-hover {
-    @include cms-interactive;
-
-    &:not(.pcui-disabled):hover {
-        border-color: transparent;
-        background-color: $cms-primary-hover;
-        color: $text-primary;
-        box-shadow: none;
-    }
-}
-
-%cms-mask-icon {
-    content: '';
-    flex: none;
-    background-color: currentcolor;
-    mask: center / contain no-repeat;
-}
-
-// card hover, like playcanv.as: a solid 2px orange ring (the 1px border plus a 1px shadow)
-%cms-hover-ring {
-    border-color: $text-active;
-    box-shadow: 0 0 0 1px $text-active;
-}
-
-// card hover image zoom, like playcanv.as; the thumbnail frame clips it
-%cms-hover-zoom {
-    transform: scale(1.05);
-
-    @media (prefers-reduced-motion: reduce) {
-        transform: none;
-    }
-}
-
-// locked projects: on the card cover and over the list row thumbnail
-%cms-lock-icon {
-    @extend %cms-mask-icon;
-
-    color: $text-primary;
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M5 7V5a3 3 0 0 1 6 0v2h.5A1.5 1.5 0 0 1 13 8.5v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 3 13.5v-5A1.5 1.5 0 0 1 4.5 7H5zm1.5 0h3V5a1.5 1.5 0 0 0-3 0v2z'/%3E%3C/svg%3E");
-}
-
-@keyframes cms-pulse {
-    50% {
-        box-shadow: 0 0 0 5px rgb(255 102 0 / 0%);
-    }
-}
-
-@keyframes cms-bone-pulse {
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.45;
-    }
-}
-
-@keyframes cms-spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-// pulsing skeleton bone (version control pattern), shared with the new project kit grid
-%cms-bone {
-    flex: none;
-    border-radius: 4px;
-    background-color: rgb(255 255 255 / 8%);
-    animation: cms-bone-pulse 1.4s ease-in-out infinite;
-
-    @media (prefers-reduced-motion: reduce) {
-        animation: none;
-    }
-}
-
 .pcui-overlay.picker-project-cms {
     // a full-screen page: pin to the window so content above the layout root (a banner)
     // can't push it down or let the document scroll it out of view
     position: fixed;
     inset: 0;
-    z-index: 10000;
+    z-index: $z-page;
 
     // component rules below set display, so hidden elements need to win explicitly
     .pcui-hidden {
@@ -187,9 +56,9 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         height: 18px;
         padding: 0 6px;
         border: 1px solid $cms-edge;
-        border-radius: 4px;
+        border-radius: $radius-badge;
         box-sizing: border-box;
-        background-color: rgb(32 41 43 / 88%);
+        background-color: color.change($bcg-darkest, $alpha: 0.88);
         color: $text-dark;
         font-size: 11px;
         line-height: 1;
@@ -199,92 +68,29 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         text-box: trim-both cap alphabetic;
 
         &.locked {
-            color: #f3c16f;
-            border-color: rgb(225 166 62 / 45%);
+            color: $warn-text;
+            border-color: $warn-edge;
         }
 
         &.disabled {
-            color: #ff8a8a;
-            border-color: rgb(255 138 138 / 45%);
+            color: $danger-text;
+            border-color: $danger-edge;
+        }
+
+        &.info {
+            color: $info-text;
+            border-color: $info-edge;
         }
     }
 
-    .cms-button {
-        display: inline-flex;
-        align-items: center;
-        height: 32px;
-        margin: 0;
-        padding: 0 14px;
-        border: 1px solid $bcg-darkest;
-        border-radius: 6px;
-        background-color: $cms-surface;
-        color: $text-secondary;
-        font-size: 13px;
-        line-height: 30px;
 
-        &[data-icon]::before {
-            margin-right: 6px;
-            font-size: 12px;
-        }
+    // the three-dot glyph on button({ kind: 'icon' }) menus
+    .cms-kebab::before {
+        @extend %cms-mask-icon;
 
-        @include cms-outlined-hover;
-
-        &.primary {
-            border-color: transparent;
-            background-color: $text-active;
-            color: $text-primary;
-
-            @include cms-primary-hover;
-        }
-
-        &.ghost {
-            border-color: transparent;
-            background-color: transparent;
-
-            @include cms-ghost-hover;
-
-            &:not(.pcui-disabled):hover {
-                border-color: transparent;
-            }
-        }
-
-        &.small {
-            height: 26px;
-            padding: 0 10px;
-            font-size: 12px;
-            line-height: 24px;
-        }
-    }
-
-    .cms-kebab {
-        display: inline-grid;
-        flex: none;
-        place-items: center;
-        width: 28px;
-        height: 28px;
-        margin: 0;
-        padding: 0;
-        border: 1px solid transparent;
-        border-radius: 6px;
-        background: transparent;
-        color: $text-dark;
-
-        &::before {
-            @extend %cms-mask-icon;
-
-            width: 14px;
-            height: 14px;
-            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='3' cy='8' r='1.4'/%3E%3Ccircle cx='8' cy='8' r='1.4'/%3E%3Ccircle cx='13' cy='8' r='1.4'/%3E%3C/svg%3E");
-        }
-
-        @include cms-ghost-hover;
-    }
-
-    // on a row or card the page fill matches the surface, so step up once more
-    .cms-row .cms-kebab,
-    .cms-card .cms-kebab,
-    .cms-welcome .cms-kebab {
-        @include cms-ghost-hover($cms-edge);
+        width: 14px;
+        height: 14px;
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='3' cy='8' r='1.4'/%3E%3Ccircle cx='8' cy='8' r='1.4'/%3E%3Ccircle cx='13' cy='8' r='1.4'/%3E%3C/svg%3E");
     }
 
     // sidebar
@@ -398,31 +204,13 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         height: 28px;
         margin-top: 14px;
         padding: 0 8px;
-        color: $text-darkest;
+        color: $text-dark;
         font-size: 11px;
         text-transform: uppercase;
 
         @extend .font-bold;
     }
 
-    .cms-section-add {
-        width: 20px;
-        height: 20px;
-        margin: 0;
-        padding: 0;
-        border: none;
-        border-radius: 4px;
-        background: transparent;
-        color: $text-dark;
-        font-size: 10px;
-        line-height: 20px;
-
-        &[data-icon]::before {
-            margin: 0;
-        }
-
-        @include cms-ghost-hover;
-    }
 
     .cms-side-list {
         display: flex;
@@ -465,7 +253,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
     }
 
     .cms-side-count {
-        color: $text-darkest;
+        color: $text-dark;
         font-size: 11px;
     }
 
@@ -489,10 +277,13 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
 
         @include cms-interactive;
 
-        // a clickable surface, so it gets the card ring
+        // a clickable surface, so it gets the card ring, and the same ring for keyboard focus
         &:hover,
+        &:focus-visible,
         &.open {
             @extend %cms-hover-ring;
+
+            outline: none;
         }
 
         & > .progress-icon {
@@ -603,7 +394,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         background-color: rgb(255 102 0 / 8%);
         font-size: 12px;
 
-        & > .cms-button {
+        & > .pcui-button {
             margin-left: auto;
         }
     }
@@ -775,7 +566,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
     }
 
     .cms-eyebrow {
-        color: $text-dark;
+        color: $text-meta;
         font-size: 11px;
         text-transform: uppercase;
 
@@ -814,7 +605,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
     }
 
     .cms-welcome-scenes-more {
-        color: $text-darkest;
+        color: $text-meta;
         font-size: 12px;
     }
 
@@ -871,7 +662,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
     }
 
     .cms-fact-label {
-        color: $text-dark;
+        color: $text-meta;
         font-size: 11px;
     }
 
@@ -890,12 +681,6 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         display: flex;
         flex-flow: row wrap;
         gap: 8px;
-
-        // borderless like the card kebabs, at button height so it lines up
-        > .cms-kebab {
-            width: 32px;
-            height: 32px;
-        }
     }
 
     .cms-heading {
@@ -969,7 +754,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
             @extend .font-regular;
 
             &::placeholder {
-                color: $text-darkest;
+                color: $text-dark;
             }
         }
 
@@ -980,28 +765,12 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         }
     }
 
-    .cms-search-clear {
-        display: grid;
-        flex: none;
-        place-items: center;
-        width: 24px;
-        height: 24px;
-        margin: 0;
-        padding: 0;
-        border: none;
-        border-radius: 6px;
-        background: transparent;
-        color: $text-dark;
+    .cms-search-clear::before {
+        @extend %cms-mask-icon;
 
-        &::before {
-            @extend %cms-mask-icon;
-
-            width: 12px;
-            height: 12px;
-            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M2.5 2.5l7 7M9.5 2.5l-7 7'/%3E%3C/svg%3E");
-        }
-
-        @include cms-ghost-hover($cms-fill-on-surface);
+        width: 12px;
+        height: 12px;
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M2.5 2.5l7 7M9.5 2.5l-7 7'/%3E%3C/svg%3E");
     }
 
     .cms-hints {
@@ -1037,7 +806,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
 
     .cms-hints-tip {
         margin-left: auto;
-        color: $text-darkest;
+        color: $text-dark;
     }
 
     .cms-tools {
@@ -1078,7 +847,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
 
     .cms-count {
         margin-left: 6px;
-        color: $text-darkest;
+        color: $text-dark;
         font-size: 11px;
     }
 
@@ -1325,7 +1094,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         display: -webkit-box;
         min-height: 36px;
         overflow: hidden;
-        color: $text-dark;
+        color: $text-meta;
         font-size: 12px;
         line-height: 18px;
         white-space: normal;
@@ -1333,7 +1102,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         -webkit-line-clamp: 2;
 
         &.empty {
-            color: $text-darkest;
+            color: $text-meta;
         }
     }
 
@@ -1343,20 +1112,16 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         align-items: center;
         gap: 8px;
         margin-top: 6px;
-        color: $text-dark;
+        color: $text-meta;
         font-size: 12px;
     }
 
+    // avatars come in three sizes: 20 in lists and cards, 28 for your account, 32 on dev log posts
     .cms-avatar {
         flex: none;
-        width: 18px;
-        height: 18px;
+        width: 20px;
+        height: 20px;
         border-radius: 50%;
-    }
-
-    .cms-card-meta .cms-avatar {
-        width: 22px;
-        height: 22px;
     }
 
     // owner over edit time, beside the avatars
@@ -1379,7 +1144,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
 
     .cms-card-when {
         overflow: hidden;
-        color: $text-dark;
+        color: $text-meta;
         font-size: 11px;
         line-height: 14px;
         text-overflow: ellipsis;
@@ -1397,7 +1162,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         flex-direction: row;
         align-items: center;
         gap: 10px;
-        color: $text-dark;
+        color: $text-meta;
         font-size: 12px;
 
         > .cms-plays {
@@ -1442,12 +1207,6 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         }
     }
 
-    .cms-button.small {
-        height: 26px;
-        padding: 0 10px;
-        font-size: 12px;
-        line-height: 24px;
-    }
 
     // accept / decline / cancel on a project that's changing hands
     .cms-transfer {
@@ -1495,7 +1254,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
 
     .cms-members-more {
         margin-left: 3px;
-        color: $text-dark;
+        color: $text-meta;
         font-size: 11px;
     }
 
@@ -1702,27 +1461,15 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         // no value: a dash, or a zero count, in a quieter grey
         &.dash,
         &.cms-forks.zero {
-            color: $cms-quiet;
+            color: $text-dark;
         }
     }
 
+    // empty() spans the whole grid
     .cms-empty {
-        display: flex;
         grid-column: 1 / -1;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        padding: 48px 0;
-        border: 1px dashed color.mix($text-darkest, $bcg-primary, 65%);
-        border-radius: 8px;
-        color: $text-dark;
     }
 
-    .cms-empty-title {
-        color: $text-primary;
-
-        @extend .font-bold;
-    }
 
     .cms-more {
         display: flex;
@@ -1732,18 +1479,10 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         gap: 8px;
         min-height: 56px;
         margin-top: 8px;
-        color: $text-darkest;
+        color: $text-dark;
         font-size: 12px;
     }
 
-    .cms-spin {
-        width: 12px;
-        height: 12px;
-        border: 2px solid $cms-edge;
-        border-top-color: $text-active;
-        border-radius: 50%;
-        animation: cms-spin 700ms linear infinite;
-    }
 
     // skeleton bones while projects load (version control pattern)
     .cms-bone {
@@ -1858,15 +1597,14 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .cms-live,
-        .cms-spin {
+        .cms-live {
             animation: none;
         }
     }
 }
 
 .pcui-menu.cms-menu {
-    z-index: 10001;
+    z-index: $z-menu;
 
     .pcui-menu-items {
         border-color: $border-primary;
@@ -1874,8 +1612,9 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         box-shadow: $cms-float-shadow;
     }
 
+    // inset rows: 4px in from the edge, rounded like badges
     .pcui-menu-items {
-        padding: 4px 0;
+        padding: 4px;
     }
 
     .pcui-menu-item {
@@ -1885,15 +1624,27 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
 
     .pcui-menu-item-content {
         border: none;
+        border-radius: $radius-badge;
 
         @include cms-ghost-hover($cms-fill-on-surface);
     }
 
-    // a divider above the first item of each group
+    // a full-width divider above the first item of each group
     .pcui-menu-item.cms-menu-group {
-        margin-top: 4px;
-        padding-top: 4px;
+        margin: 4px -4px 0;
+        padding: 4px 4px 0;
         border-top: 1px solid $border-primary;
+    }
+
+    // destructive rows: the danger tone, readable on the menu
+    .pcui-menu-item.delete > .pcui-menu-item-content {
+        > .pcui-label {
+            color: $danger-text;
+        }
+
+        &:not(.pcui-disabled):hover {
+            background-color: $danger-fill;
+        }
     }
 }
 
@@ -1903,7 +1654,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
 
 .pcui-container.cms-storage-popover {
     position: fixed;
-    z-index: 10001;
+    z-index: $z-menu;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -1956,7 +1707,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
 
     .cms-pop-plan,
     .cms-pop-of {
-        color: $text-dark;
+        color: $text-meta;
     }
 
     .cms-pop-rows {
@@ -1968,7 +1719,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
     }
 
     .cms-pop-key {
-        color: $text-darkest;
+        color: $text-meta;
         font-size: 11px;
         text-transform: uppercase;
 
@@ -1982,17 +1733,6 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
 
     .cms-pop-row > .value {
         color: $text-primary;
-    }
-
-    .pcui-button {
-        height: 32px;
-        margin: 0;
-        border: none;
-        border-radius: 6px;
-        background-color: $text-active;
-        color: $text-primary;
-
-        @include cms-primary-hover;
     }
 }
 
@@ -2056,7 +1796,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
 
     .mcp-row-label {
         width: 40px;
-        color: $text-dark;
+        color: $text-meta;
         font-size: 13px;
     }
 
@@ -2065,19 +1805,15 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         font-size: 13px;
     }
 
+    // the small dialog field: 26px, 6px corners, orange focus border
     .mcp-field {
-        height: 22px;
-        border: none;
-        border-radius: 4px;
-        background-color: $bcg-darkest;
-        box-shadow: none;
+        @extend %dialog-input;
+
+        height: 26px;
 
         & > input {
-            height: 22px;
-            padding: 0 6px;
-            color: $text-secondary;
-            font-family: inherit;
-            font-size: 13px;
+            height: 24px;
+            padding: 0 8px;
         }
 
         &.pcui-disabled {
@@ -2094,27 +1830,11 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         font-size: 12px;
     }
 
-    // same as the page's .cms-button: orange to connect, neutral to cancel or disconnect
+    // button(): primary to connect, secondary to cancel or disconnect
     .mcp-toggle {
+        display: flex;
         width: 100%;
-        height: 30px;
         margin: 8px 0 0;
-        border: 1px solid $bcg-darkest;
-        border-radius: 6px;
-        background-color: $bcg-dark;
-        color: $text-secondary;
-        font-size: 13px;
-        line-height: 28px;
-
-        @include cms-outlined-hover;
-
-        &.primary {
-            border-color: transparent;
-            background-color: $text-active;
-            color: $text-primary;
-
-            @include cms-primary-hover;
-        }
     }
 }
 
@@ -2143,7 +1863,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
 
     .forked-from-owner {
         flex: none;
-        color: $text-dark;
+        color: $text-meta;
         font-size: 12px;
     }
 
@@ -2199,84 +1919,14 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         gap: 12px;
     }
 
-    // empty log, like the projects page's empty list
-    .dev-log-empty {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-        padding: 40px 24px;
-        border: 1px dashed color.mix($text-darkest, $bcg-primary, 65%);
-        border-radius: 8px;
-        text-align: center;
-
-        > .pcui-label {
-            margin: 0;
-            white-space: normal;
-        }
-
-        > .dev-log-button {
-            margin-top: 8px;
-        }
-    }
-
+    // the dev log's speech bubble, as in the menu, inside empty()'s round icon
     .dev-log-empty-icon {
-        display: grid;
-        place-items: center;
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        background-color: $bcg-darkest;
-        color: $text-dark;
-
-        // the dev log's speech bubble, as in the menu
         &::before {
             content: '';
             width: 20px;
             height: 20px;
             background-color: currentcolor;
             mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='253.5 -1260 1293 1293'%3E%3Cpath transform='scale%281,-1%29' d='M701 536h323q40 0 54 36q4 11 4 29t-17 35t-41 17h-323q-23 0 -41 -17t-18 -41q0 -23 18 -41t41 -18zM701 771h451q24 -1 42 17t17 42q1 24 -17 42t-42 17h-451q-23 1 -41 -17t-18 -42t18 -42t41 -17zM518 1260h764q93 0 159 -66t66 -159v-630q0 -61 -30 -113t-82 -82%0At-113 -30h-396q-29 0 -51 -20l-191 -184q-16 -14 -35 -6t-19 30l2 117q0 27 -18 45t-56 18q-93 0 -159 66t-66 159v630q0 93 66 159t159 66z'/%3E%3C/svg%3E") center / contain no-repeat;
-        }
-    }
-
-    .dev-log-empty-title {
-        @extend .font-bold;
-
-        color: $text-primary;
-        font-size: 14px;
-    }
-
-    .dev-log-empty-text {
-        max-width: 40ch;
-        color: $text-dark;
-        font-size: 13px;
-    }
-
-    .dev-log-new,
-    .dev-log-button {
-        height: 28px;
-        margin: 0;
-        padding: 0 12px;
-        border: 1px solid $bcg-darkest;
-        border-radius: 6px;
-        background-color: $bcg-primary;
-        color: $text-secondary;
-        font-size: 12px;
-        line-height: 26px;
-
-        @include cms-outlined-hover;
-
-        &.primary,
-        &.dev-log-new {
-            border-color: transparent;
-            background-color: $text-active;
-            color: $text-primary;
-
-            @include cms-primary-hover;
-        }
-
-        &.delete:not(.pcui-disabled):hover {
-            color: $error-secondary;
         }
     }
 
@@ -2324,7 +1974,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
     }
 
     .dev-log-post-meta {
-        color: $text-dark;
+        color: $text-meta;
         font-size: 12px;
     }
 
@@ -2371,14 +2021,22 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         gap: 8px;
     }
 
+    // same field as the dialogs: 6px corners and the orange focus border
     .dev-log-title-input,
     .dev-log-text-input {
         width: 100%;
         margin: 0;
-        border: 1px solid $bcg-darkest;
-        border-radius: 4px;
+        border: 1px solid $border-primary;
+        border-radius: $radius-control;
         background-color: $bcg-darker;
         box-sizing: border-box;
+        box-shadow: none;
+        transition: border-color $cms-ease;
+
+        &.pcui-focus {
+            border-color: $text-active;
+            box-shadow: none;
+        }
     }
 
     .dev-log-title-input > input,
@@ -2411,7 +2069,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
 
     .dev-log-error {
         margin: 0;
-        color: $error-secondary;
+        color: $danger-text;
         font-size: 12px;
         white-space: normal;
     }
