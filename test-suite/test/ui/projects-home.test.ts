@@ -2,7 +2,7 @@ import type { BrowserContext, Page } from '@playwright/test';
 
 import { checkCookieAccept, createProject, deleteProject } from '../../lib/common';
 import { editorBlankUrl } from '../../lib/config';
-import { JOB_TEST_TIMEOUT } from '../../lib/constants';
+import { JOB_TEST_TIMEOUT, JOB_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { middleware } from '../../lib/middleware';
 import { waitForEditor } from '../../lib/ready';
@@ -151,6 +151,33 @@ test.describe('projects home', () => {
         );
         await blankPage.locator('.picker-project-new .pcui-button.close').click();
         await expect(blankPage.locator('.picker-project-new')).toBeHidden();
+    });
+
+    test('creates a project from the blank kit', async ({ blankPage }) => {
+        test.setTimeout(JOB_TEST_TIMEOUT);
+        const blankTemplate = await blankPage.evaluate(() => (window.config as any).starterKits?.blank);
+        test.skip(!blankTemplate, 'this environment has no blank template');
+
+        const name = uniqueName('ui-blank');
+        await blankPage.locator('.cms-side .cms-new').click();
+        await expect(blankPage.locator('.picker-project-new .starter-kit.selected h4')).toHaveText('Blank Project');
+        await blankPage.locator('.picker-project-new .modal-new-project-form-content input[type="text"]').first().fill(name);
+
+        // blank forks the template the page config names; the fork job's data names the new project
+        const created = blankPage.waitForResponse(res => res.request().method() === 'POST' && res.url().endsWith('/api/projects'));
+        const job = blankPage.waitForResponse(res => /\/api\/jobs\/\d+$/.test(res.url()), { timeout: JOB_TIMEOUT });
+        await blankPage.locator('.picker-project-new .create-btn-container .pm-button.primary').click();
+        expect((await created).request().postDataJSON().fork_from).toBe(blankTemplate);
+
+        const forked: number = (await (await job).json()).data?.forked_id;
+        expect(forked).toBeTruthy();
+        try {
+            await expect(blankPage.getByRole('button', { name: 'Not now' })).toBeVisible();
+            await blankPage.getByRole('button', { name: 'Not now' }).click();
+            await expect(cmsRow(blankPage, name)).toBeVisible({ timeout: JOB_TIMEOUT });
+        } finally {
+            await deleteProject(setup, forked);
+        }
     });
 
     test('fork in the editor has no kit grid', async ({ editorPage }) => {
