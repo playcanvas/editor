@@ -4,6 +4,7 @@ import { bytesToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
 import { button } from './project-management/components/button';
+import { openProjects } from './project-management/tabs';
 
 const MENU_LABELS = new Map([
     ['project-main', 'Project settings'],
@@ -494,20 +495,8 @@ editor.once('load', () => {
     });
     leftPanel.append(projectCMSButton);
 
-    projectCMSButton.on('click', () => {
-        if (cmsView) {
-            editor.call('picker:project:cms:close');
-
-            if (!config.scene.id) {
-                editor.call('picker:project');
-            } else {
-                overlay.hidden = true;
-            }
-        } else {
-            editor.call('picker:project:cms');
-            overlay.hidden = true;
-        }
-    });
+    // the projects page has its own tab, so this one keeps the open project
+    projectCMSButton.on('click', () => openProjects());
 
     // editor CMS button
     const editorBtn = button({
