@@ -1607,7 +1607,6 @@ strong {
 .pcui-overlay.picker-project {
     z-index: 300; // larger than drop-area's
 
-    &.cmsView { z-index: 100000; }
     &.noAdminView { z-index: 100000; }
     &.vc-suspended { display: none; }
 

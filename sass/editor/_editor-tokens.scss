@@ -111,12 +111,6 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M5 7V5a3 3 0 0 1 6 0v2h.5A1.5 1.5 0 0 1 13 8.5v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 3 13.5v-5A1.5 1.5 0 0 1 4.5 7H5zm1.5 0h3V5a1.5 1.5 0 0 0-3 0v2z'/%3E%3C/svg%3E");
 }
 
-@keyframes cms-pulse {
-    50% {
-        box-shadow: 0 0 0 5px rgb(255 102 0 / 0%);
-    }
-}
-
 @keyframes cms-bone-pulse {
     0%,
     100% {

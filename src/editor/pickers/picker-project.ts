@@ -4,7 +4,7 @@ import { bytesToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
 import { button } from './project-management/components/button';
-import { openProjects } from './project-management/tabs';
+import { openProject, openProjects } from './project-management/tabs';
 
 const MENU_LABELS = new Map([
     ['project-main', 'Project settings'],
@@ -20,7 +20,6 @@ editor.once('load', () => {
     let projectSettingsListMenu; // used to enable hot reload of sidebar menu text upon project name change
     let currentProject; // used to display project stats
     let currentUser;
-    let cmsView; // general CMS view
     let reducedView; // alternative CMS view
     let noAdminView; // alternative 'none' access level view
     let lockedView; // alternative locked view
@@ -509,20 +508,8 @@ editor.once('load', () => {
     });
     leftPanel.append(editorBtn);
 
-    editorBtn.dom.addEventListener('mousedown', (e) => {
-        let target = '_self';
-        if (e.which === 2 || e.button === 4 || e.metaKey || e.ctrlKey) {
-            target = '_blank';
-        } // If middle click, open in new tab
-
-        let url = `${config.url.home}/editor/project/${currentProject.id}`;
-        const params = new URLSearchParams(location.search);
-        if (params.has('use_local_frontend')) {
-            url += `?use_local_frontend=${params.get('use_local_frontend')}`;
-        }
-
-        window.open(url, target);
-    });
+    // projects open in their own tab, never this one
+    editorBtn.on('click', () => openProject(currentProject.id));
 
     // launch button
     const playBtn = button({
@@ -738,20 +725,11 @@ editor.once('load', () => {
     });
 
     // open popup
-    editor.method('picker:project', (option, cms = false) => {
-        cmsView = cms;
+    editor.method('picker:project', (option) => {
         editor.call('projects:getOne', config.project.id, (res) => {
             currentProject = res;
 
             refreshUI();
-
-            if (cmsView) {
-                btnClose.hidden = false; // display close button
-                overlay.class.add('cmsView');
-                projectCMSButton.text = 'Return to Project';
-            } else {
-                projectCMSButton.text = 'See all projects';
-            }
 
             editor.call('users:loadOne', config.owner.id, (user) => {
                 currentUser = user;
@@ -842,7 +820,6 @@ editor.once('load', () => {
 
     // close popup
     editor.method('picker:project:close', () => {
-        overlay.class.remove('cmsView');
         overlay.class.remove('noAdminView');
         overlay.hidden = true;
     });
@@ -867,9 +844,9 @@ editor.once('load', () => {
     });
 
     // prevent user closing popup; with a project but no scene open it stays shut, unless it was
-    // opened over the projects page or for another project, where closing goes back to the page
+    // opened for another project from the projects page, where closing goes back to the page
     editor.method('picker:project:setClosable', (closable) => {
-        const open = closable && (IS_EMPTY_STATE || !!config.scene.id || cmsView || reducedView || noAdminView);
+        const open = closable && (IS_EMPTY_STATE || !!config.scene.id || reducedView || noAdminView);
         btnClose.hidden = !open;
         overlay.clickable = open;
     });
