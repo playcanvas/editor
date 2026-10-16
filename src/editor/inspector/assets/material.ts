@@ -555,12 +555,28 @@ const OPACITY_ATTRIBUTES: (Attribute | Divider)[] = [
                     t: 'None'
                 },
                 {
+                    v: 'bayer2',
+                    t: 'Bayer 2'
+                },
+                {
+                    v: 'bayer4',
+                    t: 'Bayer 4'
+                },
+                {
                     v: 'bayer8',
                     t: 'Bayer 8'
                 },
                 {
+                    v: 'bayer16',
+                    t: 'Bayer 16'
+                },
+                {
                     v: 'bluenoise',
                     t: 'Blue Noise'
+                },
+                {
+                    v: 'ignnoise',
+                    t: 'Interleaved Gradient Noise'
                 }
             ]
         },
@@ -578,12 +594,28 @@ const OPACITY_ATTRIBUTES: (Attribute | Divider)[] = [
                     t: 'None'
                 },
                 {
+                    v: 'bayer2',
+                    t: 'Bayer 2'
+                },
+                {
+                    v: 'bayer4',
+                    t: 'Bayer 4'
+                },
+                {
                     v: 'bayer8',
                     t: 'Bayer 8'
                 },
                 {
+                    v: 'bayer16',
+                    t: 'Bayer 16'
+                },
+                {
                     v: 'bluenoise',
                     t: 'Blue Noise'
+                },
+                {
+                    v: 'ignnoise',
+                    t: 'Interleaved Gradient Noise'
                 }
             ]
         },
