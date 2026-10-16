@@ -15,139 +15,24 @@ import { config } from '@/editor/config';
 import { button } from './components/button';
 import { spinner } from './components/spinner';
 
-const KIT_SKELETON_COUNT = 8;
 const UPGRADE_BLOCK = 'Forking a private project needs a paid plan.';
 
 editor.once('load', () => {
     // GLOBAL VARIABLES
-    const blankProject = {
-        name: 'Blank Project',
-        description: 'A new blank project.',
-        image: `${config.url.frontend}static/img/blank-project-kit.webp`,
-        tags: ['games'],
-
-        // the blank template playcanvas.com forks, so new projects start with its scene and settings
-        fork_from: 1162945
-    };
-    const modelViewer = {
-        name: 'Model Viewer',
-        description: 'A simple viewer application for any 3D model. Just drop the 3D model into the scene to upload.',
-        image: `${config.url.frontend}static/img/model-viewer-kit.webp`,
-        tags: ['products'],
-        fork_from: 446385
-    };
-    const vr = {
-        name: 'VR Kit',
-        description: 'An application to get you started quickly creating VR applications in PlayCanvas.',
-        image: `${config.url.frontend}static/img/vr-kit.webp`,
-        tags: ['immersive'],
-        fork_from: 435780
-    };
-
-    // default values for form inputs
+    // the form's values: a kit's, or the project being forked
     const formInputs = {
-        name: blankProject.name,
-        description: blankProject.description,
+        name: '',
+        description: '',
         private: false,
-        fork_from: blankProject.fork_from
+        fork_from: null
     };
 
     let rootUser;
     let newProjectOwner;
-    let selectedKitElement; // ui element of selected starter kit
-    let newKitData: Record<string, unknown> = blankProject; // will store starterkit metadata to create project
+    let newKitData: Record<string, unknown> = {}; // what gets created: the kit's data, or the fork's
     let forking = null; // the project being forked; null when creating a new project
 
-    const builtInKits = { 0: blankProject, 446385: modelViewer, 435780: vr };
-    let starterKits = { ...builtInKits };
-
-    // kits are cached for the session, like the builds list: reopening shows them instantly
-    // and refreshes in the background, rebuilding only when the server list changed
-    let renderedKits = null; // signature of the kits in the grid
-    let blankKitElement = null;
-    const kitElements = new Map(); // fork id -> kit card
-
     // UI
-
-    // helper method to construct UI for starterkit
-    const createStarterKitUI = (starterkit, fork, kitContainer) => {
-        // Starter Kit
-        const starterKit = new Container({
-            class: 'starter-kit'
-        });
-        kitContainer.append(starterKit);
-        kitElements.set(String(fork), starterKit);
-        // Blank project selected by default
-        if (starterkit.name === 'Blank Project') {
-            blankKitElement = starterKit;
-            selectedKitElement = starterKit;
-            selectedKitElement.class.add('selected');
-        }
-
-        // a focusable choice: Enter or Space picks it like a click
-        starterKit.dom.tabIndex = 0;
-        starterKit.dom.setAttribute('role', 'button');
-        starterKit.dom.setAttribute('aria-label', starterkit.name);
-        starterKit.dom.addEventListener('keydown', (e) => {
-            if (e.target === starterKit.dom && (e.key === 'Enter' || e.key === ' ')) {
-                e.preventDefault();
-                starterKit.dom.click();
-            }
-        });
-
-        starterKit.dom.addEventListener('click', () => {
-            if (selectedKitElement) {
-                selectedKitElement.class.remove('selected');
-            }
-
-            selectedKitElement = starterKit;
-            formInputs.name = starterKits[fork].name;
-            formInputs.description = starterKits[fork].description;
-            formInputs.private = false;
-            formInputs.fork_from = starterKits[fork].fork_from;
-
-            selectedKitElement.class.add('selected');
-
-            buildSidebar(); // rebuild sidebar
-        });
-
-        // Thumbnail
-        const thumbnail = new Container({
-            class: 'thumbnail'
-        });
-        starterKit.append(thumbnail);
-
-        // Image
-        const image = new Element({
-            dom: 'img'
-        });
-        image.dom.src = starterkit.image;
-        thumbnail.append(image);
-
-        // Overlay
-        const thumbnailOverlay = new Container({
-            class: 'overlay'
-        });
-        thumbnail.append(thumbnailOverlay);
-
-        // Preview Button
-        const previewButton = button({ kind: 'icon', label: `Preview ${starterkit.name}`, class: 'preview-button' });
-        thumbnailOverlay.append(previewButton);
-
-        previewButton.on('click', () => {
-            previewProject(starterkit.fork_from);
-        });
-
-        // Title
-        const title = new Element({
-            dom: 'h4'
-        });
-        title.dom.textContent = starterkit.name;
-        starterKit.append(title);
-
-        const desc = new Label({ class: 'kit-desc', text: starterkit.description });
-        starterKit.append(desc);
-    };
 
     // helper method to build sidebar once data has loaded in
     const buildSidebar = () => {
@@ -221,7 +106,8 @@ editor.once('load', () => {
         const source = new Container({ class: 'fork-source' });
         parent.append(source);
         const logo = new Element({ dom: 'img', class: 'fork-source-logo' });
-        (logo.dom as HTMLImageElement).src = forking.thumbnails?.m ?? blankProject.image;
+        (logo.dom as HTMLImageElement).src =
+            forking.thumbnails?.m ?? `${config.url.frontend}static/img/blank-project-kit.webp`;
         (logo.dom as HTMLImageElement).alt = '';
         source.append(logo);
         const info = new Container({ class: 'fork-source-info' });
@@ -408,13 +294,6 @@ editor.once('load', () => {
     });
     modalContainer.append(mainView);
 
-    // kits container
-    mainView.append(new Label({ class: 'modal-new-project-heading', text: 'Start from a kit' }));
-    const kitsContainer = new Container({
-        class: 'modal-new-project-kits-container'
-    });
-    mainView.append(kitsContainer);
-
     // sidebar
     const sidebar = new Container({
         class: 'modal-new-project-sidebar'
@@ -460,60 +339,6 @@ editor.once('load', () => {
     // CONTROLLERS
 
     const createLabel = () => (forking ? 'Fork project' : 'Create project');
-
-    // retrieves list of all starter kits through API call
-    // pulsing placeholders until the first kit list arrives
-    const renderKitSkeleton = () => {
-        kitsContainer.clear();
-        for (let i = 0; i < KIT_SKELETON_COUNT; i++) {
-            const card = new Container({ class: ['starter-kit', 'skeleton'] });
-            for (const cls of ['thumb', 'title', 'line']) {
-                card.append(new Element({ class: ['kit-bone', cls] }));
-            }
-            kitsContainer.append(card);
-        }
-    };
-
-    const loadStarterKits = () => {
-        editor.call('projects:listStarterKits', (rawKits) => {
-            const kits = { ...builtInKits };
-            rawKits.forEach((rawkit) => {
-                const starterkit = processProject(rawkit);
-                kits[starterkit.fork_from] = starterkit;
-            });
-
-            const signature = JSON.stringify(kits);
-            if (signature === renderedKits) {
-                return;
-            }
-            renderedKits = signature;
-            starterKits = kits;
-
-            // a background refresh keeps a kit the user already picked
-            const kept =
-                selectedKitElement && selectedKitElement !== blankKitElement ? String(formInputs.fork_from) : null;
-            kitElements.clear();
-            kitsContainer.clear();
-            for (const [fork, starterkit] of Object.entries(starterKits)) {
-                createStarterKitUI(starterkit, fork, kitsContainer);
-            }
-            const keptElement = kept && kitElements.get(kept);
-            if (keptElement) {
-                selectedKitElement.class.remove('selected');
-                selectedKitElement = keptElement;
-                selectedKitElement.class.add('selected');
-            } else if (kept) {
-                // the picked kit is gone: fall back to blank, like a fresh open
-                Object.assign(formInputs, {
-                    name: blankProject.name,
-                    description: blankProject.description,
-                    private: false,
-                    fork_from: blankProject.fork_from
-                });
-                buildSidebar();
-            }
-        });
-    };
 
     // handles the flow for project creation as well as managing error and loading states
     const createNewProject = () => {
@@ -563,24 +388,6 @@ editor.once('load', () => {
                 }
             }
         );
-
-        newKitData = blankProject; // restart new kit data
-    };
-
-    // handles clicks on preview button on starter kits
-    const previewProject = (project_id) => {
-        editor.call(
-            'projects:getOne',
-            project_id,
-            (response) => {
-                // kits without a published app, like the blank template, preview as their project page
-                const previewURL = response.primary_app_url ?? `${config.url.home}/project/${project_id}`;
-                window.open(previewURL, '_blank');
-            },
-            (err) => {
-                editor.call('picker:project:buildAlert', mainView, err);
-            }
-        );
     };
 
     // LOCAL UTILS
@@ -609,60 +416,17 @@ editor.once('load', () => {
     };
 
     // helper method to process a project according to required schema
-    const processProject = (raw) => {
-        return {
-            name: raw.name,
-            description: raw.description,
-            image: raw.thumbnails.m,
-            tags: raw.tags,
-            fork_from: raw.project_id
-        };
-    };
-
     // EVENTS
 
     // load and show data
+    // an editor-blocking picker while it's up, so hotkeys and the viewport leave it alone
     overlay.on('show', () => {
-        // open picker
         editor.emit('picker:open', 'project-new');
-
-        // the fork dialog has no kit grid
-        if (!forking) {
-            if (renderedKits) {
-                // cached grid: back to the blank kit, matching the form reset in picker:project:newProject
-                selectedKitElement?.class.remove('selected');
-                selectedKitElement = blankKitElement;
-                selectedKitElement?.class.add('selected');
-                mainView.dom.scrollTop = 0;
-            } else {
-                renderKitSkeleton();
-            }
-            loadStarterKits();
-        }
-
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', false);
-        }
     });
 
-    // clean up
     overlay.on('hide', () => {
-        editor.emit('picker:close', 'project-new'); // close panel
-
+        editor.emit('picker:close', 'project-new');
         editor.call('picker:project:hideAlerts');
-
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', true);
-        }
-    });
-
-    // prevent viewport hovering when the picker is shown
-    editor.on('viewport:hover', (state) => {
-        if (state && !overlay.hidden) {
-            setTimeout(() => {
-                editor.emit('viewport:hover', false);
-            }, 0);
-        }
     });
 
     // the fork dialog is the sidebar alone, without the kit grid
@@ -698,20 +462,25 @@ editor.once('load', () => {
         });
     });
 
-    // displays the new project modal
-    editor.method('picker:project:newProject', () => {
-        setMode(null);
-        rootUser = editor.call('picker:project:cms:rootUser');
-        newProjectOwner = editor.call('picker:project:cms:currentUser');
+    // the projects page's New project: its kit grid fills the main view beside this form
+    editor.method('picker:project:new:mainView', () => mainView);
 
-        // start from the blank kit, matching the default selection in the kit grid
-        Object.assign(formInputs, {
-            name: blankProject.name,
-            description: blankProject.description,
-            private: false,
-            fork_from: blankProject.fork_from
-        });
+    // opens the form for a new project from a kit; data is what gets created, with the form's values on top
+    editor.method('picker:project:new:open', ({ rootUser: root, owner, values, data }) => {
+        setMode(null);
+        rootUser = root;
+        newProjectOwner = owner;
+        Object.assign(formInputs, values);
+        newKitData = data;
         buildSidebar();
         overlay.hidden = false;
     });
+
+    // a kit was picked: its name, description and source fill the form
+    editor.method('picker:project:new:select', (values) => {
+        Object.assign(formInputs, values);
+        buildSidebar();
+    });
+
+    editor.method('picker:project:new:values', () => ({ ...formInputs }));
 });

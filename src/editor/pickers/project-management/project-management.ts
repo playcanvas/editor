@@ -7,6 +7,11 @@
 
 import { config } from '@/editor/config';
 
+import { PROJECTS_TAB, projectTab } from './tabs';
+
+// name this tab so other tabs can switch to it: the projects page, or this project's editor
+window.name = config.project.id ? projectTab(config.project.id) : PROJECTS_TAB;
+
 editor.once('load', () => {
     const model = {
         currentProject: ''

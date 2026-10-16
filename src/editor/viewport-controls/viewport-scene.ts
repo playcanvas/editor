@@ -2,6 +2,7 @@ import { Button, Container, Label } from '@playcanvas/pcui';
 
 import { TooltipHandle } from '@/common/tooltips';
 import { config } from '@/editor/config';
+import { openProjects } from '@/editor/pickers/project-management/tabs';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');
@@ -28,9 +29,7 @@ editor.once('load', () => {
     });
     crumbs.append(projectsButton);
 
-    projectsButton.on('click', () => {
-        editor.call('picker:project:cms');
-    });
+    projectsButton.on('click', () => openProjects());
 
     TooltipHandle.attach({
         target: projectsButton.dom,

@@ -3,6 +3,7 @@ import { Button, Menu } from '@playcanvas/pcui';
 import { TooltipHandle } from '@/common/tooltips';
 import { formatShortcut } from '@/common/utils';
 import { config } from '@/editor/config';
+import { openProjects } from '@/editor/pickers/project-management/tabs';
 
 const DONE_ICON = '\uE133';
 
@@ -95,11 +96,11 @@ editor.once('load', () => {
     const menu = new Menu({
         items: [
             {
-                // back to the projects page
+                // the projects page, in its own tab
                 text: 'All Projects',
                 icon: 'E140',
                 class: 'menu-item-projects',
-                onSelect: () => editor.call('picker:project:cms')
+                onSelect: () => openProjects()
             },
             {
                 // the project's page on the website: team, dev log and settings
@@ -453,16 +454,10 @@ editor.once('load', () => {
     menu.position(40, 0);
     root.append(menu);
 
-    editor.call('hotkey:register', 'projects:toggle', {
+    editor.call('hotkey:register', 'projects:open', {
         key: 'o',
         ctrl: true,
-        callback: () => {
-            // other pickers own the screen; the projects page itself handles going back
-            if (editor.call('picker:isOpen')) {
-                return;
-            }
-            editor.call('picker:project:cms:toggle');
-        }
+        callback: () => openProjects()
     });
 
     const tooltip = TooltipHandle.attach({

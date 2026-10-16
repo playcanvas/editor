@@ -48,24 +48,14 @@ export const dialog = ({ title, class: cls, wide, confirm }: DialogArgs) => {
         close.emit('click');
     };
 
+    // an editor-blocking picker while it's up, so hotkeys and the viewport leave it alone
     overlay.on('show', () => {
         window.addEventListener('keydown', onKeyDown, true);
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', false);
-        }
+        editor.emit('picker:open', `dialog:${cls}`);
     });
     overlay.on('hide', () => {
         window.removeEventListener('keydown', onKeyDown, true);
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', true);
-        }
-    });
-
-    // keep the viewport from taking hover while the dialog is up
-    editor.on('viewport:hover', (state) => {
-        if (state && !overlay.hidden) {
-            setTimeout(() => editor.emit('viewport:hover', false), 0);
-        }
+        editor.emit('picker:close', `dialog:${cls}`);
     });
 
     return { overlay, panel, close, footer };
