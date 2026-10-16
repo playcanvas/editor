@@ -98,8 +98,8 @@ test.describe('create/delete', () => {
     test('create project', async ({ blankPage }) => {
         test.setTimeout(JOB_TEST_TIMEOUT);
 
-        // an empty project creates without forking, so it works on every environment; blank forks
-        // a template that only exists on production
+        // an empty project creates without forking, so it works on every environment; the blank
+        // kit's fork is covered in projects-home.test.ts
         await blankPage.locator('.cms-side .cms-new').click();
         await blankPage.locator('.picker-project-new .starter-kit:not(.skeleton)', { hasText: 'Empty Project' }).click();
         await blankPage.locator('.modal-new-project-form-content input[type="text"]').first().fill(projectName);
