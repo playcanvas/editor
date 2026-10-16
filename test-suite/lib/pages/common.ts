@@ -1,8 +1,11 @@
-import type { Locator, Page, ViewportSize } from '@playwright/test';
+import type { Locator, Page, Request, ViewportSize } from '@playwright/test';
 
 import { arm, type Armed, type ArmCap } from '../arm';
-import { JOB_TIMEOUT } from '../constants';
+import { JOB_TIMEOUT, THUMBNAIL_TIMEOUT } from '../constants';
 import { waitForEditor } from '../ready';
+
+// thumbnail fetches still waiting on a response, per page
+const THUMBNAIL_FETCHES = new WeakMap<Page, Set<Request>>();
 
 /** Ids of everything a project holds, as `snapshot()` found them. */
 export type ProjectState = { entities: string[]; assets: number[] };
@@ -35,7 +38,20 @@ const PICKER_CLOSERS = [
 ];
 
 export class EditorShell {
-    constructor(readonly page: Page) {}
+    constructor(readonly page: Page) {
+        if (THUMBNAIL_FETCHES.has(page)) {
+            return;
+        }
+        const fetches = new Set<Request>();
+        THUMBNAIL_FETCHES.set(page, fetches);
+        page.on('request', (req) => {
+            if (req.url().includes('/thumbnail/')) {
+                fetches.add(req);
+            }
+        });
+        page.on('requestfinished', req => fetches.delete(req));
+        page.on('requestfailed', req => fetches.delete(req));
+    }
 
     /** `arm` bound to this page. */
     arm<T>(subscribe: (arg: any) => Armed<T>, arg?: any, cap?: ArmCap) {
@@ -158,6 +174,20 @@ export class EditorShell {
      */
     async restore(state: ProjectState) {
         await this.flushJobs();
+
+        // the server thumbnails a texture after upload or an rgbm change, outside the editor's
+        // jobs, and the editor fetches the thumbnail as soon as it lands; deleting the texture
+        // before that fetch answers fails it with a 401/403 once the asset is gone
+        await this.page.waitForFunction((before: number[]) => {
+            return window.editor.api.globals.assets.list().every((a: any) => {
+                const pending = String(a.get('type')).startsWith('texture') && a.get('file') && !a.get('has_thumbnail');
+                return before.includes(Number(a.get('id'))) || !pending;
+            });
+        }, state.assets, { timeout: THUMBNAIL_TIMEOUT }).catch(() => {
+            // a texture that never gets a thumbnail must not block the cleanup
+        });
+        await Promise.all([...THUMBNAIL_FETCHES.get(this.page)!].map(req => req.response()));
+
         const removed = await this.arm((before: number[]) => {
             const assets = window.editor.api.globals.assets;
             const extra = () => assets.list().some((a: any) => !before.includes(Number(a.get('id'))));
