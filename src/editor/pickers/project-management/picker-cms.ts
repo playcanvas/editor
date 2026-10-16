@@ -1,9 +1,12 @@
 import type { MenuItem } from '@playcanvas/pcui';
 import { Button, Container, Element, Label, Menu, Overlay, Progress, TextInput } from '@playcanvas/pcui';
 
-import * as SVG from '@/common/svg';
 import { bytesToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
+
+import { button } from './components/button';
+import { empty } from './components/empty';
+import { spinner } from './components/spinner';
 
 const PAGE_SIZE = 24;
 const TABS = [
@@ -30,7 +33,6 @@ const PROMPTS = [
 ];
 const PROMPT = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
 // access you have to someone else's project; admin needs no badge, it's the default on yours and your orgs'
-const PERMISSION_LABELS = { write: 'Can edit', read: 'View only' };
 const QUALIFIERS = ['name:', 'owner:', 'desc:', 'is:private', 'is:public', 'is:starred', 'is:open', 'is:locked'];
 const IS_EMPTY_STATE = !config.project.id; // if no project loaded, CMS is in empty state
 const EMPTY_THUMBNAIL_IMAGE = `${config.url.frontend}static/img/blank-project.webp`;
@@ -192,6 +194,18 @@ editor.once('load', () => {
         parent?.append(l);
         return l;
     };
+    // a focusable surface: Enter or Space on it presses it; keys on buttons inside it stay theirs
+    const pressable = (el: HTMLElement, label: string, onPress: () => void) => {
+        el.tabIndex = 0;
+        el.setAttribute('role', 'button');
+        el.setAttribute('aria-label', label);
+        el.addEventListener('keydown', (e) => {
+            if (e.target === el && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                onPress();
+            }
+        });
+    };
     const image = (src, cls, parent?: Container) => {
         const img = new Element({ dom: 'img', class: cls });
         (img.dom as HTMLImageElement).src = src;
@@ -314,8 +328,8 @@ editor.once('load', () => {
     // accept/decline for the recipient, cancel for the sender; both refresh the list when done
     const transferActions = (project, parent: Container) => {
         const actions = box(['cms-transfer', isRecipient(project) ? 'incoming' : 'outgoing'], parent);
-        const act = (label, cls, call: () => Promise<unknown>) => {
-            const btn = new Button({ class: ['cms-button', 'small', ...[cls ?? []].flat()], text: label });
+        const act = (label, kind: 'primary' | 'secondary', call: () => Promise<unknown>) => {
+            const btn = button({ kind, size: 'sm', text: label });
             btn.on('click', (e) => {
                 e.stopPropagation();
                 actions.enabled = false;
@@ -333,10 +347,10 @@ editor.once('load', () => {
         const decline = () =>
             new Promise((resolve, reject) => editor.call('projects:declineTransfer', project.id, resolve, reject));
         if (isRecipient(project)) {
-            act('Decline', null, decline);
+            act('Decline', 'secondary', decline);
             act('Accept', 'primary', () => editor.call('projects:acceptTransfer', project.id));
         } else {
-            act('Cancel transfer', null, decline);
+            act('Cancel transfer', 'secondary', decline);
         }
         return actions;
     };
@@ -488,9 +502,7 @@ editor.once('load', () => {
     const toggleSpinner = (root: Container, toggle: boolean) => {
         root.clear();
         if (toggle) {
-            root.append(
-                new Element({ dom: SVG.spinner(24) as unknown as HTMLElement, class: ['progress-icon', 'spin'] })
-            );
+            root.append(spinner({ size: 'md', class: 'progress-icon' }));
         }
     };
 
@@ -548,8 +560,7 @@ editor.once('load', () => {
 
     const orgHeader = box('cms-section', side);
     text('Organizations', null, orgHeader);
-    const addOrganizationButton = new Button({ class: 'cms-section-add', icon: 'E120' });
-    addOrganizationButton.dom.title = 'New organization';
+    const addOrganizationButton = button({ kind: 'icon', size: 'sm', icon: 'E120', label: 'New organization' });
     orgHeader.append(addOrganizationButton);
     addOrganizationButton.on('click', () => editor.call('picker:project:newOrganization'));
     const orgList = box('cms-side-list', side);
@@ -557,19 +568,20 @@ editor.once('load', () => {
     box('cms-gap', side);
 
     const storageCard = box('cms-storage', side);
-    storageCard.dom.tabIndex = 0;
     storageCard.dom.title = 'Storage details';
     storageCard.on('click', () => toggleStoragePopover());
+    pressable(storageCard.dom, 'Storage details', () => toggleStoragePopover());
 
     const meRow = box('cms-me', side);
     const meAvatar = image(avatarUrl(config.self.id, 56), 'cms-me-avatar', meRow);
     const meText = box('cms-me-text', meRow);
     const meName = text('', 'cms-me-name', meText);
     const mePlan = text('', 'cms-me-plan', meText);
-    const accountButton = new Button({ class: 'cms-kebab' });
-    accountButton.dom.title = 'Account';
+    const accountButton = button({ kind: 'icon', label: 'Account menu', class: 'cms-kebab' });
     meRow.append(accountButton);
-    meAvatar.on('click', () => window.open(`${config.url.home}/account`, '_blank'));
+    const openAccount = () => window.open(`${config.url.home}/account`, '_blank');
+    meAvatar.on('click', openAccount);
+    pressable(meAvatar.dom, 'Account settings', openAccount);
 
     // MAIN PANEL
 
@@ -594,8 +606,7 @@ editor.once('load', () => {
     const headText = box('cms-head-text', head);
     const title = text('', 'cms-title', headText);
     const subtitle = text('', 'cms-subtitle', headText);
-    const orgMenuButton = new Button({ class: 'cms-kebab', hidden: true });
-    orgMenuButton.dom.title = 'Organization actions';
+    const orgMenuButton = button({ kind: 'icon', label: 'Organization actions', class: 'cms-kebab', hidden: true });
     head.append(orgMenuButton);
     const headerUtils = box('cms-head-actions', head);
     headerUtils.hidden = true; // only shown on the start screen; see refresh()
@@ -610,11 +621,11 @@ editor.once('load', () => {
         filePicker.value = null;
     });
 
-    const importProjectButton = new Button({ class: ['cms-button', 'ghost'], icon: 'E222', text: 'Import' });
+    const importProjectButton = button({ kind: 'ghost', icon: 'E222', text: 'Import' });
     headerUtils.append(importProjectButton);
     importProjectButton.on('click', () => filePicker.click());
 
-    const newProjectButton = new Button({ class: ['cms-button', 'primary'], icon: 'E120', text: 'New project' });
+    const newProjectButton = button({ kind: 'primary', icon: 'E120', text: 'New project' });
     headerUtils.append(newProjectButton);
     newProjectButton.on('click', () => editor.call('picker:project:newProject'));
 
@@ -646,8 +657,13 @@ editor.once('load', () => {
     searchBox.append(searchInput);
     // native placeholder, PCUI's own sits small and right-aligned
     searchInput.input.placeholder = 'Search projects, or filter with name:, owner:, desc:, is:';
-    const clearSearch = new Button({ class: 'cms-search-clear', hidden: true });
-    clearSearch.dom.title = 'Clear search';
+    const clearSearch = button({
+        kind: 'icon',
+        size: 'sm',
+        label: 'Clear search',
+        class: 'cms-search-clear',
+        hidden: true
+    });
     searchBox.append(clearSearch);
 
     const hints = box('cms-hints', toolbar);
@@ -685,8 +701,10 @@ editor.once('load', () => {
     const layoutToggle = box('cms-layout', tools);
     const gridButton = new Button({ class: ['cms-layout-button', 'grid'] });
     gridButton.dom.title = 'Cards';
+    gridButton.dom.setAttribute('aria-label', 'Show as cards');
     const listButton = new Button({ class: ['cms-layout-button', 'list'] });
     listButton.dom.title = 'List';
+    listButton.dom.setAttribute('aria-label', 'Show as list');
     layoutToggle.append(gridButton);
     layoutToggle.append(listButton);
     gridButton.on('click', () => setLayout('grid'));
@@ -843,7 +861,7 @@ editor.once('load', () => {
         const r = box('cms-pop-row', free);
         text('Free', null, r);
         text(bytesToHuman(Math.max(0, allowance - accountUsage.total)), 'value', r);
-        const upgrade = new Button({ class: ['cms-button', 'primary'], text: 'Upgrade plan' });
+        const upgrade = button({ kind: 'primary', text: 'Upgrade plan' });
         storagePopover.append(upgrade);
         upgrade.on('click', () => window.open(`${config.url.home}/upgrade?account=${currentUser.username}`, '_blank'));
         const rect = storageCard.dom.getBoundingClientRect();
@@ -945,7 +963,7 @@ editor.once('load', () => {
         }
         liveDot(banner);
         text(`${config.project.name} is open in the editor`, 'cms-banner-text', banner);
-        const back = new Button({ class: ['cms-button', 'primary', 'small'], text: 'Return to editor' });
+        const back = button({ kind: 'primary', size: 'sm', text: 'Return to editor' });
         banner.append(back);
         back.on('click', returnToEditor);
     };
@@ -1047,11 +1065,7 @@ editor.once('load', () => {
         }
         // actions sit under the details so the card reads as one unit on wide screens
         const actions = box('cms-welcome-actions', info);
-        const edit = new Button({
-            class: ['cms-button', 'primary'],
-            icon: 'E130',
-            text: open ? 'Return to editor' : 'Open editor'
-        });
+        const edit = button({ kind: 'primary', icon: 'E130', text: open ? 'Return to editor' : 'Open editor' });
         actions.append(edit);
         edit.dom.addEventListener('mousedown', (e) => e.stopPropagation());
         edit.on('click', (e) => {
@@ -1059,7 +1073,7 @@ editor.once('load', () => {
             openEditor(lead);
         });
         if (lead.primary_app_url) {
-            const play = new Button({ class: ['cms-button', 'primary'], icon: 'E286', text: 'Play' });
+            const play = button({ kind: 'primary', icon: 'E286', text: 'Play' });
             actions.append(play);
             play.on('click', (e) => {
                 e.stopPropagation();
@@ -1096,8 +1110,9 @@ editor.once('load', () => {
         if (project.private) {
             text('Private', 'cms-badge', tags);
         }
-        if (project.owner_id !== config.self.id && PERMISSION_LABELS[project.access_level]) {
-            text(PERMISSION_LABELS[project.access_level], 'cms-badge', tags);
+        // editing a shared project is the norm, so only flag the exception
+        if (project.owner_id !== config.self.id && project.access_level === 'read') {
+            text('Read only', ['cms-badge', 'info'], tags);
         }
         const pending = isPending(project);
         if (pending) {
@@ -1230,15 +1245,10 @@ editor.once('load', () => {
         ].filter(Boolean);
     const bindOpen = (item: Container, project) => {
         item.on('click', () => openProject(project));
-        item.dom.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                openProject(project);
-            }
-        });
+        pressable(item.dom, project.name, () => openProject(project));
     };
     const kebabFor = (project, parent: Container) => {
-        const kebab = new Button({ class: 'cms-kebab' });
-        kebab.dom.title = 'Project actions';
+        const kebab = button({ kind: 'icon', label: 'Project actions', class: 'cms-kebab' });
         parent.append(kebab);
         kebab.on('click', (e) => {
             e.stopPropagation();
@@ -1252,7 +1262,7 @@ editor.once('load', () => {
             return;
         }
         if (shown < rows.length) {
-            more.append(new Element({ class: 'cms-spin' }));
+            more.append(spinner());
             text(`Loading more · showing ${shown} of ${rows.length}`, null, more);
 
             // the observer only fires on changes, so re-observe to catch a sentinel still in view
@@ -1273,28 +1283,24 @@ editor.once('load', () => {
         listContainer.class[layout === 'grid' ? 'add' : 'remove']('grid');
         listContainer.class[layout === 'list' ? 'add' : 'remove']('rows');
         if (!rows.length) {
-            const empty = box('cms-empty', listContainer);
             const query = searchInput.value.trim();
             const starred = !query && filter === 'starred';
-            text(
-                query ? `No projects match ${query}` : starred ? 'No starred projects' : 'No projects yet',
-                'cms-empty-title',
-                empty
+            const action = starred
+                ? undefined
+                : button({ kind: 'secondary', text: query ? 'Clear search' : 'New project' });
+            action?.on('click', () => (query ? (searchInput.value = '') : editor.call('picker:project:newProject')));
+            listContainer.append(
+                empty({
+                    class: 'cms-empty',
+                    title: query ? `No projects match ${query}` : starred ? 'No starred projects' : 'No projects yet',
+                    text: query
+                        ? 'Try fewer filters, or clear the search.'
+                        : starred
+                          ? 'Star a project to keep it here.'
+                          : 'Create one, or import a project export.',
+                    action
+                })
             );
-            text(
-                query
-                    ? 'Try fewer filters, or clear the search.'
-                    : starred
-                      ? 'Star a project to keep it here.'
-                      : 'Create one, or import a project export.',
-                null,
-                empty
-            );
-            if (!starred) {
-                const action = new Button({ class: 'cms-button', text: query ? 'Clear search' : 'New project' });
-                empty.append(action);
-                action.on('click', () => (query ? (searchInput.value = '') : editor.call('picker:project:newProject')));
-            }
         }
         // column headers so every number reads against its column
         if (layout === 'list' && rows.length) {

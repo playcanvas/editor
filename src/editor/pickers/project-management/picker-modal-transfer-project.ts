@@ -1,6 +1,11 @@
-import { Button, Container, Element, Label, Overlay, Panel, TextInput } from '@playcanvas/pcui';
+import { Container, Element, Label, TextInput } from '@playcanvas/pcui';
 
 import { config } from '@/editor/config';
+
+import { button } from './components/button';
+import { callout } from './components/callout';
+import { dialog } from './components/dialog';
+import { spinner } from './components/spinner';
 
 const LOOKUP_DELAY = 300;
 
@@ -22,31 +27,11 @@ editor.once('load', () => {
         loader.hidden = !toggle;
     };
 
-    // overlay
-    const root = editor.call('layout.root');
-    const overlay = new Overlay({
-        clickable: false,
+    const { overlay, panel, footer } = dialog({
+        title: 'Transfer ownership',
         class: 'picker-transfer-project',
-        hidden: true
+        wide: true
     });
-    root.append(overlay);
-
-    // main panel
-    const panel = new Panel({
-        headerText: 'TRANSFER OWNERSHIP',
-        class: 'transfer-project-panel'
-    });
-    overlay.append(panel);
-
-    // close button
-    const btnClose = new Button({
-        class: 'close',
-        icon: 'E132'
-    });
-    btnClose.on('click', () => {
-        overlay.hidden = true;
-    });
-    panel.header.append(btnClose);
 
     const inputContainer = new Container({
         flex: true,
@@ -59,10 +44,7 @@ editor.once('load', () => {
     });
     inputContainer.append(labelElement);
 
-    const warning = new Label({
-        class: 'form-group--warning',
-        text: 'Once they accept, everyone else on the project loses access.'
-    });
+    const warning = callout({ tone: 'warn', text: 'Once they accept, everyone else on the project loses access.' });
     inputContainer.append(warning);
 
     const inputElement = new TextInput({
@@ -81,26 +63,16 @@ editor.once('load', () => {
     const resultUser = new Label({ class: 'transfer-recipient-user' });
     result.append(resultUser);
 
-    const footer = new Container({ class: 'transfer-project-footer' });
-    panel.append(footer);
-
-    const cancelButton = new Button({ class: 'cancel-project-button', text: 'Cancel' });
+    const cancelButton = button({ kind: 'secondary', text: 'Cancel' });
     cancelButton.on('click', () => {
         overlay.hidden = true;
     });
     footer.append(cancelButton);
 
-    const transferButton = new Button({
-        class: 'transfer-project-button',
-        text: 'Transfer',
-        enabled: false
-    });
+    const transferButton = button({ kind: 'primary', text: 'Transfer', enabled: false });
     footer.append(transferButton);
 
-    const loader = new Element({
-        class: 'loader',
-        hidden: true
-    });
+    const loader = spinner({ hidden: true });
     transferButton.dom.appendChild(loader.dom);
 
     // CONTROLLERS
@@ -176,29 +148,10 @@ editor.once('load', () => {
 
     // EVENTS
 
-    // load and show data
-    overlay.on('show', () => {
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', false);
-        }
-    });
-
     // clean up
     overlay.on('hide', () => {
         clearTimeout(timer);
         lookup++;
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', true);
-        }
-    });
-
-    // prevent viewport hovering when picker is shown
-    editor.on('viewport:hover', (state) => {
-        if (state && !overlay.hidden) {
-            setTimeout(() => {
-                editor.emit('viewport:hover', false);
-            }, 0);
-        }
     });
 
     // method to display panel

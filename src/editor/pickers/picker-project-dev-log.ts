@@ -1,7 +1,10 @@
-import { Button, Container, Element, Label, TextAreaInput, TextInput } from '@playcanvas/pcui';
+import { Container, Element, Label, TextAreaInput, TextInput } from '@playcanvas/pcui';
 import Markdown from 'markdown-it';
 
 import { config } from '@/editor/config';
+
+import { button } from './project-management/components/button';
+import { empty } from './project-management/components/empty';
 
 const TITLE_MAX = 100;
 const DELETE_CONFIRM_MS = 3000;
@@ -32,7 +35,7 @@ editor.once('load', () => {
     const header = new Container({ class: 'dev-log-header' });
     panel.append(header);
     header.append(new Label({ class: 'dev-log-intro', text: 'Share progress and updates on this project.' }));
-    const newButton = new Button({ class: 'dev-log-new', text: 'New post' });
+    const newButton = button({ kind: 'primary', size: 'sm', text: 'New post' });
     header.append(newButton);
 
     const list = new Container({ class: 'dev-log-list' });
@@ -41,26 +44,19 @@ editor.once('load', () => {
     const message = (text: string) => list.append(new Label({ class: 'dev-log-message', text }));
 
     // no posts yet: what the log is for, and a way to start it for people who can write
-    const empty = () => {
-        const box = new Container({ class: 'dev-log-empty' });
-        emptyState = box;
+    const showEmpty = () => {
         newButton.hidden = true;
-        box.append(new Element({ class: 'dev-log-empty-icon' }));
-        box.append(new Label({ class: 'dev-log-empty-title', text: 'No posts yet' }));
-        box.append(
-            new Label({
-                class: 'dev-log-empty-text',
-                text: canWrite()
-                    ? 'Post what changed so your team and players can follow along.'
-                    : 'Updates from the people working on this project will show here.'
-            })
-        );
-        if (canWrite()) {
-            const start = new Button({ class: ['dev-log-button', 'primary'], text: 'Write the first post' });
-            start.on('click', () => openComposer());
-            box.append(start);
-        }
-        list.append(box);
+        const start = canWrite() ? button({ kind: 'primary', text: 'Write the first post' }) : undefined;
+        start?.on('click', () => openComposer());
+        emptyState = empty({
+            icon: 'dev-log-empty-icon',
+            title: 'No posts yet',
+            text: canWrite()
+                ? 'Post what changed so your team and players can follow along.'
+                : 'Updates from the people working on this project will show here.',
+            action: start
+        });
+        list.append(emptyState);
     };
 
     // a title and markdown body, for a new post or an edit
@@ -83,9 +79,9 @@ editor.once('load', () => {
 
         const actions = new Container({ class: 'dev-log-editor-actions' });
         form.append(actions);
-        const cancel = new Button({ class: 'dev-log-button', text: 'Cancel' });
+        const cancel = button({ kind: 'secondary', size: 'sm', text: 'Cancel' });
         actions.append(cancel);
-        const save = new Button({ class: ['dev-log-button', 'primary'], text: post ? 'Save' : 'Post' });
+        const save = button({ kind: 'primary', size: 'sm', text: post ? 'Save' : 'Post' });
         actions.append(save);
 
         const fail = (text: string) => {
@@ -153,7 +149,7 @@ editor.once('load', () => {
         }
         const actions = new Container({ class: 'dev-log-post-actions' });
         item.append(actions);
-        const edit = new Button({ class: 'dev-log-button', text: 'Edit' });
+        const edit = button({ kind: 'secondary', size: 'sm', text: 'Edit' });
         actions.append(edit);
         edit.on('click', () => {
             closeComposer();
@@ -166,7 +162,7 @@ editor.once('load', () => {
         });
 
         // a second click within a few seconds confirms
-        const remove = new Button({ class: ['dev-log-button', 'delete'], text: 'Delete' });
+        const remove = button({ kind: 'ghost', tone: 'danger', size: 'sm', text: 'Delete' });
         actions.append(remove);
         let armed = null;
         remove.on('click', () => {
@@ -221,7 +217,7 @@ editor.once('load', () => {
                     }
                     list.clear();
                     if (!full.length) {
-                        empty();
+                        showEmpty();
                     }
                     full.forEach(buildPost);
                 });

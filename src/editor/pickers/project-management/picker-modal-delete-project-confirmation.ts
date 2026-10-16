@@ -1,4 +1,8 @@
-import { Button, Container, Element, Label, Overlay, Panel, TextInput } from '@playcanvas/pcui';
+import { Container, Label, TextInput } from '@playcanvas/pcui';
+
+import { button } from './components/button';
+import { dialog } from './components/dialog';
+import { spinner } from './components/spinner';
 
 editor.once('load', () => {
     // GLOBAL VARIABLES
@@ -15,31 +19,7 @@ editor.once('load', () => {
         loader.hidden = !toggle;
     };
 
-    // overlay
-    const root = editor.call('layout.root');
-    const overlay = new Overlay({
-        clickable: false,
-        class: 'picker-delete-project',
-        hidden: true
-    });
-    root.append(overlay);
-
-    // main panel
-    const panel = new Panel({
-        headerText: 'DELETE PROJECT',
-        class: 'delete-project-panel'
-    });
-    overlay.append(panel);
-
-    // close button
-    const btnClose = new Button({
-        class: 'close',
-        icon: 'E132'
-    });
-    btnClose.on('click', () => {
-        overlay.hidden = true;
-    });
-    panel.header.append(btnClose);
+    const { overlay, panel, footer } = dialog({ title: 'Delete project', class: 'picker-delete-project', wide: true });
 
     const inputContainer = new Container({
         flex: true,
@@ -63,26 +43,16 @@ editor.once('load', () => {
     });
     inputElement.dom.addEventListener('paste', (e) => e.preventDefault());
 
-    const footer = new Container({ class: 'delete-project-footer' });
-    panel.append(footer);
-
-    const cancelButton = new Button({ class: 'cancel-project-button', text: 'Cancel' });
+    const cancelButton = button({ kind: 'secondary', text: 'Cancel' });
     cancelButton.on('click', () => {
         overlay.hidden = true;
     });
     footer.append(cancelButton);
 
-    const deleteButton = new Button({
-        class: 'delete-project-button',
-        text: 'Delete project',
-        enabled: false
-    });
+    const deleteButton = button({ kind: 'danger', text: 'Delete project', enabled: false });
     footer.append(deleteButton);
 
-    const loader = new Element({
-        class: 'loader',
-        hidden: true
-    });
+    const loader = spinner({ hidden: true });
     deleteButton.dom.appendChild(loader.dom);
 
     deleteButton.on('click', () => {
@@ -103,31 +73,6 @@ editor.once('load', () => {
     const validateInput = (userInput) => {
         deleteButton.enabled = userInput === currentProject.name;
     };
-
-    // EVENTS
-
-    // load and show data
-    overlay.on('show', () => {
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', false);
-        }
-    });
-
-    // clean up
-    overlay.on('hide', () => {
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', true);
-        }
-    });
-
-    // prevent viewport hovering when picker is shown
-    editor.on('viewport:hover', (state) => {
-        if (state && !overlay.hidden) {
-            setTimeout(() => {
-                editor.emit('viewport:hover', false);
-            }, 0);
-        }
-    });
 
     // method to display panel
     editor.method('picker:project:modal:deleteProjectConfirmation', (project) => {

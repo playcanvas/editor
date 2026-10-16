@@ -3,101 +3,6 @@
 // new project, new organization and delete organization pickers: the project picker frame with projects-page controls
 // corners: 8px kit cards, 6px controls (inputs, buttons)
 
-// shared by the new project and organization pickers
-
-// centred title in the 33px picker header, close button on the right
-%dialog-header {
-    position: relative;
-    display: flex;
-    align-items: center;
-    height: 33px;
-    border-bottom: 1px solid $border-primary;
-
-    > .pcui-panel-header-title {
-        flex: 1;
-        margin: 0;
-        text-align: center;
-        text-transform: uppercase;
-    }
-
-    > .pcui-button.close {
-        position: absolute;
-        top: 50%;
-        right: 4px;
-        display: inline-grid;
-        place-items: center;
-        width: 24px;
-        height: 24px;
-        margin: 0;
-        padding: 0;
-        border: none;
-        background: transparent;
-        color: $text-secondary;
-        font-size: 14px;
-        transform: translateY(-50%);
-
-        &::before {
-            margin: 0;
-        }
-
-        @include cms-ghost-hover($cms-fill-on-surface);
-    }
-}
-
-%dialog-label {
-    margin: 0;
-    color: $text-secondary;
-    font-size: 12px;
-
-    @extend .font-bold;
-}
-
-%dialog-input {
-    margin: 0;
-    border: 1px solid $border-primary;
-    border-radius: 6px;
-    background-color: $bcg-darker;
-    box-shadow: none;
-    transition: border-color $cms-ease;
-
-    > input,
-    > textarea {
-        padding: 0 10px;
-        color: $text-primary;
-        font-family: inherit;
-        font-size: 13px;
-    }
-
-    // same orange focus border as the projects page search
-    &.pcui-focus {
-        border-color: $text-active;
-    }
-}
-
-%dialog-button {
-    position: relative;
-    min-width: 80px;
-    height: 32px;
-    margin: 0;
-    padding: 0 14px;
-    border: 1px solid $border-primary;
-    border-radius: 6px;
-    background-color: $bcg-primary;
-    color: $text-secondary;
-    font-size: 13px;
-    line-height: 30px;
-
-    @include cms-outlined-hover;
-}
-
-%dialog-button-primary {
-    border-color: transparent;
-    background-color: $text-active;
-    color: $text-primary;
-
-    @include cms-primary-hover;
-}
-
 .pcui-overlay.picker-project-new {
     z-index: 100000; // larger than drop-area's
 
@@ -246,11 +151,6 @@
             flex-direction: column;
             align-items: flex-start;
             gap: 6px;
-            padding: 10px 12px;
-            border: 1px solid rgb(251 34 47 / 45%);
-            border-radius: 6px;
-            background-color: rgb(251 34 47 / 8%);
-            color: #f3b8bc;
             font-size: 13px;
             line-height: 1.4;
 
@@ -320,8 +220,11 @@
             box-shadow $cms-ease;
 
         // same hover as the project cards
-        &.hovered {
+        &:not(.skeleton):hover,
+        &:focus-visible {
             @extend %cms-hover-ring;
+
+            outline: none;
 
             .thumbnail img {
                 @extend %cms-hover-zoom;
@@ -402,7 +305,8 @@
             }
         }
 
-        &.hovered .preview-button,
+        &:not(.skeleton):hover .preview-button,
+        &:focus-within .preview-button,
         &.selected .preview-button {
             display: inline-grid;
             place-items: center;
@@ -611,22 +515,22 @@
                 margin: 4px 0;
                 padding: 4px;
                 border: 1px solid $border-primary;
-                border-radius: 6px;
-                background-color: $bcg-primary;
-                box-shadow: 0 4px 12px rgb(0 0 0 / 30%);
+                border-radius: $radius-control;
+                background-color: $cms-float;
+                box-shadow: $cms-float-shadow;
                 box-sizing: border-box;
 
                 > * {
                     position: relative;
                     height: 32px;
                     padding-left: 32px;
-                    border-radius: 4px;
+                    border-radius: $radius-badge;
                     line-height: 32px;
                 }
 
                 > *:hover,
                 > .pcui-select-input-label-highlighted {
-                    background-color: color.adjust($bcg-primary, $lightness: 4%);
+                    background-color: $cms-hover;
                 }
 
                 .owner-profile {
@@ -642,26 +546,6 @@
         justify-content: flex-end;
         gap: 8px;
         padding: 16px 20px 20px;
-
-        .pcui-button {
-            @extend %dialog-button;
-        }
-
-        .create-btn {
-            @extend %dialog-button-primary;
-        }
-
-        .loader {
-            position: absolute;
-            inset: 0;
-            width: 14px;
-            height: 14px;
-            margin: auto;
-            border: 2px solid rgb(255 255 255 / 35%);
-            border-top-color: $text-primary;
-            border-radius: 50%;
-            animation: cms-spin 0.8s linear infinite;
-        }
     }
 
     // alerts from picker:project:buildAlert sit over the kit grid
@@ -670,282 +554,163 @@
     }
 }
 
+// dialog() content: the shell itself lives in _editor-ui-components.scss
+
+// form fields in the new organization and type-to-confirm dialogs
+.pcui-overlay.pm-dialog {
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin: 0;
+    }
+
+    .pcui-text-input.form-group--input {
+        @extend %dialog-input;
+
+        height: 32px;
+
+        > input {
+            height: 30px;
+        }
+    }
+
+    .form-group--hint {
+        margin: 0;
+        color: $danger-text;
+        font-size: 12px;
+        white-space: normal;
+    }
+}
+
 .pcui-overlay.picker-new-organization {
-    z-index: 10000;
+    .form-group--label {
+        @extend %dialog-label;
+    }
 
-    > .pcui-overlay-content {
-        width: min(440px, calc(100vw - 32px));
+    // how the organization will look in the sidebar and its url
+    .new-organization-preview {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+        margin: 0 0 4px;
+        padding: 12px;
         border: 1px solid $border-primary;
+        border-radius: $radius-surface;
+        background-color: $bcg-dark;
 
-        > .new-organization-panel {
-            > .pcui-panel-header {
-                @extend %dialog-header;
-            }
+        &.empty .preview-name {
+            color: $text-meta;
+        }
+    }
 
-            > .pcui-panel-content {
-                display: flex;
-                flex-direction: column;
-                gap: 14px;
-                padding: 20px 20px 0;
-            }
+    .preview-tile {
+        display: inline-grid;
+        flex: none;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        margin: 0;
+        border-radius: $radius-surface;
+        background-color: $text-active;
+        color: $text-primary;
+        font-size: 15px;
 
-            // how the organization will look in the sidebar and its url
-            .new-organization-preview {
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                gap: 12px;
-                margin: 0 0 4px;
-                padding: 12px;
-                border: 1px solid $border-primary;
-                border-radius: 8px;
-                background-color: $bcg-dark;
+        @extend .font-bold;
+    }
 
-                &.empty .preview-name {
-                    color: $text-darkest;
-                }
-            }
+    .preview-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
 
-            .preview-tile {
-                display: inline-grid;
-                flex: none;
-                place-items: center;
-                width: 40px;
-                height: 40px;
-                margin: 0;
-                border-radius: 8px;
-                background-color: $text-active;
+    .preview-name {
+        margin: 0;
+        overflow: hidden;
+        color: $text-primary;
+        font-size: 14px;
+        text-overflow: ellipsis;
+
+        @extend .font-bold;
+    }
+
+    .preview-url {
+        margin: 0;
+        overflow: hidden;
+        color: $text-meta;
+        font-size: 12px;
+        text-overflow: ellipsis;
+    }
+
+    // one bordered field; the prefix sits inside it, before the input
+    .form-group--field {
+        @extend %dialog-input;
+
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        height: 32px;
+
+        &:focus-within {
+            border-color: $text-active;
+        }
+
+        &.invalid {
+            border-color: $error-secondary;
+        }
+
+        > .form-group--prefix {
+            flex: none;
+            margin: 0;
+            padding-left: 10px;
+            color: $text-meta;
+            font-size: 13px;
+        }
+
+        > .form-group--input {
+            flex: 1;
+            height: 30px;
+            margin: 0;
+            border: none;
+            background: transparent;
+            box-shadow: none;
+
+            > input {
+                height: 30px;
+                padding: 0 10px;
                 color: $text-primary;
-                font-size: 15px;
-
-                @extend .font-bold;
+                font-family: inherit;
+                font-size: 13px;
             }
+        }
 
-            .preview-text {
-                display: flex;
-                flex-direction: column;
-                gap: 2px;
-                min-width: 0;
-            }
-
-            .preview-name {
-                margin: 0;
-                overflow: hidden;
-                color: $text-primary;
-                font-size: 14px;
-                text-overflow: ellipsis;
-
-                @extend .font-bold;
-            }
-
-            .preview-url {
-                margin: 0;
-                overflow: hidden;
-                color: $text-dark;
-                font-size: 12px;
-                text-overflow: ellipsis;
-            }
-
-            .form-group {
-                display: flex;
-                flex-direction: column;
-                gap: 6px;
-                margin: 0;
-            }
-
-            .form-group--label {
-                @extend %dialog-label;
-            }
-
-            // one bordered field; the prefix sits inside it, before the input
-            .form-group--field {
-                @extend %dialog-input;
-
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                height: 32px;
-
-                &:focus-within {
-                    border-color: $text-active;
-                }
-
-                &.invalid {
-                    border-color: $error-secondary;
-                }
-
-                > .form-group--prefix {
-                    flex: none;
-                    margin: 0;
-                    padding-left: 10px;
-                    color: $text-darkest;
-                    font-size: 13px;
-                }
-
-                > .form-group--input {
-                    flex: 1;
-                    height: 30px;
-                    margin: 0;
-                    border: none;
-                    background: transparent;
-                    box-shadow: none;
-
-                    > input {
-                        height: 30px;
-                        padding: 0 10px;
-                        color: $text-primary;
-                        font-family: inherit;
-                        font-size: 13px;
-                    }
-                }
-
-                > .form-group--prefix + .form-group--input > input {
-                    padding-left: 0;
-                }
-            }
-
-            .form-group--hint {
-                margin: 0;
-                color: #ff8a8a;
-                font-size: 12px;
-                white-space: normal;
-            }
-
-            .new-organization-footer {
-                display: flex;
-                flex-direction: row;
-                justify-content: flex-end;
-                gap: 8px;
-                margin: 10px 0 0;
-                padding: 0 0 20px;
-
-                > .pcui-button {
-                    @extend %dialog-button;
-                }
-
-                > .create-org-button {
-                    @extend %dialog-button-primary;
-
-                    &.pcui-disabled {
-                        opacity: $element-opacity-disabled;
-                    }
-                }
-            }
+        > .form-group--prefix + .form-group--input > input {
+            padding-left: 0;
         }
     }
 }
 
-// type-to-confirm deletes share one layout
 .pcui-overlay.picker-delete-organization,
 .pcui-overlay.picker-delete-project,
 .pcui-overlay.picker-transfer-project {
-    z-index: 10000;
+    .form-group {
+        gap: 12px;
+    }
 
-    > .pcui-overlay-content {
-        width: min(480px, calc(100vw - 32px));
-        border: 1px solid $border-primary;
-
-        > .delete-organization-panel,
-        > .delete-project-panel,
-        > .transfer-project-panel {
-            > .pcui-panel-header {
-                @extend %dialog-header;
-            }
-
-            > .pcui-panel-content {
-                display: flex;
-                flex-direction: column;
-                padding: 20px 20px 0;
-            }
-
-            .form-group {
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
-                margin: 0;
-            }
-
-            .form-group--label {
-                margin: 0;
-                color: $text-secondary;
-                font-size: 13px;
-                line-height: 18px;
-                white-space: normal;
-            }
-
-            // projects get transferred, so call it out
-            .form-group--warning {
-                margin: 0;
-                padding: 8px 10px;
-                border: 1px solid rgb(225 166 62 / 45%);
-                border-radius: 6px;
-                background-color: rgb(225 166 62 / 8%);
-                color: #f3c16f;
-                font-size: 12px;
-                line-height: 16px;
-                white-space: normal;
-            }
-
-            .form-group--input {
-                @extend %dialog-input;
-
-                height: 32px;
-
-                > input {
-                    height: 30px;
-                }
-            }
-
-            .delete-organization-footer,
-            .delete-project-footer,
-            .transfer-project-footer {
-                display: flex;
-                flex-direction: row;
-                justify-content: flex-end;
-                gap: 8px;
-                margin: 20px 0 0;
-                padding: 0 0 20px;
-
-                > .pcui-button {
-                    @extend %dialog-button;
-                }
-
-                > .transfer-project-button {
-                    @extend %dialog-button-primary;
-                }
-
-                // same as the version control dialogs' danger confirm
-                > .delete-org-button,
-                > .delete-project-button {
-                    border-color: transparent;
-                    background-color: $error-secondary;
-                    color: $text-primary;
-
-                    @include cms-interactive;
-
-                    &:not(.pcui-disabled):hover {
-                        background-color: color.adjust($error-secondary, $lightness: -7%);
-                    }
-
-                    &.pcui-disabled {
-                        opacity: $element-opacity-disabled;
-                    }
-                }
-            }
-        }
+    .form-group--label {
+        margin: 0;
+        color: $text-secondary;
+        font-size: 13px;
+        line-height: 18px;
+        white-space: normal;
     }
 }
 
-// opens over the project picker's danger zone too
-.pcui-overlay.picker-delete-project,
 .pcui-overlay.picker-transfer-project {
-    z-index: 100000;
-
-    .transfer-project-button {
-        position: relative;
-    }
-
-    // who the typed username resolves to: a panel styled like the projects page menus, just under the field
+    // who the typed username resolves to: a menu-style panel just under the field
     .transfer-recipient {
         display: flex;
         position: relative;
@@ -956,9 +721,9 @@
         margin-top: -8px;
         padding: 4px 12px;
         border: 1px solid $border-primary;
-        border-radius: 6px;
-        background-color: $bcg-primary;
-        box-shadow: 0 4px 12px rgb(0 0 0 / 30%);
+        border-radius: $radius-control;
+        background-color: $cms-float;
+        box-shadow: $cms-float-shadow;
         color: $text-primary;
         font-size: 13px;
 
@@ -967,8 +732,8 @@
             content: '';
             position: absolute;
             inset: 4px;
-            border-radius: 4px;
-            background-color: color.adjust($bcg-primary, $lightness: 4%);
+            border-radius: $radius-badge;
+            background-color: $cms-hover;
         }
 
         > * {
@@ -999,123 +764,69 @@
 
     .transfer-recipient-user {
         margin: 0;
-        color: $text-dark;
+        color: $text-meta;
         font-size: 12px;
-    }
-
-    .loader {
-        position: absolute;
-        inset: 0;
-        width: 14px;
-        height: 14px;
-        margin: auto;
-        border: 2px solid rgb(255 255 255 / 35%);
-        border-top-color: $text-primary;
-        border-radius: 50%;
-        animation: cms-spin 0.8s linear infinite;
     }
 }
 
-// two-choice confirmations (project ready, leaving a project, changing visibility):
-// message, then the safe choice and the primary one on the right
+// what an import had to change: the count, then one row per material like the projects list view
 .pcui-overlay.picker-modal-confirmation {
-    z-index: 100001; // larger than the projects page
+    .import-report {
+        margin: 0;
+        color: $text-secondary;
+        font-size: 12px;
+        line-height: 16px;
 
-    > .pcui-overlay-content {
-        width: min(440px, calc(100vw - 32px));
+        > .pcui-label:not(.import-report-count) {
+            margin: 8px 0 0;
+            color: $text-meta;
+            white-space: normal;
+        }
+    }
+
+    .import-report-count {
+        @extend .font-bold;
+
+        display: block;
+        margin: 0 0 8px;
+        color: $text-primary;
+        font-size: 12px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .import-report-items {
+        @extend %rounded-scroll;
+
+        max-height: 180px;
+        margin: 0;
+        padding: 0;
+        overflow-y: auto;
+        list-style: none;
         border: 1px solid $border-primary;
+        border-radius: $radius-control;
+        background-color: $bcg-darker;
 
-        > .pcui-panel {
-            > .pcui-panel-header {
-                @extend %dialog-header;
-            }
+        > li {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 8px 12px;
+            border-top: 1px solid $border-primary;
 
-            > .pcui-panel-content {
-                display: flex;
-                flex-flow: row wrap;
-                justify-content: flex-end;
-                gap: 8px;
-                padding: 20px;
-
-                > .pcui-label {
-                    flex: 1 0 100%;
-                    margin: 0 0 12px;
-                    color: $text-secondary;
-                    font-size: 13px;
-                    line-height: 18px;
-                    white-space: normal;
-                }
-
-                > .negative-action-button,
-                > .positive-action-button {
-                    @extend %dialog-button;
-                }
-
-                > .positive-action-button {
-                    @extend %dialog-button-primary;
-                }
-
-                > .import-report {
-                    flex: 1 0 100%;
-                    margin: 0 0 12px;
-                    color: $text-secondary;
-                    font-size: 12px;
-                    line-height: 16px;
-
-                    > .pcui-label:not(.import-report-count) {
-                        margin: 8px 0 0;
-                        color: $text-dark;
-                        white-space: normal;
-                    }
-                }
-
-                // the count, then one row per material like the projects list view
-                .import-report-count {
-                    @extend .font-bold;
-
-                    display: block;
-                    margin: 0 0 8px;
-                    color: $text-primary;
-                    font-size: 12px;
-                    letter-spacing: 0.04em;
-                    text-transform: uppercase;
-                }
-
-                .import-report-items {
-                    @extend %rounded-scroll;
-
-                    max-height: 180px;
-                    margin: 0;
-                    padding: 0;
-                    overflow-y: auto;
-                    list-style: none;
-                    border: 1px solid $border-primary;
-                    border-radius: 6px;
-                    background-color: $bcg-darker;
-
-                    > li {
-                        display: flex;
-                        flex-direction: column;
-                        gap: 2px;
-                        padding: 8px 12px;
-                        border-top: 1px solid $border-primary;
-
-                        &:first-child {
-                            border-top: none;
-                        }
-                    }
-                }
-
-                .import-report-name {
-                    color: $text-primary;
-                    font-size: 13px;
-                }
-
-                .import-report-change {
-                    color: $text-dark;
-                    font-size: 12px;
-                }
+            &:first-child {
+                border-top: none;
             }
         }
+    }
+
+    .import-report-name {
+        color: $text-primary;
+        font-size: 13px;
+    }
+
+    .import-report-change {
+        color: $text-meta;
+        font-size: 12px;
     }
 }

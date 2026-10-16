@@ -1,6 +1,9 @@
-import { Button, Container, Label, Overlay, Panel, TextInput } from '@playcanvas/pcui';
+import { Container, Label, TextInput } from '@playcanvas/pcui';
 
 import { config } from '@/editor/config';
+
+import { button } from './components/button';
+import { dialog } from './components/dialog';
 
 editor.once('load', () => {
     // GLOBAL VARIABLES
@@ -28,31 +31,7 @@ editor.once('load', () => {
         return { input, field, hint };
     };
 
-    // overlay
-    const root = editor.call('layout.root');
-    const overlay = new Overlay({
-        clickable: false,
-        class: 'picker-new-organization',
-        hidden: true
-    });
-    root.append(overlay);
-
-    // main panel
-    const panel = new Panel({
-        headerText: 'NEW ORGANIZATION',
-        class: 'new-organization-panel'
-    });
-    overlay.append(panel);
-
-    // close button
-    const btnClose = new Button({
-        class: 'close',
-        icon: 'E132'
-    });
-    btnClose.on('click', () => {
-        overlay.hidden = true;
-    });
-    panel.header.append(btnClose);
+    const { overlay, panel, footer } = dialog({ title: 'New organization', class: 'picker-new-organization' });
 
     // live preview of how the organization will appear
     const preview = new Container({ class: 'new-organization-preview' });
@@ -98,20 +77,13 @@ editor.once('load', () => {
         validateInputs();
     });
 
-    const footer = new Container({ class: 'new-organization-footer' });
-    panel.append(footer);
-
-    const cancelButton = new Button({ class: 'cancel-org-button', text: 'Cancel' });
+    const cancelButton = button({ kind: 'secondary', text: 'Cancel' });
     cancelButton.on('click', () => {
         overlay.hidden = true;
     });
     footer.append(cancelButton);
 
-    const createButton = new Button({
-        class: 'create-org-button',
-        text: 'Create organization',
-        enabled: false
-    });
+    const createButton = button({ kind: 'primary', text: 'Create organization', enabled: false });
     footer.append(createButton);
 
     createButton.on('click', () => {
@@ -168,28 +140,9 @@ editor.once('load', () => {
 
     // EVENTS
 
-    // load and show data
-    overlay.on('show', () => {
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', false);
-        }
-    });
-
     // clean up
     overlay.on('hide', () => {
         editor.call('picker:project:hideAlerts');
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', true);
-        }
-    });
-
-    // prevent viewport hovering when picker is shown
-    editor.on('viewport:hover', (state) => {
-        if (state && !overlay.hidden) {
-            setTimeout(() => {
-                editor.emit('viewport:hover', false);
-            }, 0);
-        }
     });
 
     // method to display panel

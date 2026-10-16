@@ -1,7 +1,5 @@
 @use 'sass:color';
 
-$cms-primary-hover: hsl(24deg 100% 43%); // orange buttons on hover, shared with the projects page
-
 html {
     height: 100%;
     overflow: hidden;
@@ -26,20 +24,6 @@ strong {
     border: 1px solid $border-primary;
     border-radius: 6px;
     background-color: rgb(0 0 0 / 8%);
-}
-
-// a scrollbar that stays inside a rounded box: no square track, rounded thumb clear of the corners
-%rounded-scroll {
-    &::-webkit-scrollbar-track {
-        margin: 4px 0;
-        background: transparent;
-    }
-
-    &::-webkit-scrollbar-thumb {
-        border: 2px solid transparent;
-        border-radius: 4px;
-        background-clip: padding-box;
-    }
 }
 
 %modern-picker-checkbox {
@@ -1828,34 +1812,12 @@ strong {
                     }
                 }
 
-                // same as the projects page's primary buttons
+                // button({ kind: 'primary' }), pinned full width to the bottom of the panel
                 .cms-editor-button,
                 .cms-play-button {
                     position: absolute;
                     left: 10px;
                     width: calc(100% - 20px);
-                    height: 32px;
-                    margin: 0;
-                    border: 1px solid transparent;
-                    border-radius: 6px;
-                    background-color: $text-active;
-                    color: $text-primary;
-                    font-size: 13px;
-                    line-height: 30px;
-                    box-shadow: none;
-                    transition: background-color 120ms ease;
-
-                    &[data-icon]::before {
-                        margin-right: 6px;
-                        font-size: 12px;
-                    }
-
-                    &:not(.pcui-disabled):hover {
-                        background-color: $cms-primary-hover;
-                        color: $text-primary;
-                    }
-
-                    &.pcui-disabled { cursor: not-allowed; }
                 }
 
                 .cms-editor-button {
@@ -4985,30 +4947,6 @@ strong {
                 }
             }
         }
-
-        > .pcui-button {
-            @extend .font-bold;
-
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            height: 34px;
-            margin: 0;
-            padding: 0 18px;
-            border: 1px solid transparent;
-            border-radius: 6px;
-            color: $text-primary;
-            background-color: $text-active;
-            font-size: 13px;
-            box-shadow: none;
-            transition: color 100ms, background-color 100ms, box-shadow 100ms;
-
-            &:not(.disabled, .pcui-disabled, .pcui-readonly):hover,
-            &:not(.disabled, .pcui-disabled, .pcui-readonly):focus {
-                background-color: color.adjust($text-active, $lightness: -7%);
-                box-shadow: $element-shadow-hover;
-            }
-        }
     }
 
     & > .action-buttons {
@@ -5033,110 +4971,24 @@ strong {
             margin: 0;
         }
 
-        .full-width-button {
-            @extend .font-bold;
-
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            height: 34px;
-            min-width: 150px;
-            margin: 0;
-            padding: 0 18px;
-            border: 1px solid transparent;
-            border-radius: 6px;
-            color: $text-primary;
-            background-color: $text-active;
-            font-size: 13px;
-            line-height: 32px;
-            box-shadow: none;
-            transition: color 100ms, background-color 100ms, opacity 100ms, box-shadow 100ms;
-
-            &[data-icon]::before {
-                font-size: 14px;
-                line-height: 1;
+        // copy link: button({ kind: 'icon' }) with a chain-link glyph, a tick once copied
+        .copy-link-button {
+            &::before {
+                content: '';
+                width: 14px;
+                height: 14px;
+                background-color: currentcolor;
+                mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M7.775 3.275a.75.75 0 0 0 1.06 1.06l1.25-1.25a2 2 0 1 1 2.83 2.83l-2.5 2.5a2 2 0 0 1-2.83 0 .75.75 0 0 0-1.06 1.06 3.5 3.5 0 0 0 4.95 0l2.5-2.5a3.5 3.5 0 0 0-4.95-4.95l-1.25 1.25Zm-4.69 9.64a2 2 0 0 1 0-2.83l2.5-2.5a2 2 0 0 1 2.83 0 .75.75 0 0 0 1.06-1.06 3.5 3.5 0 0 0-4.95 0l-2.5 2.5a3.5 3.5 0 0 0 4.95 4.95l1.25-1.25a.75.75 0 0 0-1.06-1.06l-1.25 1.25a2 2 0 0 1-2.83 0Z'/%3E%3C/svg%3E") center / contain no-repeat;
             }
 
-            > .pcui-label {
-                margin: 0;
-                color: inherit;
-                font-size: inherit;
-                line-height: 32px;
-            }
-
-            &:not(.disabled, .pcui-disabled, .pcui-readonly):hover,
-            &:not(.disabled, .pcui-disabled, .pcui-readonly):focus {
-                background-color: color.adjust($text-active, $lightness: -7%);
-                box-shadow: $element-shadow-hover;
-            }
-
-            &:not(.disabled, .pcui-disabled, .pcui-readonly):active {
-                background-color: color.adjust($text-active, $lightness: -12%);
-                box-shadow: none;
-            }
-
-            &.disabled,
-            &.pcui-disabled {
-                opacity: $element-opacity-disabled;
-                cursor: default;
-            }
-
-            // fork and export: outlined, so no footer action shouts
-            &.secondary {
-                border-color: $border-primary;
-                background-color: $bcg-dark;
-                color: $text-secondary;
-
-                &:not(.disabled, .pcui-disabled, .pcui-readonly):hover,
-                &:not(.disabled, .pcui-disabled, .pcui-readonly):focus {
-                    background-color: $bcg-darker;
-                    color: $text-primary;
-                }
-            }
-
-            // delete: red outline, set apart on the left
-            &.danger {
-                order: -1;
-                margin-right: auto;
-                border-color: rgb(251 34 47 / 45%);
-                background-color: transparent;
-                color: #f37c7c;
-
-                &:not(.disabled, .pcui-disabled, .pcui-readonly):hover,
-                &:not(.disabled, .pcui-disabled, .pcui-readonly):focus {
-                    background-color: rgb(251 34 47 / 12%);
-                    color: #ff9a9a;
-                }
-            }
-
-            // copy link: a square chain-link button, a tick once copied
-            &.copy-link-button {
-                width: 34px;
-                min-width: 0;
-                padding: 0;
+            &.copied,
+            &.copied:hover,
+            &.copied:focus {
+                color: #6fd088;
 
                 &::before {
-                    content: '';
-                    width: 14px;
-                    height: 14px;
-                    background-color: currentcolor;
-                    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M7.775 3.275a.75.75 0 0 0 1.06 1.06l1.25-1.25a2 2 0 1 1 2.83 2.83l-2.5 2.5a2 2 0 0 1-2.83 0 .75.75 0 0 0-1.06 1.06 3.5 3.5 0 0 0 4.95 0l2.5-2.5a3.5 3.5 0 0 0-4.95-4.95l-1.25 1.25Zm-4.69 9.64a2 2 0 0 1 0-2.83l2.5-2.5a2 2 0 0 1 2.83 0 .75.75 0 0 0 1.06-1.06 3.5 3.5 0 0 0-4.95 0l-2.5 2.5a3.5 3.5 0 0 0 4.95 4.95l1.25-1.25a.75.75 0 0 0-1.06-1.06l-1.25 1.25a2 2 0 0 1-2.83 0Z'/%3E%3C/svg%3E") center / contain no-repeat;
+                    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 1 1 1.06-1.06l2.72 2.72 6.72-6.72a.75.75 0 0 1 1.06 0Z'/%3E%3C/svg%3E");
                 }
-
-                &.copied,
-                &.copied:hover,
-                &.copied:focus {
-                    color: #6fd088;
-
-                    &::before {
-                        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 1 1 1.06-1.06l2.72 2.72 6.72-6.72a.75.75 0 0 1 1.06 0Z'/%3E%3C/svg%3E");
-                    }
-                }
-            }
-
-            // its display would otherwise beat pcui's hidden state
-            &.pcui-hidden {
-                display: none;
             }
         }
 
@@ -5147,17 +4999,10 @@ strong {
             transform: translate(-50%, -50%);
         }
 
+        // delete: set apart on the left
         & > #delete-project-button {
-            transition: all 0.2s ease-in-out;
-
-            &:hover:not(.pcui-disabled) {
-                background-color: $error-secondary;
-                box-shadow: $element-shadow-hover;
-            }
-
-            &.pcui-disabled {
-                cursor: not-allowed;
-            }
+            order: -1;
+            margin-right: auto;
         }
     }
 }

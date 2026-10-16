@@ -1,6 +1,5 @@
 import {
     BooleanInput,
-    Button,
     Container,
     Element,
     Label,
@@ -12,6 +11,9 @@ import {
 } from '@playcanvas/pcui';
 
 import { config } from '@/editor/config';
+
+import { button } from './components/button';
+import { spinner } from './components/spinner';
 
 const KIT_SKELETON_COUNT = 8;
 const UPGRADE_BLOCK = 'Forking a private project needs a paid plan.';
@@ -82,12 +84,15 @@ editor.once('load', () => {
             selectedKitElement.class.add('selected');
         }
 
-        starterKit.dom.addEventListener('mouseenter', () => {
-            starterKit.class.add('hovered');
-        });
-
-        starterKit.dom.addEventListener('mouseleave', () => {
-            starterKit.class.remove('hovered');
+        // a focusable choice: Enter or Space picks it like a click
+        starterKit.dom.tabIndex = 0;
+        starterKit.dom.setAttribute('role', 'button');
+        starterKit.dom.setAttribute('aria-label', starterkit.name);
+        starterKit.dom.addEventListener('keydown', (e) => {
+            if (e.target === starterKit.dom && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                starterKit.dom.click();
+            }
         });
 
         starterKit.dom.addEventListener('click', () => {
@@ -126,10 +131,7 @@ editor.once('load', () => {
         thumbnail.append(thumbnailOverlay);
 
         // Preview Button
-        const previewButton = new Button({
-            class: 'preview-button',
-            hidden: true
-        });
+        const previewButton = button({ kind: 'icon', label: `Preview ${starterkit.name}`, class: 'preview-button' });
         thumbnailOverlay.append(previewButton);
 
         previewButton.on('click', () => {
@@ -159,7 +161,7 @@ editor.once('load', () => {
         if (forking) {
             buildForkSource(formContent);
             if (block) {
-                const reason = new Container({ class: 'fork-blocked' });
+                const reason = new Container({ class: ['pm-callout', 'danger', 'fork-blocked'] });
                 reason.append(new Label({ text: block }));
                 if (block === UPGRADE_BLOCK) {
                     const upgrade = document.createElement('a');
@@ -388,10 +390,7 @@ editor.once('load', () => {
     overlay.append(panel);
 
     // close button
-    const btnClose = new Button({
-        class: 'close',
-        icon: 'E132'
-    });
+    const btnClose = button({ kind: 'icon', size: 'sm', icon: 'E132', label: 'Close', class: 'close' });
     btnClose.on('click', () => {
         overlay.hidden = true;
     });
@@ -434,19 +433,13 @@ editor.once('load', () => {
     });
     sidebar.append(createBtnContainer);
 
-    const cancelBtn = new Button({
-        class: 'cancel-btn',
-        text: 'Cancel'
-    });
+    const cancelBtn = button({ kind: 'secondary', text: 'Cancel' });
     cancelBtn.on('click', () => {
         overlay.hidden = true;
     });
     createBtnContainer.append(cancelBtn);
 
-    const createBtn = new Button({
-        class: 'create-btn',
-        text: 'Create project'
-    });
+    const createBtn = button({ kind: 'primary', text: 'Create project' });
     createBtnContainer.append(createBtn);
 
     // attach listener to create button
@@ -461,10 +454,7 @@ editor.once('load', () => {
     });
 
     // spinner sits inside the create button while it's busy
-    const loader = new Element({
-        class: 'loader',
-        hidden: true
-    });
+    const loader = spinner({ hidden: true });
     createBtn.dom.appendChild(loader.dom);
 
     // CONTROLLERS
