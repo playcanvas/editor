@@ -503,6 +503,11 @@ editor.once('load', () => {
         forkedFromLink.href = `${config.url.home}/editor/project/${currentProject.fork_from}`;
 
         initialLoad = false; // once initial load happens, reset flag
+
+        // the panel opened before the project loaded, so show the thumbnail controls now
+        if (!panel.hidden) {
+            editor.call('picker:project:showThumbnailControls');
+        }
     });
 
     // hook to get current private settings

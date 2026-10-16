@@ -23,7 +23,7 @@ editor.once('load', () => {
     );
 
     editor.method('picker:project', (option?: string) => {
-        editor.call('picker:project:open', config.project.id, config.owner.id, option, { thumbnails: 'hover' });
+        editor.call('picker:project:open', config.project.id, config.owner.id, option, { thumbnails: 'panel' });
     });
 
     // closing was disallowed while no scene was loaded, unless a version control operation holds it

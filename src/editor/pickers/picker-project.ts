@@ -9,8 +9,8 @@ editor.once('load', () => {
     let currentProject; // used to display project stats
     let currentUser;
     // set by picker:project:open: the menus to show (all when unset), whether to show stats, and the thumbnail
-    // controls: always shown, shown on hover, or off (the default)
-    let view: { menus?: string[]; stats?: boolean; thumbnails?: 'shown' | 'hover' } = {};
+    // controls: always shown, shown while the project settings panel is open, or off (the default)
+    let view: { menus?: string[]; stats?: boolean; thumbnails?: 'shown' | 'panel' } = {};
     // whether the picker may close right now; pages set it, e.g. the editor stays open until a scene loads
     let canClose = () => true;
     let alerts = []; // list of alerts
@@ -102,8 +102,11 @@ editor.once('load', () => {
             replaceButton.style.marginRight = '6px';
         }
 
+        // in panel mode the project settings panel shows and hides them
         thumbnailButtons.enabled = !!view.thumbnails;
-        thumbnailButtons.style.opacity = view.thumbnails === 'shown' ? '1' : '0';
+        if (view.thumbnails !== 'panel') {
+            thumbnailButtons.style.opacity = view.thumbnails === 'shown' ? '1' : '0';
+        }
 
         for (const key in menuOptions) {
             if (!menuOptions[key].panelOnly) {
@@ -664,7 +667,7 @@ editor.once('load', () => {
     // hook to display thumbnail controls
     editor.method('picker:project:showThumbnailControls', () => {
         // settings can show before the project has loaded
-        if (currentProject?.access_level === 'admin') {
+        if (thumbnailButtons.enabled && currentProject?.access_level === 'admin') {
             thumbnailButtons.style.transform = 'scale(1)';
             thumbnailButtons.style.opacity = '1';
             thumbnailButtons.style.zIndex = '0';
