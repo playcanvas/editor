@@ -271,7 +271,10 @@ export class AssetsPanel {
             if (!asset) {
                 throw new Error(`asset ${assetId} not found`);
             }
-            const hit = () => !asset.get('task') && !!asset.get('file.hash');
+            // an upload clears `task` once queued, before the job sets it running; a texture's
+            // pipeline ends with its thumbnails, so only those mark the job done
+            const thumbnailed = () => !String(asset.get('type')).startsWith('texture') || !!asset.get('has_thumbnail');
+            const hit = () => !asset.get('task') && !!asset.get('file.hash') && thumbnailed();
             if (hit()) {
                 return { done: Promise.resolve() };
             }
