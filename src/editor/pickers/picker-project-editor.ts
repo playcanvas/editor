@@ -13,12 +13,13 @@ editor.once('load', () => {
     leftPanel.append(seeAll);
     seeAll.on('click', () => openProjects());
 
+    // version control holds the picker open while its graph shows
+    editor.call(
+        'picker:project:setCloseGuard',
+        () => editor.call('picker:project:selected') !== 'version control' || editor.call('vcgraph:isHidden')
+    );
+
     editor.method('picker:project', (option?: string) => {
-        // version control holds the picker open while its graph shows
-        editor.call(
-            'picker:project:setCloseGuard',
-            option === 'version control' ? () => editor.call('vcgraph:isHidden') : null
-        );
         editor.call('picker:project:open', config.project.id, config.owner.id, option);
     });
 

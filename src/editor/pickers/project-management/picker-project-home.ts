@@ -53,4 +53,7 @@ editor.once('load', () => {
     editor.method('picker:project:reduced', show('reduced', 'project-main'));
     editor.method('picker:project:noAdmin', show('noAdmin', 'team'));
     editor.method('picker:project:lockedView', show('locked', 'project-main'));
+
+    // joining or leaving a project changes what you can do with it, so reopen its settings
+    editor.on('picker:team:membership', (project) => editor.call('picker:project:reduced', project));
 });

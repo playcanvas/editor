@@ -36,6 +36,7 @@ import './pickers/picker-project-dev-log';
 import './pickers/project-management/picker-project-home';
 import './pickers/project-management/picker-cms';
 import './pickers/project-management/picker-modal-new-project';
+import './pickers/project-management/picker-modal-new-project-kits';
 import './pickers/project-management/picker-modal-new-project-confirmation';
 import './pickers/project-management/picker-modal-new-organization';
 import './pickers/project-management/picker-modal-delete-organization';

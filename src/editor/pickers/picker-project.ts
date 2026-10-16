@@ -386,7 +386,7 @@ editor.once('load', () => {
         class: 'close'
     });
     btnClose.on('click', () => {
-        if (currentSelection !== 'version control' || editor.call('vcgraph:isHidden')) {
+        if (!closeCallback || closeCallback()) {
             overlay.hidden = true;
         }
     });
@@ -585,6 +585,9 @@ editor.once('load', () => {
 
     // pages add their own buttons under the menu
     editor.method('picker:project:leftPanel', () => leftPanel);
+
+    // the open menu
+    editor.method('picker:project:selected', () => currentSelection);
 
     // helper method to determine whether no admin view should be displayed
     editor.method('picker:project:showNoAdmin', (project, collaborators) => {

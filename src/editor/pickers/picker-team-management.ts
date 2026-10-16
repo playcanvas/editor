@@ -429,7 +429,7 @@ editor.once('load', () => {
                 project.access_level = 'admin';
                 addMeAsAdminButton.hidden = true;
                 editor.call('picker:project:close');
-                editor.call('picker:project:reduced', currentProject);
+                editor.emit('picker:team:membership', currentProject);
                 editor.emit('projects:changed');
             },
             (err) => {
@@ -600,7 +600,7 @@ editor.once('load', () => {
         editor.call('picker:project:close');
         uiRefresh = true;
         setTimeout(() => {
-            editor.call('picker:project:reduced', currentProject);
+            editor.emit('picker:team:membership', currentProject);
         }, 750);
     };
 
