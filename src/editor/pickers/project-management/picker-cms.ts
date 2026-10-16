@@ -1510,9 +1510,8 @@ editor.once('load', () => {
         return panel;
     });
 
-    editor.method('picker:project:cms:refreshProjects', () => {
-        refreshUI();
-    });
+    // settings, team and transfer changes elsewhere on the page
+    editor.on('projects:changed', () => refreshUI());
 
     editor.method('picker:project:cms:toggleProgress', (toggle) => {
         toggleProgress(toggle);

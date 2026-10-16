@@ -103,7 +103,7 @@ editor.once('load', () => {
             'projects:unlockOne',
             currentProject.id,
             () => {
-                editor.call('picker:project:cms:refreshProjects');
+                editor.emit('projects:changed');
                 editor.call('picker:project:close');
             },
             (err) => {
@@ -435,7 +435,7 @@ editor.once('load', () => {
         destroyEvents();
 
         if (projectSettingsChanged) {
-            editor.call('picker:project:cms:refreshProjects');
+            editor.emit('projects:changed');
         }
 
         editor.call('picker:project:hideAlerts');

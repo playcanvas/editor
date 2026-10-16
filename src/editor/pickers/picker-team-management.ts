@@ -430,7 +430,7 @@ editor.once('load', () => {
                 addMeAsAdminButton.hidden = true;
                 editor.call('picker:project:close');
                 editor.call('picker:project:reduced', currentProject);
-                editor.call('picker:project:cms:refreshProjects');
+                editor.emit('projects:changed');
             },
             (err) => {
                 editor.call('picker:project:buildAlert', panel, err);
