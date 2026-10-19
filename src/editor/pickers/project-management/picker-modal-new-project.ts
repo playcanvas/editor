@@ -16,6 +16,10 @@ import { button } from './components/button';
 import { spinner } from './components/spinner';
 
 const UPGRADE_BLOCK = 'Forking a private project needs a paid plan.';
+const FIT_HEIGHT = 'pcui-select-input-fit-height';
+
+// the owner list's margin from its field
+const LIST_GAP = 4;
 
 editor.once('load', () => {
     // GLOBAL VARIABLES
@@ -229,6 +233,23 @@ editor.once('load', () => {
         const ownerDropdownList = ownerDropdown.dom.querySelector(
             '.pcui-select-input-container-value .pcui-select-input-list'
         );
+
+        // pcui only flips the list up when it would leave the window, but the form scrolls and clips it first
+        const open = ownerDropdown.open.bind(ownerDropdown);
+        ownerDropdown.open = () => {
+            open();
+            const list = ownerDropdownList as HTMLElement;
+            const form = formContainer.dom.getBoundingClientRect();
+            const field = ownerDropdown.dom.getBoundingClientRect();
+            const h = list.offsetHeight + LIST_GAP;
+            const below = Math.min(form.bottom, window.innerHeight) - field.bottom;
+            const up = h > below && h <= field.top - Math.max(form.top, 0);
+            ownerDropdown.class[up ? 'add' : 'remove'](FIT_HEIGHT);
+            if (h > below && !up) {
+                list.style.maxHeight = `${below - LIST_GAP * 2}px`;
+            }
+        };
+
         let imageContainer;
         for (let i = 0; i < possibleOwners.length; i++) {
             const dropdownOption = ownerDropdownList.childNodes[i];
@@ -242,12 +263,18 @@ editor.once('load', () => {
         }
 
         ownerDropdown.on('change', () => {
-            const oldOwner = newProjectOwner;
-            newProjectOwner = possibleOwners.filter((org) => org.id === ownerDropdown.value)[0];
-            if (oldOwner !== newProjectOwner) {
-                possibleOwners = []; // reset possible owners list
-                buildSidebar(); // rebuild sidebar on owner change
+            // the old dropdown fires again, with no owner, as the rebuild destroys it
+            const owner = possibleOwners.find((org) => org.id === ownerDropdown.value);
+            if (!owner || owner === newProjectOwner) {
+                return;
             }
+            newProjectOwner = owner;
+
+            // rebuild once pcui has finished the pick, which still touches this dropdown after the change event
+            queueMicrotask(() => {
+                possibleOwners = []; // reset possible owners list
+                buildSidebar();
+            });
         });
     };
 
