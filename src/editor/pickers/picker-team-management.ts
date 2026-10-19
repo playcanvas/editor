@@ -128,19 +128,16 @@ editor.once('load', () => {
         });
         memberCell.dom.appendChild(identity.dom);
 
+        // full name first, as on the projects page, with the username under it; the access column marks the owner
         const collaboratorName = new Label({
             class: 'collaborator-name',
-            text: collaborator.inviter_id ? collaborator.email : collaborator.username
+            text: collaborator.inviter_id ? collaborator.email : collaborator.full_name || collaborator.username
         });
         identity.dom.appendChild(collaboratorName.dom);
 
         const collaboratorSubtitle = new Label({
             class: 'collaborator-subtitle',
-            text: isOwner
-                ? 'Project owner'
-                : collaborator.inviter_id
-                  ? 'Invited user'
-                  : collaborator.full_name || collaborator.email || ''
+            text: collaborator.inviter_id ? 'Invited user' : collaborator.full_name ? collaborator.username : ''
         });
         identity.dom.appendChild(collaboratorSubtitle.dom);
 

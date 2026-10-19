@@ -134,7 +134,13 @@ editor.once('load', () => {
         head.append(info);
         info.append(new Label({ class: 'dev-log-post-title', text: post.title }));
         const date = new Date(post.modifiedAt ?? post.createdAt).toLocaleDateString();
-        info.append(new Label({ class: 'dev-log-post-meta', text: [post.username, date].filter(Boolean).join(' · ') }));
+        const meta = new Label({ class: 'dev-log-post-meta', text: [post.username, date].filter(Boolean).join(' · ') });
+        info.append(meta);
+
+        // posts carry only the username, so swap in the author's full name, as on the projects page
+        editor.call('users:loadOne', post.userId, (user) => {
+            meta.text = [user?.full_name || post.username, date].filter(Boolean).join(' · ');
+        });
 
         const body = new Element({ class: 'dev-log-post-body' });
         body.dom.innerHTML = md.render(post.text ?? '');
