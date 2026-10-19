@@ -906,11 +906,7 @@
             object-fit: cover;
             transition: transform $cms-zoom-ease;
         }
-    }
 
-    // a blurry thumbnail redrawn as pixel art keeps its hard edges when enlarged
-    .cms-pixel {
-        image-rendering: pixelated;
     }
 
     .cms-card-tags {

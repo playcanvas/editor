@@ -36,18 +36,6 @@ const PROMPT = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
 // access you have to someone else's project; admin needs no badge, it's the default on yours and your orgs'
 const QUALIFIERS = ['name:', 'owner:', 'desc:', 'is:private', 'is:public', 'is:starred', 'is:locked'];
 const EMPTY_THUMBNAIL_IMAGE = `${config.url.frontend}static/img/blank-project.webp`;
-
-// a thumbnail stretched up from a small upload is blurry, so it's redrawn as pixel art on this grid
-const PIXEL_GRID = 48;
-
-// how the blur check reads an image: detail measured at this size, after a round trip through the smaller one;
-// an image that loses less than this share of its detail was stretched up from that size or smaller
-const DETAIL_SIZE = 256;
-const ROUND_TRIP_SIZE = 128;
-const BLUR_LOSS = 0.15;
-
-// thumbnail url -> its pixel art data url, or null when it's sharp; checked once per page
-const PIXEL_ART = new Map<string, string | null>();
 const SIDE_KEY = 'editor:cms:sidebar:width';
 const SIDE_DEFAULT_W = 248;
 const SIDE_MIN_W = 200;
@@ -220,82 +208,6 @@ editor.once('load', () => {
         (img.dom as HTMLImageElement).loading = 'lazy';
         (img.dom as HTMLImageElement).alt = '';
         parent?.append(img);
-        return img;
-    };
-    // mean brightness step between neighbouring pixels, drawn at n px; low when there's no fine detail
-    const detail = (src: CanvasImageSource, n: number) => {
-        const c = document.createElement('canvas');
-        c.width = c.height = n;
-        const ctx = c.getContext('2d', { willReadFrequently: true });
-        ctx.drawImage(src, 0, 0, n, n);
-        const d = ctx.getImageData(0, 0, n, n).data;
-
-        // the green channel stands in for brightness
-        let sum = 0;
-        for (let i = 1; i < d.length - 4 * n; i += 4) {
-            sum += Math.abs(d[i] - d[i + 4]) + Math.abs(d[i] - d[i + 4 * n]);
-        }
-        return sum;
-    };
-
-    // the image as pixel art, or null when it's sharp: a round trip through a small size barely changes a stretched one
-    const pixelArt = (img: HTMLImageElement) => {
-        const full = detail(img, DETAIL_SIZE);
-        const small = document.createElement('canvas');
-        small.width = small.height = ROUND_TRIP_SIZE;
-        small.getContext('2d').drawImage(img, 0, 0, ROUND_TRIP_SIZE, ROUND_TRIP_SIZE);
-        if (!full || (full - detail(small, DETAIL_SIZE)) / full >= BLUR_LOSS) {
-            return null;
-        }
-        const grid = document.createElement('canvas');
-        grid.width = grid.height = PIXEL_GRID;
-        const ctx = grid.getContext('2d');
-        ctx.imageSmoothingQuality = 'high';
-        ctx.drawImage(img, 0, 0, PIXEL_GRID, PIXEL_GRID);
-        return grid.toDataURL('image/png');
-    };
-
-    // a card-sized thumbnail: blurry ones are swapped for their pixel art once loaded
-    const thumbImage = (src, parent: Container) => {
-        const img = new Element({ dom: 'img' });
-        const el = img.dom as HTMLImageElement;
-        el.loading = 'lazy';
-        el.alt = '';
-        parent.append(img);
-
-        const known = PIXEL_ART.get(src);
-        if (known !== undefined || src === EMPTY_THUMBNAIL_IMAGE) {
-            el.classList.toggle('cms-pixel', !!known);
-            el.src = known ?? src;
-            return img;
-        }
-
-        // reading pixels needs a cors load; the image server allows it
-        el.crossOrigin = 'anonymous';
-        el.addEventListener(
-            'load',
-            () => {
-                const art = pixelArt(el);
-                PIXEL_ART.set(src, art);
-                if (art) {
-                    el.classList.add('cms-pixel');
-                    el.src = art;
-                }
-            },
-            { once: true }
-        );
-
-        // a copy cached without cors can't load this way, so show it as it is
-        el.addEventListener(
-            'error',
-            () => {
-                PIXEL_ART.set(src, null);
-                el.removeAttribute('crossorigin');
-                el.src = src;
-            },
-            { once: true }
-        );
-        el.src = src;
         return img;
     };
     // public is the default, so only private gets a badge
@@ -1027,7 +939,7 @@ editor.once('load', () => {
             return;
         }
         // framed so the hover zoom stays inside the rounded corners, like the card thumbnails
-        thumbImage(lead.thumbnails?.m ?? EMPTY_THUMBNAIL_IMAGE, box('cms-welcome-thumb', welcome));
+        image(lead.thumbnails?.m ?? EMPTY_THUMBNAIL_IMAGE, null, box('cms-welcome-thumb', welcome));
         const info = box('cms-welcome-info', welcome);
 
         // three groups: what the project is, its facts, then what you can do with it
@@ -1104,7 +1016,7 @@ editor.once('load', () => {
         const card = box(['cms-card', ...cardState(project)], listContainer);
         card.dom.tabIndex = 0;
         const thumb = box('cms-card-thumb', card);
-        thumbImage(project.thumbnails?.m ?? EMPTY_THUMBNAIL_IMAGE, thumb);
+        image(project.thumbnails?.m ?? EMPTY_THUMBNAIL_IMAGE, null, thumb);
         const tags = box('cms-card-tags', thumb);
         if (project.private) {
             text('Private', 'cms-badge', tags);
