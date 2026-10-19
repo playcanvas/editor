@@ -1915,6 +1915,13 @@
         }
     }
 
+    // edit and delete sit at the head's right
+    .dev-log-post-actions {
+        margin-left: auto;
+        align-self: flex-start;
+        gap: 2px;
+    }
+
     .dev-log-post-actions,
     .dev-log-editor-actions {
         display: flex;

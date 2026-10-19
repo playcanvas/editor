@@ -103,6 +103,16 @@
                 font-size: 12px;
             }
         }
+
+        &.tone-danger {
+            @include pm-button-kind(transparent, transparent, $danger-text, $danger-fill, transparent, $danger-text);
+        }
+
+        // a confirm step: the icon grows to spell out what the next click does
+        &.armed {
+            width: auto;
+            padding: 0 8px;
+        }
     }
 }
 

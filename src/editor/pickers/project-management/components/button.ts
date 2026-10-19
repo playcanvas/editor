@@ -17,6 +17,8 @@ type IconArgs = BaseArgs & {
     kind: 'icon';
     /** Read by screen readers and shown as the tooltip. */
     label: string;
+    /** A red icon, for destructive actions. */
+    tone?: 'danger';
 };
 
 /**

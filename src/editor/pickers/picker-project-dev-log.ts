@@ -154,8 +154,8 @@ editor.once('load', () => {
             return;
         }
         const actions = new Container({ class: 'dev-log-post-actions' });
-        item.append(actions);
-        const edit = button({ kind: 'secondary', size: 'sm', text: 'Edit' });
+        head.append(actions);
+        const edit = button({ kind: 'icon', size: 'sm', icon: 'E130', label: 'Edit post' });
         actions.append(edit);
         edit.on('click', () => {
             closeComposer();
@@ -167,17 +167,20 @@ editor.once('load', () => {
             list.dom.insertBefore(composer.dom, item.dom);
         });
 
-        // a second click within a few seconds confirms
-        const remove = button({ kind: 'ghost', tone: 'danger', size: 'sm', text: 'Delete' });
+        // a second click within a few seconds confirms: the icon spells out what it'll do
+        const remove = button({ kind: 'icon', tone: 'danger', size: 'sm', icon: 'E124', label: 'Delete post' });
         actions.append(remove);
         let armed = null;
+        const disarm = () => {
+            armed = null;
+            remove.text = '';
+            remove.class.remove('armed');
+        };
         remove.on('click', () => {
             if (!armed) {
-                remove.text = 'Click again to delete';
-                armed = setTimeout(() => {
-                    armed = null;
-                    remove.text = 'Delete';
-                }, DELETE_CONFIRM_MS);
+                remove.text = 'Delete post';
+                remove.class.add('armed');
+                armed = setTimeout(disarm, DELETE_CONFIRM_MS);
                 return;
             }
             clearTimeout(armed);
@@ -187,8 +190,7 @@ editor.once('load', () => {
                 .on('load', loadPosts)
                 .on('error', () => {
                     remove.enabled = true;
-                    remove.text = 'Delete';
-                    armed = null;
+                    disarm();
                     editor.call('picker:project:buildAlert', panel, 'Could not delete the post');
                 });
         });
