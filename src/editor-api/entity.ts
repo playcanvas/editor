@@ -400,6 +400,28 @@ class Entity extends Events {
     addComponent(component: string, data = {}) {
         const defaultData = api.schema.components.getDefaultData(component);
         const componentData = Object.assign(defaultData, data);
+
+        // the engine places an element from its margin, so derive it from the current position
+        // or the default margin moves the entity onto its anchor
+        const { anchor, pivot, width, height } = componentData as {
+            anchor?: number[];
+            pivot?: number[];
+            width?: number;
+            height?: number;
+        };
+        if (
+            component === 'element' &&
+            !('margin' in data) &&
+            anchor &&
+            anchor[0] === anchor[2] &&
+            anchor[1] === anchor[3]
+        ) {
+            const [x, y] = this.get('position') ?? [0, 0];
+            const left = x - width * pivot[0];
+            const bottom = y - height * pivot[1];
+            componentData.margin = [left, bottom, -(left + width), -(bottom + height)];
+        }
+
         this.set(`components.${component}`, componentData);
     }
 
