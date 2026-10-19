@@ -107,6 +107,13 @@ editor.once('load', () => {
                 const engineContainer = app.assets.get(container);
 
                 watch.onContainerLoad = function () {
+                    // a render loaded before its container had a file fails for good, so retry it now
+                    const engineAsset = app.assets.get(watch.asset.get('id'));
+                    if (engineAsset?.loaded && !engineAsset.resource) {
+                        load(watch, engineAsset, true);
+                        return;
+                    }
+
                     trigger(watch);
                 };
 
