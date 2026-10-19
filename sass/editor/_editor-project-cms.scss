@@ -928,25 +928,9 @@
         background-color: rgb(0 0 0 / 10%);
     }
 
-    // views and plays in fixed slots on the left, so they line up across cards, and the star on the right
-    // under the kebab; views' slot fits "999K", and a missing stat leaves its slot empty
-    .cms-card-foot.cms-stats {
-        display: grid;
-        grid-template-columns: 54px minmax(0, 1fr) auto;
-
-        > .cms-views {
-            grid-column: 1;
-            justify-self: start;
-        }
-
-        > .cms-plays {
-            grid-column: 2;
-            justify-self: start;
-        }
-
-        > .cms-star {
-            grid-column: 3;
-        }
+    // views and plays packed on the left, the star on the right under the kebab
+    .cms-card-foot.cms-stats > .cms-star {
+        margin-left: auto;
     }
 
     .cms-card-cover {
