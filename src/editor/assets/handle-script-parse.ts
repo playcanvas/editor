@@ -3,6 +3,7 @@ import { SOURCE_MAP_URL } from '@/core/constants';
 import { WorkerClient } from '@/core/worker/worker-client';
 
 const CLASSIC_PARSE_TIMEOUT = 60000;
+const SCRIPT_ATTRIBUTES_TIMEOUT = 60000;
 
 editor.once('load', () => {
     const genGUID = () => {
@@ -86,8 +87,20 @@ editor.once('load', () => {
                 }
             }
 
+            // a connection lost while the tab was idle drops the request or its reply, so stop waiting
+            // rather than leave the parse pending with no error
+            const timer = setTimeout(() => {
+                editor.unbind(`messenger:scriptAttrsFinished:${guid}`);
+                const message = `Timed out while parsing script asset '${asset.get('name')}'. Please refresh the editor.`;
+                if (inEditor) {
+                    editor.call('status:error', message);
+                }
+                callback?.(new Error(message));
+            }, SCRIPT_ATTRIBUTES_TIMEOUT);
+
             // Wait for the backend to finish setting the script attributes
             editor.on(`messenger:scriptAttrsFinished:${guid}`, () => {
+                clearTimeout(timer);
                 if (inEditor) {
                     editor.call('status:clear');
                 }
