@@ -1,0 +1,832 @@
+@use 'sass:color';
+
+// new project, new organization and delete organization pickers: the project picker frame with projects-page controls
+// corners: 8px kit cards, 6px controls (inputs, buttons)
+
+.pcui-overlay.picker-project-new {
+    z-index: 100000; // larger than drop-area's
+
+    // same frame as the project picker (.picker-project): centred 1060x600 box,
+    // 33px header with a centred title, $bcg-primary body
+    > .pcui-overlay-content {
+        width: min(1060px, calc(100vw - 32px));
+        height: min(600px, calc(100vh - 32px));
+        border: 1px solid $border-primary;
+
+        > .pcui-panel {
+            height: 100%;
+
+            > .pcui-panel-header {
+                @extend %dialog-header;
+            }
+
+            > .pcui-panel-content {
+                height: calc(100% - 33px);
+                padding: 0;
+                overflow: hidden;
+            }
+        }
+    }
+
+    .modal-new-project-container {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 300px;
+        height: 100%;
+    }
+
+    // forking has no kit grid, so the form stands alone
+    // forking: the form alone, sized to its content
+    &.fork {
+        > .pcui-overlay-content {
+            width: min(380px, calc(100vw - 32px));
+            height: auto;
+            max-height: calc(100vh - 32px);
+
+            > .pcui-panel > .pcui-panel-content {
+                height: auto;
+            }
+        }
+
+        .modal-new-project-form-content {
+            flex: none;
+        }
+
+        // source project, then "your copy"
+        .fork-source {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            border: 1px solid $border-primary;
+            border-radius: 8px;
+            background-color: $bcg-darker;
+        }
+
+        // as tall as the eyebrow, name and owner beside it
+        .fork-source-logo {
+            flex: none;
+            width: 64px;
+            height: 64px;
+            border-radius: 8px;
+            background-color: $bcg-darkest;
+            box-shadow: 0 0 0 1px $border-primary;
+            object-fit: cover;
+        }
+
+        .fork-source-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+
+            // regular text, not the form's bold labels; only the name is bold
+            .pcui-label {
+                @extend .font-regular;
+
+                margin: 0;
+            }
+        }
+
+        .fork-source-eyebrow {
+            color: $text-dark;
+            font-size: 11px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .fork-source-info .fork-source-name {
+            @extend .font-bold;
+
+            overflow: hidden;
+            color: $text-primary;
+            font-size: 14px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .fork-source-meta {
+            display: flex;
+            flex-flow: row wrap;
+            align-items: center;
+            gap: 4px 10px;
+            color: $text-secondary;
+            font-size: 12px;
+
+            > .pcui-label {
+                color: inherit;
+                font-size: inherit;
+            }
+        }
+
+        .fork-source-avatar {
+            width: 20px;
+            height: 20px;
+            margin-right: -4px;
+            border-radius: 50%;
+        }
+
+        .fork-divider {
+            @extend .font-regular;
+
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+            color: $text-dark;
+            font-size: 12px;
+
+            &::before,
+            &::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background-color: $border-primary;
+            }
+        }
+
+        // a blocked fork: the reason replaces the form, and Fork project stays disabled
+        .fork-blocked {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+            font-size: 13px;
+            line-height: 1.4;
+
+            > .pcui-label {
+                margin: 0;
+                color: inherit;
+                white-space: normal;
+            }
+
+            > a {
+                color: $text-active;
+            }
+        }
+
+        .modal-new-project-container {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .modal-new-project-main-view {
+            display: none;
+        }
+
+        .modal-new-project-sidebar {
+            border-left: none;
+        }
+    }
+
+    // kits
+
+    .modal-new-project-main-view {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        min-height: 0;
+        padding: 20px 24px 24px;
+        overflow: hidden auto;
+    }
+
+    .modal-new-project-heading {
+        margin: 0;
+        color: $text-primary;
+        font-size: 13px;
+
+        @extend .font-bold;
+    }
+
+    .modal-new-project-kits-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 16px;
+        margin: 0;
+    }
+
+    .starter-kit {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+        overflow: hidden;
+        border: 1px solid $border-primary;
+        border-radius: 8px;
+        background-color: $bcg-dark;
+        cursor: pointer;
+        transition:
+            border-color $cms-ease,
+            box-shadow $cms-ease;
+
+        // same hover as the project cards
+        &:not(.skeleton):hover,
+        &:focus-visible {
+            @extend %cms-hover-ring;
+
+            outline: none;
+
+            .thumbnail img {
+                @extend %cms-hover-zoom;
+            }
+        }
+
+        &.selected {
+            border-color: $text-active;
+            box-shadow: 0 0 0 1px $text-active;
+
+            // tick in the corner of the selected kit
+            &::after {
+                content: '';
+                position: absolute;
+                top: 8px;
+                right: 8px;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: $text-active url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 6.2l2.3 2.3 4.7-4.9'/%3E%3C/svg%3E") center / 12px no-repeat;
+            }
+        }
+
+        .thumbnail {
+            position: relative;
+            aspect-ratio: 1; // kit thumbnails are square
+            margin: 0;
+            overflow: hidden;
+            background-color: $bcg-darkest;
+
+            img {
+                display: block;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform $cms-zoom-ease;
+            }
+
+            .overlay {
+                position: absolute;
+                inset: 0;
+                margin: 0;
+                pointer-events: none;
+            }
+
+            // preview opens the kit's published app
+            .preview-button {
+                position: absolute;
+                bottom: 8px;
+                left: 8px;
+                display: none;
+                width: 28px;
+                height: 28px;
+                margin: 0;
+                padding: 0;
+                border: none;
+                border-radius: 6px;
+                background-color: rgb(32 41 43 / 85%);
+                color: $text-primary;
+                pointer-events: auto;
+
+                @include cms-interactive;
+
+                // svg triangle: the font glyph sits off-centre; 1px right to balance it optically
+                &::before {
+                    @extend %cms-mask-icon;
+
+                    width: 10px;
+                    height: 12px;
+                    margin-left: 2px;
+                    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 12'%3E%3Cpath d='M0 0v12l10-6z'/%3E%3C/svg%3E");
+                }
+
+                &:hover {
+                    background-color: $text-active;
+                    box-shadow: none;
+                }
+            }
+        }
+
+        &:not(.skeleton):hover .preview-button,
+        &:focus-within .preview-button,
+        &.selected .preview-button {
+            display: inline-grid;
+            place-items: center;
+        }
+
+        h4 {
+            margin: 10px 12px 0;
+            overflow: hidden;
+            color: $text-primary;
+            font-size: 13px;
+            font-weight: normal;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            @extend .font-bold;
+        }
+
+        .kit-desc {
+            display: -webkit-box;
+            min-height: 32px;
+            margin: 4px 12px 12px;
+            overflow: hidden;
+            color: $text-dark;
+            font-size: 12px;
+            line-height: 16px;
+            white-space: normal;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+        }
+    }
+
+    // first-load placeholders, shaped like kit cards
+    .starter-kit.skeleton {
+        cursor: default;
+
+        .kit-bone {
+            @extend %cms-bone;
+
+            &.thumb {
+                aspect-ratio: 1;
+                border-radius: 0;
+            }
+
+            &.title {
+                width: 60%;
+                height: 12px;
+                margin: 12px 12px 0;
+            }
+
+            &.line {
+                width: 85%;
+                height: 10px;
+                margin: 8px 12px 14px;
+            }
+        }
+
+        &:nth-child(2n) .kit-bone {
+            animation-delay: 120ms;
+        }
+
+        &:nth-child(3n) .kit-bone {
+            animation-delay: 240ms;
+        }
+    }
+
+    // form
+
+    .modal-new-project-sidebar {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        border-left: 1px solid $border-primary;
+        background-color: $bcg-dark;
+    }
+
+    .modal-new-project-form-content {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 16px;
+        min-height: 0;
+        padding: 20px;
+        overflow-y: auto;
+
+        > .pcui-container {
+            gap: 6px;
+            margin: 0;
+        }
+
+        .pcui-label {
+            @extend %dialog-label;
+        }
+
+        .form-control {
+            @extend %dialog-input;
+        }
+
+        .pcui-text-input.form-control {
+            height: 32px;
+
+            > input {
+                height: 30px;
+            }
+        }
+
+        .pcui-text-area-input.form-control > textarea {
+            padding: 8px 10px;
+            line-height: 18px;
+            resize: none;
+        }
+
+        .pcui-boolean-input {
+            margin: 0;
+        }
+
+        // the only possible owner: the dropdown's field, without the arrow or a list
+        .owner-static {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+            height: 32px;
+            padding: 0 10px 0 8px;
+            border: 1px solid $border-primary;
+            border-radius: 6px;
+            box-sizing: border-box;
+            background-color: $bcg-darker;
+
+            > .owner-profile {
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+            }
+
+            > .owner-static-name {
+                @extend .font-regular;
+
+                color: $text-primary;
+                font-size: 13px;
+            }
+        }
+
+        // owner dropdown with avatars
+        .owner-dropdown {
+            margin: 0;
+
+            .pcui-select-input-container-value {
+                position: relative;
+            }
+
+            .owner-profile {
+                position: absolute;
+                top: 50%;
+                left: 8px;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                transform: translateY(-50%);
+            }
+
+            // pcui's container sits behind the field: no fill or square corners of its own
+            .pcui-select-input-container-value {
+                border-radius: 6px;
+                background-color: transparent;
+            }
+
+            // the orange border the other fields use on focus, instead of pcui's glow
+            .pcui-select-input-shadow {
+                display: none;
+            }
+
+            &.pcui-focus .pcui-select-input-value,
+            &.pcui-open .pcui-select-input-value {
+                border-color: $text-active;
+            }
+
+            // the value and options read as field text, not as the dialog's bold labels
+            .pcui-select-input-value,
+            .pcui-select-input-list > .pcui-label {
+                @extend .font-regular;
+
+                color: $text-primary;
+                font-size: 13px;
+            }
+
+            .pcui-select-input-value {
+                height: 32px;
+                padding-left: 36px;
+                border: 1px solid $border-primary;
+                border-radius: 6px;
+                background-color: $bcg-darker;
+                line-height: 30px;
+            }
+
+            // centred in the 32px field
+            .pcui-select-input-icon {
+                top: 0;
+                right: 10px;
+                height: 32px;
+                color: $text-dark;
+                line-height: 32px;
+            }
+
+            // the open list, styled like the projects page menus
+            .pcui-select-input-list {
+                margin: 4px 0;
+                padding: 4px;
+                border: 1px solid $border-primary;
+                border-radius: $radius-control;
+                background-color: $cms-float;
+                box-shadow: $cms-float-shadow;
+                box-sizing: border-box;
+
+                > * {
+                    position: relative;
+                    height: 32px;
+                    padding-left: 32px;
+                    border-radius: $radius-badge;
+                    line-height: 32px;
+                }
+
+                > *:hover,
+                > .pcui-select-input-label-highlighted {
+                    background-color: $cms-hover;
+                }
+
+                .owner-profile {
+                    left: 6px;
+                }
+            }
+        }
+    }
+
+    .create-btn-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 16px 20px 20px;
+    }
+
+    // alerts from picker:project:buildAlert sit over the kit grid
+    .modal-new-project-main-view > .alert {
+        border-radius: 6px;
+    }
+}
+
+// dialog() content: the shell itself lives in _editor-ui-components.scss
+
+// form fields in the new organization and type-to-confirm dialogs
+.pcui-overlay.pm-dialog {
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin: 0;
+    }
+
+    .pcui-text-input.form-group--input {
+        @extend %dialog-input;
+
+        height: 32px;
+
+        > input {
+            height: 30px;
+        }
+    }
+
+    .form-group--hint {
+        margin: 0;
+        color: $danger-text;
+        font-size: 12px;
+        white-space: normal;
+    }
+}
+
+.pcui-overlay.picker-new-organization {
+    .form-group--label {
+        @extend %dialog-label;
+    }
+
+    // how the organization will look in the sidebar and its url
+    .new-organization-preview {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+        margin: 0 0 4px;
+        padding: 12px;
+        border: 1px solid $border-primary;
+        border-radius: $radius-surface;
+        background-color: $bcg-dark;
+
+        &.empty .preview-name {
+            color: $text-meta;
+        }
+    }
+
+    .preview-tile {
+        display: inline-grid;
+        flex: none;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        margin: 0;
+        border-radius: $radius-surface;
+        background-color: $text-active;
+        color: $text-primary;
+        font-size: 15px;
+
+        @extend .font-bold;
+    }
+
+    .preview-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    .preview-name {
+        margin: 0;
+        overflow: hidden;
+        color: $text-primary;
+        font-size: 14px;
+        text-overflow: ellipsis;
+
+        @extend .font-bold;
+    }
+
+    .preview-url {
+        margin: 0;
+        overflow: hidden;
+        color: $text-meta;
+        font-size: 12px;
+        text-overflow: ellipsis;
+    }
+
+    // one bordered field; the prefix sits inside it, before the input
+    .form-group--field {
+        @extend %dialog-input;
+
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        height: 32px;
+
+        &:focus-within {
+            border-color: $text-active;
+        }
+
+        &.invalid {
+            border-color: $error-secondary;
+        }
+
+        > .form-group--prefix {
+            flex: none;
+            margin: 0;
+            padding-left: 10px;
+            color: $text-meta;
+            font-size: 13px;
+        }
+
+        > .form-group--input {
+            flex: 1;
+            height: 30px;
+            margin: 0;
+            border: none;
+            background: transparent;
+            box-shadow: none;
+
+            > input {
+                height: 30px;
+                padding: 0 10px;
+                color: $text-primary;
+                font-family: inherit;
+                font-size: 13px;
+            }
+        }
+
+        > .form-group--prefix + .form-group--input > input {
+            padding-left: 0;
+        }
+    }
+}
+
+.pcui-overlay.picker-delete-organization,
+.pcui-overlay.picker-delete-project,
+.pcui-overlay.picker-transfer-project {
+    .form-group {
+        gap: 12px;
+    }
+
+    .form-group--label {
+        margin: 0;
+        color: $text-secondary;
+        font-size: 13px;
+        line-height: 18px;
+        white-space: normal;
+    }
+}
+
+.pcui-overlay.picker-transfer-project {
+    // who the typed username resolves to: a menu-style panel just under the field
+    .transfer-recipient {
+        display: flex;
+        position: relative;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        min-height: 40px;
+        margin-top: -8px;
+        padding: 4px 12px;
+        border: 1px solid $border-primary;
+        border-radius: $radius-control;
+        background-color: $cms-float;
+        box-shadow: $cms-float-shadow;
+        color: $text-primary;
+        font-size: 13px;
+
+        // the match is the highlighted row
+        &:not(.error)::before {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            border-radius: $radius-badge;
+            background-color: $cms-hover;
+        }
+
+        > * {
+            position: relative;
+        }
+
+        &.error {
+            min-height: 0;
+            padding: 8px 12px;
+            color: $text-secondary;
+        }
+
+        &.pcui-hidden {
+            display: none;
+        }
+    }
+
+    .transfer-recipient-avatar {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+    }
+
+    .transfer-recipient-name {
+        margin: 0;
+        color: inherit;
+    }
+
+    .transfer-recipient-user {
+        margin: 0;
+        color: $text-meta;
+        font-size: 12px;
+    }
+}
+
+// what an import had to change: the count, then one row per material like the projects list view
+.pcui-overlay.picker-modal-confirmation {
+    .import-report {
+        margin: 0;
+        color: $text-secondary;
+        font-size: 12px;
+        line-height: 16px;
+
+        > .pcui-label:not(.import-report-count) {
+            margin: 8px 0 0;
+            color: $text-meta;
+            white-space: normal;
+        }
+    }
+
+    .import-report-count {
+        @extend .font-bold;
+
+        display: block;
+        margin: 0 0 8px;
+        color: $text-primary;
+        font-size: 12px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .import-report-items {
+        @extend %rounded-scroll;
+
+        max-height: 180px;
+        margin: 0;
+        padding: 0;
+        overflow-y: auto;
+        list-style: none;
+        border: 1px solid $border-primary;
+        border-radius: $radius-control;
+        background-color: $bcg-darker;
+
+        > li {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 8px 12px;
+            border-top: 1px solid $border-primary;
+
+            &:first-child {
+                border-top: none;
+            }
+        }
+    }
+
+    .import-report-name {
+        color: $text-primary;
+        font-size: 13px;
+    }
+
+    .import-report-change {
+        color: $text-meta;
+        font-size: 12px;
+    }
+}

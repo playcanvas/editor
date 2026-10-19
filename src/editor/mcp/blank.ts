@@ -11,7 +11,7 @@ for (const [name, fn] of driver.methods) {
 }
 
 editor.once('load', () => {
-    const button = createMcpButton('below');
-    button.class.add('mcp-header');
-    editor.call('picker:project:cms:addHeaderButton', button);
+    const button = createMcpButton('account');
+    button.class.add('mcp-account');
+    editor.call('picker:project:cms:addAccountButton', button);
 });

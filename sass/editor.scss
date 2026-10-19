@@ -2,7 +2,11 @@
 @import 'common/fonts';
 @import 'common/monaco-merge';
 @import 'editor/editor-pcui-compat';
+@import 'editor/editor-tokens';
 @import 'editor/editor-main';
+@import 'editor/editor-project-cms';
+@import 'editor/editor-project-new';
+@import 'editor/editor-pm-components';
 @import 'editor/editor-pcui-compat-theme';
 @import 'editor/editor-common';
 @import 'editor/editor-version-control-picker';

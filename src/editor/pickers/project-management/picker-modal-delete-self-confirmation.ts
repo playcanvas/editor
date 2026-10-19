@@ -1,94 +1,31 @@
-import { Button, Label, Overlay, Panel } from '@playcanvas/pcui';
+import { Label } from '@playcanvas/pcui';
+
+import { button } from './components/button';
+import { dialog } from './components/dialog';
 
 editor.once('load', () => {
     // UI
 
-    // overlay
-    const root = editor.call('layout.root');
-    const overlay = new Overlay({
-        clickable: false,
+    const { overlay, panel, footer } = dialog({
+        title: 'Leaving project',
         class: 'picker-modal-confirmation',
-        hidden: true
+        confirm: true
     });
-    root.append(overlay);
 
-    // main panel
-    const panel = new Panel({
-        headerText: 'LEAVING PROJECT',
-        class: 'modal-confirmation-panel'
-    });
-    overlay.append(panel);
+    panel.append(new Label({ text: 'Are you sure you want to remove yourself from the project?' }));
 
-    // close button
-    const btnClose = new Button({
-        class: 'close',
-        icon: 'E132'
-    });
-    btnClose.on('click', () => {
-        returnToCMS();
-    });
-    panel.header.append(btnClose);
-
-    // confirmation message
-    const confirmationMessage = new Label({
-        text: 'Are you sure you want to remove yourself from the project?'
-    });
-    panel.append(confirmationMessage);
-
-    // stay button
-    const stayButton = new Button({
-        class: 'negative-action-button',
-        text: 'Stay'
-    });
-    panel.append(stayButton);
-
+    const stayButton = button({ kind: 'secondary', text: 'Stay' });
     stayButton.on('click', () => {
-        returnToCMS();
+        overlay.hidden = true;
     });
+    footer.append(stayButton);
 
-    // leave button
-    const leaveButton = new Button({
-        class: 'positive-action-button',
-        text: 'Leave Project'
-    });
-    panel.append(leaveButton);
-
+    const leaveButton = button({ kind: 'danger', text: 'Leave project' });
     leaveButton.on('click', () => {
         editor.call('picker:team:management:removeSelf');
-        returnToCMS();
-    });
-
-    // CONTROLLERS
-
-    // helper method to close current panel and return to CMS
-    const returnToCMS = () => {
         overlay.hidden = true;
-    };
-
-    // EVENTS
-
-    // load and show data
-    overlay.on('show', () => {
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', false);
-        }
     });
-
-    // clean up
-    overlay.on('hide', () => {
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', true);
-        }
-    });
-
-    // prevent viewport hovering when picker is shown
-    editor.on('viewport:hover', (state) => {
-        if (state && !overlay.hidden) {
-            setTimeout(() => {
-                editor.emit('viewport:hover', false);
-            }, 0);
-        }
-    });
+    footer.append(leaveButton);
 
     // method to display panel
     editor.method('picker:project:deleteSelfConfirmation', () => {

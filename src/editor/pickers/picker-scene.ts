@@ -17,7 +17,7 @@ editor.once('load', () => {
         class: 'picker-scene-panel'
     });
 
-    editor.call('picker:project:registerMenu', 'scenes', 'Scenes', container);
+    editor.call('picker:project:registerMenu', 'scenes', 'Scenes', container, 'Scenes');
 
     // scene should be the default
     editor.call('picker:project:setDefaultMenu', 'scenes');

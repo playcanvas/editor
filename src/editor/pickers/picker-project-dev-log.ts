@@ -1,0 +1,265 @@
+import { Container, Element, Label, TextAreaInput, TextInput } from '@playcanvas/pcui';
+import Markdown from 'markdown-it';
+
+import { config } from '@/editor/config';
+
+import { button } from './project-management/components/button';
+import { empty } from './project-management/components/empty';
+
+const TITLE_MAX = 100;
+const DELETE_CONFIRM_MS = 3000;
+
+// raw html stays escaped (markdown-it's default), so post text can't inject markup
+const md = Markdown({ linkify: true });
+
+editor.once('load', () => {
+    let project = null;
+    let load = 0;
+    let composer: Container | null = null;
+    let emptyState: Container | null = null; // shown while the log has no posts; it has its own button
+
+    const rest = () => editor.api.globals.rest.posts;
+    const canWrite = () => project?.access_level === 'write' || project?.access_level === 'admin';
+
+    // super users, admins, and authors who can still write may edit or delete a post
+    const canChange = (post) =>
+        !!config.self.flags?.superUser ||
+        project?.access_level === 'admin' ||
+        (post.userId === config.self.id && canWrite());
+
+    // UI
+
+    const panel = new Container({ class: 'picker-project-dev-log' });
+    editor.call('picker:project:registerMenu', 'dev-log', 'DEV LOG', panel, 'Dev log');
+
+    const header = new Container({ class: 'dev-log-header' });
+    panel.append(header);
+    header.append(new Label({ class: 'dev-log-intro', text: 'Share progress and updates on this project.' }));
+    const newButton = button({ kind: 'primary', size: 'sm', text: 'New post' });
+    header.append(newButton);
+
+    const list = new Container({ class: 'dev-log-list' });
+    panel.append(list);
+
+    const message = (text: string) => list.append(new Label({ class: 'dev-log-message', text }));
+
+    // no posts yet: what the log is for, and a way to start it for people who can write
+    const showEmpty = () => {
+        newButton.hidden = true;
+        const start = canWrite() ? button({ kind: 'primary', text: 'Write the first post' }) : undefined;
+        start?.on('click', () => openComposer());
+        emptyState = empty({
+            icon: 'dev-log-empty-icon',
+            title: 'No posts yet',
+            text: canWrite()
+                ? 'Post what changed so your team and players can follow along.'
+                : 'Updates from the people working on this project will show here.',
+            action: start
+        });
+        list.append(emptyState);
+    };
+
+    // a title and markdown body, for a new post or an edit
+    const buildComposer = (post, onDone: () => void) => {
+        const form = new Container({ class: 'dev-log-editor' });
+        // placeholders go on the native fields, so they sit inside them
+        const title = new TextInput({ class: 'dev-log-title-input', value: post?.title ?? '' });
+        (title.input as HTMLInputElement).maxLength = TITLE_MAX;
+        title.input.placeholder = 'Title';
+        form.append(title);
+        const body = new TextAreaInput({
+            class: 'dev-log-text-input',
+            value: post?.text ?? '',
+            height: 140
+        });
+        body.input.placeholder = 'What changed? Markdown is supported.';
+        form.append(body);
+        const error = new Label({ class: 'dev-log-error', hidden: true });
+        form.append(error);
+
+        const actions = new Container({ class: 'dev-log-editor-actions' });
+        form.append(actions);
+        const cancel = button({ kind: 'secondary', size: 'sm', text: 'Cancel' });
+        actions.append(cancel);
+        const save = button({ kind: 'primary', size: 'sm', text: post ? 'Save' : 'Post' });
+        actions.append(save);
+
+        const fail = (text: string) => {
+            error.text = text;
+            error.hidden = false;
+            save.enabled = true;
+        };
+        cancel.on('click', onDone);
+        save.on('click', () => {
+            const data = { title: title.value.trim(), text: body.value };
+            if (!data.title || !data.text.trim()) {
+                fail('Add a title and some text.');
+                return;
+            }
+            save.enabled = false;
+            const request = post
+                ? rest().postUpdate(post.id, data)
+                : rest().postCreate({ scope: { type: 'project', id: project.id }, ...data });
+            request
+                .on('load', () => {
+                    onDone();
+                    loadPosts();
+                })
+                .on('error', (_status, err) => fail(typeof err === 'string' ? err : 'Could not save the post'));
+        });
+        return form;
+    };
+
+    const closeComposer = () => {
+        // inserted with insertBefore, so pcui doesn't know its parent and won't detach it on destroy
+        composer?.dom.remove();
+        composer?.destroy();
+        composer = null;
+        newButton.hidden = !canWrite() || !!emptyState;
+        if (emptyState) {
+            emptyState.hidden = false;
+        }
+    };
+
+    const buildPost = (post) => {
+        const item = new Container({ class: 'dev-log-post' });
+        list.append(item);
+
+        const head = new Container({ class: 'dev-log-post-head' });
+        item.append(head);
+        const avatar = new Element({ dom: 'img', class: 'dev-log-avatar' });
+        (avatar.dom as HTMLImageElement).src = `${config.url.api}/users/${post.userId}/thumbnail?size=32`;
+        head.append(avatar);
+        const info = new Container({ class: 'dev-log-post-info' });
+        head.append(info);
+        info.append(new Label({ class: 'dev-log-post-title', text: post.title }));
+        const date = new Date(post.modifiedAt ?? post.createdAt).toLocaleDateString();
+        const meta = new Label({ class: 'dev-log-post-meta', text: [post.username, date].filter(Boolean).join(' · ') });
+        info.append(meta);
+
+        // posts carry only the username, so swap in the author's full name, as on the projects page
+        editor.call('users:loadOne', post.userId, (user) => {
+            meta.text = [user?.full_name || post.username, date].filter(Boolean).join(' · ');
+        });
+
+        const body = new Element({ class: 'dev-log-post-body' });
+        body.dom.innerHTML = md.render(post.text ?? '');
+        body.dom.querySelectorAll('a').forEach((a) => {
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+        });
+        item.append(body);
+
+        if (!canChange(post)) {
+            return;
+        }
+        const actions = new Container({ class: 'dev-log-post-actions' });
+        head.append(actions);
+        const edit = button({ kind: 'icon', size: 'sm', icon: 'E130', label: 'Edit post' });
+        actions.append(edit);
+        edit.on('click', () => {
+            closeComposer();
+            item.hidden = true;
+            composer = buildComposer(post, () => {
+                item.hidden = false;
+                closeComposer();
+            });
+            list.dom.insertBefore(composer.dom, item.dom);
+        });
+
+        // a second click within a few seconds confirms: the icon spells out what it'll do
+        const remove = button({ kind: 'icon', tone: 'danger', size: 'sm', icon: 'E124', label: 'Delete post' });
+        actions.append(remove);
+        let armed = null;
+        const disarm = () => {
+            armed = null;
+            remove.text = '';
+            remove.class.remove('armed');
+        };
+        remove.on('click', () => {
+            if (!armed) {
+                remove.text = 'Delete post';
+                remove.class.add('armed');
+                armed = setTimeout(disarm, DELETE_CONFIRM_MS);
+                return;
+            }
+            clearTimeout(armed);
+            remove.enabled = false;
+            rest()
+                .postDelete(post.id)
+                .on('load', loadPosts)
+                .on('error', () => {
+                    remove.enabled = true;
+                    disarm();
+                    editor.call('picker:project:buildAlert', panel, 'Could not delete the post');
+                });
+        });
+    };
+
+    // CONTROLLERS
+
+    // the list leaves out post text, so each post is fetched for its body
+    const loadPosts = () => {
+        const id = ++load;
+        emptyState = null;
+        closeComposer();
+        list.clear();
+        message('Loading posts...');
+        rest()
+            .postList(project.id)
+            .on('load', (_status, res) => {
+                const items = res.result ?? [];
+                Promise.all(
+                    items.map(
+                        (post) =>
+                            new Promise((resolve) => {
+                                rest()
+                                    .postGet(post.id)
+                                    .on('load', (_s, full) => resolve({ ...post, text: full.text }))
+                                    .on('error', () => resolve(post));
+                            })
+                    )
+                ).then((full) => {
+                    if (id !== load) {
+                        return;
+                    }
+                    list.clear();
+                    if (!full.length) {
+                        showEmpty();
+                    }
+                    full.forEach(buildPost);
+                });
+            })
+            .on('error', () => {
+                if (id === load) {
+                    list.clear();
+                    message('Could not load posts.');
+                }
+            });
+    };
+
+    const openComposer = () => {
+        closeComposer();
+        newButton.hidden = true;
+        if (emptyState) {
+            emptyState.hidden = true;
+        }
+        composer = buildComposer(null, closeComposer);
+        list.dom.insertBefore(composer.dom, list.dom.firstChild);
+    };
+    newButton.on('click', openComposer);
+
+    // EVENTS
+
+    panel.on('show', () => {
+        project = editor.call('picker:project:getCurrent');
+        newButton.hidden = !canWrite();
+        loadPosts();
+    });
+
+    panel.on('hide', () => {
+        load++;
+        closeComposer();
+        editor.call('picker:project:hideAlerts');
+    });
+});

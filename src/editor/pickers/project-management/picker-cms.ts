@@ -1,452 +1,481 @@
-import {
-    BooleanInput,
-    Button,
-    Container,
-    Element,
-    Label,
-    Menu,
-    Overlay,
-    Panel,
-    Progress,
-    RadioButton,
-    TextInput
-} from '@playcanvas/pcui';
+import type { MenuItem } from '@playcanvas/pcui';
+import { Button, Container, Element, Label, Menu, Overlay, Progress, TextInput } from '@playcanvas/pcui';
 
-import * as SVG from '@/common/svg';
-import { bytesToHuman } from '@/common/utils';
+import { bytesToHuman, countToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
+import { button } from './components/button';
+import { empty } from './components/empty';
+import { spinner } from './components/spinner';
+import { openProject as openProjectTab } from './tabs';
+
+const PAGE_SIZE = 24;
+const TABS = [
+    ['all', 'All'],
+    ['mine', 'Mine'],
+    ['shared', 'Shared with me'],
+    ['private', 'Private'],
+    ['starred', 'Starred']
+];
+const SORTS = [
+    ['modified', 'Last edited'],
+    ['created', 'Created'],
+    ['name', 'Name'],
+    ['plays', 'Most played'],
+    ['size', 'Size']
+];
+// home subtitle, picked once per page load (a prompt, like claude code's home, not stats)
+const PROMPTS = [
+    'What are we building today?',
+    'Ready to make something?',
+    'What should we make next?',
+    'Pick up where you left off, or start something new.',
+    'Got an idea for a scene?'
+];
+const PROMPT = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
+// access you have to someone else's project; admin needs no badge, it's the default on yours and your orgs'
+const QUALIFIERS = ['name:', 'owner:', 'desc:', 'is:private', 'is:public', 'is:starred', 'is:locked'];
+const EMPTY_THUMBNAIL_IMAGE = `${config.url.frontend}static/img/blank-project.webp`;
+const SIDE_KEY = 'editor:cms:sidebar:width';
+const SIDE_DEFAULT_W = 248;
+const SIDE_MIN_W = 200;
+const SIDE_MAX_W = 420;
+
 editor.once('load', () => {
-    // global variables
-    let currentProject;
     let rootUser;
     let currentUser;
-    let selectedFilter;
     let accountUsage;
     let dropdownOrg;
-    let selectedDropdown;
-    let selectedSortRadioButton;
-    let sortDescending = true;
+    let menuProject;
+    let filter = 'all'; // a tab id or an organization id
     let sortPolicy = 'modified';
-    let isSceneLoaded = config.scene ? config.scene.id : null; // assume scene is not loaded to start with
-    let projectsToSearch; // holds all projects that are searchable
-
-    const searchMatches = new Set();
-    const projects = {};
-    const IS_EMPTY_STATE = !config.project.id; // if no project loaded, CMS is in empty state
-    const EMPTY_THUMBNAIL_IMAGE = `${config.url.frontend}static/img/blank-project.webp`;
-
+    let sortDescending = true;
+    let layout = 'grid';
+    let shown = PAGE_SIZE;
+    let rows = [];
     let events = [];
+    let loading = false;
+    // first load: nothing to show yet, so counts stay blank instead of reading 0
+    const waiting = () => loading && !rootProjects().length;
 
-    // UI
+    const projects = {};
 
-    // displays or hides the loading bar in the CMS main panel based on parameter
-    const toggleProgress = function (toggle: boolean, progress = 100, label = '') {
-        progressBar.value = progress;
-        progressBar.hidden = !toggle;
-        if (label !== '') {
-            progressLabel.hidden = false;
-            progressLabel.text = label;
-            progressBarContainer.class.add('progress-container-expand');
-        } else {
-            progressLabel.hidden = true;
-            progressBarContainer.class.remove('progress-container-expand');
+    // DATA
+
+    const orgs = () => rootUser?.organizations ?? [];
+    const isOrg = (id) => orgs().some((org) => org.id === id);
+    const userName = (user) => user.full_name || user.username;
+    const avatarUrl = (id, size = 32) => `${config.url.api}/users/${id}/thumbnail?size=${size}`;
+    const ownerName = (project) => {
+        if (project.owner_id === rootUser.id) {
+            return userName(rootUser);
+        }
+        const org = orgs().find((o) => o.id === project.owner_id);
+
+        // the projects api sends the owner as a username string
+        return org ? userName(org) : (project.owner?.full_name ?? project.owner?.username ?? project.owner ?? '');
+    };
+    // shared projects can arrive without owner details, so skip empty parts instead of leaving a stray dot
+    const joined = (...parts) => parts.filter(Boolean).join(' · ');
+    const isPending = (project) => project.new_owner_id != null || !!project.new_owner;
+    // you, or an organization you're in, are being offered the project
+    const isRecipient = (project) => project.new_owner_id === config.self.id || isOrg(project.new_owner_id);
+    const blocked = (project) =>
+        project.locked || project.access_level === 'none' || project.disabled || isPending(project);
+    const rootProjects = () => projects[rootUser?.id] ?? [];
+    const listFor = (id) => (isOrg(id) ? projects[id] : rootProjects()) ?? [];
+    const matchTab = (project, tab) => {
+        switch (tab) {
+            case 'mine':
+                return project.owner_id === config.self.id;
+            case 'shared':
+                return project.owner_id !== config.self.id;
+            case 'private':
+                return project.private;
+            case 'starred':
+                return !!project.star_id;
+            default:
+                return true;
         }
     };
 
-    // builds out the usage modal
-    const buildUsageUI = () => {
-        upgradeContainer.clear();
-        toggleSpinner(upgradeContainer, true);
-
-        editor.call('users:getUsage', currentUser.id, (res) => {
-            accountUsage = res;
-            toggleSpinner(upgradeContainer, false);
-
-            const usage = bytesToHuman(accountUsage.total);
-            const diskAllowance = bytesToHuman(currentUser.limits.diskAllowance * 1000 * 1000);
-            const percentageUsed = (
-                (accountUsage.total / (currentUser.limits.diskAllowance * 1000 * 1000)) *
-                100
-            ).toPrecision(1);
-
-            // build upgrade container
-            const usageLabel = new Label({
-                text: `${usage} / ${diskAllowance} Used`,
-                class: 'upgrade-label'
-            });
-            upgradeContainer.append(usageLabel);
-
-            const usageBarContainer = new Container({
-                class: 'usage-bar-container'
-            });
-            upgradeContainer.append(usageBarContainer);
-
-            const usageBar = new Element({
-                class: 'usage-bar'
-            });
-            usageBar.style.width = `${percentageUsed}%`;
-            usageBarContainer.append(usageBar);
-
-            // upgrade button
-            const upgradeButton = new Button({
-                text: 'UPGRADE',
-                class: 'upgrade-button'
-            });
-            upgradeContainer.append(upgradeButton);
-
-            upgradeButton.on('click', () => {
-                window.open(`${config.url.home}/upgrade?account=${currentUser.username}`);
-            });
-        });
+    // search syntax: plain words match name, owner or description; `key:value` narrows to one field; quotes allow spaces
+    const IS = {
+        private: (p) => p.private,
+        public: (p) => !p.private,
+        starred: (p) => !!p.star_id,
+        locked: (p) => !!p.locked
     };
-
-    // builds each of the organization dropdown menu items
-    const buildOrganizationsUI = (selected = null) => {
-        organizationsToggle.dom.childNodes[1].innerHTML = '';
-
-        // new organization button
-        const newOrganizationBtn = new Button({
-            class: 'new-organization-button',
-            icon: 'E370',
-            text: 'NEW ORGANIZATION'
-        });
-        organizationsToggle.append(newOrganizationBtn);
-
-        newOrganizationBtn.on('click', () => {
-            editor.call('picker:project:newOrganization');
-        });
-
-        // load Organizations
-        rootUser.organizations.forEach((org) => {
-            const organizationFilter = new Container({
-                class: 'organization-button'
-            });
-            organizationFilter.organization = org; // add field
-            organizationsToggle.append(organizationFilter);
-
-            if (selected && selected === org.full_name) {
-                setSelectedFilter(organizationFilter);
-            }
-
-            const organizationImage = new Element({
-                dom: 'img',
-                class: 'organization-icon'
-            });
-            (organizationImage.dom as HTMLImageElement).src = `${config.url.api}/users/${org.id}/thumbnail?size=26`;
-
-            organizationFilter.append(organizationImage);
-
-            const organizationName = new Label({
-                text: org.full_name
-            });
-            organizationFilter.append(organizationName);
-
-            // dropdown
-            const dropdown = new Button({
-                class: 'dropdown',
-                icon: 'E159'
-            });
-            organizationFilter.append(dropdown.dom);
-
-            organizationFilter.on('click', (e) => {
-                const filterClicks = new Set([organizationFilter.dom, organizationImage.dom, organizationName.dom]);
-
-                if (e.target === dropdown.dom) {
-                    if (!dropdown.class.contains('clicked')) {
-                        dropdown.class.add('clicked');
-                        dropdown.icon = 'E157'; // change arrow
-                        dropdownOrg = org; // select current organization as dropdown organization
-                        selectedDropdown = dropdown; // select current organization dropdown as selected dropdown
-                        orgDropdownMenu.hidden = false;
-
-                        // position dropdown menu
-                        const rect = dropdown.dom.getBoundingClientRect();
-                        orgDropdownMenu.position(rect.left, rect.bottom + 3);
-                    } else {
-                        orgDropdownMenu.hidden = true;
-                    }
-                } else if (filterClicks.has(e.target)) {
-                    setSelectedFilter(organizationFilter);
-                }
-            });
-        });
+    const parseQuery = (query) => {
+        return [...query.matchAll(/(?:(\w+):)?("[^"]*"?|\S+)/g)]
+            .map(([, key, value]) => [key?.toLowerCase(), value.replace(/"/g, '').toLowerCase()] as [string, string])
+            .filter(([, value]) => value && !/^\w+:$/.test(value));
     };
-
-    const buildSortingMenuItem = (root, type, label) => {
-        const sortingMenuItem = new Container({ class: 'sorting-menu-item' });
-        root.append(sortingMenuItem);
-
-        let booleanInput;
-        if (type === 'checkbox') {
-            booleanInput = new BooleanInput({ class: type });
-        } else {
-            booleanInput = new RadioButton({ class: type });
-        }
-
-        const labelElement = new Label({ text: label });
-        sortingMenuItem.append(booleanInput);
-        sortingMenuItem.append(labelElement);
-
-        return [sortingMenuItem, booleanInput];
-    };
-
-    const updateRadioButtons = (newSelectedRadio) => {
-        selectedSortRadioButton.value = false;
-        newSelectedRadio.value = true;
-        selectedSortRadioButton = newSelectedRadio;
-    };
-
-    // builds sorting dropdown with different sorting algorithms
-    const buildSortingDropdown = () => {
-        const sortingContainer = new Container({
-            flex: true,
-            class: 'sorting-container',
-            hidden: true
-        });
-        editor.call('layout.root').append(sortingContainer);
-
-        const [descendingItem, descendingCheckbox] = buildSortingMenuItem(sortingContainer, 'checkbox', 'Descending'); // descending checkbox
-        descendingCheckbox.value = true; // by default we sort in descending order
-        const [sortByModified, modifiedRadio] = buildSortingMenuItem(sortingContainer, 'radio', 'Sort By Last Edited'); // sort by last edited
-        const [sortByName, nameRadio] = buildSortingMenuItem(sortingContainer, 'radio', 'Sort By Name'); // sort by name
-        const [sortByCreated, createdRadio] = buildSortingMenuItem(sortingContainer, 'radio', 'Sort By Created'); // sort by date created
-        const [sortBySize, sizeRadio] = buildSortingMenuItem(sortingContainer, 'radio', 'Sort By Size'); // sort by project size
-
-        selectedSortRadioButton = modifiedRadio;
-        selectedSortRadioButton.value = true;
-
-        descendingCheckbox.on('click', () => {
-            descendingCheckbox.value = !descendingCheckbox.value;
-        });
-
-        descendingItem.on('click', () => {
-            descendingCheckbox.value = !descendingCheckbox.value; // update checkbox
-            sortDescending = descendingCheckbox.value;
-
-            if (selectedSortRadioButton === nameRadio) {
-                sortPolicy = 'name';
-            } else if (selectedSortRadioButton === createdRadio) {
-                sortPolicy = 'created';
-            } else if (selectedSortRadioButton === sizeRadio) {
-                sortPolicy = 'size';
-            }
-
-            if (sortDescending) {
-                sortButton.icon = 'E437';
-            } else {
-                sortButton.icon = 'E438';
-            }
-
-            sortProjects(sortPolicy);
-        });
-
-        descendingItem.dom.id = 'checkbox-menu-item';
-
-        sortByModified.on('click', () => {
-            updateRadioButtons(modifiedRadio);
-            sortProjects('modified');
-        });
-
-        sortByName.on('click', () => {
-            updateRadioButtons(nameRadio);
-            sortProjects('name');
-        });
-
-        sortByCreated.on('click', () => {
-            updateRadioButtons(createdRadio);
-            sortProjects('created');
-        });
-
-        sortBySize.on('click', () => {
-            updateRadioButtons(sizeRadio);
-            sortProjects('size');
-        });
-
-        return sortingContainer;
-    };
-
-    // updates last ___ text
-    const updateLastText = (DOMProjects, projects, sortingPolicy) => {
-        for (let i = 0; i < DOMProjects.length; i++) {
-            const domProj = DOMProjects[i];
-            const proj = projects[i];
-
-            let lastText = `Last Edited ${formatLastText(proj.modified)}`;
-            if (sortingPolicy === 'created') {
-                lastText = `Created ${formatLastText(proj.created)}`;
-            }
-
-            const spanElement = domProj.querySelector('span.project-last-edited');
-            spanElement.innerHTML = lastText;
+    const has = (text, value) => (text ?? '').toLowerCase().includes(value);
+    const matchTerm = (p, [key, value]) => {
+        switch (key) {
+            case 'name':
+                return has(p.name, value);
+            case 'owner':
+                return has(ownerName(p), value);
+            case 'desc':
+                return has(p.description, value);
+            case 'is':
+                return !!IS[value]?.(p);
+            default:
+                return has(p.name, value) || has(ownerName(p), value) || has(p.description, value);
         }
     };
+    const sortKey = {
+        modified: (p) => Date.parse(p.modified),
+        created: (p) => Date.parse(p.created),
+        name: (p) => p.name.toLowerCase(),
+        plays: (p) => p.plays ?? 0,
+        size: (p) => p.size?.total ?? 0
+    };
+    const visible = () => {
+        const terms = parseQuery(searchInput.value);
+        const key = sortKey[sortPolicy];
+        const dir = sortDescending ? -1 : 1;
+        const list = listFor(filter);
 
-    // builds each of the project CMS UI components
-    const buildProjectUI = (root, project) => {
-        const projectContainer = new Container({
-            class: 'project-container'
-        });
-        root.dom.appendChild(projectContainer.dom);
-
-        const projectThumbnailContainer = new Container({
-            class: 'project-thumbnail-container'
-        });
-        projectContainer.append(projectThumbnailContainer);
-
-        const projectThumbnail = new Element({
-            dom: 'img',
-            class: 'project-thumbnail'
-        });
-        projectThumbnailContainer.append(projectThumbnail);
-        projectThumbnail.dom.loading = 'lazy'; // lazy loading of images
-        if (project.thumbnails) {
-            projectThumbnail.dom.src = project.thumbnails.m;
-        } else {
-            projectThumbnail.dom.src = EMPTY_THUMBNAIL_IMAGE;
+        // plain words also match names with typos, like the editor's other searches
+        const names = list.map((p) => [p.name, p]);
+        const fuzzy = terms.map(([key, value]) => (key ? null : new Set(editor.call('search:items', names, value))));
+        return list
+            .filter(
+                (p) =>
+                    (isOrg(filter) || matchTab(p, filter)) && terms.every((t, i) => matchTerm(p, t) || fuzzy[i]?.has(p))
+            )
+            .sort(
+                (a, b) =>
+                    Number(isPending(b)) - Number(isPending(a)) ||
+                    (key(a) > key(b) ? 1 : key(a) < key(b) ? -1 : 0) * dir
+            );
+    };
+    const timeAgo = (date) => {
+        const minutes = Math.max(0, Math.round((Date.now() - Date.parse(date)) / 60000));
+        const unit = (n, u) => `${n} ${u}${n === 1 ? '' : 's'} ago`;
+        if (minutes < 60) {
+            return minutes < 1 ? 'just now' : unit(minutes, 'minute');
         }
-
-        const projectName = new Label({
-            class: 'project-name',
-            text: project.name
-        });
-        projectContainer.append(projectName);
-
-        const projectLastEdited = new Label({
-            class: 'project-last-edited',
-            text: `Last Edited ${formatLastText(project.modified)}`
-        });
-        projectContainer.append(projectLastEdited);
-
-        // Add Editor settings button to currently open project
-        if (!IS_EMPTY_STATE && project.id === currentProject.id) {
-            projectContainer.class.add('currentlyOpen');
-
-            const extendedSettings = new Button({
-                class: 'extended-settings-button',
-                icon: 'E430'
-            });
-            if (isSceneLoaded) {
-                projectThumbnailContainer.append(extendedSettings);
-            }
-
-            extendedSettings.on('click', () => {
-                editor.call('picker:project:close');
-                overlay.hidden = true; // hide this modal
-            });
+        if (minutes < 1440) {
+            return unit(Math.round(minutes / 60), 'hour');
         }
+        if (minutes < 2880) {
+            return 'yesterday';
+        }
+        if (minutes < 43200) {
+            return unit(Math.round(minutes / 1440), 'day');
+        }
+        if (minutes < 525600) {
+            return unit(Math.round(minutes / 43200), 'month');
+        }
+        return unit(Math.round(minutes / 525600), 'year');
+    };
+    const greeting = () => {
+        const hour = new Date().getHours();
+        return hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+    };
 
-        projectContainer.on('click', (evt) => {
-            // If user clicks on extended settings button, ignore click
-            if (evt.target.nodeName === 'BUTTON') {
-                return;
-            }
+    // UI HELPERS
 
-            // If disabled project, block click event
-            if (project.disabled) {
-                return;
-            }
-
-            if (project.locked) {
-                editor.call('picker:project:lockedView', project);
-            } else if (project.access_level === 'none') {
-                editor.call('picker:project:noAdmin', project);
-            } else if (IS_EMPTY_STATE || project.id !== config.project.id) {
-                editor.call('picker:project:reduced', project);
-            } else {
-                editor.call('picker:project', 'project-main', true);
+    const box = (cls, parent?: Container) => {
+        const c = new Container({ class: cls });
+        parent?.append(c);
+        return c;
+    };
+    const text = (value, cls, parent?: Container) => {
+        const l = new Label({ text: value, class: cls });
+        parent?.append(l);
+        return l;
+    };
+    // a focusable surface: Enter or Space on it presses it; keys on buttons inside it stay theirs
+    const pressable = (el: HTMLElement, label: string, onPress: () => void) => {
+        el.tabIndex = 0;
+        el.setAttribute('role', 'button');
+        el.setAttribute('aria-label', label);
+        el.addEventListener('keydown', (e) => {
+            if (e.target === el && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                onPress();
             }
         });
-
-        // stats container
-        const statsContainer = new Container({
-            class: 'project-stats-container'
-        });
-        if (project.access_level === 'none') {
-            statsContainer.class.add('noadmin');
+    };
+    const image = (src, cls, parent?: Container) => {
+        const img = new Element({ dom: 'img', class: cls });
+        (img.dom as HTMLImageElement).src = src;
+        (img.dom as HTMLImageElement).loading = 'lazy';
+        (img.dom as HTMLImageElement).alt = '';
+        parent?.append(img);
+        return img;
+    };
+    // public is the default, so only private gets a badge
+    const badges = (project, parent: Container) => {
+        if (project.locked) {
+            text('Locked', ['cms-badge', 'locked'], parent);
         }
-        projectContainer.append(statsContainer);
-
-        if (project.access_level !== 'none') {
-            const forksLabel = new Label({ class: 'stat', text: `${project.fork_count ? project.fork_count : 0}` }); // forks
-            forksLabel.dom.id = 'forks-stat';
-            const viewsLabel = new Label({ class: 'stat', text: `${project.views}` }); // views
-            viewsLabel.dom.id = 'views-stat';
-            const playsLabel = new Label({ class: 'stat', text: project.primary_app_url ? `${project.plays}` : 'N/A' }); // plays
-            playsLabel.dom.id = 'plays-stat';
-
-            statsContainer.append(forksLabel);
-            statsContainer.append(viewsLabel);
-            statsContainer.append(playsLabel);
+        if (project.access_level === 'none' && !isPending(project)) {
+            text('No access', 'cms-badge', parent);
         }
-        const sizeLabel = new Label({ class: 'stat', text: bytesToHuman(project.size.total) }); // size
-        statsContainer.append(sizeLabel);
-
         if (project.disabled) {
-            projectContainer.class.add('disabled');
+            text('Disabled', ['cms-badge', 'disabled'], parent);
         }
-        if (project.access_level === 'none') {
-            projectContainer.class.add('noAccess');
+        if (project.private) {
+            text('Private', 'cms-badge', parent);
+        }
+    };
+    // views, plays and stars in the card footer; forks show in list rows and the welcome card
+    const stats = (project, parent: Container) => {
+        const line = box('cms-stats', parent);
+        if (project.access_level !== 'none') {
+            text(countToHuman(project.views), 'cms-views', line);
+        }
+        if (project.primary_app_url) {
+            text(countToHuman(project.plays), 'cms-plays', line);
+        }
+        if (canStar(project)) {
+            starToggle(project, line);
+        }
+        return line;
+    };
+    // starring needs read access, which a no-access project doesn't give
+    const canStar = (project) => project.access_level !== 'none';
+    // optimistic, so the count moves on click; a failed call puts it back
+    const starToggle = (project, parent: Container, cls?) => {
+        const btn = new Button({ class: ['cms-star', ...[cls ?? []].flat()] });
+        // set while a request is in flight, so the star fills before the server replies
+        let pending = null;
+        const paint = () => {
+            const on = pending ?? !!project.star_id;
+            btn.text = countToHuman(project.starred);
+            btn.class[on ? 'add' : 'remove']('on');
+            btn.dom.title = on ? 'Unstar' : 'Star';
+            btn.dom.setAttribute('aria-pressed', String(on));
+        };
+        btn.on('click', (e) => {
+            e.stopPropagation();
+            if (pending !== null) {
+                return;
+            }
+            const { star_id: id, starred = 0 } = project;
+            pending = !id;
+            const settle = () => {
+                pending = null;
+                paint();
+                renderTools();
+            };
+            const revert = () => {
+                project.star_id = id;
+                project.starred = starred;
+                settle();
+            };
+            if (id) {
+                project.star_id = null;
+                project.starred = Math.max(0, starred - 1);
+                editor.call('projects:unstar', id, settle, revert);
+            } else {
+                project.starred = starred + 1;
+                editor.call(
+                    'projects:star',
+                    'project',
+                    project.id,
+                    (star) => {
+                        project.star_id = star.id;
+                        settle();
+                    },
+                    revert
+                );
+            }
+            paint();
+            renderTools();
+        });
+        paint();
+        parent.append(btn);
+        return btn;
+    };
+    const toggleWatch = (project) => {
+        const { watch_id: id, watched = 0 } = project;
+        const revert = () => {
+            project.watch_id = id;
+            project.watched = watched;
+        };
+        if (id) {
+            project.watch_id = null;
+            project.watched = Math.max(0, watched - 1);
+            editor.call('projects:unwatch', id, null, revert);
+        } else {
+            project.watched = watched + 1;
+            editor.call(
+                'projects:watch',
+                project.id,
+                (watch) => {
+                    project.watch_id = watch.id;
+                },
+                revert
+            );
+        }
+    };
+    // accept/decline for the recipient, cancel for the sender; both refresh the list when done
+    const transferActions = (project, parent: Container) => {
+        const actions = box(['cms-transfer', isRecipient(project) ? 'incoming' : 'outgoing'], parent);
+        const act = (label, kind: 'primary' | 'secondary', call: () => Promise<unknown>) => {
+            const btn = button({ kind, size: 'sm', text: label });
+            btn.on('click', (e) => {
+                e.stopPropagation();
+                actions.enabled = false;
+                call().then(refreshUI, (err) => {
+                    actions.enabled = true;
+                    editor.call(
+                        'picker:project:buildAlert',
+                        rightPanel,
+                        typeof err === 'string' ? err : 'Could not update the transfer'
+                    );
+                });
+            });
+            actions.append(btn);
+        };
+        const decline = () =>
+            new Promise((resolve, reject) => editor.call('projects:declineTransfer', project.id, resolve, reject));
+        if (isRecipient(project)) {
+            act('Decline', 'secondary', decline);
+            act('Accept', 'primary', () => editor.call('projects:acceptTransfer', project.id));
+        } else {
+            act('Cancel transfer', 'secondary', decline);
+        }
+        return actions;
+    };
+    const pendingText = (project) =>
+        isRecipient(project)
+            ? ['Transfer request', `${ownerName(project) || 'The owner'} wants to give you this project`]
+            : ['Transfer pending', `Waiting for ${project.new_owner || 'the new owner'} to accept`];
+    // the owner, then up to two other members and a count
+    const avatarGroup = (project, parent: Container) => {
+        const group = box('cms-members', parent);
+        image(avatarUrl(project.owner_id, 44), 'cms-avatar', group);
+        const others = (project.users ?? []).filter((id) => id !== project.owner_id);
+        others.slice(0, 2).forEach((id) => image(avatarUrl(id, 44), 'cms-avatar', group));
+        if (others.length > 2) {
+            text(`+${others.length - 2}`, 'cms-members-more', group);
+        }
+        if (others.length) {
+            group.dom.title = `${others.length} other member${others.length === 1 ? '' : 's'}`;
+        }
+    };
+    // a muted dash keeps a list column filled when there's no value
+    const dash = (parent: Container, title?: string) => {
+        const cell = text('—', ['cms-row-cell', 'dash'], parent);
+        if (title) {
+            cell.dom.title = title;
+        }
+    };
+    const canDelete = (project) => {
+        return (
+            project.owner_id === config.self.id ||
+            editor.call('project:management:isOrgAdmin', project.owner_id, config.self)
+        );
+    };
+
+    // ACTIONS
+
+    // opens the existing project picker for a project, the same way the old grid did
+    const openProject = (project) => {
+        if (project.disabled) {
+            return;
         }
         if (project.locked) {
-            projectContainer.class.add('locked');
-        }
-    };
-
-    // reloads all elements in the CMS main view
-    const refreshUI = () => {
-        loadProjects();
-        buildUsageUI();
-    };
-
-    const orgDropdownMenu = new Menu({
-        class: 'organization-dropdown',
-        items: [
-            {
-                id: 'organization-details',
-                text: 'Organization Details',
-                onSelect: () => {
-                    window.open(`${config.url.home}/user/${dropdownOrg.username}/account`, '_blank');
-                }
-            },
-            {
-                id: 'organization-delete',
-                text: 'Delete Organization',
-                onSelect: () => {
-                    editor.call('picker:project:deleteOrganization', projects[dropdownOrg.id]);
-                }
-            }
-        ]
-    });
-
-    // add menu
-    editor.call('layout.root').append(orgDropdownMenu);
-
-    // on closing menu remove 'clicked' class from respective dropdown
-    orgDropdownMenu.on('hide', () => {
-        if (selectedDropdown) {
-            const clicked = selectedDropdown.class.contains('clicked');
-            if (clicked) {
-                selectedDropdown.icon = 'E159';
-                selectedDropdown.class.remove('clicked');
-            }
-        }
-    });
-
-    // spinner used to reload usage modal on project creation / deletion
-    const toggleSpinner = (root: Container, toggle: boolean) => {
-        if (toggle) {
-            const spinner = new Element({
-                dom: SVG.spinner(32) as unknown as HTMLElement,
-                class: ['progress-icon', 'spin']
-            });
-            root.append(spinner);
+            editor.call('picker:project:lockedView', project);
+        } else if (project.access_level === 'none') {
+            editor.call('picker:project:noAdmin', project);
         } else {
-            root.clear();
+            editor.call('picker:project:reduced', project);
+        }
+    };
+    // projects never open in this tab: each gets its own, reused if it's already open
+    const openEditor = (project) => openProjectTab(project.id);
+    const launch = (project) => {
+        if (project.primary_app_url) {
+            window.open(project.primary_app_url, '_blank');
         }
     };
 
-    // overlay
+    const exportFromMenu = (project) => {
+        toggleProgress(true, 100, `Exporting ${project.name}...`);
+        editor
+            .call('project:management:export', project.id)
+            .then(
+                (url) => window.open(url, '_blank'),
+                (err) => editor.call('picker:project:buildAlert', rightPanel, err)
+            )
+            .finally(() => toggleProgress(false));
+    };
+
+    // displays or hides the loading bar in the CMS main panel based on parameter
+    // a labelled call is an upload with real progress; a bare call means loading, shown as skeleton bones
+    const toggleProgress = function (toggle: boolean, progress = 100, label = '') {
+        if (label === '') {
+            loading = toggle;
+            progressBar.hidden = true;
+            progressLabel.hidden = true;
+            progressBarContainer.class.remove('progress-container-expand');
+            if (toggle && rootUser) {
+                refresh();
+            }
+            return;
+        }
+        progressBar.value = progress;
+        progressBar.hidden = !toggle;
+        progressLabel.hidden = false;
+        progressLabel.text = label;
+        progressBarContainer.class.add('progress-container-expand');
+    };
+
+    const bone = (cls, parent: Container) => {
+        const b = new Element({ class: ['cms-bone', ...[cls].flat()] });
+        parent.append(b);
+        return b;
+    };
+    const renderSkeleton = () => {
+        listContainer.clear();
+        more.clear();
+        listContainer.class[layout === 'grid' ? 'add' : 'remove']('grid');
+        listContainer.class[layout === 'list' ? 'add' : 'remove']('rows');
+        for (let i = 0; i < 6; i++) {
+            if (layout === 'grid') {
+                const card = box(['cms-card', 'skeleton'], listContainer);
+                bone('thumb', box('cms-card-thumb', card));
+                const body = box('cms-card-body', card);
+                bone(['line', 'title'], body);
+                bone(['line', 'full'], body);
+                bone(['line', 'part'], body);
+                bone(['line', 'meta'], body);
+                bone(['line', 'stats'], box(['cms-stats', 'cms-card-foot'], card));
+            } else {
+                const row = box(['cms-row', 'skeleton'], listContainer);
+                bone('row-thumb', row);
+                const info = box('cms-row-info', row);
+                bone(['line', 'title'], info);
+                bone(['line', 'part'], info);
+                box('cms-row-cell', row);
+                bone(['line', 'cell'], row);
+                bone(['line', 'cell'], row);
+                bone(['line', 'cell'], row);
+                bone(['line', 'cell'], row);
+                box('cms-kebab-space', row);
+            }
+        }
+    };
+
+    // spinner used while the usage card reloads
+    const toggleSpinner = (root: Container, toggle: boolean) => {
+        root.clear();
+        if (toggle) {
+            root.append(spinner({ size: 'md', class: 'progress-icon' }));
+        }
+    };
+
+    // OVERLAY
+
     const root = editor.call('layout.root');
     const overlay = new Overlay({
         clickable: false,
@@ -455,363 +484,842 @@ editor.once('load', () => {
     });
     root.append(overlay);
 
-    // main panel
-    const panel = new Panel({
-        headerText: 'PLAYCANVAS',
-        class: 'cms-root-panel'
-    });
+    const panel = box('cms-root');
     overlay.append(panel);
 
-    // home button
-    const homeButton = new Button({
-        icon: IS_EMPTY_STATE ? 'E268' : 'E430',
-        class: 'home-button',
-        enabled: !IS_EMPTY_STATE
-    });
-    panel.header.append(homeButton);
+    // SIDEBAR
 
-    homeButton.on('click', () => {
-        if (IS_EMPTY_STATE) {
-            return;
-        } // disable button if in empty state
-
-        if (isSceneLoaded) {
-            editor.call('picker:project:close');
-        } else {
-            editor.call('picker:project');
-        }
-        overlay.hidden = true;
+    // drag the right edge to resize, like the version control sidebar
+    const side = new Container({
+        class: 'cms-side',
+        width: editor.call('localStorage:get', SIDE_KEY) || SIDE_DEFAULT_W,
+        resizable: 'right',
+        resizeMin: SIDE_MIN_W,
+        resizeMax: SIDE_MAX_W
     });
+    side.on('resize', () => editor.call('localStorage:set', SIDE_KEY, side.width));
+    panel.append(side);
 
-    // header utils container
-    const headerUtils = new Container({
-        class: 'header-utils'
-    });
-    panel.header.append(headerUtils);
+    const brand = box('cms-brand', side);
+    brand.append(new Element({ class: 'cms-logo' }));
+    text('PlayCanvas', 'cms-brand-name', brand);
+
+    const newProjectSideButton = new Button({ class: 'cms-new', icon: 'E120', text: 'New project' });
+    side.append(newProjectSideButton);
+    newProjectSideButton.on('click', () => editor.call('picker:project:newProject'));
+
+    // the sidebar holds both ways to start a project, so they're reachable from every page and scroll position
+    const importSideButton = new Button({ class: ['cms-nav', 'cms-import'], icon: 'E222', text: 'Import project' });
+    side.append(importSideButton);
+    importSideButton.on('click', () => filePicker.click());
+
+    const navItem = (icon, label, onClick) => {
+        const item = new Button({ class: 'cms-nav', icon, text: label });
+        side.append(item);
+        item.on('click', onClick);
+        return item;
+    };
+    const projectsNav = navItem('E139', 'Projects', () => setFilter('all'));
+    navItem('E129', 'Explore', () => window.open(`${config.url.home}/explore/featured`, '_blank'));
+    navItem('E232', 'Docs', () => window.open('https://developer.playcanvas.com/', '_blank'));
+
+    const recentsHeader = text('Recents', 'cms-section', side);
+    const recentsList = box('cms-side-list', side);
+
+    const orgHeader = box('cms-section', side);
+    text('Organizations', null, orgHeader);
+    const addOrganizationButton = button({ kind: 'icon', size: 'sm', icon: 'E120', label: 'New organization' });
+    orgHeader.append(addOrganizationButton);
+    addOrganizationButton.on('click', () => editor.call('picker:project:newOrganization'));
+    const orgList = box('cms-side-list', side);
+
+    box('cms-gap', side);
+
+    const storageCard = box('cms-storage', side);
+    storageCard.dom.title = 'Storage details';
+    storageCard.on('click', () => toggleStoragePopover());
+    pressable(storageCard.dom, 'Storage details', () => toggleStoragePopover());
+
+    const meRow = box('cms-me', side);
+    const meAvatar = image(avatarUrl(config.self.id, 56), 'cms-me-avatar', meRow);
+    const meText = box('cms-me-text', meRow);
+    const meName = text('', 'cms-me-name', meText);
+    const mePlan = text('', 'cms-me-plan', meText);
+    const accountButton = button({ kind: 'icon', label: 'Account menu', class: 'cms-kebab' });
+    meRow.append(accountButton);
+    const openAccount = () => window.open(`${config.url.home}/account`, '_blank');
+    meAvatar.on('click', openAccount);
+    pressable(meAvatar.dom, 'Account settings', openAccount);
+
+    // MAIN PANEL
+
+    const main = box('cms-main', panel);
+    const scroll = new Element({ class: 'cms-scroll' });
+    main.append(scroll);
+    const rightPanel = box('cms-col'); // also the root for alerts from other pickers
+    scroll.dom.appendChild(rightPanel.dom);
+
+    // progress bar and loading label
+    const progressBarContainer = box('progress-container', rightPanel);
+    const progressBar = new Progress({ value: 100, class: 'progress' });
+    progressBar.hidden = true;
+    const progressLabel = new Label({ text: 'Uploading', hidden: true });
+    progressBarContainer.append(progressBar);
+    progressBarContainer.append(progressLabel);
+
+    // header
+    const head = box('cms-head', rightPanel);
+    const headText = box('cms-head-text', head);
+    const title = text('', 'cms-title', headText);
+    const subtitle = text('', 'cms-subtitle', headText);
+    const orgMenuButton = button({ kind: 'icon', label: 'Organization actions', class: 'cms-kebab', hidden: true });
+    head.append(orgMenuButton);
+    const headerUtils = box('cms-head-actions', head);
+    headerUtils.hidden = true; // only shown on the start screen; see refresh()
 
     // file picker
     const filePicker = document.createElement('input');
     filePicker.id = 'file-picker';
     filePicker.type = 'file';
     filePicker.accept = 'application/zip';
-
     filePicker.addEventListener('change', () => {
         importProject(filePicker.files);
         filePicker.value = null;
     });
 
-    // import project button
-    const importProjectButton = new Button({
-        class: ['import-button', 'import-project-button'],
-        icon: 'E222'
-    });
+    const importProjectButton = button({ kind: 'ghost', icon: 'E222', text: 'Import' });
     headerUtils.append(importProjectButton);
+    importProjectButton.on('click', () => filePicker.click());
 
-    importProjectButton.on('click', () => {
-        filePicker.click();
-    });
-
-    // new project button
-    const newProjectButton = new Button({
-        class: 'new-project-button',
-        text: 'NEW PROJECT'
-    });
+    const newProjectButton = button({ kind: 'primary', icon: 'E120', text: 'New project' });
     headerUtils.append(newProjectButton);
+    newProjectButton.on('click', () => editor.call('picker:project:newProject'));
 
-    newProjectButton.on('click', () => {
-        editor.call('picker:project:newProject');
+    // lets the blank page add its MCP button next to the account menu
+    editor.method('picker:project:cms:addAccountButton', (button: Element) => {
+        meRow.appendBefore(button, accountButton);
     });
 
-    // user icon
-    const userIcon = new Element({
-        class: 'user-icon'
-    });
-    userIcon.style.backgroundImage = `url(${config.url.api}/users/${config.self.id}/thumbnail?size=24)`;
-    headerUtils.append(userIcon);
+    const welcome = box('cms-welcome', rightPanel);
+    const sectionTitle = text('Projects', 'cms-heading', rightPanel);
 
-    userIcon.on('click', () => {
-        window.open(`${config.url.home}/account`, '_blank');
-    });
+    // search, filter hints, tabs, sort and layout stay pinned while the list scrolls
+    const toolbar = box('cms-toolbar', rightPanel);
 
-    // lets the blank page add its MCP button before the user icon
-    editor.method('picker:project:cms:addHeaderButton', (button: Element) => {
-        headerUtils.appendBefore(button, userIcon);
-    });
-
-    // left panel
-    const leftPanel = new Element({
-        class: 'cms-left-panel'
-    });
-    panel.append(leftPanel);
-
-    // projects toggle
-    const projectsToggle = new Panel({
-        class: 'projects-toggle',
-        collapsible: true,
-        headerText: 'PROJECTS'
-    });
-    leftPanel.dom.appendChild(projectsToggle.dom);
-
-    // filter list
-    const allFilter = new Button({
-        class: 'filter-button',
-        icon: 'E139',
-        text: 'ALL'
-    });
-    projectsToggle.append(allFilter);
-    selectedFilter = allFilter; // by default, all filter selected
-
-    allFilter.on('click', () => {
-        setSelectedFilter(allFilter);
-    });
-
-    const myProjectsFilter = new Button({
-        class: 'filter-button',
-        icon: 'E337',
-        text: 'MY PROJECTS'
-    });
-    projectsToggle.append(myProjectsFilter);
-    myProjectsFilter.on('click', () => {
-        setSelectedFilter(myProjectsFilter);
-    });
-
-    const sharedFilter = new Button({
-        class: 'filter-button',
-        icon: 'E301',
-        text: 'SHARED WITH ME'
-    });
-    projectsToggle.append(sharedFilter);
-    sharedFilter.on('click', () => {
-        setSelectedFilter(sharedFilter);
-    });
-
-    const privateFilter = new Button({
-        class: 'filter-button',
-        icon: 'E341',
-        text: 'PRIVATE PROJECTS'
-    });
-    projectsToggle.append(privateFilter);
-    privateFilter.on('click', () => {
-        setSelectedFilter(privateFilter);
-    });
-
-    // organizations toggle
-    const organizationsToggle = new Panel({
-        class: 'organizations-toggle',
-        collapsible: true,
-        headerText: 'ORGANIZATIONS'
-    });
-    leftPanel.dom.appendChild(organizationsToggle.dom);
-
-    const addOrganizationButton = new Button({
-        class: 'organization-add',
-        icon: 'E370'
-    });
-    organizationsToggle.dom.childNodes[0].appendChild(addOrganizationButton.dom);
-
-    addOrganizationButton.on('click', () => {
-        editor.call('picker:project:newOrganization');
-    });
-
-    // miscellaneous container
-    const miscContainer = new Container({
-        class: 'misc-container',
-        flex: true
-    });
-    leftPanel.dom.appendChild(miscContainer.dom);
-
-    // quick links container
-    const quickLinksContainer = new Container({
-        class: 'quick-links-container',
-        flex: true
-    });
-    miscContainer.append(quickLinksContainer);
-
-    const exploreLink = new Button({
-        class: 'quick-link',
-        icon: 'E129',
-        text: 'Explore'
-    }); // Explore
-
-    exploreLink.on('click', () => {
-        window.open(`${config.url.home}/explore/featured`, '_blank');
-    });
-
-    const docsLink = new Button({
-        class: 'quick-link',
-        icon: 'E232',
-        text: 'Docs and Tutorials'
-    }); // Docs
-
-    docsLink.on('click', () => {
-        window.open('https://developer.playcanvas.com/', '_blank');
-    });
-
-    const feedbackLink = new Button({
-        class: 'quick-link',
-        icon: 'E119',
-        text: 'Feedback'
-    }); // Feedback
-
-    feedbackLink.on('click', () => {
-        window.open('https://forum.playcanvas.com/t/playcanvas-editor-feedback/616', '_blank');
-    });
-
-    const githubLink = new Button({
-        class: 'quick-link',
-        icon: 'E259',
-        text: 'GitHub'
-    }); // GitHub
-
-    githubLink.on('click', () => {
-        window.open('https://github.com/playcanvas/editor', '_blank');
-    });
-
-    quickLinksContainer.append(exploreLink);
-    quickLinksContainer.append(docsLink);
-    quickLinksContainer.append(feedbackLink);
-    quickLinksContainer.append(githubLink);
-
-    // upgrade container
-    const upgradeContainer = new Container({
-        class: 'upgrade-container'
-    });
-    miscContainer.append(upgradeContainer);
-
-    // right panel
-    const rightPanel = new Element({
-        class: 'cms-right-panel'
-    });
-    panel.append(rightPanel);
-
-    // progress bar and loading label
-    const progressBarContainer = new Container({ class: 'progress-container' });
-    const progressBar = new Progress({ value: 100, class: 'progress' });
-    progressBar.hidden = true;
-    const progressLabel = new Label({ text: 'Uploading', hidden: true });
-    rightPanel.dom.appendChild(progressBarContainer.dom);
-    progressBarContainer.append(progressBar);
-    progressBarContainer.append(progressLabel);
-
-    // right panel controls
-    const controlsContainer = new Container({
-        class: 'list-project-controls'
-    });
-    rightPanel.dom.appendChild(controlsContainer.dom);
-
-    const searchBar = new TextInput({
-        placeholder: 'Search',
-        class: 'search-project',
+    // the divider only shows once the toolbar is pinned and cards scroll under it
+    scroll.dom.addEventListener(
+        'scroll',
+        () => {
+            const stuck = toolbar.dom.getBoundingClientRect().top <= scroll.dom.getBoundingClientRect().top;
+            toolbar.class[stuck ? 'add' : 'remove']('stuck');
+        },
+        { passive: true }
+    );
+    const searchBox = box('cms-search', toolbar);
+    const searchInput = new TextInput({
+        class: 'cms-search-input',
         keyChange: true
     });
-    controlsContainer.append(searchBar);
-
-    searchBar.on('change', () => {
-        // reset project matches
-        searchMatches.clear(); // reset search matches
-        const searchResult = editor.call('search:items', projectsToSearch, searchBar.value);
-
-        if (searchBar.value !== '') {
-            searchBar.placeholder = '';
-        } else {
-            searchBar.placeholder = 'Search';
-        }
-
-        searchResult.forEach((result) => {
-            result.inSearch = true;
-            searchMatches.add(result.id);
-        });
-
-        refreshProjects();
-    });
-
-    const sortButton = new Button({
-        icon: 'E437',
-        class: ['sort-btn', 'closed']
-    });
-    controlsContainer.append(sortButton);
-
-    const sortingDropdown = buildSortingDropdown();
-
-    sortButton.on('click', () => {
-        sortingDropdown.hidden = !sortingDropdown.hidden;
-
-        if (sortButton.class.contains('closed')) {
-            sortButton.class.remove('closed');
-            sortButton.class.add('open');
-        } else {
-            sortButton.class.remove('open');
-            sortButton.class.add('closed');
-        }
-
-        // position dropdown menu
-        const rect = sortButton.dom.getBoundingClientRect();
-        const sortingDropdownRect = sortingDropdown.dom.getBoundingClientRect();
-        sortingDropdown.style.left = `${rect.right - sortingDropdownRect.width}px`;
-        sortingDropdown.style.top = `${rect.bottom + 3}px`;
-    });
-
-    const layoutButton = new Button({
-        icon: 'E284',
-        class: 'layout-btn'
-    });
-    controlsContainer.append(layoutButton);
-
-    // right panel projects
-    const projectsContainer = new Element({
-        class: 'projects-container-grid'
-    });
-    rightPanel.dom.appendChild(projectsContainer.dom);
-
-    const noProjectsButton = new Button({
-        class: 'no-projects-button',
-        icon: 'E370',
+    searchBox.append(searchInput);
+    // native placeholder, PCUI's own sits small and right-aligned
+    searchInput.input.placeholder = 'Search projects, or filter with name:, owner:, desc:, is:';
+    const clearSearch = button({
+        kind: 'icon',
+        size: 'sm',
+        label: 'Clear search',
+        class: 'cms-search-clear',
         hidden: true
     });
-    rightPanel.dom.appendChild(noProjectsButton.dom);
+    searchBox.append(clearSearch);
 
-    noProjectsButton.on('click', () => {
-        editor.call('picker:project:newProject');
+    const hints = box('cms-hints', toolbar);
+    text('Filter by', null, hints);
+    QUALIFIERS.forEach((q) => {
+        const chip = new Button({ class: 'cms-hint', text: q });
+        hints.append(chip);
+        chip.dom.addEventListener('mousedown', (e) => e.preventDefault()); // keep the cursor in the search box
+        chip.on('click', () => {
+            const value = searchInput.value.trim();
+            searchInput.value = `${value}${value ? ' ' : ''}${q}`;
+            searchInput.focus();
+            const input = searchInput.input;
+            input.setSelectionRange(input.value.length, input.value.length);
+        });
+    });
+    text('Use quotes for spaces, e.g. name:"orbit arena"', 'cms-hints-tip', hints);
+
+    const tools = box('cms-tools', toolbar);
+    const tabs = box('cms-tabs', tools);
+    const tabButtons = TABS.map(([id, label]) => {
+        const tab = new Button({ class: 'cms-tab', text: label });
+        const count = document.createElement('span');
+        count.className = 'cms-count';
+        tab.dom.appendChild(count);
+        tabs.append(tab);
+        tab.on('click', () => setFilter(id));
+        return [id, tab, count] as const;
+    });
+    const sortButton = new Button({ class: 'cms-sort', text: 'Sort by' });
+    const sortValue = document.createElement('span');
+    sortValue.className = 'cms-sort-value';
+    sortButton.dom.appendChild(sortValue);
+    tools.append(sortButton);
+    const layoutToggle = box('cms-layout', tools);
+    const gridButton = new Button({ class: ['cms-layout-button', 'grid'] });
+    gridButton.dom.title = 'Cards';
+    gridButton.dom.setAttribute('aria-label', 'Show as cards');
+    const listButton = new Button({ class: ['cms-layout-button', 'list'] });
+    listButton.dom.title = 'List';
+    listButton.dom.setAttribute('aria-label', 'Show as list');
+    layoutToggle.append(gridButton);
+    layoutToggle.append(listButton);
+    gridButton.on('click', () => setLayout('grid'));
+    listButton.on('click', () => setLayout('list'));
+
+    const listContainer = box('cms-list', rightPanel);
+    const more = box('cms-more', rightPanel);
+
+    // MENUS
+
+    const menuItem = (id, label, onSelect, cls?) => ({ id, text: label, onSelect, class: cls });
+    const addMenu = (cls, items) => {
+        const menu = new Menu({ class: ['cms-menu', ...[cls].flat()], items, hidden: true });
+        root.append(menu);
+        return menu;
+    };
+    const menuEntry = (menu: Menu, id) => (menu.dom.querySelector(`#${id}`) as HTMLElement & { ui?: MenuItem })?.ui;
+    const showMenu = (menu: Menu, anchor: Element, alignRight = false) => {
+        menu.hidden = false;
+        const rect = anchor.dom.getBoundingClientRect();
+        const width = (menu.dom.querySelector('.pcui-menu-items') as HTMLElement)?.offsetWidth ?? 180;
+        menu.position(alignRight ? rect.right - width : rect.left, rect.bottom + 4);
+    };
+
+    const sortMenu = addMenu('picker-builds-filter-menu', [
+        ...SORTS.map(([id, label]) => menuItem(`cms-sort-${id}`, label, () => setSort(id, id !== 'name'))),
+        menuItem('cms-sort-desc', 'Descending', () => setSort(sortPolicy, true)),
+        menuItem('cms-sort-asc', 'Ascending', () => setSort(sortPolicy, false))
+    ]);
+    sortButton.on('click', () => {
+        SORTS.forEach(([id]) =>
+            menuEntry(sortMenu, `cms-sort-${id}`)?.class[id === sortPolicy ? 'add' : 'remove']('selected')
+        );
+        menuEntry(sortMenu, 'cms-sort-desc')?.class[sortDescending ? 'add' : 'remove']('selected');
+        menuEntry(sortMenu, 'cms-sort-asc')?.class[sortDescending ? 'remove' : 'add']('selected');
+        showMenu(sortMenu, sortButton, true);
     });
 
-    layoutButton.on('click', () => {
-        if (projectsContainer.class.contains('projects-container-grid')) {
-            projectsContainer.class.remove('projects-container-grid');
-            projectsContainer.class.add('projects-container-list');
-            layoutButton.icon = 'E332';
-        } else {
-            projectsContainer.class.remove('projects-container-list');
-            projectsContainer.class.add('projects-container-grid');
-            layoutButton.icon = 'E284';
+    // grouped: open it, about it, copies of it, then handing it over or removing it
+    const rowMenu = addMenu('picker-builds-menu', [
+        menuItem('cms-row-editor', 'Open editor', () => openEditor(menuProject), 'primary'),
+        menuItem('cms-row-launch', 'Play', () => launch(menuProject)),
+        menuItem('cms-row-settings', 'Project settings', () => openProject(menuProject), 'cms-menu-group'),
+        menuItem('cms-row-copy', 'Copy link', () =>
+            navigator.clipboard.writeText(`${config.url.home}/editor/project/${menuProject.id}`)
+        ),
+        menuItem('cms-row-watch', 'Watch', () => toggleWatch(menuProject), 'cms-menu-group'),
+        menuItem('cms-row-fork', 'Fork', () => editor.call('picker:project:fork', menuProject)),
+        menuItem('cms-row-export', 'Export', () => exportFromMenu(menuProject)),
+        menuItem(
+            'cms-row-transfer',
+            'Transfer ownership',
+            () => editor.call('picker:project:modal:transferProject', menuProject),
+            'cms-menu-group'
+        ),
+        menuItem(
+            'cms-row-delete',
+            'Delete project',
+            () => editor.call('picker:project:modal:deleteProjectConfirmation', menuProject),
+            'delete'
+        )
+    ]);
+    const showRowMenu = (project, anchor: Element) => {
+        menuProject = project;
+        menuEntry(rowMenu, 'cms-row-editor').enabled = !blocked(project);
+        menuEntry(rowMenu, 'cms-row-launch').enabled = !!project.primary_app_url;
+        menuEntry(rowMenu, 'cms-row-watch').text = project.watch_id ? 'Stop watching' : 'Watch';
+        menuEntry(rowMenu, 'cms-row-watch').hidden = !canStar(project);
+        menuEntry(rowMenu, 'cms-row-fork').hidden = blocked(project);
+        menuEntry(rowMenu, 'cms-row-export').hidden =
+            blocked(project) || !editor.call('project:management:canExport', project);
+        menuEntry(rowMenu, 'cms-row-transfer').hidden =
+            blocked(project) || !editor.call('project:management:canTransfer', project);
+        menuEntry(rowMenu, 'cms-row-delete').hidden = !canDelete(project);
+        showMenu(rowMenu, anchor, true);
+    };
+
+    // same look as the project menu, with delete set apart in red
+    const orgDropdownMenu = addMenu('picker-builds-menu', [
+        menuItem('organization-details', 'Organization details', () =>
+            window.open(`${config.url.home}/user/${dropdownOrg.username}/account`, '_blank')
+        ),
+        menuItem(
+            'organization-delete',
+            'Delete organization',
+            () => editor.call('picker:project:deleteOrganization', projects[dropdownOrg.id]),
+            ['cms-menu-group', 'delete']
+        )
+    ]);
+    orgMenuButton.on('click', () => {
+        dropdownOrg = orgs().find((org) => org.id === filter);
+        showMenu(orgDropdownMenu, orgMenuButton, true);
+    });
+
+    const accountMenu = addMenu('picker-builds-menu', [
+        menuItem('cms-account-settings', 'Account settings', () => window.open(`${config.url.home}/account`, '_blank')),
+        menuItem('cms-account-upgrade', 'Upgrade plan', () =>
+            window.open(`${config.url.home}/upgrade?account=${rootUser.username}`, '_blank')
+        ),
+        menuItem('cms-account-feedback', 'Feedback', () =>
+            window.open('https://forum.playcanvas.com/t/playcanvas-editor-feedback/616', '_blank')
+        ),
+        menuItem('cms-account-github', 'GitHub', () => window.open('https://github.com/playcanvas/editor', '_blank'))
+    ]);
+    accountButton.on('click', () => {
+        accountMenu.hidden = false;
+
+        // opens above the account row and spans it, like the mcp popover beside it
+        const rect = meRow.dom.getBoundingClientRect();
+        accountMenu.innerElement.style.width = `${rect.width}px`;
+        accountMenu.position(rect.left, rect.top - accountMenu.innerElement.clientHeight - 4);
+    });
+
+    // storage breakdown, anchored next to the storage card
+    const storagePopover = box('cms-storage-popover');
+    storagePopover.hidden = true;
+    root.append(storagePopover);
+    const closeStorage = (e: MouseEvent) => {
+        if (!storagePopover.dom.contains(e.target as Node) && !storageCard.dom.contains(e.target as Node)) {
+            toggleStoragePopover(false);
         }
-    });
+    };
+    const toggleStoragePopover = (show = storagePopover.hidden) => {
+        storagePopover.hidden = !show;
+        storageCard.class[show ? 'add' : 'remove']('open');
+        document[show ? 'addEventListener' : 'removeEventListener']('mousedown', closeStorage);
+        if (!show || !accountUsage) {
+            return;
+        }
+        const allowance = currentUser.limits.diskAllowance * 1000 * 1000;
+        const owned = listFor(filter)
+            .filter((p) => p.owner_id === currentUser.id)
+            .sort((a, b) => (b.size?.total ?? 0) - (a.size?.total ?? 0));
+        storagePopover.clear();
+        const top = box('cms-pop-head', storagePopover);
+        text('Storage', 'cms-pop-title', top);
+        text(userName(currentUser), 'cms-pop-plan', top);
+        const big = box('cms-pop-big', storagePopover);
+        text(bytesToHuman(accountUsage.total), 'cms-pop-used', big);
+        text(`of ${bytesToHuman(allowance)} used`, 'cms-pop-of', big);
+        const bar = box('cms-bar', storagePopover);
+        const fill = new Element({ class: 'cms-bar-fill' });
+        bar.append(fill);
+        fill.style.width = `${Math.min(100, (accountUsage.total / allowance) * 100)}%`;
+        const largest = box('cms-pop-rows', storagePopover);
+        text('Largest projects', 'cms-pop-key', largest);
+        owned.slice(0, 4).forEach((p) => {
+            const r = box('cms-pop-row', largest);
+            text(p.name, null, r);
+            text(bytesToHuman(p.size?.total ?? 0), 'value', r);
+        });
+        const free = box('cms-pop-rows', storagePopover);
+        const r = box('cms-pop-row', free);
+        text('Free', null, r);
+        text(bytesToHuman(Math.max(0, allowance - accountUsage.total)), 'value', r);
+        const upgrade = button({ kind: 'primary', text: 'Upgrade plan' });
+        storagePopover.append(upgrade);
+        upgrade.on('click', () => window.open(`${config.url.home}/upgrade?account=${currentUser.username}`, '_blank'));
+        const rect = storageCard.dom.getBoundingClientRect();
+        storagePopover.style.left = `${rect.right + 8}px`;
+        storagePopover.style.bottom = `${window.innerHeight - rect.bottom}px`;
+    };
+
+    // RENDER
+
+    const renderUsage = () => {
+        toggleSpinner(storageCard, true);
+        editor.call('users:getUsage', currentUser.id, (res) => {
+            accountUsage = res;
+            const allowance = currentUser.limits.diskAllowance * 1000 * 1000;
+            const percent = Math.min(100, Math.round((accountUsage.total / allowance) * 100));
+            toggleSpinner(storageCard, false);
+            const top = box('cms-storage-row', storageCard);
+            text('Storage', 'cms-storage-title', top);
+            text(`${percent}%`, null, top);
+            const bar = box('cms-bar', storageCard);
+            const fill = new Element({ class: 'cms-bar-fill' });
+            bar.append(fill);
+            fill.style.width = `${percent}%`;
+            const bottom = box('cms-storage-row', storageCard);
+            text(`${bytesToHuman(accountUsage.total)} of ${bytesToHuman(allowance)}`, null, bottom);
+            const upgrade = text('Upgrade', 'cms-storage-upgrade', bottom);
+            upgrade.on('click', (e) => {
+                e.stopPropagation();
+                window.open(`${config.url.home}/upgrade?account=${currentUser.username}`, '_blank');
+            });
+            renderHead();
+        });
+    };
+
+    const renderSidebar = () => {
+        projectsNav.class[isOrg(filter) ? 'remove' : 'add']('active');
+
+        recentsList.clear();
+        if (loading && !rootProjects().length) {
+            for (let i = 0; i < 5; i++) {
+                const item = box(['cms-side-item', 'skeleton'], recentsList);
+                bone('side-thumb', item);
+                bone(['line', 'label'], item);
+            }
+        }
+        rootProjects()
+            .filter((p) => !blocked(p))
+            .sort((a, b) => Date.parse(b.modified) - Date.parse(a.modified))
+            .slice(0, 5)
+            .forEach((p) => {
+                const item = box('cms-side-item', recentsList);
+                image(p.thumbnails?.s ?? p.thumbnails?.m ?? EMPTY_THUMBNAIL_IMAGE, 'cms-side-thumb', item);
+                text(p.name, 'cms-side-label', item);
+                item.dom.title = p.name;
+                item.on('click', () => openProject(p));
+            });
+        recentsHeader.hidden = !recentsList.dom.children.length;
+
+        orgList.clear();
+        orgs().forEach((org) => {
+            const item = box(['cms-side-item', 'org'], orgList);
+            item.class[filter === org.id ? 'add' : 'remove']('active');
+            image(avatarUrl(org.id, 44), 'cms-side-thumb', item);
+            text(userName(org), 'cms-side-label', item);
+            text(waiting() ? '' : `${(projects[org.id] ?? []).length}`, 'cms-side-count', item);
+            item.on('click', () => setFilter(org.id));
+        });
+
+        if (rootUser) {
+            meName.text = userName(rootUser);
+            mePlan.text = rootUser.username;
+        }
+    };
+
+    const renderHead = () => {
+        const org = orgs().find((o) => o.id === filter);
+        orgMenuButton.hidden = !org;
+        sectionTitle.hidden = !!org;
+
+        if (org) {
+            title.text = userName(org);
+            subtitle.text = `Organization · ${(projects[org.id] ?? []).length} projects`;
+        } else {
+            // counts live on the tabs and storage on the sidebar card, so home gets a prompt
+            title.text = `${greeting()}, ${userName(rootUser)}`;
+            subtitle.text = PROMPT;
+        }
+    };
+
+    // the most recently edited project you can open
+    const renderWelcome = () => {
+        welcome.clear();
+        const list = rootProjects();
+        if (loading && !list.length) {
+            welcome.hidden = isOrg(filter);
+            welcome.class.add('skeleton');
+            bone('welcome-thumb', welcome);
+            const info = box('cms-welcome-info', welcome);
+            bone(['line', 'eyebrow'], info);
+            bone(['line', 'title'], info);
+            bone(['line', 'part'], info);
+            bone(['line', 'meta'], info);
+            bone(['line', 'stats'], info);
+            return;
+        }
+        welcome.class.remove('skeleton');
+        const lead = list.filter((p) => !blocked(p)).sort((a, b) => Date.parse(b.modified) - Date.parse(a.modified))[0];
+        welcome.hidden = !lead || isOrg(filter);
+        if (!lead) {
+            return;
+        }
+        // framed so the hover zoom stays inside the rounded corners, like the card thumbnails
+        image(lead.thumbnails?.m ?? EMPTY_THUMBNAIL_IMAGE, null, box('cms-welcome-thumb', welcome));
+        const info = box('cms-welcome-info', welcome);
+
+        // three groups: what the project is, its facts, then what you can do with it
+        const titles = box('cms-welcome-titles', info);
+        text('Continue editing', 'cms-eyebrow', titles);
+        const name = box('cms-welcome-name', titles);
+        text(lead.name, null, name);
+        badges(lead, name);
+        if (lead.description) {
+            text(lead.description, 'cms-welcome-desc', titles);
+        }
+
+        // labelled values; counts that don't apply are left out, like on the cards
+        const facts = box('cms-facts', info);
+        const fact = (label, value) => {
+            const item = box('cms-fact', facts);
+            text(label, 'cms-fact-label', item);
+            const v = box('cms-fact-value', item);
+            text(value, null, v);
+            return v;
+        };
+        const owner = ownerName(lead);
+        if (owner) {
+            fact('Owner', owner).prepend(image(avatarUrl(lead.owner_id, 36), 'cms-avatar'));
+        }
+        fact('Edited', timeAgo(lead.modified));
+        fact('Views', countToHuman(lead.views));
+        if (lead.primary_app_url) {
+            fact('Plays', countToHuman(lead.plays));
+        }
+        if (lead.fork_count) {
+            fact('Forks', countToHuman(lead.fork_count));
+        }
+        fact('Size', bytesToHuman(lead.size?.total ?? 0));
+        // actions sit under the details so the card reads as one unit on wide screens
+        const actions = box('cms-welcome-actions', info);
+        const edit = button({ kind: 'primary', icon: 'E130', text: 'Open editor' });
+        actions.append(edit);
+        edit.dom.addEventListener('mousedown', (e) => e.stopPropagation());
+        edit.on('click', (e) => {
+            e.stopPropagation();
+            openEditor(lead);
+        });
+        if (lead.primary_app_url) {
+            const play = button({ kind: 'primary', icon: 'E286', text: 'Play' });
+            actions.append(play);
+            play.on('click', (e) => {
+                e.stopPropagation();
+                launch(lead);
+            });
+        }
+
+        // same actions menu as the cards
+        kebabFor(lead, actions);
+        welcome.dom.onclick = () => openProject(lead);
+    };
+
+    const renderTools = () => {
+        const org = isOrg(filter);
+        tabs.hidden = org;
+        tabButtons.forEach(([id, tab, count]) => {
+            count.textContent = waiting() ? '' : `${rootProjects().filter((p) => matchTab(p, id)).length}`;
+            tab.class[filter === id ? 'add' : 'remove']('active');
+        });
+        sortValue.textContent = `${SORTS.find(([id]) => id === sortPolicy)[1]}${sortDescending ? '' : ' (ascending)'}`;
+        gridButton.class[layout === 'grid' ? 'add' : 'remove']('active');
+        listButton.class[layout === 'list' ? 'add' : 'remove']('active');
+        const query = searchInput.value;
+        clearSearch.hidden = !query;
+        toolbar.class[query ? 'add' : 'remove']('has-query');
+    };
+
+    const buildCard = (project) => {
+        const card = box(['cms-card', ...cardState(project)], listContainer);
+        card.dom.tabIndex = 0;
+        const thumb = box('cms-card-thumb', card);
+        image(project.thumbnails?.m ?? EMPTY_THUMBNAIL_IMAGE, null, thumb);
+        const tags = box('cms-card-tags', thumb);
+        if (project.private) {
+            text('Private', 'cms-badge', tags);
+        }
+        // editing a shared project is the norm, so only flag the exception
+        if (project.owner_id !== config.self.id && project.access_level === 'read') {
+            text('Read only', ['cms-badge', 'info'], tags);
+        }
+        const pending = isPending(project);
+        if (pending) {
+            text(pendingText(project)[0], ['cms-badge', 'transfer'], tags);
+        }
+
+        // pending transfers get a badge and a byline instead of a cover
+        const cover = pending
+            ? null
+            : project.locked
+              ? ['Locked', 'The owner is over their storage limit']
+              : project.access_level === 'none'
+                ? ['No access', `Ask ${ownerName(project) || 'the owner'} for an invite`]
+                : project.disabled
+                  ? ['Disabled', 'Contact support to restore it']
+                  : null;
+        if (cover) {
+            const c = box(project.locked ? ['cms-card-cover', 'locked'] : 'cms-card-cover', thumb);
+            text(cover[0], 'cms-cover-title', c);
+            text(cover[1], null, c);
+        }
+        const body = box('cms-card-body', card);
+        const titleRow = box('cms-card-title', body);
+        text(project.name, 'cms-card-name', titleRow);
+        if (!pending) {
+            kebabFor(project, titleRow);
+        }
+        text(
+            project.description || 'No description',
+            project.description ? 'cms-card-desc' : ['cms-card-desc', 'empty'],
+            body
+        );
+        // avatars, then the owner over the edit time, so the name gets the full width
+        const meta = box('cms-card-meta', body);
+        avatarGroup(project, meta);
+        const byline = box('cms-card-byline', meta);
+        text(ownerName(project), 'cms-card-owner', byline).dom.title = ownerName(project);
+        const when = sortPolicy === 'created' ? `created ${timeAgo(project.created)}` : timeAgo(project.modified);
+        if (pending) {
+            const status = isRecipient(project) ? `Offered ${when}` : `Sent to ${project.new_owner} ${when}`;
+            text(status, ['cms-card-when', 'transfer'], byline);
+        } else {
+            // the size sits with the date, so the footer only holds counts and fits a 200px card
+            text(joined(when, bytesToHuman(project.size?.total ?? 0)), 'cms-card-when', byline);
+        }
+
+        // counts get their own strip so the owner line keeps the full width
+        if (pending) {
+            transferActions(project, card).class.add('cms-card-foot');
+            return;
+        }
+        const foot = stats(project, card);
+        foot.class.add('cms-card-foot');
+        bindOpen(card, project);
+    };
+
+    const buildRow = (project) => {
+        const row = box(['cms-row', ...cardState(project)], listContainer);
+        row.dom.tabIndex = 0;
+        const thumbSrc = project.thumbnails?.s ?? project.thumbnails?.m ?? EMPTY_THUMBNAIL_IMAGE;
+        if (project.locked) {
+            // same lock as the card cover, over the thumbnail
+            image(thumbSrc, null, box(['cms-row-thumb', 'locked'], row));
+        } else {
+            image(thumbSrc, 'cms-row-thumb', row);
+        }
+        const pending = isPending(project);
+        const info = box(pending ? ['cms-row-info', 'has-actions'] : 'cms-row-info', row);
+        const textCol = pending ? box('cms-row-text', info) : info;
+        const name = box('cms-row-name', textCol);
+        text(project.name, null, name);
+        badges(project, name);
+        text(
+            pending
+                ? pendingText(project)[1]
+                : project.access_level === 'none'
+                  ? 'Ask the owner for access'
+                  : project.locked
+                    ? 'Owner is over the storage limit'
+                    : project.disabled
+                      ? 'Disabled by support'
+                      : joined(ownerName(project), project.description),
+            'cms-row-sub',
+            textCol
+        );
+        if (pending) {
+            transferActions(project, info).class.add('cms-row-actions');
+            [0, 1, 2, 3, 4].forEach(() => dash(row));
+            text(timeAgo(project.modified), 'cms-row-cell', row);
+            box('cms-row-cell', row);
+            return;
+        }
+        text(
+            countToHuman(project.fork_count ?? 0),
+            ['cms-row-cell', 'cms-forks', ...(project.fork_count ? [] : ['zero'])],
+            row
+        );
+        if (project.access_level !== 'none') {
+            text(countToHuman(project.views), ['cms-row-cell', 'cms-views'], row);
+        } else {
+            dash(row);
+        }
+        if (project.primary_app_url) {
+            text(countToHuman(project.plays), ['cms-row-cell', 'cms-plays'], row);
+        } else {
+            dash(row, 'Not published');
+        }
+        if (canStar(project)) {
+            starToggle(project, row, 'cms-row-cell');
+        } else {
+            dash(row);
+        }
+        text(bytesToHuman(project.size?.total ?? 0), 'cms-row-cell', row);
+        text(timeAgo(project.modified), 'cms-row-cell', row);
+        kebabFor(project, row);
+        bindOpen(row, project);
+    };
+
+    const cardState = (project) =>
+        [
+            project.disabled && 'is-off',
+            (project.locked || project.access_level === 'none') && !isPending(project) && 'is-dim'
+        ].filter(Boolean);
+    const bindOpen = (item: Container, project) => {
+        item.on('click', () => openProject(project));
+        pressable(item.dom, project.name, () => openProject(project));
+    };
+    const kebabFor = (project, parent: Container) => {
+        const kebab = button({ kind: 'icon', label: 'Project actions', class: 'cms-kebab' });
+        parent.append(kebab);
+        kebab.on('click', (e) => {
+            e.stopPropagation();
+            showRowMenu(project, kebab);
+        });
+    };
+
+    const renderMore = () => {
+        more.clear();
+        if (!rows.length) {
+            return;
+        }
+        if (shown < rows.length) {
+            more.append(spinner());
+            text(`Loading more · showing ${shown} of ${rows.length}`, null, more);
+
+            // the observer only fires on changes, so re-observe to catch a sentinel still in view
+            observer.unobserve(more.dom);
+            observer.observe(more.dom);
+        } else {
+            text(rows.length === 1 ? '1 project shown' : `All ${rows.length} projects shown`, null, more);
+        }
+    };
+
+    const renderList = () => {
+        if (loading) {
+            return renderSkeleton();
+        }
+        rows = visible();
+        shown = PAGE_SIZE;
+        listContainer.clear();
+        listContainer.class[layout === 'grid' ? 'add' : 'remove']('grid');
+        listContainer.class[layout === 'list' ? 'add' : 'remove']('rows');
+        if (!rows.length) {
+            const query = searchInput.value.trim();
+            const starred = !query && filter === 'starred';
+            const action = starred
+                ? undefined
+                : button({ kind: 'secondary', text: query ? 'Clear search' : 'New project' });
+            action?.on('click', () => (query ? (searchInput.value = '') : editor.call('picker:project:newProject')));
+            listContainer.append(
+                empty({
+                    class: 'cms-empty',
+                    title: query ? `No projects match ${query}` : starred ? 'No starred projects' : 'No projects yet',
+                    text: query
+                        ? 'Try fewer filters, or clear the search.'
+                        : starred
+                          ? 'Star a project to keep it here.'
+                          : 'Create one, or import a project export.',
+                    action
+                })
+            );
+        }
+        // column headers so every number reads against its column
+        if (layout === 'list' && rows.length) {
+            const head = box(['cms-row', 'cms-row-head'], listContainer);
+            box('cms-row-head-thumb', head);
+            text('Project', 'cms-row-head-name', head);
+            ['Forks', 'Views', 'Plays', 'Stars', 'Size', 'Edited'].forEach((label) =>
+                text(label, 'cms-row-cell', head)
+            );
+            box('cms-row-head-actions', head);
+        }
+        rows.slice(0, shown).forEach(layout === 'grid' ? buildCard : buildRow);
+        renderMore();
+    };
+
+    // appends the next page when the bottom of the list scrolls into view
+    const loadMore = () => {
+        if (shown >= rows.length) {
+            return;
+        }
+        rows.slice(shown, shown + PAGE_SIZE).forEach(layout === 'grid' ? buildCard : buildRow);
+        shown += PAGE_SIZE;
+        renderMore();
+    };
+    const observer = new IntersectionObserver(
+        (entries) => {
+            if (entries[entries.length - 1].isIntersecting) {
+                loadMore();
+            }
+        },
+        { root: scroll.dom, rootMargin: '300px' }
+    );
+    observer.observe(more.dom);
+
+    const refresh = () => {
+        if (!rootUser) {
+            return;
+        }
+        renderSidebar();
+
+        // nothing to browse yet: the greeting and actions take the centre, like claude code's start screen;
+        // otherwise the sidebar's new project and import cover it
+        const start = !loading && !isOrg(filter) && !rootProjects().length;
+        rightPanel.class[start ? 'add' : 'remove']('start');
+        headerUtils.hidden = !start;
+        renderHead();
+        renderWelcome();
+        renderTools();
+        renderList();
+    };
 
     // CONTROLLERS
 
-    // updates current user on selecting new org filter by retrieving it from the API
-    const changeCurrentUser = (newUser) => {
-        editor.call('users:loadOne', newUser.id, (res) => {
-            currentUser = res;
+    const setFilter = (id) => {
+        filter = id;
+        const org = orgs().find((o) => o.id === id);
+        scroll.dom.scrollTop = 0;
+        if (org) {
+            editor.call('users:loadOne', org.id, (res) => {
+                // another filter was picked while this user loaded
+                if (filter !== id) {
+                    return;
+                }
+                currentUser = res;
+                renderUsage();
+                refresh();
+            });
+        } else {
+            const changed = currentUser !== rootUser;
+            currentUser = rootUser;
+            if (changed) {
+                renderUsage();
+            }
+            refresh();
+        }
+    };
 
-            refreshProjects();
-            buildUsageUI();
-        });
+    const setSort = (policy, descending) => {
+        sortPolicy = policy;
+        sortDescending = descending;
+        renderTools();
+        renderList();
+    };
+
+    const setLayout = (value) => {
+        layout = value;
+        renderTools();
+        renderList();
+    };
+
+    searchInput.on('change', () => {
+        renderTools();
+        renderList();
+    });
+    clearSearch.on('click', () => {
+        searchInput.value = '';
+        searchInput.focus();
+    });
+
+    // checks whether importing is allowed for current user based on permissions
+    const importDisabled = () => {
+        return !(
+            currentUser.id === config.self.id ||
+            editor.call('project:management:isOrgAdmin', currentUser.id, config.self)
+        );
     };
 
     // handles the flow for project importing including error and loading states
     const importProject = async (files) => {
-        // Check if import is disabled or no file submitted
         if (importDisabled() || files.length === 0) {
             return;
         }
 
         toggleProgress(true, 0, 'Uploading... Please stand by');
 
-        // Convert file to form data
-        const form = new FormData();
-        form.append('file', files[0]);
-
-        // upload file to S3
         try {
             const result = await editor.invoke('projects:uploadExport', files[0], (progress) => {
                 // progress returned by Ajax is in range 0-1
@@ -819,42 +1327,38 @@ editor.once('load', () => {
             });
             progressLabel.text = "Upload Complete! Importing... (Please don't close this window)";
 
-            // import project from uploaded file on s3
-            const currentUser = editor.call('picker:project:cms:currentUser');
+            const importer = editor.call('picker:project:cms:currentUser');
 
-            // setup a job update listener to react to job status changes
-            // we can't simply wait on request completion because the job could be long
+            // a job update listener reacts to status changes, the import can outlive the request
             let job = null;
             const jobStatusEvent = editor.on('messenger:job.update', async (msg) => {
                 if (msg.job.id === job.id) {
                     jobStatusEvent.unbind();
                 }
 
-                // get job status (import project is corazon API, it would be simpler just to get it from the message)
                 const jobInfo = await editor.call('projects:getJobStatus', msg.job.id);
                 if (jobInfo.status === 'complete') {
-                    // togglePopup close
                     toggleProgress(false);
 
-                    if (currentUser.organization) {
-                        // do not redirect organization viewer to project,
-                        // because they don't have any access permissions. Instead
-                        // add it to the list
+                    const report = jobInfo.data.import_report?.count ? jobInfo.data.import_report : null;
+                    if (importer.organization) {
+                        // organization viewers have no access to the new project, so list it instead of opening it
                         loadProjects();
-                        refreshProjects();
+                        if (report) {
+                            editor.call('picker:project:newProjectConfirmation', null, report);
+                        }
                     } else {
-                        editor.call('picker:project:newProjectConfirmation', jobInfo.data.project_id);
+                        editor.call('picker:project:newProjectConfirmation', jobInfo.data.project_id, report);
                     }
                 } else if (jobInfo.status === 'error') {
-                    const importError = jobInfo.messages[0] || 'There was an error while importing';
                     toggleProgress(false);
-                    console.error(importError);
+                    console.error(jobInfo.messages[0] || 'There was an error while importing');
                     editor.call('picker:project:buildAlert', rightPanel, 'Could not import project');
                 }
             });
             events.push(jobStatusEvent);
 
-            job = await editor.call('projects:importNew', result.s3Key, currentUser.id);
+            job = await editor.call('projects:importNew', result.s3Key, importer.id);
         } catch (error) {
             toggleProgress(false);
             if (error) {
@@ -864,305 +1368,132 @@ editor.once('load', () => {
         }
     };
 
-    // loads the current user's projects into the CMS main panel
+    // loads your projects and each organization's into the CMS main panel
     const loadProjects = () => {
-        toggleProgress(true);
-        const promises = [];
-        const userOrder = [rootUser.id];
-        promises.push(
-            editor.call(
+        // only the first load shows skeletons; a reload swaps the list in place, keeping how far you'd scrolled
+        const reload = rootUser.id in projects;
+        if (!reload) {
+            toggleProgress(true);
+        }
+        const owners = [rootUser, ...orgs()];
+        const promises = owners.map((owner) => {
+            return editor.call(
                 'projects:list',
-                rootUser.id,
-                editor.call('project:management:showOwnerView', currentUser) ? 'profile' : null
-            )
-        );
-
-        rootUser.organizations.forEach((org) => {
-            const orgPromise = editor.call(
-                'projects:list',
-                org.id,
-                editor.call('project:management:showOwnerView', org) ? 'profile' : null
+                owner.id,
+                editor.call('project:management:showOwnerView', owner) ? 'profile' : null
             );
-            userOrder.push(org.id);
-            promises.push(orgPromise);
         });
 
         Promise.all(promises).then((values) => {
-            for (let i = 0; i < Object.keys(values).length; i++) {
-                projects[userOrder[i]] = values[i].result;
-            }
-
-            sortProjects(sortPolicy);
-
-            refreshProjects();
+            values.forEach((value, i) => {
+                projects[owners[i].id] = value.result ?? [];
+            });
+            const [top, count] = [scroll.dom.scrollTop, shown];
             toggleProgress(false);
+            refresh();
+            if (reload) {
+                while (shown < count && shown < rows.length) {
+                    loadMore();
+                }
+                scroll.dom.scrollTop = top;
+            }
         });
     };
 
-    // reloads the projects that are currently in view in the CMS main panel
-    const refreshProjects = () => {
-        projectsToSearch = []; // reset projects in view
-
-        if (!(currentUser.id in projects) || projects[currentUser.id].length === 0) {
-            projectsContainer.dom.innerHTML = '';
-            noProjectsButton.hidden = false;
-            projects[currentUser.id] = [];
-        } else {
-            noProjectsButton.hidden = true;
-
-            if (events.length > 0) {
-                destroyEvents();
-            }
-            projectsContainer.dom.innerHTML = '';
-            projectsContainer.hidden = projects.length === 0;
-            projects[currentUser.id].forEach((proj) => {
-                projectsToSearch.push([proj.name, proj]);
-                if (shouldShowProject(proj)) {
-                    buildProjectUI(projectsContainer, proj);
-                }
-            });
-        }
-    };
-
-    // sort apps by primary first and then created date
-    const sortProjects = (sorting_policy = 'modified') => {
-        const ascending = sortDescending ? 1 : -1;
-        switch (sorting_policy) {
-            case 'modified':
-                projects[currentUser.id].sort((a, b) => {
-                    if (a.modified < b.modified) {
-                        return 1 * ascending;
-                    }
-                    if (a.modified > b.modified) {
-                        return -1 * ascending;
-                    }
-                    return 0;
-                });
-                break;
-            case 'name':
-                projects[currentUser.id].sort((a, b) => {
-                    if (a.name.toLowerCase() < b.name.toLowerCase()) {
-                        return 1 * ascending;
-                    }
-                    if (a.name.toLowerCase() > b.name.toLowerCase()) {
-                        return -1 * ascending;
-                    }
-                    return 0;
-                });
-                break;
-            case 'created':
-                projects[currentUser.id].sort((a, b) => {
-                    if (a.created < b.created) {
-                        return 1 * ascending;
-                    }
-                    if (a.created > b.created) {
-                        return -1 * ascending;
-                    }
-                    return 0;
-                });
-                break;
-            case 'size':
-                projects[currentUser.id].sort((a, b) => {
-                    if (a.size.total < b.size.total) {
-                        return 1 * ascending;
-                    }
-                    if (a.size.total > b.size.total) {
-                        return -1 * ascending;
-                    }
-                    return 0;
-                });
-                break;
-        }
-
-        refreshProjects();
-        updateLastText(projectsContainer.dom.childNodes, projects[currentUser.id], sorting_policy);
-    };
-
-    // LOCAL UTILS
-
-    // checks whether importing is allowed for current user based on permissions
-    const importDisabled = () => {
-        return editor.call('project:management:getUserPermissions', currentProject, currentUser) !== 'Read';
-    };
-
-    // determines which projects should be shown based on current active filters
-    const shouldShowProject = (project) => {
-        // If we have a search result, make sure to filter
-        if (searchBar.value.length > 0 && !searchMatches.has(project.id)) {
-            return false;
-        } // ignore project if not in search result
-
-        if (!selectedFilter.organization) {
-            switch (selectedFilter.text.toLowerCase()) {
-                case 'all':
-                    return true;
-                case 'my projects':
-                    return project.owner_id === config.self.id;
-                case 'shared with me':
-                    return project.owner_id !== config.self.id;
-                case 'private projects':
-                    return project.private;
-                default:
-                    console.log('No such filter!');
-            }
-        } else {
-            return true;
-        }
-    };
-
-    // updates the current filter UI and triggers project reloading
-    const setSelectedFilter = (filter) => {
-        if (selectedFilter) {
-            selectedFilter.style.backgroundColor = 'transparent';
-        } // reset old selected filter styling
-        selectedFilter = filter;
-        selectedFilter.style.backgroundColor = '#364346';
-
-        if (selectedFilter.organization) {
-            changeCurrentUser(selectedFilter.organization);
-        } else {
-            changeCurrentUser(rootUser);
-        }
-
-        loadProjects(); // reload projects
-    };
-
-    // formats last __ text for project UI (refreshed on sorting policy change)
-    const formatLastText = (lastCriteria) => {
-        const lastDate = new Date(Date.parse(lastCriteria));
-        const now = new Date(Date.now());
-
-        const utcVariable = Date.UTC(lastDate.getFullYear(), lastDate.getMonth(), lastDate.getDate());
-        const utcNow = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
-
-        const diffDays = Math.floor((utcNow - utcVariable) / (1000 * 60 * 60 * 24));
-        const diffMonths = Math.floor(diffDays / 30);
-        const diffYears = Math.floor(diffMonths / 12);
-
-        if (diffYears > 0) {
-            return diffYears === 1 ? '1 year ago' : `${diffYears} years ago`;
-        }
-        if (diffMonths > 0) {
-            return diffMonths === 1 ? '1 month ago' : `${diffMonths} months ago`;
-        }
-        if (diffDays > 0) {
-            return diffDays === 1 ? 'yesterday' : `${diffDays} days ago`;
-        }
-
-        return 'today'; // return today if project modified less than 24 hours ago
+    const refreshUI = () => {
+        loadProjects();
+        renderUsage();
     };
 
     // helper method to destroy all outstanding events on close
     const destroyEvents = () => {
-        events.forEach((evt) => {
-            if (evt) {
-                evt.unbind();
-            }
-        });
+        events.forEach((evt) => evt?.unbind());
         events = [];
     };
 
     // EVENTS
 
-    // load and show data
-    overlay.on('show', () => {
-        // determine if a scene has been loaded
-        if (config.scene && config.scene.id) {
-            isSceneLoaded = true;
-        }
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', false);
-        }
-    });
-
-    // clean up
     overlay.on('hide', () => {
         destroyEvents();
-
-        // reset sorting dropdown state
-        sortingDropdown.hidden = true;
-        sortButton.class.remove('open');
-        sortButton.class.add('closed');
-
-        // reset selected to 'All' filter
-        setSelectedFilter(allFilter);
-
+        toggleStoragePopover(false);
+        searchInput.value = '';
+        setFilter('all');
         editor.call('picker:project:hideAlerts');
+    });
 
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', true);
+    // focus search with /, only when no dialog or menu sits on top
+    window.addEventListener('keydown', (e) => {
+        if (
+            overlay.hidden ||
+            (e.target as HTMLElement).matches('input, textarea') ||
+            document.querySelector(
+                '.pcui-overlay:not(.pcui-hidden):not(.picker-project-cms), .pcui-menu:not(.pcui-hidden)'
+            )
+        ) {
+            return;
+        }
+        if (e.key === '/') {
+            e.preventDefault();
+            searchInput.focus();
         }
     });
 
-    // prevent viewport hovering when picker is shown
-    editor.on('viewport:hover', (state) => {
-        if (state && !overlay.hidden) {
-            setTimeout(() => {
-                editor.emit('viewport:hover', false);
-            }, 0);
-        }
-    });
-
-    // hook to close the CMS modal
-    editor.method('picker:project:cms:close', () => {
-        overlay.hidden = true;
-    });
-
-    // hook to retrieve current user
     editor.method('picker:project:cms:currentUser', () => {
         return currentUser;
     });
 
-    // hook to retrieve root user
     editor.method('picker:project:cms:rootUser', () => {
         return rootUser;
     });
 
     // hook to reset filter to All (user projects)
     editor.method('picker:project:cms:resetFilter', () => {
-        setSelectedFilter(allFilter);
+        setFilter('all');
     });
 
-    // hook to retrieve currently selected organization (dropdown)
+    // hook to retrieve the organization whose menu was last opened
     editor.method('picker:project:cms:dropdownOrg', () => {
         return dropdownOrg;
     });
 
     // hook to refresh list of organizations
     editor.method('picker:project:cms:refreshOrgs', (organization, deleteOrg = false) => {
-        const orgsList = organizationsToggle.dom.childNodes[1];
-        orgsList.innerHTML = '';
         if (!deleteOrg) {
             rootUser.organizations.push(organization);
         } else {
             rootUser.organizations = rootUser.organizations.filter((org) => org.id !== organization.id);
         }
-        buildOrganizationsUI(organization.full_name);
+        loadProjects();
+
+        // open the new organization as the owner, so new projects, imports and storage are its own
+        if (!deleteOrg) {
+            setFilter(organization.id);
+        }
     });
 
     // method to display panel
     editor.method('picker:project:cms', () => {
+        // first open: show the skeleton now so the bare editor layout doesn't show while the user loads
+        if (!rootUser) {
+            loading = true;
+            title.text = greeting();
+            subtitle.text = PROMPT;
+            renderSidebar();
+            renderWelcome();
+            renderSkeleton();
+            overlay.hidden = false;
+        }
         editor.call('users:loadOne', config.self.id, (user) => {
             rootUser = user;
             currentUser = rootUser;
+            filter = 'all';
+            refresh();
             loadProjects();
-            currentProject = editor.call('picker:project:getCurrent');
-
-            editor.call('users:getUsage', config.self.id, (usage) => {
-                accountUsage = usage;
-
-                // all filter selected on load
-                selectedFilter = allFilter;
-                selectedFilter.style.backgroundColor = '#364346';
-
-                buildUsageUI();
-                buildOrganizationsUI();
-                overlay.hidden = false;
-            });
+            renderUsage();
+            overlay.hidden = false;
         });
     });
 
-    // subscribe to project create
     editor.on('messenger:project.create', () => {
         if (overlay.hidden) {
             return;
@@ -1170,7 +1501,6 @@ editor.once('load', () => {
         refreshUI();
     });
 
-    // subscribe to project delete
     editor.on('messenger:project.delete', () => {
         if (overlay.hidden) {
             return;
@@ -1179,9 +1509,10 @@ editor.once('load', () => {
         editor.call('picker:project:cms:toggleProgress', false);
     });
 
-    // subscribe to project thumbnail
     editor.on('messenger:project.user.image', () => {
-        refreshUI();
+        if (rootUser) {
+            refreshUI();
+        }
     });
 
     // hook to retrieve main CMS panel (used to display errors from other files)
@@ -1189,12 +1520,9 @@ editor.once('load', () => {
         return panel;
     });
 
-    // hook to refresh the list of projects
-    editor.method('picker:project:cms:refreshProjects', () => {
-        refreshUI();
-    });
+    // settings, team and transfer changes elsewhere on the page
+    editor.on('projects:changed', () => refreshUI());
 
-    // hook to toggle CMS progress bar
     editor.method('picker:project:cms:toggleProgress', (toggle) => {
         toggleProgress(toggle);
     });

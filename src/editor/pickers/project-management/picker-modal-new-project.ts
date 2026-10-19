@@ -1,6 +1,5 @@
 import {
     BooleanInput,
-    Button,
     Container,
     Element,
     Label,
@@ -13,135 +12,66 @@ import {
 
 import { config } from '@/editor/config';
 
+import { button } from './components/button';
+import { spinner } from './components/spinner';
+
+const UPGRADE_BLOCK = 'Forking a private project needs a paid plan.';
+const FIT_HEIGHT = 'pcui-select-input-fit-height';
+
+// the owner list's margin from its field
+const LIST_GAP = 4;
+
 editor.once('load', () => {
     // GLOBAL VARIABLES
-    const blankProject = {
-        name: 'Blank Project',
-        description: 'A new blank project.',
-        image: `${config.url.frontend}static/img/blank-project.webp`,
-        tags: ['games'],
-        fork_from: null
-    };
-    const modelViewer = {
-        name: 'Model Viewer',
-        description: 'A simple viewer application for any 3D model. Just drop the 3D model into the scene to upload.',
-        image: `${config.url.frontend}static/img/model-viewer-kit.webp`,
-        tags: ['products'],
-        fork_from: 446385
-    };
-    const vr = {
-        name: 'VR Kit',
-        description: 'An application to get you started quickly creating VR applications in PlayCanvas.',
-        image: `${config.url.frontend}static/img/vr-kit.webp`,
-        tags: ['immersive'],
-        fork_from: 435780
-    };
-
-    // default values for form inputs
+    // the form's values: a kit's, or the project being forked
     const formInputs = {
-        name: blankProject.name,
-        description: blankProject.description,
+        name: '',
+        description: '',
         private: false,
         fork_from: null
     };
 
     let rootUser;
     let newProjectOwner;
-    let selectedKitElement; // ui element of selected starter kit
-    let newKitData = blankProject; // will store starterkit metadata to create project
-
-    const starterKits = { 0: blankProject, 446385: modelViewer, 435780: vr };
+    let newKitData: Record<string, unknown> = {}; // what gets created: the kit's data, or the fork's
+    let forking = null; // the project being forked; null when creating a new project
 
     // UI
-
-    // helper method to construct UI for starterkit
-    const createStarterKitUI = (starterkit, fork, kitContainer) => {
-        // Starter Kit
-        const starterKit = new Container({
-            class: 'starter-kit'
-        });
-        kitContainer.append(starterKit);
-        // Blank project selected by default
-        if (starterkit.name === 'Blank Project') {
-            selectedKitElement = starterKit;
-            selectedKitElement.class.add('selected');
-        }
-
-        starterKit.dom.addEventListener('mouseenter', () => {
-            starterKit.class.add('hovered');
-        });
-
-        starterKit.dom.addEventListener('mouseleave', () => {
-            starterKit.class.remove('hovered');
-        });
-
-        starterKit.dom.addEventListener('click', () => {
-            if (selectedKitElement) {
-                selectedKitElement.class.remove('selected');
-            }
-
-            selectedKitElement = starterKit;
-            formInputs.name = starterKits[fork].name;
-            formInputs.description = starterKits[fork].description;
-            formInputs.private = false;
-            formInputs.fork_from = starterKits[fork].fork_from;
-
-            selectedKitElement.class.add('selected');
-
-            buildSidebar(); // rebuild sidebar
-        });
-
-        // Thumbnail
-        const thumbnail = new Container({
-            class: 'thumbnail'
-        });
-        starterKit.append(thumbnail);
-
-        // Image
-        const image = new Element({
-            dom: 'img'
-        });
-        image.dom.src = starterkit.image;
-        thumbnail.append(image);
-
-        // Overlay
-        const thumbnailOverlay = new Container({
-            class: 'overlay'
-        });
-        thumbnail.append(thumbnailOverlay);
-
-        // Preview Button (ignore for blank project)
-        if (starterkit !== blankProject) {
-            const previewButton = new Button({
-                class: 'preview-button',
-                icon: 'E286',
-                hidden: true
-            });
-            thumbnailOverlay.append(previewButton);
-
-            previewButton.on('click', () => {
-                previewProject(starterkit.fork_from);
-            });
-        }
-
-        // Title
-        const title = new Element({
-            dom: 'h4'
-        });
-        title.dom.textContent = starterkit.name;
-        starterKit.append(title);
-    };
 
     // helper method to build sidebar once data has loaded in
     const buildSidebar = () => {
         // refresh UI if it already exists
         formContent.clear();
+        formInputs.private = formInputs.private && allowPrivate();
+
+        // forking: the source project first; a blocked fork shows why in place of the form
+        const block = forking && forkBlock(forking);
+        createBtn.enabled = !block;
+        if (forking) {
+            buildForkSource(formContent);
+            if (block) {
+                const reason = new Container({ class: ['pm-callout', 'danger', 'fork-blocked'] });
+                reason.append(new Label({ text: block }));
+                if (block === UPGRADE_BLOCK) {
+                    const upgrade = document.createElement('a');
+                    upgrade.href = `${config.url.home}/upgrade`;
+                    upgrade.target = '_blank';
+                    upgrade.textContent = 'Upgrade';
+                    reason.dom.appendChild(upgrade);
+                }
+                formContent.append(reason);
+                return;
+            }
+            formContent.append(new Label({ class: 'fork-divider', text: 'your copy' }));
+        }
 
         // make form groups for relevant inputs
         const textName = buildFormGroup('text', 'Name', formContent);
         const textDescription = buildFormGroup('text', 'Description', formContent);
         if (rootUser.organizations.length > 0) {
             buildOrgDropdown(formContent);
+        } else if (forking) {
+            buildOwnerField(formContent);
         }
         const togglePrivate = buildFormGroup('toggle', allowPrivate() ? 'Private' : 'Private (Premium)', formContent);
 
@@ -160,6 +90,55 @@ editor.once('load', () => {
         togglePrivate.on('change', () => {
             formInputs.private = togglePrivate.value;
         });
+    };
+
+    // with no organizations you're the only possible owner, so show it as a plain field, not a one-item dropdown
+    const buildOwnerField = (formContainer) => {
+        const group = new Container({ class: 'form-owner', flex: true, flexDirection: 'column' });
+        formContainer.append(group);
+        group.append(new Label({ text: 'Owner' }));
+        const field = new Container({ class: 'owner-static' });
+        group.append(field);
+        const avatar = new Element({ dom: 'img', class: 'owner-profile' });
+        (avatar.dom as HTMLImageElement).src = `${config.url.api}/users/${rootUser.id}/thumbnail?size=32`;
+        field.append(avatar);
+        field.append(new Label({ class: 'owner-static-name', text: rootUser.full_name || rootUser.username }));
+    };
+
+    // the project being forked: its logo, name, owner and plays
+    const buildForkSource = (parent) => {
+        const source = new Container({ class: 'fork-source' });
+        parent.append(source);
+        const logo = new Element({ dom: 'img', class: 'fork-source-logo' });
+        (logo.dom as HTMLImageElement).src =
+            forking.thumbnails?.m ?? `${config.url.frontend}static/img/blank-project-kit.webp`;
+        (logo.dom as HTMLImageElement).alt = '';
+        source.append(logo);
+        const info = new Container({ class: 'fork-source-info' });
+        source.append(info);
+        info.append(new Label({ class: 'fork-source-eyebrow', text: 'Forking from' }));
+        info.append(new Label({ class: 'fork-source-name', text: forking.name }));
+        const meta = new Container({ class: 'fork-source-meta' });
+        info.append(meta);
+        const avatar = new Element({ dom: 'img', class: 'fork-source-avatar' });
+        (avatar.dom as HTMLImageElement).src = `${config.url.api}/users/${forking.owner_id}/thumbnail?size=32`;
+        meta.append(avatar);
+        // the owner's display name, as on the cards and in the owner picker; the username until it loads
+        const ownerLabel = new Label({ text: forking.owner?.username ?? forking.owner ?? '' });
+        meta.append(ownerLabel);
+        const known = [rootUser, ...(rootUser.organizations ?? [])].find((u) => u.id === forking.owner_id);
+        if (known) {
+            ownerLabel.text = known.full_name || known.username;
+        } else {
+            editor.call('users:loadOne', forking.owner_id, (user) => {
+                ownerLabel.text = user.full_name || user.username;
+            });
+        }
+        if (forking.primary_app_url) {
+            meta.append(
+                new Label({ class: 'fork-source-plays', text: `${(forking.plays ?? 0).toLocaleString()} plays` })
+            );
+        }
     };
 
     // helper method to construct UI for different form groups
@@ -207,7 +186,7 @@ editor.once('load', () => {
 
                 const toggleElement = new BooleanInput({
                     type: 'toggle',
-                    value: false,
+                    value: formInputs.private,
                     enabled: allowPrivate()
                 });
                 formGroup.append(toggleElement);
@@ -218,8 +197,7 @@ editor.once('load', () => {
 
     // helper method to construct organizations dropdown
     const buildOrgDropdown = (formContainer) => {
-        let possibleOwners = [...rootUser.organizations];
-        possibleOwners.unshift(rootUser);
+        let possibleOwners = [rootUser, ...rootUser.organizations].filter(canOwn);
 
         const ownerContainer = new Container({
             class: 'form-owner',
@@ -255,6 +233,23 @@ editor.once('load', () => {
         const ownerDropdownList = ownerDropdown.dom.querySelector(
             '.pcui-select-input-container-value .pcui-select-input-list'
         );
+
+        // pcui only flips the list up when it would leave the window, but the form scrolls and clips it first
+        const open = ownerDropdown.open.bind(ownerDropdown);
+        ownerDropdown.open = () => {
+            open();
+            const list = ownerDropdownList as HTMLElement;
+            const form = formContainer.dom.getBoundingClientRect();
+            const field = ownerDropdown.dom.getBoundingClientRect();
+            const h = list.offsetHeight + LIST_GAP;
+            const below = Math.min(form.bottom, window.innerHeight) - field.bottom;
+            const up = h > below && h <= field.top - Math.max(form.top, 0);
+            ownerDropdown.class[up ? 'add' : 'remove'](FIT_HEIGHT);
+            if (h > below && !up) {
+                list.style.maxHeight = `${below - LIST_GAP * 2}px`;
+            }
+        };
+
         let imageContainer;
         for (let i = 0; i < possibleOwners.length; i++) {
             const dropdownOption = ownerDropdownList.childNodes[i];
@@ -268,19 +263,28 @@ editor.once('load', () => {
         }
 
         ownerDropdown.on('change', () => {
-            const oldOwner = newProjectOwner;
-            newProjectOwner = possibleOwners.filter((org) => org.id === ownerDropdown.value)[0];
-            if (oldOwner !== newProjectOwner) {
-                possibleOwners = []; // reset possible owners list
-                buildSidebar(); // rebuild sidebar on owner change
+            // the old dropdown fires again, with no owner, as the rebuild destroys it
+            const owner = possibleOwners.find((org) => org.id === ownerDropdown.value);
+            if (!owner || owner === newProjectOwner) {
+                return;
             }
+            newProjectOwner = owner;
+
+            // rebuild once pcui has finished the pick, which still touches this dropdown after the change event
+            queueMicrotask(() => {
+                possibleOwners = []; // reset possible owners list
+                buildSidebar();
+            });
         });
     };
 
     // helper method to toggle AJAX loader in create project button
     const toggleLoader = (loading: boolean) => {
+        createBtn.text = loading ? '' : createLabel();
+
+        // setting text replaces the button's children, so put the spinner back
+        createBtn.dom.appendChild(loader.dom);
         loader.hidden = !loading;
-        createBtn.text = loading ? '' : 'CREATE';
     };
 
     // overlay
@@ -298,17 +302,8 @@ editor.once('load', () => {
     });
     overlay.append(panel);
 
-    // playcanvas icon
-    const playcanvasIcon = new Element({
-        class: 'playcanvas-icon'
-    });
-    panel.header.append(playcanvasIcon);
-
     // close button
-    const btnClose = new Button({
-        class: 'close',
-        icon: 'E132'
-    });
+    const btnClose = button({ kind: 'icon', size: 'sm', icon: 'E132', label: 'Close', class: 'close' });
     btnClose.on('click', () => {
         overlay.hidden = true;
     });
@@ -325,12 +320,6 @@ editor.once('load', () => {
         class: 'modal-new-project-main-view'
     });
     modalContainer.append(mainView);
-
-    // kits container
-    const kitsContainer = new Container({
-        class: 'modal-new-project-kits-container'
-    });
-    mainView.append(kitsContainer);
 
     // sidebar
     const sidebar = new Container({
@@ -350,10 +339,13 @@ editor.once('load', () => {
     });
     sidebar.append(createBtnContainer);
 
-    const createBtn = new Button({
-        class: 'create-btn',
-        text: 'CREATE'
+    const cancelBtn = button({ kind: 'secondary', text: 'Cancel' });
+    cancelBtn.on('click', () => {
+        overlay.hidden = true;
     });
+    createBtnContainer.append(cancelBtn);
+
+    const createBtn = button({ kind: 'primary', text: 'Create project' });
     createBtnContainer.append(createBtn);
 
     // attach listener to create button
@@ -367,30 +359,13 @@ editor.once('load', () => {
         createNewProject();
     });
 
-    const loader = new Element({
-        class: 'loader',
-        hidden: true
-    });
-    createBtnContainer.append(loader);
+    // spinner sits inside the create button while it's busy
+    const loader = spinner({ hidden: true });
+    createBtn.dom.appendChild(loader.dom);
 
     // CONTROLLERS
 
-    // retrieves list of all starter kits through API call
-    const loadStarterKits = () => {
-        editor.call('projects:listStarterKits', (rawKits) => {
-            rawKits.forEach((rawkit) => {
-                const starterkit = processProject(rawkit);
-                const forkFrom = starterkit.fork_from;
-                starterKits[forkFrom] = starterkit;
-            });
-
-            if (kitsContainer.dom) {
-                for (const [fork, starterkit] of Object.entries(starterKits)) {
-                    createStarterKitUI(starterkit, fork, kitsContainer);
-                }
-            }
-        });
-    };
+    const createLabel = () => (forking ? 'Fork project' : 'Create project');
 
     // handles the flow for project creation as well as managing error and loading states
     const createNewProject = () => {
@@ -401,55 +376,53 @@ editor.once('load', () => {
             'projects:create',
             data,
             (result) => {
+                // an empty project has no job: it's ready once the messenger says it was created
                 if (!data.fork_from) {
-                    editor.call('projects:getOne', result.id, (newProject) => {
-                        if (newProject) {
-                            result = newProject;
+                    evt = editor.on('messenger:project.create', (msg) => {
+                        if (msg.project_id !== result.id) {
+                            return;
                         }
+                        evt.unbind();
+                        toggleLoader(false);
+                        if (msg.status && msg.status !== 'success') {
+                            editor.call(
+                                'picker:project:buildAlert',
+                                mainView,
+                                msg.error ?? 'Could not create the project'
+                            );
+                            return;
+                        }
+                        editor.call('picker:project:newProjectConfirmation', result.id);
+                        overlay.hidden = true; // close new project modal
+                    });
+                    return;
+                }
 
-                        evt = editor.on('messenger:project.create', (msg) => {
-                            if (msg.project_id !== result.id) {
-                                return;
+                // every other kit is a fork: wait for the fork job, then offer to open the project
+                const jobId = result.id;
+
+                evt = editor.on('messenger:job.update', (msg) => {
+                    if (!jobId || jobId === msg.job.id) {
+                        evt.unbind();
+
+                        // get job
+                        // the job's status sits on the job; the fork's id sits in its data
+                        editor.api.globals.rest.jobs.jobGet({ jobId: msg.job.id }).on('load', (status, job) => {
+                            if (job.status === 'error') {
+                                editor.call('picker:project:buildAlert', forking ? sidebar : mainView, job.messages[0]);
+                            } else {
+                                editor.call('picker:project:newProjectConfirmation', job.data.forked_id);
+                                overlay.hidden = true; // close new project modal
                             }
-                            evt.unbind();
-                            result.disabled = false;
 
                             toggleLoader(false);
-
-                            // open confirmation modal
-                            editor.call('picker:project:newProjectConfirmation', result.id);
-                            overlay.hidden = true; // close new project modal
                         });
-                    });
-                } else {
-                    const jobId = result.id;
-
-                    evt = editor.on('messenger:job.update', (msg) => {
-                        if (!jobId || jobId === msg.job.id) {
-                            evt.unbind();
-
-                            // get job
-                            editor.api.globals.rest.jobs
-                                .jobGet({ jobId: msg.job.id })
-                                .on('load', (status, response) => {
-                                    const job = response.data;
-
-                                    // handle job error
-                                    if (job.status === 'error') {
-                                        editor.call('picker:project:buildAlert', mainView, job.messages[0]);
-                                    } else {
-                                        window.open(`/editor/project/${job.forked_id}`);
-                                    }
-
-                                    toggleLoader(false);
-                                });
-                        }
-                    });
-                }
+                    }
+                });
             },
             (err) => {
                 // unsubscribe from messenger job.update
-                if (data.fork_from && evt) {
+                if (evt) {
                     evt.unbind();
                 }
 
@@ -464,23 +437,6 @@ editor.once('load', () => {
                 }
             }
         );
-
-        newKitData = blankProject; // restart new kit data
-    };
-
-    // handles clicks on preview button on starter kits
-    const previewProject = (project_id) => {
-        editor.call(
-            'projects:getOne',
-            project_id,
-            (response) => {
-                const previewURL = response.primary_app_url;
-                window.open(previewURL, '_blank');
-            },
-            (err) => {
-                editor.call('picker:project:buildAlert', mainView, err);
-            }
-        );
     };
 
     // LOCAL UTILS
@@ -490,57 +446,91 @@ editor.once('load', () => {
         return newProjectOwner.plan_type !== 'free';
     };
 
-    // helper method to process a project according to required schema
-    const processProject = (raw) => {
-        return {
-            name: raw.name,
-            description: raw.description,
-            image: raw.thumbnails.m,
-            tags: raw.tags,
-            fork_from: raw.project_id
-        };
+    // free accounts can't own a fork of a private project
+    const canOwn = (owner) => !forking?.private || owner.plan_type !== 'free';
+
+    // why a project can't be forked, matching playcanvas.com; null when it can
+    const forkBlock = (project) => {
+        if (project.settings?.useLegacyScripts && !config.self.flags?.hasLegacyScripts) {
+            return "This project uses legacy scripts, so it can't be forked.";
+        }
+        if (project.private_source_assets && project.access_level !== 'write' && project.access_level !== 'admin') {
+            const owner = project.owner?.username ?? project.owner ?? 'the owner';
+            return `The owner keeps this project's source assets private, so only people who can edit it can fork it. Ask ${owner} for edit access.`;
+        }
+        if (!canOwn(newProjectOwner)) {
+            return UPGRADE_BLOCK;
+        }
+        return null;
     };
 
+    // helper method to process a project according to required schema
     // EVENTS
 
     // load and show data
+    // an editor-blocking picker while it's up, so hotkeys and the viewport leave it alone
     overlay.on('show', () => {
-        // open picker
         editor.emit('picker:open', 'project-new');
-
-        loadStarterKits();
-
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', false);
-        }
     });
 
-    // clean up
     overlay.on('hide', () => {
-        kitsContainer.destroy();
-        editor.emit('picker:close', 'project-new'); // close panel
-
+        editor.emit('picker:close', 'project-new');
         editor.call('picker:project:hideAlerts');
-
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', true);
-        }
     });
 
-    // prevent viewport hovering when the picker is shown
-    editor.on('viewport:hover', (state) => {
-        if (state && !overlay.hidden) {
-            setTimeout(() => {
-                editor.emit('viewport:hover', false);
-            }, 0);
-        }
+    // the fork dialog is the sidebar alone, without the kit grid
+    const setMode = (project) => {
+        forking = project;
+        panel.headerText = project ? 'FORK PROJECT' : 'NEW PROJECT';
+        mainView.hidden = !!project;
+        overlay.class[project ? 'add' : 'remove']('fork');
+        createBtn.text = createLabel();
+        createBtn.dom.appendChild(loader.dom);
+        editor.call('picker:project:hideAlerts');
+    };
+
+    // displays the fork dialog for a project; the owner defaults to you, else its organization, else a paid one
+    editor.method('picker:project:fork', (project) => {
+        editor.call('users:loadOne', config.self.id, (self) => {
+            editor.call('projects:getOne', project.id, (full) => {
+                rootUser = self;
+                setMode(full);
+                const orgs = self.organizations ?? [];
+                newProjectOwner =
+                    [self, orgs.find((o) => o.id === full.owner_id), ...orgs].filter(Boolean).find(canOwn) ?? self;
+                Object.assign(formInputs, {
+                    name: full.name,
+                    description: full.description ?? '',
+                    private: !!full.private,
+                    fork_from: full.id
+                });
+                newKitData = { ...formInputs };
+                buildSidebar();
+                overlay.hidden = false;
+            });
+        });
     });
 
-    // displays the new project modal
-    editor.method('picker:project:newProject', () => {
-        rootUser = editor.call('picker:project:cms:rootUser');
-        newProjectOwner = editor.call('picker:project:cms:currentUser');
+    // the projects page's New project: its kit grid fills the main view beside this form
+    editor.method('picker:project:new:mainView', () => mainView);
+
+    // opens the form for a new project from a kit; data is what gets created, with the form's values on top
+    editor.method('picker:project:new:open', ({ rootUser: root, owner, values, data }) => {
+        setMode(null);
+        rootUser = root;
+        newProjectOwner = owner;
+        Object.assign(formInputs, values);
+        newKitData = data;
         buildSidebar();
         overlay.hidden = false;
     });
+
+    // a kit was picked: its name, description and source fill the form, and its data is what gets created
+    editor.method('picker:project:new:select', (values, data) => {
+        Object.assign(formInputs, values);
+        newKitData = data;
+        buildSidebar();
+    });
+
+    editor.method('picker:project:new:values', () => ({ ...formInputs }));
 });
