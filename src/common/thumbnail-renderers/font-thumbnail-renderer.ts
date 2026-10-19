@@ -259,11 +259,19 @@ class FontThumbnailRenderer extends ThumbnailRenderer {
 
     _frameRequest: number | null;
 
-    constructor(asset: Observer, canvas: HTMLCanvasElement) {
+    _onRender: ((drawn: boolean) => void) | undefined;
+
+    /**
+     * @param asset - The font asset.
+     * @param canvas - The canvas to draw the preview into.
+     * @param onRender - Called after each render with whether any text was drawn.
+     */
+    constructor(asset: Observer, canvas: HTMLCanvasElement, onRender?: (drawn: boolean) => void) {
         super();
 
         this._asset = asset;
         this._canvas = canvas;
+        this._onRender = onRender;
 
         this._queueRenderHandler = this.queueRender.bind(this);
 
@@ -326,6 +334,7 @@ class FontThumbnailRenderer extends ThumbnailRenderer {
         scene.cameraEntity.camera.renderTarget = rt;
 
         const engineAsset = app.assets.get(this._asset.get('id'));
+        let drawn = false;
 
         // skip if the font isn't ready
         if (
@@ -426,10 +435,13 @@ class FontThumbnailRenderer extends ThumbnailRenderer {
 
                 layer.removeMeshInstances(scene.model.meshInstances);
                 layer.removeCamera(scene.cameraEntity.camera);
+                drawn = true;
             }
         }
 
         scene.previewRoot.enabled = false;
+
+        this._onRender?.(drawn);
     }
 
     destroy() {
@@ -445,6 +457,7 @@ class FontThumbnailRenderer extends ThumbnailRenderer {
 
         this._asset = null;
         this._canvas = null;
+        this._onRender = undefined;
     }
 }
 
