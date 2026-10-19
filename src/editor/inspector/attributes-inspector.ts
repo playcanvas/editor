@@ -222,17 +222,19 @@ class AttributesInspector extends Container {
                     binding.setValue(value);
                 }
             };
-            field.dom.addEventListener('input', edit);
-            field.dom.addEventListener('keydown', edit, true);
-            field.dom.addEventListener('change', commit);
-            field.dom.addEventListener('keydown', commit);
-            field.dom.addEventListener('focusout', commit);
+            // pcui clears field.dom before emitting destroy, so keep the node
+            const dom = field.dom;
+            dom.addEventListener('input', edit);
+            dom.addEventListener('keydown', edit, true);
+            dom.addEventListener('change', commit);
+            dom.addEventListener('keydown', commit);
+            dom.addEventListener('focusout', commit);
             field.once('destroy', () => {
-                field.dom.removeEventListener('input', edit);
-                field.dom.removeEventListener('keydown', edit, true);
-                field.dom.removeEventListener('change', commit);
-                field.dom.removeEventListener('keydown', commit);
-                field.dom.removeEventListener('focusout', commit);
+                dom.removeEventListener('input', edit);
+                dom.removeEventListener('keydown', edit, true);
+                dom.removeEventListener('change', commit);
+                dom.removeEventListener('keydown', commit);
+                dom.removeEventListener('focusout', commit);
             });
         }
 
