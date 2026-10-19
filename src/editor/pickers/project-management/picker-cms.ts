@@ -1371,7 +1371,11 @@ editor.once('load', () => {
 
     // loads your projects and each organization's into the CMS main panel
     const loadProjects = () => {
-        toggleProgress(true);
+        // only the first load shows skeletons; a reload swaps the list in place, keeping how far you'd scrolled
+        const reload = rootUser.id in projects;
+        if (!reload) {
+            toggleProgress(true);
+        }
         const owners = [rootUser, ...orgs()];
         const promises = owners.map((owner) => {
             return editor.call(
@@ -1385,8 +1389,15 @@ editor.once('load', () => {
             values.forEach((value, i) => {
                 projects[owners[i].id] = value.result ?? [];
             });
+            const [top, count] = [scroll.dom.scrollTop, shown];
             toggleProgress(false);
             refresh();
+            if (reload) {
+                while (shown < count && shown < rows.length) {
+                    loadMore();
+                }
+                scroll.dom.scrollTop = top;
+            }
         });
     };
 

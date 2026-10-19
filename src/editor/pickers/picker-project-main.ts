@@ -175,6 +175,10 @@ editor.once('load', () => {
     });
 
     projectDescInput.on('change', () => {
+        // filling the form for a project isn't a change
+        if (initialLoad) {
+            return;
+        }
         projectSettingsChanged = true;
         const descriptionBefore = projectSettings.description;
         projectSettings.description = projectDescInput.value;
