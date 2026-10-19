@@ -1,7 +1,7 @@
 import type { MenuItem } from '@playcanvas/pcui';
 import { Button, Container, Element, Label, Menu, Overlay, Progress, TextInput } from '@playcanvas/pcui';
 
-import { bytesToHuman } from '@/common/utils';
+import { bytesToHuman, countToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
 import { button } from './components/button';
@@ -173,7 +173,6 @@ editor.once('load', () => {
         }
         return unit(Math.round(minutes / 525600), 'year');
     };
-    const shortCount = (n) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k` : `${n ?? 0}`);
     const greeting = () => {
         const hour = new Date().getHours();
         return hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
@@ -230,10 +229,10 @@ editor.once('load', () => {
     const stats = (project, parent: Container) => {
         const line = box('cms-stats', parent);
         if (project.access_level !== 'none') {
-            text(shortCount(project.views), 'cms-views', line);
+            text(countToHuman(project.views), 'cms-views', line);
         }
         if (project.primary_app_url) {
-            text(shortCount(project.plays), 'cms-plays', line);
+            text(countToHuman(project.plays), 'cms-plays', line);
         }
         if (canStar(project)) {
             starToggle(project, line);
@@ -249,7 +248,7 @@ editor.once('load', () => {
         let pending = null;
         const paint = () => {
             const on = pending ?? !!project.star_id;
-            btn.text = shortCount(project.starred);
+            btn.text = countToHuman(project.starred);
             btn.class[on ? 'add' : 'remove']('on');
             btn.dom.title = on ? 'Unstar' : 'Star';
             btn.dom.setAttribute('aria-pressed', String(on));
@@ -967,12 +966,12 @@ editor.once('load', () => {
             fact('Owner', owner).prepend(image(avatarUrl(lead.owner_id, 36), 'cms-avatar'));
         }
         fact('Edited', timeAgo(lead.modified));
-        fact('Views', shortCount(lead.views));
+        fact('Views', countToHuman(lead.views));
         if (lead.primary_app_url) {
-            fact('Plays', shortCount(lead.plays));
+            fact('Plays', countToHuman(lead.plays));
         }
         if (lead.fork_count) {
-            fact('Forks', shortCount(lead.fork_count));
+            fact('Forks', countToHuman(lead.fork_count));
         }
         fact('Size', bytesToHuman(lead.size?.total ?? 0));
         // actions sit under the details so the card reads as one unit on wide screens
@@ -1067,17 +1066,17 @@ editor.once('load', () => {
             const status = isRecipient(project) ? `Offered ${when}` : `Sent to ${project.new_owner} ${when}`;
             text(status, ['cms-card-when', 'transfer'], byline);
         } else {
-            text(when, 'cms-card-when', byline);
+            // the size sits with the date, so the footer only holds counts and fits a 200px card
+            text(joined(when, bytesToHuman(project.size?.total ?? 0)), 'cms-card-when', byline);
         }
 
-        // counts and size get their own strip so the owner line keeps the full width
+        // counts get their own strip so the owner line keeps the full width
         if (pending) {
             transferActions(project, card).class.add('cms-card-foot');
             return;
         }
         const foot = stats(project, card);
         foot.class.add('cms-card-foot');
-        text(bytesToHuman(project.size?.total ?? 0), 'cms-card-size', foot);
         bindOpen(card, project);
     };
 
@@ -1118,17 +1117,17 @@ editor.once('load', () => {
             return;
         }
         text(
-            shortCount(project.fork_count ?? 0),
+            countToHuman(project.fork_count ?? 0),
             ['cms-row-cell', 'cms-forks', ...(project.fork_count ? [] : ['zero'])],
             row
         );
         if (project.access_level !== 'none') {
-            text(shortCount(project.views), ['cms-row-cell', 'cms-views'], row);
+            text(countToHuman(project.views), ['cms-row-cell', 'cms-views'], row);
         } else {
             dash(row);
         }
         if (project.primary_app_url) {
-            text(shortCount(project.plays), ['cms-row-cell', 'cms-plays'], row);
+            text(countToHuman(project.plays), ['cms-row-cell', 'cms-plays'], row);
         } else {
             dash(row, 'Not published');
         }

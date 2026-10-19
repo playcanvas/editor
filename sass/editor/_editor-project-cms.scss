@@ -918,7 +918,7 @@
         gap: 4px;
     }
 
-    // counts and size, in a darker strip under the card body; one row on every card so rows line up
+    // counts, in a darker strip under the card body; one row on every card so rows line up
     .cms-card-foot {
         box-sizing: border-box;
         align-items: center;
@@ -928,10 +928,25 @@
         background-color: rgb(0 0 0 / 10%);
     }
 
-    .cms-card-size {
-        margin-left: auto;
-        font-variant-numeric: tabular-nums;
-        white-space: nowrap;
+    // views and plays in fixed slots on the left, so they line up across cards, and the star on the right
+    // under the kebab; views' slot fits "999K", and a missing stat leaves its slot empty
+    .cms-card-foot.cms-stats {
+        display: grid;
+        grid-template-columns: 54px minmax(0, 1fr) auto;
+
+        > .cms-views {
+            grid-column: 1;
+            justify-self: start;
+        }
+
+        > .cms-plays {
+            grid-column: 2;
+            justify-self: start;
+        }
+
+        > .cms-star {
+            grid-column: 3;
+        }
     }
 
     .cms-card-cover {
@@ -1110,6 +1125,9 @@
 
             width: 9px;
             height: 10px;
+
+            // the digits sit 1px above the line box's middle, where a mask icon centres
+            transform: translateY(-1px);
             mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 10'%3E%3Cpath d='M0 0v10l9-5z'/%3E%3C/svg%3E");
         }
     }
@@ -1188,6 +1206,9 @@
 
             width: 11px;
             height: 11px;
+
+            // up 1px onto the digits, like the play icon
+            transform: translateY(-1px);
             mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1.5l1.9 4.1 4.5.5-3.4 3 1 4.4L8 11.2l-4 2.3 1-4.4-3.4-3 4.5-.5z' fill='none' stroke='%23000' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E");
         }
 
