@@ -70,14 +70,7 @@ editor.once('load', () => {
             }
 
             // parent
-            let parent = null;
-            if (editor.call('selector:type') === 'entity') {
-                parent = editor.call('selector:items')[0];
-            }
-
-            if (!parent) {
-                parent = editor.call('entities:root');
-            }
+            let parent = editor.call('entities:root');
 
             const ctrlDown = editor.call('hotkey:ctrl');
             let cameraPos, cameraForward;
