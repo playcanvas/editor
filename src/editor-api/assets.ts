@@ -781,6 +781,11 @@ class Assets extends Events {
         } = {}
     ) {
         const textures = (options.textures || new Array(6)).slice(0, 6);
+
+        // the schema defaults rgbm to false, so match the faces as assigning one in the inspector does
+        const faces = textures.filter(Boolean);
+        const rgbm = faces.length > 0 && faces.every((t) => !!t.get('data.rgbm'));
+
         for (let i = 0; i < 6; i++) {
             textures[i] = textures[i] ? textures[i].get('id') : null;
         }
@@ -796,7 +801,8 @@ class Assets extends Events {
                     textures: textures,
                     minFilter: options.minFilter !== undefined ? options.minFilter : 5, // linear mipmap linear
                     magFilter: options.magFilter !== undefined ? options.magFilter : 1, // linear
-                    anisotropy: options.anisotropy !== undefined ? options.anisotropy : 1
+                    anisotropy: options.anisotropy !== undefined ? options.anisotropy : 1,
+                    rgbm
                 }
             },
             null,
