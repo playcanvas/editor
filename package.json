@@ -44,7 +44,7 @@
         }
     },
     "dependencies": {
-        "@playcanvas/attribute-parser": "^1.11.0"
+        "@playcanvas/attribute-parser": "^1.11.1"
     },
     "devDependencies": {
         "@jsquash/avif": "1.3.0",
