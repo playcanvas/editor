@@ -523,17 +523,17 @@ editor.once('load', () => {
     navItem('E129', 'Explore', () => window.open(`${config.url.home}/explore/featured`, '_blank'));
     navItem('E232', 'Docs', () => window.open('https://developer.playcanvas.com/', '_blank'));
 
-    const recentsHeader = text('Recents', 'cms-section', side);
-    const recentsList = box('cms-side-list', side);
+    // recents and organizations scroll, so storage and the account row stay pinned at the bottom
+    const sideScroll = box('cms-side-scroll', side);
+    const recentsHeader = text('Recents', 'cms-section', sideScroll);
+    const recentsList = box('cms-side-list', sideScroll);
 
-    const orgHeader = box('cms-section', side);
+    const orgHeader = box('cms-section', sideScroll);
     text('Organizations', null, orgHeader);
     const addOrganizationButton = button({ kind: 'icon', size: 'sm', icon: 'E120', label: 'New organization' });
     orgHeader.append(addOrganizationButton);
     addOrganizationButton.on('click', () => editor.call('picker:project:newOrganization'));
-    const orgList = box('cms-side-list', side);
-
-    box('cms-gap', side);
+    const orgList = box('cms-side-list', sideScroll);
 
     const storageCard = box('cms-storage', side);
     storageCard.dom.title = 'Storage details';

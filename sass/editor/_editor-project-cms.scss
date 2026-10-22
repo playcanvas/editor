@@ -96,6 +96,11 @@
         box-sizing: border-box;
         background-color: $bcg-darkest;
         overflow: hidden auto;
+
+        // pcui containers default to min-height 0, so without this they'd squash and overlap instead of the sidebar scrolling
+        & > * {
+            flex-shrink: 0;
+        }
     }
 
     .cms-brand {
@@ -247,9 +252,19 @@
         font-size: 11px;
     }
 
-    .cms-gap {
+    // takes the leftover height; the padding keeps focus rings inside the scroll clip
+    .cms-side-scroll {
+        display: flex;
         flex: 1;
-        min-height: 12px;
+        flex-direction: column;
+        gap: 1px;
+        margin: 0 -4px 8px;
+        padding: 0 4px 4px;
+        overflow: hidden auto;
+
+        & > * {
+            flex-shrink: 0;
+        }
     }
 
     .cms-storage {
