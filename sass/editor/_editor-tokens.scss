@@ -4,6 +4,16 @@
 
 $cms-primary-hover: hsl(24deg 100% 43%); // orange buttons on hover
 
+// phones: below this width the pickers switch to their bottom sheet layout
+$cms-phone: 640px;
+
+// phones: the two control heights every button and field uses, default and size 'sm'
+$cms-touch: 44px;
+$cms-touch-sm: 36px;
+
+// phones: text size in every field; zoom is disabled by the page's viewport tag, so ios doesn't zoom on focus
+$cms-field-text: 14px;
+
 // corners
 $radius-surface: 8px; // cards, panels, search, popovers
 $radius-control: 6px; // buttons, inputs, menus, tabs
@@ -154,6 +164,60 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
     }
 }
 
+// on phones a picker's frame is a bottom sheet, like the menus: pinned to the bottom, as tall as
+// its content up to the screen less 24px; $tall pickers always take that height, so switching sections can't resize them
+@mixin phone-sheet($tall: false) {
+    @media (max-width: $cms-phone) {
+        > .pcui-overlay-content {
+            position: absolute;
+            inset: auto 0 0;
+            display: flex;
+            flex-direction: column;
+            width: auto;
+            max-height: calc(100dvh - 24px);
+            border-width: 1px 0 0;
+            border-radius: 14px 14px 0 0;
+            overflow: hidden;
+            transform: none;
+
+            @if $tall {
+                height: calc(100dvh - 24px);
+            } @else {
+                height: auto;
+            }
+
+            // the picker's body fills the sheet and shrinks to fit it
+            > * {
+                flex: 1 1 auto;
+                min-height: 0;
+            }
+        }
+    }
+}
+
+// phones: a single-line field at the default control height
+@mixin phone-field {
+    @media (max-width: $cms-phone) {
+        height: $cms-touch;
+        line-height: $cms-touch - 2px;
+
+        > input {
+            height: $cms-touch - 2px;
+            font-size: $cms-field-text;
+            line-height: $cms-touch - 2px;
+        }
+    }
+}
+
+// phones: multi-line text at the same size as phone-field
+@mixin phone-textarea {
+    @media (max-width: $cms-phone) {
+        padding: 10px;
+        font-size: $cms-field-text;
+        line-height: 22px;
+    }
+}
+
 // shared by the new project and organization pickers
 
 // centred title in the 33px picker header, close button on the right
@@ -202,6 +266,10 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
         color: $text-primary;
         font-family: inherit;
         font-size: 13px;
+
+        @media (max-width: $cms-phone) {
+            font-size: $cms-field-text;
+        }
     }
 
     // same orange focus border as the projects page search

@@ -601,6 +601,11 @@
         gap: 8px;
     }
 
+    // phones only: the actions menu joins the facts grid
+    .cms-facts > .cms-kebab {
+        display: none;
+    }
+
     .cms-heading {
         margin-bottom: 4px;
         color: $text-primary;
@@ -1508,6 +1513,314 @@
         animation-delay: 360ms;
     }
 
+    // phones only: the bar that opens the sidebar as a drawer
+    .cms-topbar {
+        display: none;
+        flex: none;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        height: 52px;
+        padding: env(safe-area-inset-top, 0) 8px 0;
+        border-bottom: 1px solid $border-primary;
+        background-color: $bcg-darkest;
+        color: $text-primary;
+
+        > .pcui-button.cms-topbar-menu {
+            width: 44px;
+            height: 44px;
+
+            &::before {
+                @extend %cms-mask-icon;
+
+                width: 20px;
+                height: 20px;
+                mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 3.5h12v1.5H2zM2 7.25h12v1.5H2zM2 11h12v1.5H2z'/%3E%3C/svg%3E");
+            }
+        }
+
+        > .cms-logo {
+            width: 20px;
+            height: 22px;
+            background: url('../static/img/playcanvas-mark.svg') center / contain no-repeat;
+        }
+
+        > .cms-topbar-title {
+            flex: 1;
+            min-width: 0;
+            color: inherit;
+            font-size: 16px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+
+            @extend .font-bold;
+        }
+
+        > .pcui-button.cms-topbar-new {
+            margin: 0 4px 0 0;
+        }
+    }
+
+    @media (max-width: $cms-phone) {
+        .cms-root {
+            position: relative;
+        }
+
+        // pcui writes the resizable sidebar's width inline
+        .cms-side {
+            position: fixed;
+            inset: 0 auto 0 0;
+            z-index: 30;
+            width: min(300px, 84vw) !important;
+            padding-top: calc(12px + env(safe-area-inset-top, 0px));
+            transform: translateX(-100%);
+            transition: transform 200ms ease-out;
+            box-shadow: 0 0 24px rgb(0 0 0 / 45%);
+
+            > .pcui-resizable-handle {
+                display: none;
+            }
+        }
+
+        .cms-root.drawer-open {
+            > .cms-side {
+                transform: none;
+            }
+
+            &::after {
+                content: '';
+                position: fixed;
+                inset: 0;
+                z-index: 29;
+                background-color: rgb(0 0 0 / 50%);
+            }
+        }
+
+        .cms-new,
+        .cms-nav,
+        .cms-side-item {
+            min-height: 44px;
+        }
+
+        .cms-topbar {
+            display: flex;
+        }
+
+        // home panel
+
+        .cms-scroll {
+            scrollbar-gutter: auto;
+        }
+
+        .cms-col {
+            padding: 16px 16px calc(32px + env(safe-area-inset-bottom, 0px));
+        }
+
+        .cms-head {
+            margin-bottom: 16px;
+        }
+
+        .cms-title {
+            font-size: 22px;
+            line-height: 28px;
+            white-space: normal;
+        }
+
+        .cms-subtitle {
+            white-space: normal;
+        }
+
+        .cms-col.start > .cms-head,
+        .cms-head-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        // the square thumbnail sits beside the name; facts and actions span the card below
+        .cms-welcome {
+            grid-template-columns: 88px minmax(0, 1fr);
+            gap: 14px 12px;
+            margin-bottom: 20px;
+            padding: 12px;
+        }
+
+        .cms-welcome-thumb {
+            width: 88px;
+        }
+
+        .cms-welcome-info {
+            display: contents;
+        }
+
+        .cms-facts,
+        .cms-welcome-actions {
+            grid-column: 1 / -1;
+        }
+
+        .cms-welcome-desc {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        // three facts a row, with the actions menu as the last cell so the buttons below split evenly
+        .cms-facts {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px 12px;
+
+            > .cms-kebab {
+                display: flex;
+                grid-column: 3;
+                place-self: center;
+            }
+        }
+
+        .cms-fact {
+            align-items: center;
+            text-align: center;
+        }
+
+        .cms-welcome-actions {
+            flex-wrap: nowrap;
+
+            > .pm-button {
+                flex: 1;
+            }
+
+            > .cms-kebab {
+                display: none;
+            }
+        }
+
+        // toolbar
+
+        .cms-toolbar {
+            margin: 0 -16px 12px;
+            padding: 8px 16px 10px;
+        }
+
+        .cms-search-input > input {
+            font-size: $cms-field-text;
+        }
+
+        .cms-hints {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            scrollbar-width: none;
+            mask-image: linear-gradient(90deg, #000 85%, transparent);
+
+            > .pcui-label:first-child {
+                display: none;
+            }
+        }
+
+        .cms-hints-tip {
+            display: none;
+        }
+
+        .cms-hint {
+            flex: none;
+            min-height: 32px;
+        }
+
+        .cms-tools {
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .cms-tabs {
+            flex: 1;
+            min-width: 0;
+            margin-right: 0;
+            overflow-x: auto;
+            scrollbar-width: none;
+            mask-image: linear-gradient(90deg, #000 82%, transparent);
+        }
+
+        .cms-tab {
+            flex: none;
+            height: 36px;
+        }
+
+        // sort keeps only its value, e.g. "Last edited"
+        .cms-sort {
+            flex: none;
+            height: 36px;
+            padding: 0 8px;
+            font-size: 0;
+
+            > .cms-sort-value {
+                font-size: 13px;
+            }
+        }
+
+        .cms-layout-button {
+            width: 36px;
+            height: 36px;
+        }
+
+        // project list
+
+        .cms-list.grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .cms-card-desc,
+        .cms-card-meta .cms-members {
+            display: none;
+        }
+
+        .cms-card-body {
+            padding: 8px 10px;
+        }
+
+        .cms-card .cms-kebab,
+        .cms-row > .cms-kebab {
+            margin: -8px -8px -8px 0;
+        }
+
+        .cms-transfer > .pcui-button {
+            flex: 1;
+        }
+
+        .cms-row {
+            grid-template-columns: 40px minmax(0, 1fr) 40px;
+            gap: 12px;
+            padding: 8px 8px 8px 12px;
+        }
+
+        .cms-row > .cms-row-cell,
+        .cms-row.cms-row-head,
+        .cms-row > .cms-kebab-space {
+            display: none;
+        }
+
+        .cms-empty .pcui-button {
+            align-self: stretch;
+        }
+
+        // touch never hovers: no ring or zoom, a press fill instead
+        @media (hover: none) {
+            .cms-card,
+            .cms-welcome {
+                &:hover {
+                    border-color: $cms-edge;
+                    box-shadow: none;
+
+                    img {
+                        transform: none;
+                    }
+                }
+
+                &:active {
+                    background-color: $cms-hover;
+                }
+            }
+        }
+    }
 }
 
 .pcui-menu.cms-menu {
@@ -1551,6 +1864,49 @@
 
         &:not(.pcui-disabled):hover {
             background-color: $danger-fill;
+        }
+    }
+
+    // phones: a bottom sheet over a scrim; pcui positions the items inline
+    @media (max-width: $cms-phone) {
+        &:not(.pcui-hidden) {
+            background-color: rgb(0 0 0 / 50%);
+        }
+
+        .pcui-menu-items {
+            position: fixed !important;
+            inset: auto 0 0 !important;
+            width: auto !important;
+            max-height: 80dvh;
+            padding: 10px 10px calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+            border-radius: 14px 14px 0 0;
+            overflow-y: auto;
+            transform: none !important;
+        }
+
+        .pcui-menu-item-content {
+            min-height: 44px;
+            font-size: 15px;
+        }
+    }
+}
+
+// phones: the storage and mcp popovers are bottom sheets too; both are positioned inline
+@media (max-width: $cms-phone) {
+    .pcui-container.cms-storage-popover,
+    .pcui-panel.mcp-popover.mcp-popover-account {
+        inset: auto 0 0 !important;
+        width: auto !important;
+        padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+        border-radius: 14px 14px 0 0;
+        box-shadow: 0 0 0 100vmax rgb(0 0 0 / 50%);
+    }
+
+    .pcui-container.cms-storage-popover {
+        font-size: 14px;
+
+        .pcui-button {
+            height: 44px;
         }
     }
 }
@@ -1722,6 +2078,8 @@
             height: 24px;
             padding: 0 8px;
         }
+
+        @include phone-field;
 
         &.pcui-disabled {
             opacity: 1;
@@ -1965,8 +2323,12 @@
         }
     }
 
-    .dev-log-title-input > input {
-        padding: 0 10px;
+    .dev-log-title-input {
+        @include phone-field;
+
+        > input {
+            padding: 0 10px;
+        }
     }
 
     .dev-log-text-input > textarea {
@@ -1974,6 +2336,8 @@
         width: 100%;
         padding: 8px 10px;
         line-height: 18px;
+
+        @include phone-textarea;
     }
 
     // the panel's flex rules would otherwise beat pcui's hidden state
