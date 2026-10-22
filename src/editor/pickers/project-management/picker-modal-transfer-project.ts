@@ -30,7 +30,7 @@ editor.once('load', () => {
     const { overlay, panel, footer } = dialog({
         title: 'Transfer ownership',
         class: 'picker-transfer-project',
-        wide: true
+        size: 'md'
     });
 
     const inputContainer = new Container({

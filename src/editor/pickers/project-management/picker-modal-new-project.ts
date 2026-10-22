@@ -1,18 +1,9 @@
-import {
-    BooleanInput,
-    Container,
-    Element,
-    Label,
-    Overlay,
-    Panel,
-    SelectInput,
-    TextAreaInput,
-    TextInput
-} from '@playcanvas/pcui';
+import { BooleanInput, Container, Element, Label, SelectInput, TextAreaInput, TextInput } from '@playcanvas/pcui';
 
 import { config } from '@/editor/config';
 
 import { button } from './components/button';
+import { dialog } from './components/dialog';
 import { spinner } from './components/spinner';
 
 const UPGRADE_BLOCK = 'Forking a private project needs a paid plan.';
@@ -287,45 +278,20 @@ editor.once('load', () => {
         loader.hidden = !loading;
     };
 
-    // overlay
-    const root = editor.call('layout.root');
-    const overlay = new Overlay({
-        clickable: false,
-        class: 'picker-project-new',
-        hidden: true
-    });
-    root.append(overlay);
-
-    // main panel
-    const panel = new Panel({
-        headerText: 'NEW PROJECT'
-    });
-    overlay.append(panel);
-
-    // close button
-    const btnClose = button({ kind: 'icon', size: 'sm', icon: 'E132', label: 'Close', class: 'close' });
-    btnClose.on('click', () => {
-        overlay.hidden = true;
-    });
-    panel.header.append(btnClose);
-
-    // container
-    const modalContainer = new Container({
-        class: 'modal-new-project-container'
-    });
-    panel.append(modalContainer);
+    // the shared dialog frame at its large size: kits on the left, the form and footer in a column on the right
+    const { overlay, panel, footer } = dialog({ title: 'NEW PROJECT', class: 'picker-project-new', size: 'lg' });
 
     // main view
     const mainView = new Container({
         class: 'modal-new-project-main-view'
     });
-    modalContainer.append(mainView);
+    panel.append(mainView);
 
     // sidebar
     const sidebar = new Container({
         class: 'modal-new-project-sidebar'
     });
-    modalContainer.append(sidebar);
+    panel.append(sidebar);
 
     // form content
     const formContent = new Container({
@@ -333,20 +299,17 @@ editor.once('load', () => {
     });
     sidebar.append(formContent);
 
-    // add create button
-    const createBtnContainer = new Container({
-        class: 'create-btn-container'
-    });
-    sidebar.append(createBtnContainer);
+    // the dialog's footer holds the buttons; it sits under the form on desktop and pins to the sheet on phones
+    footer.class.add('create-btn-container');
 
     const cancelBtn = button({ kind: 'secondary', text: 'Cancel' });
     cancelBtn.on('click', () => {
         overlay.hidden = true;
     });
-    createBtnContainer.append(cancelBtn);
+    footer.append(cancelBtn);
 
     const createBtn = button({ kind: 'primary', text: 'Create project' });
-    createBtnContainer.append(createBtn);
+    footer.append(createBtn);
 
     // attach listener to create button
     createBtn.on('click', () => {
@@ -467,14 +430,8 @@ editor.once('load', () => {
     // helper method to process a project according to required schema
     // EVENTS
 
-    // load and show data
-    // an editor-blocking picker while it's up, so hotkeys and the viewport leave it alone
-    overlay.on('show', () => {
-        editor.emit('picker:open', 'project-new');
-    });
-
+    // dialog() reports it open and closed, so hotkeys and the viewport leave it alone
     overlay.on('hide', () => {
-        editor.emit('picker:close', 'project-new');
         editor.call('picker:project:hideAlerts');
     });
 
@@ -484,6 +441,9 @@ editor.once('load', () => {
         panel.headerText = project ? 'FORK PROJECT' : 'NEW PROJECT';
         mainView.hidden = !!project;
         overlay.class[project ? 'add' : 'remove']('fork');
+        // the fork form has no kit grid, so it takes the small frame, sized to its content
+        overlay.class[project ? 'remove' : 'add']('size-lg');
+        overlay.class[project ? 'add' : 'remove']('size-sm');
         createBtn.text = createLabel();
         createBtn.dom.appendChild(loader.dom);
         editor.call('picker:project:hideAlerts');

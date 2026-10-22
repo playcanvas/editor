@@ -15,7 +15,7 @@ editor.once('load', () => {
     const { overlay, panel, footer } = dialog({
         title: 'Delete organization',
         class: 'picker-delete-organization',
-        wide: true
+        size: 'md'
     });
 
     // input
