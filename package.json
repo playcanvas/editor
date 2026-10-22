@@ -96,7 +96,7 @@
         "stylelint-config-standard-scss": "13.1.0",
         "ts-node": "10.9.2",
         "typescript": "5.9.3",
-        "vite": "7.3.5"
+        "vite": "7.3.7"
     },
     "engines": {
         "node": ">=22.22.0"
