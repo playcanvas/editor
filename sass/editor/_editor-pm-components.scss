@@ -114,6 +114,27 @@
             padding: 0 8px;
         }
     }
+
+    // phones: every button at one of the two control heights
+    @media (max-width: $cms-phone) {
+        height: $cms-touch;
+        font-size: 14px;
+
+        &.sm {
+            height: $cms-touch-sm;
+            font-size: 13px;
+        }
+
+        &.icon {
+            width: $cms-touch;
+            height: $cms-touch;
+
+            &.sm {
+                width: $cms-touch-sm;
+                height: $cms-touch-sm;
+            }
+        }
+    }
 }
 
 // on cards and rows the default hover fill is too close to the surface, so step up once more
@@ -142,8 +163,25 @@
         box-shadow: $cms-float-shadow;
     }
 
-    &.wide > .pcui-overlay-content {
+    &.size-md > .pcui-overlay-content {
         width: min(480px, calc(100vw - 32px));
+    }
+
+    // the project picker's frame, for pickers with a side column
+    &.size-lg > .pcui-overlay-content {
+        width: min(1060px, calc(100vw - 32px));
+        height: min(600px, calc(100vh - 32px));
+    }
+
+    @media (min-width: $cms-phone + 1) {
+        &.size-lg > .pcui-overlay-content > .pm-dialog-panel {
+            height: 100%;
+
+            > .pcui-panel-content {
+                height: calc(100% - 33px);
+                box-sizing: border-box;
+            }
+        }
     }
 
     .pm-dialog-panel {
@@ -175,6 +213,64 @@
         order: 1;
         gap: 8px;
         margin: 8px 0 0;
+    }
+
+    // phones: the same shell as a bottom sheet, a 48px header, a body that scrolls under it and a footer pinned
+    // to the bottom with stacked 44px buttons, the primary on top
+    &.size-sm,
+    &.size-md {
+        @include phone-sheet;
+    }
+
+    &.size-lg {
+        @include phone-sheet(true);
+    }
+
+    @media (max-width: $cms-phone) {
+        > .pcui-overlay-content > .pm-dialog-panel {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pm-dialog-panel {
+            // pcui writes the header height inline, so only !important can grow it
+            > .pcui-panel-header {
+                flex: none;
+                height: 48px !important;
+                padding-top: 4px;
+
+                > .pcui-button.close {
+                    width: $cms-touch;
+                    height: $cms-touch;
+                }
+            }
+
+            > .pcui-panel-content {
+                flex: 1 1 auto;
+                min-height: 0;
+                padding: 16px;
+                overflow-y: auto;
+                font-size: 14px;
+                line-height: 20px;
+            }
+        }
+
+        .pm-dialog-footer {
+            position: sticky;
+            bottom: -16px;
+            z-index: 1;
+            flex: none;
+            flex-direction: column-reverse;
+            align-items: stretch;
+            margin: 8px -16px -16px;
+            padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+            border-top: 1px solid $border-primary;
+            background-color: $bcg-primary;
+
+            > .pcui-button {
+                margin: 0;
+            }
+        }
     }
 }
 

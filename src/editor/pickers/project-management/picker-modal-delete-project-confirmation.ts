@@ -19,7 +19,7 @@ editor.once('load', () => {
         loader.hidden = !toggle;
     };
 
-    const { overlay, panel, footer } = dialog({ title: 'Delete project', class: 'picker-delete-project', wide: true });
+    const { overlay, panel, footer } = dialog({ title: 'Delete project', class: 'picker-delete-project', size: 'md' });
 
     const inputContainer = new Container({
         flex: true,

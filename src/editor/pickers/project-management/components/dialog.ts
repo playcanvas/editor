@@ -6,20 +6,21 @@ type DialogArgs = {
     title: string;
     /** Class on the overlay, for the dialog's own content styles. */
     class: string;
-    /** 480px instead of 440px. */
-    wide?: boolean;
+    /** Desktop width: 440px, 480px, or a 1060x600 frame for pickers with a side column. Phones get a bottom sheet, full height for lg. */
+    size?: 'sm' | 'md' | 'lg';
     /** Stacks above other dialogs (confirmations). */
     confirm?: boolean;
 };
 
 /**
  * The projects page dialog shell: a centred panel with a title, a labelled close button, Esc to close,
- * and a right-aligned footer that always sits below the content.
+ * and a right-aligned footer that always sits below the content. On phones the same shell is a bottom sheet
+ * with a scrolling body and a pinned footer, so every picker built with it works on both.
  */
-export const dialog = ({ title, class: cls, wide, confirm }: DialogArgs) => {
+export const dialog = ({ title, class: cls, size = 'sm', confirm }: DialogArgs) => {
     const overlay = new Overlay({
         clickable: false,
-        class: ['pm-dialog', cls, ...(wide ? ['wide'] : []), ...(confirm ? ['confirm'] : [])],
+        class: ['pm-dialog', `size-${size}`, cls, ...(confirm ? ['confirm'] : [])],
         hidden: true
     });
     editor.call('layout.root').append(overlay);

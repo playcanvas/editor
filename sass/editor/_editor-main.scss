@@ -2087,6 +2087,211 @@ strong {
             display: none;
         }
     }
+
+    // phones, over the projects page: the shared picker sheet at full height. the panel header becomes the sheet's
+    // header, the menu column a header of its own (the project, its two actions, the sections as tabs), then the panel
+    &.other-project {
+        @include phone-sheet(true);
+    }
+
+    @media (max-width: $cms-phone) {
+        &.other-project > .pcui-overlay-content .pcui-container.project {
+            flex-direction: column;
+            overflow: hidden auto;
+
+            .pcui-panel.right {
+                display: contents;
+
+                // pcui writes the header height inline, so only !important can grow it
+                > .pcui-panel-header {
+                    order: 0;
+                    flex: none;
+                    height: 48px !important;
+                    padding-top: 4px;
+
+                    .close {
+                        width: 44px;
+                        height: 44px;
+                    }
+                }
+
+                > .pcui-panel-content {
+                    order: 2;
+                    flex: 1 0 auto;
+                    height: auto;
+                    overflow: visible;
+                }
+            }
+
+            .pcui-container.left {
+                display: flex;
+                flex: none;
+                flex-flow: row wrap;
+                order: 1;
+                align-items: center;
+                gap: 12px 8px;
+                width: auto;
+                height: auto;
+                padding: 16px 16px 0;
+                border-right: none;
+                border-bottom: 1px solid $border-primary;
+
+                .project-summary {
+                    display: grid;
+                    grid-template-columns: 64px minmax(0, 1fr);
+                    gap: 6px 14px;
+                    align-items: center;
+                    width: 100%;
+                    padding: 0;
+                    border: none;
+                    background: none;
+                }
+
+                .image {
+                    grid-row: 1 / 3;
+                    width: 64px;
+                    border-radius: 8px;
+                }
+
+                // replacing the thumbnail stays a desktop task
+                .thumbnail-buttons {
+                    display: none;
+                }
+
+                .project-summary-text {
+                    align-self: end;
+
+                    > .project-name {
+                        font-size: 16px;
+                        line-height: 21px;
+                        white-space: normal;
+                        overflow-wrap: anywhere;
+                    }
+                }
+
+                .project-stats {
+                    align-self: start;
+                    justify-content: flex-start;
+                    gap: 14px;
+                    padding: 0;
+                    border: none;
+                    font-size: 12px;
+
+                    .size-stat {
+                        margin-left: 0;
+                    }
+                }
+
+                .cms-editor-button,
+                .cms-play-button {
+                    position: static;
+                    flex: 1;
+                    order: 2;
+                    width: auto;
+                }
+
+                ul {
+                    display: flex;
+                    flex-direction: row;
+                    order: 3;
+                    gap: 4px;
+                    width: calc(100% + 32px);
+                    margin: 4px -16px 0;
+                    padding: 0 16px;
+                    overflow-x: auto;
+                    scrollbar-width: none;
+
+                    li {
+                        flex: none;
+                        height: 44px;
+                        margin: 0;
+                        padding: 0 12px;
+                        border: none;
+                        border-bottom: 2px solid transparent;
+                        border-radius: 0;
+                        background: none;
+                        font-size: 14px;
+
+                        &.active {
+                            border-bottom-color: $text-active;
+                            background: none;
+                            color: $text-primary;
+                        }
+                    }
+                }
+            }
+
+            // a 2x2 grid of equal buttons: fork and export, then copy link and delete
+            .picker-project-main > .action-buttons:not(.pcui-hidden) {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 8px;
+                margin: auto -16px 0;
+                padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+
+                .pcui-button {
+                    width: 100%;
+                }
+
+                // drawn as a secondary button with a label, to match its neighbours
+                > .copy-link-button {
+                    order: 1;
+                    gap: 6px;
+                    border-color: $bcg-darkest;
+                    background-color: $cms-surface;
+                    color: $text-secondary;
+
+                    &::after {
+                        content: 'Copy Link';
+                    }
+
+                    &.copied::after {
+                        content: 'Copied';
+                    }
+                }
+
+                > #delete-project-button {
+                    order: 2;
+                    margin: 0;
+                }
+            }
+
+            // invite field and button fill one row, with the hint and member count beneath
+            .picker-team-management > .invite-container:not(.pcui-hidden) {
+                flex-direction: column;
+                gap: 8px;
+
+                > .invite-input-container {
+                    width: 100%;
+                }
+
+                .invite-input-group {
+                    > .invite-submit {
+                        height: $cms-touch;
+                        font-family: 'Proxima Nova Regular', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+                        font-weight: normal;
+                        font-size: 14px;
+                    }
+
+                    > .invite-input {
+                        @include phone-field;
+
+                        // pcui pins the placeholder to the right, away from where typing starts
+                        &::after {
+                            right: auto;
+                            left: 0;
+                            line-height: $cms-touch - 2px;
+                            font-size: $cms-field-text;
+                        }
+                    }
+                }
+
+                > .members-count {
+                    margin: 0;
+                }
+            }
+        }
+    }
 }
 
 
@@ -4813,6 +5018,8 @@ strong {
                     font-size: 14px;
                     line-height: 32px;
                 }
+
+                @include phone-field;
             }
 
             > .pcui-text-area-input > textarea {
@@ -4829,6 +5036,8 @@ strong {
                 line-height: 20px;
                 outline: none;
                 box-shadow: none;
+
+                @include phone-textarea;
             }
         }
 

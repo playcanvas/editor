@@ -554,6 +554,26 @@ editor.once('load', () => {
     // MAIN PANEL
 
     const main = box('cms-main', panel);
+
+    // phones: a top bar replaces the sidebar, which opens as a drawer
+    const topbar = box('cms-topbar', main);
+    const drawerButton = button({ kind: 'icon', label: 'Open menu', class: 'cms-topbar-menu' });
+    topbar.append(drawerButton);
+    drawerButton.on('click', () => panel.class.add('drawer-open'));
+    topbar.append(new Element({ class: 'cms-logo' }));
+    const topbarTitle = text('Projects', 'cms-topbar-title', topbar);
+    const topbarNew = button({ kind: 'primary', size: 'sm', icon: 'E120', text: 'New', class: 'cms-topbar-new' });
+    topbarNew.dom.setAttribute('aria-label', 'New project');
+    topbar.append(topbarNew);
+    topbarNew.on('click', () => editor.call('picker:project:newProject'));
+
+    // tapping the scrim or anything in the drawer closes it
+    panel.dom.addEventListener('click', (e) => {
+        const el = e.target as HTMLElement;
+        if (el === panel.dom || el.closest('.cms-side .pcui-button, .cms-side .cms-side-item')) {
+            panel.class.remove('drawer-open');
+        }
+    });
     const scroll = new Element({ class: 'cms-scroll' });
     main.append(scroll);
     const rightPanel = box('cms-col'); // also the root for alerts from other pickers
@@ -572,6 +592,11 @@ editor.once('load', () => {
     const headText = box('cms-head-text', head);
     const title = text('', 'cms-title', headText);
     const subtitle = text('', 'cms-subtitle', headText);
+
+    // the bar names the page, but not the greeting
+    title.on('change', (t: string) => {
+        topbarTitle.text = t && !t.startsWith('Good ') ? t : 'Projects';
+    });
     const orgMenuButton = button({ kind: 'icon', label: 'Organization actions', class: 'cms-kebab', hidden: true });
     head.append(orgMenuButton);
     const headerUtils = box('cms-head-actions', head);
@@ -992,8 +1017,9 @@ editor.once('load', () => {
             });
         }
 
-        // same actions menu as the cards
+        // same actions menu as the cards; phones show the one in the facts instead
         kebabFor(lead, actions);
+        kebabFor(lead, facts);
         welcome.dom.onclick = () => openProject(lead);
     };
 

@@ -3,47 +3,46 @@
 // new project, new organization and delete organization pickers: the project picker frame with projects-page controls
 // corners: 8px kit cards, 6px controls (inputs, buttons)
 
-.pcui-overlay.picker-project-new {
+// built with dialog({ size: 'lg' }), so the frame (1060x600 on desktop, a full-height sheet on phones) is the shared one;
+// this only lays out its body: kits on the left, the form over the footer in a 300px column on the right
+.pcui-overlay.pm-dialog.picker-project-new {
     z-index: 100000; // larger than drop-area's
 
-    // same frame as the project picker (.picker-project): centred 1060x600 box,
-    // 33px header with a centred title, $bcg-primary body
-    > .pcui-overlay-content {
-        width: min(1060px, calc(100vw - 32px));
-        height: min(600px, calc(100vh - 32px));
-        border: 1px solid $border-primary;
+    > .pcui-overlay-content > .pm-dialog-panel > .pcui-panel-content {
+        display: grid;
+        grid-template: minmax(0, 1fr) auto / minmax(0, 1fr) 300px;
+        gap: 0;
+        padding: 0;
+        overflow: hidden;
 
-        > .pcui-panel {
-            height: 100%;
+        // keep the form's own type, not the dialog shell's 13px/18px body text
+        font-size: inherit;
+        line-height: normal;
 
-            > .pcui-panel-header {
-                @extend %dialog-header;
-            }
+        > .modal-new-project-main-view {
+            grid-area: 1 / 1 / 3 / 2;
+        }
 
-            > .pcui-panel-content {
-                height: calc(100% - 33px);
-                padding: 0;
-                overflow: hidden;
-            }
+        > .modal-new-project-sidebar {
+            grid-area: 1 / 2;
+        }
+
+        > .pm-dialog-footer {
+            grid-area: 2 / 2;
+            order: 0;
+            margin: 0;
+            padding: 16px 20px 20px;
+            border-left: 1px solid $border-primary;
+            background-color: $bcg-dark;
         }
     }
 
-    .modal-new-project-container {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) 300px;
-        height: 100%;
-    }
-
-    // forking has no kit grid, so the form stands alone
-    // forking: the form alone, sized to its content
+    // forking: the form alone, sized to its content (on phones the shared sheet sizes it)
     &.fork {
-        > .pcui-overlay-content {
-            width: min(380px, calc(100vw - 32px));
-            height: auto;
-            max-height: calc(100vh - 32px);
-
-            > .pcui-panel > .pcui-panel-content {
-                height: auto;
+        @media (min-width: $cms-phone + 1) {
+            > .pcui-overlay-content {
+                width: min(380px, calc(100vw - 32px));
+                max-height: calc(100vh - 32px);
             }
         }
 
@@ -165,8 +164,17 @@
             }
         }
 
-        .modal-new-project-container {
+        > .pcui-overlay-content > .pm-dialog-panel > .pcui-panel-content {
             grid-template-columns: minmax(0, 1fr);
+
+            > .modal-new-project-sidebar,
+            > .pm-dialog-footer {
+                grid-column: 1;
+            }
+
+            > .pm-dialog-footer {
+                border-left: none;
+            }
         }
 
         .modal-new-project-main-view {
@@ -410,12 +418,16 @@
             > input {
                 height: 30px;
             }
+
+            @include phone-field;
         }
 
         .pcui-text-area-input.form-control > textarea {
             padding: 8px 10px;
             line-height: 18px;
             resize: none;
+
+            @include phone-textarea;
         }
 
         .pcui-boolean-input {
@@ -540,17 +552,63 @@
         }
     }
 
-    .create-btn-container {
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-end;
-        gap: 8px;
-        padding: 16px 20px 20px;
-    }
-
     // alerts from picker:project:buildAlert sit over the kit grid
     .modal-new-project-main-view > .alert {
         border-radius: 6px;
+    }
+
+    // phones: one scrolling column on one background, kits in two columns, the footer pinned to the sheet
+    @media (max-width: $cms-phone) {
+        > .pcui-overlay-content > .pm-dialog-panel > .pcui-panel-content {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+
+            > .modal-new-project-main-view,
+            > .modal-new-project-sidebar {
+                flex: none;
+                overflow: visible;
+                border: none;
+                background: none;
+            }
+
+            // dialog() adds the footer before the body, so it goes back to the end
+            > .pm-dialog-footer {
+                order: 1;
+                bottom: 0;
+                padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+                border-left: none;
+                background-color: $bcg-primary;
+            }
+        }
+
+        .modal-new-project-main-view {
+            padding: 16px;
+        }
+
+        .modal-new-project-kits-container {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .modal-new-project-form-content {
+            flex: none;
+            padding: 0 16px 16px;
+            overflow: visible;
+
+            .owner-dropdown {
+                .pcui-select-input-value {
+                    height: $cms-touch;
+                    font-size: $cms-field-text;
+                    line-height: $cms-touch - 2px;
+                }
+
+                .pcui-select-input-icon {
+                    height: $cms-touch;
+                    line-height: $cms-touch;
+                }
+            }
+        }
     }
 }
 
@@ -573,6 +631,8 @@
         > input {
             height: 30px;
         }
+
+        @include phone-field;
     }
 
     .form-group--hint {
@@ -689,6 +749,21 @@
 
         > .form-group--prefix + .form-group--input > input {
             padding-left: 0;
+        }
+
+        @media (max-width: $cms-phone) {
+            height: $cms-touch;
+
+            > .form-group--prefix {
+                font-size: $cms-field-text;
+            }
+
+            > .form-group--input,
+            > .form-group--input > input {
+                height: $cms-touch - 2px;
+                font-size: $cms-field-text;
+                line-height: $cms-touch - 2px;
+            }
         }
     }
 }
