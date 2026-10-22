@@ -1,7 +1,7 @@
-import { RelayServer } from './relay-server';
+import { backend } from '@/common/backend';
 
 editor.on('start', () => {
-    const relay = new RelayServer();
+    const relay = backend().relay;
 
     if (editor.call('permissions:read')) {
         relay.connect(config.url.relay.ws);

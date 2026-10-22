@@ -1,5 +1,7 @@
 import { Button } from '@playcanvas/pcui';
 
+import { backend, UNSUPPORTED_TIP } from '@/common/backend';
+import { TooltipHandle } from '@/common/tooltips';
 import { config } from '@/editor/config';
 
 import { openProjects } from './project-management/tabs';
@@ -8,9 +10,13 @@ import { openProjects } from './project-management/tabs';
 editor.once('load', () => {
     const leftPanel = editor.call('picker:project:leftPanel');
 
-    // the projects page has its own tab, so this one keeps the open project
-    const seeAll = new Button({ class: 'project-cms-button', text: 'See all projects' });
+    // the projects page has its own tab, so this one keeps the open project. it needs the backend's project list
+    const listed = !!backend().projectList;
+    const seeAll = new Button({ class: 'project-cms-button', text: 'See all projects', enabled: listed });
     leftPanel.append(seeAll);
+    if (!listed) {
+        TooltipHandle.attach({ target: seeAll.dom, ...UNSUPPORTED_TIP, align: 'bottom' });
+    }
     seeAll.on('click', () => openProjects());
 
     // with no scene loaded there's nothing behind settings to go back to

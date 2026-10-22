@@ -1,5 +1,7 @@
 import type { Observer } from '@playcanvas/observer';
 
+import { supports, service } from '@/common/supports';
+
 editor.once('load', () => {
     // method if the Engine Asset is included in the project
     editor.method('project:engineAsset:getEngineAsset', (assetName: string) => {
@@ -13,12 +15,17 @@ editor.once('load', () => {
 
     // add Engine Asset to the project
     editor.method('project:engineAsset:addEngineAsset', (storeName: string, assetName: string) => {
+        // modules and engine assets are imported from the store
+        if (!supports('storeCatalog') || !supports('storeImport')) {
+            return;
+        }
+
         function addAssetToProject() {
-            editor.api.globals.rest.store
+            service('storeCatalog')
                 .storeList({ search: storeName })
                 .on('load', (_status: number, data: { result: { id: string }[] }) => {
                     if (data.result && data.result.length === 1) {
-                        editor.api.globals.rest.store
+                        service('storeImport')
                             .storeClone(data.result[0].id, {
                                 scope: {
                                     type: 'project',

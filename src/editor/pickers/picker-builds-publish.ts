@@ -1,6 +1,9 @@
 import { Container, Label, Menu, MenuItem, Button } from '@playcanvas/pcui';
 
+import { backend, UNSUPPORTED_TIP } from '@/common/backend';
 import { installEllipsisTooltips } from '@/common/ellipsis-tooltip';
+import { supports, service } from '@/common/supports';
+import { TooltipHandle } from '@/common/tooltips';
 import { bytesToHuman, convertDatetime, countToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -304,7 +307,7 @@ editor.once('load', () => {
         loadingMore = true;
         skip += APP_LIMIT;
         const gen = loadGen;
-        editor.api.globals.rest.projects
+        service('builds')
             .projectBuilds(APP_LIMIT, skip, getServerFilters())
             .on('load', (status, data) => {
                 loadingMore = false;
@@ -375,6 +378,9 @@ editor.once('load', () => {
         return !!app.build_job_id || (app.type === 'publish' && Number(app.app_id) > 0);
     };
 
+    // the service that deletes it: builds by job id, publish apps by app id
+    const deletion = (app: any) => (app.build_job_id ? backend().buildDeletion : backend().publishing);
+
     const setPrimaryBuild = function (app: any) {
         if (!editor.call('permissions:write') || !canSetPrimaryBuild(app)) {
             return;
@@ -392,7 +398,8 @@ editor.once('load', () => {
                 text: 'Set Primary Build',
                 class: 'primary',
                 onIsVisible: () => menuApp?.type === 'publish',
-                onIsEnabled: () => editor.call('permissions:write') && canSetPrimaryBuild(menuApp),
+                onIsEnabled: () =>
+                    editor.call('permissions:write') && canSetPrimaryBuild(menuApp) && !!backend().publishing,
                 onSelect: () => menuApp && setPrimaryBuild(menuApp)
             },
             {
@@ -402,7 +409,7 @@ editor.once('load', () => {
             {
                 text: 'Delete',
                 class: 'delete',
-                onIsEnabled: () => editor.call('permissions:write') && canDeleteBuild(menuApp),
+                onIsEnabled: () => editor.call('permissions:write') && canDeleteBuild(menuApp) && !!deletion(menuApp),
                 onSelect: () => {
                     deleteBuild(menuApp);
                 }
@@ -467,21 +474,23 @@ editor.once('load', () => {
 
         const fetched = [];
         const fetchPage = function (skip: number) {
-            editor.api.globals.rest.projects.projectApps(APP_INDEX_PAGE, skip).on('load', (status, data) => {
-                const page = data?.result || [];
-                fetched.push(...page);
-                if (page.length === APP_INDEX_PAGE) {
-                    fetchPage(skip + APP_INDEX_PAGE);
-                    return;
-                }
-                appList = fetched.slice();
-                appIndex = {};
-                appList.forEach((app) => {
-                    appIndex[String(app.id)] = app;
+            service('builds')
+                .projectApps(APP_INDEX_PAGE, skip)
+                .on('load', (status, data) => {
+                    const page = data?.result || [];
+                    fetched.push(...page);
+                    if (page.length === APP_INDEX_PAGE) {
+                        fetchPage(skip + APP_INDEX_PAGE);
+                        return;
+                    }
+                    appList = fetched.slice();
+                    appIndex = {};
+                    appList.forEach((app) => {
+                        appIndex[String(app.id)] = app;
+                    });
+                    loadedAppIndex = true;
+                    done();
                 });
-                loadedAppIndex = true;
-                done();
-            });
         };
         fetchPage(0);
     };
@@ -1225,9 +1234,9 @@ editor.once('load', () => {
         editor.call('picker:confirm', 'Are you sure you want to delete this build?');
         editor.once('picker:confirm:yes', () => {
             if (app.build_job_id) {
-                editor.api.globals.rest.projects.projectBuildDelete(app.build_job_id);
+                service('buildDeletion').projectBuildDelete(app.build_job_id);
             } else {
-                editor.api.globals.rest.apps.appDelete(Number(app.app_id));
+                service('publishing').appDelete(Number(app.app_id));
             }
             removeApp(app);
         });
@@ -1339,9 +1348,18 @@ editor.once('load', () => {
         if (canPrimary) {
             const primary = new Button({ text: 'Set primary', class: 'set-primary' });
             const update = () => {
-                primary.enabled = editor.call('permissions:write') && canSetPrimaryBuild(app);
+                primary.enabled = editor.call('permissions:write') && canSetPrimaryBuild(app) && !!backend().publishing;
             };
             update();
+            if (!backend().publishing) {
+                const tip = TooltipHandle.attach({
+                    target: primary.dom,
+                    ...UNSUPPORTED_TIP,
+                    align: 'bottom',
+                    root: editor.call('layout.root')
+                });
+                detailEvents.push({ unbind: () => tip.destroy() });
+            }
             detailEvents.push(editor.on(`permissions:set:${config.self.id}`, update));
             detailEvents.push(primary.on('click', () => setPrimaryBuild(app)));
             actions.appendChild(primary.dom);
@@ -1349,7 +1367,18 @@ editor.once('load', () => {
 
         if (canDelete) {
             const del = new Button({ text: 'Delete', class: 'delete' });
-            detailEvents.push(handlePermissions(del));
+            if (deletion(app)) {
+                detailEvents.push(handlePermissions(del));
+            } else {
+                del.enabled = false;
+                const tip = TooltipHandle.attach({
+                    target: del.dom,
+                    ...UNSUPPORTED_TIP,
+                    align: 'bottom',
+                    root: editor.call('layout.root')
+                });
+                detailEvents.push({ unbind: () => tip.destroy() });
+            }
             detailEvents.push(del.on('click', () => deleteBuild(app)));
             actions.appendChild(del.dom);
         }
@@ -1540,24 +1569,26 @@ editor.once('load', () => {
         }
 
         loadAppIndex(() => {
-            editor.api.globals.rest.projects.projectBuilds(limit, 0, getServerFilters()).on('load', (status, data) => {
-                if (gen !== loadGen) {
-                    return;
-                }
-                const rows = data.result.map(normalizeBuildJob);
-                const ids = getPublishAppIds(rows);
-                const legacy = appList.filter((app) => !ids.has(String(app.id))).map(normalizeLegacyApp);
-                apps = rows.concat(legacy).sort(compareBuildDate);
-                hasMore = data.pagination ? rows.length < data.pagination.total : data.result.length === limit;
-                skip = Math.max(0, rows.length - APP_LIMIT);
+            service('builds')
+                .projectBuilds(limit, 0, getServerFilters())
+                .on('load', (status, data) => {
+                    if (gen !== loadGen) {
+                        return;
+                    }
+                    const rows = data.result.map(normalizeBuildJob);
+                    const ids = getPublishAppIds(rows);
+                    const legacy = appList.filter((app) => !ids.has(String(app.id))).map(normalizeLegacyApp);
+                    apps = rows.concat(legacy).sort(compareBuildDate);
+                    hasMore = data.pagination ? rows.length < data.pagination.total : data.result.length === limit;
+                    skip = Math.max(0, rows.length - APP_LIMIT);
 
-                if (showProgress) {
-                    toggleProgress(false);
-                }
+                    if (showProgress) {
+                        toggleProgress(false);
+                    }
 
-                refreshApps(previous);
-                fillViewport();
-            });
+                    refreshApps(previous);
+                    fillViewport();
+                });
         });
     };
 
@@ -1750,13 +1781,15 @@ editor.once('load', () => {
             return;
         }
         primaryFallbackId = id;
-        editor.api.globals.rest.apps.appGet(id).on('load', (status, data) => {
-            if (config.project.primaryApp !== id || !data) {
-                return;
-            }
-            primaryFallback = normalizeLegacyApp(data);
-            renderPrimaryBuild();
-        });
+        service('builds')
+            .appGet(id)
+            .on('load', (status, data) => {
+                if (config.project.primaryApp !== id || !data) {
+                    return;
+                }
+                primaryFallback = normalizeLegacyApp(data);
+                renderPrimaryBuild();
+            });
     };
 
     const renderPrimaryBuild = function () {
@@ -1940,6 +1973,9 @@ editor.once('load', () => {
 
     // open publishing popup
     editor.method('picker:builds-publish', (options: { reload?: boolean } = {}) => {
+        if (!supports('builds')) {
+            return;
+        }
         reloadOnNextShow = !!options.reload;
         detailApp = null;
         if (!detailPanel.hidden) {

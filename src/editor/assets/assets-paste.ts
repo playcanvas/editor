@@ -1,3 +1,4 @@
+import { backend, UNSUPPORTED } from '@/common/backend';
 import { getUniqueName } from '@/editor-api/assets/unique-name';
 
 const TEXT_TYPES = new Set(['css', 'html', 'json', 'text', 'shader']);
@@ -220,6 +221,12 @@ editor.once('load', () => {
                     resolve(null);
                     return;
                 }
+                // client-side types paste on any backend; the rest need the backend's paste
+                const service = backend().assetPaste;
+                if (!service) {
+                    reject(UNSUPPORTED);
+                    return;
+                }
                 const data: any = {
                     projectId: value.projectId,
                     branchId: value.branchId,
@@ -231,7 +238,7 @@ editor.once('load', () => {
                 if (parentFolder) {
                     data.targetFolderId = parentFolder.get('id');
                 }
-                editor.api.globals.rest.assets
+                service
                     .assetPaste(data)
                     .on('load', (status: number, response: any) => {
                         if (status === 201 && Array.isArray(response.result)) {

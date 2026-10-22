@@ -1,8 +1,11 @@
 import * as observer from '@playcanvas/observer';
 
+import { RelayServer } from '@/editor/relay/relay-server';
 import * as api from '@/editor-api';
 
+import { initBackend } from './backend';
 import { Caller } from './caller';
+import { Messenger } from './messenger';
 
 type EditorMethods = {
     load: () => void;
@@ -148,6 +151,17 @@ class Editor<T extends EditorMethods> extends Caller<T> {
         api.globals.apiUrl = config.url.api;
         api.globals.homeUrl = config.url.home;
         api.globals.rest = new api.Rest();
+
+        // the page's backend services are built on the configured REST client
+        initBackend(
+            api.globals.rest,
+            {
+                realtime: () => new api.Realtime(),
+                messenger: (transport) => new Messenger(transport),
+                relay: (transport) => new RelayServer(transport)
+            },
+            config.unsupported
+        );
     }
 }
 

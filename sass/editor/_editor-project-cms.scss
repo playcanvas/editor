@@ -1930,6 +1930,11 @@
     display: none;
 }
 
+// a tooltip for the popover's controls, above it
+.pcui-tooltip.cms-popover-tooltip {
+    z-index: $z-menu + 1;
+}
+
 .pcui-container.cms-storage-popover {
     position: fixed;
     z-index: $z-menu;

@@ -1,3 +1,4 @@
+import { backend, UNSUPPORTED } from '@/common/backend';
 import { createLog } from '@/common/sentry';
 
 const log = createLog('<PATH>');
@@ -9,7 +10,13 @@ editor.once('load', () => {
             return;
         }
 
-        editor.api.globals.rest.assets
+        const service = backend().assetDuplication;
+        if (!service) {
+            callback?.(UNSUPPORTED);
+            return;
+        }
+
+        service
             .assetDuplicate(asset.get('id'), {
                 type: 'textureatlas',
                 branchId: config.self.branch.id

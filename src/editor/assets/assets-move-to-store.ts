@@ -1,6 +1,8 @@
+import { supports, service } from '@/common/supports';
+
 editor.once('load', () => {
     editor.method('assets:move-to-store', (asset) => {
-        if (!asset) {
+        if (!asset || !supports('storePublishing')) {
             return;
         }
 
@@ -37,7 +39,7 @@ editor.once('load', () => {
                 if (text.length === 0) {
                     return false;
                 }
-                editor.api.globals.rest.store.storeMove(text, {
+                service('storePublishing').storeMove(text, {
                     branchId: config.self.branch.id,
                     assetIds: assetIds
                 });

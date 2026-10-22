@@ -1,5 +1,6 @@
 import { Button, Menu } from '@playcanvas/pcui';
 
+import { backend } from '@/common/backend';
 import { TooltipHandle } from '@/common/tooltips';
 import { formatShortcut } from '@/common/utils';
 import { config } from '@/editor/config';
@@ -106,7 +107,8 @@ editor.once('load', () => {
                 // the project's page on the website: team, dev log and settings
                 text: 'Project Dashboard',
                 icon: 'E139',
-                onSelect: () => window.open(`/project/${config.project.id}`, '_blank')
+                onIsEnabled: () => !!backend().pages,
+                onSelect: () => window.open(backend().pages.project(config.project.id), '_blank')
             },
             {
                 // Scene management (like "File" menu)

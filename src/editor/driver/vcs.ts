@@ -1,16 +1,24 @@
+import { backend, UNSUPPORTED } from '@/common/backend';
 import { MERGE_STATUS_AUTO_ENDED, MERGE_STATUS_READY_FOR_REVIEW } from '@/core/constants';
 import { config } from '@/editor/config';
 import { checkpointCreate, diffCreate } from '@/editor/messenger/jobs';
 
 import { driver } from './driver';
 
-const api = editor.api.globals;
-
 // how long to wait for an async merge step to progress before giving up
 const MERGE_WAIT_MS = 60_000;
 
 // current branch id, used as the default target for branch-scoped ops
 const currentBranchId = () => config.self.branch.id;
+
+// a version control service, failing the call like any other error when the backend lacks it
+const svc = <K extends 'branchList' | 'branches' | 'checkpointHistory' | 'checkpoints' | 'merges'>(name: K) => {
+    const service = backend()[name];
+    if (!service) {
+        throw new Error(UNSUPPORTED);
+    }
+    return service;
+};
 
 // merge is async: mergeCreate/mergeApply return before the worker finishes, and progress
 // arrives as messenger:merge.setProgress events for the current (destination) branch.
@@ -59,7 +67,7 @@ driver.method('vcs:status', () => {
 
 driver.method('vcs:branch:list', async (opts: any = {}) => {
     try {
-        const res: any = await api.rest.projects
+        const res: any = await svc('branchList')
             .projectBranches({
                 limit: opts.limit,
                 skip: opts.cursor,
@@ -75,7 +83,7 @@ driver.method('vcs:branch:list', async (opts: any = {}) => {
 
 driver.method('vcs:branch:create', async (opts: any = {}) => {
     try {
-        const branch = await api.rest.branches
+        const branch = await svc('branches')
             .branchCreate({
                 name: opts.name,
                 projectId: config.project.id,
@@ -92,7 +100,7 @@ driver.method('vcs:branch:create', async (opts: any = {}) => {
 
 driver.method('vcs:branch:checkout', async (branchId: string) => {
     try {
-        await api.rest.branches.branchCheckout({ branchId }).promisify();
+        await svc('branches').branchCheckout({ branchId }).promisify();
         // the version-control messenger switches branch and reloads the page
         return { data: { status: 'switching', branchId } };
     } catch (e: any) {
@@ -102,7 +110,7 @@ driver.method('vcs:branch:checkout', async (branchId: string) => {
 
 driver.method('vcs:checkpoint:list', async (opts: any = {}) => {
     try {
-        const res: any = await api.rest.branches
+        const res: any = await svc('checkpointHistory')
             .branchCheckpoints({
                 branchId: opts.branchId ?? currentBranchId(),
                 limit: opts.limit,
@@ -130,7 +138,7 @@ driver.method('vcs:checkpoint:create', async (opts: any = {}) => {
 
 driver.method('vcs:checkpoint:restore', async (opts: any = {}) => {
     try {
-        await api.rest.checkpoints
+        await svc('checkpoints')
             .checkpointRestore({
                 checkpointId: opts.checkpointId,
                 branchId: opts.branchId ?? currentBranchId()
@@ -145,7 +153,7 @@ driver.method('vcs:checkpoint:restore', async (opts: any = {}) => {
 
 driver.method('vcs:checkpoint:hardreset', async (opts: any = {}) => {
     try {
-        await api.rest.checkpoints
+        await svc('checkpoints')
             .checkpointHardReset({
                 checkpointId: opts.checkpointId,
                 branchId: opts.branchId ?? currentBranchId()
@@ -160,7 +168,9 @@ driver.method('vcs:checkpoint:hardreset', async (opts: any = {}) => {
 
 driver.method('vcs:checkpoint:get', async (opts: any = {}) => {
     try {
-        const checkpoint = await api.rest.checkpoints.checkpointGet({ checkpointId: opts.checkpointId }).promisify();
+        const checkpoint = await svc('checkpointHistory')
+            .checkpointGet({ checkpointId: opts.checkpointId })
+            .promisify();
         return { data: checkpoint };
     } catch (e: any) {
         return { error: e.message };
@@ -169,7 +179,7 @@ driver.method('vcs:checkpoint:get', async (opts: any = {}) => {
 
 driver.method('vcs:branch:close', async (opts: any = {}) => {
     try {
-        const branch = await api.rest.branches.branchClose({ branchId: opts.branchId }).promisify();
+        const branch = await svc('branches').branchClose({ branchId: opts.branchId }).promisify();
         return { data: branch };
     } catch (e: any) {
         return { error: e.message };
@@ -178,7 +188,7 @@ driver.method('vcs:branch:close', async (opts: any = {}) => {
 
 driver.method('vcs:branch:open', async (opts: any = {}) => {
     try {
-        const branch = await api.rest.branches.branchOpen({ branchId: opts.branchId }).promisify();
+        const branch = await svc('branches').branchOpen({ branchId: opts.branchId }).promisify();
         return { data: branch };
     } catch (e: any) {
         return { error: e.message };
@@ -187,7 +197,7 @@ driver.method('vcs:branch:open', async (opts: any = {}) => {
 
 driver.method('vcs:branch:delete', async (opts: any = {}) => {
     try {
-        const branch = await api.rest.branches.branchDelete({ branchId: opts.branchId }).promisify();
+        const branch = await svc('branches').branchDelete({ branchId: opts.branchId }).promisify();
         return { data: branch };
     } catch (e: any) {
         return { error: e.message };
@@ -198,7 +208,7 @@ driver.method('vcs:merge:create', async (opts: any = {}) => {
     try {
         // subscribe before firing so we can't miss the auto-merge-done event
         const settled = waitForMergeStatus([MERGE_STATUS_AUTO_ENDED, MERGE_STATUS_READY_FOR_REVIEW]);
-        const created: any = await api.rest.merge
+        const created: any = await svc('merges')
             .mergeCreate({
                 srcBranchId: opts.sourceBranchId,
                 dstBranchId: currentBranchId(),
@@ -207,7 +217,7 @@ driver.method('vcs:merge:create', async (opts: any = {}) => {
             .promisify();
         await settled;
         // re-fetch so conflicts are populated (mergeCreate returns before the worker finishes)
-        const merge = await api.rest.merge.mergeGet({ mergeId: created.id }).promisify();
+        const merge = await svc('merges').mergeGet({ mergeId: created.id }).promisify();
         return { data: merge };
     } catch (e: any) {
         return { error: e.message };
@@ -216,7 +226,7 @@ driver.method('vcs:merge:create', async (opts: any = {}) => {
 
 driver.method('vcs:merge:get', async (opts: any = {}) => {
     try {
-        const merge = await api.rest.merge.mergeGet({ mergeId: opts.mergeId }).promisify();
+        const merge = await svc('merges').mergeGet({ mergeId: opts.mergeId }).promisify();
         return { data: merge };
     } catch (e: any) {
         return { error: e.message };
@@ -228,14 +238,14 @@ driver.method('vcs:merge:apply', async (opts: any = {}) => {
         if (opts.finalize) {
             // finalize commits the merge checkpoint onto the current branch; the messenger
             // reloads the page on merge_apply_ended, so return now and let the server wait
-            await api.rest.merge.mergeApply({ mergeId: opts.mergeId, finalize: true }).promisify();
+            await svc('merges').mergeApply({ mergeId: opts.mergeId, finalize: true }).promisify();
             return { data: { status: 'applying', mergeId: opts.mergeId } };
         }
         // review pass: prepare the merge, wait until it is ready for review (no reload)
         const settled = waitForMergeStatus([MERGE_STATUS_READY_FOR_REVIEW]);
-        await api.rest.merge.mergeApply({ mergeId: opts.mergeId, finalize: false }).promisify();
+        await svc('merges').mergeApply({ mergeId: opts.mergeId, finalize: false }).promisify();
         await settled;
-        const merge = await api.rest.merge.mergeGet({ mergeId: opts.mergeId }).promisify();
+        const merge = await svc('merges').mergeGet({ mergeId: opts.mergeId }).promisify();
         return { data: merge };
     } catch (e: any) {
         return { error: e.message };
@@ -244,7 +254,7 @@ driver.method('vcs:merge:apply', async (opts: any = {}) => {
 
 driver.method('vcs:merge:delete', async (opts: any = {}) => {
     try {
-        const merge = await api.rest.merge.mergeDelete({ mergeId: opts.mergeId }).promisify();
+        const merge = await svc('merges').mergeDelete({ mergeId: opts.mergeId }).promisify();
         return { data: merge };
     } catch (e: any) {
         return { error: e.message };
@@ -259,7 +269,7 @@ driver.method('vcs:conflict:resolve', async (opts: any = {}) => {
                 : opts.resolution === 'dest'
                   ? { useDst: true }
                   : { revert: true };
-        const res: any = await api.rest.conflicts
+        const res: any = await svc('merges')
             .conflictsResolve({
                 mergeId: opts.mergeId,
                 conflictIds: opts.conflictIds,
@@ -274,7 +284,7 @@ driver.method('vcs:conflict:resolve', async (opts: any = {}) => {
 
 driver.method('vcs:conflict:getfile', async (opts: any = {}) => {
     try {
-        const content = await api.rest.merge
+        const content = await svc('merges')
             .mergeConflicts({
                 mergeId: opts.mergeId,
                 conflictId: opts.conflictId,

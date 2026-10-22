@@ -1,3 +1,4 @@
+import { supports, service } from '@/common/supports';
 import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -59,7 +60,7 @@ editor.once('load', () => {
         const id = diffId(current);
         if (typeof id === 'string' && !isRetainedDiff(id)) {
             editor.emit('picker:diffManager:closed', id);
-            handleCallback(editor.api.globals.rest.merge.mergeDelete({ mergeId: id }), () => {
+            handleCallback(service('merges').mergeDelete({ mergeId: id }), () => {
                 // intentionally empty
             });
         }
@@ -90,6 +91,9 @@ editor.once('load', () => {
     };
 
     editor.method('picker:versioncontrol:diffPicker', (input: any) => {
+        if (!supports('diffs')) {
+            return;
+        }
         const token = ++loadToken;
         current = null;
         view.overlay.hidden = false;

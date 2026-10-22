@@ -1,3 +1,5 @@
+import { backend, UNSUPPORTED } from '@/common/backend';
+import { service } from '@/common/supports';
 import { config } from '@/editor/config';
 
 import { driver } from './driver';
@@ -7,7 +9,7 @@ type License =
     string | { author: string; authorUrl: string; license: string } | { id: string; author: string; authorUrl: string };
 
 const clone = (store: string, id: string, name: string, license: License, folder?: number) =>
-    api.rest.store
+    service('storeImport')
         .storeClone(id, {
             scope: {
                 type: 'project',
@@ -22,12 +24,20 @@ const clone = (store: string, id: string, name: string, license: License, folder
 
 // store - playcanvas
 driver.method('store:playcanvas:list', async (options: any = {}) => {
-    const data = await api.rest.store.storeList({ ...options, regex: true, excludeTags: 'INTERNAL' }).promisify();
+    const { storeCatalog } = backend();
+    if (!storeCatalog) {
+        return { error: UNSUPPORTED };
+    }
+    const data = await storeCatalog.storeList({ ...options, regex: true, excludeTags: 'INTERNAL' }).promisify();
     log(`Searched store: ${JSON.stringify(options)}`);
     return { data };
 });
 driver.method('store:playcanvas:get', async (id) => {
-    const data = await api.rest.store.storeGet(Number(id)).promisify();
+    const { storeCatalog } = backend();
+    if (!storeCatalog) {
+        return { error: UNSUPPORTED };
+    }
+    const data = await storeCatalog.storeGet(Number(id)).promisify();
     log(`Got store item(${id})`);
     return { data };
 });
@@ -36,6 +46,9 @@ driver.method('store:playcanvas:clone', async (id, name, license, folder) => {
     if (denied) {
         return denied;
     }
+    if (!backend().storeImport) {
+        return { error: UNSUPPORTED };
+    }
     const data = await clone('playcanvas', id, name, license, folder);
     log(`Cloned store item(${id})`);
     return { data };
@@ -43,6 +56,9 @@ driver.method('store:playcanvas:clone', async (id, name, license, folder) => {
 
 // store - sketchfab
 driver.method('store:sketchfab:list', async (options: any = {}) => {
+    if (!backend().sketchfabCatalog) {
+        return { error: UNSUPPORTED };
+    }
     const params = new URLSearchParams({ restricted: '0', type: 'models', downloadable: 'true' });
     if (options.search) {
         params.set('q', options.search);
@@ -66,6 +82,9 @@ driver.method('store:sketchfab:list', async (options: any = {}) => {
     return { data };
 });
 driver.method('store:sketchfab:get', async (uid) => {
+    if (!backend().sketchfabCatalog) {
+        return { error: UNSUPPORTED };
+    }
     const res = await fetch(`https://api.sketchfab.com/v3/models/${encodeURIComponent(uid)}`);
     if (!res.ok) {
         throw new Error(`Sketchfab model request failed: ${res.status} ${res.statusText}.`);
@@ -79,13 +98,20 @@ driver.method('store:sketchfab:clone', async (uid, name, license, folder) => {
     if (denied) {
         return denied;
     }
+    if (!backend().storeImport) {
+        return { error: UNSUPPORTED };
+    }
     const data = await clone('sketchfab', uid, name, license, folder);
     log(`Cloned sketchfab item(${uid})`);
     return { data };
 });
 
 driver.method('store:myassets:list', async (options: any = {}) => {
-    const data = await api.rest.assets
+    const { userAssets } = backend();
+    if (!userAssets) {
+        return { error: UNSUPPORTED };
+    }
+    const data = await userAssets
         .assetsList({
             search: options.search,
             regex: !!options.search,
@@ -104,7 +130,11 @@ driver.method('store:myassets:clone', async (id, _name, folder) => {
     if (denied) {
         return denied;
     }
-    const data = await api.rest.assets
+    const { storeImport } = backend();
+    if (!storeImport) {
+        return { error: UNSUPPORTED };
+    }
+    const data = await storeImport
         .assetClone(String(id), {
             scope: {
                 type: 'project',

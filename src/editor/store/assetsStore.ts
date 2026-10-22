@@ -1,6 +1,7 @@
 import type { Container } from '@playcanvas/pcui';
 import filenamify from 'filenamify/browser';
 
+import { service } from '@/common/supports';
 import { bytesToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -95,7 +96,7 @@ class AssetsStore extends BaseStore {
     }
 
     async _loadAssets(id: string) {
-        const results = await editor.api.globals.rest.store.storeAssets(id).promisify();
+        const results = await service('storeCatalog').storeAssets(id).promisify();
         return results.result;
     }
 
@@ -215,7 +216,7 @@ class AssetsStore extends BaseStore {
         }
 
         const load = async (item: { id: string }) => {
-            return this._prepareItem(await editor.api.globals.rest.store.storeGet(item.id).promisify());
+            return this._prepareItem(await service('storeCatalog').storeGet(item.id).promisify());
         };
 
         for (const item of items) {

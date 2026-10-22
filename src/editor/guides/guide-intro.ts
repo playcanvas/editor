@@ -1,5 +1,6 @@
 import type { Observer } from '@playcanvas/observer';
 
+import { backend } from '@/common/backend';
 import { config } from '@/editor/config';
 
 editor.once('load', () => {
@@ -369,7 +370,7 @@ editor.once('load', () => {
 
         editor.once('help:demo:close', () => {
             // set user's openedEditor flag to true
-            editor.api.globals.rest.home.homeSceneOpened(config.scene.id);
+            backend().onboarding?.homeSceneOpened(config.scene.id);
 
             // show some demo specific bubbles first
             setTimeout(() => {

@@ -1,6 +1,7 @@
 import type { Observer } from '@playcanvas/observer';
 import { Menu, MenuItem } from '@playcanvas/pcui';
 
+import { backend } from '@/common/backend';
 import { config } from '@/editor/config';
 import { Asset, Entity } from '@/editor-api';
 import type { AssetObserver } from '@/editor-api';
@@ -10,6 +11,8 @@ import { formatShortcut } from '../../common/utils';
 import { isImportedMaterial } from './asset-flags';
 
 editor.once('load', () => {
+    const services = backend();
+
     let currentAsset = null;
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     const projectUserSettings = editor.call('settings:projectUser');
@@ -327,6 +330,7 @@ editor.once('load', () => {
     const menuItemTextureToAtlas = new MenuItem({
         text: 'Create Texture Atlas',
         icon: ICONS.TEXTURE_ATLAS,
+        enabled: !!services.assetDuplication,
         onSelect: () => {
             editor.call('assets:textureToAtlas', currentAsset);
         }
@@ -537,6 +541,7 @@ editor.once('load', () => {
     const menuItemReImport = new MenuItem({
         text: 'Re-Import',
         icon: ICONS.REIMPORT,
+        enabled: !!services.assetReimport,
         onSelect: () => {
             editor.call('assets:reimport', currentAsset.get('id'), currentAsset.get('type'));
         }
@@ -651,6 +656,7 @@ editor.once('load', () => {
     const menuItemMoveToStore = new MenuItem({
         text: 'Move To Store',
         icon: ICONS.EDIT,
+        enabled: !!services.storePublishing,
         onSelect: () => {
             editor.call('assets:move-to-store', currentAsset);
         }

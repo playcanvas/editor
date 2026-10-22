@@ -1,5 +1,6 @@
 import { Button, Container, TextInput } from '@playcanvas/pcui';
 
+import { backend } from '@/common/backend';
 import { config } from '@/editor/config';
 
 editor.once('load', () => {
@@ -160,7 +161,7 @@ editor.once('load', () => {
 
     // store analytics event for viewing (or not viewing) a topic
     const storeEvent = (search: string, topic?: string) => {
-        editor.api.globals.rest.home.homeSceneEvent(config.scene.id, {
+        backend().onboarding?.homeSceneEvent(config.scene.id, {
             name: 'editor:help',
             title: topic,
             text: search

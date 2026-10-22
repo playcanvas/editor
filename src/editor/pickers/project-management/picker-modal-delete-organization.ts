@@ -1,5 +1,8 @@
 import { Container, Label, TextInput } from '@playcanvas/pcui';
 
+import { backend, UNSUPPORTED_TIP } from '@/common/backend';
+import { TooltipHandle } from '@/common/tooltips';
+
 import { button } from './components/button';
 import { callout } from './components/callout';
 import { dialog } from './components/dialog';
@@ -49,7 +52,8 @@ editor.once('load', () => {
     });
     inputElement.dom.addEventListener('paste', (e) => e.preventDefault());
 
-    // delete button
+    // delete button, which moves the organization's projects to the root user first
+    const deletable = !!(backend().accountManagement && backend().projectTransfer);
 
     const cancelButton = button({ kind: 'secondary', text: 'Cancel' });
     cancelButton.on('click', () => {
@@ -59,6 +63,9 @@ editor.once('load', () => {
 
     const deleteButton = button({ kind: 'danger', text: 'Delete organization', enabled: false });
     footer.append(deleteButton);
+    if (!deletable) {
+        TooltipHandle.attach({ root: overlay.dom, target: deleteButton.dom, ...UNSUPPORTED_TIP, align: 'bottom' });
+    }
 
     deleteButton.on('click', () => {
         // If organization contains projects, make sure to transfer them to root user before deleting account
@@ -83,7 +90,7 @@ editor.once('load', () => {
 
     // controller to detect whether input is valid and therefore delete button should be displayed or not
     const validateInput = () => {
-        deleteButton.enabled = organization.full_name === inputElement.value;
+        deleteButton.enabled = deletable && organization.full_name === inputElement.value;
     };
 
     // method to transfer all organization projects to current user on deleting org with projects

@@ -1,3 +1,4 @@
+import { backend, UNSUPPORTED } from '@/common/backend';
 import { config } from '@/editor/config';
 
 import { driver } from './driver';
@@ -199,7 +200,7 @@ const openDownload = async (id: number) => {
         }
         return { id, filename, mime: file.type, size: file.size, stream: file.stream() };
     }
-    const res = await fetch(`${config.url.api}/assets/${id}/download?branchId=${config.self.branch.id}`);
+    const res = await api.transport.fetch(`${config.url.api}/assets/${id}/download?branchId=${config.self.branch.id}`);
     if (!res.ok) {
         await res.body?.cancel();
         throw new Error(`Failed to download asset: ${res.status} ${res.statusText}`);
@@ -623,7 +624,11 @@ driver.method('assets:duplicate', async (ids) => {
         return denied;
     }
     ids.forEach(getAsset);
-    const result = await api.rest.assets
+    const service = backend().assetPaste;
+    if (!service) {
+        return { error: UNSUPPORTED };
+    }
+    const result = await service
         .assetPaste({
             projectId: config.project.id,
             branchId: config.self.branch.id,
@@ -766,7 +771,7 @@ driver.method('assets:file:text:get', async (id) => {
     }
 
     try {
-        const res = await fetch(url);
+        const res = await api.transport.fetch(url);
         if (!res.ok) {
             return { error: `Failed to fetch asset text: ${res.status} ${res.statusText}` };
         }
