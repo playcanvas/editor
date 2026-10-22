@@ -5,6 +5,7 @@
  * the project management pickers exposed as hooks.
  */
 
+import { service } from '@/common/supports';
 import { config } from '@/editor/config';
 
 import { PROJECTS_TAB, projectTab } from './tabs';
@@ -230,7 +231,7 @@ editor.once('load', () => {
                         if (msg.job.id !== job.id) {
                             return;
                         }
-                        editor.api.globals.rest.jobs
+                        service('jobs')
                             .jobGet({ jobId: job.id })
                             .on('load', (_status, res) => {
                                 if (res.status === 'complete') {

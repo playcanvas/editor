@@ -1,5 +1,7 @@
 import { Element, Container, Label, TextInput, TextAreaInput, BooleanInput } from '@playcanvas/pcui';
 
+import { backend, UNSUPPORTED_TIP } from '@/common/backend';
+import { TooltipHandle } from '@/common/tooltips';
 import { config } from '@/editor/config';
 
 import { button } from './project-management/components/button';
@@ -94,8 +96,13 @@ editor.once('load', () => {
                 : `This project is locked. Unlocking this project will make it public. Another way of unlocking is to ${upgrade}`;
     };
 
+    // unlocking and deleting need the backend's project management
+    const managed = !!backend().projectManagement;
     const unlockButton = button({ kind: 'primary', icon: 'E340', text: 'Unlock' });
     lockedContainer.append(unlockButton);
+    if (!managed) {
+        TooltipHandle.attach({ target: unlockButton.dom, ...UNSUPPORTED_TIP, align: 'bottom' });
+    }
     lockedContainer.style.display = 'none'; // hide by default
 
     unlockButton.on('click', () => {
@@ -329,6 +336,12 @@ editor.once('load', () => {
     // export project button
     const exportProjectButton = button({ kind: 'secondary', icon: 'E228', text: getExportButtonText() });
     exportProjectButtonContainer.append(exportProjectButton);
+    exportProjectButton.dom.dataset.action = 'project-export';
+
+    const exportable = !!(backend().projectExport && backend().jobs);
+    if (!exportable) {
+        TooltipHandle.attach({ target: exportProjectButton.dom, ...UNSUPPORTED_TIP, align: 'bottom' });
+    }
 
     const loader = new Element({
         class: ['loader', 'xsmall', 'white']
@@ -387,7 +400,7 @@ editor.once('load', () => {
 
     // LOCAL UTILS
 
-    const exportDisabled = () => !editor.call('project:management:canExport', currentProject);
+    const exportDisabled = () => !exportable || !editor.call('project:management:canExport', currentProject);
 
     // helper method to delete all outstanding events on close
     const destroyEvents = () => {
@@ -441,8 +454,9 @@ editor.once('load', () => {
     editor.method('picker:project:main:refreshUI', () => {
         currentProject = editor.call('picker:project:getCurrent');
         unlockButton.enabled =
-            currentProject.owner_id === config.self.id ||
-            editor.call('project:management:isOrgAdmin', currentProject.owner_id, config.self);
+            managed &&
+            (currentProject.owner_id === config.self.id ||
+                editor.call('project:management:isOrgAdmin', currentProject.owner_id, config.self));
 
         projectSettings = {
             id: currentProject.id,

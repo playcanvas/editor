@@ -1,6 +1,8 @@
 import { Container, Menu, MenuItem, SelectInput, TextInput } from '@playcanvas/pcui';
 
+import { backend, UNSUPPORTED } from '@/common/backend';
 import { createLog } from '@/common/sentry';
+import { service } from '@/common/supports';
 import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -101,7 +103,7 @@ export const createBranchSwitcher = (host: Container) => {
     addMenuItem('Merge Into Current Branch', 'merge', (b) => writable() && !isCurrent(b) && !b.closed);
     addMenuItem('Version Control Graph', 'graph', () => true);
     addMenuItem('Copy Branch ID', 'copyId', () => true);
-    addMenuItem('Re-Open This Branch', 'open', (b) => writable() && !!b.closed);
+    addMenuItem('Re-Open This Branch', 'open', (b) => writable() && !!b.closed && !!backend().branches);
     addMenuItem('Close This Branch', 'close', (b) => writable() && !b.closed && !isCurrent(b) && !isMaster(b));
     addMenuItem('Delete This Branch', 'delete', (b) => writable() && !isCurrent(b) && !isMaster(b), 'delete');
 
@@ -183,6 +185,10 @@ export const createBranchSwitcher = (host: Container) => {
             sw.type = 'button';
             sw.classList.add('switch');
             sw.textContent = 'Switch';
+            if (!backend().branches) {
+                sw.disabled = true;
+                sw.title = UNSUPPORTED;
+            }
             sw.addEventListener('click', (e) => {
                 e.stopPropagation();
                 hidePanel();
@@ -263,7 +269,7 @@ export const createBranchSwitcher = (host: Container) => {
         render();
 
         handleCallback(
-            editor.api.globals.rest.projects.projectBranches({
+            service('branchList').projectBranches({
                 limit: PAGE_SIZE,
                 skip: skip as unknown as number,
                 closed: filterSelect.value === 'closed',

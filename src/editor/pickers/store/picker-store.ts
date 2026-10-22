@@ -1,5 +1,8 @@
 import { Overlay, Label, Button, Container, BooleanInput, Panel, Progress, TextInput } from '@playcanvas/pcui';
 
+import { backend, UNSUPPORTED_TIP } from '@/common/backend';
+import { supports } from '@/common/supports';
+import { TooltipHandle } from '@/common/tooltips';
 import { bytesToHuman } from '@/common/utils';
 
 import { AssetsStore } from '../../store/assetsStore';
@@ -191,7 +194,7 @@ editor.once('load', () => {
         // filter list
         const filters: { name: string; icon: string; button?: Button }[] = [
             { name: 'PLAYCANVAS', icon: 'E268' },
-            { name: 'SKETCHFAB', icon: 'E188' },
+            ...(backend().sketchfabCatalog ? [{ name: 'SKETCHFAB', icon: 'E188' }] : []),
             { name: 'MY ASSETS', icon: 'E439' }
         ];
 
@@ -380,9 +383,11 @@ editor.once('load', () => {
             // import store items button
             importStoreItemsButton = new Button({
                 class: 'import-button',
-                icon: 'E222'
+                icon: 'E222',
+                enabled: !publishTooltip
             });
             headerUtils.appendBefore(importStoreItemsButton, btnClose);
+            publishTooltip?.attach(importStoreItemsButton.dom);
 
             importStoreItemsButton.on('click', () => {
                 filePicker.value = '';
@@ -506,6 +511,19 @@ editor.once('load', () => {
     });
     rightPanel.append(itemsContainer);
 
+    // empty-state shown when a store lists no items
+    const noItems = new Label({
+        class: 'no-store-items',
+        text: 'No assets found',
+        hidden: true
+    });
+    rightPanel.append(noItems);
+
+    // one tooltip, moved to each rebuilt store upload button
+    const publishTooltip = backend().storePublishing
+        ? null
+        : TooltipHandle.make({ ...UNSUPPORTED_TIP, align: 'bottom' });
+
     // controllers
 
     // displays or hides the loading bar in the CMS main panel based on parameter
@@ -556,6 +574,7 @@ editor.once('load', () => {
         const timeoutId = setTimeout(() => {
             toggleProgress(true);
         }, 500);
+        noItems.hidden = true;
 
         let tags = null;
         let searchString = searchBar.value.trim();
@@ -566,7 +585,7 @@ editor.once('load', () => {
             tags = [searchString.substring(1)];
             searchString = '';
         }
-        let newItems;
+        let newItems = [];
         try {
             newItems = await store.load(selectedFilter, searchString, tags, sortDescending);
         } catch (err) {
@@ -591,6 +610,7 @@ editor.once('load', () => {
     // reloads the storeItems that are currently in view in the CMS main panel
     const refreshStore = (startItem = 0) => {
         itemsContainer.hidden = store.items.length === 0;
+        noItems.hidden = !itemsContainer.hidden;
         for (let i = startItem; i < store.items.length; i++) {
             if (store.items[i].enabled) {
                 buildStoreUI(itemsContainer, store.items[i]);
@@ -701,6 +721,9 @@ editor.once('load', () => {
 
     // method to display panel
     editor.method('picker:store:cms', async () => {
+        if (!supports('storeCatalog')) {
+            return;
+        }
         licenses = await loadLicenses();
 
         loadStore();

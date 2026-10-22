@@ -217,22 +217,11 @@ driver.method('assets:font:process', async (id, options: { characters: string; i
         return { error: `Font asset or source not found: ${id}.` };
     }
     const characters = [...new Set(Array.from(options.characters || ''))].join('');
-    asset.set('meta.chars', characters);
-    if (options.invert !== undefined) {
-        asset.set('meta.invert', options.invert);
-    }
-    const [error] = await waitTask(asset, () => {
-        editor.call('realtime:send', 'pipeline', {
-            name: 'convert',
-            data: {
-                source: Number(source.get('uniqueId')),
-                target: Number(asset.get('uniqueId')),
-                chars: characters,
-                invert: !!asset.get('meta.invert')
-            }
-        });
-    });
-    return error ? { error: error.message } : { data: summary(asset) };
+    const invert = options.invert ?? !!asset.get('meta.invert');
+
+    // the inspector's client-side path; it converts legacy fonts to referenced ones
+    const error = await editor.call('fonts:reprocess', asset.observer, characters, invert);
+    return error ? { error: String(error?.message ?? error) } : { data: summary(asset) };
 });
 
 driver.method('assets:texture:metadata', async (id) => {

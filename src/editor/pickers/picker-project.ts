@@ -550,6 +550,10 @@ editor.once('load', () => {
     // shows a project's settings: its owner for the team panel, the menu to open, and which menus and controls to show
     editor.method('picker:project:open', (id: number, ownerId: number, option?: string, options: typeof view = {}) => {
         view = options;
+
+        // switch now: callers such as picker-builds-publish flag their hide handlers only around this call
+        select(option || defaultMenuOption);
+
         editor.call('projects:getOne', id, (res) => {
             currentProject = res;
             refreshUI();
@@ -559,7 +563,6 @@ editor.once('load', () => {
                 overlay.hidden = false;
             });
         });
-        select(option || defaultMenuOption);
     });
 
     // a check run before clicks outside close the picker, e.g. version control holding it open

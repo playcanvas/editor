@@ -1,6 +1,7 @@
 import { Button, Container, Label, SelectInput } from '@playcanvas/pcui';
 
 import { createLog } from '@/common/sentry';
+import { supports, service } from '@/common/supports';
 import { handleCallback } from '@/common/utils';
 
 const log = createLog('<PATH>');
@@ -38,7 +39,7 @@ editor.once('load', () => {
     btnSwitch.on('click', () => {
         overlay.innerElement.classList.add('hidden'); // hide the inner contents of the overlay but not the whole overlay
         handleCallback(
-            editor.api.globals.rest.branches.branchCheckout({
+            service('branches').branchCheckout({
                 branchId: dropdownBranches.value
             }),
             () => {
@@ -69,7 +70,7 @@ editor.once('load', () => {
             overlay.innerElement.classList.add('hidden'); // hide the inner contents of the overlay but not the whole overlay
 
             handleCallback(
-                editor.api.globals.rest.merge.mergeDelete({
+                service('merges').mergeDelete({
                     mergeId: config.self.branch.merge.id
                 }),
                 () => {
@@ -86,7 +87,7 @@ editor.once('load', () => {
         if (skip) {
             params.skip = skip;
         }
-        handleCallback(editor.api.globals.rest.projects.projectBranches(params), (err, data) => {
+        handleCallback(service('branchList').projectBranches(params), (err, data) => {
             if (err) {
                 overlay.setLoading(false);
                 log.error(err);
@@ -142,6 +143,9 @@ editor.once('load', () => {
     });
 
     editor.method('picker:versioncontrol:mergeOverlay', () => {
+        if (!supports('merges')) {
+            return;
+        }
         let fullName = config.self.branch.merge?.user.fullName;
         if (fullName && fullName.length > 33) {
             fullName = `${fullName.substring(0, 30)}...`;

@@ -95,6 +95,7 @@ editor.once('load', () => {
             text: name
         });
         crumbs.append(versionControlButton);
+        versionControlButton.dom.dataset.action = 'version-control';
 
         versionControlButton.on('click', () => {
             editor.call('picker:versioncontrol');

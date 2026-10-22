@@ -1,5 +1,7 @@
+import { backend, UNSUPPORTED } from '@/common/backend';
 import { config } from '@/editor/config';
 
+import { artifactName, findBuild, pickArtifact } from './artifact';
 import { driver } from './driver';
 import { api, log, rest, entitySummary, paginate, validatePath, writeError } from './shared';
 import { resolveUnset } from './unset';
@@ -199,7 +201,7 @@ const openDownload = async (id: number) => {
         }
         return { id, filename, mime: file.type, size: file.size, stream: file.stream() };
     }
-    const res = await fetch(`${config.url.api}/assets/${id}/download?branchId=${config.self.branch.id}`);
+    const res = await api.transport.fetch(`${config.url.api}/assets/${id}/download?branchId=${config.self.branch.id}`);
     if (!res.ok) {
         await res.body?.cancel();
         throw new Error(`Failed to download asset: ${res.status} ${res.statusText}`);
@@ -221,6 +223,38 @@ const openDownload = async (id: number) => {
         id,
         filename,
         mime: res.headers.get('content-type') || 'application/octet-stream',
+        size,
+        stream: res.body
+    };
+};
+
+const openArtifact = async (builds: any, id: number) => {
+    const build = await findBuild(builds, id);
+    if (!build) {
+        throw new Error(`Build not found in the designated project: ${id}.`);
+    }
+    const artifact = pickArtifact(build);
+    const res = await api.transport.fetch(artifact.url);
+    if (!res.ok) {
+        await res.body?.cancel();
+        throw new Error(`Failed to download build artifact: ${res.status} ${res.statusText}`);
+    }
+    const header = res.headers.get('content-length');
+    const size = header === null ? Number(artifact.bytes) : Number(header);
+    if (!Number.isInteger(size) || size < 0) {
+        await res.body?.cancel();
+        throw new Error('Build artifact size is unavailable.');
+    }
+    if (size > MAX_TRANSFER_BYTES) {
+        await res.body?.cancel();
+        throw new Error(`Build artifact exceeds the ${MAX_TRANSFER_BYTES / 1024 / 1024} MiB limit.`);
+    }
+    if (!res.body) {
+        throw new Error('Build artifact body is unavailable.');
+    }
+    return {
+        filename: artifactName(artifact.url),
+        mime: res.headers.get('content-type') || 'application/zip',
         size,
         stream: res.body
     };
@@ -623,7 +657,11 @@ driver.method('assets:duplicate', async (ids) => {
         return denied;
     }
     ids.forEach(getAsset);
-    const result = await api.rest.assets
+    const service = backend().assetPaste;
+    if (!service) {
+        return { error: UNSUPPORTED };
+    }
+    const result = await service
         .assetPaste({
             projectId: config.project.id,
             branchId: config.self.branch.id,
@@ -766,7 +804,7 @@ driver.method('assets:file:text:get', async (id) => {
     }
 
     try {
-        const res = await fetch(url);
+        const res = await api.transport.fetch(url);
         if (!res.ok) {
             return { error: `Failed to fetch asset text: ${res.status} ${res.statusText}` };
         }
@@ -872,14 +910,14 @@ driver.method('files:upload:finish', async (id) => {
     return { data: assetSummary(asset) };
 });
 
-driver.method('files:download:start', async (id, inlineLimit = 0) => {
+const startDownload = async (open: () => Promise<any>, inlineLimit: number) => {
     if (transfers.size || pendingDownload) {
         throw new Error('Finish or cancel the active file transfer before starting another.');
     }
     pendingDownload = true;
     const [error, result] = await Promise.resolve()
         .then(async () => {
-            const data = await openDownload(id);
+            const data = await open();
             if (data.size <= Math.min(inlineLimit, MAX_FILE_BYTES)) {
                 const bytes = new Uint8Array(await new Response(data.stream).arrayBuffer());
                 if (bytes.length !== data.size) {
@@ -924,6 +962,13 @@ driver.method('files:download:start', async (id, inlineLimit = 0) => {
         throw error;
     }
     return result;
+};
+
+driver.method('files:download:start', (id, inlineLimit = 0) => startDownload(() => openDownload(id), inlineLimit));
+
+driver.method('builds:artifact:start', async (id, inlineLimit = 0) => {
+    const { builds } = backend();
+    return builds ? startDownload(() => openArtifact(builds, id), inlineLimit) : { error: UNSUPPORTED };
 });
 
 driver.method('files:download:read', async (id, offset, length = MAX_CHUNK_BYTES) => {

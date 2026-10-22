@@ -412,6 +412,9 @@ function pasteInBackend(data: Record<string, any>, parent: Entity, options: { hi
             if (!callback) {
                 return;
             }
+            if (data.status === 'error') {
+                console.error(data.message);
+            }
 
             const result = data.multTaskResults.map((d: { newRootId: any }) => d.newRootId);
             callback(result);
@@ -527,6 +530,7 @@ async function pasteEntities(parent: Entity, options: { history?: boolean } = {}
     }
 
     if (
+        api.entityJobs &&
         data.project === api.projectId &&
         (data.branch !== api.branchId || Object.keys(data.hierarchy).length > USE_BACKEND_LIMIT)
     ) {

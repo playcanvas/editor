@@ -34,7 +34,7 @@ async function instantiateTemplates(
                 deferred.resolve(entities);
             });
         } else {
-            deferred.reject();
+            deferred.reject(new Error(msg.message ?? 'template instance failed'));
         }
     });
 

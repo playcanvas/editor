@@ -1,5 +1,8 @@
 import { Container, Label } from '@playcanvas/pcui';
 
+import { backend } from '@/common/backend';
+import { projectExport } from '@/editor/messenger/jobs';
+
 import { button } from './components/button';
 import { dialog } from './components/dialog';
 import { openProject } from './tabs';
@@ -9,6 +12,15 @@ const REPORT_LIMIT = 50;
 editor.once('load', () => {
     // GLOBAL VARIABLES
     let projectId;
+
+    // a backend with one project keeps the new one aside until it is opened, which deletes the current
+    // one, along with any earlier one its storage set aside
+    let aside = false;
+    const replaceText = () =>
+        `This browser holds one project at a time. Opening the new one deletes your current project${aside ? ' and the earlier one set aside' : ''}, which can't be undone. To keep a copy, export your current project first.`;
+    editor.on('messenger:sandbox.storage', (data: { aside: boolean }) => {
+        aside = data.aside;
+    });
 
     // UI
 
@@ -25,6 +37,23 @@ editor.once('load', () => {
     const report = new Container({ class: 'import-report', hidden: true });
     panel.append(report);
 
+    // export button, so the current project can be kept before it is replaced. with one project, the
+    // current and new projects share its id
+    const exportButton = button({ kind: 'secondary', text: 'Export current project', hidden: true });
+    footer.append(exportButton);
+
+    exportButton.on('click', () => {
+        exportButton.enabled = false;
+        exportButton.text = 'Exporting...';
+        projectExport({ projectId })
+            .then((url) => window.open(url, '_blank'))
+            .catch((err: unknown) => console.error('project export failed', err))
+            .finally(() => {
+                exportButton.enabled = true;
+                exportButton.text = 'Export current project';
+            });
+    });
+
     // continue button
     const continueButton = button({ kind: 'secondary', text: 'Not now' });
     footer.append(continueButton);
@@ -37,9 +66,14 @@ editor.once('load', () => {
     const openProjectButton = button({ kind: 'primary', text: 'Open project' });
     footer.append(openProjectButton);
 
+    // the project opens in its own tab while the click allows it. with one project, opening replaces
+    // the current one, and the backend then moves every editor tab to it
     openProjectButton.on('click', () => {
-        openProject(projectId);
         overlay.hidden = true;
+        openProject(projectId);
+        if (!backend().multipleProjects) {
+            editor.call('projects:openStaged', projectId);
+        }
     });
 
     // CONTROLLERS
@@ -88,8 +122,18 @@ editor.once('load', () => {
                 report.append(new Label({ text: `${more} more ${more === 1 ? 'item was' : 'items were'} adjusted.` }));
             }
         }
+        // opening the new project replaces the current one
+        const replace = !!projectId && !backend().multipleProjects;
+        if (replace) {
+            confirmationMessage.text = replaceText();
+        }
+        exportButton.hidden = !replace || !backend().projectExport;
+        // replacing is destructive, so it confirms as the other deletes do
+        openProjectButton.text = replace ? 'Replace project' : 'Open project';
+        openProjectButton.class[replace ? 'add' : 'remove']('danger');
+        openProjectButton.class[replace ? 'remove' : 'add']('primary');
         openProjectButton.hidden = !projectId;
-        continueButton.text = projectId ? 'Not now' : 'Close';
+        continueButton.text = replace ? 'Cancel' : projectId ? 'Not now' : 'Close';
         overlay.hidden = false;
     });
 });

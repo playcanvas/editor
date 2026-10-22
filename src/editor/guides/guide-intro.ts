@@ -1,5 +1,6 @@
 import type { Observer } from '@playcanvas/observer';
 
+import { backend } from '@/common/backend';
 import { config } from '@/editor/config';
 
 editor.once('load', () => {
@@ -7,7 +8,9 @@ editor.once('load', () => {
 
     const bubbles = [];
 
-    const timeouts = {};
+    const timeouts: Record<string, ReturnType<typeof setTimeout>> = {};
+
+    let entitySelect = null;
 
     const bubbleDemo1 = function () {
         const bubble = editor.call(
@@ -76,7 +79,7 @@ editor.once('load', () => {
     };
 
     const bubbleLaunch = function () {
-        return editor.call(
+        const bubble = editor.call(
             'guide:bubble',
             'Launch Scene',
             'Click <span class="font-icon">&#57649;</span> <strong>Launch</strong> to run your scene in a new tab. Any changes you make in the Editor will automatically update the launched scene. You may find it convenient to run the Launch tab side by side with the Editor tab.',
@@ -85,6 +88,12 @@ editor.once('load', () => {
             'top-right',
             editor.call('layout.toolbar.launch')
         );
+
+        const rect = editor.call('layout.toolbar.launch:button').dom.getBoundingClientRect();
+        const parent = editor.call('layout.toolbar.launch').dom.getBoundingClientRect();
+        bubble.style.left = '';
+        bubble.style.right = `${parent.right - rect.right + rect.width / 2 + 5}px`;
+        return bubble;
     };
 
     const bubbleDashboard = function () {
@@ -152,7 +161,9 @@ editor.once('load', () => {
         );
 
         bubble.style.top = '';
-        bubble.style.bottom = '119px';
+        const rect = editor.call('layout.toolbar.controls').dom.getBoundingClientRect();
+        const parent = editor.call('layout.toolbar').dom.getBoundingClientRect();
+        bubble.style.bottom = `${parent.bottom - rect.top - rect.height / 2 + 5}px`;
         return bubble;
     };
 
@@ -274,12 +285,13 @@ editor.once('load', () => {
 
         // entity bubble on select entity
         if (config.self.flags.tips.entityInspector === false) {
-            const evtEntitySelect = editor.on('selector:change', (type: string | null, _items: Observer[]) => {
+            entitySelect?.unbind();
+            entitySelect = editor.on('selector:change', (type: string | null) => {
                 if (type !== 'entity') {
                     return;
                 }
 
-                evtEntitySelect.unbind();
+                entitySelect.unbind();
 
                 showBubble('entityInspector', bubbleEntity, nextDelay);
             });
@@ -335,6 +347,12 @@ editor.once('load', () => {
     };
 
     editor.method('editor:tips:reset', () => {
+        for (const name in timeouts) {
+            clearTimeout(timeouts[name]);
+            delete timeouts[name];
+        }
+        entitySelect?.unbind();
+
         // destroy existing bubbles
         bubbles.forEach((bubble) => {
             bubble.destroy();
@@ -369,7 +387,7 @@ editor.once('load', () => {
 
         editor.once('help:demo:close', () => {
             // set user's openedEditor flag to true
-            editor.api.globals.rest.home.homeSceneOpened(config.scene.id);
+            backend().onboarding?.homeSceneOpened(config.scene.id);
 
             // show some demo specific bubbles first
             setTimeout(() => {
@@ -397,7 +415,8 @@ editor.once('load', () => {
     editor.once('scene:raw', () => {
         // If the demo popup has opened show bubbles after it
         // otherwise show them right away
-        setTimeout(() => {
+        timeouts.intro = setTimeout(() => {
+            delete timeouts.intro;
             if (!openedDemo) {
                 showBubbles(0);
             }

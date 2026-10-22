@@ -1,5 +1,6 @@
 import { ObserverList } from '@playcanvas/observer';
 import type { Observer } from '@playcanvas/observer';
+
 editor.once('load', () => {
     const uniqueIdToItemId = {};
     const assetToVirtualPath = new Map();

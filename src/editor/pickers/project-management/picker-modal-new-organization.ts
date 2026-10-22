@@ -1,5 +1,7 @@
 import { Container, Label, TextInput } from '@playcanvas/pcui';
 
+import { backend, UNSUPPORTED_TIP } from '@/common/backend';
+import { TooltipHandle } from '@/common/tooltips';
 import { config } from '@/editor/config';
 
 import { button } from './components/button';
@@ -85,6 +87,9 @@ editor.once('load', () => {
 
     const createButton = button({ kind: 'primary', text: 'Create organization', enabled: false });
     footer.append(createButton);
+    if (!backend().accountManagement) {
+        TooltipHandle.attach({ root: overlay.dom, target: createButton.dom, ...UNSUPPORTED_TIP, align: 'bottom' });
+    }
 
     createButton.on('click', () => {
         const newOrganization = {
@@ -135,7 +140,7 @@ editor.once('load', () => {
         previewUrl.text = `${host}${orgIdInput.value || 'organization-id'}`;
         preview.class[isNameValid ? 'remove' : 'add']('empty');
 
-        createButton.enabled = isNameValid && isIdValid && isEmailValid;
+        createButton.enabled = !!backend().accountManagement && isNameValid && isIdValid && isEmailValid;
     };
 
     // EVENTS

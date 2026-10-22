@@ -3,6 +3,7 @@
 // page, and a runtime font whose `data` only references those (ReferencedFontHandler resolves it).
 // depends on the backend honouring `noConvert`, so it does not also produce a target of its own.
 
+import { backend } from '@/common/backend';
 import { isRefPath } from '@/common/referenced-font-handler';
 import { isReferencedFont } from '@/editor/inspector/assets/font-mode';
 
@@ -375,7 +376,7 @@ editor.once('load', () => {
         if (!url) {
             throw new Error('font source file not found');
         }
-        const res = await fetch(url);
+        const res = await backend().transport.fetch(url);
         if (!res.ok) {
             throw new Error(`font source file could not be read (${res.status})`);
         }
@@ -427,10 +428,26 @@ editor.once('load', () => {
         editor.emit('fonts:reprocessed', font, missing);
     };
 
+    // fonts being reprocessed; a second run would write a second set of references
+    const reprocessing = new Set<number>();
+
     editor.method('fonts:reprocess', (font: any, chars: string, invert: boolean) => {
-        return reprocess(font, chars, invert).catch((err) => {
-            editor.call('status:error', `Font reprocess failed: ${err?.message ?? err}`);
-        });
+        const id = font.get('id');
+        if (reprocessing.has(id)) {
+            return Promise.resolve(new Error('font is already being processed'));
+        }
+        reprocessing.add(id);
+        return reprocess(font, chars, invert).then(
+            () => {
+                reprocessing.delete(id);
+                return null;
+            },
+            (err) => {
+                reprocessing.delete(id);
+                editor.call('status:error', `Font reprocess failed: ${err?.message ?? err}`);
+                return err;
+            }
+        );
     });
 
     // unpack a raw font cloned from a legacy store item without duplicating its source asset

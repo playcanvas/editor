@@ -1,3 +1,4 @@
+
 const api = editor.api.globals;
 
 const log = (msg: string) => console.log(`[Editor Driver] ${msg}`);
@@ -34,7 +35,7 @@ const rest = (method: string, path: string, data?: FormData | object, auth = fal
         headers['Content-Type'] = 'application/json';
         init.body = JSON.stringify(data);
     }
-    return fetch(`${config.url.api}/${path}`, init).then((res) => res.json());
+    return api.transport.fetch(`${config.url.api}/${path}`, init).then((res) => res.json());
 };
 
 /**

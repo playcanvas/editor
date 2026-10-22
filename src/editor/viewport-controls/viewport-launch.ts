@@ -40,6 +40,7 @@ editor.once('load', () => {
         text: 'Launch'
     });
     launch.append(buttonLaunch);
+    editor.method('layout.toolbar.launch:button', () => buttonLaunch);
 
     const tooltipLaunch = TooltipHandle.attach({
         target: buttonLaunch.dom,

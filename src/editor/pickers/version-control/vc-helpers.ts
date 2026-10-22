@@ -1,3 +1,4 @@
+
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const LINE_DIFF_CELL_LIMIT = 120000;
@@ -52,7 +53,8 @@ export const userThumbnail = (userId: string | number, size: number) => {
     if (!thumbCache.has(key)) {
         thumbCache.set(
             key,
-            fetch(`${config.url.api}/users/${userId}/thumbnail?size=${size}`)
+            editor.api.globals.transport
+                .fetch(`${config.url.api}/users/${userId}/thumbnail?size=${size}`)
                 .then((res) => (res.ok ? res.blob() : Promise.reject(new Error(`${res.status}`))))
                 .then((blob) => URL.createObjectURL(blob))
                 .then((url) => {

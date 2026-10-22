@@ -1,6 +1,7 @@
 import { Button, Container, Overlay, Panel, SelectInput, TextInput, TreeView, TreeViewItem } from '@playcanvas/pcui';
 
 import { createLog } from '@/common/sentry';
+import { service } from '@/common/supports';
 import { config } from '@/editor/config';
 
 import { arrayFieldKind, buildNameIndex, indexTemplateEntities } from './vc-diff-data';
@@ -253,7 +254,7 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
         if (!fileStats.has(key)) {
             fileStats.set(
                 key,
-                editor.api.globals.rest.merge
+                service('merges')
                     .mergeConflicts({
                         mergeId: id,
                         conflictId: entry.id,

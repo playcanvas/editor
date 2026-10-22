@@ -1,6 +1,7 @@
 import { Container } from '@playcanvas/pcui';
 
 import { createLog } from '@/common/sentry';
+import { service } from '@/common/supports';
 import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -188,7 +189,7 @@ export const createHistoryPanel = () => {
         // capture the current branch id so the callback can verify it against `branch`
         const branchId = branch.id;
         const req = handleCallback(
-            editor.api.globals.rest.branches.branchCheckpoints({
+            service('checkpointHistory').branchCheckpoints({
                 branchId,
                 limit: PAGE_SIZE,
                 skip: more ? (skip as unknown as number) : undefined

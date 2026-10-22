@@ -1,6 +1,7 @@
 import type { Observer } from '@playcanvas/observer';
 import type * as Monaco from 'monaco-editor';
 
+import { backend } from '@/common/backend';
 import { createLog } from '@/common/sentry';
 import { WorkerClient } from '@/core/worker/worker-client';
 
@@ -203,7 +204,8 @@ const fetchModuleScripts = async (
                 try {
                     const url = editor.call('assets:realPath', asset);
 
-                    const promise: Promise<[string, string] | null> = fetch(url)
+                    const promise: Promise<[string, string] | null> = backend()
+                        .transport.fetch(url)
                         .then((res) => res.text())
                         .then((content) => {
                             cache.set(path, hash);

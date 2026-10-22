@@ -184,6 +184,9 @@ function duplicateInBackend(entities: Entity[], options: { history?: boolean } =
             if (!callback) {
                 return;
             }
+            if (data.status === 'error') {
+                console.error(data.message);
+            }
 
             const result = data.multTaskResults.map((d: { newRootId: any }) => d.newRootId);
             callback(result);
@@ -322,7 +325,7 @@ async function duplicateEntities(
     let newEntities: Entity[] = [];
 
     // If we have a lot of entities duplicate in the backend
-    if (api.messenger && api.jobs && entities.length > USE_BACKEND_LIMIT) {
+    if (api.messenger && api.jobs && api.entityJobs && entities.length > USE_BACKEND_LIMIT) {
         newEntities = await duplicateInBackend(entities, options);
     } else {
         // remember previous selection

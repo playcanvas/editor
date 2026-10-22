@@ -2,6 +2,7 @@ import { Events } from '@playcanvas/observer';
 import { Button, Container, Label, Menu, MenuItem } from '@playcanvas/pcui';
 
 import { createLog } from '@/common/sentry';
+import { service } from '@/common/supports';
 import { handleCallback } from '@/common/utils';
 
 const log = createLog('<PATH>');
@@ -240,7 +241,7 @@ class TextResolver extends Events {
         const content = this._codeEditorMethod('editor:merge:getContent');
         const file = new Blob([content]);
         handleCallback(
-            editor.api.globals.rest.conflicts.conflictsUpload({
+            service('merges').conflictsUpload({
                 conflictId: this._textualMergeConflict.id,
                 file
             }),
@@ -402,7 +403,7 @@ class TextResolver extends Events {
         this._toggleButtons(false);
 
         handleCallback(
-            editor.api.globals.rest.merge.mergeConflicts({
+            service('merges').mergeConflicts({
                 mergeId: this._mergeId,
                 conflictId: this._textualMergeConflict.id,
                 fileName: this._textualMergeConflict.mergedFilePath,

@@ -25,7 +25,12 @@ editor.once('load', () => {
     }
 
     editor.on('messenger:template.apply', (data) => {
-        removeJob(data.job_id);
+        if (data.status === 'error') {
+            editor.call('status:error', data.message);
+        }
+
+        // false tells callers such as the mcp driver that nothing was applied
+        removeJob(data.job_id, data.status === 'error' ? false : undefined);
     });
 
     function checkCircularReferences(

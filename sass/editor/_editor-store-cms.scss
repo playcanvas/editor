@@ -17,6 +17,12 @@
         overflow: hidden auto;
     }
 
+    .no-store-items {
+        margin: 24px;
+        text-align: center;
+        color: $text-dark;
+    }
+
     .grid-item {
         border-radius: 5px;
         display: flex;

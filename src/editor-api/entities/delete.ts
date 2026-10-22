@@ -39,6 +39,9 @@ function deleteInBackend(entities: any[]) {
         evtMessenger = api.messenger.on('entity.delete', (data: any) => {
             const callback = api.jobs.finish(data.job_id);
             if (callback) {
+                if (data.status === 'error') {
+                    console.error(data.message);
+                }
                 callback();
             }
         });
@@ -128,6 +131,7 @@ async function deleteEntities(
     if (
         api.messenger &&
         api.jobs &&
+        api.entityJobs &&
         api.realtime &&
         api.realtime.scenes.current &&
         getTotalEntityCount(entities) > USE_BACKEND_LIMIT

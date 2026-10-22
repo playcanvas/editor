@@ -11,8 +11,10 @@ import {
     TextInput
 } from '@playcanvas/pcui';
 
+import { backend, UNSUPPORTED_TIP } from '@/common/backend';
 import { createLog } from '@/common/sentry';
-import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
+import { service } from '@/common/supports';
+import { tooltip, tooltipSimpleItem, TooltipHandle } from '@/common/tooltips';
 import { convertDatetime } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -23,6 +25,7 @@ const DOWNLOAD_FORMAT_WEB_LENS = 'web_lens';
 const DOWNLOAD_FORMAT_NPM = 'npm';
 
 editor.once('load', () => {
+    const DEFAULT_FORMAT = backend().staticDownloads ? DOWNLOAD_FORMAT_STATIC : DOWNLOAD_FORMAT_NPM;
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
     // holds tooltip targets for cleanup
@@ -57,7 +60,7 @@ editor.once('load', () => {
             containerDownloadOptions.hidden = true;
         }
         if (fieldDownloadFormat) {
-            fieldDownloadFormat.value = DOWNLOAD_FORMAT_STATIC;
+            fieldDownloadFormat.value = DEFAULT_FORMAT;
         }
         refreshDownloadFormatOptions();
     });
@@ -397,26 +400,14 @@ editor.once('load', () => {
     containerDownloadOptions.append(labelDownloadOptions);
 
     const downloadFormatOptions = [
-        {
-            t: 'Static Website',
-            v: DOWNLOAD_FORMAT_STATIC
-        },
-        {
-            t: 'NPM + Vite Project (WIP)',
-            v: DOWNLOAD_FORMAT_NPM
-        }
+        ...(backend().staticDownloads ? [{ t: 'Static Website', v: DOWNLOAD_FORMAT_STATIC }] : []),
+        ...(config.self.flags.superUser ? [{ t: 'Snapchat Web Lens', v: DOWNLOAD_FORMAT_WEB_LENS }] : []),
+        { t: 'NPM + Vite Project (WIP)', v: DOWNLOAD_FORMAT_NPM }
     ];
-
-    if (config.self.flags.superUser) {
-        downloadFormatOptions.splice(1, 0, {
-            t: 'Snapchat Web Lens',
-            v: DOWNLOAD_FORMAT_WEB_LENS
-        });
-    }
 
     fieldDownloadFormat = new SelectInput({
         class: 'download-format-dropdown',
-        value: DOWNLOAD_FORMAT_STATIC,
+        value: DEFAULT_FORMAT,
         options: downloadFormatOptions
     });
     containerDownloadOptions.append(fieldDownloadFormat);
@@ -593,6 +584,14 @@ editor.once('load', () => {
         class: 'publish'
     });
     footer.append(btnPublish);
+    if (!backend().publishing) {
+        TooltipHandle.attach({
+            target: btnPublish.dom,
+            ...UNSUPPORTED_TIP,
+            align: 'top',
+            root: editor.call('layout.root')
+        });
+    }
 
     btnPublish.on('click', () => {
         if (jobInProgress) {
@@ -644,7 +643,7 @@ editor.once('load', () => {
 
         data.engine_version = config.engineVersions[engineVersionDropdown.value].version;
 
-        editor.api.globals.rest.apps
+        service('publishing')
             .appCreate(data)
             .on('load', () => {
                 jobInProgress = false;
@@ -664,6 +663,14 @@ editor.once('load', () => {
         class: 'web-download'
     });
     footer.append(btnWebDownload);
+    if (!backend().downloads) {
+        TooltipHandle.attach({
+            target: btnWebDownload.dom,
+            ...UNSUPPORTED_TIP,
+            align: 'top',
+            root: editor.call('layout.root')
+        });
+    }
 
     // download app
     const download = function () {
@@ -671,7 +678,7 @@ editor.once('load', () => {
 
         refreshButtonsState();
 
-        const format = fieldDownloadFormat?.value ?? DOWNLOAD_FORMAT_STATIC;
+        const format = fieldDownloadFormat?.value ?? DEFAULT_FORMAT;
         const npmProject = format === DOWNLOAD_FORMAT_NPM;
 
         // post data
@@ -690,7 +697,7 @@ editor.once('load', () => {
         data.engine_version = config.engineVersions[engineVersionDropdown.value].version;
 
         // ajax call
-        editor.api.globals.rest.apps
+        service('downloads')
             .appDownload(data)
             .on('load', () => {
                 jobInProgress = false;
@@ -739,8 +746,8 @@ editor.once('load', () => {
         footerHint.hidden = !reason || !scenes.length;
 
         const enabled = !reason && !jobInProgress;
-        btnPublish.enabled = enabled;
-        btnWebDownload.enabled = enabled;
+        btnPublish.enabled = enabled && !!backend().publishing;
+        btnWebDownload.enabled = enabled && !!backend().downloads;
     };
 
     const createSceneItem = function (scene: any) {
@@ -957,41 +964,43 @@ editor.once('load', () => {
         });
 
         if (!loadedApps) {
-            editor.api.globals.rest.projects.projectApps().on('load', (status, data) => {
-                const apps = data.result;
-                loadedApps = true;
+            service('builds')
+                .projectApps()
+                .on('load', (status, data) => {
+                    const apps = data.result;
+                    loadedApps = true;
 
-                let version = 'e.g. 1.0.0';
+                    let version = 'e.g. 1.0.0';
 
-                if (apps.length) {
-                    apps.sort((a, b) => {
-                        if (a.id === config.project.primaryApp) {
-                            return -1;
-                        }
-                        if (b.id === config.project.primaryApp) {
-                            return 1;
-                        }
-                        if (b.modified_at < a.modified_at) {
-                            return -1;
-                        }
-                        if (a.modified_at > b.modified_at) {
-                            return 1;
-                        }
+                    if (apps.length) {
+                        apps.sort((a, b) => {
+                            if (a.id === config.project.primaryApp) {
+                                return -1;
+                            }
+                            if (b.id === config.project.primaryApp) {
+                                return 1;
+                            }
+                            if (b.modified_at < a.modified_at) {
+                                return -1;
+                            }
+                            if (a.modified_at > b.modified_at) {
+                                return 1;
+                            }
 
-                        return 0;
-                    });
+                            return 0;
+                        });
 
-                    if (apps[0].version) {
-                        version = `Previous version: ${apps[0].version}`;
+                        if (apps[0].version) {
+                            version = `Previous version: ${apps[0].version}`;
+                        }
                     }
-                }
 
-                inputVersion.placeholder = version;
+                    inputVersion.placeholder = version;
 
-                if (loadedScenes) {
-                    refreshScenes();
-                }
-            });
+                    if (loadedScenes) {
+                        refreshScenes();
+                    }
+                });
         }
 
         inputName.focus();

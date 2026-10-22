@@ -1,5 +1,7 @@
 import { Container, Label, Button } from '@playcanvas/pcui';
 
+import { backend } from '@/common/backend';
+
 const PREFIX = '[MAINTENANCE]';
 const LOCALSTORAGE_KEY = 'playcanvas-editor-maintenance-notice';
 
@@ -12,9 +14,14 @@ const ISSUES_URL = url.toString();
 const RATE_LIMIT_URL = 'https://api.github.com/rate_limit';
 
 editor.once('load', async () => {
+    if (!backend().maintenanceNotices) {
+        return;
+    }
+
     // FIXME: non authenticated requests to GitHub API are rate limited to 60 per hour per IP
-    const res1 = await fetch(RATE_LIMIT_URL);
-    if (!res1.ok) {
+    // an unreachable github (offline) just means no notice
+    const res1 = await fetch(RATE_LIMIT_URL).catch(() => null);
+    if (!res1?.ok) {
         return;
     }
     const rate = (await res1.json()) as { rate: { remaining: number } };
@@ -22,8 +29,8 @@ editor.once('load', async () => {
         return;
     }
 
-    const res2 = await fetch(ISSUES_URL);
-    if (!res2.ok) {
+    const res2 = await fetch(ISSUES_URL).catch(() => null);
+    if (!res2?.ok) {
         return;
     }
     const issues = (await res2.json()) as { title: string; html_url: string }[];

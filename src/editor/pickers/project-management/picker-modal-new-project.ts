@@ -1,5 +1,8 @@
 import { BooleanInput, Container, Element, Label, SelectInput, TextAreaInput, TextInput } from '@playcanvas/pcui';
 
+import { backend, UNSUPPORTED_TIP } from '@/common/backend';
+import { service } from '@/common/supports';
+import { TooltipHandle } from '@/common/tooltips';
 import { config } from '@/editor/config';
 
 import { button } from './components/button';
@@ -81,6 +84,14 @@ editor.once('load', () => {
         togglePrivate.on('change', () => {
             formInputs.private = togglePrivate.value;
         });
+
+        // forks finish as jobs
+        createBtn.enabled = !!backend().projectCreation && (!formInputs.fork_from || !!backend().jobs);
+        if (createBtn.enabled) {
+            createTooltip.detach();
+        } else {
+            createTooltip.attach(createBtn.dom);
+        }
     };
 
     // with no organizations you're the only possible owner, so show it as a plain field, not a one-item dropdown
@@ -310,6 +321,7 @@ editor.once('load', () => {
 
     const createBtn = button({ kind: 'primary', text: 'Create project' });
     footer.append(createBtn);
+    const createTooltip = TooltipHandle.make({ root: overlay.dom, ...UNSUPPORTED_TIP, align: 'bottom' });
 
     // attach listener to create button
     createBtn.on('click', () => {
@@ -335,29 +347,40 @@ editor.once('load', () => {
         const data = newKitData;
 
         let evt;
+
+        // an empty project has no job: it's ready once the messenger says it was created. listen before
+        // creating, so a backend that announces it before the create reply arrives isn't missed
+        let createdId: number | null = null;
+        const announced = new Map<number, { status?: string; error?: string }>();
+        const created = (msg: { status?: string; error?: string }) => {
+            evt.unbind();
+            toggleLoader(false);
+            if (msg.status && msg.status !== 'success') {
+                editor.call('picker:project:buildAlert', mainView, msg.error ?? 'Could not create the project');
+                return;
+            }
+            editor.call('picker:project:newProjectConfirmation', createdId);
+            overlay.hidden = true; // close new project modal
+        };
+        if (!data.fork_from) {
+            evt = editor.on('messenger:project.create', (msg) => {
+                if (createdId === null) {
+                    announced.set(msg.project_id, msg);
+                } else if (msg.project_id === createdId) {
+                    created(msg);
+                }
+            });
+        }
+
         editor.call(
             'projects:create',
             data,
             (result) => {
-                // an empty project has no job: it's ready once the messenger says it was created
                 if (!data.fork_from) {
-                    evt = editor.on('messenger:project.create', (msg) => {
-                        if (msg.project_id !== result.id) {
-                            return;
-                        }
-                        evt.unbind();
-                        toggleLoader(false);
-                        if (msg.status && msg.status !== 'success') {
-                            editor.call(
-                                'picker:project:buildAlert',
-                                mainView,
-                                msg.error ?? 'Could not create the project'
-                            );
-                            return;
-                        }
-                        editor.call('picker:project:newProjectConfirmation', result.id);
-                        overlay.hidden = true; // close new project modal
-                    });
+                    createdId = result.id;
+                    if (announced.has(createdId)) {
+                        created(announced.get(createdId));
+                    }
                     return;
                 }
 
@@ -370,16 +393,22 @@ editor.once('load', () => {
 
                         // get job
                         // the job's status sits on the job; the fork's id sits in its data
-                        editor.api.globals.rest.jobs.jobGet({ jobId: msg.job.id }).on('load', (status, job) => {
-                            if (job.status === 'error') {
-                                editor.call('picker:project:buildAlert', forking ? sidebar : mainView, job.messages[0]);
-                            } else {
-                                editor.call('picker:project:newProjectConfirmation', job.data.forked_id);
-                                overlay.hidden = true; // close new project modal
-                            }
+                        service('jobs')
+                            .jobGet({ jobId: msg.job.id })
+                            .on('load', (status, job) => {
+                                if (job.status === 'error') {
+                                    editor.call(
+                                        'picker:project:buildAlert',
+                                        forking ? sidebar : mainView,
+                                        job.messages[0]
+                                    );
+                                } else {
+                                    editor.call('picker:project:newProjectConfirmation', job.data.forked_id);
+                                    overlay.hidden = true; // close new project modal
+                                }
 
-                            toggleLoader(false);
-                        });
+                                toggleLoader(false);
+                            });
                     }
                 });
             },
