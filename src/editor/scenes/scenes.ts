@@ -1,3 +1,5 @@
+import { backend, UNSUPPORTED } from '@/common/backend';
+
 editor.once('load', () => {
     // Fetch list of scenes from the server and
     // pass them to the callback
@@ -37,7 +39,13 @@ editor.once('load', () => {
                 data.name = name;
             }
 
-            editor.api.globals.rest.scenes
+            const scenes = backend().sceneManagement;
+            if (!scenes) {
+                errorCallback?.(UNSUPPORTED);
+                return;
+            }
+
+            scenes
                 .sceneCreate(data)
                 .on('load', (_status: number, data: unknown) => callback?.(data))
                 .on('error', (_status: number, error: unknown) => errorCallback?.(error));
@@ -53,7 +61,13 @@ editor.once('load', () => {
             callback?: (data: unknown) => void,
             errorCallback?: (error: unknown) => void
         ) => {
-            editor.api.globals.rest.scenes
+            const scenes = backend().sceneManagement;
+            if (!scenes) {
+                errorCallback?.(UNSUPPORTED);
+                return;
+            }
+
+            scenes
                 .sceneCreate({
                     projectId: config.project.id,
                     duplicateFrom: parseInt(sceneId, 10),
@@ -69,7 +83,13 @@ editor.once('load', () => {
     editor.method(
         'scenes:delete',
         (sceneId: string, callback?: () => void, errorCallback?: (error: unknown) => void) => {
-            editor.api.globals.rest.scenes
+            const scenes = backend().sceneManagement;
+            if (!scenes) {
+                errorCallback?.(UNSUPPORTED);
+                return;
+            }
+
+            scenes
                 .sceneDelete(Number(sceneId))
                 .on('load', () => callback?.())
                 .on('error', (_status: number, error: unknown) => errorCallback?.(error));

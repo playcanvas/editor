@@ -1,3 +1,4 @@
+import { service } from '@/common/supports';
 import { handleCallback } from '@/common/utils';
 import { MERGE_STATUS_APPLY_ENDED } from '@/core/constants';
 import { config } from '@/editor/config';
@@ -253,7 +254,7 @@ editor.once('load', () => {
 
         // check out main branch and then refresh the browser
         handleCallback(
-            editor.api.globals.rest.branches.branchCheckout({
+            service('branches').branchCheckout({
                 branchId: config.project.masterBranch
             }),
             () => {
@@ -345,7 +346,7 @@ editor.once('load', () => {
             return;
         }
 
-        handleCallback(editor.api.globals.rest.home.homeBranch(), (status, data) => {
+        handleCallback(service('branchList').homeBranch(), (status, data) => {
             if (data && data.id !== config.self.branch.id) {
                 console.log('Branch switched while refreshing. Reloading page...');
                 refresh();

@@ -1,5 +1,7 @@
 import { Button } from '@playcanvas/pcui';
 
+import { backend, UNSUPPORTED_TIP } from '@/common/backend';
+import { TooltipHandle } from '@/common/tooltips';
 import { config } from '@/editor/config';
 
 import { button } from './components/button';
@@ -24,7 +26,8 @@ editor.once('load', () => {
     const current = () => editor.call('picker:project:getCurrent');
 
     // above the projects page
-    editor.call('picker:project:overlay').class.add('other-project');
+    const settings = editor.call('picker:project:overlay');
+    settings.class.add('other-project');
 
     const leftPanel = editor.call('picker:project:leftPanel');
     const editorBtn = button({
@@ -45,13 +48,19 @@ editor.once('load', () => {
     const deleteBtn = button({ kind: 'secondary', tone: 'danger', icon: 'E124', text: 'Delete Project' });
     deleteBtn.dom.id = 'delete-project-button';
     editor.call('picker:project:main:actions').append(deleteBtn);
+
+    // deleting needs the backend's project management
+    const managed = !!backend().projectManagement;
+    if (!managed) {
+        TooltipHandle.attach({ root: settings.dom, target: deleteBtn.dom, ...UNSUPPORTED_TIP, align: 'bottom' });
+    }
     deleteBtn.on('click', () => editor.call('picker:project:modal:deleteProjectConfirmation', current()));
 
     editor.on('picker:project:refresh', (project) => {
         editorBtn.hidden = !canOpen;
         playBtn.hidden = !canOpen;
         playBtn.enabled = !!project.primary_app_url;
-        deleteBtn.enabled = project.access_level === 'admin';
+        deleteBtn.enabled = project.access_level === 'admin' && managed;
     });
 
     const show = (name: keyof typeof VIEWS, option: string) => (project) => {
@@ -72,6 +81,12 @@ editor.once('load', () => {
 
     // an organization admin who isn't a member of one of its projects can add themselves as its admin
     const addMe = new Button({ class: 'add-me-as-admin', text: 'ADD ME AS ADMIN', icon: 'E375' });
+
+    // adding yourself needs the backend's team management
+    const teamManaged = !!backend().teamManagement;
+    if (!teamManaged) {
+        TooltipHandle.attach({ root: settings.dom, target: addMe.dom, ...UNSUPPORTED_TIP, align: 'top' });
+    }
     addMe.on('click', () => {
         const project = current();
         addMe.enabled = false;
@@ -102,7 +117,7 @@ editor.once('load', () => {
         if (!outsider) {
             return null;
         }
-        addMe.enabled = true;
+        addMe.enabled = teamManaged;
         return { text: NOT_A_MEMBER, action: addMe };
     });
 });

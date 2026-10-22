@@ -165,6 +165,15 @@ editor.once('load', () => {
             if (!h.vcGraphContainer.dom.isConnected) {
                 return;
             }
+
+            // a backend without checkpoint history returns no graph nodes
+            if (!Object.keys(data.idToData ?? {}).length) {
+                const empty = document.createElement('div');
+                empty.classList.add('vc-diff-empty');
+                empty.textContent = 'No checkpoints yet';
+                h.vcGraphContainer.dom.appendChild(empty);
+                return;
+            }
             new VcGraphLogic(clone(data), h).run();
         };
 

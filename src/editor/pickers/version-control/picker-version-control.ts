@@ -1,7 +1,10 @@
 import { Button, Container, Overlay } from '@playcanvas/pcui';
 
+import { backend, UNSUPPORTED_TIP } from '@/common/backend';
 import { installEllipsisTooltips } from '@/common/ellipsis-tooltip';
 import { createLog } from '@/common/sentry';
+import { supports, service } from '@/common/supports';
+import { TooltipHandle } from '@/common/tooltips';
 import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -57,7 +60,7 @@ editor.once('load', () => {
             return;
         }
         editor.emit('picker:diffManager:closed', id);
-        handleCallback(editor.api.globals.rest.merge.mergeDelete({ mergeId: id }), (err) => {
+        handleCallback(service('merges').mergeDelete({ mergeId: id }), (err) => {
             if (err) {
                 log.error(err);
             }
@@ -193,6 +196,10 @@ editor.once('load', () => {
     compareBar.dom.appendChild(slotB);
     const btnRunCompare = new Button({ text: 'Compare', class: 'vc-primary' });
     compareBar.append(btnRunCompare);
+    const diffable = !!backend().diffs && !!backend().jobs;
+    if (!diffable) {
+        TooltipHandle.attach({ target: btnRunCompare.dom, ...UNSUPPORTED_TIP, align: 'top' });
+    }
 
     // progress widgets (kept infra)
     const makeProgress = (progressText: string, finishText: string, errorText: string) => {
@@ -470,7 +477,7 @@ editor.once('load', () => {
         slotB.textContent = compareSlots[1] ? slotLabel(compareSlots[1]) : 'Pick another…';
         slotB.title = slotB.textContent;
         slotB.classList.toggle('full', !!compareSlots[1]);
-        btnRunCompare.enabled = compareSlots.length === 2;
+        btnRunCompare.enabled = diffable && compareSlots.length === 2;
     };
 
     const setCompareMode = (on: boolean) => {
@@ -572,7 +579,7 @@ editor.once('load', () => {
     switcher.on('switch', (branch: any) => {
         togglePanels(false);
         showProgress(progressSwitch);
-        handleCallback(editor.api.globals.rest.branches.branchCheckout({ branchId: branch.id }), (err) => {
+        handleCallback(service('branches').branchCheckout({ branchId: branch.id }), (err) => {
             progressSwitch.finish(err);
             if (err) {
                 togglePanels(true);
@@ -597,6 +604,7 @@ editor.once('load', () => {
             ],
             confirmText: 'Create Branch',
             input: { placeholder: 'Branch name' },
+            supported: !!backend().branches,
             onConfirm: ({ input }) => {
                 if (!input) {
                     dialog.setError('Branch name is required');
@@ -606,7 +614,7 @@ editor.once('load', () => {
                 togglePanels(false);
                 showProgress(progressBranch);
                 handleCallback(
-                    editor.api.globals.rest.branches.branchCreate({
+                    service('branches').branchCreate({
                         name: input,
                         projectId: config.project.id,
                         sourceBranchId: source.id,
@@ -637,6 +645,7 @@ editor.once('load', () => {
                 '. Conflicts open the merge resolution view.'
             ],
             confirmText: 'Merge',
+            supported: !!backend().merges,
             checkboxes: [
                 { key: 'srcCheckpoint', label: `Take a checkpoint of ${branch.name} first`, value: true },
                 { key: 'dstCheckpoint', label: `Take a checkpoint of ${config.self.branch.name} first`, value: true },
@@ -666,7 +675,7 @@ editor.once('load', () => {
                 }
                 evtOnMergeCreated.unbind();
                 evtOnMergeCreated = null;
-                handleCallback(editor.api.globals.rest.merge.mergeGet({ mergeId: data.merge_id }), (err, mergeData) => {
+                handleCallback(service('merges').mergeGet({ mergeId: data.merge_id }), (err, mergeData) => {
                     if (err) {
                         progressMerge.finish(err);
                         togglePanels(true);
@@ -680,7 +689,7 @@ editor.once('load', () => {
             });
 
             handleCallback(
-                editor.api.globals.rest.merge.mergeCreate({
+                service('merges').mergeCreate({
                     srcBranchId: sourceBranch.id,
                     dstBranchId: config.self.branch.id,
                     srcBranchClose: closeSrc
@@ -722,12 +731,13 @@ editor.once('load', () => {
             title: `Close ${branch.name}?`,
             body: ['Closed branches can be re-opened later from the Closed filter.'],
             confirmText: 'Close Branch',
+            supported: !!backend().branches,
             checkboxes: [{ key: 'checkpoint', label: 'Take a checkpoint first', value: true }],
             onConfirm: ({ checks }) => {
                 dialog.close();
                 const close = () => {
                     showProgress(progressClose);
-                    handleCallback(editor.api.globals.rest.branches.branchClose({ branchId: branch.id }), (err) => {
+                    handleCallback(service('branches').branchClose({ branchId: branch.id }), (err) => {
                         progressClose.finish(err);
                         togglePanels(true);
                         if (!err) {
@@ -748,7 +758,7 @@ editor.once('load', () => {
     switcher.on('open', (branch: any) => {
         togglePanels(false);
         showProgress(progressOpen);
-        handleCallback(editor.api.globals.rest.branches.branchOpen({ branchId: branch.id }), (err) => {
+        handleCallback(service('branches').branchOpen({ branchId: branch.id }), (err) => {
             progressOpen.finish(err);
             togglePanels(true);
             if (!err) {
@@ -765,11 +775,12 @@ editor.once('load', () => {
             confirmText: 'Delete Branch',
             input: { placeholder: branch.name },
             confirmMatch: branch.name,
+            supported: !!backend().branches,
             onConfirm: () => {
                 dialog.close();
                 togglePanels(false);
                 showProgress(progressDelete);
-                handleCallback(editor.api.globals.rest.branches.branchDelete({ branchId: branch.id }), (err) => {
+                handleCallback(service('branches').branchDelete({ branchId: branch.id }), (err) => {
                     progressDelete.finish(err);
                     togglePanels(true);
                     if (!err) {
@@ -799,13 +810,14 @@ editor.once('load', () => {
                 '.'
             ],
             confirmText: 'Restore',
+            supported: !!backend().checkpoints,
             checkboxes: [{ key: 'checkpoint', label: 'Take a checkpoint of the current state first', value: true }],
             onConfirm: ({ checks }) => {
                 dialog.close();
                 const restore = () => {
                     showProgress(progressRestore);
                     handleCallback(
-                        editor.api.globals.rest.checkpoints.checkpointRestore({
+                        service('checkpoints').checkpointRestore({
                             checkpointId: checkpoint.id,
                             branchId: config.self.branch.id
                         }),
@@ -843,6 +855,7 @@ editor.once('load', () => {
                 '.'
             ],
             confirmText: 'Discard All',
+            supported: !!backend().checkpoints,
             checkboxes: [{ key: 'checkpoint', label: 'Take a checkpoint of the current state first', value: true }],
             escalate: (checks) =>
                 checks.checkpoint ? null : { confirmText: 'Discard Permanently', warning: 'This cannot be undone.' },
@@ -851,7 +864,7 @@ editor.once('load', () => {
                 const discard = () => {
                     showProgress(progressDiscard);
                     handleCallback(
-                        editor.api.globals.rest.checkpoints.checkpointRestore({
+                        service('checkpoints').checkpointRestore({
                             checkpointId,
                             branchId: config.self.branch.id
                         }),
@@ -889,12 +902,13 @@ editor.once('load', () => {
             confirmText: 'Hard Reset',
             input: { placeholder: checkpoint.id.substring(0, 7) },
             confirmMatch: checkpoint.id.substring(0, 7),
+            supported: !!backend().checkpoints,
             onConfirm: () => {
                 dialog.close();
                 togglePanels(false);
                 showProgress(progressHardReset);
                 handleCallback(
-                    editor.api.globals.rest.checkpoints.checkpointHardReset({
+                    service('checkpoints').checkpointHardReset({
                         checkpointId: checkpoint.id,
                         branchId: config.self.branch.id
                     }),
@@ -1110,6 +1124,9 @@ editor.once('load', () => {
 
     // ---- public methods (preserved) ----
     editor.method('picker:versioncontrol', () => {
+        if (!supports('branchList')) {
+            return;
+        }
         editor.call('picker:project', 'version control');
     });
 

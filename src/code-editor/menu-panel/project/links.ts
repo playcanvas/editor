@@ -1,12 +1,16 @@
 import { MenuItem } from '@playcanvas/pcui';
 
+import { backend } from '@/common/backend';
+
 editor.once('load', () => {
     const menu = editor.call('menu:project');
+    const { pages } = backend();
 
     // Open project
     let item = new MenuItem({
         class: 'no-bottom-border',
         text: 'Open Dashboard',
+        enabled: !!pages,
         onSelect: () => {
             return editor.call('editor:command:openProject');
         }
@@ -14,7 +18,9 @@ editor.once('load', () => {
     menu.append(item);
 
     editor.method('editor:command:openProject', () => {
-        window.open(`/project/${config.project.id}`);
+        if (pages) {
+            window.open(pages.project(config.project.id));
+        }
     });
 
     // Open Editor

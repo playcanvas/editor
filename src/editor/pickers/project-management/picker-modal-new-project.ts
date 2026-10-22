@@ -1,5 +1,8 @@
 import { BooleanInput, Container, Element, Label, SelectInput, TextAreaInput, TextInput } from '@playcanvas/pcui';
 
+import { backend, UNSUPPORTED_TIP } from '@/common/backend';
+import { service } from '@/common/supports';
+import { TooltipHandle } from '@/common/tooltips';
 import { config } from '@/editor/config';
 
 import { button } from './components/button';
@@ -81,6 +84,14 @@ editor.once('load', () => {
         togglePrivate.on('change', () => {
             formInputs.private = togglePrivate.value;
         });
+
+        // forks finish as jobs
+        createBtn.enabled = !!backend().projectCreation && (!formInputs.fork_from || !!backend().jobs);
+        if (createBtn.enabled) {
+            createTooltip.detach();
+        } else {
+            createTooltip.attach(createBtn.dom);
+        }
     };
 
     // with no organizations you're the only possible owner, so show it as a plain field, not a one-item dropdown
@@ -310,6 +321,7 @@ editor.once('load', () => {
 
     const createBtn = button({ kind: 'primary', text: 'Create project' });
     footer.append(createBtn);
+    const createTooltip = TooltipHandle.make({ root: overlay.dom, ...UNSUPPORTED_TIP, align: 'bottom' });
 
     // attach listener to create button
     createBtn.on('click', () => {
@@ -370,16 +382,22 @@ editor.once('load', () => {
 
                         // get job
                         // the job's status sits on the job; the fork's id sits in its data
-                        editor.api.globals.rest.jobs.jobGet({ jobId: msg.job.id }).on('load', (status, job) => {
-                            if (job.status === 'error') {
-                                editor.call('picker:project:buildAlert', forking ? sidebar : mainView, job.messages[0]);
-                            } else {
-                                editor.call('picker:project:newProjectConfirmation', job.data.forked_id);
-                                overlay.hidden = true; // close new project modal
-                            }
+                        service('jobs')
+                            .jobGet({ jobId: msg.job.id })
+                            .on('load', (status, job) => {
+                                if (job.status === 'error') {
+                                    editor.call(
+                                        'picker:project:buildAlert',
+                                        forking ? sidebar : mainView,
+                                        job.messages[0]
+                                    );
+                                } else {
+                                    editor.call('picker:project:newProjectConfirmation', job.data.forked_id);
+                                    overlay.hidden = true; // close new project modal
+                                }
 
-                            toggleLoader(false);
-                        });
+                                toggleLoader(false);
+                            });
                     }
                 });
             },

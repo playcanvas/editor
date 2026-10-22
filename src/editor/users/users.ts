@@ -1,10 +1,18 @@
+import { backend, UNSUPPORTED } from '@/common/backend';
+
 editor.once('load', () => {
     const users = {};
     const userRequests = {};
 
     // Creates a user (used for new organization modal in Editor CMS)
     editor.method('users:createOne', (org, success, errorFn) => {
-        editor.api.globals.rest.users
+        const service = backend().accountManagement;
+        if (!service) {
+            errorFn?.(UNSUPPORTED);
+            return;
+        }
+
+        service
             .userCreate(org)
             .on('load', (status, response) => {
                 if (success) {
@@ -44,7 +52,13 @@ editor.once('load', () => {
 
     // Deletes a user from the server
     editor.method('users:deleteOne', (id, success, errorFn) => {
-        editor.api.globals.rest.users
+        const service = backend().accountManagement;
+        if (!service) {
+            errorFn?.(UNSUPPORTED);
+            return;
+        }
+
+        service
             .userDelete(id)
             .on('load', (status, response) => {
                 if (success) {
@@ -64,7 +78,13 @@ editor.once('load', () => {
 
     // Gets user's collaborators
     editor.method('users:collaborators', (id, success, errorFn) => {
-        editor.api.globals.rest.users
+        const service = backend().teamList;
+        if (!service) {
+            errorFn?.(0, UNSUPPORTED);
+            return;
+        }
+
+        service
             .userCollabList(id)
             .on('load', (status, response) => {
                 if (success) {
@@ -80,7 +100,13 @@ editor.once('load', () => {
 
     // Creates a collaborator
     editor.method('users:createCollaborator', (id, newCollaborator, success, errorFn) => {
-        editor.api.globals.rest.projects
+        const service = backend().teamManagement;
+        if (!service) {
+            errorFn?.(0, UNSUPPORTED);
+            return;
+        }
+
+        service
             .projectCollabCreate(id, newCollaborator)
             .on('load', (status, response) => {
                 if (success) {
@@ -96,7 +122,13 @@ editor.once('load', () => {
 
     // Saves a collaborators access level
     editor.method('users:updateCollaboratorAccess', (id, newCollaborator, success, errorFn) => {
-        editor.api.globals.rest.projects
+        const service = backend().teamManagement;
+        if (!service) {
+            errorFn?.(0, UNSUPPORTED);
+            return;
+        }
+
+        service
             .projectCollabUpdate(id, newCollaborator)
             .on('load', (status, response) => {
                 if (success) {
@@ -112,7 +144,13 @@ editor.once('load', () => {
 
     // Deletes a collaborator from a project
     editor.method('users:removeCollaborator', (project, collaborator, success, errorFn) => {
-        editor.api.globals.rest.projects
+        const service = backend().teamManagement;
+        if (!service) {
+            errorFn?.(0, UNSUPPORTED);
+            return;
+        }
+
+        service
             .projectCollabDelete(project.id, collaborator.id)
             .on('load', (status, response) => {
                 if (success) {
@@ -134,7 +172,13 @@ editor.once('load', () => {
                 options[field] = data[field];
             }
         });
-        editor.api.globals.rest.payment
+        const service = backend().accountManagement;
+        if (!service) {
+            errorFn?.(0, UNSUPPORTED);
+            return;
+        }
+
+        service
             .paymentSubUpdate(owner.id, options)
             .on('load', (status, response) => {
                 if (success) {
@@ -150,7 +194,13 @@ editor.once('load', () => {
 
     // Gets the user's storage usage
     editor.method('users:getUsage', (id, success, errorFn) => {
-        editor.api.globals.rest.users
+        const service = backend().projectList;
+        if (!service) {
+            errorFn?.(0, UNSUPPORTED);
+            return;
+        }
+
+        service
             .userUsage(id)
             .on('load', (status, response) => {
                 if (success) {

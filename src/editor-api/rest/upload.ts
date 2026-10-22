@@ -60,14 +60,15 @@ const check = (res: Response) => {
 };
 
 export const uploadStart = (data: UploadStartData): Promise<{ uploadId: string; key: string }> => {
-    return fetch(`${api.apiUrl}/upload/start-upload`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-            Authorization: `Bearer ${api.accessToken}`,
-            'Content-Type': 'application/json'
-        }
-    })
+    return api.transport
+        .fetch(`${api.apiUrl}/upload/start-upload`, {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: {
+                Authorization: `Bearer ${api.accessToken}`,
+                'Content-Type': 'application/json'
+            }
+        })
         .then(check)
         .then((res) => res.json());
 };
@@ -79,14 +80,15 @@ export const uploadStart = (data: UploadStartData): Promise<{ uploadId: string; 
  * @returns A promise that resolves with the signed URLs
  */
 export const uploadUrls = (data: UploadUrlsData): Promise<{ signedUrls: string[] }> => {
-    return fetch(`${api.apiUrl}/upload/signed-urls`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-            Authorization: `Bearer ${api.accessToken}`,
-            'Content-Type': 'application/json'
-        }
-    })
+    return api.transport
+        .fetch(`${api.apiUrl}/upload/signed-urls`, {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: {
+                Authorization: `Bearer ${api.accessToken}`,
+                'Content-Type': 'application/json'
+            }
+        })
         .then(check)
         .then((res) => res.json());
 };
@@ -98,12 +100,14 @@ export const uploadUrls = (data: UploadUrlsData): Promise<{ signedUrls: string[]
  * @returns A promise that resolves when the upload is complete
  */
 export const uploadComplete = (data: UploadCompleteData): Promise<Response> => {
-    return fetch(`${api.apiUrl}/upload/complete-upload`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-            Authorization: `Bearer ${api.accessToken}`,
-            'Content-Type': 'application/json'
-        }
-    }).then(check);
+    return api.transport
+        .fetch(`${api.apiUrl}/upload/complete-upload`, {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: {
+                Authorization: `Bearer ${api.accessToken}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(check);
 };

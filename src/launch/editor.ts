@@ -1,6 +1,6 @@
+import { backend } from '@/common/backend';
 import { Editor } from '@/common/editor';
 import type { EditorMethods } from '@/common/editor';
-import { Messenger } from '@/common/messenger';
 import { setSentrySource, setSentryTags, setSentryUser } from '@/common/sentry';
 import * as api from '@/editor-api';
 
@@ -16,7 +16,7 @@ class LaunchEditor extends Editor<EditorMethods> {
 
         // Initialize API globals - order matters
         api.globals.schema = new api.Schema(config.schema);
-        api.globals.messenger = new api.Messenger(new Messenger());
+        api.globals.messenger = new api.Messenger(backend().messenger);
     }
 }
 

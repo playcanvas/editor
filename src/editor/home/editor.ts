@@ -1,3 +1,4 @@
+import { backend, initBackend } from '@/common/backend';
 import { Caller } from '@/common/caller';
 import type { EditorMethods } from '@/common/editor';
 import { Messenger as MessengerClient } from '@/common/messenger';
@@ -23,7 +24,21 @@ class HomeEditor extends Caller<EditorMethods> {
         globals.apiUrl = config.url.api;
         globals.homeUrl = config.url.home;
         globals.rest = new Rest();
-        globals.messenger = new Messenger(new MessengerClient());
+
+        // the page's backend services, as on the editor pages; it has no realtime or relay
+        const none = (name: string) => () => {
+            throw new Error(`${name} is not available on the projects home page`);
+        };
+        initBackend(
+            globals.rest,
+            {
+                realtime: none('realtime'),
+                messenger: (transport) => new MessengerClient(transport),
+                relay: none('relay')
+            },
+            config.unsupported
+        );
+        globals.messenger = new Messenger(backend().messenger);
 
         this.method('visibility', () => document.visibilityState === 'visible');
         document.addEventListener('visibilitychange', () => {

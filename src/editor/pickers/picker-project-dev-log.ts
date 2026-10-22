@@ -1,6 +1,7 @@
 import { Container, Element, Label, TextAreaInput, TextInput } from '@playcanvas/pcui';
 import Markdown from 'markdown-it';
 
+import { backend } from '@/common/backend';
 import { config } from '@/editor/config';
 
 import { button } from './project-management/components/button';
@@ -18,7 +19,7 @@ editor.once('load', () => {
     let composer: Container | null = null;
     let emptyState: Container | null = null; // shown while the log has no posts; it has its own button
 
-    const rest = () => editor.api.globals.rest.posts;
+    const rest = () => backend().devLog;
     const canWrite = () => project?.access_level === 'write' || project?.access_level === 'admin';
 
     // super users, admins, and authors who can still write may edit or delete a post
@@ -30,7 +31,14 @@ editor.once('load', () => {
     // UI
 
     const panel = new Container({ class: 'picker-project-dev-log' });
-    editor.call('picker:project:registerMenu', 'dev-log', 'DEV LOG', panel, 'Dev log');
+    // without the backend's dev log the menu is registered hidden, like a panel
+    editor.call(
+        backend().devLog ? 'picker:project:registerMenu' : 'picker:project:registerPanel',
+        'dev-log',
+        'DEV LOG',
+        panel,
+        'Dev log'
+    );
 
     const header = new Container({ class: 'dev-log-header' });
     panel.append(header);

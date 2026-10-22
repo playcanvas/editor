@@ -1,6 +1,9 @@
 import type { MenuItem } from '@playcanvas/pcui';
 import { Button, Container, Element, Label, Menu, Overlay, Progress, TextInput } from '@playcanvas/pcui';
 
+import { backend, UNSUPPORTED_TIP } from '@/common/backend';
+import { supports } from '@/common/supports';
+import { TooltipHandle } from '@/common/tooltips';
 import { bytesToHuman, countToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -243,7 +246,7 @@ editor.once('load', () => {
     const canStar = (project) => project.access_level !== 'none';
     // optimistic, so the count moves on click; a failed call puts it back
     const starToggle = (project, parent: Container, cls?) => {
-        const btn = new Button({ class: ['cms-star', ...[cls ?? []].flat()] });
+        const btn = new Button({ class: ['cms-star', ...[cls ?? []].flat()], enabled: !!backend().projectManagement });
         // set while a request is in flight, so the star fills before the server replies
         let pending = null;
         const paint = () => {
@@ -319,6 +322,7 @@ editor.once('load', () => {
     // accept/decline for the recipient, cancel for the sender; both refresh the list when done
     const transferActions = (project, parent: Container) => {
         const actions = box(['cms-transfer', isRecipient(project) ? 'incoming' : 'outgoing'], parent);
+        actions.enabled = !!backend().projectTransfer;
         const act = (label, kind: 'primary' | 'secondary', call: () => Promise<unknown>) => {
             const btn = button({ kind, size: 'sm', text: label });
             btn.on('click', (e) => {
@@ -484,6 +488,14 @@ editor.once('load', () => {
     });
     root.append(overlay);
 
+    // the backend's services; without one, its controls stay and are disabled
+    const importable = !!backend().projectImport;
+    const accounts = !!backend().accountManagement;
+    const pages = !!backend().pages;
+    // in the overlay, since the layout root's tooltips sit below the page
+    const unsupported = (target: Element, align: 'top' | 'bottom' | 'left' | 'right' = 'bottom') =>
+        TooltipHandle.attach({ root: overlay.dom, target: target.dom, ...UNSUPPORTED_TIP, align });
+
     const panel = box('cms-root');
     overlay.append(panel);
 
@@ -509,8 +521,16 @@ editor.once('load', () => {
     newProjectSideButton.on('click', () => editor.call('picker:project:newProject'));
 
     // the sidebar holds both ways to start a project, so they're reachable from every page and scroll position
-    const importSideButton = new Button({ class: ['cms-nav', 'cms-import'], icon: 'E222', text: 'Import project' });
+    const importSideButton = new Button({
+        class: ['cms-nav', 'cms-import'],
+        icon: 'E222',
+        text: 'Import project',
+        enabled: importable
+    });
     side.append(importSideButton);
+    if (!importable) {
+        unsupported(importSideButton, 'left');
+    }
     importSideButton.on('click', () => filePicker.click());
 
     const navItem = (icon, label, onClick) => {
@@ -519,6 +539,13 @@ editor.once('load', () => {
         item.on('click', onClick);
         return item;
     };
+    // the site's pages outside the editor, where the backend has them
+    const openPage = (path: (pages: NonNullable<ReturnType<typeof backend>['pages']>) => string) => {
+        if (supports('pages')) {
+            window.open(`${config.url.home}${path(backend().pages)}`, '_blank');
+        }
+    };
+
     const projectsNav = navItem('E139', 'Projects', () => setFilter('all'));
     navItem('E129', 'Explore', () => window.open(`${config.url.home}/explore/featured`, '_blank'));
     navItem('E232', 'Docs', () => window.open('https://developer.playcanvas.com/', '_blank'));
@@ -547,9 +574,12 @@ editor.once('load', () => {
     const mePlan = text('', 'cms-me-plan', meText);
     const accountButton = button({ kind: 'icon', label: 'Account menu', class: 'cms-kebab' });
     meRow.append(accountButton);
-    const openAccount = () => window.open(`${config.url.home}/account`, '_blank');
-    meAvatar.on('click', openAccount);
-    pressable(meAvatar.dom, 'Account settings', openAccount);
+    const openAccount = () => openPage((site) => site.account());
+    // the avatar only opens account settings where the backend has the page
+    if (pages) {
+        meAvatar.on('click', openAccount);
+        pressable(meAvatar.dom, 'Account settings', openAccount);
+    }
 
     // MAIN PANEL
 
@@ -612,8 +642,11 @@ editor.once('load', () => {
         filePicker.value = null;
     });
 
-    const importProjectButton = button({ kind: 'ghost', icon: 'E222', text: 'Import' });
+    const importProjectButton = button({ kind: 'ghost', icon: 'E222', text: 'Import', enabled: importable });
     headerUtils.append(importProjectButton);
+    if (!importable) {
+        unsupported(importProjectButton, 'top');
+    }
     importProjectButton.on('click', () => filePicker.click());
 
     const newProjectButton = button({ kind: 'primary', icon: 'E120', text: 'New project' });
@@ -764,20 +797,30 @@ editor.once('load', () => {
         menuEntry(rowMenu, 'cms-row-launch').enabled = !!project.primary_app_url;
         menuEntry(rowMenu, 'cms-row-watch').text = project.watch_id ? 'Stop watching' : 'Watch';
         menuEntry(rowMenu, 'cms-row-watch').hidden = !canStar(project);
+        menuEntry(rowMenu, 'cms-row-watch').enabled = !!backend().projectManagement;
         menuEntry(rowMenu, 'cms-row-fork').hidden = blocked(project);
+
+        // forks finish as jobs
+        menuEntry(rowMenu, 'cms-row-fork').enabled = !!(backend().projectCreation && backend().jobs);
         menuEntry(rowMenu, 'cms-row-export').hidden =
             blocked(project) || !editor.call('project:management:canExport', project);
+        menuEntry(rowMenu, 'cms-row-export').enabled = !!(backend().projectExport && backend().jobs);
         menuEntry(rowMenu, 'cms-row-transfer').hidden =
             blocked(project) || !editor.call('project:management:canTransfer', project);
+        menuEntry(rowMenu, 'cms-row-transfer').enabled = !!backend().projectTransfer;
         menuEntry(rowMenu, 'cms-row-delete').hidden = !canDelete(project);
+        menuEntry(rowMenu, 'cms-row-delete').enabled = !!backend().projectManagement;
         showMenu(rowMenu, anchor, true);
     };
 
     // same look as the project menu, with delete set apart in red
     const orgDropdownMenu = addMenu('picker-builds-menu', [
-        menuItem('organization-details', 'Organization details', () =>
-            window.open(`${config.url.home}/user/${dropdownOrg.username}/account`, '_blank')
-        ),
+        {
+            ...menuItem('organization-details', 'Organization details', () =>
+                openPage((site) => `${site.user(dropdownOrg.username)}/account`)
+            ),
+            onIsEnabled: () => pages
+        },
         menuItem(
             'organization-delete',
             'Delete organization',
@@ -791,10 +834,13 @@ editor.once('load', () => {
     });
 
     const accountMenu = addMenu('picker-builds-menu', [
-        menuItem('cms-account-settings', 'Account settings', () => window.open(`${config.url.home}/account`, '_blank')),
-        menuItem('cms-account-upgrade', 'Upgrade plan', () =>
-            window.open(`${config.url.home}/upgrade?account=${rootUser.username}`, '_blank')
-        ),
+        { ...menuItem('cms-account-settings', 'Account settings', openAccount), onIsEnabled: () => pages },
+        {
+            ...menuItem('cms-account-upgrade', 'Upgrade plan', () =>
+                window.open(`${config.url.home}/upgrade?account=${rootUser.username}`, '_blank')
+            ),
+            onIsEnabled: () => accounts
+        },
         menuItem('cms-account-feedback', 'Feedback', () =>
             window.open('https://forum.playcanvas.com/t/playcanvas-editor-feedback/616', '_blank')
         ),
@@ -808,6 +854,12 @@ editor.once('load', () => {
         accountMenu.innerElement.style.width = `${rect.width}px`;
         accountMenu.position(rect.left, rect.top - accountMenu.innerElement.clientHeight - 4);
     });
+
+    // one tooltip, moved to each rebuilt upgrade button. beside the popover and above it, which would
+    // otherwise cover its arrow and the gap the pointer crosses to reach its links
+    const upgradeTooltip = accounts
+        ? null
+        : TooltipHandle.make({ root, ...UNSUPPORTED_TIP, align: 'left', class: 'cms-popover-tooltip' });
 
     // storage breakdown, anchored next to the storage card
     const storagePopover = box('cms-storage-popover');
@@ -851,8 +903,9 @@ editor.once('load', () => {
         const r = box('cms-pop-row', free);
         text('Free', null, r);
         text(bytesToHuman(Math.max(0, allowance - accountUsage.total)), 'value', r);
-        const upgrade = button({ kind: 'primary', text: 'Upgrade plan' });
+        const upgrade = button({ kind: 'primary', text: 'Upgrade plan', enabled: accounts });
         storagePopover.append(upgrade);
+        upgradeTooltip?.attach(upgrade.dom);
         upgrade.on('click', () => window.open(`${config.url.home}/upgrade?account=${currentUser.username}`, '_blank'));
         const rect = storageCard.dom.getBoundingClientRect();
         storagePopover.style.left = `${rect.right + 8}px`;
@@ -878,6 +931,7 @@ editor.once('load', () => {
             const bottom = box('cms-storage-row', storageCard);
             text(`${bytesToHuman(accountUsage.total)} of ${bytesToHuman(allowance)}`, null, bottom);
             const upgrade = text('Upgrade', 'cms-storage-upgrade', bottom);
+            upgrade.enabled = accounts;
             upgrade.on('click', (e) => {
                 e.stopPropagation();
                 window.open(`${config.url.home}/upgrade?account=${currentUser.username}`, '_blank');
@@ -935,8 +989,9 @@ editor.once('load', () => {
             title.text = userName(org);
             subtitle.text = `Organization · ${(projects[org.id] ?? []).length} projects`;
         } else {
-            // counts live on the tabs and storage on the sidebar card, so home gets a prompt
-            title.text = `${greeting()}, ${userName(rootUser)}`;
+            // counts live on the tabs and storage on the sidebar card, so home gets a prompt. with no
+            // accounts there's no one signed in to greet by name
+            title.text = accounts ? `${greeting()}, ${userName(rootUser)}` : greeting();
             subtitle.text = PROMPT;
         }
     };
@@ -1333,8 +1388,9 @@ editor.once('load', () => {
     // checks whether importing is allowed for current user based on permissions
     const importDisabled = () => {
         return !(
-            currentUser.id === config.self.id ||
-            editor.call('project:management:isOrgAdmin', currentUser.id, config.self)
+            importable &&
+            (currentUser.id === config.self.id ||
+                editor.call('project:management:isOrgAdmin', currentUser.id, config.self))
         );
     };
 
@@ -1499,6 +1555,10 @@ editor.once('load', () => {
 
     // method to display panel
     editor.method('picker:project:cms', () => {
+        if (!supports('projectList')) {
+            return;
+        }
+
         // first open: show the skeleton now so the bare editor layout doesn't show while the user loads
         if (!rootUser) {
             loading = true;

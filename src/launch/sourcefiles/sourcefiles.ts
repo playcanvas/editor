@@ -1,4 +1,5 @@
 // TODO: Remove this file when the legacy scripts are removed
+import { backend } from '@/common/backend';
 import { createLog } from '@/common/sentry';
 import { config } from '@/launch/config';
 
@@ -10,13 +11,14 @@ editor.once('load', () => {
     }
 
     // load scripts
-    fetch(`${config.url.home}${(config.project as { repositoryUrl: string }).repositoryUrl}`, {
-        credentials: 'include',
-        headers: {
-            Authorization: `Bearer ${'accessToken' in window.config ? (window.config as { accessToken: string }).accessToken : ''}`,
-            'Content-Type': 'application/json'
-        }
-    })
+    backend()
+        .transport.fetch(`${config.url.home}${(config.project as { repositoryUrl: string }).repositoryUrl}`, {
+            credentials: 'include',
+            headers: {
+                Authorization: `Bearer ${'accessToken' in window.config ? (window.config as { accessToken: string }).accessToken : ''}`,
+                'Content-Type': 'application/json'
+            }
+        })
         .then((res) => res.json())
         .then((data: { result: { filename: string }[] }) => {
             const filenames = data.result.map((item: { filename: string }) => {

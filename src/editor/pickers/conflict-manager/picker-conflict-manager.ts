@@ -1,5 +1,6 @@
 import { Button } from '@playcanvas/pcui';
 
+import { supports, service } from '@/common/supports';
 import { handleCallback } from '@/common/utils';
 import {
     MERGE_STATUS_APPLY_ENDED,
@@ -62,7 +63,7 @@ editor.once('load', () => {
         }
         const useSrc = side === 'source';
         handleCallback(
-            editor.api.globals.rest.conflicts.conflictsResolve({
+            service('merges').conflictsResolve({
                 mergeId: currentMergeObject.id,
                 conflictIds: ids,
                 useSrc,
@@ -383,15 +384,12 @@ editor.once('load', () => {
 
     const loadMerge = () => {
         showMergeLoading(view);
-        handleCallback(
-            editor.api.globals.rest.merge.mergeGet({ mergeId: config.self.branch.merge.id }),
-            (err, data) => {
-                if (err) {
-                    return view.renderNotice(err);
-                }
-                onMergeDataLoaded(data);
+        handleCallback(service('merges').mergeGet({ mergeId: config.self.branch.merge.id }), (err, data) => {
+            if (err) {
+                return view.renderNotice(err);
             }
-        );
+            onMergeDataLoaded(data);
+        });
     };
 
     const loadDiff = () => {
@@ -435,7 +433,7 @@ editor.once('load', () => {
             editor.call('picker:versioncontrol:mergeCompletingOverlay');
         }
         handleCallback(
-            editor.api.globals.rest.merge.mergeApply({
+            service('merges').mergeApply({
                 mergeId: config.self.branch.merge.id,
                 finalize
             }),
@@ -473,24 +471,21 @@ editor.once('load', () => {
     const onClose = () => {
         if (config.self.branch.merge) {
             showMergeLoading(view);
-            handleCallback(
-                editor.api.globals.rest.merge.mergeDelete({ mergeId: config.self.branch.merge.id }),
-                (err) => {
-                    view.renderNotice(err || 'Merge stopped. Refreshing browser');
-                }
-            );
+            handleCallback(service('merges').mergeDelete({ mergeId: config.self.branch.merge.id }), (err) => {
+                view.renderNotice(err || 'Merge stopped. Refreshing browser');
+            });
             if (
                 diffMode &&
                 currentMergeObject &&
                 currentMergeObject.id !== config.self.branch.merge.id &&
                 !isRetainedDiff(currentMergeObject.id)
             ) {
-                handleCallback(editor.api.globals.rest.merge.mergeDelete({ mergeId: currentMergeObject.id }), () => {
+                handleCallback(service('merges').mergeDelete({ mergeId: currentMergeObject.id }), () => {
                     // intentionally empty
                 });
             }
         } else if (diffMode && currentMergeObject && !isRetainedDiff(currentMergeObject.id)) {
-            handleCallback(editor.api.globals.rest.merge.mergeDelete({ mergeId: currentMergeObject.id }), () => {
+            handleCallback(service('merges').mergeDelete({ mergeId: currentMergeObject.id }), () => {
                 // intentionally empty
             });
         }
@@ -572,12 +567,18 @@ editor.once('load', () => {
     );
 
     editor.method('picker:conflictManager', (data: any) => {
+        if (!supports('merges')) {
+            return;
+        }
         toggleDiffMode(false);
         currentMergeObject = data ?? null;
         view.overlay.hidden = false;
     });
 
     editor.method('picker:diffManager', (diff: any) => {
+        if (!supports('merges')) {
+            return;
+        }
         toggleDiffMode(true);
         currentMergeObject = diff ?? null;
         view.overlay.hidden = false;

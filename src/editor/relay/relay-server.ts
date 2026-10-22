@@ -1,5 +1,8 @@
 import { Events } from '@playcanvas/observer';
 
+import type { RelayRequest, RelayResponse, RoomAuthentication } from '@/common/relay-protocol';
+import type { Transport } from '@/editor-api';
+
 const RELAY_RECONNECT_DELAY = 1000;
 const RELAY_PING_DELAY = 10000;
 const RELAY_PONG_DELAY = 5000;
@@ -10,14 +13,6 @@ type CloseArgs = {
     code?: number;
     /** The reason for the disconnection. Defaults to 'unknown'. */
     reason?: string;
-};
-
-/** Authentication options when joining a room */
-type RoomAuthentication = {
-    /** The authentication type. Currently only 'project' is supported. */
-    type: string;
-    /** If authentication.type is 'project' then this would be the project id. */
-    id: number | string;
 };
 
 /**
@@ -46,8 +41,14 @@ class RelayServer extends Events {
 
     private socket: WebSocket;
 
-    constructor() {
+    private _transport: Transport;
+
+    /**
+     * @param transport - Opens the relay socket.
+     */
+    constructor(transport: Transport) {
         super();
+        this._transport = transport;
         this._url = '';
         this._reconnectDelay = null;
         this._connecting = false;
@@ -86,7 +87,7 @@ class RelayServer extends Events {
         this._connecting = true;
         this._reconnectDelay = null;
 
-        this.socket = new WebSocket(this._url);
+        this.socket = this._transport.socket(this._url);
         this.socket.onopen = this._onopen.bind(this);
         this.socket.onmessage = this._onmessage.bind(this);
         this.socket.onerror = () => {
@@ -177,7 +178,7 @@ class RelayServer extends Events {
             return;
         }
 
-        let msg;
+        let msg: RelayResponse & { error?: string };
         try {
             msg = JSON.parse(raw.data);
         } catch (ex) {
@@ -290,7 +291,7 @@ class RelayServer extends Events {
      *
      * @param msg - The message data
      */
-    send(msg: string | object) {
+    send(msg: RelayRequest) {
         if (!this._connected || this.socket.readyState !== WebSocket.OPEN) {
             return;
         }
