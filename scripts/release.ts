@@ -126,14 +126,17 @@ export const release = (cwd: string, { type, bumpEngine }: Options, deps: Deps) 
                 continue;
             }
             git('checkout', '-q', '--detach', head);
-            if (!ok('cherry-pick', '-x', sha)) {
+
+            // a fix backported by hand under a different patch applies as nothing, so it's dropped
+            if (!ok('cherry-pick', '-x', '--empty=drop', sha)) {
                 git('cherry-pick', '--abort');
                 throw new Error(
                     `Backport of #${number} conflicts on ${branch}; backport it by hand or remove its "${BACKPORT_LABEL}" label`
                 );
             }
-            head = git('rev-parse', 'HEAD');
-            console.log(`Backported #${number}`);
+            const picked = git('rev-parse', 'HEAD');
+            console.log(picked === head ? `Skipping #${number}: already on ${branch}` : `Backported #${number}`);
+            head = picked;
         }
         head = withEngine(head);
         if (!git('rev-list', '-1', `${latest}..${head}`)) {
