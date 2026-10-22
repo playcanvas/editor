@@ -91,6 +91,15 @@ describe('release', function () {
         expect(refs()).to.equal(before);
     });
 
+    it('skips a backport the branch already has under a different patch', () => {
+        run('minor');
+        picks = [{ number: 9, title: 'fix: b', sha: land('main', 'b.txt', 'b') }];
+        land('release-2.34', 'b.txt', 'old');
+        land('release-2.34', 'b.txt', 'b');
+        expect(run('patch')).to.deep.equal({ tag: 'v2.34.1', released: true });
+        expect(sh(remote, 'show', 'release-2.34:b.txt')).to.equal('b');
+    });
+
     it('does nothing when there is nothing to release', () => {
         run('minor');
         const before = refs();
