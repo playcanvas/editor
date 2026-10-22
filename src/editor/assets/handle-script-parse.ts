@@ -1,3 +1,4 @@
+import { backend } from '@/common/backend';
 import { buildQueryUrl } from '@/common/utils';
 import { SOURCE_MAP_URL } from '@/core/constants';
 import { WorkerClient } from '@/core/worker/worker-client';
@@ -201,7 +202,7 @@ editor.once('load', () => {
                     // Attempt to fetch the script
                     try {
                         const url = editor.call('assets:realPath', asset);
-                        const res = await fetch(url);
+                        const res = await backend().transport.fetch(url);
                         const content = await res.text();
                         fileCache.set(path, hash);
                         return [path, content];
@@ -214,7 +215,8 @@ editor.once('load', () => {
             return [scripts.filter((script) => !!script), deletedFiles];
         };
 
-        const fetchText = async (url: string) => (await fetch(url)).text();
+        // the worker source and engine are frontend and cdn files; asset files go through the backend
+        const fetchText = async (url: string, get = fetch) => (await get(url)).text();
 
         let workerSourcePromise: Promise<string> | undefined;
         let enginePromise: Promise<string> | undefined;
@@ -239,7 +241,7 @@ editor.once('load', () => {
                 const [workerSource, engine, script] = await Promise.all([
                     workerSourcePromise,
                     enginePromise,
-                    fetchText(postUrl(asset))
+                    fetchText(postUrl(asset), backend().transport.fetch)
                 ]);
 
                 // allow scripts but omit allow-same-origin, so the sandbox runs on an opaque origin
@@ -261,6 +263,8 @@ editor.once('load', () => {
 onmessage = (e) => {
     const { workerSource, engine, script, port } = e.data;
     const url = URL.createObjectURL(new Blob([workerSource], { type: 'text/javascript' }));
+    // not revoked: on the opaque origin the worker loads the blob after new Worker() returns, and
+    // removing the iframe frees it
     const worker = new Worker(url);
     worker.onmessage = (ev) => { port.postMessage({ result: ev.data }); worker.terminate(); };
     worker.onerror = (ev) => { port.postMessage({ error: ev.message || 'parse error' }); worker.terminate(); };

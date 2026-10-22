@@ -1,5 +1,8 @@
 import { Overlay, Label, Button, Container, BooleanInput, Panel, Progress, TextInput } from '@playcanvas/pcui';
 
+import { backend, UNSUPPORTED_TIP } from '@/common/backend';
+import { supports } from '@/common/supports';
+import { TooltipHandle } from '@/common/tooltips';
 import { bytesToHuman } from '@/common/utils';
 
 import { AssetsStore } from '../../store/assetsStore';
@@ -191,7 +194,7 @@ editor.once('load', () => {
         // filter list
         const filters: { name: string; icon: string; button?: Button }[] = [
             { name: 'PLAYCANVAS', icon: 'E268' },
-            { name: 'SKETCHFAB', icon: 'E188' },
+            ...(backend().sketchfabCatalog ? [{ name: 'SKETCHFAB', icon: 'E188' }] : []),
             { name: 'MY ASSETS', icon: 'E439' }
         ];
 
@@ -380,9 +383,11 @@ editor.once('load', () => {
             // import store items button
             importStoreItemsButton = new Button({
                 class: 'import-button',
-                icon: 'E222'
+                icon: 'E222',
+                enabled: !publishTooltip
             });
             headerUtils.appendBefore(importStoreItemsButton, btnClose);
+            publishTooltip?.attach(importStoreItemsButton.dom);
 
             importStoreItemsButton.on('click', () => {
                 filePicker.value = '';
@@ -505,6 +510,11 @@ editor.once('load', () => {
         class: 'grid-container'
     });
     rightPanel.append(itemsContainer);
+
+    // one tooltip, moved to each rebuilt store upload button
+    const publishTooltip = backend().storePublishing
+        ? null
+        : TooltipHandle.make({ ...UNSUPPORTED_TIP, align: 'bottom' });
 
     // controllers
 
@@ -701,6 +711,9 @@ editor.once('load', () => {
 
     // method to display panel
     editor.method('picker:store:cms', async () => {
+        if (!supports('storeCatalog')) {
+            return;
+        }
         licenses = await loadLicenses();
 
         loadStore();

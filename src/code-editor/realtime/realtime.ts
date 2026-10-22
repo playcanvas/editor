@@ -1,3 +1,4 @@
+import { backend } from '@/common/backend';
 import { share } from '@/common/sharedb';
 
 editor.once('load', () => {
@@ -147,7 +148,7 @@ editor.once('load', () => {
         };
 
         // create new socket
-        socket = new WebSocket(config.url.realtime.http);
+        socket = backend().transport.socket(config.url.realtime.http);
 
         // handle authentication first before we start
         // doing sharedb stuff

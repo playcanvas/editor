@@ -8,7 +8,7 @@ import { instantiateTemplates } from './assets/instantiate-templates';
 import { getUniqueName, siblingNames } from './assets/unique-name';
 import { uploadFile } from './assets/upload';
 import type { Entity } from './entity';
-import { globals as api } from './globals';
+import { apiBase, globals as api } from './globals';
 
 // the script parse pipeline (engine fetch -> worker -> backend) can stall; bound
 // the wait so createScript rejects instead of hanging indefinitely
@@ -483,8 +483,8 @@ class Assets extends Events {
 
         this.emit('load:progress', 0.1);
 
-        const response = await fetch(
-            `${api.apiUrl}/projects/${api.projectId}/assets?branchId=${api.branchId}&view=${options.view || 'designer'}`
+        const response = await api.transport.fetch(
+            `${apiBase()}/projects/${api.projectId}/assets?branchId=${api.branchId}&view=${options.view || 'designer'}`
         );
         if (!response.ok) {
             console.error(`Could not load assets: [${response.status}] - ${response.statusText}`);
@@ -540,8 +540,8 @@ class Assets extends Events {
 
         this.emit('load:progress', 0.1);
 
-        const response = await fetch(
-            `${api.apiUrl}/projects/${api.projectId}/assets?branchId=${api.branchId}&view=${options.view || 'designer'}`
+        const response = await api.transport.fetch(
+            `${apiBase()}/projects/${api.projectId}/assets?branchId=${api.branchId}&view=${options.view || 'designer'}`
         );
         if (!response.ok) {
             console.error(`Could not load assets: [${response.status}] - ${response.statusText}`);
@@ -1248,7 +1248,7 @@ class Assets extends Events {
      * @param assets - The assets
      */
     async delete(assets: Asset[]) {
-        const response = await fetch(`${api.apiUrl}/assets`, {
+        const response = await api.transport.fetch(`${apiBase()}/assets`, {
             body: JSON.stringify({
                 assets: assets.map((a: any) => a.get('id')),
                 branchId: api.branchId

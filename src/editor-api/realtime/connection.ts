@@ -173,7 +173,7 @@ class RealtimeConnection extends Events {
         this._realtime.emit('connecting', this._reconnectAttempts);
 
         // create new socket
-        const socket = new WebSocket(url);
+        const socket = api.transport.socket(url);
 
         socket.addEventListener('open', () => {
             this._state = 'connected';

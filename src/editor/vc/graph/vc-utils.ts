@@ -1,6 +1,7 @@
 import type { Container, Menu } from '@playcanvas/pcui';
 import Graph from '@playcanvas/pcui-graph';
 
+import { service } from '@/common/supports';
 import { handleCallback } from '@/common/utils';
 import { applyUserThumbnail } from '@/editor/pickers/version-control/vc-helpers';
 
@@ -1046,7 +1047,7 @@ editor.once('load', () => {
             h.branch = h.branchId;
 
             handleCallback(
-                editor.api.globals.rest.branches.branchCheckpoints({
+                service('checkpointHistory').branchCheckpoints({
                     branchId: h.branch,
                     taskType: h.task_type,
                     graphStartId: h.graphStartId,

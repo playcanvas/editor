@@ -1,6 +1,6 @@
+import { backend } from '@/common/backend';
 import { Editor } from '@/common/editor';
 import type { EditorMethods } from '@/common/editor';
-import { Messenger } from '@/common/messenger';
 import { setSentrySource, setSentryTags, setSentryUser } from '@/common/sentry';
 import { MERGE_STATUS_APPLY_STARTED, MERGE_STATUS_AUTO_STARTED, MERGE_STATUS_READY_FOR_REVIEW } from '@/core/constants';
 import * as api from '@/editor-api';
@@ -70,12 +70,13 @@ class MainEditor extends Editor<EditorMethods> {
         api.globals.history = new api.History();
         api.globals.selection = new api.Selection();
         api.globals.schema = new api.Schema(config.schema);
-        api.globals.realtime = new api.Realtime();
+        api.globals.realtime = backend().realtime;
         api.globals.settings = new api.Settings();
-        api.globals.messenger = new api.Messenger(new Messenger());
+        api.globals.messenger = new api.Messenger(backend().messenger);
         api.globals.assets = new api.Assets({ autoSubscribe: true });
         api.globals.entities = new api.Entities();
         api.globals.jobs = new api.Jobs();
+        api.globals.entityJobs = !!backend().entityJobs;
         api.globals.clipboard = new api.Clipboard('playcanvas_editor_clipboard');
         api.globals.confirmFn = (text, options) => {
             return new Promise((resolve) => {

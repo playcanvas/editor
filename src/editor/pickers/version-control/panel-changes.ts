@@ -1,6 +1,9 @@
 import { Container, TextAreaInput } from '@playcanvas/pcui';
 
+import { backend, UNSUPPORTED_TIP } from '@/common/backend';
 import { createLog } from '@/common/sentry';
+import { service } from '@/common/supports';
+import { TooltipHandle } from '@/common/tooltips';
 import { config } from '@/editor/config';
 
 import { diffCreate } from '../../messenger/jobs';
@@ -101,10 +104,17 @@ export const createChangesPanel = () => {
     create.textContent = 'Create Checkpoint';
     create.disabled = true;
     form.dom.appendChild(create);
+    const creatable = !!backend().checkpoints && !!backend().jobs;
+    if (!creatable) {
+        TooltipHandle.attach({ target: create, ...UNSUPPORTED_TIP, align: 'bottom' });
+    }
 
     const gateCreate = () => {
         create.disabled =
-            create.classList.contains('busy') || !description.value.trim() || !editor.call('permissions:write');
+            !creatable ||
+            create.classList.contains('busy') ||
+            !description.value.trim() ||
+            !editor.call('permissions:write');
     };
 
     description.on('change', gateCreate);
@@ -199,7 +209,7 @@ export const createChangesPanel = () => {
             if (!fileStats.has(key)) {
                 fileStats.set(
                     key,
-                    editor.api.globals.rest.merge
+                    service('merges')
                         .mergeConflicts({
                             mergeId: id,
                             conflictId: entry.id,

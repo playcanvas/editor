@@ -1,3 +1,5 @@
+import { backend, UNSUPPORTED } from '@/common/backend';
+
 editor.once('load', () => {
     let index = 0;
     editor.method('assets:reimport', (assetId, type, overrides, callback) => {
@@ -5,13 +7,20 @@ editor.once('load', () => {
             callback = overrides;
             overrides = {};
         }
+
+        const service = backend().assetReimport;
+        if (!service) {
+            editor.call('status:error', UNSUPPORTED);
+            callback?.(UNSUPPORTED);
+            return;
+        }
         const data = editor.call('assets:pipeline:options', overrides);
 
         const jobId = ++index;
         const jobName = `asset-reimport:${jobId}`;
         editor.call('status:job', jobName, 0);
 
-        editor.api.globals.rest.assets
+        service
             .assetReimport(assetId, data)
             .on('load', (status, res) => {
                 editor.call('status:job', jobName);

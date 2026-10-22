@@ -3,6 +3,8 @@ import filenamify from 'filenamify/browser';
 import hljs from 'highlight.js/lib/core';
 import javascript from 'highlight.js/lib/languages/javascript';
 
+import { backend, UNSUPPORTED_TIP } from '@/common/backend';
+import { TooltipHandle } from '@/common/tooltips';
 import { bytesToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -23,6 +25,9 @@ let storeItemPanel = null;
 
 editor.once('load', () => {
     // GLOBAL VARIABLES
+
+    // importing needs the backend's store import
+    const importable = !!backend().storeImport;
 
     // used to display storeitem stats
     let storeItem = null;
@@ -379,7 +384,7 @@ editor.once('load', () => {
                 displayError();
             }
 
-            importButton.enabled = editor.call('permissions:write');
+            importButton.enabled = editor.call('permissions:write') && importable;
         } finally {
             toggleProgress(false);
             returnButton.enabled = true;
@@ -401,7 +406,7 @@ editor.once('load', () => {
     // helper method to refresh storeitem-specific UI components depending on current view
     const refreshUI = async () => {
         if (storeItem) {
-            importButton.enabled = editor.call('permissions:write');
+            importButton.enabled = editor.call('permissions:write') && importable;
 
             if (viewerButton) {
                 viewerButton.hidden = storeItem.viewerUrl === undefined;
@@ -494,6 +499,9 @@ editor.once('load', () => {
             text: 'IMPORT'
         });
         topPanel.append(importButton);
+        if (!importable) {
+            TooltipHandle.attach({ target: importButton.dom, ...UNSUPPORTED_TIP, align: 'bottom' });
+        }
 
         importButton.on('click', () => {
             // show popup if we think there already exists in the scene

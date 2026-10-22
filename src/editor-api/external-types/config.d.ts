@@ -170,6 +170,8 @@ export type EditorBlankConfig = {
     sentry: Sentry;
     metrics: Metrics;
     oneTrustDomainKey: string;
+    /** Backend services the page's backend does not provide; absent means it provides them all. */
+    unsupported?: string[];
     wasmModules: WasmModule[];
     /** The projects the projects page's built-in kits fork on this environment; 0 or missing when there is none. */
     starterKits?: { blank: number; modelViewer: number; vr: number };
@@ -232,6 +234,8 @@ export type EditorConfig = {
     sentry: Sentry;
     metrics: Metrics;
     oneTrustDomainKey: string;
+    /** Backend services the page's backend does not provide; absent means it provides them all. */
+    unsupported?: string[];
     schema: ModelSchema;
     wasmModules: WasmModule[];
 };
@@ -261,6 +265,8 @@ export type CodeEditorConfig = {
     sentry: Sentry;
     metrics: Metrics;
     oneTrustDomainKey: string;
+    /** Backend services the page's backend does not provide; absent means it provides them all. */
+    unsupported?: string[];
     schema: ModelSchema;
 };
 
@@ -294,6 +300,8 @@ export type LaunchConfig = {
     sentry: Sentry;
     metrics: Metrics;
     oneTrustDomainKey: string;
+    /** Backend services the page's backend does not provide; absent means it provides them all. */
+    unsupported?: string[];
     schema: ModelSchema;
     engineVersions: EngineVersions;
     wasmModules?: WasmModule[];

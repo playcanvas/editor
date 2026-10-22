@@ -1,3 +1,4 @@
+import { backend } from '@/common/backend';
 import { createLog } from '@/common/sentry';
 import { WorkerClient } from '@/core/worker/worker-client';
 
@@ -27,7 +28,9 @@ editor.once('load', () => {
             const parent = path.length ? path[path.length - 1] : null;
 
             // FIXME: No way to use arrayBuffer with AJAX
-            const response = await fetch(`${config.url.api}/assets/${id}/download?branchId=${config.self.branch.id}`);
+            const response = await backend().transport.fetch(
+                `${config.url.api}/assets/${id}/download?branchId=${config.self.branch.id}`
+            );
             if (!response.ok) {
                 void log.error`texture download failed ${response.status}: ${response.statusText}`;
                 callback(new Error(`Texture download failed (${response.status} ${response.statusText}).`));

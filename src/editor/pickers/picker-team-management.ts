@@ -1,5 +1,9 @@
 import { Element, Label, Button, Menu, MenuItem, Container, TextInput } from '@playcanvas/pcui';
 
+import { backend, UNSUPPORTED_TIP } from '@/common/backend';
+import { supports } from '@/common/supports';
+import { TooltipHandle } from '@/common/tooltips';
+
 const ACCESS_LEVEL_LABELS = new Map([
     ['admin', 'Admin'],
     ['read', 'Read Only'],
@@ -25,6 +29,15 @@ editor.once('load', () => {
         error: null
     };
     const previousAccessLevels = {}; // store previous access levels so we can restore them in case of error
+
+    // team edits need the backend's team management; one tooltip follows the hovered blocked control
+    const managed = !!backend().teamManagement;
+    const unsupported = managed ? null : TooltipHandle.make({ ...UNSUPPORTED_TIP, align: 'top' });
+    const explain = (el: Element) => {
+        if (unsupported) {
+            el.dom.addEventListener('mouseenter', () => unsupported.attach(el.dom));
+        }
+    };
 
     // UI
 
@@ -159,8 +172,10 @@ editor.once('load', () => {
         } else {
             const accessLevelDropdown = new Button({
                 class: 'role-select',
-                text: accessLabel
+                text: accessLabel,
+                enabled: managed
             });
+            explain(accessLevelDropdown);
             accessLevelDropdown.on('click', () => {
                 roleMenu.clear();
                 [
@@ -215,14 +230,21 @@ editor.once('load', () => {
         parentContainer.dom.appendChild(actionsCell.dom);
 
         if (collaborator.username === config.self.username) {
+            // your account settings are a site page, which not every backend has
             const configCollaboratorBtn = new Button({
                 class: 'team-action',
-                icon: 'E134'
+                icon: 'E134',
+                enabled: !!backend().pages
             });
             actionsCell.dom.appendChild(configCollaboratorBtn.dom);
+            if (!backend().pages) {
+                TooltipHandle.attach({ target: configCollaboratorBtn.dom, ...UNSUPPORTED_TIP, align: 'top' });
+            }
 
             configCollaboratorBtn.on('click', () => {
-                window.open(`${config.url.home}/account`, '_blank');
+                if (supports('pages')) {
+                    window.open(`${config.url.home}${backend().pages.account()}`, '_blank');
+                }
             });
         }
 
@@ -238,6 +260,10 @@ editor.once('load', () => {
         } else {
             deleteCollaboratorBtn.enabled =
                 currentProject.owner !== config.self.username && currentProject.id !== config.project.id;
+        }
+        if (deleteCollaboratorBtn.enabled && !managed) {
+            deleteCollaboratorBtn.enabled = false;
+            explain(deleteCollaboratorBtn);
         }
 
         deleteCollaboratorBtn.on('click', () => {
@@ -293,7 +319,7 @@ editor.once('load', () => {
     inviteInputContainer.append(inviteInputGroup);
 
     const inviteInput = new TextInput({
-        enabled: isAdmin,
+        enabled: isAdmin && managed,
         placeholder: 'Username or email address',
         class: 'invite-input',
         blurOnEnter: false
@@ -319,11 +345,12 @@ editor.once('load', () => {
     });
 
     const inviteSubmit = new Button({
-        enabled: isAdmin,
+        enabled: isAdmin && managed,
         text: 'Invite',
         class: 'invite-submit'
     });
     inviteInputGroup.append(inviteSubmit);
+    explain(inviteInputGroup);
 
     const membersLabel = new Label({
         text: '',
@@ -687,6 +714,9 @@ editor.once('load', () => {
 
     // show the project management picker
     editor.method('picker:team:management', () => {
+        if (!supports('teamList')) {
+            return;
+        }
         editor.call('picker:project', 'team');
     });
 
@@ -708,7 +738,7 @@ editor.once('load', () => {
         membersGrid.dom.innerHTML = '';
         ownerRendered = false;
         collaborators = [];
-        inviteInput.enabled = currentProject.access_level === 'admin';
-        inviteSubmit.enabled = currentProject.access_level === 'admin';
+        inviteInput.enabled = currentProject.access_level === 'admin' && managed;
+        inviteSubmit.enabled = currentProject.access_level === 'admin' && managed;
     });
 });

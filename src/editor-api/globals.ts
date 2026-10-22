@@ -9,6 +9,8 @@ import type { Rest } from './rest';
 import type { Schema } from './schema';
 import type { Selection } from './selection';
 import type { Settings } from './settings';
+import { nativeTransport } from './transport';
+import type { Transport } from './transport';
 
 /**
  * Global variables
@@ -63,6 +65,13 @@ const globals: {
     jobs: Jobs;
 
     /**
+     * Whether the backend copies, duplicates and deletes large entity batches in pipeline jobs.
+     * Without them every batch is handled in the page.
+     * @category Internal
+     */
+    entityJobs: boolean;
+
+    /**
      * The main clipboard
      * @category Internal
      */
@@ -74,6 +83,12 @@ const globals: {
      * @ignore
      */
     rest: Rest;
+
+    /**
+     * Where backend requests and sockets go. Defaults to the browser's native transport.
+     * @category Internal
+     */
+    transport: Transport;
 
     /**
      * The user's access token
@@ -130,8 +145,10 @@ const globals: {
     settings: undefined,
     messenger: undefined,
     jobs: undefined,
+    entityJobs: true,
     clipboard: undefined,
     rest: undefined,
+    transport: nativeTransport,
     accessToken: undefined,
     projectId: undefined,
     branchId: undefined,
@@ -148,4 +165,12 @@ const globals: {
     }
 };
 
-export { globals };
+/**
+ * The base the asset urls and calls outside `rest` build on: `apiUrl`, or hosted's same-origin `/api`
+ * when a page leaves it unset, as these did before reading it.
+ *
+ * @returns The base, without a trailing slash.
+ */
+const apiBase = () => globals.apiUrl || '/api';
+
+export { apiBase, globals };
