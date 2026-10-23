@@ -1,4 +1,4 @@
-import { Layer, SORTMODE_BACK2FRONT, SORTMODE_NONE } from 'playcanvas';
+import { Layer, SORTMODE_BACK2FRONT, SORTMODE_MANUAL, SORTMODE_NONE } from 'playcanvas';
 import type { LayerComposition } from 'playcanvas';
 
 editor.once('load', () => {
@@ -107,8 +107,20 @@ editor.once('load', () => {
     editor.call('gizmo:layers:register', 'Viewport Grid', true);
     // Layer before every scene layer
     editor.call('gizmo:layers:register', 'Bright Gizmo', true);
+    // engine grid (default preset): after the scene so it is depth tested against it both ways
+    editor.call('gizmo:layers:register', 'Scene Grid');
     // First layer after every scene layer
     editor.call('gizmo:layers:register', 'Bright Collision');
+    // engine handle and icon gizmos (default preset): keeps scene depth so hidden parts draw faint
+    editor.call('gizmo:layers:register', 'Handle Gizmo', false, {
+        opaqueSortMode: SORTMODE_NONE,
+        transparentSortMode: SORTMODE_MANUAL
+    });
+    // engine icons: after the handles so lines crossing an icon don't fight it
+    editor.call('gizmo:layers:register', 'Icon Gizmo', false, {
+        opaqueSortMode: SORTMODE_NONE,
+        transparentSortMode: SORTMODE_MANUAL
+    });
     // Second layer after every scene layer - clears depth buffer
     editor.call('gizmo:layers:register', 'Dim Gizmo', false, {
         overrideClear: true,

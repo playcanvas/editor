@@ -1,24 +1,12 @@
-import { BoundingBox, Color, EMITTERSHAPE_BOX, EMITTERSHAPE_SPHERE, Entity, Mat4, Vec3 } from 'playcanvas';
-import type { AppBase } from 'playcanvas';
+import { BoundingBox, EMITTERSHAPE_BOX, EMITTERSHAPE_SPHERE, Mat4, Vec3 } from 'playcanvas';
+import type { Entity } from 'playcanvas';
 
+// selection bounds are drawn by the engine bounding box gizmo (gizmo-helpers); this keeps the
+// per-entity bounds used to frame the camera and whether the bounds show
 editor.once('load', () => {
-    let app = null;
-    let entities = [];
-
     const BOUNDING_BOX_MIN_EXTENTS = new Vec3(0.01, 0.01, 0.01);
 
     let visible = true;
-
-    const color = new Color(1, 1, 1);
-    const colorBehind = new Color(1, 1, 1, 0.2);
-
-    const points = [];
-    for (let c = 0; c < 32; c++) {
-        points[c] = new Vec3();
-    }
-
-    // temp variables for getBoundingBoxForHierarchy
-    const _entityResultBB = new BoundingBox();
 
     // temp variables for getBoundingBoxForEntity
     const _tmpBB = new BoundingBox();
@@ -27,68 +15,14 @@ editor.once('load', () => {
     // temp variables for entities:getBoundingBoxForEntity
     const _resultBB = new BoundingBox();
 
-    // tmp variable used to render bounding box
-    const _selectionBB = new BoundingBox();
-
-    editor.on('selector:change', (type: string, items: { entity: Entity }[]) => {
-        if (type === 'entity') {
-            entities = items.map((item) => {
-                return item.entity;
-            });
-        } else {
-            entities = [];
+    editor.method('gizmo:boundingbox:visible', (state?: boolean) => {
+        if (state === undefined) {
+            return visible;
         }
-    });
-
-    editor.method('gizmo:boundingbox:visible', (state: boolean) => {
         if (state !== visible) {
             visible = state;
+            editor.emit('gizmo:boundingbox:visible', visible);
             editor.call('viewport:render');
-        }
-    });
-
-    editor.method('viewport:render:aabb', (aabb: BoundingBox) => {
-        if (!app) {
-            return;
-        } // webgl not available
-
-        if (!visible) {
-            return;
-        }
-
-        const immediateLayer = editor.call('gizmo:layers', 'Axis Gizmo Immediate');
-        const brightLayer = editor.call('gizmo:layers', 'Bright Gizmo');
-
-        let ind = 0;
-        for (let x = -1; x <= 1; x += 2) {
-            for (let y = -1; y <= 1; y += 2) {
-                for (let z = -1; z <= 1; z += 2) {
-                    points[ind * 4].copy(aabb.halfExtents);
-                    points[ind * 4].x *= x;
-                    points[ind * 4].y *= y;
-                    points[ind * 4].z *= z;
-                    points[ind * 4].add(aabb.center);
-
-                    points[ind * 4 + 1].copy(points[ind * 4]);
-                    points[ind * 4 + 1].x -= aabb.halfExtents.x * 0.3 * x;
-
-                    points[ind * 4 + 2].copy(points[ind * 4]);
-                    points[ind * 4 + 2].y -= aabb.halfExtents.y * 0.3 * y;
-
-                    points[ind * 4 + 3].copy(points[ind * 4]);
-                    points[ind * 4 + 3].z -= aabb.halfExtents.z * 0.3 * z;
-
-                    app.drawLine(points[ind * 4], points[ind * 4 + 1], colorBehind, true, immediateLayer);
-                    app.drawLine(points[ind * 4], points[ind * 4 + 2], colorBehind, true, immediateLayer);
-                    app.drawLine(points[ind * 4], points[ind * 4 + 3], colorBehind, true, immediateLayer);
-
-                    app.drawLine(points[ind * 4], points[ind * 4 + 1], color, true, brightLayer);
-                    app.drawLine(points[ind * 4], points[ind * 4 + 2], color, true, brightLayer);
-                    app.drawLine(points[ind * 4], points[ind * 4 + 3], color, true, brightLayer);
-
-                    ind++;
-                }
-            }
         }
     });
 
@@ -254,66 +188,7 @@ editor.once('load', () => {
         return resultBB;
     };
 
-    // Get the bounding box the encloses a hierarchy of entities
-    // {Entity} root - the root entity of the hierarchy
-    const getBoundingBoxForHierarchy = function (root: Entity, hierarchyBB?: BoundingBox | null): BoundingBox {
-        const bb = getBoundingBoxForEntity(root, _entityResultBB);
-
-        // first time through we initialize with the new boundingbox
-        if (!hierarchyBB) {
-            hierarchyBB = new BoundingBox();
-            hierarchyBB.copy(bb);
-        } else {
-            hierarchyBB.add(bb);
-        }
-
-        const children = root.children;
-        for (let i = 0; i < children.length; i++) {
-            const child = children[i];
-            if (child.__editor || !(child instanceof Entity)) {
-                continue;
-            }
-
-            // now we pass in the bounding box to be added to
-            getBoundingBoxForHierarchy(child, hierarchyBB);
-        }
-
-        return hierarchyBB;
-    };
-
     editor.method('entities:getBoundingBoxForEntity', (entity: Entity) => {
         return getBoundingBoxForEntity(entity, _resultBB);
-    });
-
-    editor.once('viewport:load', (application: AppBase) => {
-        app = application;
-
-        editor.on('viewport:postUpdate', () => {
-            if (!entities.length) {
-                return;
-            }
-
-            // firstBB = true;
-            let noEntities = true;
-
-            for (let i = 0; i < entities.length; i++) {
-                if (!entities[i]) {
-                    continue;
-                }
-
-                noEntities = false;
-                const entityBox = getBoundingBoxForHierarchy(entities[i]);
-                if (i === 0) {
-                    _selectionBB.copy(entityBox);
-                } else {
-                    _selectionBB.add(entityBox);
-                }
-            }
-
-            if (!noEntities) {
-                _selectionBB.halfExtents.add(BOUNDING_BOX_MIN_EXTENTS);
-                editor.call('viewport:render:aabb', _selectionBB);
-            }
-        });
     });
 });

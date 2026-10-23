@@ -57,6 +57,10 @@ editor.once('load', () => {
     let scale = 0.5;
     let selectedIds = {};
 
+    // components the engine icon gizmo draws (cameras even when disabled, as the editor keeps
+    // scene cameras disabled)
+    const ENGINE_ICON_COMPONENTS = ['camera', 'light', 'audiolistener', 'sound', 'particlesystem'];
+
     const ICON_ALPHA_TEST = 0.05;
     const ICON_BEHIND_OPACITY = 0.25;
 
@@ -158,7 +162,10 @@ editor.once('load', () => {
                 !this._link.entity._enabledInHierarchy ||
                 this._link.entity.__noIcon ||
                 scale === 0 ||
-                selectedIds[this._link.entity.guid]
+                selectedIds[this._link.entity.guid] ||
+                ENGINE_ICON_COMPONENTS.some((c) =>
+                    c === 'camera' ? this._link.entity.c.camera : this._link.entity.c[c]?.enabled
+                )
             ) {
                 if (this.entity) {
                     this.entityDelete();

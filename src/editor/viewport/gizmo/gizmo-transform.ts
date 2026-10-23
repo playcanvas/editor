@@ -1,8 +1,10 @@
 import { Color, Gizmo, RotateGizmo, ScaleGizmo, TransformGizmo, TranslateGizmo } from 'playcanvas';
-import type { Entity, MeshInstance, Layer } from 'playcanvas';
+import type { Entity, Layer } from 'playcanvas';
 
 import { Defer } from '@/common/defer';
 import type { EntityObserver } from '@/editor-api';
+
+import { initEngineGizmo, releaseEngineGizmo } from './gizmo-engine';
 
 type GizmoNodeTransform = {
     position: number[];
@@ -15,6 +17,8 @@ type GizmoTheme = TransformGizmo['theme'];
 type GizmoDragMode = TransformGizmo['dragMode'];
 
 type GizmoPreset = {
+    readout: boolean;
+    guideThickness: number;
     translate: {
         theme: GizmoTheme;
         dragMode: GizmoDragMode;
@@ -25,6 +29,9 @@ type GizmoPreset = {
         axisLineThickness: number;
         axisPlaneGap: number;
         axisPlaneSize: number;
+        axisPlaneOpacity: number;
+        axisPlaneOutlineThickness: number;
+        axisFadeAngle: number;
         disableShapes: GizmoAxis[];
     };
     rotate: {
@@ -43,6 +50,9 @@ type GizmoPreset = {
         axisLineLength: number;
         axisLineThickness: number;
         axisCenterSize: number;
+        axisPlaneOpacity: number;
+        axisPlaneOutlineThickness: number;
+        axisFadeAngle: number;
         disableShapes: GizmoAxis[];
     };
 };
@@ -83,7 +93,10 @@ const CLASSIC_THEME: GizmoTheme = {
     guideOcclusion: 0.9,
     disabled: new Color(0, 0, 0, 0)
 };
+// classic pins the 2.24 knobs to how 2.23 drew: opaque planes, no outline, no fade, no readout
 const CLASSIC_PRESET: GizmoPreset = {
+    readout: false,
+    guideThickness: 1,
     translate: {
         theme: CLASSIC_THEME,
         dragMode: 'hide',
@@ -94,6 +107,9 @@ const CLASSIC_PRESET: GizmoPreset = {
         axisLineThickness: 0.005,
         axisPlaneGap: 0,
         axisPlaneSize: 0.21,
+        axisPlaneOpacity: 1,
+        axisPlaneOutlineThickness: 0,
+        axisFadeAngle: 0,
         disableShapes: ['xyz'] // TODO: hide center sphere for now
     },
     rotate: {
@@ -112,6 +128,9 @@ const CLASSIC_PRESET: GizmoPreset = {
         axisLineLength: 0.4,
         axisLineThickness: 0.005,
         axisCenterSize: 0.16,
+        axisPlaneOpacity: 1,
+        axisPlaneOutlineThickness: 0,
+        axisFadeAngle: 0,
         disableShapes: ['xy', 'xz', 'yz'] // TODO: disable planes as scaling unintuitive right now
     }
 };
@@ -168,14 +187,11 @@ const setTRS = (observer: EntityObserver, trs: GizmoNodeTransform, history = tru
     observer.history.enabled = historyEnabled;
 };
 
-const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
-    // disable pointer event prevent default to allow viewport tap handling
-    gizmo.preventDefault = false;
+const HISTORY_NAMES = new Map<TransformGizmo, string>();
 
-    // only allow left mouse button interaction
-    gizmo.mouseButtons[0] = true; // left
-    gizmo.mouseButtons[1] = false; // middle
-    gizmo.mouseButtons[2] = false; // right
+const initGizmo = <T extends TransformGizmo>(gizmo: T, historyName: string) => {
+    initEngineGizmo(gizmo);
+    HISTORY_NAMES.set(gizmo, historyName);
 
     // enable orbit rotation for rotate gizmo
     if (gizmo instanceof RotateGizmo) {
@@ -187,38 +203,10 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
         gizmo.uniform = true;
     }
 
-    // call viewport render when gizmo fires update
-    gizmo.on(Gizmo.EVENT_RENDERUPDATE, () => {
-        editor.call('viewport:render');
-    });
-
-    // track hover state and cursor position
-    let hovering = false;
-    let hoverMesh: MeshInstance | null = null;
-    gizmo.on(Gizmo.EVENT_POINTERMOVE, (x: number, y: number, meshInstance: MeshInstance) => {
+    // track cursor position for carrying the gizmo while flying
+    gizmo.on(Gizmo.EVENT_POINTERMOVE, (x: number, y: number) => {
         cursor[0] = x;
         cursor[1] = y;
-        const mesh = meshInstance || null;
-        if (hoverMesh === mesh) {
-            return;
-        }
-        hoverMesh = mesh;
-        const nowHovering = !!mesh;
-        if (hovering !== nowHovering) {
-            hovering = nowHovering;
-            editor.emit('gizmo:transform:hover', hovering);
-        }
-        // the hovered handle changed: re-render so the highlight updates. the engine
-        // marks the gizmo dirty on hover but only repaints on a rendered frame, and
-        // nothing else renders on plain mouse movement now.
-        editor.call('viewport:render');
-    });
-    gizmo.on(Gizmo.EVENT_NODESDETACH, () => {
-        hoverMesh = null;
-        if (hovering) {
-            hovering = false;
-            editor.emit('gizmo:transform:hover', false);
-        }
     });
 
     // track history
@@ -233,7 +221,6 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
             observers[i].history.enabled = false;
         }
 
-        editor.call('camera:toggle', false);
         editor.call('viewport:pick:state', false);
 
         editor.emit('gizmo:transform:drag', true);
@@ -264,7 +251,7 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
 
         // add discrete action to history
         editor.api.globals.history.add({
-            name: 'entities.translate',
+            name: HISTORY_NAMES.get(gizmo),
             combine: false,
             undo: () => {
                 for (let i = 0; i < observers.length; i++) {
@@ -278,15 +265,10 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
             }
         });
 
-        editor.call('camera:toggle', true);
         editor.call('viewport:pick:state', true);
 
         editor.emit('gizmo:transform:drag', false);
     });
-
-    // manually call prerender and update methods
-    editor.on('viewport:preRender', gizmo.prerender.bind(gizmo));
-    editor.on('viewport:update', gizmo.update.bind(gizmo));
 
     return gizmo;
 };
@@ -296,18 +278,20 @@ editor.on('scene:load', () => {
     const layer: Layer = editor.call('gizmo:layers', 'Axis Gizmo Immediate');
 
     if (!translate) {
-        translate = initGizmo(new TranslateGizmo(camera.camera, layer));
+        translate = initGizmo(new TranslateGizmo(camera.camera, layer), 'entities.translate');
     }
     if (!rotate) {
-        rotate = initGizmo(new RotateGizmo(camera.camera, layer));
+        rotate = initGizmo(new RotateGizmo(camera.camera, layer), 'entities.rotate');
     }
     if (!scale) {
-        scale = initGizmo(new ScaleGizmo(camera.camera, layer));
+        scale = initGizmo(new ScaleGizmo(camera.camera, layer), 'entities.scale');
     }
 
     // save default preset if not already set
     if (!presets.has('default')) {
         presets.set('default', {
+            readout: translate.readout,
+            guideThickness: translate.guideThickness,
             translate: {
                 theme: cloneTheme(translate.theme),
                 dragMode: translate.dragMode,
@@ -318,6 +302,9 @@ editor.on('scene:load', () => {
                 axisLineThickness: translate.axisLineThickness,
                 axisPlaneGap: translate.axisPlaneGap,
                 axisPlaneSize: translate.axisPlaneSize,
+                axisPlaneOpacity: translate.axisPlaneOpacity,
+                axisPlaneOutlineThickness: translate.axisPlaneOutlineThickness,
+                axisFadeAngle: translate.axisFadeAngle,
                 disableShapes: GIZMO_AXES.filter((axis) => !translate.isShapeEnabled(axis))
             },
             rotate: {
@@ -336,6 +323,9 @@ editor.on('scene:load', () => {
                 axisLineLength: scale.axisLineLength,
                 axisLineThickness: scale.axisLineThickness,
                 axisCenterSize: scale.axisCenterSize,
+                axisPlaneOpacity: scale.axisPlaneOpacity,
+                axisPlaneOutlineThickness: scale.axisPlaneOutlineThickness,
+                axisFadeAngle: scale.axisFadeAngle,
                 disableShapes: GIZMO_AXES.filter((axis) => !scale.isShapeEnabled(axis))
             }
         });
@@ -452,9 +442,12 @@ const enable = (state = true) => {
         return;
     }
     const enabled = write && state;
-    translate.enabled = enabled;
-    rotate.enabled = enabled;
-    scale.enabled = enabled;
+    for (const gizmo of [translate, rotate, scale]) {
+        gizmo.enabled = enabled;
+        if (!enabled) {
+            releaseEngineGizmo(gizmo);
+        }
+    }
 };
 editor.on('gizmo:transform:visible', enable);
 
@@ -490,6 +483,11 @@ editor.once('settings:user:load', async () => {
             });
         };
 
+        for (const gizmo of [translate, rotate, scale]) {
+            gizmo.readout = preset.readout;
+            gizmo.guideThickness = preset.guideThickness;
+        }
+
         // translate
         translate.setTheme(preset.translate.theme);
         translate.dragMode = preset.translate.dragMode;
@@ -500,6 +498,9 @@ editor.once('settings:user:load', async () => {
         translate.axisPlaneSize = preset.translate.axisPlaneSize;
         translate.axisLineLength = preset.translate.axisLineLength;
         translate.axisLineThickness = preset.translate.axisLineThickness;
+        translate.axisPlaneOpacity = preset.translate.axisPlaneOpacity;
+        translate.axisPlaneOutlineThickness = preset.translate.axisPlaneOutlineThickness;
+        translate.axisFadeAngle = preset.translate.axisFadeAngle;
         setShapes(translate, preset.translate.disableShapes);
 
         // rotate
@@ -518,6 +519,9 @@ editor.once('settings:user:load', async () => {
         scale.axisLineLength = preset.scale.axisLineLength;
         scale.axisLineThickness = preset.scale.axisLineThickness;
         scale.axisCenterSize = preset.scale.axisCenterSize;
+        scale.axisPlaneOpacity = preset.scale.axisPlaneOpacity;
+        scale.axisPlaneOutlineThickness = preset.scale.axisPlaneOutlineThickness;
+        scale.axisFadeAngle = preset.scale.axisFadeAngle;
         setShapes(scale, preset.scale.disableShapes);
 
         editor.call('viewport:render');

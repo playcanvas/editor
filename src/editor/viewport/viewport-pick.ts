@@ -1,4 +1,4 @@
-import type { GraphNode } from 'playcanvas';
+import type { GraphNode, Layer } from 'playcanvas';
 import { Entity, Picker, Vec2 } from 'playcanvas';
 
 import { frameLimiter } from '@/common/utils';
@@ -37,9 +37,20 @@ editor.once('load', () => {
         return node instanceof Entity ? node : null;
     };
 
-    editor.on('gizmo:transform:hover', (state: boolean) => {
+    editor.on('gizmo:hover', (state: boolean) => {
         gizmoHover = state;
     });
+
+    // engine handle and icon gizmos pick themselves on the cpu, so their overlays stay out of
+    // the picker where volumes would hide what is behind them
+    const pickLayers = () => {
+        const camera = editor.call('camera:current').camera;
+        const handles = editor.call('gizmo:layers', 'Handle Gizmo');
+        const layers = app.scene.layers.layerList.filter(
+            (layer) => layer !== handles && camera.layers.includes(layer.id)
+        );
+        return [...new Set<Layer>(layers)];
+    };
 
     editor.method('viewport:pick:filter', (fn: ((node: GraphNode) => boolean) | null) => {
         if (filter === fn) {
@@ -111,7 +122,7 @@ editor.once('load', () => {
             // }
 
             // prepare picker
-            picker.prepare(editor.call('camera:current').camera, scene);
+            picker.prepare(editor.call('camera:current').camera, scene, pickLayers());
 
             // pick node
             const picked = picker.getSelection(x, y);
@@ -136,7 +147,7 @@ editor.once('load', () => {
             const scene = app.scene;
 
             // prepare picker
-            picker.prepare(editor.call('camera:current').camera, scene);
+            picker.prepare(editor.call('camera:current').camera, scene, pickLayers());
 
             // pick all mesh instances in the rectangle
             const picked = picker.getSelection(x, y, width, height);

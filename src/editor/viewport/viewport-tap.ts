@@ -122,9 +122,9 @@ editor.once('load', () => {
         }
     };
 
-    // track gizmo dragging state to splice into tap handling (uses pointer events)
+    // track engine gizmo presses to splice into tap handling (they use pointer events)
     let gizmoDragging = false;
-    editor.on('gizmo:transform:drag', (dragging) => {
+    editor.on('gizmo:capture', (dragging: boolean) => {
         gizmoDragging = dragging;
     });
     const gizmoCapture = (evt: MouseEvent) => gizmoDragging && evt.button === 0;
