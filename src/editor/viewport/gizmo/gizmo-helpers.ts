@@ -276,11 +276,16 @@ const createGizmos = (camera: Entity, layer: Layer, iconLayer: Layer) => {
     setLightColor();
 };
 
-// default draws lights in their own color, classic keeps them white
+// default draws lights and their icons in their own color, classic keeps them white
 const setLightColor = () => {
+    const color = editor.call('gizmo:preset') === 'default';
     if (lightsGizmo) {
-        lightsGizmo.useLightColor = editor.call('gizmo:preset') === 'default';
+        lightsGizmo.useLightColor = color;
     }
+    if (iconsGizmo) {
+        iconsGizmo.useLightColor = color;
+    }
+    editor.call('viewport:render');
 };
 
 // each entity's collision keeps the hue the legacy collision gizmo gave it, from its guid
