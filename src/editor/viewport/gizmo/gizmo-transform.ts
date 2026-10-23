@@ -472,7 +472,8 @@ editor.once('settings:user:load', async () => {
 
     // gizmo preset
     bind('editor.gizmoPreset', (value: 'classic' | 'default') => {
-        const preset = presets.get(value);
+        // an unset preset is classic, as in gizmo:preset
+        const preset = presets.get(value === 'default' ? 'default' : 'classic');
         if (!preset) {
             return;
         }

@@ -41,8 +41,8 @@ editor.once('load', () => {
         gizmoHover = state;
     });
 
-    // engine handle and icon gizmos pick themselves on the cpu, so their overlays stay out of
-    // the picker where volumes would hide what is behind them
+    // engine handle gizmos pick themselves on the cpu, so their overlays stay out of the picker
+    // where volumes would hide what is behind them; engine icons are picked here, with the scene
     const pickLayers = () => {
         const camera = editor.call('camera:current').camera;
         const handles = editor.call('gizmo:layers', 'Handle Gizmo');
@@ -130,7 +130,7 @@ editor.once('load', () => {
             if (!picked.length || !picked[0]) {
                 fn(null, null);
             } else {
-                const entity = findParentEntity(picked[0].node);
+                const entity = editor.call('gizmo:icon:node', picked[0]) ?? findParentEntity(picked[0].node);
                 if (!entity) {
                     return;
                 }
@@ -162,7 +162,9 @@ editor.once('load', () => {
                     continue;
                 }
 
-                const entity = findParentEntity((meshInstance as { node: GraphNode }).node);
+                const entity =
+                    editor.call('gizmo:icon:node', meshInstance) ??
+                    findParentEntity((meshInstance as { node: GraphNode }).node);
                 if (!entity) {
                     continue;
                 }

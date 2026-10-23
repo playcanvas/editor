@@ -3,6 +3,7 @@ import {
     BoxGizmo,
     CameraGizmo,
     CapsuleGizmo,
+    Color,
     ConeGizmo,
     CylinderGizmo,
     HandleGizmo,
@@ -11,25 +12,36 @@ import {
     Quat,
     SphereGizmo
 } from 'playcanvas';
-import type { DragGizmo, Entity, Gizmo, GraphNode, Layer, ShapeGizmo } from 'playcanvas';
+import type { DragGizmo, Entity, Gizmo, GraphNode, Layer, MeshInstance, ShapeGizmo } from 'playcanvas';
 
 import type { EntityObserver } from '@/editor-api';
 
 import { initEngineGizmo, releaseEngineGizmo } from './gizmo-engine';
 
-// engine helper gizmos, in both presets: camera, light and bounds handles, collision shape
-// handles and screen-sized icons
+// engine helper gizmos: camera and light handles, collision shape handles and screen-sized icons
+// in both presets, and bounds handles in the default preset
 
 type Edit = {
     observer: EntityObserver;
     path: string;
     read: () => unknown;
+    history?: boolean;
 };
 
 // components the engine icon gizmo has glyphs for
-const ICON_COMPONENTS = ['camera', 'light', 'audiolistener', 'sound', 'particlesystem'];
+const ICON_COMPONENTS = ['camera', 'light', 'audiolistener', 'sound', 'particlesystem', 'anim', 'animation', 'script'];
 
 const GIZMO_ANGLE_MULT = 5;
+
+// the icon size setting is in world units, where 0.2 matches the engine's 24 pixel icons
+const ICON_PIXELS_PER_UNIT = 120;
+const ICON_PIXELS_MIN = 8;
+const ICON_PIXELS_MAX = 96;
+
+// collision opacity in front of and behind the scene; the legacy 0.6 fill would fight a render
+// surface the collision matches, as their meshes are tessellated differently
+const COLLISION_ALPHA_FILL = 0.15;
+const COLLISION_ALPHA_BEHIND = 0.2;
 
 // the capsule, cone and cylinder gizmos run along y; collision axis 0 and 2 turn them onto x and z
 const AXIS_ROTATIONS = [new Quat().setFromEulerAngles(0, 0, -90), new Quat(), new Quat().setFromEulerAngles(90, 0, 0)];
@@ -47,7 +59,11 @@ let shapes: Record<string, ShapeGizmo> | null = null;
 let all: (HandleGizmo | IconGizmo)[] = [];
 
 let write = false;
+let iconSize = 0.2;
 let shapeDragging = false;
+
+// the entity whose collision shape gizmo shows, if any
+let shapeEntity: Entity | null = null;
 
 const selectedEntities = (): Entity[] => {
     if (editor.call('selector:type') !== 'entity') {
@@ -85,9 +101,11 @@ const trackEdits = (gizmo: HandleGizmo, edits: (node: GraphNode | null, name: st
         const list = edits(node, name).filter((edit) => edit.observer);
         active = { edits: list, before: list.map((edit) => clone(edit.observer.get(edit.path))) };
         list.forEach((edit) => {
+            edit.history = edit.observer.history.enabled;
             edit.observer.history.enabled = false;
         });
         editor.call('viewport:pick:state', false);
+        editor.emit('gizmo:transform:drag', true);
     });
     gizmo.on(HandleGizmo.EVENT_HANDLEMOVE, () => {
         active?.edits.forEach((edit) => edit.observer.set(edit.path, edit.read()));
@@ -102,9 +120,10 @@ const trackEdits = (gizmo: HandleGizmo, edits: (node: GraphNode | null, name: st
         const after = list.map((edit) => clone(edit.read()));
         list.forEach((edit, i) => {
             edit.observer.set(edit.path, after[i]);
-            edit.observer.history.enabled = true;
+            edit.observer.history.enabled = edit.history;
         });
         editor.call('viewport:pick:state', true);
+        editor.emit('gizmo:transform:drag', false);
 
         if (list.every((_edit, i) => same(before[i], after[i]))) {
             return;
@@ -143,39 +162,19 @@ const setSize = (value: number) => {
     editor.call('viewport:render');
 };
 
-// the editor keeps every scene camera component disabled and renders through its own cameras,
-// while the engine camera and icon gizmos skip disabled cameras
-// TODO: drop these overrides once the engine gizmos can draw disabled cameras
-const drawDisabledCameras = (gizmo: CameraGizmo) => {
-    const internal = gizmo as unknown as { _draw: (entity: Entity) => void; _drawShapes: () => void };
-    const draw = internal._draw.bind(gizmo);
-    internal._drawShapes = () => {
-        for (const node of gizmo.nodes) {
-            const entity = node as Entity;
-            if (entity.enabled && entity.camera && entity.camera !== gizmo.camera) {
-                draw(entity);
-            }
-        }
-    };
-};
-const iconDisabledCameras = (gizmo: IconGizmo) => {
-    const internal = gizmo as unknown as { _iconOf: (entity: Entity) => string | null };
-    const iconOf = internal._iconOf.bind(gizmo);
-    internal._iconOf = (entity: Entity) => {
-        const icon = iconOf(entity);
-        if (icon || !entity.enabled || !entity.camera || entity.camera === gizmo.camera) {
-            return icon;
-        }
-        const { render, model, sprite, element } = entity;
-        const drawn = render?.meshInstances.length || model?.meshInstances?.length || sprite || element;
-        return drawn ? null : 'camera';
-    };
+const setIconSize = (value?: number) => {
+    iconSize = value ?? 0.2;
+    if (iconsGizmo) {
+        iconsGizmo.iconSize = Math.min(Math.max(ICON_PIXELS_PER_UNIT * iconSize, ICON_PIXELS_MIN), ICON_PIXELS_MAX);
+        iconsGizmo.enabled = iconSize > 0;
+    }
+    editor.call('viewport:render');
 };
 
 const createGizmos = (camera: Entity, layer: Layer, iconLayer: Layer) => {
-    // a press goes to the first gizmo it hits, so these come after the transform gizmos
+    // a press goes to the first gizmo it hits, so these are created before the transform gizmos
+    // (index.ts imports this module first), and their small handles win over the transform's
     camerasGizmo = initEngineGizmo(new CameraGizmo(camera.camera, layer));
-    drawDisabledCameras(camerasGizmo);
 
     // the icon gizmo draws every icon, selected or not, so icons stay at their entity
     camerasGizmo.icon = false;
@@ -253,6 +252,9 @@ const createGizmos = (camera: Entity, layer: Layer, iconLayer: Layer) => {
 
     // after the collision shapes, whose handles sit on the same spots and are the specific edit
     boundsGizmo = initEngineGizmo(new BoundingBoxGizmo(camera.camera, layer));
+
+    // the transform gizmo marks the origin, and the marker would sit on the entity's icon
+    boundsGizmo.icon = false;
     trackEdits(boundsGizmo, () =>
         boundsGizmo.nodes.flatMap((node) => [
             { observer: observerOf(node), path: 'position', read: () => node.getLocalPosition().toArray() },
@@ -260,40 +262,49 @@ const createGizmos = (camera: Entity, layer: Layer, iconLayer: Layer) => {
         ])
     );
 
-    // lights and cameras that aren't selected show only their icons
-    iconsGizmo = initEngineGizmo(new IconGizmo(camera.camera, iconLayer));
-    iconDisabledCameras(iconsGizmo);
+    // icons are picked with the scene by the viewport picker (see gizmo:icon:node), so a wall in
+    // front of an icon wins and rect selection includes them; the gizmo takes no presses itself
+    iconsGizmo = initEngineGizmo(new IconGizmo(camera.camera, iconLayer), false);
 
     all = [camerasGizmo, lightsGizmo, boundsGizmo, ...Object.values(shapes), iconsGizmo];
-
-    // clicking an icon selects its entity, with ctrl adding to or removing from the selection
-    for (const gizmo of all) {
-        gizmo.on(IconGizmo.EVENT_ICONSELECT, (entity: GraphNode) => {
-            const observer = observerOf(entity);
-            if (!observer) {
-                return;
-            }
-            if (editor.call('selector:type') === 'entity' && editor.call('hotkey:ctrl')) {
-                if (editor.call('selector:has', observer)) {
-                    editor.call('selector:remove', observer);
-                } else {
-                    editor.call('selector:add', 'entity', observer);
-                }
-            } else {
-                editor.call('selector:set', 'entity', [observer]);
-            }
-        });
-    }
 
     for (const gizmo of [camerasGizmo, lightsGizmo, boundsGizmo, ...Object.values(shapes)]) {
         gizmo.handles = write;
     }
     setSize(editor.call('settings:user').get('editor.gizmoSize'));
+    setIconSize(iconSize);
+    setLightColor();
+};
+
+// default draws lights in their own color, classic keeps them white
+const setLightColor = () => {
+    if (lightsGizmo) {
+        lightsGizmo.useLightColor = editor.call('gizmo:preset') === 'default';
+    }
+};
+
+// each entity's collision keeps the hue the legacy collision gizmo gave it, from its guid
+const colorShape = (gizmo: ShapeGizmo, entity: Entity) => {
+    let hash = 0;
+    for (const char of entity.guid) {
+        hash += char.charCodeAt(0);
+    }
+    const [r, g, b] = editor.call('color:hsl2rgb', (hash % 128) / 128, 0.5, 0.5);
+    gizmo.setTheme({
+        base: new Color(r, g, b, 1),
+        occluded: new Color(r, g, b, COLLISION_ALPHA_BEHIND),
+        fill: new Color(r, g, b, COLLISION_ALPHA_FILL)
+    });
 };
 
 const updateShapes = (entity: Entity | null) => {
     const collision = entity?.collision;
     const type = entity?.enabled && collision?.enabled ? collision.type : null;
+    const next = type && shapes[type] ? entity : null;
+    if (next && next !== shapeEntity) {
+        colorShape(shapes[type], next);
+    }
+    shapeEntity = next;
 
     for (const [key, gizmo] of Object.entries(shapes)) {
         const active = key === type;
@@ -333,8 +344,14 @@ const hasIcon = (entity: Entity) => {
         return false;
     }
     const { render, model, sprite, element } = entity;
-    return !(render?.meshInstances.length || model?.meshInstances?.length || sprite || element);
+    return !(
+        (render?.enabled && render.meshInstances.length) ||
+        (model?.enabled && model.meshInstances?.length) ||
+        sprite?.enabled ||
+        element?.enabled
+    );
 };
+editor.method('gizmo:icon:has', hasIcon);
 
 const iconEntities = () => {
     const result: Entity[] = [];
@@ -377,11 +394,20 @@ editor.on('viewport:gizmoUpdate', () => {
         camerasGizmo,
         nodes.filter((entity) => entity.camera)
     );
-    // icon-only entities have no bounds, and the origin marker would sit on their icon
-    attach(boundsGizmo, editor.call('gizmo:boundingbox:visible') ? nodes.filter((entity) => !hasIcon(entity)) : []);
+    // a child under a selected parent is in the parent's bounds, and would scale twice
+    const bounds = editor.call('gizmo:boundingbox:visible') && editor.call('gizmo:preset') === 'default';
+    const roots = nodes.filter((entity) => !nodes.some((other) => other !== entity && entity.isDescendantOf(other)));
+    attach(boundsGizmo, bounds ? roots : []);
     attach(iconsGizmo, iconEntities());
     updateShapes(nodes.length === 1 ? nodes[0] : null);
+
+    // the collision handles sit on the bounds handles, and are the specific edit
+    boundsGizmo.handles = write && !shapeEntity;
 });
+
+editor.method('gizmo:shape:entity', () => shapeEntity);
+editor.method('gizmo:icon:node', (meshInstance: MeshInstance) => iconsGizmo?.getIconNode(meshInstance) ?? null);
+editor.on('gizmo:preset', setLightColor);
 
 editor.on('selector:change', () => editor.call('viewport:render'));
 editor.on('gizmo:boundingbox:visible', () => editor.call('viewport:render'));
@@ -393,6 +419,7 @@ editor.on('permissions:writeState', (state: boolean) => {
             gizmo.handles = state;
         }
     }
+    editor.call('viewport:render');
 });
 
 editor.on('camera:change', (camera: Entity) => {
@@ -416,4 +443,6 @@ editor.once('settings:user:load', () => {
     const settings = editor.call('settings:user');
     settings.on('editor.gizmoSize:set', setSize);
     setSize(settings.get('editor.gizmoSize'));
+    settings.on('editor.iconSize:set', setIconSize);
+    setIconSize(settings.get('editor.iconSize'));
 });

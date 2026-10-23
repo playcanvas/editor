@@ -125,8 +125,9 @@ import './entities/entities-icons';
 import './viewport/gizmo/gizmo';
 import './viewport/gizmo/gizmo-layers';
 import './viewport/gizmo/gizmo-point';
-import './viewport/gizmo/gizmo-transform';
+// before gizmo-transform, so the helper gizmos are created first and win overlapping presses
 import './viewport/gizmo/gizmo-helpers';
+import './viewport/gizmo/gizmo-transform';
 import './viewport/gizmo/gizmo-collision';
 import './viewport/gizmo/gizmo-particles';
 import './viewport/gizmo/gizmo-skeleton';

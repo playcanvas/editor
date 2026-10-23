@@ -35,19 +35,27 @@ export const releaseEngineGizmo = (gizmo: Gizmo) => {
  * controls stand aside while the pointer is on it.
  *
  * @param gizmo - The gizmo.
+ * @param pointer - Whether the gizmo takes pointer input. Defaults to true.
  * @returns The gizmo.
  */
-export const initEngineGizmo = <T extends Gizmo>(gizmo: T) => {
+export const initEngineGizmo = <T extends Gizmo>(gizmo: T, pointer = true) => {
     // keep pointer defaults so viewport tap handling still runs
     gizmo.preventDefault = false;
 
-    gizmo.mouseButtons[0] = true;
+    gizmo.mouseButtons[0] = pointer;
     gizmo.mouseButtons[1] = false;
     gizmo.mouseButtons[2] = false;
 
     gizmo.on(Gizmo.EVENT_RENDERUPDATE, () => {
         editor.call('viewport:render');
     });
+
+    // the editor tick never fires the app update event; prerender comes from the app render
+    editor.on('viewport:update', () => gizmo.update());
+
+    if (!pointer) {
+        return gizmo;
+    }
 
     gizmo.on(Gizmo.EVENT_POINTERMOVE, (_x: number, _y: number, meshInstance?: MeshInstance) => {
         const mesh = meshInstance || null;
@@ -67,11 +75,12 @@ export const initEngineGizmo = <T extends Gizmo>(gizmo: T) => {
     });
     gizmo.on(Gizmo.EVENT_POINTERUP, () => {
         track(capturing, gizmo, false, 'gizmo:capture');
+
+        // the gizmo asks for a frame from update, which only runs while rendering, so a drag that
+        // ends without an edit would keep its highlight
+        editor.call('viewport:render');
     });
     gizmo.on(Gizmo.EVENT_NODESDETACH, () => releaseEngineGizmo(gizmo));
-
-    // the editor tick never fires the app update event; prerender comes from the app render
-    editor.on('viewport:update', () => gizmo.update());
 
     return gizmo;
 };
