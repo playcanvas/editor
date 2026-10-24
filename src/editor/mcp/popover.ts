@@ -4,6 +4,7 @@ import { TooltipHandle } from '@/common/tooltips';
 import { button as pmButton } from '@/editor/pickers/project-management/components/button';
 
 import { DEFAULT_PORT } from './connection';
+import { parsePort } from './port';
 
 // MCP mark from Hugeicons (mcp-server-solid-sharp), fills set to currentColor.
 const MCP_ICON =
@@ -14,6 +15,8 @@ const BLOCKED_HINTS: Record<string, string> = {
     denied: 'The browser is blocking this page — allow "Apps on device" for this site, then reconnect',
     prompt: 'Allow "Apps on device" for this site if the browser asks, or check the server is running'
 };
+
+const INVALID_PORT_HINT = 'Enter a port from 1 to 65535';
 
 /**
  * Create the MCP button and its connect popover, and reconnect if the page was connected
@@ -69,11 +72,21 @@ const createMcpButton = (placement: 'right' | 'account') => {
     popover.append(toggle);
     root.append(popover);
 
+    // set when Connect is pressed with a bad port, cleared once the field is edited
+    let invalidPort = false;
+
     const updateHint = () => {
-        const blocked = BLOCKED_HINTS[editor.call('mcp:blocked')];
-        hint.text = blocked ?? '';
-        hint.hidden = !blocked;
+        const text = invalidPort ? INVALID_PORT_HINT : BLOCKED_HINTS[editor.call('mcp:blocked')];
+        hint.text = text ?? '';
+        hint.hidden = !text;
     };
+
+    portField.on('change', () => {
+        if (invalidPort) {
+            invalidPort = false;
+            updateHint();
+        }
+    });
 
     const render = (state: string) => {
         statusValue.text = state.charAt(0).toUpperCase() + state.slice(1);
@@ -98,7 +111,14 @@ const createMcpButton = (placement: 'right' | 'account') => {
 
     toggle.on('click', () => {
         if (editor.call('mcp:status') === 'disconnected') {
-            const port = parseInt(portField.value, 10) || DEFAULT_PORT;
+            // an empty field still means the default port
+            const port = portField.value.trim() ? parsePort(portField.value) : DEFAULT_PORT;
+            if (port === null) {
+                // don't store it either, or every reload would retry the bad port
+                invalidPort = true;
+                updateHint();
+                return;
+            }
             editor.call('localStorage:set', 'editor:mcp:connected', true);
             editor.call('localStorage:set', 'editor:mcp:port', port);
             editor.call('mcp:connect', port);
@@ -149,7 +169,8 @@ const createMcpButton = (placement: 'right' | 'account') => {
 
     // auto-reconnect if connected before a reload (branch switch, checkpoint restore, project open)
     if (editor.call('localStorage:get', 'editor:mcp:connected')) {
-        const port = editor.call('localStorage:get', 'editor:mcp:port') || DEFAULT_PORT;
+        // a bad port stored before validation existed falls back to the default
+        const port = parsePort(editor.call('localStorage:get', 'editor:mcp:port')) ?? DEFAULT_PORT;
         portField.value = String(port);
         editor.call('mcp:connect', port);
     }
