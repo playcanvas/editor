@@ -89,6 +89,12 @@ const createMcpButton = (placement: 'right' | 'account') => {
     // validate as the user types; the DOM input event also catches paste and mobile keyboards
     portField.input.addEventListener('input', updateHint);
     portField.on('change', updateHint);
+    // Escape restores the pre-edit value without firing input or change; pcui emits keydown after
+    portField.on('keydown', (evt: KeyboardEvent) => {
+        if (evt.key === 'Escape') {
+            updateHint();
+        }
+    });
 
     const render = (state: string) => {
         statusValue.text = state.charAt(0).toUpperCase() + state.slice(1);
