@@ -72,8 +72,8 @@ const createMcpButton = (placement: 'right' | 'account') => {
     popover.append(toggle);
     root.append(popover);
 
-    // the field's port, or null if it isn't valid; an empty field still means the default
-    const fieldPort = () => (portField.value.trim() ? parsePort(portField.value) : DEFAULT_PORT);
+    // the field's port, or null if it isn't valid (an empty field included)
+    const fieldPort = () => parsePort(portField.value);
 
     const updateHint = () => {
         const invalid = fieldPort() === null;
