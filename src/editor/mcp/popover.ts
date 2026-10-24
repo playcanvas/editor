@@ -72,21 +72,23 @@ const createMcpButton = (placement: 'right' | 'account') => {
     popover.append(toggle);
     root.append(popover);
 
-    // set when Connect is pressed with a bad port, cleared once the field is edited
-    let invalidPort = false;
+    // the field's port, or null if it isn't valid; an empty field still means the default
+    const fieldPort = () => (portField.value.trim() ? parsePort(portField.value) : DEFAULT_PORT);
 
     const updateHint = () => {
-        const text = invalidPort ? INVALID_PORT_HINT : BLOCKED_HINTS[editor.call('mcp:blocked')];
+        const invalid = fieldPort() === null;
+        const text = invalid ? INVALID_PORT_HINT : BLOCKED_HINTS[editor.call('mcp:blocked')];
         hint.text = text ?? '';
         hint.hidden = !text;
+        hint.error = invalid;
+        portField.error = invalid;
+        // only Connect needs a valid port; Cancel and Disconnect always work
+        toggle.enabled = !invalid || editor.call('mcp:status') !== 'disconnected';
     };
 
-    portField.on('change', () => {
-        if (invalidPort) {
-            invalidPort = false;
-            updateHint();
-        }
-    });
+    // validate as the user types; the DOM input event also catches paste and mobile keyboards
+    portField.input.addEventListener('input', updateHint);
+    portField.on('change', updateHint);
 
     const render = (state: string) => {
         statusValue.text = state.charAt(0).toUpperCase() + state.slice(1);
@@ -111,12 +113,10 @@ const createMcpButton = (placement: 'right' | 'account') => {
 
     toggle.on('click', () => {
         if (editor.call('mcp:status') === 'disconnected') {
-            // an empty field still means the default port
-            const port = portField.value.trim() ? parsePort(portField.value) : DEFAULT_PORT;
+            const port = fieldPort();
             if (port === null) {
-                // don't store it either, or every reload would retry the bad port
-                invalidPort = true;
-                updateHint();
+                // Connect is disabled while the port is invalid; never store a bad port either,
+                // or every reload would retry it
                 return;
             }
             editor.call('localStorage:set', 'editor:mcp:connected', true);

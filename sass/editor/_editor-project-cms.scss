@@ -2108,11 +2108,20 @@
                 color: $text-dark;
             }
         }
+
+        // invalid port; wins over the focus border
+        &.pcui-error {
+            border-color: $error;
+        }
     }
 
     .mcp-hint {
         padding: 4px 0;
         font-size: 12px;
+
+        &.pcui-error {
+            color: $error-secondary;
+        }
     }
 
     // button(): primary to connect, secondary to cancel or disconnect
