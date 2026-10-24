@@ -2,6 +2,7 @@ import { Events } from '@playcanvas/observer';
 
 import { config } from '@/editor/config';
 
+import { parsePort } from './port';
 import { handleRequest } from './request';
 
 const DEFAULT_PORT = 52000;
@@ -109,10 +110,16 @@ class MCPConnection extends Events {
      * unexpectedly (server restart, transient network, background-tab throttling) we retry
      * automatically until it reconnects or disconnect() is called.
      *
-     * @param port - The MCP server port to connect to.
+     * @param port - The MCP server port to connect to. An invalid port is refused.
      * @param role - The peer role announced to the server.
      */
     connect(port: number = DEFAULT_PORT, role: Role = 'editor') {
+        // new WebSocket() throws on an out-of-range port, which would strand us in 'connecting'
+        if (parsePort(port) === null) {
+            error(`Invalid port ${port}: use a number from 1 to 65535`);
+            return;
+        }
+
         this._port = port;
         this._role = role;
         this._forceClosed = false;
