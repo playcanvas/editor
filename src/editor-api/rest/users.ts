@@ -30,12 +30,12 @@ export const userDelete = (userId: number) => {
 };
 
 /**
- * Fetches the user with the given ID
+ * Fetches the user with the given ID or username
  *
- * @param userId - The ID of the user to get
+ * @param userId - The ID or username of the user to get
  * @returns A request that responds with the user data
  */
-export const userGet = (userId: number) => {
+export const userGet = (userId: number | string) => {
     return Ajax.get({
         url: `${api.apiUrl}/users/${userId}`,
         auth: true

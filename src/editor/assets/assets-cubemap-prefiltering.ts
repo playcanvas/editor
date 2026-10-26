@@ -300,11 +300,28 @@ editor.once('load', () => {
             asset.set('file', null);
         };
 
-        const watchTexture = function (ind: number, id: string | number) {
-            if (asset._textures[ind]) {
-                asset._textures[ind].unbind();
+        // the engine reads rgbm from the cubemap, so follow the faces as assigning one does
+        const syncRgbm = (_value: boolean, _old: boolean, remote: boolean) => {
+            if (remote || !editor.call('permissions:write')) {
+                return;
             }
 
+            const rgbm = asset.get('data.textures').every((id: number) => {
+                const texture = id >= 0 && editor.call('assets:get', id);
+                return !texture || !!texture.get('data.rgbm');
+            });
+            if (asset.get('data.rgbm') === rgbm) {
+                return;
+            }
+
+            const history = asset.history.enabled;
+            asset.history.enabled = false;
+            asset.set('data.rgbm', rgbm);
+            asset.history.enabled = history;
+        };
+
+        const watchTexture = function (ind: number, id: string | number) {
+            asset._textures[ind]?.forEach((evt) => evt.unbind());
             asset._textures[ind] = null;
 
             if (!id) {
@@ -314,12 +331,15 @@ editor.once('load', () => {
             const texture = editor.call('assets:get', id);
             if (texture) {
                 const fileSet = texture.get('file');
-                asset._textures[ind] = texture.on('file.hash:set', () => {
-                    // react only to file changes
-                    if (fileSet) {
-                        invalidate();
-                    }
-                });
+                asset._textures[ind] = [
+                    texture.on('file.hash:set', () => {
+                        // react only to file changes
+                        if (fileSet) {
+                            invalidate();
+                        }
+                    }),
+                    texture.on('data.rgbm:set', syncRgbm)
+                ];
             }
         };
 

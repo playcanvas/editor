@@ -5,7 +5,13 @@
  * the project management pickers exposed as hooks.
  */
 
+import { service } from '@/common/supports';
 import { config } from '@/editor/config';
+
+import { PROJECTS_TAB, projectTab } from './tabs';
+
+// name this tab so other tabs can switch to it: the projects page, or this project's editor
+window.name = config.project.id ? projectTab(config.project.id) : PROJECTS_TAB;
 
 editor.once('load', () => {
     const model = {
@@ -44,7 +50,7 @@ editor.once('load', () => {
         if (!user) {
             result = 'Read';
         } else {
-            if (project && user.id === project.owner.id) {
+            if (project?.owner && user.id === project.owner.id) {
                 result = 'Owner';
             } else {
                 if (user.access_level === 'read' || !user.access_level) {
@@ -194,6 +200,57 @@ editor.once('load', () => {
         }
 
         return url;
+    });
+
+    // superusers, and anyone who can write to the project, can export it
+    editor.method('project:management:canExport', (project) => {
+        return (
+            !!config.self &&
+            (!!config.self.flags?.superUser || project.access_level === 'write' || project.access_level === 'admin')
+        );
+    });
+
+    // the owner, or a member of the owning organization, can hand a project over
+    editor.method('project:management:canTransfer', (project) => {
+        return (
+            project.access_level === 'admin' &&
+            (project.owner_id === config.self.id ||
+                editor.call('project:management:isOrgAdmin', project.owner_id, config.self))
+        );
+    });
+
+    // exports a project, resolving with the download url once the export job finishes
+    editor.method('project:management:export', (projectId, branchId) => {
+        return new Promise((resolve, reject) => {
+            editor.call(
+                'projects:export',
+                projectId,
+                branchId,
+                (job) => {
+                    const evt = editor.on('messenger:job.update', (msg) => {
+                        if (msg.job.id !== job.id) {
+                            return;
+                        }
+                        service('jobs')
+                            .jobGet({ jobId: job.id })
+                            .on('load', (_status, res) => {
+                                if (res.status === 'complete') {
+                                    evt.unbind();
+                                    resolve(res.data.url);
+                                } else if (res.status === 'error') {
+                                    evt.unbind();
+                                    reject(res.messages?.[0] || 'There was an error while exporting');
+                                }
+                            })
+                            .on('error', (_status, err) => {
+                                evt.unbind();
+                                reject(err);
+                            });
+                    });
+                },
+                (err) => reject(`Error: ${err}`)
+            );
+        });
     });
 
     // method to get current state of model variables

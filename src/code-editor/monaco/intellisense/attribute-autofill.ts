@@ -1,6 +1,7 @@
 import type { Observer } from '@playcanvas/observer';
 import type * as Monaco from 'monaco-editor';
 
+import { backend } from '@/common/backend';
 import { createLog } from '@/common/sentry';
 import { WorkerClient } from '@/core/worker/worker-client';
 
@@ -203,7 +204,8 @@ const fetchModuleScripts = async (
                 try {
                     const url = editor.call('assets:realPath', asset);
 
-                    const promise: Promise<[string, string] | null> = fetch(url)
+                    const promise: Promise<[string, string] | null> = backend()
+                        .transport.fetch(url)
                         .then((res) => res.text())
                         .then((content) => {
                             cache.set(path, hash);
@@ -456,6 +458,7 @@ editor.once('load', () => {
 
             // Store attributes for code lens provider
             modelAttributes.set(model, attributes);
+            parsedVersions.set(model, requestedVersions.get(model));
 
             // Set busy to false so code lens provider can work
             busy = false;
@@ -519,12 +522,18 @@ editor.once('load', () => {
             scripts.push(['/playcanvas.d.ts', types]);
 
             // submit request
+            requestedVersions.set(model, model.getVersionId());
             workerClient.send('attributes:get', ++asn, uri, path, scripts, deletedFiles);
             busy = true;
         };
 
         // Store parsed attributes for code lens
         const modelAttributes = new Map();
+
+        // model versions the attributes were requested and parsed for; lens line numbers only hold for
+        // the parsed version, so a lens clicked after further edits must not apply
+        const requestedVersions = new WeakMap<Monaco.editor.IModel, number>();
+        const parsedVersions = new WeakMap<Monaco.editor.IModel, number>();
 
         // Store markers with fixes for code actions
         const modelMarkersWithFixes = new Map();
@@ -598,7 +607,7 @@ editor.once('load', () => {
                             command: {
                                 id: attribute.isAttribute ? 'removeAttribute' : 'makeAttribute',
                                 title: attribute.isAttribute ? 'Remove Attribute' : 'Make Attribute',
-                                arguments: [model.uri, attribute.start.line, attribute]
+                                arguments: [model.uri, attribute.start.line, attribute, parsedVersions.get(model)]
                             }
                         };
 
@@ -617,7 +626,7 @@ editor.once('load', () => {
                                 command: {
                                     id: 'makeSliderAttribute',
                                     title: 'Make Slider Attribute',
-                                    arguments: [model.uri, attribute.start.line, attribute]
+                                    arguments: [model.uri, attribute.start.line, attribute, parsedVersions.get(model)]
                                 }
                             };
                             lenses.push(sliderLens);
@@ -639,7 +648,8 @@ editor.once('load', () => {
                 };
                 lastKnownLenses.set(model, { active, inactive });
 
-                return active;
+                // edits since the parse shift the lines, so show the lenses inactive until it catches up
+                return model.getVersionId() === parsedVersions.get(model) ? active : inactive;
             }
         });
 
@@ -649,9 +659,9 @@ editor.once('load', () => {
         });
 
         // Register commands for the code lens actions
-        monaco.editor.registerCommand('makeAttribute', async (accessor, uri, lineNumber, attribute) => {
+        monaco.editor.registerCommand('makeAttribute', async (accessor, uri, lineNumber, attribute, versionId) => {
             const model = monaco.editor.getModel(uri);
-            if (model) {
+            if (model && model.getVersionId() === versionId) {
                 addAttributeToMember(model, lineNumber, attribute);
 
                 // Force immediate re-fetch of attributes to update code lens positions
@@ -665,9 +675,9 @@ editor.once('load', () => {
             }
         });
 
-        monaco.editor.registerCommand('removeAttribute', async (accessor, uri, lineNumber, attribute) => {
+        monaco.editor.registerCommand('removeAttribute', async (accessor, uri, lineNumber, attribute, versionId) => {
             const model = monaco.editor.getModel(uri);
-            if (model) {
+            if (model && model.getVersionId() === versionId) {
                 removeAttributeFromMember(model, lineNumber, attribute);
 
                 // Force immediate re-fetch of attributes to update code lens positions
@@ -678,18 +688,21 @@ editor.once('load', () => {
             }
         });
 
-        monaco.editor.registerCommand('makeSliderAttribute', async (accessor, uri, lineNumber, attribute) => {
-            const model = monaco.editor.getModel(uri);
-            if (model) {
-                addSliderAttributeToMember(model, lineNumber, attribute);
+        monaco.editor.registerCommand(
+            'makeSliderAttribute',
+            async (accessor, uri, lineNumber, attribute, versionId) => {
+                const model = monaco.editor.getModel(uri);
+                if (model && model.getVersionId() === versionId) {
+                    addSliderAttributeToMember(model, lineNumber, attribute);
 
-                // Force immediate re-fetch of attributes to update code lens positions;
-                modelDirtyFlags.set(model, true);
-                clearTimeout(modelTimeouts.get(model));
-                await fetchAttributes(model);
-                modelDirtyFlags.set(model, false);
+                    // Force immediate re-fetch of attributes to update code lens positions;
+                    modelDirtyFlags.set(model, true);
+                    clearTimeout(modelTimeouts.get(model));
+                    await fetchAttributes(model);
+                    modelDirtyFlags.set(model, false);
+                }
             }
-        });
+        );
 
         /**
          * Register a code action provider for error fixes

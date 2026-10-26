@@ -39,6 +39,9 @@ editor.once('load', () => {
             side: minimapMode
         },
         wordWrap: settings.get('ide.wordWrap') ? 'on' : 'off',
+
+        // monaco force-wraps files dominated by long lines (minified code, base64) unless overridden
+        wordWrapOverride1: settings.get('ide.wordWrap') ? 'on' : 'off',
         'bracketPairColorization.enabled': settings.get('ide.bracketPairColorization')
     });
 
@@ -168,7 +171,8 @@ editor.once('load', () => {
 
     settings.on('ide.wordWrap:set', (value) => {
         monacoEditor.updateOptions({
-            wordWrap: value ? 'on' : 'off'
+            wordWrap: value ? 'on' : 'off',
+            wordWrapOverride1: value ? 'on' : 'off'
         });
     });
 

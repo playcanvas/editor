@@ -2,6 +2,8 @@ import type { Observer } from '@playcanvas/observer';
 
 import { Trie } from '@/core/trie';
 
+const ENGINE_MODULE = 'playcanvas';
+
 editor.on('assets:load', () => {
     // A regexp to check if this is a module path
     const MODULE_PATH_REGEXP =
@@ -12,6 +14,9 @@ editor.on('assets:load', () => {
 
     // Create a map to store the asset path. This is used to retrieve the previous filename if the asset is renamed
     const assetPathMap = new Map();
+
+    // Assets whose rename and move listeners are already bound
+    const watched = new WeakSet<Observer>();
 
     // Handle
     const onAssetAdded = (asset: Observer) => {
@@ -30,8 +35,12 @@ editor.on('assets:load', () => {
             assetPathMap.set(asset, path);
             moduleTrie.insert(path);
 
-            // Listen for a change to the filename
-            asset.once('file.filename:set', () => onAssetAdded(asset));
+            // Re-index when the file is renamed or moved to another folder
+            if (!watched.has(asset)) {
+                watched.add(asset);
+                asset.on('file.filename:set', () => onAssetAdded(asset));
+                asset.on('path:set', () => onAssetAdded(asset));
+            }
         } else if (editor.call('assets:isScript', asset)) {
             // If the asset is a script, but not an esm script, then the filename, may not have been set yet.
             // Listen for the first time the filename is set, then add the asset
@@ -76,6 +85,30 @@ editor.on('assets:load', () => {
             // If no match is found, return an empty list of suggestions
             if (!relativePath) {
                 return { suggestions: [] };
+            }
+
+            // a bare specifier can only name the engine module, so offer that rather than leave
+            // word-based suggestions (e.g. 'PlayCanvas' from a comment) as the only option
+            const specifier = relativePath[0];
+            if (!specifier.startsWith('.') && !specifier.startsWith('/')) {
+                if (!specifier || !ENGINE_MODULE.startsWith(specifier)) {
+                    return { suggestions: [] };
+                }
+                return {
+                    suggestions: [
+                        {
+                            label: ENGINE_MODULE,
+                            kind: monaco.languages.CompletionItemKind.Module,
+                            insertText: ENGINE_MODULE,
+                            range: {
+                                startLineNumber: position.lineNumber,
+                                startColumn: position.column - specifier.length,
+                                endLineNumber: position.lineNumber,
+                                endColumn: position.column
+                            }
+                        }
+                    ]
+                };
             }
 
             // Get the absolute path

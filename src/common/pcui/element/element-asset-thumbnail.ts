@@ -19,6 +19,7 @@ const CLASS_ASSET_THUMB = 'pcui-asset-thumb';
 const CLASS_ASSET_THUMB_EMPTY = 'pcui-asset-thumb-empty';
 const CLASS_ASSET_THUMB_MISSING = 'pcui-asset-thumb-missing';
 const CLASS_ASSET_PREFIX = 'asset-icon-prefix';
+const CLASS_ASSET_THUMB_FONT_PENDING = 'pcui-asset-thumb-font-pending';
 const CLASS_FLIP_Y = 'flip-y';
 
 const CANVAS_TYPES = {
@@ -228,7 +229,10 @@ class AssetThumbnail extends Element {
                 this._canvasRenderer = new CubemapThumbnailRenderer(asset, this._domCanvas, this._assets);
                 break;
             case 'font':
-                this._canvasRenderer = new FontThumbnailRenderer(asset, this._domCanvas);
+                // keep the placeholder until the font has drawn, or for good if it can't
+                this._canvasRenderer = new FontThumbnailRenderer(asset, this._domCanvas, (drawn) => {
+                    this.class.toggle(CLASS_ASSET_THUMB_FONT_PENDING, !drawn);
+                });
                 break;
             case 'material':
                 this._canvasRenderer = new MaterialThumbnailRenderer(asset, this._domCanvas, this._sceneSettings);
@@ -306,6 +310,8 @@ class AssetThumbnail extends Element {
             clearTimeout(this._renderCanvasTimeout);
             this._renderCanvasTimeout = null;
         }
+
+        this.class.remove(CLASS_ASSET_THUMB_FONT_PENDING);
 
         if (!this._domCanvas) {
             return;
@@ -386,6 +392,7 @@ class AssetThumbnail extends Element {
         }
 
         if (this._shouldRenderCanvasThumbnailForAsset(asset)) {
+            this.class.toggle(CLASS_ASSET_THUMB_FONT_PENDING, asset.get('type') === 'font');
             this._renderCanvasThumbnailWhenReady(asset);
         } else {
             this._showImageThumbnail(asset);

@@ -3,6 +3,8 @@ import { Events } from '@playcanvas/observer';
 
 const isMac = navigator.platform.indexOf('Mac') !== -1;
 
+const COMPACT = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
+
 /**
  * Formats a keyboard shortcut string for display, converting modifier keys to symbols.
  * On Mac, Ctrl is converted to ⌃. Shift, Alt, Cmd and arrow keys are always converted to symbols.
@@ -231,19 +233,11 @@ export const bytesToHuman = (bytes: number): string => {
 };
 
 /**
- * Converts count to human readable string
+ * Converts count to human readable string, e.g. 999, 1.1K, 4.1M
  * @param count - The count
  * @returns The human readable string
  */
-export const countToHuman = (count: number): string => {
-    if (count < 1000) {
-        return count.toString();
-    }
-    if (count < 1000000) {
-        return `${(count / 1000).toFixed(1)}K`;
-    }
-    return `${(count / 1000000).toFixed(1)}M`;
-};
+export const countToHuman = (count: number): string => COMPACT.format(count ?? 0);
 
 /**
  * Converts specified date string to a date in this format:

@@ -1,4 +1,11 @@
-import { Button, Container, Label, Overlay, Panel, TextInput } from '@playcanvas/pcui';
+import { Container, Label, TextInput } from '@playcanvas/pcui';
+
+import { backend, UNSUPPORTED_TIP } from '@/common/backend';
+import { TooltipHandle } from '@/common/tooltips';
+
+import { button } from './components/button';
+import { callout } from './components/callout';
+import { dialog } from './components/dialog';
 
 editor.once('load', () => {
     // GLOBAL VARIABLES
@@ -8,31 +15,11 @@ editor.once('load', () => {
 
     // UI
 
-    // overlay
-    const root = editor.call('layout.root');
-    const overlay = new Overlay({
-        clickable: false,
+    const { overlay, panel, footer } = dialog({
+        title: 'Delete organization',
         class: 'picker-delete-organization',
-        hidden: true
+        size: 'md'
     });
-    root.append(overlay);
-
-    // main panel
-    const panel = new Panel({
-        headerText: 'DELETE ORGANIZATION',
-        class: 'delete-organization-panel'
-    });
-    overlay.append(panel);
-
-    // close button
-    const btnClose = new Button({
-        class: 'close',
-        icon: 'E132'
-    });
-    btnClose.on('click', () => {
-        overlay.hidden = true;
-    });
-    panel.header.append(btnClose);
 
     // input
 
@@ -48,9 +35,9 @@ editor.once('load', () => {
     container.append(labelElement);
 
     // conditionally display information about containing projects
-    const projectsWarning = new Label({
-        class: 'form-group--warning',
-        text: 'WARNING: This organization contains projects. If you decide to go ahead, these will be transferred to your account.'
+    const projectsWarning = callout({
+        tone: 'warn',
+        text: 'This organization has projects. Deleting it transfers them to your account.'
     });
     container.append(projectsWarning);
 
@@ -60,21 +47,25 @@ editor.once('load', () => {
     });
     container.append(inputElement);
 
-    panel.append(container);
-
     inputElement.on('change', () => {
         validateInput();
     });
     inputElement.dom.addEventListener('paste', (e) => e.preventDefault());
 
-    // delete button
+    // delete button, which moves the organization's projects to the root user first
+    const deletable = !!(backend().accountManagement && backend().projectTransfer);
 
-    const deleteButton = new Button({
-        class: 'delete-org-button',
-        text: 'DELETE',
-        enabled: false
+    const cancelButton = button({ kind: 'secondary', text: 'Cancel' });
+    cancelButton.on('click', () => {
+        overlay.hidden = true;
     });
-    panel.append(deleteButton);
+    footer.append(cancelButton);
+
+    const deleteButton = button({ kind: 'danger', text: 'Delete organization', enabled: false });
+    footer.append(deleteButton);
+    if (!deletable) {
+        TooltipHandle.attach({ root: overlay.dom, target: deleteButton.dom, ...UNSUPPORTED_TIP, align: 'bottom' });
+    }
 
     deleteButton.on('click', () => {
         // If organization contains projects, make sure to transfer them to root user before deleting account
@@ -99,7 +90,7 @@ editor.once('load', () => {
 
     // controller to detect whether input is valid and therefore delete button should be displayed or not
     const validateInput = () => {
-        deleteButton.enabled = organization.full_name === inputElement.value;
+        deleteButton.enabled = deletable && organization.full_name === inputElement.value;
     };
 
     // method to transfer all organization projects to current user on deleting org with projects
@@ -119,7 +110,7 @@ editor.once('load', () => {
         editor.call(
             'users:deleteOne',
             organization.id,
-            (response) => {
+            () => {
                 editor.call('picker:project:cms:refreshOrgs', organization, true);
                 editor.call('picker:project:cms:resetFilter');
                 overlay.hidden = true;
@@ -132,28 +123,9 @@ editor.once('load', () => {
 
     // EVENTS
 
-    // load and show data
-    overlay.on('show', () => {
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', false);
-        }
-    });
-
     // clean up
     overlay.on('hide', () => {
         editor.call('picker:project:hideAlerts');
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', true);
-        }
-    });
-
-    // prevent viewport hovering when picker is shown
-    editor.on('viewport:hover', (state) => {
-        if (state && !overlay.hidden) {
-            setTimeout(() => {
-                editor.emit('viewport:hover', false);
-            }, 0);
-        }
     });
 
     // method to display panel
@@ -161,8 +133,10 @@ editor.once('load', () => {
         rootUser = editor.call('picker:project:cms:rootUser');
         organization = editor.call('picker:project:cms:dropdownOrg');
         organizationProjects = projects;
-        labelElement.text = `Type the organization name, "${organization.full_name}" in the text box to delete this organization permanently. This action cannot be undone!`;
-        projectsWarning.style.display = organizationProjects.length === 0 ? 'none' : 'block';
+        labelElement.text = `This permanently deletes ${organization.full_name}. Type its name to confirm.`;
+        inputElement.value = '';
+        inputElement.input.placeholder = organization.full_name;
+        projectsWarning.hidden = organizationProjects.length === 0;
         overlay.hidden = false;
     });
 });

@@ -6,8 +6,12 @@ editor.on('start', () => {
 
     messenger.connect(config.url.messenger.ws);
 
-    messenger.on('connect', () => {
+    messenger.on('connected', () => {
         editor.emit('messenger:connected');
+    });
+
+    messenger.on('cannotConnect', () => {
+        editor.emit('messenger:cannotConnect');
     });
 
     messenger.on('message', (name: string, data: unknown) => {

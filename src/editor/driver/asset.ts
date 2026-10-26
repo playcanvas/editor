@@ -1,3 +1,4 @@
+import { backend, UNSUPPORTED } from '@/common/backend';
 import { config } from '@/editor/config';
 
 import { driver } from './driver';
@@ -11,6 +12,9 @@ const MAX_TRANSFERS = 1;
 const MAX_BASE64_LENGTH = Math.ceil(MAX_FILE_BYTES / 3) * 4;
 const TRANSFER_TIMEOUT = 60_000;
 const TEXT_TYPES = ['css', 'html', 'json', 'script', 'shader', 'text'];
+
+// font source files, matching what the Editor's upload treats as a font
+const FONT_SOURCE_EXTENSION = /\.(ttf|ttc|otf|dfont)$/i;
 const MIME_TYPES: Record<string, string> = {
     css: 'text/css',
     html: 'text/html',
@@ -103,6 +107,19 @@ const uploadFile = (item: any, file: File) => {
     if (asset && asset.get('type') !== item.type) {
         throw new Error(`Asset ${item.id} is type ${asset.get('type')}, not ${item.type}.`);
     }
+
+    // a new font file goes through the Editor's font import, as an upload or drop does, which
+    // also builds the Font asset; uploading the file alone only stores the source
+    if (!asset && item.type === 'font' && FONT_SOURCE_EXTENSION.test(item.filename)) {
+        const source = new File([file], item.filename, { type: item.mime || 'application/octet-stream' });
+        return editor.call('fonts:import', source, folder?.observer).then((font: any) => {
+            if (!font) {
+                throw new Error(`Font import failed for ${item.filename}.`);
+            }
+            return waitForAsset(font.get('id'));
+        });
+    }
+
     return uploadAsset(
         {
             id: item.id,
@@ -183,7 +200,7 @@ const openDownload = async (id: number) => {
         }
         return { id, filename, mime: file.type, size: file.size, stream: file.stream() };
     }
-    const res = await fetch(`${config.url.api}/assets/${id}/download?branchId=${config.self.branch.id}`);
+    const res = await api.transport.fetch(`${config.url.api}/assets/${id}/download?branchId=${config.self.branch.id}`);
     if (!res.ok) {
         await res.body?.cancel();
         throw new Error(`Failed to download asset: ${res.status} ${res.statusText}`);
@@ -607,7 +624,11 @@ driver.method('assets:duplicate', async (ids) => {
         return denied;
     }
     ids.forEach(getAsset);
-    const result = await api.rest.assets
+    const service = backend().assetPaste;
+    if (!service) {
+        return { error: UNSUPPORTED };
+    }
+    const result = await service
         .assetPaste({
             projectId: config.project.id,
             branchId: config.self.branch.id,
@@ -750,7 +771,7 @@ driver.method('assets:file:text:get', async (id) => {
     }
 
     try {
-        const res = await fetch(url);
+        const res = await api.transport.fetch(url);
         if (!res.ok) {
             return { error: `Failed to fetch asset text: ${res.status} ${res.statusText}` };
         }

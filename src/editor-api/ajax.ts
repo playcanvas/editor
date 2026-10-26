@@ -92,7 +92,7 @@ class Ajax<T> extends Events {
         this.emit('progress', this._progress);
 
         // xhr
-        this._xhr = new XMLHttpRequest();
+        this._xhr = api.transport.xhr();
 
         // send cookies
         if (args.cookies) {

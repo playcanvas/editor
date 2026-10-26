@@ -1,20 +1,19 @@
+// the projects home page (/editor): projects are managed here and each opens in its own editor tab
+
 // sentry
 import '@/common/sentry';
-
-// playcanvas engine (exposes window.pc for plugins)
-import './expose';
 
 // extensions
 import '@/common/extensions';
 
-// pcui
-import '@/common/pcui/pcui';
-
-// general
-import './editor';
-import './layout/layout';
+// home shell: an editor instance with only the rest and messenger apis, and a full-page root
+import './home/editor';
+import './home/layout';
 import './messenger/messenger';
 import './drop/drop';
+
+// storage (the MCP button saves its connected flag and port here)
+import './storage/localstorage';
 import './search/search';
 
 // users
@@ -33,16 +32,21 @@ import './pickers/picker-project';
 // project management pickers
 import './pickers/project-management/project-management';
 import './pickers/picker-project-main';
+import './pickers/picker-project-dev-log';
+import './pickers/project-management/picker-project-home';
 import './pickers/project-management/picker-cms';
 import './pickers/project-management/picker-modal-new-project';
+import './pickers/project-management/picker-modal-new-project-kits';
 import './pickers/project-management/picker-modal-new-project-confirmation';
 import './pickers/project-management/picker-modal-new-organization';
 import './pickers/project-management/picker-modal-delete-organization';
 import './pickers/project-management/picker-modal-delete-self-confirmation';
 import './pickers/project-management/picker-modal-delete-project-confirmation';
+import './pickers/project-management/picker-modal-transfer-project';
 import './pickers/project-management/picker-modal-visibility-confirmation';
-
-import './pickers/picker-scene';
 
 // team management picker
 import './pickers/picker-team-management';
+
+// mcp (project tools only; the scene driver needs an open project)
+import './mcp/blank';

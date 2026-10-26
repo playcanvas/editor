@@ -1,64 +1,45 @@
-import { Button, Label, Overlay, Panel } from '@playcanvas/pcui';
+import { Container, Label } from '@playcanvas/pcui';
+
+import { button } from './components/button';
+import { dialog } from './components/dialog';
+import { openProject } from './tabs';
+
+const REPORT_LIMIT = 50;
 
 editor.once('load', () => {
     // GLOBAL VARIABLES
-    let projectURL;
-    const IS_EMPTY_STATE = config.project.id === null;
+    let projectId;
 
     // UI
 
-    // overlay
-    const root = editor.call('layout.root');
-    const overlay = new Overlay({
-        clickable: false,
-        class: 'picker-modal-confirmation',
-        hidden: true
-    });
-    root.append(overlay);
-
-    // main panel
-    const panel = new Panel({
-        headerText: 'CLOSE CURRENT PROJECT',
-        class: 'modal-confirmation-panel'
-    });
-    overlay.append(panel);
-
-    // close button
-    const btnClose = new Button({
-        class: 'close',
-        icon: 'E132'
-    });
-    btnClose.on('click', () => {
-        returnToCMS();
-    });
-    panel.header.append(btnClose);
+    const HEADER = 'PROJECT READY';
+    const { overlay, panel, footer } = dialog({ title: HEADER, class: 'picker-modal-confirmation', confirm: true });
 
     // confirmation message
-    const confirmationMessage = new Label({
-        text: 'Would you like to open your new project or continue working on your current project?'
-    });
+    // projects open in their own tab, so opening one never closes what's open here
+    const readyText = 'Your new project is ready. It opens in a new tab.';
+    const confirmationMessage = new Label({ text: readyText });
     panel.append(confirmationMessage);
 
-    // open project button
-    const openProjectButton = new Button({
-        class: 'negative-action-button',
-        text: IS_EMPTY_STATE ? 'Open New Project' : 'Close Current and Open New Project'
-    });
-    panel.append(openProjectButton);
-
-    openProjectButton.on('click', () => {
-        window.open(projectURL, '_self').focus();
-    });
+    // what an import had to change, e.g. materials it adjusted
+    const report = new Container({ class: 'import-report', hidden: true });
+    panel.append(report);
 
     // continue button
-    const continueButton = new Button({
-        class: 'positive-action-button',
-        text: IS_EMPTY_STATE ? 'Continue Browsing' : 'Continue with Current Project'
-    });
-    panel.append(continueButton);
+    const continueButton = button({ kind: 'secondary', text: 'Not now' });
+    footer.append(continueButton);
 
     continueButton.on('click', () => {
         returnToCMS();
+    });
+
+    // open project button
+    const openProjectButton = button({ kind: 'primary', text: 'Open project' });
+    footer.append(openProjectButton);
+
+    openProjectButton.on('click', () => {
+        openProject(projectId);
+        overlay.hidden = true;
     });
 
     // CONTROLLERS
@@ -68,38 +49,47 @@ editor.once('load', () => {
         overlay.hidden = true;
     };
 
-    // EVENTS
-
-    // load and show data
-    overlay.on('show', () => {
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', false);
-        }
-    });
-
-    // clean up
-    overlay.on('hide', () => {
-        if (editor.call('viewport:inViewport')) {
-            editor.emit('viewport:hover', true);
-        }
-    });
-
-    // prevent viewport hovering when picker is shown
-    editor.on('viewport:hover', (state) => {
-        if (state && !overlay.hidden) {
-            setTimeout(() => {
-                editor.emit('viewport:hover', false);
-            }, 0);
-        }
-    });
-
     // method to display panel
-    editor.method('picker:project:newProjectConfirmation', (projectId) => {
-        projectURL = `/editor/project/${projectId}`;
-        const params = new URLSearchParams(location.search);
-        if (params.has('use_local_frontend')) {
-            projectURL += `?use_local_frontend=${params.get('use_local_frontend')}`;
+    // a null project id means there's nothing to open, e.g. an import into an organization
+    editor.method('picker:project:newProjectConfirmation', (id, importReport = null) => {
+        projectId = id;
+        report.clear();
+        report.hidden = !importReport;
+        panel.headerText = importReport ? 'PROJECT IMPORTED' : HEADER;
+        confirmationMessage.text = importReport
+            ? `Your project is ready. ${importReport.message ?? ''}`.trim()
+            : readyText;
+        if (importReport) {
+            const items = (importReport.items ?? []).slice(0, REPORT_LIMIT);
+            const count = importReport.count ?? items.length;
+            const more = count - items.length;
+            report.append(
+                new Label({ class: 'import-report-count', text: `${count} material${count === 1 ? '' : 's'} adjusted` })
+            );
+            // one row per material: its name, then what changed ("Floor (ID 12): Glossiness 120 → 100.")
+            const list = new Container({ dom: 'ul', class: 'import-report-items' });
+            items.forEach((item) => {
+                const [name, ...change] = String(item).split(': ');
+                const li = document.createElement('li');
+                const title = document.createElement('span');
+                title.className = 'import-report-name';
+                title.textContent = change.length ? name : String(item);
+                li.appendChild(title);
+                if (change.length) {
+                    const detail = document.createElement('span');
+                    detail.className = 'import-report-change';
+                    detail.textContent = change.join(': ');
+                    li.appendChild(detail);
+                }
+                list.dom.appendChild(li);
+            });
+            report.append(list);
+            if (more > 0) {
+                report.append(new Label({ text: `${more} more ${more === 1 ? 'item was' : 'items were'} adjusted.` }));
+            }
         }
+        openProjectButton.hidden = !projectId;
+        continueButton.text = projectId ? 'Not now' : 'Close';
         overlay.hidden = false;
     });
 });

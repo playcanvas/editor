@@ -1,7 +1,10 @@
 import { Button, Menu } from '@playcanvas/pcui';
 
+import { backend } from '@/common/backend';
 import { TooltipHandle } from '@/common/tooltips';
 import { formatShortcut } from '@/common/utils';
+import { config } from '@/editor/config';
+import { openProjects } from '@/editor/pickers/project-management/tabs';
 
 const DONE_ICON = '\uE133';
 
@@ -93,6 +96,20 @@ editor.once('load', () => {
 
     const menu = new Menu({
         items: [
+            {
+                // the projects page, in its own tab
+                text: 'All Projects',
+                icon: 'E140',
+                class: 'menu-item-projects',
+                onSelect: () => openProjects()
+            },
+            {
+                // the project's page on the website: team, dev log and settings
+                text: 'Project Dashboard',
+                icon: 'E139',
+                onIsEnabled: () => !!backend().pages,
+                onSelect: () => window.open(backend().pages.project(config.project.id), '_blank')
+            },
             {
                 // Scene management (like "File" menu)
                 text: 'Scenes',
@@ -438,6 +455,12 @@ editor.once('load', () => {
     });
     menu.position(40, 0);
     root.append(menu);
+
+    editor.call('hotkey:register', 'projects:open', {
+        key: 'o',
+        ctrl: true,
+        callback: () => openProjects()
+    });
 
     const tooltip = TooltipHandle.attach({
         target: logo.dom,

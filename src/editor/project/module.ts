@@ -1,25 +1,37 @@
 import type { Observer } from '@playcanvas/observer';
 
+import { supports, service } from '@/common/supports';
+
 editor.once('load', () => {
     // method if the module is included in the project
     editor.method('project:module:hasModule', (wasmFilename: string) => {
+        // module files are named <module>.js, <module>.wasm.js and <module>.wasm.wasm, so match the
+        // prefix rather than any name containing it (e.g. a user's ammoHelper.js)
+        const prefix = `${wasmFilename.toLowerCase()}.`;
         const moduleAssets = editor.call('assets:find', (item: Observer) => {
             const name = item.get('name');
             const type = item.get('type');
-            return name && name.indexOf(wasmFilename) >= 0 && (type === 'script' || type === 'wasm');
+            return name && name.toLowerCase().startsWith(prefix) && (type === 'script' || type === 'wasm');
         });
         return moduleAssets.length > 0;
     });
 
     // add module to the project
     editor.method('project:module:addModule', (moduleStoreName: string, wasmFilename: string) => {
+        // modules and engine assets are imported from the store
+        if (!supports('storeCatalog') || !supports('storeImport')) {
+            return;
+        }
+
         function addModuleToProject() {
-            editor.api.globals.rest.store
+            service('storeCatalog')
                 .storeList({ search: moduleStoreName })
                 .on('load', (_status: number, data: { result: { id: string }[] }) => {
                     if (data.result && data.result.length === 1) {
-                        editor.api.globals.rest.store
-                            .storeClone(data.result[0].id, { scope: { type: 'project', id: config.project.id } })
+                        service('storeImport')
+                            .storeClone(data.result[0].id, {
+                                scope: { type: 'project', id: config.project.id }
+                            })
                             .on('load', (_status: number, _data: unknown) => {
                                 editor.call('status:text', 'Module successfully imported');
                                 editor.emit('onModuleImported', moduleStoreName);

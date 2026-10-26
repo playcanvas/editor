@@ -17,6 +17,7 @@ class Tooltip extends Container {
             target: Element;
             arrow: HTMLDivElement;
             events: EventHandle[];
+            cancel: () => void;
         }
     >();
 
@@ -172,6 +173,11 @@ class Tooltip extends Container {
 
         const hover = () => {
             defer().then(() => {
+                // the target may have been detached, or the container destroyed, while the show
+                // was pending; showing it now would leave it stuck with no hoverend (gh 2225)
+                if (container.destroyed || !this._targets.has(target)) {
+                    return;
+                }
                 // drop whatever was shown before. a field destroyed while its tooltip is
                 // up never fires hoverend, so its container would otherwise linger and
                 // stack with the next one shown (gh 2133)
@@ -217,7 +223,8 @@ class Tooltip extends Container {
             container,
             target,
             arrow,
-            events
+            events,
+            cancel: () => clearTimeout(timeout)
         });
 
         return this;
@@ -234,13 +241,15 @@ class Tooltip extends Container {
         if (!data) {
             return this;
         }
-        const { container, arrow, events } = data;
+        const { container, arrow, events, cancel } = data;
 
+        cancel();
         events.forEach((evt: EventHandle) => evt.unbind());
         arrow.remove();
         this.remove(container);
         if (this._shown === container) {
             this._shown = null;
+            this.hidden = true;
         }
         this._targets.delete(target);
 

@@ -261,7 +261,8 @@ class TooltipHandle extends Container {
     }
 
     static make(args: {
-        root?: Container;
+        // an element for a tooltip inside a modal overlay stacked above the layout
+        root?: Container | HTMLElement;
         text?: string;
         html?: string;
         align?: 'top' | 'right' | 'bottom' | 'left';
@@ -269,12 +270,17 @@ class TooltipHandle extends Container {
         class?: string;
     }) {
         const item = new TooltipHandle(args);
-        (args.root || editor.call('layout.root')).append(item);
+        const root = args.root || editor.call('layout.root');
+        if (root instanceof HTMLElement) {
+            root.appendChild(item.dom);
+        } else {
+            root.append(item);
+        }
         return item;
     }
 
     static attach(args: {
-        root?: Container;
+        root?: Container | HTMLElement;
         target: HTMLElement;
         text?: string;
         html?: string;

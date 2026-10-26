@@ -1,5 +1,7 @@
 import { Events } from '@playcanvas/observer';
 
+import type { Transport } from '@/editor-api';
+
 const MESSENGER_RECONNECT_DELAY = 1000;
 const MESSENGER_PING_DELAY = 10000;
 const MESSENGER_PONG_DELAY = 5000;
@@ -24,8 +26,15 @@ class Messenger extends Events {
 
     private _authenticated: boolean;
 
-    constructor() {
+    private _transport: Transport;
+
+    /**
+     * @param transport - Opens the messenger socket.
+     */
+    constructor(transport: Transport) {
         super();
+
+        this._transport = transport;
 
         this._url = '';
         this._reconnectDelay = null;
@@ -67,7 +76,7 @@ class Messenger extends Events {
         this._connecting = true;
         this._reconnectDelay = null;
 
-        this.socket = new WebSocket(this._url);
+        this.socket = this._transport.socket(this._url);
         this.socket.onopen = this._onopen.bind(this);
         this.socket.onmessage = this._onmessage.bind(this);
         this.socket.onerror = this._onerror.bind(this);
@@ -81,6 +90,7 @@ class Messenger extends Events {
 
         if (this._connectAttempts >= 8) {
             console.log('messenger cannot reconnect');
+            this.emit('cannotConnect');
             return;
         }
 

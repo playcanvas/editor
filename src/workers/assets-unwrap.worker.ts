@@ -40,14 +40,19 @@ const area = async (url: string) => {
 };
 
 const workerServer = new WorkerServer(self);
-workerServer.on('start', async (url: string, padding: number) => {
+// a rejection in a handler never reaches the worker's onerror, so report it to the client explicitly
+const fail = (e: unknown) => workerServer.send('error', String((e as Error)?.message ?? e));
+
+workerServer.on('start', (url: string, padding: number) => {
     const progress = (val: number) => {
         workerServer.send('progress', val);
     };
-    const [data, a] = await start(url, padding, progress);
-    workerServer.send('start', data, a);
+    start(url, padding, progress)
+        .then(([data, a]) => workerServer.send('start', data, a))
+        .catch(fail);
 });
-workerServer.on('area', async (url: string) => {
-    const [data, a] = await area(url);
-    workerServer.send('area', data, a);
+workerServer.on('area', (url: string) => {
+    area(url)
+        .then(([data, a]) => workerServer.send('area', data, a))
+        .catch(fail);
 });

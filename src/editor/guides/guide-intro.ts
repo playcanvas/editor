@@ -1,5 +1,6 @@
 import type { Observer } from '@playcanvas/observer';
 
+import { backend } from '@/common/backend';
 import { config } from '@/editor/config';
 
 editor.once('load', () => {
@@ -90,8 +91,8 @@ editor.once('load', () => {
     const bubbleDashboard = function () {
         return editor.call(
             'guide:bubble',
-            'Home',
-            'Click here to go to the <strong>Project Dashboard</strong>.<br/><br/>Visit your <strong>Dashboard</strong> to add to your Dev Log or create a new <strong>Project</strong>.',
+            'Projects',
+            'Click here to go back to <strong>All Projects</strong>.<br/><br/>Open another project, or create a new <strong>Project</strong>.',
             12,
             40,
             'top',
@@ -274,7 +275,7 @@ editor.once('load', () => {
 
         // entity bubble on select entity
         if (config.self.flags.tips.entityInspector === false) {
-            const evtEntitySelect = editor.on('selector:change', (type: string | null, items: Observer[]) => {
+            const evtEntitySelect = editor.on('selector:change', (type: string | null, _items: Observer[]) => {
                 if (type !== 'entity') {
                     return;
                 }
@@ -369,7 +370,7 @@ editor.once('load', () => {
 
         editor.once('help:demo:close', () => {
             // set user's openedEditor flag to true
-            editor.api.globals.rest.home.homeSceneOpened(config.scene.id);
+            backend().onboarding?.homeSceneOpened(config.scene.id);
 
             // show some demo specific bubbles first
             setTimeout(() => {

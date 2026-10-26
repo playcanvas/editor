@@ -10,6 +10,10 @@
     height: 22px;
 }
 
+.mcp-popover.mcp-popover-account {
+    z-index: 10002; // above the project manager overlay (10000)
+}
+
 .mcp-popover {
     position: fixed; // centered on the toolbar button in toolbar.ts
     width: 220px;
@@ -44,6 +48,11 @@
     .mcp-field {
         flex: 1;
         min-width: 0;
+
+        // invalid port: keep the error ring while typing, over pcui's focus ring
+        &.pcui-error {
+            box-shadow: $element-shadow-error;
+        }
     }
 
     .mcp-status-value {
@@ -80,6 +89,11 @@
         font-size: 11px;
         line-height: 1.4;
         white-space: normal;
+
+        // invalid port
+        &.pcui-error {
+            color: $error-secondary;
+        }
     }
 
     .mcp-toggle {

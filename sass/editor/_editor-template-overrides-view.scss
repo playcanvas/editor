@@ -148,9 +148,6 @@
 
 .template-overrides-override-marker {
     color: #00f1ff;
-
-    @extend .font-icon;
-
     flex-grow: 1;
     font-size: 8px;
     height: 100%;
@@ -158,6 +155,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
+
+    // labels also carry .font-regular, which comes later in the cascade at the same specificity
+    &.pcui-label {
+        font-family: pc-icon;
+    }
 
     &:not(.template-overrides-override-marker-hidden):hover {
         background-color: $bcg-darkest;

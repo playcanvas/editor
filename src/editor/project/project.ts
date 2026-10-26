@@ -1,4 +1,6 @@
+import { backend, UNSUPPORTED } from '@/common/backend';
 import { Defer } from '@/common/defer';
+import { supports, service } from '@/common/supports';
 import { config } from '@/editor/config';
 
 editor.once('load', () => {
@@ -13,7 +15,13 @@ editor.once('load', () => {
                 apiData[key] = data[key];
             });
 
-            editor.api.globals.rest.projects
+            const service = backend().projectCreation;
+            if (!service) {
+                errorFn?.(UNSUPPORTED);
+                return;
+            }
+
+            service
                 .projectCreate(apiData)
                 .on('load', (_status: number, response: unknown) => {
                     if (success) {
@@ -63,7 +71,13 @@ editor.once('load', () => {
     // Loads all the user's projects
     editor.method('projects:list', (id: string, view: string) => {
         return new Promise((resolve, reject) => {
-            editor.api.globals.rest.users
+            const service = backend().projectList;
+            if (!service) {
+                reject(UNSUPPORTED);
+                return;
+            }
+
+            service
                 .userProjects(id, view)
                 .on('load', (_status: number, response: unknown) => {
                     resolve(response);
@@ -76,11 +90,16 @@ editor.once('load', () => {
 
     // Loads all the starter kits
     editor.method('projects:listStarterKits', (success?: (data: unknown) => void) => {
-        editor.api.globals.rest.apps.appList('starterkit').on('load', (_status: number, data: { result: unknown }) => {
-            if (success) {
-                success(data.result);
-            }
-        });
+        if (!supports('projectList')) {
+            return;
+        }
+        service('projectList')
+            .appList('starterkit')
+            .on('load', (_status: number, data: { result: unknown }) => {
+                if (success) {
+                    success(data.result);
+                }
+            });
     });
 
     // Save a specified project
@@ -112,17 +131,28 @@ editor.once('load', () => {
 
     // Delete specified project
     editor.method('projects:delete', (projectId, success) => {
-        editor.api.globals.rest.projects.projectDelete({ projectId }).on('load', () => {
-            if (success) {
-                success();
-            }
-        });
+        if (!supports('projectManagement')) {
+            return;
+        }
+        service('projectManagement')
+            .projectDelete({ projectId })
+            .on('load', () => {
+                if (success) {
+                    success();
+                }
+            });
     });
 
     // get job status
     editor.method('projects:getJobStatus', (jobId: string) => {
         return new Promise((resolve, reject) => {
-            editor.api.globals.rest.jobs
+            const service = backend().jobs;
+            if (!service) {
+                reject(UNSUPPORTED);
+                return;
+            }
+
+            service
                 .jobGet({ jobId })
                 .on('load', (_status: number, response: unknown) => {
                     resolve(response);
@@ -142,7 +172,13 @@ editor.once('load', () => {
             success?: (result: unknown) => void,
             errorFn?: (error: unknown) => void
         ) => {
-            editor.api.globals.rest.projects
+            const service = backend().projectExport;
+            if (!service) {
+                errorFn?.(UNSUPPORTED);
+                return;
+            }
+
+            service
                 .projectExport({ projectId, branchId })
                 .on('load', (status, result) => {
                     if (success) {
@@ -159,18 +195,23 @@ editor.once('load', () => {
 
     // Upload specified export
     editor.method('projects:uploadExport', async (file, progressHandler) => {
+        const service = backend().projectImport;
+        if (!service) {
+            throw new Error(UNSUPPORTED);
+        }
+
         // start upload
         const partSize = 20 * 1024 * 1024; // 20Mb per part
         const partsTotal = Math.ceil(file.size / partSize);
 
-        const startResponse = await editor.api.globals.rest.upload.uploadStart({
+        const startResponse = await service.uploadStart({
             filename: file.name
         });
 
         const uploadId = startResponse.uploadId;
         const key = startResponse.key;
 
-        const urlsData = await editor.api.globals.rest.upload.uploadUrls({
+        const urlsData = await service.uploadUrls({
             uploadId: uploadId,
             parts: partsTotal,
             key: key
@@ -189,18 +230,20 @@ editor.once('load', () => {
 
             // Upload the file to S3 using the pre-signed URL
             promises.push(
-                fetch(signedUrl, {
-                    method: 'PUT',
-                    body: blob,
-                    headers: {
-                        'Content-Type': 'application/zip'
-                    }
-                }).then((response) => {
-                    completedParts++; // Increment the number of completed parts
-                    const progress = completedParts / urls.length; // Calculate progress as a fraction
-                    progressHandler(progress); // Update the progress
-                    return response;
-                })
+                backend()
+                    .transport.fetch(signedUrl, {
+                        method: 'PUT',
+                        body: blob,
+                        headers: {
+                            'Content-Type': 'application/zip'
+                        }
+                    })
+                    .then((response) => {
+                        completedParts++; // Increment the number of completed parts
+                        const progress = completedParts / urls.length; // Calculate progress as a fraction
+                        progressHandler(progress); // Update the progress
+                        return response;
+                    })
             );
 
             partNumber++;
@@ -219,7 +262,7 @@ editor.once('load', () => {
         }
 
         // Complete the upload
-        await editor.api.globals.rest.upload.uploadComplete({
+        await service.uploadComplete({
             uploadId: uploadId,
             parts: parts,
             key: key
@@ -232,7 +275,13 @@ editor.once('load', () => {
     // Imports specified project
     editor.method('projects:importNew', (exportUrl, ownerId) => {
         return new Promise((resolve, reject) => {
-            editor.api.globals.rest.projects
+            const service = backend().projectImport;
+            if (!service) {
+                reject(UNSUPPORTED);
+                return;
+            }
+
+            service
                 .projectImport({
                     export_url: exportUrl,
                     owner: ownerId
@@ -248,7 +297,13 @@ editor.once('load', () => {
 
     // Unlocks locked project
     editor.method('projects:unlockOne', (projectId, success, errorFn) => {
-        editor.api.globals.rest.projects
+        const service = backend().projectManagement;
+        if (!service) {
+            errorFn?.(UNSUPPORTED);
+            return;
+        }
+
+        service
             .projectUnlock(projectId)
             .on('load', (status, result) => {
                 if (success) {
@@ -265,7 +320,13 @@ editor.once('load', () => {
     // Transfers a specified project
     editor.method('projects:transfer', (projectId, newOwnerId) => {
         return new Promise((resolve, reject) => {
-            editor.api.globals.rest.projects
+            const service = backend().projectTransfer;
+            if (!service) {
+                reject(UNSUPPORTED);
+                return;
+            }
+
+            service
                 .projectTransfer(projectId, {
                     owner_id: newOwnerId
                 })
@@ -281,7 +342,13 @@ editor.once('load', () => {
     // Accepts transferred project
     editor.method('projects:acceptTransfer', (projectId: string) => {
         return new Promise((resolve, reject) => {
-            editor.api.globals.rest.projects
+            const service = backend().projectTransfer;
+            if (!service) {
+                reject(UNSUPPORTED);
+                return;
+            }
+
+            service
                 .projectAcceptTransfer(projectId)
                 .on('load', (_status: number, response: unknown) => {
                     resolve(response);
@@ -296,7 +363,13 @@ editor.once('load', () => {
     editor.method(
         'projects:declineTransfer',
         (projectId: string, success?: (response: unknown) => void, errorFn?: (err: unknown) => void) => {
-            editor.api.globals.rest.projects
+            const service = backend().projectTransfer;
+            if (!service) {
+                errorFn?.(UNSUPPORTED);
+                return;
+            }
+
+            service
                 .projectDeclineTransfer(projectId)
                 .on('load', (_status: number, response: unknown) => {
                     if (success) {
@@ -315,7 +388,13 @@ editor.once('load', () => {
     editor.method(
         'projects:watch',
         (projectId: string, success?: (response: unknown) => void, errorFn?: (err: unknown) => void) => {
-            editor.api.globals.rest.watch
+            const service = backend().projectManagement;
+            if (!service) {
+                errorFn?.(UNSUPPORTED);
+                return;
+            }
+
+            service
                 .watchCreate({
                     scope: {
                         type: 'project',
@@ -339,7 +418,13 @@ editor.once('load', () => {
     editor.method(
         'projects:unwatch',
         (watchId: string, success?: (response: unknown) => void, errorFn?: (err: unknown) => void) => {
-            editor.api.globals.rest.watch
+            const service = backend().projectManagement;
+            if (!service) {
+                errorFn?.(UNSUPPORTED);
+                return;
+            }
+
+            service
                 .watchDelete(watchId)
                 .on('load', (_status: number, response: unknown) => {
                     if (success) {
@@ -363,7 +448,13 @@ editor.once('load', () => {
             success?: (response: unknown) => void,
             errorFn?: (err: unknown) => void
         ) => {
-            editor.api.globals.rest.star
+            const service = backend().projectManagement;
+            if (!service) {
+                errorFn?.(UNSUPPORTED);
+                return;
+            }
+
+            service
                 .starCreate({
                     scope: { type: starType, id: projectId }
                 })
@@ -384,7 +475,13 @@ editor.once('load', () => {
     editor.method(
         'projects:unstar',
         (starId: string, success?: (response: unknown) => void, errorFn?: (err: unknown) => void) => {
-            editor.api.globals.rest.star
+            const service = backend().projectManagement;
+            if (!service) {
+                errorFn?.(UNSUPPORTED);
+                return;
+            }
+
+            service
                 .starDelete(starId)
                 .on('load', (_status: number, response: unknown) => {
                     if (success) {
@@ -409,7 +506,14 @@ editor.once('load', () => {
         ) => {
             const deferred = new Defer();
 
-            editor.api.globals.rest.projects
+            const service = backend().projectCreation;
+            if (!service) {
+                deferred.reject(UNSUPPORTED);
+                errorFn?.(deferred.promise);
+                return;
+            }
+
+            service
                 .projectCreate(data)
                 .on('load', (_status: number, response: unknown) => {
                     deferred.resolve(response);
@@ -430,7 +534,13 @@ editor.once('load', () => {
 
     // Get project activity
     editor.method('projects:activity', (projectId, success, errorFn) => {
-        editor.api.globals.rest.projects
+        const service = backend().projectList;
+        if (!service) {
+            errorFn?.(UNSUPPORTED);
+            return;
+        }
+
+        service
             .projectActivity(projectId)
             .on('load', (_status: number, data: unknown) => {
                 if (success) {
@@ -479,7 +589,13 @@ editor.once('load', () => {
             success?: (result: unknown) => void,
             errorFn?: (status: number, error: unknown) => void
         ) => {
-            editor.api.globals.rest.projects
+            const service = backend().teamList;
+            if (!service) {
+                errorFn?.(0, UNSUPPORTED);
+                return;
+            }
+
+            service
                 .projectCollabList(project.id)
                 .on('load', (_status: number, data: unknown) => {
                     if (success) {
@@ -498,7 +614,13 @@ editor.once('load', () => {
     editor.method(
         'projects:invitations',
         (options: Record<string, unknown>, success?: (result: unknown) => void, errorFn?: (error: unknown) => void) => {
-            editor.api.globals.rest.invitations
+            const service = backend().teamList;
+            if (!service) {
+                errorFn?.(UNSUPPORTED);
+                return;
+            }
+
+            service
                 .invitationList(options)
                 .on('load', (_status: number, data: unknown) => {
                     if (success) {
@@ -523,7 +645,13 @@ editor.once('load', () => {
             success?: (data: unknown) => void,
             errorFn?: (error: unknown) => void
         ) => {
-            editor.api.globals.rest.invitations
+            const service = backend().teamManagement;
+            if (!service) {
+                errorFn?.(UNSUPPORTED);
+                return;
+            }
+
+            service
                 .invitationCreate({
                     project_owner: project.owner,
                     project_name: project.name,
@@ -547,7 +675,13 @@ editor.once('load', () => {
     editor.method(
         'projects:deleteInvitation',
         (invitation: { key: string }, success?: () => void, errorFn?: () => void) => {
-            editor.api.globals.rest.invitations
+            const service = backend().teamManagement;
+            if (!service) {
+                errorFn?.();
+                return;
+            }
+
+            service
                 .invitationDelete(invitation.key)
                 .on('load', () => {
                     if (success) {

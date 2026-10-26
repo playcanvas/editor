@@ -17,6 +17,7 @@ const log = createLog('<PATH>');
 editor.once('load', () => {
     let timeout;
     let viewportError = false;
+    let messengerLost = false;
 
     const overlay = new Overlay({
         class: 'connection-overlay',
@@ -42,19 +43,39 @@ editor.once('load', () => {
     editor.on('realtime:connected', () => {
         clearErrorGrace();
 
-        if (viewportError) {
+        if (viewportError || messengerLost) {
             return;
         }
 
         overlay.hidden = true;
     });
 
+    // asset, checkpoint and job updates come over the messenger, so the editor goes stale without it
+    editor.on('messenger:cannotConnect', () => {
+        if (viewportError) {
+            return;
+        }
+
+        messengerLost = true;
+        clearTimeout(timeout);
+        content.innerHTML = 'Lost connection to the server. Please refresh the editor.';
+        overlay.hidden = false;
+    });
+
     editor.on('realtime:disconnected', () => {
+        if (messengerLost) {
+            return;
+        }
+
         content.innerHTML = 'You have been disconnected from the server.';
         overlay.hidden = false;
     });
 
     editor.on('realtime:nextAttempt', (time) => {
+        if (messengerLost) {
+            return;
+        }
+
         function setText(remaining: number) {
             content.innerHTML = `Disconnected. Reconnecting in ${remaining} seconds...`;
         }
@@ -83,7 +104,7 @@ editor.once('load', () => {
     editor.on('realtime:connecting', (attempt) => {
         clearErrorGrace();
 
-        if (viewportError) {
+        if (viewportError || messengerLost) {
             return;
         }
 
@@ -221,7 +242,7 @@ editor.once('load', () => {
     editor.on('scene:unload', () => {
         clearErrorGrace();
 
-        if (viewportError) {
+        if (viewportError || messengerLost) {
             return;
         }
 

@@ -506,9 +506,11 @@ class ScriptInspector extends Panel {
             const isVisible = this._evaluateCondition(name, 'visibleif', visibleIf, state) ?? true;
             const isEnabled = this._evaluateCondition(name, 'enabledif', enabledIf, state) ?? true;
 
-            // and update the field with them
-            field.hidden = !isVisible;
-            field.enabled = isEnabled;
+            // and update the field with them. array inputs also sit in a LabelGroup, which has to
+            // follow so the label hides with the array
+            const container = field instanceof ArrayInput && field.parent instanceof LabelGroup ? field.parent : field;
+            container.hidden = !isVisible;
+            container.enabled = isEnabled;
 
             // Only continue if the field is a json or array attribute, ie it has sub attributes
             if (type !== 'json') {

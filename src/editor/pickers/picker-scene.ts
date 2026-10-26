@@ -2,6 +2,7 @@ import type { EventHandle } from '@playcanvas/observer';
 import type { Element } from '@playcanvas/pcui';
 import { Button, Container, Label, Menu, TextInput } from '@playcanvas/pcui';
 
+import { backend } from '@/common/backend';
 import { convertDatetime } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -17,7 +18,7 @@ editor.once('load', () => {
         class: 'picker-scene-panel'
     });
 
-    editor.call('picker:project:registerMenu', 'scenes', 'Scenes', container);
+    editor.call('picker:project:registerMenu', 'scenes', 'Scenes', container, 'Scenes');
 
     // scene should be the default
     editor.call('picker:project:setDefaultMenu', 'scenes');
@@ -26,11 +27,15 @@ editor.once('load', () => {
         container.class.add('disabled');
     }
 
+    // listing and loading scenes is core; creating, duplicating and deleting them is a backend feature
+    const manageable = !!backend().sceneManagement;
+    const canManage = () => manageable && editor.call('permissions:write');
+
     // disables / enables field depending on permissions
     const handlePermissions = (field: Element) => {
-        field.enabled = editor.call('permissions:write');
+        field.enabled = canManage();
         return editor.on(`permissions:set:${config.self.id}`, (accessLevel) => {
-            field.enabled = accessLevel === 'write' || accessLevel === 'admin';
+            field.enabled = manageable && (accessLevel === 'write' || accessLevel === 'admin');
         });
     };
 
@@ -320,7 +325,7 @@ editor.once('load', () => {
         items: [
             {
                 text: 'Duplicate Scene',
-                onIsEnabled: () => editor.call('permissions:write'),
+                onIsEnabled: canManage,
                 onSelect: () => {
                     let name;
                     const regex = /^(.*?) (\d+)$/;
@@ -356,7 +361,7 @@ editor.once('load', () => {
             {
                 text: 'Delete Scene',
                 class: 'delete',
-                onIsEnabled: () => editor.call('permissions:write'),
+                onIsEnabled: canManage,
                 onSelect: () => {
                     editor.call(
                         'picker:confirm',
@@ -408,7 +413,7 @@ editor.once('load', () => {
     });
 
     newScene.on('click', () => {
-        if (!editor.call('permissions:write')) {
+        if (!canManage()) {
             return;
         }
 

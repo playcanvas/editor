@@ -1,6 +1,7 @@
 import type { Container } from '@playcanvas/pcui';
 import filenamify from 'filenamify/browser';
 
+import { service } from '@/common/supports';
 import { bytesToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -95,7 +96,7 @@ class AssetsStore extends BaseStore {
     }
 
     async _loadAssets(id: string) {
-        const results = await editor.api.globals.rest.store.storeAssets(id).promisify();
+        const results = await service('storeCatalog').storeAssets(id).promisify();
         return results.result;
     }
 
@@ -166,6 +167,13 @@ class AssetsStore extends BaseStore {
         }
         const processedAssets = this._prepareAssets(assets);
 
+        // the item's own date isn't bumped when its assets are replaced, so show the latest
+        const modified = (assets ?? []).reduce(
+            (latest: string, a: { modifiedAt?: string }) =>
+                Date.parse(a.modifiedAt) > Date.parse(latest) ? a.modifiedAt : latest,
+            item.modified
+        );
+
         const tags = [];
         for (const tag of item.tags) {
             tags.push({ name: tag, slug: tag });
@@ -175,7 +183,7 @@ class AssetsStore extends BaseStore {
             id: item.id,
             name: item.name,
             size: item.size,
-            modified: item.modified,
+            modified,
             views: item.views,
             downloads: item.downloads,
             description: item.description,
@@ -208,7 +216,7 @@ class AssetsStore extends BaseStore {
         }
 
         const load = async (item: { id: string }) => {
-            return this._prepareItem(await editor.api.globals.rest.store.storeGet(item.id).promisify());
+            return this._prepareItem(await service('storeCatalog').storeGet(item.id).promisify());
         };
 
         for (const item of items) {

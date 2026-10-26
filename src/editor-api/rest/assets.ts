@@ -136,6 +136,11 @@ export type AssetUpdateData = {
      * Skip server-side conversion (for assets the editor generates itself, e.g. client-side fonts)
      */
     noConvert?: boolean;
+
+    /**
+     * Whether to preload the assets the request creates
+     */
+    preloadDefault?: boolean;
 };
 
 export type AssetCreateData = AssetUpdateData & {
@@ -173,11 +178,6 @@ export type AssetCreateData = AssetUpdateData & {
      * The meta of the asset
      */
     preload?: boolean;
-
-    /**
-     * Whether to preload the asset
-     */
-    preloadDefault?: boolean;
 };
 
 export type AssetPipelineOptions = {
@@ -585,6 +585,11 @@ export const assetUpdate = (assetId: string, data: AssetUpdateData, pipeline: As
     // to make it parsed on back-end first
 
     const form = new FormData();
+
+    // preload of assets the update creates
+    if (data.preloadDefault !== undefined) {
+        form.append('preload', `${data.preloadDefault}`);
+    }
 
     // update fields
     assetUpdateFields(form, data, pipeline);

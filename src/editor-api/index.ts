@@ -17,6 +17,7 @@ export type * from './external-types/scene-settings';
 // core
 import './polyfills';
 export * from './globals';
+export * from './transport';
 export * from './utils';
 export * from './guid';
 export * from './entities';

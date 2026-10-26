@@ -219,6 +219,8 @@ class RenderComponentInspector extends ComponentInspector {
     _onMaterialsChange(value: unknown) {
         this._field('materialAssets').forEachArrayElement((assetInput, index) => {
             assetInput.label.text = `Material #${index}`;
+            // lets a viewport pick of mesh instance #index find its slot
+            assetInput.dom.dataset.meshInstance = `${index}`;
         });
     }
 
@@ -504,6 +506,11 @@ class RenderComponentInspector extends ComponentInspector {
         this._suppressCustomAabb = true;
 
         super.link(entities);
+
+        // a slot highlighted by a viewport pick belongs to the previous selection
+        this._field('materialAssets').forEachArrayElement((assetInput) => {
+            assetInput.class.remove('active');
+        });
 
         const customAabbs = this._entities.map((e) => hasCustomAabb(e, 'render'));
         this._field('customAabb').values = customAabbs;

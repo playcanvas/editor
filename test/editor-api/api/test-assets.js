@@ -405,8 +405,28 @@ ${className}.prototype.update = function(dt) {
             textures: [1, 2, 3, 4, 5, 6],
             minFilter: 5,
             magFilter: 1,
-            anisotropy: 1
+            anisotropy: 1,
+            rgbm: false
         }));
+    });
+
+    it('creates rgbm cubemap asset from rgbm textures', function () {
+        const xhr = sandbox.useFakeXMLHttpRequest();
+        const requests = [];
+        xhr.onCreate = (fake) => {
+            requests.push(fake);
+        };
+
+        api.globals.projectId = 1;
+
+        const textures = [];
+        for (let i = 0; i < 6; i++) {
+            textures.push(new api.Asset({ id: i + 1, data: { rgbm: true } }));
+        }
+
+        api.globals.assets.createCubemap({ textures });
+
+        expect(JSON.parse(requests[0].requestBody.get('data')).rgbm).to.equal(true);
     });
 
     it('creates folder asset', function () {

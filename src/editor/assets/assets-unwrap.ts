@@ -1,10 +1,28 @@
+import type { Observer } from '@playcanvas/observer';
+
+import { buildQueryUrl } from '@/common/utils';
 import { WorkerClient } from '@/core/worker/worker-client';
 
 editor.once('load', () => {
     const activeWorkers = new Map();
 
+    // without the branch the file api serves the main branch's file
+    const fileUrl = (asset: Observer) =>
+        buildQueryUrl(`${config.url.api}/assets/${asset.get('id')}/file/${asset.get('file.filename')}`, {
+            branchId: config.self.branch.id
+        });
+
     editor.method('assets:model:unwrap', (asset, args, callback) => {
         const assetId = asset.get('id');
+
+        if (typeof args === 'function') {
+            callback = args;
+        }
+        if (typeof args !== 'object') {
+            args = {};
+        }
+
+        args = args || {};
 
         if (asset.get('type') !== 'model' || !asset.has('file.filename')) {
             callback?.(new Error('A model asset with a source file is required.'));
@@ -14,14 +32,6 @@ editor.once('load', () => {
             callback?.(new Error(`Model asset ${assetId} is already being unwrapped.`));
             return;
         }
-        if (typeof args === 'function') {
-            callback = args;
-        }
-        if (typeof args !== 'object') {
-            args = {};
-        }
-
-        args = args || {};
 
         const filename = asset.get('file.filename');
 
@@ -63,7 +73,7 @@ editor.once('load', () => {
                 editor.emit('assets:model:unwrap:progress', asset, val);
             });
 
-            workerClient.send('start', `${config.url.api}/assets/${assetId}/file/${filename}`, args.padding || 2.0);
+            workerClient.send('start', fileUrl(asset), args.padding || 2.0);
         });
 
         workerClient.on('error', (err) => {
@@ -89,12 +99,9 @@ editor.once('load', () => {
     });
 
     editor.method('assets:model:area', (asset, callback) => {
-        const assetId = asset.get('id');
         if (asset.get('type') !== 'model' || !asset.has('file.filename')) {
             return;
         }
-
-        const filename = asset.get('file.filename');
 
         const workerClient = new WorkerClient(`${config.url.frontend}js/assets-unwrap.worker.js`);
         workerClient.once('ready', () => {
@@ -104,7 +111,7 @@ editor.once('load', () => {
                 callback?.(null, asset, area || null);
             });
 
-            workerClient.send('area', `${config.url.api}/assets/${assetId}/file/${filename}`);
+            workerClient.send('area', fileUrl(asset));
         });
 
         workerClient.on('error', (err) => {

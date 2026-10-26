@@ -8,7 +8,7 @@ import { instantiateTemplates } from './assets/instantiate-templates';
 import { getUniqueName, siblingNames } from './assets/unique-name';
 import { uploadFile } from './assets/upload';
 import type { Entity } from './entity';
-import { globals as api } from './globals';
+import { apiBase, globals as api } from './globals';
 
 // the script parse pipeline (engine fetch -> worker -> backend) can stall; bound
 // the wait so createScript rejects instead of hanging indefinitely
@@ -483,8 +483,8 @@ class Assets extends Events {
 
         this.emit('load:progress', 0.1);
 
-        const response = await fetch(
-            `${api.apiUrl}/projects/${api.projectId}/assets?branchId=${api.branchId}&view=${options.view || 'designer'}`
+        const response = await api.transport.fetch(
+            `${apiBase()}/projects/${api.projectId}/assets?branchId=${api.branchId}&view=${options.view || 'designer'}`
         );
         if (!response.ok) {
             console.error(`Could not load assets: [${response.status}] - ${response.statusText}`);
@@ -540,8 +540,8 @@ class Assets extends Events {
 
         this.emit('load:progress', 0.1);
 
-        const response = await fetch(
-            `${api.apiUrl}/projects/${api.projectId}/assets?branchId=${api.branchId}&view=${options.view || 'designer'}`
+        const response = await api.transport.fetch(
+            `${apiBase()}/projects/${api.projectId}/assets?branchId=${api.branchId}&view=${options.view || 'designer'}`
         );
         if (!response.ok) {
             console.error(`Could not load assets: [${response.status}] - ${response.statusText}`);
@@ -781,6 +781,11 @@ class Assets extends Events {
         } = {}
     ) {
         const textures = (options.textures || new Array(6)).slice(0, 6);
+
+        // the schema defaults rgbm to false, so match the faces as assigning one in the inspector does
+        const faces = textures.filter(Boolean);
+        const rgbm = faces.length > 0 && faces.every((t) => !!t.get('data.rgbm'));
+
         for (let i = 0; i < 6; i++) {
             textures[i] = textures[i] ? textures[i].get('id') : null;
         }
@@ -796,7 +801,8 @@ class Assets extends Events {
                     textures: textures,
                     minFilter: options.minFilter !== undefined ? options.minFilter : 5, // linear mipmap linear
                     magFilter: options.magFilter !== undefined ? options.magFilter : 1, // linear
-                    anisotropy: options.anisotropy !== undefined ? options.anisotropy : 1
+                    anisotropy: options.anisotropy !== undefined ? options.anisotropy : 1,
+                    rgbm
                 }
             },
             null,
@@ -1242,7 +1248,7 @@ class Assets extends Events {
      * @param assets - The assets
      */
     async delete(assets: Asset[]) {
-        const response = await fetch(`${api.apiUrl}/assets`, {
+        const response = await api.transport.fetch(`${apiBase()}/assets`, {
             body: JSON.stringify({
                 assets: assets.map((a: any) => a.get('id')),
                 branchId: api.branchId

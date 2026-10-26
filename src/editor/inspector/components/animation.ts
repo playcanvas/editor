@@ -152,9 +152,11 @@ class AnimationComponentInspector extends ComponentInspector {
         this._refreshPlayButtons(entities, assetList);
 
         // refresh play buttons when animations are added
-        assetList.on('change', () => {
-            this._refreshPlayButtons(entities, assetList);
-        });
+        this._entityEvents.push(
+            assetList.on('change', () => {
+                this._refreshPlayButtons(entities, assetList);
+            })
+        );
 
         this._stopAnimation(entities);
     }

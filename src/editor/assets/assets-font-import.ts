@@ -3,6 +3,7 @@
 // page, and a runtime font whose `data` only references those (ReferencedFontHandler resolves it).
 // depends on the backend honouring `noConvert`, so it does not also produce a target of its own.
 
+import { backend } from '@/common/backend';
 import { isRefPath } from '@/common/referenced-font-handler';
 import { isReferencedFont } from '@/editor/inspector/assets/font-mode';
 
@@ -343,11 +344,14 @@ editor.once('load', () => {
         const font = await getObserver(fontId);
         reloadFont(font);
         editor.call('selector:set', 'asset', [font]);
+        return font;
     };
 
+    // resolves with the new font asset, or undefined if the import failed
     editor.method('fonts:import', (file: File, folder: any) => {
-        importFont(file, folder).catch((err) => {
+        return importFont(file, folder).catch((err) => {
             editor.call('status:error', `Font import failed: ${err?.message ?? err}`);
+            return undefined;
         });
     });
 
@@ -372,7 +376,7 @@ editor.once('load', () => {
         if (!url) {
             throw new Error('font source file not found');
         }
-        const res = await fetch(url);
+        const res = await backend().transport.fetch(url);
         if (!res.ok) {
             throw new Error(`font source file could not be read (${res.status})`);
         }

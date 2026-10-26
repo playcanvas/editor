@@ -1,6 +1,7 @@
 import { Button, Container, Overlay, Panel, SelectInput, TextInput, TreeView, TreeViewItem } from '@playcanvas/pcui';
 
 import { createLog } from '@/common/sentry';
+import { service } from '@/common/supports';
 import { config } from '@/editor/config';
 
 import { arrayFieldKind, buildNameIndex, indexTemplateEntities } from './vc-diff-data';
@@ -38,6 +39,8 @@ const FULLSCREEN_TOOLBAR_W = 40;
 // than sitting among the entity's regular values; values are shown friendlier
 const TEMPLATE_PANEL = 'Template instance';
 const TEMPLATE_FIELDS: Record<string, string> = { template_id: 'Source template', template_ent_ids: 'Entity mapping' };
+
+const TEXT_ASSET_TYPES = new Set(['css', 'html', 'json', 'script', 'shader', 'text']);
 
 // loading-state skeleton fragments (mirror the real diff layout: sidebar rows are
 // name + status badge over a sub line; the main pane is a header bar over bordered
@@ -251,7 +254,7 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
         if (!fileStats.has(key)) {
             fileStats.set(
                 key,
-                editor.api.globals.rest.merge
+                service('merges')
                     .mergeConflicts({
                         mergeId: id,
                         conflictId: entry.id,
@@ -517,6 +520,30 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
                         entry.path ? 'entity' : (conflict.assetType ?? conflict.itemType ?? 'item')
                     )
                 );
+
+                // a wholly added/deleted text file has no merged file to diff, so show its content
+                const side = entry.missingInDst ? 'src' : 'dst';
+                const filename = conflict[`${side}Filename`];
+                const backup = conflict[`${side}ImmutableBackup`];
+                if (!entry.path && TEXT_ASSET_TYPES.has(conflict.assetType) && filename && backup) {
+                    const file = document.createElement('pre');
+                    file.classList.add('vc-diff-file', side === 'src' ? 'add' : 'del');
+                    file.textContent = 'Loading file';
+                    host.appendChild(file);
+                    editor.api.globals.rest.assets
+                        .assetGetFile(conflict.itemId, filename, {
+                            immutableBackup: backup,
+                            branchId: side === 'src' ? current?.sourceBranchId : current?.destinationBranchId
+                        })
+                        .promisify()
+                        .then((text: string) => {
+                            file.textContent = text;
+                        })
+                        .catch((err: unknown) => {
+                            log.error(err);
+                            file.textContent = 'Could not load the file';
+                        });
+                }
                 continue;
             }
             // array fields are membership lists, not before/after blobs: show just

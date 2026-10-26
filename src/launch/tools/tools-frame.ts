@@ -706,6 +706,15 @@ editor.once('load', () => {
         delete cameraIndex[id];
     };
 
+    // the app may have changed scene since, so list the cameras it has now when the dropdown opens
+    cameras.addEventListener('mousedown', () => {
+        const live = new Set(app.root.findComponents('camera').map((camera) => camera.entity.getGuid()));
+        Object.keys(cameraIndex)
+            .filter((id) => !live.has(id))
+            .forEach(cameraRemove);
+        live.forEach(cameraAdd);
+    });
+
     editor.on('entities:add', (obj: Observer) => {
         const id = obj.get('resource_id');
 
@@ -720,7 +729,7 @@ editor.once('load', () => {
                 return;
             }
 
-            cameraIndex.textContent = value;
+            cameraIndex[id].textContent = value;
         });
 
         if (obj.has('components.camera')) {

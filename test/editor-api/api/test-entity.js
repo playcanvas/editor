@@ -16,6 +16,23 @@ describe('api.Entity tests', function () {
         api.globals.history = null;
     });
 
+    // the shared fixture has no element component, which addComponent derives a margin for
+    function elementSchema() {
+        const s = structuredClone(schema);
+        const num = { type: 'number' };
+        s.documents.scene.properties.entities.additionalProperties.properties.components.properties.element = {
+            type: 'object',
+            properties: {
+                anchor: { type: 'array', items: num, default: [0.5, 0.5, 0.5, 0.5] },
+                pivot: { type: 'array', items: num, default: [0.5, 0.5] },
+                width: { type: 'number', default: 32 },
+                height: { type: 'number', default: 32 },
+                margin: { type: 'array', items: num, default: [-16, -16, -16, -16] }
+            }
+        };
+        return s;
+    }
+
     function addChildEntity(child, parent) {
         child.set('parent', parent.get('resource_id'));
         parent.insert('children', child.get('resource_id'));
@@ -276,6 +293,28 @@ describe('api.Entity tests', function () {
             entityRef: e.get('resource_id')
         });
         expect(e.get('components.testcomponent.entityRef')).to.equal(e.get('resource_id'));
+    });
+
+    it('addComponent derives the element margin from the entity position', function () {
+        api.globals.schema = new api.Schema(elementSchema());
+        const e = api.globals.entities.create({ position: [3, 4, 5] });
+        e.addComponent('element');
+        expect(e.get('components.element.margin')).to.deep.equal([-13, -12, -19, -20]);
+
+        const origin = api.globals.entities.create({ position: [0, 0, 0] });
+        origin.addComponent('element');
+        expect(origin.get('components.element.margin')).to.deep.equal([-16, -16, -16, -16]);
+    });
+
+    it('addComponent keeps an explicit or split-anchor element margin', function () {
+        api.globals.schema = new api.Schema(elementSchema());
+        const e = api.globals.entities.create({ position: [3, 4, 5] });
+        e.addComponent('element', { margin: [1, 2, 3, 4] });
+        expect(e.get('components.element.margin')).to.deep.equal([1, 2, 3, 4]);
+
+        const split = api.globals.entities.create({ position: [3, 4, 5] });
+        split.addComponent('element', { anchor: [0, 0, 1, 1] });
+        expect(split.get('components.element.margin')).to.deep.equal([-16, -16, -16, -16]);
     });
 
     it('addComponent tolerates unsupported components (legacy data loads without throwing)', function () {

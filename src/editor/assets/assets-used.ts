@@ -766,27 +766,7 @@ editor.once('load', () => {
         }
     });
 
-    // scene settings
-    const sceneSettings = editor.call('sceneSettings');
-    sceneSettings.on('render.skybox:set', (value, valueOld) => {
-        updateAsset('sceneSettings', 'editorSettings', valueOld, value);
-    });
-
-    // project settings
-    const projectSettings = editor.call('settings:project');
-    const loadingScreenScript = projectSettings.get('loadingScreenScript');
-    if (loadingScreenScript) {
-        updateAsset('projectSettings', 'editorSettings', null, parseInt(loadingScreenScript, 10));
-    }
-    projectSettings.on('loadingScreenScript:set', (value, valueOld) => {
-        updateAsset(
-            'projectSettings',
-            'editorSettings',
-            valueOld ? parseInt(valueOld, 10) : null,
-            value ? parseInt(value, 10) : null
-        );
-    });
-
+    // registered before the settings refs below, whose initial updateAsset asks if the referer is used
     editor.method('assets:used:index', () => {
         return index;
     });
@@ -800,5 +780,28 @@ editor.once('load', () => {
         }
 
         return !!(index[id].count && index[id].parent);
+    });
+
+    // scene settings
+    const sceneSettings = editor.call('sceneSettings');
+    sceneSettings.on('render.skybox:set', (value, valueOld) => {
+        updateAsset('sceneSettings', 'editorSettings', valueOld, value);
+    });
+
+    // project settings
+    const projectSettings = editor.call('settings:project');
+    ['loadingScreenScript', 'importMap'].forEach((path) => {
+        const id = projectSettings.get(path);
+        if (id) {
+            updateAsset('projectSettings', 'editorSettings', null, parseInt(id, 10));
+        }
+        projectSettings.on(`${path}:set`, (value, valueOld) => {
+            updateAsset(
+                'projectSettings',
+                'editorSettings',
+                valueOld ? parseInt(valueOld, 10) : null,
+                value ? parseInt(value, 10) : null
+            );
+        });
     });
 });

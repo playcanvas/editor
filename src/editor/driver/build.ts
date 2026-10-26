@@ -1,7 +1,8 @@
+import { backend, UNSUPPORTED } from '@/common/backend';
 import { config } from '@/editor/config';
 
 import { driver } from './driver';
-import { api, log } from './shared';
+import { log } from './shared';
 
 const BUILD_PAGE_SIZE = 500;
 
@@ -77,7 +78,11 @@ const payload = async (options: Options, format = 'playcanvas') => {
 driver.method('builds:list', async (options: { limit?: number; cursor?: string; filters?: Filters } = {}) => {
     const limit = options.limit ?? 50;
     const offset = Number(options.cursor || 0);
-    const data = await api.rest.projects.projectBuilds(limit, offset, options.filters).promisify();
+    const { builds } = backend();
+    if (!builds) {
+        return { error: UNSUPPORTED };
+    }
+    const data = await builds.projectBuilds(limit, offset, options.filters).promisify();
     const total = data.pagination?.total ?? data.result.length;
     const end = offset + data.result.length;
     log(`Listed builds (${data.result.length}/${total})`);
@@ -93,9 +98,13 @@ driver.method('builds:list', async (options: { limit?: number; cursor?: string; 
 });
 
 driver.method('builds:get', async (id) => {
+    const { builds } = backend();
+    if (!builds) {
+        return { error: UNSUPPORTED };
+    }
     let offset = 0;
     while (true) {
-        const data = await api.rest.projects.projectBuilds(BUILD_PAGE_SIZE, offset).promisify();
+        const data = await builds.projectBuilds(BUILD_PAGE_SIZE, offset).promisify();
         const build = data.result.find((item) => Number(item.id) === Number(id));
         if (build) {
             return { data: build };
@@ -111,7 +120,11 @@ driver.method('builds:create', async (options) => {
     if (!editor.call('permissions:write')) {
         return { error: 'Write permission is required to create a build.' };
     }
-    const data = await api.rest.apps.appCreate(await payload(options)).promisify();
+    const { publishing } = backend();
+    if (!publishing) {
+        return { error: UNSUPPORTED };
+    }
+    const data = await publishing.appCreate(await payload(options)).promisify();
     log(`Created build: ${options.name}`);
     return { data };
 });
@@ -120,7 +133,11 @@ driver.method('builds:download', async (options) => {
     if (!editor.call('permissions:write')) {
         return { error: 'Write permission is required to create a download build.' };
     }
-    const data = await api.rest.apps.appDownload(await payload(options, options.format)).promisify();
+    const { downloads } = backend();
+    if (!downloads) {
+        return { error: UNSUPPORTED };
+    }
+    const data = await downloads.appDownload(await payload(options, options.format)).promisify();
     log(`Created ${options.format} download build: ${options.name}`);
     return { data };
 });
@@ -129,7 +146,11 @@ driver.method('builds:delete', async (id) => {
     if (!editor.call('permissions:write')) {
         return { error: 'Write permission is required to delete a build.' };
     }
-    const data = await api.rest.projects.projectBuildDelete(Number(id)).promisify();
+    const { buildDeletion } = backend();
+    if (!buildDeletion) {
+        return { error: UNSUPPORTED };
+    }
+    const data = await buildDeletion.projectBuildDelete(Number(id)).promisify();
     log(`Deleted build(${id})`);
     return { data };
 });

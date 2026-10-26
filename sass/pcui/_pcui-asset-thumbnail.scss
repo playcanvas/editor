@@ -45,6 +45,18 @@
         transform: scale(1, -1);
     }
 
+    // a font preview needs the font loaded, so show a placeholder until it has drawn
+    &.pcui-asset-thumb-font-pending {
+        > canvas {
+            display: none;
+        }
+
+        &::before {
+            content: 'Aa';
+            margin: auto;
+        }
+    }
+
     &.pcui-asset-thumb-empty::before {
         display: block;
         content: '';

@@ -9,6 +9,9 @@ export const JOB_TIMEOUT = 3 * 60_000;
 // budget for tests that wait on JOB_TIMEOUT
 export const JOB_TEST_TIMEOUT = 4 * 60_000;
 
+// the server generates a texture's thumbnails in about a second, but dev's pipeline queues
+export const THUMBNAIL_TIMEOUT = 30_000;
+
 // the esm script worker boot, after which scripts:handleParse is registered
 export const WORKER_INIT_TIMEOUT = 30_000;
 

@@ -126,7 +126,9 @@ editor.once('load', () => {
                     continue;
                 }
 
-                const isScreenSpace = entities[key].entity.get('components.screen.screenSpace');
+                // the scene root's transform is the whole scene, so never resize it into a 3d screen
+                const isScreenSpace =
+                    entities[key].entity.get('components.screen.screenSpace') && entities[key].entity.get('parent');
 
                 // never cull screen content in editor
                 entity.screen.cull = false;

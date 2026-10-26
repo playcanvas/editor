@@ -1,6 +1,7 @@
 import type * as Monaco from 'monaco-editor';
 
 import { createLog } from '@/common/sentry';
+import { service } from '@/common/supports';
 import { handleCallback } from '@/common/utils';
 
 const log = createLog('<PATH>');
@@ -293,7 +294,7 @@ class MergeFileEditor {
         const isResolved = conflict.useSrc || conflict.useDst || conflict.useMergedFile;
 
         handleCallback(
-            editor.api.globals.rest.merge.mergeConflicts({
+            service('merges').mergeConflicts({
                 mergeId: config.self.branch.merge.id,
                 conflictId: config.self.branch.merge.conflict.id,
                 fileName: config.self.branch.merge.conflict.mergedFilePath,
