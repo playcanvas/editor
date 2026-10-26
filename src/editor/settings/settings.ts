@@ -15,6 +15,7 @@ type SettingsObserver = Observer & {
     id: string;
     reload: (...args: unknown[]) => void;
     disconnect: () => void;
+    whenNothingPending: (callback: () => void) => void;
 };
 
 editor.once('load', () => {
@@ -157,6 +158,15 @@ editor.once('load', () => {
                 doc = null;
             }
         });
+
+        // calls back once the server has every local change
+        settings.whenNothingPending = (callback) => {
+            if (doc) {
+                doc.whenNothingPending(callback);
+            } else {
+                callback();
+            }
+        };
 
         settings.disconnect = function () {
             if (doc) {

@@ -46,6 +46,7 @@ editor.once('load', () => {
     let entitiesLoaded = false;
     let projectUserSettingsLoaded = false;
     let migrateEntityHandle = null;
+    let reloading = false;
     const migrateCameraSettings = () => {
         if (!entitiesLoaded || !projectUserSettingsLoaded) {
             return;
@@ -97,10 +98,16 @@ editor.once('load', () => {
         migrateEntityHandle = editor.on('entities:add', migrateEntity);
 
         editor.call('status:clear');
-        if (editor.call('permissions:write')) {
+        if (editor.call('permissions:write') && !reloading) {
+            reloading = true;
+
+            // reloading before the server has the changes loses them, and the next load migrates again
             setTimeout(() => {
-                editor.call('settings:project').set('engineV2', true);
-                window.location.reload();
+                const projectSettings = editor.call('settings:project');
+                projectSettings.set('engineV2', true);
+                projectSettings.whenNothingPending(() => {
+                    editor.api.globals.realtime.scenes.current.whenNothingPending(() => window.location.reload());
+                });
             });
         }
     };
