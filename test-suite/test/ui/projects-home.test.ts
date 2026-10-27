@@ -126,7 +126,8 @@ test.describe('projects home', () => {
     });
 
     test('new project starts from a kit', async ({ blankPage }) => {
-        await blankPage.locator('.cms-side .cms-new').click();
+        // a link naming the empty kit, so it's picked over the default first starter kit
+        await blankPage.goto(editorBlankUrl({ new: true, kit: 'empty' }));
 
         // empty first and picked, then the starter kit projects
         const kits = blankPage.locator('.picker-project-new .starter-kit:not(.skeleton)');
