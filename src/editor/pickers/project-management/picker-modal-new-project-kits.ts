@@ -21,11 +21,11 @@ editor.once('load', () => {
         tags: ['games'],
         fork_from: null
     };
-    const defaultValues = () => ({
-        name: emptyProject.name,
-        description: emptyProject.description,
+    const kitValues = (kit: typeof emptyProject) => ({
+        name: kit.name,
+        description: kit.description,
         private: false,
-        fork_from: emptyProject.fork_from
+        fork_from: kit.fork_from
     });
 
     // the grid's kits by key: empty first, then the starter kits keyed by project id, in the server's order
@@ -40,6 +40,14 @@ editor.once('load', () => {
     const kitElements = new Map(); // kit key -> kit card
     let open = false; // New project is up; the fork dialog shares its frame, so this can't ask the picker
     let linkedKit: string | null = null; // a kit a link asks for, picked once the kits are listed
+
+    // the default kit: the first starter kit, as the server orders them, or empty when there are none
+    const firstKit = () => [...starterKits.keys()][1] ?? EMPTY_KIT;
+
+    const selectKit = (key: string) => {
+        const kit = starterKits.get(key) ?? emptyProject;
+        editor.call('picker:project:new:select', kitValues(kit), { ...kit });
+    };
 
     // a kit in the url: the project it forks, or `empty`
     const kitParam = (key: string) => `${starterKits.get(key)?.fork_from ?? 'empty'}`;
@@ -104,16 +112,7 @@ editor.once('load', () => {
             selectedKey = key;
             selectedKitElement.class.add('selected');
             setUrl({ kit: kitParam(key) }, true);
-            editor.call(
-                'picker:project:new:select',
-                {
-                    name: starterkit.name,
-                    description: starterkit.description,
-                    private: false,
-                    fork_from: starterkit.fork_from
-                },
-                { ...starterkit }
-            );
+            selectKit(key);
         });
 
         const thumbnail = new Container({ class: 'thumbnail' });
@@ -168,15 +167,22 @@ editor.once('load', () => {
 
             const signature = JSON.stringify([...kits]);
             if (signature !== renderedKits) {
+                const keep = !!renderedKits && kits.has(selectedKey);
                 renderedKits = signature;
                 starterKits = kits;
 
-                // a background refresh keeps the kit the user already picked, or falls back to the default if it's gone
+                // the first list starts on the default kit; a background refresh keeps the kit the user
+                // already picked, or falls back to the default if it's gone
                 kitElements.clear();
                 kitsContainer.clear();
-                if (!starterKits.has(selectedKey)) {
-                    selectedKey = EMPTY_KIT;
-                    editor.call('picker:project:new:select', defaultValues(), { ...emptyProject });
+                const next = keep ? selectedKey : firstKit();
+                if (next !== selectedKey) {
+                    selectedKey = next;
+
+                    // the form isn't up yet: opening it fills it from the selected kit
+                    if (open) {
+                        selectKit(next);
+                    }
                 }
                 for (const [key, starterkit] of starterKits) {
                     createStarterKitUI(starterkit, key);
@@ -195,8 +201,8 @@ editor.once('load', () => {
         if (renderedKits) {
             // cached grid: back to the default kit, matching the form reset below
             selectedKitElement?.class.remove('selected');
-            selectedKey = EMPTY_KIT;
-            selectedKitElement = kitElements.get(EMPTY_KIT);
+            selectedKey = firstKit();
+            selectedKitElement = kitElements.get(selectedKey);
             selectedKitElement?.class.add('selected');
             mainView.dom.scrollTop = 0;
         } else {
@@ -206,11 +212,12 @@ editor.once('load', () => {
 
         // the page may still be loading you, so load (or reuse) your user first, like fork does
         editor.call('users:loadOne', config.self.id, (self) => {
+            const kit = starterKits.get(selectedKey) ?? emptyProject;
             editor.call('picker:project:new:open', {
                 rootUser: self,
                 owner: editor.call('picker:project:cms:currentUser') ?? self,
-                values: defaultValues(),
-                data: { ...emptyProject }
+                values: kitValues(kit),
+                data: { ...kit }
             });
             open = true;
             pickLinked();

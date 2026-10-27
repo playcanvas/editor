@@ -128,18 +128,19 @@ test.describe('projects home', () => {
     test('new project starts from a kit', async ({ blankPage }) => {
         await blankPage.locator('.cms-side .cms-new').click();
 
-        // empty first and picked, then the starter kit projects
+        // empty first, then the starter kit projects; the first of those is picked, or empty when there are none
         const kits = blankPage.locator('.picker-project-new .starter-kit:not(.skeleton)');
         await expect(kits.locator('h4').nth(0)).toHaveText('Empty Project');
-        await expect(blankPage.locator('.picker-project-new .starter-kit.selected h4')).toHaveText('Empty Project');
+        const nameInput = blankPage.locator('.picker-project-new .modal-new-project-form-content input[type="text"]').first();
+        const first = await kits.nth((await kits.count()) > 1 ? 1 : 0).locator('h4').innerText();
+        await expect(blankPage.locator('.picker-project-new .starter-kit.selected h4')).toHaveText(first);
+        await expect(nameInput).toHaveValue(first);
 
         // picking another kit fills the form with its name
         const last = kits.last();
         const name = await last.locator('h4').innerText();
         await last.click();
-        await expect(blankPage.locator('.picker-project-new .modal-new-project-form-content input[type="text"]').first()).toHaveValue(
-            name
-        );
+        await expect(nameInput).toHaveValue(name);
         await blankPage.locator('.picker-project-new .pcui-button.close').click();
         await expect(blankPage.locator('.picker-project-new')).toBeHidden();
     });
