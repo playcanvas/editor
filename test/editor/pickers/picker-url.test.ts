@@ -53,9 +53,9 @@ describe('picker url', () => {
         expect(withParams('https://playcanvas.com/editor?new', { new: null })).to.equal(
             'https://playcanvas.com/editor'
         );
-        expect(
-            withParams('https://playcanvas.com/editor/scene/5?x=1#h', { tab: 'build', build: 'job-9' })
-        ).to.equal('https://playcanvas.com/editor/scene/5?x=1&tab=build&build=job-9#h');
+        expect(withParams('https://playcanvas.com/editor/scene/5?x=1#h', { tab: 'build', build: 'job-9' })).to.equal(
+            'https://playcanvas.com/editor/scene/5?x=1&tab=build&build=job-9#h'
+        );
     });
 
     it('encodes values', () => {
