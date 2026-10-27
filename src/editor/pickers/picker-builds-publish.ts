@@ -7,6 +7,8 @@ import { TooltipHandle } from '@/common/tooltips';
 import { bytesToHuman, convertDatetime, countToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
+import { inPlace } from './picker-url';
+
 const APP_LIMIT = 16;
 const APP_INDEX_PAGE = 128;
 const FILTER_ALL = 'all';
@@ -96,6 +98,7 @@ editor.once('load', () => {
     let reloadOnNextShow = false;
     let primaryFallback = null; // primary app fetched by id when missing from the loaded pages
     let primaryFallbackId = null; // last id fetched for the fallback (one attempt per id)
+    let linkedBuild: string | null = null; // a build a link asks for, opened once the list has it
     const filters: Record<string, string> = {};
     const filterButtons: Record<string, Button> = {};
     const filterMenus: Record<string, Menu> = {};
@@ -1588,6 +1591,15 @@ editor.once('load', () => {
 
                     refreshApps(previous);
                     fillViewport();
+
+                    // a linked build opens in the entry the builds list took; the list stays when it isn't listed
+                    if (linkedBuild) {
+                        const linked = apps.find((app) => `${app.id}` === linkedBuild);
+                        linkedBuild = null;
+                        if (linked && !panel.hidden) {
+                            inPlace(() => openBuildDetail(linked));
+                        }
+                    }
                 });
         });
     };
@@ -1970,6 +1982,21 @@ editor.once('load', () => {
 
         loadApps(false);
     });
+
+    // opens a build's details from its id, else the builds list
+    editor.method('picker:builds-publish:detail', (id: string | null) => {
+        const app = apps.find((item) => `${item.id}` === id);
+        if (app) {
+            openBuildDetail(app);
+            return;
+        }
+        // the list loads when it shows; one already showing has no build to wait for
+        linkedBuild = panel.hidden ? id : null;
+        editor.call('picker:builds-publish');
+    });
+
+    // the build whose details show, for the url
+    editor.method('picker:builds-publish:detailId', () => detailApp?.id ?? null);
 
     // open publishing popup
     editor.method('picker:builds-publish', (options: { reload?: boolean } = {}) => {

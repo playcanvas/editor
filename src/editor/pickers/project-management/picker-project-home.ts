@@ -4,6 +4,8 @@ import { backend, UNSUPPORTED_TIP } from '@/common/backend';
 import { TooltipHandle } from '@/common/tooltips';
 import { config } from '@/editor/config';
 
+import { inPlace } from '../picker-url';
+
 import { button } from './components/button';
 import { openProject } from './tabs';
 
@@ -65,11 +67,12 @@ editor.once('load', () => {
         deleteBtn.enabled = project.access_level === 'admin' && managed;
     });
 
-    const show = (name: keyof typeof VIEWS, option: string) => (project) => {
+    // a link may name the section; the view's default opens when it doesn't show that one
+    const show = (name: keyof typeof VIEWS, option: string) => (project, section?: string) => {
         canOpen = name === 'reduced';
         // its owner can change the thumbnail straight away
         const owns = name === 'reduced' && project.access_level === 'admin' && project.owner_id === config.self.id;
-        editor.call('picker:project:open', project.id, config.self.id, option, {
+        editor.call('picker:project:open', project.id, config.self.id, section ?? option, {
             ...VIEWS[name],
             thumbnails: owns ? 'shown' : undefined
         });
@@ -78,8 +81,9 @@ editor.once('load', () => {
     editor.method('picker:project:noAdmin', show('noAdmin', 'team'));
     editor.method('picker:project:lockedView', show('locked', 'project-main'));
 
-    // joining or leaving a project changes what you can do with it, so reopen its settings
-    editor.on('picker:team:membership', (project) => editor.call('picker:project:reduced', project));
+    // joining or leaving a project changes what you can do with it, so reopen its settings, in the history
+    // entry that closing them took
+    editor.on('picker:team:membership', (project) => inPlace(() => editor.call('picker:project:reduced', project)));
 
     // an organization admin who isn't a member of one of its projects can add themselves as its admin
     const addMe = new Button({ class: 'add-me-as-admin', text: 'ADD ME AS ADMIN', icon: 'E375' });
