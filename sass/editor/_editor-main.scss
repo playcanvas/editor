@@ -2216,11 +2216,18 @@ strong {
                 }
             }
 
-            // the sheet already frames the settings, so they drop the card's border and padding
-            .picker-project-main > .project-settings {
+            // the sheet already frames each section, so its cards drop their border and padding
+            .picker-project-main > .project-settings,
+            .picker-project-main > .locked-container,
+            .picker-team-management > .invite-container,
+            .picker-team-management > .members-container {
                 padding: 0;
                 border: none;
                 background: none;
+            }
+
+            .picker-team-management > .members-container > .members-grid > .collaborator-container {
+                padding: 0;
             }
 
             // a 2x2 grid of equal buttons: fork and export, then copy link and delete

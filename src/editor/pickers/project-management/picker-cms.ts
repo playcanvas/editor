@@ -23,6 +23,7 @@ const TABS = [
 ];
 const SORTS = [
     ['modified', 'Last edited'],
+    ['opened', 'Last opened'],
     ['created', 'Created'],
     ['name', 'Name'],
     ['plays', 'Most played'],
@@ -87,6 +88,12 @@ editor.once('load', () => {
     const blocked = (project) =>
         project.locked || project.access_level === 'none' || project.disabled || isPending(project);
     const rootProjects = () => projects[rootUser?.id] ?? [];
+    // yours and every organization's, each once, for recents
+    const allProjects = () => [
+        ...new Map(
+            [rootUser?.id, ...orgs().map((o) => o.id)].flatMap((id) => projects[id] ?? []).map((p) => [p.id, p])
+        ).values()
+    ];
     const listFor = (id) => (isOrg(id) ? projects[id] : rootProjects()) ?? [];
     const matchTab = (project, tab) => {
         switch (tab) {
@@ -130,6 +137,12 @@ editor.once('load', () => {
                 return has(p.name, value) || has(ownerName(p), value) || has(p.description, value);
         }
     };
+    // last opened in this browser first, then last edited
+    const byRecent = () => {
+        const opened = editor.call('localStorage:get', PROJECTS_OPENED_KEY) ?? {};
+        return (a, b) => (opened[b.id] ?? 0) - (opened[a.id] ?? 0) || Date.parse(b.modified) - Date.parse(a.modified);
+    };
+
     const sortKey = {
         modified: (p) => Date.parse(p.modified),
         created: (p) => Date.parse(p.created),
@@ -140,6 +153,7 @@ editor.once('load', () => {
     const visible = () => {
         const terms = parseQuery(searchInput.value);
         const key = sortKey[sortPolicy];
+        const recent = byRecent();
         const dir = sortDescending ? -1 : 1;
         const list = listFor(filter);
 
@@ -154,7 +168,7 @@ editor.once('load', () => {
             .sort(
                 (a, b) =>
                     Number(isPending(b)) - Number(isPending(a)) ||
-                    (key(a) > key(b) ? 1 : key(a) < key(b) ? -1 : 0) * dir
+                    (key ? (key(a) > key(b) ? 1 : key(a) < key(b) ? -1 : 0) : -recent(a, b)) * dir
             );
     };
     const timeAgo = (date) => {
@@ -941,12 +955,6 @@ editor.once('load', () => {
         });
     };
 
-    // last opened in this browser first, then last edited
-    const byRecent = () => {
-        const opened = editor.call('localStorage:get', PROJECTS_OPENED_KEY) ?? {};
-        return (a, b) => (opened[b.id] ?? 0) - (opened[a.id] ?? 0) || Date.parse(b.modified) - Date.parse(a.modified);
-    };
-
     const renderSidebar = () => {
         projectsNav.class[isOrg(filter) ? 'remove' : 'add']('active');
 
@@ -958,7 +966,7 @@ editor.once('load', () => {
                 bone(['line', 'label'], item);
             }
         }
-        rootProjects()
+        allProjects()
             .filter((p) => !blocked(p))
             .sort(byRecent())
             .slice(0, 5)
@@ -1006,7 +1014,7 @@ editor.once('load', () => {
     // the project you last opened, or else last edited, that you can open
     const renderWelcome = () => {
         welcome.clear();
-        const list = rootProjects();
+        const list = allProjects();
         if (loading && !list.length) {
             welcome.hidden = isOrg(filter);
             welcome.class.add('skeleton');
@@ -1616,11 +1624,14 @@ editor.once('load', () => {
     // settings, team and transfer changes elsewhere on the page
     editor.on('projects:changed', () => refreshUI());
 
-    // a project opening in another tab moves it to the top of recents
+    // a project opening in another tab moves it to the top of recents, and of the list sorted by it
     window.addEventListener('storage', (e) => {
         if (e.key === PROJECTS_OPENED_KEY && rootUser) {
             renderSidebar();
             renderWelcome();
+            if (sortPolicy === 'opened') {
+                renderList();
+            }
         }
     });
 
