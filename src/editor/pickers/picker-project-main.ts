@@ -179,7 +179,7 @@ editor.once('load', () => {
         class: 'form-input',
         value: projectSettings.description,
         renderChanges: true,
-        height: 150
+        height: 100
     });
 
     projectDescInput.on('change', () => {
