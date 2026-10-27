@@ -1,5 +1,6 @@
 import { Button, Container, Overlay, Panel, SelectInput, TextInput, TreeView, TreeViewItem } from '@playcanvas/pcui';
 
+import { onTextChange } from '@/common/pcui/compat-utils';
 import { createLog } from '@/common/sentry';
 import { service } from '@/common/supports';
 import { config } from '@/editor/config';
@@ -142,7 +143,7 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
     const typeSelect = new SelectInput({ type: 'string', value: 'all', options: [{ v: 'all', t: 'All types' }] });
     filterBar.appendChild(typeSelect.dom);
     sidebar.dom.appendChild(filterBar);
-    filter.on('change', () => renderSidebar());
+    onTextChange(filter, () => renderSidebar());
     typeSelect.on('change', () => renderSidebar());
 
     const list = document.createElement('div');

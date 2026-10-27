@@ -2,6 +2,7 @@ import type { MenuItem } from '@playcanvas/pcui';
 import { Button, Container, Element, Label, Menu, Overlay, Progress, TextInput } from '@playcanvas/pcui';
 
 import { backend, UNSUPPORTED_TIP } from '@/common/backend';
+import { onTextChange } from '@/common/pcui/compat-utils';
 import { supports } from '@/common/supports';
 import { TooltipHandle } from '@/common/tooltips';
 import { bytesToHuman, countToHuman } from '@/common/utils';
@@ -1376,7 +1377,7 @@ editor.once('load', () => {
         renderList();
     };
 
-    searchInput.on('change', () => {
+    onTextChange(searchInput, () => {
         renderTools();
         renderList();
     });

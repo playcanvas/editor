@@ -1,6 +1,7 @@
 import { Container, Menu, MenuItem, SelectInput, TextInput } from '@playcanvas/pcui';
 
 import { backend, UNSUPPORTED } from '@/common/backend';
+import { onTextChange } from '@/common/pcui/compat-utils';
 import { createLog } from '@/common/sentry';
 import { service } from '@/common/supports';
 import { handleCallback } from '@/common/utils';
@@ -309,7 +310,7 @@ export const createBranchSwitcher = (host: Container) => {
         }
     });
 
-    searchInput.on('change', (value: string) => {
+    onTextChange(searchInput, (value) => {
         search = value.trim();
         render();
     });
