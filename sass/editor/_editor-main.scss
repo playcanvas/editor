@@ -1749,7 +1749,7 @@ strong {
                     background-color: rgb(0 0 0 / 48%);
                     transform: scale(0.92);
                     pointer-events: none;
-                    transition: opacity 120ms ease, transform 120ms ease, z-index 120ms ease;
+                    transition: opacity 100ms ease, transform 100ms ease, z-index 100ms ease;
 
                     > .pcui-button {
                         display: flex;
@@ -1811,20 +1811,15 @@ strong {
                     }
                 }
 
-                // button({ kind: 'primary' }), pinned full width to the bottom of the panel
+                // button({ kind: 'primary' }), full width under the project, above the menu
                 .cms-editor-button,
                 .cms-play-button {
-                    position: absolute;
-                    left: 10px;
-                    width: calc(100% - 20px);
+                    width: 100%;
+                    margin: 6px 0 0;
                 }
 
                 .cms-editor-button {
-                    bottom: 48px;
-                }
-
-                .cms-play-button {
-                    bottom: 10px;
+                    margin-top: 10px;
                 }
 
                 @keyframes slide-down {
@@ -2184,8 +2179,8 @@ strong {
 
                 .cms-editor-button,
                 .cms-play-button {
-                    position: static;
                     flex: 1;
+                    margin: 0;
                     order: 2;
                     width: auto;
                 }
@@ -2219,6 +2214,13 @@ strong {
                         }
                     }
                 }
+            }
+
+            // the sheet already frames the settings, so they drop the card's border and padding
+            .picker-project-main > .project-settings {
+                padding: 0;
+                border: none;
+                background: none;
             }
 
             // a 2x2 grid of equal buttons: fork and export, then copy link and delete
@@ -5169,7 +5171,7 @@ strong {
             display: flex;
             flex-flow: row wrap;
             align-items: center;
-            justify-content: flex-end;
+            justify-content: flex-start;
             gap: 10px;
         }
 
@@ -5206,10 +5208,10 @@ strong {
             transform: translate(-50%, -50%);
         }
 
-        // delete: set apart on the left
+        // delete: set apart on the right, away from the actions you reach for
         & > #delete-project-button {
-            order: -1;
-            margin-right: auto;
+            order: 1;
+            margin-left: auto;
         }
     }
 }

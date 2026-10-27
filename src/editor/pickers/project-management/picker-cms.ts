@@ -5,6 +5,7 @@ import { backend, UNSUPPORTED_TIP } from '@/common/backend';
 import { supports } from '@/common/supports';
 import { TooltipHandle } from '@/common/tooltips';
 import { bytesToHuman, countToHuman } from '@/common/utils';
+import { PROJECTS_OPENED_KEY } from '@/core/constants';
 import { config } from '@/editor/config';
 
 import { button } from './components/button';
@@ -940,6 +941,12 @@ editor.once('load', () => {
         });
     };
 
+    // last opened in this browser first, then last edited
+    const byRecent = () => {
+        const opened = editor.call('localStorage:get', PROJECTS_OPENED_KEY) ?? {};
+        return (a, b) => (opened[b.id] ?? 0) - (opened[a.id] ?? 0) || Date.parse(b.modified) - Date.parse(a.modified);
+    };
+
     const renderSidebar = () => {
         projectsNav.class[isOrg(filter) ? 'remove' : 'add']('active');
 
@@ -953,7 +960,7 @@ editor.once('load', () => {
         }
         rootProjects()
             .filter((p) => !blocked(p))
-            .sort((a, b) => Date.parse(b.modified) - Date.parse(a.modified))
+            .sort(byRecent())
             .slice(0, 5)
             .forEach((p) => {
                 const item = box('cms-side-item', recentsList);
@@ -996,7 +1003,7 @@ editor.once('load', () => {
         }
     };
 
-    // the most recently edited project you can open
+    // the project you last opened, or else last edited, that you can open
     const renderWelcome = () => {
         welcome.clear();
         const list = rootProjects();
@@ -1013,7 +1020,7 @@ editor.once('load', () => {
             return;
         }
         welcome.class.remove('skeleton');
-        const lead = list.filter((p) => !blocked(p)).sort((a, b) => Date.parse(b.modified) - Date.parse(a.modified))[0];
+        const lead = list.filter((p) => !blocked(p)).sort(byRecent())[0];
         welcome.hidden = !lead || isOrg(filter);
         if (!lead) {
             return;
@@ -1608,6 +1615,14 @@ editor.once('load', () => {
 
     // settings, team and transfer changes elsewhere on the page
     editor.on('projects:changed', () => refreshUI());
+
+    // a project opening in another tab moves it to the top of recents
+    window.addEventListener('storage', (e) => {
+        if (e.key === PROJECTS_OPENED_KEY && rootUser) {
+            renderSidebar();
+            renderWelcome();
+        }
+    });
 
     editor.method('picker:project:cms:toggleProgress', (toggle) => {
         toggleProgress(toggle);

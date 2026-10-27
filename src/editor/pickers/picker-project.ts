@@ -567,7 +567,7 @@ editor.once('load', () => {
         closeCallback = fn;
     });
 
-    // pages add their own buttons under the menu, and their own classes
+    // pages add their own buttons, and their own classes
     editor.method('picker:project:leftPanel', () => leftPanel);
     editor.method('picker:project:overlay', () => overlay);
 
