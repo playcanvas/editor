@@ -8,12 +8,16 @@ import { bytesToHuman, countToHuman } from '@/common/utils';
 import { PROJECTS_OPENED_KEY } from '@/core/constants';
 import { config } from '@/editor/config';
 
+import { inPlace } from '../picker-url';
+
 import { button } from './components/button';
 import { empty } from './components/empty';
 import { spinner } from './components/spinner';
 import { openProject as openProjectTab } from './tabs';
 
 const PAGE_SIZE = 24;
+// a linked project that doesn't exist, or that you can't see
+const CANT_OPEN = "This project couldn't be opened. It may have been deleted, or you may not have access to it.";
 const TABS = [
     ['all', 'All'],
     ['mine', 'Mine'],
@@ -397,17 +401,17 @@ editor.once('load', () => {
 
     // ACTIONS
 
-    // opens the existing project picker for a project, the same way the old grid did
-    const openProject = (project) => {
+    // opens the existing project picker for a project, the same way the old grid did, on a linked section if any
+    const openProject = (project, section?: string) => {
         if (project.disabled) {
             return;
         }
         if (project.locked) {
-            editor.call('picker:project:lockedView', project);
+            editor.call('picker:project:lockedView', project, section);
         } else if (project.access_level === 'none') {
-            editor.call('picker:project:noAdmin', project);
+            editor.call('picker:project:noAdmin', project, section);
         } else {
-            editor.call('picker:project:reduced', project);
+            editor.call('picker:project:reduced', project, section);
         }
     };
     // projects never open in this tab: each gets its own, reused if it's already open
@@ -1613,6 +1617,24 @@ editor.once('load', () => {
     editor.on('messenger:project.user.image', () => {
         if (rootUser) {
             refreshUI();
+        }
+    });
+
+    // the url's project settings: the open project switches section, another loads first; one you can't open
+    // shows why instead
+    editor.on('picker:url', ({ project: id, section }) => {
+        if (!id) {
+            editor.call('picker:project:dismiss');
+        } else if (editor.call('picker:project:selected') && editor.call('picker:project:getCurrent')?.id === id) {
+            editor.call('picker:project:select', section);
+        } else {
+            const fail = () => editor.call('picker:project:buildAlert', rightPanel, CANT_OPEN);
+            editor.call(
+                'projects:getOne',
+                id,
+                (project) => (project.disabled ? fail() : inPlace(() => openProject(project, section))),
+                fail
+            );
         }
     });
 

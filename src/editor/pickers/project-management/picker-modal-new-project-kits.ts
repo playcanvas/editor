@@ -2,6 +2,8 @@ import { Container, Element, Label } from '@playcanvas/pcui';
 
 import { config } from '@/editor/config';
 
+import { setUrl } from '../picker-url';
+
 import { button } from './components/button';
 
 const KIT_SKELETON_COUNT = 8;
@@ -36,6 +38,25 @@ editor.once('load', () => {
     let selectedKitElement = null;
     let selectedKey = EMPTY_KIT;
     const kitElements = new Map(); // kit key -> kit card
+    let open = false; // New project is up; the fork dialog shares its frame, so this can't ask the picker
+    let linkedKit: string | null = null; // a kit a link asks for, picked once the kits are listed
+
+    // a kit in the url: the project it forks, or `empty`
+    const kitParam = (key: string) => `${starterKits.get(key)?.fork_from ?? 'empty'}`;
+
+    // picks the linked kit once the kits are listed; when it isn't one, the default stays and leaves the url
+    const pickLinked = () => {
+        if (!linkedKit || !renderedKits) {
+            return;
+        }
+        const key = [...starterKits.keys()].find((k) => kitParam(k) === linkedKit);
+        linkedKit = null;
+        if (key) {
+            kitElements.get(key)?.dom.click();
+        } else {
+            setUrl({ kit: null }, true);
+        }
+    };
 
     const mainView = editor.call('picker:project:new:mainView');
     mainView.append(new Label({ class: 'modal-new-project-heading', text: 'Start from a kit' }));
@@ -82,6 +103,7 @@ editor.once('load', () => {
             selectedKitElement = starterKit;
             selectedKey = key;
             selectedKitElement.class.add('selected');
+            setUrl({ kit: kitParam(key) }, true);
             editor.call(
                 'picker:project:new:select',
                 {
@@ -145,27 +167,31 @@ editor.once('load', () => {
             });
 
             const signature = JSON.stringify([...kits]);
-            if (signature === renderedKits) {
-                return;
-            }
-            renderedKits = signature;
-            starterKits = kits;
+            if (signature !== renderedKits) {
+                renderedKits = signature;
+                starterKits = kits;
 
-            // a background refresh keeps the kit the user already picked, or falls back to the default if it's gone
-            kitElements.clear();
-            kitsContainer.clear();
-            if (!starterKits.has(selectedKey)) {
-                selectedKey = EMPTY_KIT;
-                editor.call('picker:project:new:select', defaultValues(), { ...emptyProject });
+                // a background refresh keeps the kit the user already picked, or falls back to the default if it's gone
+                kitElements.clear();
+                kitsContainer.clear();
+                if (!starterKits.has(selectedKey)) {
+                    selectedKey = EMPTY_KIT;
+                    editor.call('picker:project:new:select', defaultValues(), { ...emptyProject });
+                }
+                for (const [key, starterkit] of starterKits) {
+                    createStarterKitUI(starterkit, key);
+                }
             }
-            for (const [key, starterkit] of starterKits) {
-                createStarterKitUI(starterkit, key);
+            if (open) {
+                pickLinked();
             }
         });
     };
 
-    // displays the new project modal, starting from the default kit
-    editor.method('picker:project:newProject', () => {
+    // displays the new project modal, starting from the default kit or a linked one
+    editor.method('picker:project:newProject', (kit: string | null = null) => {
+        linkedKit = kit;
+        setUrl({ new: true, kit });
         if (renderedKits) {
             // cached grid: back to the default kit, matching the form reset below
             selectedKitElement?.class.remove('selected');
@@ -186,6 +212,25 @@ editor.once('load', () => {
                 values: defaultValues(),
                 data: { ...emptyProject }
             });
+            open = true;
+            pickLinked();
         });
+    });
+
+    editor.on('picker:close', (name: string) => {
+        if (open && name === 'dialog:picker-project-new') {
+            open = false;
+            linkedKit = null;
+            setUrl({ new: null, kit: null });
+        }
+    });
+
+    // the url's New project: open it on its kit, or close it
+    editor.on('picker:url', ({ new: create, kit }) => {
+        if (create && !open) {
+            editor.call('picker:project:newProject', kit);
+        } else if (!create && open) {
+            editor.call('picker:project:new:close');
+        }
     });
 });
