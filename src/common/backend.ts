@@ -37,7 +37,8 @@ export type BackendServices = {
         Picked<'users', 'userProjects' | 'userUsage'> &
         Picked<'apps', 'appList'>;
     projectCreation?: Picked<'projects', 'projectCreate'>;
-    projectManagement?: Picked<'projects', 'projectDelete' | 'projectUnlock'> & Rest['watch'] & Rest['star'];
+    projectDeletion?: Picked<'projects', 'projectDelete'>;
+    projectManagement?: Picked<'projects', 'projectUnlock'> & Rest['watch'] & Rest['star'];
     projectTransfer?: Picked<'projects', 'projectTransfer' | 'projectAcceptTransfer' | 'projectDeclineTransfer'>;
     teamList?: Picked<'projects', 'projectCollabList'> &
         Picked<'users', 'userCollabList'> &
@@ -145,8 +146,9 @@ export const services = (rest: Rest): Required<BackendServices> => ({
         ...pick(rest.apps, 'appList')
     },
     projectCreation: pick(rest.projects, 'projectCreate'),
+    projectDeletion: pick(rest.projects, 'projectDelete'),
     projectManagement: {
-        ...pick(rest.projects, 'projectDelete', 'projectUnlock'),
+        ...pick(rest.projects, 'projectUnlock'),
         ...rest.watch,
         ...rest.star
     },

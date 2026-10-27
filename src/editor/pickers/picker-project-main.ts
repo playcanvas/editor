@@ -97,7 +97,7 @@ editor.once('load', () => {
                 : `This project is locked. Unlocking this project will make it public. Another way of unlocking is to ${upgrade}`;
     };
 
-    // unlocking and deleting need the backend's project management
+    // unlocking needs the backend's project management
     const managed = !!backend().projectManagement;
     const unlockButton = button({ kind: 'primary', icon: 'E340', text: 'Unlock' });
     lockedContainer.append(unlockButton);

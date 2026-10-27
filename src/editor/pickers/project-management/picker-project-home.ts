@@ -51,8 +51,8 @@ editor.once('load', () => {
     deleteBtn.dom.id = 'delete-project-button';
     editor.call('picker:project:main:actions').append(deleteBtn);
 
-    // deleting needs the backend's project management
-    const managed = !!backend().projectManagement;
+    // deleting needs the backend's project deletion
+    const managed = !!backend().projectDeletion;
     if (!managed) {
         TooltipHandle.attach({ root: settings.dom, target: deleteBtn.dom, ...UNSUPPORTED_TIP, align: 'bottom' });
     }

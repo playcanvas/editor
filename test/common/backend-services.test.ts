@@ -13,3 +13,15 @@ describe('download and build delete services', () => {
         expect(all.publishing).to.not.have.property('projectBuildDelete');
     });
 });
+
+describe('project deletion service', () => {
+    const all = services(new Rest());
+
+    it('hosted supplies project deletion apart from project management', () => {
+        expect(all.projectDeletion.projectDelete).to.be.a('function');
+        expect(all.projectManagement).to.not.have.property('projectDelete');
+        expect(all.projectManagement.projectUnlock).to.be.a('function');
+        expect(all.projectManagement.starCreate).to.be.a('function');
+        expect(all.projectManagement.watchCreate).to.be.a('function');
+    });
+});

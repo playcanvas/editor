@@ -131,10 +131,10 @@ editor.once('load', () => {
 
     // Delete specified project
     editor.method('projects:delete', (projectId, success) => {
-        if (!supports('projectManagement')) {
+        if (!supports('projectDeletion')) {
             return;
         }
-        service('projectManagement')
+        service('projectDeletion')
             .projectDelete({ projectId })
             .on('load', () => {
                 if (success) {

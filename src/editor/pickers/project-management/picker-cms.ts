@@ -824,7 +824,7 @@ editor.once('load', () => {
             blocked(project) || !editor.call('project:management:canTransfer', project);
         menuEntry(rowMenu, 'cms-row-transfer').enabled = !!backend().projectTransfer;
         menuEntry(rowMenu, 'cms-row-delete').hidden = !canDelete(project);
-        menuEntry(rowMenu, 'cms-row-delete').enabled = !!backend().projectManagement;
+        menuEntry(rowMenu, 'cms-row-delete').enabled = !!backend().projectDeletion;
         showMenu(rowMenu, anchor, true);
     };
 
