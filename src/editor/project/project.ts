@@ -94,7 +94,7 @@ editor.once('load', () => {
             return;
         }
         service('projectList')
-            .appList('starterkit')
+            .appStarterKits()
             .on('load', (_status: number, data: { result: unknown }) => {
                 if (success) {
                     success(data.result);

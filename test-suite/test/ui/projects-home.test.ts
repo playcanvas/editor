@@ -128,7 +128,7 @@ test.describe('projects home', () => {
     test('new project starts from a kit', async ({ blankPage }) => {
         await blankPage.locator('.cms-side .cms-new').click();
 
-        // empty first and picked, then the projects tagged as starter kits
+        // empty first and picked, then the starter kit projects
         const kits = blankPage.locator('.picker-project-new .starter-kit:not(.skeleton)');
         await expect(kits.locator('h4').nth(0)).toHaveText('Empty Project');
         await expect(blankPage.locator('.picker-project-new .starter-kit.selected h4')).toHaveText('Empty Project');
@@ -144,15 +144,15 @@ test.describe('projects home', () => {
         await expect(blankPage.locator('.picker-project-new')).toBeHidden();
     });
 
-    test('creates a project from a tagged kit', async ({ blankPage }) => {
+    test('creates a project from a starter kit', async ({ blankPage }) => {
         test.setTimeout(JOB_TEST_TIMEOUT);
         const name = uniqueName('ui-kit');
         await blankPage.locator('.cms-side .cms-new').click();
 
-        // wait for the kit list, then pick the first tagged kit after empty
+        // wait for the kit list, then pick the first kit after empty
         const kits = blankPage.locator('.picker-project-new .starter-kit:not(.skeleton)');
         await expect(kits.first()).toBeVisible();
-        test.skip((await kits.count()) < 2, 'this environment has no tagged starter kits');
+        test.skip((await kits.count()) < 2, 'this environment has no starter kits');
         await kits.nth(1).click();
         await blankPage.locator('.picker-project-new .modal-new-project-form-content input[type="text"]').first().fill(name);
 

@@ -29,14 +29,13 @@ export const appDelete = (appId: number) => {
 };
 
 /**
- * Get list of apps
+ * Get the starter kits, in starter kit order
  *
- * @param tags - The tags to filter the apps by
- * @returns A request that responds with the list of apps
+ * @returns A request that responds with the list of starter kit apps
  */
-export const appList = (tags: string) => {
+export const appStarterKits = () => {
     return Ajax.get({
-        url: `${api.apiUrl}/apps?tags=${tags}`,
+        url: `${api.apiUrl}/apps?starter_kits=true`,
         auth: true
     });
 };
