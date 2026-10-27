@@ -11,8 +11,8 @@ const SLUGS = {
     'publish-new': 'publish',
     'publish-download': 'download',
     team: 'team',
-    'version control': 'version-control',
-    'dev-log': 'dev-log'
+    'version control': 'vc',
+    'dev-log': 'log'
 };
 
 const LOCAL = 'https://playcanvas.com/editor?use_local_frontend&use_local_engine=http%3A%2F%2Flocalhost%3A51000';
@@ -40,10 +40,10 @@ describe('picker url', () => {
     });
 
     it('sets, replaces and removes only its own params', () => {
-        const open = withParams(LOCAL, { project: 42, section: 'team', build: null });
-        expect(open).to.equal(`${LOCAL}&project=42&section=team`);
-        expect(withParams(open, { project: 42, section: 'scenes' })).to.equal(`${LOCAL}&project=42&section=scenes`);
-        expect(withParams(open, { project: null, section: false, build: undefined })).to.equal(LOCAL);
+        const open = withParams(LOCAL, { project: 42, tab: 'team', build: null });
+        expect(open).to.equal(`${LOCAL}&project=42&tab=team`);
+        expect(withParams(open, { project: 42, tab: 'scenes' })).to.equal(`${LOCAL}&project=42&tab=scenes`);
+        expect(withParams(open, { project: null, tab: false, build: undefined })).to.equal(LOCAL);
         expect(withParams('https://playcanvas.com/editor?new&kit=7&debug', { new: null, kit: null })).to.equal(
             'https://playcanvas.com/editor?debug'
         );
@@ -54,8 +54,8 @@ describe('picker url', () => {
             'https://playcanvas.com/editor'
         );
         expect(
-            withParams('https://playcanvas.com/editor/scene/5?x=1#h', { section: 'build', build: 'job-9' })
-        ).to.equal('https://playcanvas.com/editor/scene/5?x=1&section=build&build=job-9#h');
+            withParams('https://playcanvas.com/editor/scene/5?x=1#h', { tab: 'build', build: 'job-9' })
+        ).to.equal('https://playcanvas.com/editor/scene/5?x=1&tab=build&build=job-9#h');
     });
 
     it('encodes values', () => {
@@ -73,20 +73,20 @@ describe('picker url', () => {
             build: null,
             open: false
         });
-        expect(readUrl('https://playcanvas.com/editor?project=42&section=version-control')).to.deep.include({
+        expect(readUrl('https://playcanvas.com/editor?project=42&tab=vc')).to.deep.include({
             new: false,
             project: 42,
             section: 'version control',
             open: true
         });
-        expect(readUrl('https://playcanvas.com/editor/scene/5?section=build&build=job-9')).to.deep.include({
+        expect(readUrl('https://playcanvas.com/editor/scene/5?tab=build&build=job-9')).to.deep.include({
             section: 'build-detail',
             build: 'job-9'
         });
     });
 
     it('reads bad project ids and unknown sections as none, still open for a named section', () => {
-        expect(readUrl('https://playcanvas.com/editor?project=abc&section=bogus')).to.deep.include({
+        expect(readUrl('https://playcanvas.com/editor?project=abc&tab=bogus')).to.deep.include({
             project: null,
             section: null,
             open: true

@@ -454,7 +454,7 @@ editor.once('load', () => {
         const open = !!currentSelection;
         setUrl({
             project: open && openId !== config.project.id ? openId : null,
-            section: open && sectionSlug(currentSelection),
+            tab: open && sectionSlug(currentSelection),
             build: currentSelection === 'build-detail' ? editor.call('picker:builds-publish:detailId') : null
         });
     };

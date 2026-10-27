@@ -1,4 +1,4 @@
-// project settings sections by their `section=` url value
+// project settings sections by their `tab=` url value
 const SECTIONS = new Map([
     ['settings', 'project-main'],
     ['scenes', 'scenes'],
@@ -7,8 +7,8 @@ const SECTIONS = new Map([
     ['publish', 'publish-new'],
     ['download', 'publish-download'],
     ['team', 'team'],
-    ['version-control', 'version control'],
-    ['dev-log', 'dev-log']
+    ['vc', 'version control'],
+    ['log', 'dev-log']
 ]);
 const SLUGS = new Map([...SECTIONS].map(([slug, name]) => [name, slug]));
 
@@ -57,9 +57,9 @@ export const readUrl = (href: string) => {
         new: params.has('new'),
         kit: params.get('kit'),
         project: parseInt(params.get('project'), 10) || null,
-        section: sectionName(params.get('section')),
+        section: sectionName(params.get('tab')),
         build: params.get('build'),
-        open: params.has('section')
+        open: params.has('tab')
     };
 };
 

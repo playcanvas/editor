@@ -95,7 +95,7 @@ editor.once('load', () => {
     });
 
     // When history state changes make sure we load the
-    // correct scene based on the new URL; its section= opens and closes project settings
+    // correct scene based on the new URL; its tab= opens and closes project settings
     window.addEventListener('popstate', (_e: PopStateEvent) => {
         const location = window.location.pathname;
 
