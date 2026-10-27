@@ -29,7 +29,9 @@ editor.once('load', () => {
     const settings = editor.call('picker:project:overlay');
     settings.class.add('other-project');
 
+    // opening and playing come first, right under the project and above its menu
     const leftPanel = editor.call('picker:project:leftPanel');
+    const menu = leftPanel.dom.querySelector('ul');
     const editorBtn = button({
         kind: 'primary',
         class: 'cms-editor-button',
@@ -37,14 +39,14 @@ editor.once('load', () => {
         text: 'Open editor',
         hidden: true
     });
-    leftPanel.append(editorBtn);
+    leftPanel.appendBefore(editorBtn, menu);
     editorBtn.on('click', () => openProject(current().id));
 
     const playBtn = button({ kind: 'primary', class: 'cms-play-button', icon: 'E286', text: 'Play', hidden: true });
-    leftPanel.append(playBtn);
+    leftPanel.appendBefore(playBtn, menu);
     playBtn.on('click', () => window.open(current().primary_app_url, '_blank'));
 
-    // the id puts it on the left of the footer, set apart from fork and export
+    // the id puts it on the right of the footer, away from open, fork and export
     const deleteBtn = button({ kind: 'secondary', tone: 'danger', icon: 'E124', text: 'Delete Project' });
     deleteBtn.dom.id = 'delete-project-button';
     editor.call('picker:project:main:actions').append(deleteBtn);

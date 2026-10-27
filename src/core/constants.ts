@@ -125,3 +125,6 @@ export const THEMES = {
     'xcode-default': 'Xcode_default',
     zenburnesque: 'Zenburnesque'
 };
+
+// when each project was last opened in this browser, by project id
+export const PROJECTS_OPENED_KEY = 'editor:projects:opened';

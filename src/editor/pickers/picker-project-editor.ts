@@ -2,13 +2,29 @@ import { Button } from '@playcanvas/pcui';
 
 import { backend, UNSUPPORTED_TIP } from '@/common/backend';
 import { TooltipHandle } from '@/common/tooltips';
+import { PROJECTS_OPENED_KEY } from '@/core/constants';
 import { config } from '@/editor/config';
 
 import { openProjects } from './project-management/tabs';
 
+// projects remembered as opened, enough to fill the projects page's recents
+const OPENED_LIMIT = 50;
+
 // the project settings and project dialogs (fork, project ready, leave, visibility) as the editor needs them
 editor.once('load', () => {
     const leftPanel = editor.call('picker:project:leftPanel');
+
+    // the projects page lists recents by when you last opened them
+    if (config.project.id) {
+        const opened: Record<string, number> = {
+            ...editor.call('localStorage:get', PROJECTS_OPENED_KEY),
+            [config.project.id]: Date.now()
+        };
+        const kept = Object.entries(opened)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, OPENED_LIMIT);
+        editor.call('localStorage:set', PROJECTS_OPENED_KEY, Object.fromEntries(kept));
+    }
 
     // the projects page has its own tab, so this one keeps the open project. it needs the backend's project list
     const listed = !!backend().projectList;
