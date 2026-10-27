@@ -56,7 +56,7 @@
         "@playcanvas/inspector": "0.3.0",
         "@playcanvas/msdfgen-wasm": "0.1.1",
         "@playcanvas/observer": "1.7.1",
-        "@playcanvas/pcui": "6.1.4",
+        "@playcanvas/pcui": "6.1.5",
         "@playcanvas/pcui-graph": "5.2.5",
         "@rollup/plugin-commonjs": "28.0.9",
         "@rollup/plugin-node-resolve": "15.3.1",
