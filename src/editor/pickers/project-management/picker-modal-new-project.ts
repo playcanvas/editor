@@ -8,6 +8,7 @@ import { config } from '@/editor/config';
 import { button } from './components/button';
 import { dialog } from './components/dialog';
 import { spinner } from './components/spinner';
+import { editorUrl } from './tabs';
 
 const UPGRADE_BLOCK = 'Forking a private project needs a paid plan.';
 const FIT_HEIGHT = 'pcui-select-input-fit-height';
@@ -323,16 +324,20 @@ editor.once('load', () => {
     footer.append(createBtn);
     const createTooltip = TooltipHandle.make({ root: overlay.dom, ...UNSUPPORTED_TIP, align: 'bottom' });
 
-    // attach listener to create button
-    createBtn.on('click', () => {
+    // creates the project from the form; navigate opens it in this tab instead of offering a new one
+    const create = (navigate = false) => {
+        if (!loader.hidden) {
+            return;
+        }
         toggleLoader(true);
         newKitData.owner = newProjectOwner.username;
         newKitData.name = formInputs.name;
         newKitData.description = formInputs.description;
         newKitData.private = formInputs.private;
         newKitData.fork_from = formInputs.fork_from;
-        createNewProject();
-    });
+        createNewProject(navigate);
+    };
+    createBtn.on('click', () => create());
 
     // spinner sits inside the create button while it's busy
     const loader = spinner({ hidden: true });
@@ -343,8 +348,19 @@ editor.once('load', () => {
     const createLabel = () => (forking ? 'Fork project' : 'Create project');
 
     // handles the flow for project creation as well as managing error and loading states
-    const createNewProject = () => {
+    const createNewProject = (navigate: boolean) => {
         const data = newKitData;
+
+        // the loader stays while this tab leaves, so nothing starts twice
+        const done = (id) => {
+            if (navigate) {
+                location.assign(editorUrl(id));
+                return;
+            }
+            toggleLoader(false);
+            editor.call('picker:project:newProjectConfirmation', id);
+            overlay.hidden = true; // close new project modal
+        };
 
         let evt;
         editor.call(
@@ -358,8 +374,8 @@ editor.once('load', () => {
                             return;
                         }
                         evt.unbind();
-                        toggleLoader(false);
                         if (msg.status && msg.status !== 'success') {
+                            toggleLoader(false);
                             editor.call(
                                 'picker:project:buildAlert',
                                 mainView,
@@ -367,8 +383,7 @@ editor.once('load', () => {
                             );
                             return;
                         }
-                        editor.call('picker:project:newProjectConfirmation', result.id);
-                        overlay.hidden = true; // close new project modal
+                        done(result.id);
                     });
                     return;
                 }
@@ -386,17 +401,15 @@ editor.once('load', () => {
                             .jobGet({ jobId: msg.job.id })
                             .on('load', (status, job) => {
                                 if (job.status === 'error') {
+                                    toggleLoader(false);
                                     editor.call(
                                         'picker:project:buildAlert',
                                         forking ? sidebar : mainView,
                                         job.messages[0]
                                     );
                                 } else {
-                                    editor.call('picker:project:newProjectConfirmation', job.data.forked_id);
-                                    overlay.hidden = true; // close new project modal
+                                    done(job.data.forked_id);
                                 }
-
-                                toggleLoader(false);
                             });
                     }
                 });
@@ -514,6 +527,15 @@ editor.once('load', () => {
     });
 
     editor.method('picker:project:new:values', () => ({ ...formInputs }));
+
+    // starts the picked kit as the Create button would, opening it in this tab
+    editor.method('picker:project:new:create', () => {
+        if (createBtn.enabled) {
+            create(true);
+        }
+    });
+
+    editor.method('picker:project:new:busy', () => !loader.hidden);
 
     editor.method('picker:project:new:close', () => {
         overlay.hidden = true;
