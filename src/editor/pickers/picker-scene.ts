@@ -3,7 +3,6 @@ import type { Element } from '@playcanvas/pcui';
 import { Button, Container, Label, Menu, TextInput } from '@playcanvas/pcui';
 
 import { backend } from '@/common/backend';
-import { onTextChange } from '@/common/pcui/compat-utils';
 import { convertDatetime } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -51,7 +50,7 @@ editor.once('load', () => {
         renderChanges: false,
         class: 'filter'
     });
-    onTextChange(filter, () => {
+    filter.on('change', () => {
         refreshScenes();
     });
     toolbar.append(filter);
