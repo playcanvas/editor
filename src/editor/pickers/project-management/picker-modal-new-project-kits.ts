@@ -28,7 +28,7 @@ editor.once('load', () => {
         fork_from: emptyProject.fork_from
     });
 
-    // the grid's kits by key: empty first, then the projects tagged as starter kits by project id
+    // the grid's kits by key: empty first, then the starter kits keyed by project id, in the server's order
     const builtInKits: [string, typeof emptyProject][] = [[EMPTY_KIT, emptyProject]];
     let starterKits = new Map(builtInKits);
 
