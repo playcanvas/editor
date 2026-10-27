@@ -10,6 +10,7 @@ const DAY_MS = 86400000;
 const COPIED_MS = 1500;
 const ACTIVITY_DAYS = 28;
 const ACTIVITY_SLOTS = 288; // five-minute slots in a day, the unit the activity levels count
+const WEEKDAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 editor.once('load', () => {
     // global variables
@@ -178,7 +179,7 @@ editor.once('load', () => {
         class: 'form-input',
         value: projectSettings.description,
         renderChanges: true,
-        height: 150
+        height: 100
     });
 
     projectDescInput.on('change', () => {
@@ -268,23 +269,32 @@ editor.once('load', () => {
     forkedFromOwner.className = 'forked-from-owner';
     forkedFromValue.appendChild(forkedFromOwner);
 
-    // the last four weeks of editing, one cell a day, brighter for busier days
+    // the last four weeks of editing as a calendar, a column per weekday, brighter for busier days
     const activitySettings = new Element({
         class: ['horizontal-container', 'activity'],
         hidden: true
     });
     settingsContainer.append(activitySettings.dom);
     activitySettings.dom.appendChild(new Label({ text: 'Activity' }).dom);
-    const activityStrip = document.createElement('div');
-    activityStrip.className = 'activity-strip';
-    activitySettings.dom.appendChild(activityStrip);
+    const activityCalendar = document.createElement('div');
+    activityCalendar.className = 'activity-calendar';
+    activitySettings.dom.appendChild(activityCalendar);
 
     const renderActivity = (items: { day: number; level: number }[]) => {
-        const today = Math.floor(Date.now() / DAY_MS);
+        const first = Math.floor(Date.now() / DAY_MS) - (ACTIVITY_DAYS - 1);
         const levels = new Map(items.map((item) => [item.day, item.level]));
-        activityStrip.replaceChildren(
+
+        // blanks before the first day line it up under its weekday, monday first
+        const offset = (new Date(first * DAY_MS).getUTCDay() + 6) % 7;
+        activityCalendar.replaceChildren(
+            ...WEEKDAYS.map((name) => {
+                const label = document.createElement('span');
+                label.textContent = name;
+                return label;
+            }),
+            ...Array.from({ length: offset }, () => document.createElement('i')),
             ...Array.from({ length: ACTIVITY_DAYS }, (_, i) => {
-                const day = today - (ACTIVITY_DAYS - 1 - i);
+                const day = first + i;
                 const level = levels.get(day) ?? 0;
                 const minutes = level * 5;
                 const cell = document.createElement('div');

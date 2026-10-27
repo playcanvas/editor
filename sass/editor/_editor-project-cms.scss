@@ -531,7 +531,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform $cms-zoom-ease;
+            transition: transform $cms-ease;
         }
     }
 
@@ -924,7 +924,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform $cms-zoom-ease;
+            transition: transform $cms-ease;
         }
 
     }
@@ -2132,7 +2132,7 @@
     }
 }
 
-// project settings: forked-from link and the four-week activity strip
+// project settings: forked-from link and the four-week activity calendar
 .picker-project-main > .project-settings {
     .forked-from-value {
         display: flex;
@@ -2161,10 +2161,17 @@
         font-size: 12px;
     }
 
-    .activity-strip {
+    .activity-calendar {
         display: grid;
-        grid-template-columns: repeat(28, 8px);
-        gap: 2px;
+        grid-template-columns: repeat(7, 16px);
+        gap: 3px;
+
+        > span {
+            color: $text-meta;
+            font-size: 10px;
+            line-height: 12px;
+            text-align: center;
+        }
 
         > div {
             height: 16px;
