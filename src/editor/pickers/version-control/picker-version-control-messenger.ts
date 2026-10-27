@@ -2,6 +2,7 @@ import { service } from '@/common/supports';
 import { handleCallback } from '@/common/utils';
 import { MERGE_STATUS_APPLY_ENDED } from '@/core/constants';
 import { config } from '@/editor/config';
+import { withParams } from '@/editor/pickers/picker-url';
 
 editor.once('load', () => {
     let currentCheckpointBeingCreated = null;
@@ -94,16 +95,20 @@ editor.once('load', () => {
     // refresh to the Project URL. If the scene exists then just refresh the browser window
     const refresh = function () {
         setTimeout(() => {
+            // reload without the open section, so the picker doesn't reopen over the new branch
+            const url = new URL(withParams(location.href, { tab: null }));
+            const reload = () => (url.href === location.href ? location.reload() : location.replace(url.href));
+
             if (config.scene && config.scene.id) {
                 editor.call('scenes:get', config.scene.id, (err, data) => {
                     if (err || !data) {
-                        window.location.href = `/editor/project/${config.project.id}${window.location.search}`;
+                        window.location.href = `/editor/project/${config.project.id}${url.search}`;
                     } else {
-                        window.location.reload();
+                        reload();
                     }
                 });
             } else {
-                window.location.reload();
+                reload();
             }
         }, 1000);
     };
