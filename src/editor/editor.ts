@@ -6,6 +6,7 @@ import { MERGE_STATUS_APPLY_STARTED, MERGE_STATUS_AUTO_STARTED, MERGE_STATUS_REA
 import * as api from '@/editor-api';
 
 import { config } from './config';
+import { inPlace } from './pickers/picker-url';
 
 class MainEditor extends Editor<EditorMethods> {
     constructor() {
@@ -53,9 +54,9 @@ class MainEditor extends Editor<EditorMethods> {
                     this.call('scenes:list', (items: { uniqueId: string }[]) => {
                         if (items.length === 1) {
                             this.call('scene:load', items[0].uniqueId);
-                        } else {
-                            // open picker if no scene is loaded
-                            this.call('picker:scene');
+                        } else if (!this.call('picker:project:selected')) {
+                            // open picker if no scene is loaded, unless the url opened a section; it's the page's first view
+                            inPlace(() => this.call('picker:scene'));
                         }
                     });
                 }

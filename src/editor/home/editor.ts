@@ -51,10 +51,11 @@ class HomeEditor extends Caller<EditorMethods> {
             queueMicrotask(() => this.emit('loaded'));
         });
 
-        // connect the messenger, then show the projects page
+        // connect the messenger, then show the projects page with what the url opens (New project, a project's settings)
         this.once('loaded', () => {
             this.emit('start');
             this.call('picker:project:cms');
+            this.call('picker:project:applyUrl');
         });
     }
 }

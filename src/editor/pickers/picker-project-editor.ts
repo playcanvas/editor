@@ -10,6 +10,17 @@ import { openProjects } from './project-management/tabs';
 // projects remembered as opened, enough to fill the projects page's recents
 const OPENED_LIMIT = 50;
 
+// the sections that open through their own pickers, which set up their panels first
+const OPENERS = {
+    'project-main': 'picker:project:main',
+    scenes: 'picker:scene',
+    'builds-publish': 'picker:builds-publish',
+    'publish-new': 'picker:publish:new',
+    'publish-download': 'picker:publish:download',
+    team: 'picker:team:management',
+    'version control': 'picker:versioncontrol'
+};
+
 // the project settings and project dialogs (fork, project ready, leave, visibility) as the editor needs them
 editor.once('load', () => {
     const leftPanel = editor.call('picker:project:leftPanel');
@@ -47,6 +58,18 @@ editor.once('load', () => {
     editor.method('picker:project', (option?: string) => {
         editor.call('picker:project:open', config.project.id, config.owner.id, option, { thumbnails: 'panel' });
     });
+
+    // the url's section (the project is this one): open it, or close when none is named
+    editor.on('picker:url', ({ open, section, build }) => {
+        if (!open) {
+            editor.call('picker:project:dismiss');
+        } else if (section === 'build-detail') {
+            editor.call('picker:builds-publish:detail', build);
+        } else if (!section || section !== editor.call('picker:project:selected')) {
+            editor.call(OPENERS[section] ?? 'picker:project', section);
+        }
+    });
+    editor.once('start', () => editor.call('picker:project:applyUrl'));
 
     // closing was disallowed while no scene was loaded, unless a version control operation holds it
     editor.on('scene:load', () => {

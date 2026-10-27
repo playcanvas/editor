@@ -3,10 +3,13 @@ import { Button, Container, Element, Label, Overlay, Panel } from '@playcanvas/p
 import { bytesToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
+import { inPlace, PANELS, readUrl, sectionSlug, setUrl } from './picker-url';
+
 editor.once('load', () => {
     // GLOBAL VARIABLES
     let projectSettingsListMenu; // used to enable hot reload of sidebar menu text upon project name change
     let currentProject; // used to display project stats
+    let openId: number | null = null; // the shown project's id, known before it loads
     let currentUser;
     // set by picker:project:open: the menus to show (all when unset), whether to show stats, and the thumbnail
     // controls: always shown, shown while the project settings panel is open, or off (the default)
@@ -436,6 +439,24 @@ editor.once('load', () => {
         menuOptions[name].panel.hidden = false;
         rightPanel.headerText = menuOptions[name].title;
         rightPanel.content.dom.scrollTop = 0;
+        sync();
+    };
+
+    // a section this view shows, for links; panels without a menu only when links may open them
+    const shown = (name: string) => {
+        const option = menuOptions[name];
+        return !!option && (option.panelOnly ? PANELS.includes(name) : !view.menus || view.menus.includes(name));
+    };
+    const fallback = (name: string) => (shown(name) ? name : (view.menus?.[0] ?? defaultMenuOption));
+
+    // the url names the open section, and the project unless it's the page's own
+    const sync = () => {
+        const open = !!currentSelection;
+        setUrl({
+            project: open && openId !== config.project.id ? openId : null,
+            section: open && sectionSlug(currentSelection),
+            build: currentSelection === 'build-detail' ? editor.call('picker:builds-publish:detailId') : null
+        });
     };
 
     // ESC key should close popup
@@ -487,6 +508,7 @@ editor.once('load', () => {
         }
 
         view = {};
+        sync();
 
         // editor-blocking picker closed
         editor.emit('picker:close', 'project');
@@ -550,6 +572,7 @@ editor.once('load', () => {
     // shows a project's settings: its owner for the team panel, the menu to open, and which menus and controls to show
     editor.method('picker:project:open', (id: number, ownerId: number, option?: string, options: typeof view = {}) => {
         view = options;
+        openId = id;
         editor.call('projects:getOne', id, (res) => {
             currentProject = res;
             refreshUI();
@@ -559,8 +582,29 @@ editor.once('load', () => {
                 overlay.hidden = false;
             });
         });
-        select(option || defaultMenuOption);
+        select(fallback(option));
+        sync();
     });
+
+    // switches the open picker to a section, or to the view's default when it doesn't show that one
+    editor.method('picker:project:select', (name: string) => select(fallback(name)));
+
+    // closes unless the page's rule or guard holds it open, as clicking outside would
+    editor.method('picker:project:dismiss', () => {
+        if (overlay.clickable && (!closeCallback || closeCallback())) {
+            overlay.hidden = true;
+        }
+    });
+
+    // reloads, links and back/forward: pages open what the url names, then the url is put back to what's open
+    const applyUrl = () => {
+        inPlace(() => {
+            editor.emit('picker:url', readUrl(location.href));
+            sync();
+        });
+    };
+    window.addEventListener('popstate', applyUrl);
+    editor.method('picker:project:applyUrl', applyUrl);
 
     // a check run before clicks outside close the picker, e.g. version control holding it open
     editor.method('picker:project:setCloseGuard', (fn: (() => boolean) | null) => {

@@ -511,4 +511,8 @@ editor.once('load', () => {
     });
 
     editor.method('picker:project:new:values', () => ({ ...formInputs }));
+
+    editor.method('picker:project:new:close', () => {
+        overlay.hidden = true;
+    });
 });

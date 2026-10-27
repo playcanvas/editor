@@ -1,4 +1,5 @@
 import { config } from '@/editor/config';
+import { inPlace } from '@/editor/pickers/picker-url';
 
 editor.once('load', () => {
     let pushState = true;
@@ -16,11 +17,11 @@ editor.once('load', () => {
 
     let evtLoadOnAuthenticated = null;
 
-    // Change URL to project, unload current scene and open scene picker
+    // Change URL to project, unload current scene and open scene picker in that same history entry
     const goToProject = function () {
         history.replaceState(null, 'Editor', `/editor/project/${config.project.id}${window.location.search}`);
         editor.call('scene:unload');
-        editor.call('picker:scene');
+        inPlace(() => editor.call('picker:scene'));
     };
 
     // Load scene with specified id. If isNew is true
@@ -94,12 +95,9 @@ editor.once('load', () => {
     });
 
     // When history state changes make sure we load the
-    // correct scene based on the new URL
+    // correct scene based on the new URL; its section= opens and closes project settings
     window.addEventListener('popstate', (_e: PopStateEvent) => {
-        const location = window.location.href;
-
-        // close scene picker
-        editor.call('picker:scene:close');
+        const location = window.location.pathname;
 
         // if this is a scene URL
         if (/scene/.test(location)) {
@@ -130,9 +128,9 @@ editor.once('load', () => {
             }
         } else {
             // if this is not a scene URL then
-            // unload current scene and show scene picker
+            // unload current scene and show scene picker in the entry back/forward moved to
             editor.call('scene:unload');
-            editor.call('picker:scene');
+            inPlace(() => editor.call('picker:scene'));
         }
     });
 
