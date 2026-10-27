@@ -128,19 +128,10 @@ test.describe('projects home', () => {
     test('new project starts from a kit', async ({ blankPage }) => {
         await blankPage.locator('.cms-side .cms-new').click();
 
-        // empty first; blank next and picked where the environment has a blank template, otherwise empty is picked
-        const blankTemplate = await blankPage.evaluate(() => (window.config as any).starterKits?.blank);
+        // empty first and picked, then the projects tagged as starter kits
         const kits = blankPage.locator('.picker-project-new .starter-kit:not(.skeleton)');
-        const names = kits.locator('h4');
-        await expect(names.nth(0)).toHaveText('Empty Project');
-        if (blankTemplate) {
-            await expect(names.nth(1)).toHaveText('Blank Project');
-        } else {
-            await expect(names.filter({ hasText: 'Blank Project' })).toHaveCount(0);
-        }
-        await expect(blankPage.locator('.picker-project-new .starter-kit.selected h4')).toHaveText(
-            blankTemplate ? 'Blank Project' : 'Empty Project'
-        );
+        await expect(kits.locator('h4').nth(0)).toHaveText('Empty Project');
+        await expect(blankPage.locator('.picker-project-new .starter-kit.selected h4')).toHaveText('Empty Project');
 
         // picking another kit fills the form with its name
         const last = kits.last();
@@ -153,21 +144,23 @@ test.describe('projects home', () => {
         await expect(blankPage.locator('.picker-project-new')).toBeHidden();
     });
 
-    test('creates a project from the blank kit', async ({ blankPage }) => {
+    test('creates a project from a tagged kit', async ({ blankPage }) => {
         test.setTimeout(JOB_TEST_TIMEOUT);
-        const blankTemplate = await blankPage.evaluate(() => (window.config as any).starterKits?.blank);
-        test.skip(!blankTemplate, 'this environment has no blank template');
-
-        const name = uniqueName('ui-blank');
+        const name = uniqueName('ui-kit');
         await blankPage.locator('.cms-side .cms-new').click();
-        await expect(blankPage.locator('.picker-project-new .starter-kit.selected h4')).toHaveText('Blank Project');
+
+        // wait for the kit list, then pick the first tagged kit after empty
+        const kits = blankPage.locator('.picker-project-new .starter-kit:not(.skeleton)');
+        await expect(kits.first()).toBeVisible();
+        test.skip((await kits.count()) < 2, 'this environment has no tagged starter kits');
+        await kits.nth(1).click();
         await blankPage.locator('.picker-project-new .modal-new-project-form-content input[type="text"]').first().fill(name);
 
-        // blank forks the template the page config names; the fork job's data names the new project
+        // the kit forks its project; the fork job's data names the new project
         const created = blankPage.waitForResponse(res => res.request().method() === 'POST' && res.url().endsWith('/api/projects'));
         const job = blankPage.waitForResponse(res => /\/api\/jobs\/\d+$/.test(res.url()), { timeout: JOB_TIMEOUT });
         await blankPage.locator('.picker-project-new .create-btn-container .pm-button.primary').click();
-        expect((await created).request().postDataJSON().fork_from).toBe(blankTemplate);
+        expect((await created).request().postDataJSON().fork_from).toBeGreaterThan(0);
 
         const forked: number = (await (await job).json()).data?.forked_id;
         expect(forked).toBeTruthy();

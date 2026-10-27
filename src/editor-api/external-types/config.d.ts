@@ -173,8 +173,6 @@ export type EditorBlankConfig = {
     /** Backend services the page's backend does not provide; absent means it provides them all. */
     unsupported?: string[];
     wasmModules: WasmModule[];
-    /** The projects the projects page's built-in kits fork on this environment; 0 or missing when there is none. */
-    starterKits?: { blank: number; modelViewer: number; vr: number };
 };
 
 export type EditorConfig = {
