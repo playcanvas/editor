@@ -1457,13 +1457,22 @@ editor.once('load', () => {
     };
 
     // follows an import job to its end and shows the outcome; the job is saved meanwhile so a reload can pick it up
-    const watchImport = async (job: { id: number; name: string; org: boolean }) => {
+    // the server reports no import progress, so the card counts the time since `since` instead
+    const watchImport = async (job: { id: number; name: string; org: boolean }, since = Date.now()) => {
         editor.call('localStorage:set', IMPORT_JOB_KEY, job);
         setCard({
             title: `Importing ${job.name}`,
             icon: 'cog',
             sub: "Upload complete. The import continues on the server, so closing this tab won't cancel it."
         });
+        const tick = () => {
+            const s = Math.max(0, Math.floor((Date.now() - since) / 1000));
+            const pad = (n: number) => `${n}`.padStart(2, '0');
+            const [h, m] = [Math.floor(s / 3600), Math.floor((s % 3600) / 60)];
+            progressPct.text = `${h ? `${h}:${pad(m)}` : m}:${pad(s % 60)}`;
+        };
+        tick();
+        const clock = setInterval(tick, 1000);
 
         // the job update announces the end, the poll covers one that was missed or came before we listened
         const jobInfo = await new Promise<{
@@ -1494,6 +1503,7 @@ editor.once('load', () => {
             check();
         });
 
+        clearInterval(clock);
         editor.call('localStorage:unset', IMPORT_JOB_KEY);
         hideCard();
         if (jobInfo.status === 'complete') {
@@ -1508,7 +1518,7 @@ editor.once('load', () => {
                 editor.call('picker:project:newProjectConfirmation', jobInfo.data.project_id, report);
             }
         } else {
-            console.error(jobInfo.messages[0] || 'There was an error while importing');
+            console.error(jobInfo.messages?.[0] || 'There was an error while importing');
             editor.call('picker:project:buildAlert', rightPanel, 'Could not import project');
         }
     };
@@ -1521,8 +1531,9 @@ editor.once('load', () => {
         }
         importing = true;
         try {
-            await editor.call('projects:getJobStatus', job.id);
-            await watchImport(job);
+            // the job's start keeps the clock right across the reload
+            const info = await editor.call('projects:getJobStatus', job.id);
+            await watchImport(job, Date.parse(info.created_at) || Date.now());
         } catch {
             // a job that can't be read is gone
             editor.call('localStorage:unset', IMPORT_JOB_KEY);

@@ -401,19 +401,29 @@
         box-sizing: border-box;
     }
 
-    // upload, import and export progress
+    // upload, import and export progress; floats bottom-right so scrolling never slides it under the header
     .progress-card {
-        position: sticky;
-        top: 0;
+        position: fixed;
+        right: 24px;
+        bottom: calc(24px + env(safe-area-inset-bottom, 0px));
         z-index: 4;
-        flex: none;
-        max-width: 640px;
-        margin-bottom: 20px;
-        padding: 14px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        width: 380px;
+        padding: 16px 18px 18px;
         border: 1px solid $cms-edge;
-        border-radius: 10px;
+        border-radius: 12px;
         box-sizing: border-box;
-        background-color: $cms-surface;
+        background-color: $cms-float;
+        box-shadow: 0 12px 32px rgb(0 0 0 / 45%);
+
+        @media (max-width: $cms-phone) {
+            right: 16px;
+            bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+            left: 16px;
+            width: auto;
+        }
 
         .progress-head {
             display: flex;
@@ -438,6 +448,13 @@
             }
         }
 
+        .progress-text {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            min-width: 0;
+        }
+
         .progress-title {
             overflow: hidden;
             color: $text-primary;
@@ -453,6 +470,8 @@
         }
 
         .progress-sub {
+            margin-top: 2px;
+            line-height: 17px;
             white-space: normal;
         }
 
@@ -464,7 +483,6 @@
         .progress-track {
             position: relative;
             height: 4px;
-            margin-top: 12px;
             border-radius: 2px;
             overflow: hidden;
             background-color: $cms-hover;
@@ -484,7 +502,6 @@
         }
 
         .progress-note {
-            margin-top: 10px;
             color: $cms-transfer;
             font-size: 12px;
             white-space: normal;
