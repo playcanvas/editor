@@ -27,6 +27,9 @@ editor.once('load', () => {
 
     // helper method to build alert
     const buildAlert = (root: Container, alert: string, showButton = false, buttonText = '', funcParameters) => {
+        // a new alert replaces the one already shown there, rather than stacking under it
+        root.dom.querySelectorAll(':scope > .alert').forEach((el) => el.remove());
+
         const alertContainer = new Container({
             class: 'alert'
         });

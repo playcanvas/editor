@@ -428,6 +428,11 @@ editor.once('load', () => {
 
                 toggleLoader(false);
 
+                // a failed request can come back without a message
+                if (typeof err !== 'string' || !err) {
+                    err = 'Could not create the project';
+                }
+
                 if (err === 'Disk allowance exceeded') {
                     editor.call('picker:project:buildAlert', sidebar, err, true, 'UPGRADE', {
                         url: `${config.url.home}/upgrade`
