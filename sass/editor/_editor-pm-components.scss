@@ -387,8 +387,8 @@
     right: 0;
     bottom: env(safe-area-inset-bottom, 0);
 
-    // above the projects page; menus share the layer but are added later, so they open over a card
-    z-index: $z-menu;
+    // over project settings; dialogs share the layer but are added later, so they open over a card
+    z-index: $z-dialog;
     display: flex;
     flex-direction: column-reverse;
     gap: 12px;

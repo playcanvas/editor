@@ -42,6 +42,18 @@ editor.once('load', () => {
     tray.dom.setAttribute('aria-live', 'polite');
     editor.call('layout.root').append(tray);
 
+    // a clickable pcui overlay closes on a press outside it, caught on the body; a press on a card stops
+    // at the window first, so using a card leaves project settings open. buttons act on click, not this
+    window.addEventListener(
+        'pointerdown',
+        (e) => {
+            if (tray.dom.contains(e.target as Node)) {
+                e.stopPropagation();
+            }
+        },
+        true
+    );
+
     const createCard = () => {
         // hidden until it has something to show
         const card = new Container({ class: 'pm-progress-card', hidden: true });
