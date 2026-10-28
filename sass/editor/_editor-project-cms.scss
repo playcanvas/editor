@@ -413,7 +413,7 @@
         width: 380px;
         padding: 16px 18px 18px;
         border: 1px solid $cms-edge;
-        border-radius: 12px;
+        border-radius: $radius-surface;
         box-sizing: border-box;
         background-color: $cms-float;
         box-shadow: 0 12px 32px rgb(0 0 0 / 45%);
@@ -431,21 +431,14 @@
             gap: 12px;
         }
 
+        // the blank project thumbnail, like the sidebar's recents
         .progress-icon {
-            display: flex;
             flex: none;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            background-color: $cms-hover;
-            color: $text-primary;
-
-            & > svg {
-                width: 16px;
-                height: 16px;
-            }
+            width: 44px;
+            height: 44px;
+            border-radius: $radius-control;
+            object-fit: cover;
+            background-color: $bcg-darker;
         }
 
         .progress-text {

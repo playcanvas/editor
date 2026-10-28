@@ -17,13 +17,6 @@ import { openProject as openProjectTab } from './tabs';
 
 const PAGE_SIZE = 24;
 const JOB_POLL_MS = 5000;
-const svg = (path: string) =>
-    `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg>`;
-const PROGRESS_ICONS = {
-    up: svg('M8 11V3M4.5 6.5 8 3l3.5 3.5M3 13h10'),
-    down: svg('M8 3v8M4.5 7.5 8 11l3.5-3.5M3 13h10'),
-    cog: svg('M2.5 5.5 8 2.5l5.5 3v5L8 13.5l-5.5-3zM8 8l5.5-2.5M8 8v5.5M8 8 2.5 5.5')
-};
 // a linked project that doesn't exist, or that you can't see
 const CANT_OPEN = "This project couldn't be opened. It may have been deleted, or you may not have access to it.";
 const TABS = [
@@ -435,14 +428,18 @@ editor.once('load', () => {
     };
 
     const exportFromMenu = (project) => {
-        setCard({ title: `Exporting ${project.name}`, icon: 'down', sub: 'Preparing the download' });
+        setCard({ title: `Exporting ${project.name}`, sub: 'Preparing the download' });
+        const stopClock = startClock();
         editor
             .call('project:management:export', project.id)
             .then(
                 (url) => window.open(url, '_blank'),
                 (err) => editor.call('picker:project:buildAlert', rightPanel, err)
             )
-            .finally(hideCard);
+            .finally(() => {
+                stopClock();
+                hideCard();
+            });
     };
 
     // loading is shown as skeleton bones
@@ -456,18 +453,15 @@ editor.once('load', () => {
     // the card for a running upload, import or export; a null pct means the length is unknown
     const setCard = ({
         title,
-        icon,
         sub = '',
         pct = null,
         note = ''
     }: {
         title: string;
-        icon: keyof typeof PROGRESS_ICONS;
         sub?: string;
         pct?: number | null;
         note?: string;
     }) => {
-        progressIcon.dom.innerHTML = PROGRESS_ICONS[icon];
         progressTitle.text = title;
         progressSub.text = sub;
         progressPct.text = pct === null ? '' : `${Math.round(pct)}%`;
@@ -480,6 +474,18 @@ editor.once('load', () => {
     };
     const hideCard = () => {
         progressCard.hidden = true;
+    };
+    // server jobs report no progress, so the card counts the time since `since`; returns a stop function
+    const startClock = (since = Date.now()) => {
+        const tick = () => {
+            const s = Math.max(0, Math.floor((Date.now() - since) / 1000));
+            const pad = (n: number) => `${n}`.padStart(2, '0');
+            const [h, m] = [Math.floor(s / 3600), Math.floor((s % 3600) / 60)];
+            progressPct.text = `${h ? `${h}:${pad(m)}` : m}:${pad(s % 60)}`;
+        };
+        tick();
+        const clock = setInterval(tick, 1000);
+        return () => clearInterval(clock);
     };
 
     const bone = (cls, parent: Container) => {
@@ -665,8 +671,7 @@ editor.once('load', () => {
     progressCard.hidden = true;
     progressCard.dom.setAttribute('aria-live', 'polite');
     const progressHead = box('progress-head', progressCard);
-    const progressIcon = new Element({ class: 'progress-icon' });
-    progressHead.append(progressIcon);
+    image(EMPTY_THUMBNAIL_IMAGE, 'progress-icon', progressHead);
     const progressText = box('progress-text', progressHead);
     const progressTitle = text('', 'progress-title', progressText);
     const progressSub = text('', 'progress-sub', progressText);
@@ -1457,22 +1462,14 @@ editor.once('load', () => {
     };
 
     // follows an import job to its end and shows the outcome; the job is saved meanwhile so a reload can pick it up
-    // the server reports no import progress, so the card counts the time since `since` instead
+    // `since` is when the job started, so a resumed import's clock carries on
     const watchImport = async (job: { id: number; name: string; org: boolean }, since = Date.now()) => {
         editor.call('localStorage:set', IMPORT_JOB_KEY, job);
         setCard({
             title: `Importing ${job.name}`,
-            icon: 'cog',
             sub: "Upload complete. The import continues on the server, so closing this tab won't cancel it."
         });
-        const tick = () => {
-            const s = Math.max(0, Math.floor((Date.now() - since) / 1000));
-            const pad = (n: number) => `${n}`.padStart(2, '0');
-            const [h, m] = [Math.floor(s / 3600), Math.floor((s % 3600) / 60)];
-            progressPct.text = `${h ? `${h}:${pad(m)}` : m}:${pad(s % 60)}`;
-        };
-        tick();
-        const clock = setInterval(tick, 1000);
+        const stopClock = startClock(since);
 
         // the job update announces the end, the poll covers one that was missed or came before we listened
         const jobInfo = await new Promise<{
@@ -1503,7 +1500,7 @@ editor.once('load', () => {
             check();
         });
 
-        clearInterval(clock);
+        stopClock();
         editor.call('localStorage:unset', IMPORT_JOB_KEY);
         hideCard();
         if (jobInfo.status === 'complete') {
@@ -1553,7 +1550,6 @@ editor.once('load', () => {
         const upload = (pct: number) =>
             setCard({
                 title: `Uploading ${file.name}`,
-                icon: 'up',
                 sub: `${bytesToHuman((file.size * pct) / 100)} of ${size}`,
                 pct,
                 note: 'Keep this tab open until the upload finishes.'
