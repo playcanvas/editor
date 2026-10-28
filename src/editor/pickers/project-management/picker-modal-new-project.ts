@@ -8,6 +8,7 @@ import { config } from '@/editor/config';
 import { button } from './components/button';
 import { dialog } from './components/dialog';
 import { spinner } from './components/spinner';
+import { editorUrl } from './tabs';
 
 const UPGRADE_BLOCK = 'Forking a private project needs a paid plan.';
 const FIT_HEIGHT = 'pcui-select-input-fit-height';
@@ -323,8 +324,11 @@ editor.once('load', () => {
     footer.append(createBtn);
     const createTooltip = TooltipHandle.make({ root: overlay.dom, ...UNSUPPORTED_TIP, align: 'bottom' });
 
-    // attach listener to create button
+    // attach listener to create button; clicks while it's busy are ignored, so nothing is made twice
     createBtn.on('click', () => {
+        if (!loader.hidden) {
+            return;
+        }
         toggleLoader(true);
         newKitData.owner = newProjectOwner.username;
         newKitData.name = formInputs.name;
@@ -346,30 +350,51 @@ editor.once('load', () => {
     const createNewProject = () => {
         const data = newKitData;
 
+        // with `here` a new project opens in this tab once it's made, the loader staying while the tab leaves;
+        // otherwise, as for a fork, the confirmation offers it in its own tab
+        const done = (id) => {
+            if (!forking && editor.call('picker:project:new:here')) {
+                location.assign(editorUrl(id));
+                return;
+            }
+            toggleLoader(false);
+            editor.call('picker:project:newProjectConfirmation', id);
+            overlay.hidden = true; // close new project modal
+        };
+
+        // an empty project has no job: it's ready once the messenger says it was created, which can
+        // come before the create replies, so listen from the start
         let evt;
+        let created = null;
+        const heard = new Map();
+        const ready = (msg) => {
+            evt.unbind();
+            if (msg.status && msg.status !== 'success') {
+                toggleLoader(false);
+                editor.call('picker:project:buildAlert', mainView, msg.error ?? 'Could not create the project');
+                return;
+            }
+            done(created);
+        };
+        if (!data.fork_from) {
+            evt = editor.on('messenger:project.create', (msg) => {
+                if (created === null) {
+                    heard.set(msg.project_id, msg);
+                } else if (msg.project_id === created) {
+                    ready(msg);
+                }
+            });
+        }
+
         editor.call(
             'projects:create',
             data,
             (result) => {
-                // an empty project has no job: it's ready once the messenger says it was created
                 if (!data.fork_from) {
-                    evt = editor.on('messenger:project.create', (msg) => {
-                        if (msg.project_id !== result.id) {
-                            return;
-                        }
-                        evt.unbind();
-                        toggleLoader(false);
-                        if (msg.status && msg.status !== 'success') {
-                            editor.call(
-                                'picker:project:buildAlert',
-                                mainView,
-                                msg.error ?? 'Could not create the project'
-                            );
-                            return;
-                        }
-                        editor.call('picker:project:newProjectConfirmation', result.id);
-                        overlay.hidden = true; // close new project modal
-                    });
+                    created = result.id;
+                    if (heard.has(created)) {
+                        ready(heard.get(created));
+                    }
                     return;
                 }
 
@@ -386,17 +411,15 @@ editor.once('load', () => {
                             .jobGet({ jobId: msg.job.id })
                             .on('load', (status, job) => {
                                 if (job.status === 'error') {
+                                    toggleLoader(false);
                                     editor.call(
                                         'picker:project:buildAlert',
                                         forking ? sidebar : mainView,
                                         job.messages[0]
                                     );
                                 } else {
-                                    editor.call('picker:project:newProjectConfirmation', job.data.forked_id);
-                                    overlay.hidden = true; // close new project modal
+                                    done(job.data.forked_id);
                                 }
-
-                                toggleLoader(false);
                             });
                     }
                 });
