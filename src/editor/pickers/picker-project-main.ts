@@ -496,6 +496,18 @@ editor.once('load', () => {
         projectDescInput.enabled = isAdmin();
         privateToggle.enabled = isAdmin();
 
+        // a private project stays private when its owner's plan allows no public projects
+        if (currentProject.private) {
+            editor.call('users:loadOne', currentProject.owner_id, (owner) => {
+                if (
+                    owner.id === editor.call('picker:project:getCurrent')?.owner_id &&
+                    owner.limits?.maxPublicProjects === 0
+                ) {
+                    privateToggle.enabled = false;
+                }
+            });
+        }
+
         initialLoad = true;
 
         projectNameInput.value = currentProject.name;
