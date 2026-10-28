@@ -129,8 +129,8 @@ export const THEMES = {
 // when each project was last opened in this browser, by project id
 export const PROJECTS_OPENED_KEY = 'editor:projects:opened';
 
-// the import job still running on the server, so a reload can show it again
-export const IMPORT_JOB_KEY = 'editor:projects:import';
+// import jobs still running on the server, so a reload can show them again
+export const IMPORT_JOB_KEY = 'editor:projects:imports';
 
-// the export job running on the server or waiting to be downloaded, so a reload can show it again
-export const EXPORT_JOB_KEY = 'editor:projects:export';
+// export jobs running on the server or waiting to be downloaded, so a reload can show them again
+export const EXPORT_JOB_KEY = 'editor:projects:exports';

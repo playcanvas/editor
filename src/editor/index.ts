@@ -336,6 +336,7 @@ import './pickers/picker-project-editor';
 
 // project management pickers
 import './pickers/project-management/project-management';
+import './pickers/project-management/progress-card';
 
 import './pickers/picker-project-main';
 import './pickers/picker-project-dev-log';

@@ -379,3 +379,177 @@
     background-color: $bcg-darkest;
     color: $text-dark;
 }
+
+// progress-card.ts: upload, import and export cards stacked bottom-right, newest on top. the tray's
+// padding is the gap to the window edge, so card shadows aren't clipped where it scrolls
+.pm-progress-tray {
+    position: fixed;
+    right: 0;
+    bottom: env(safe-area-inset-bottom, 0);
+
+    // above the projects page; menus share the layer but are added later, so they open over a card
+    z-index: $z-menu;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 12px;
+    width: 428px;
+    max-height: 100%;
+    padding: 24px;
+    overflow-y: auto;
+    box-sizing: border-box;
+
+    // the tray covers no clicks between or around its cards
+    pointer-events: none;
+
+    @media (max-width: $cms-phone) {
+        left: 0;
+        width: auto;
+        padding: 16px;
+    }
+}
+
+.pm-progress-card {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    gap: 14px;
+    padding: 16px 18px 18px;
+    border: 1px solid $cms-edge;
+    border-radius: $radius-surface;
+    box-sizing: border-box;
+    background-color: $cms-float;
+    box-shadow: 0 12px 32px rgb(0 0 0 / 45%);
+    color: $text-secondary;
+    font-size: 13px;
+    pointer-events: auto;
+
+    // the card and its children set display, so hidden ones need to win explicitly
+    &.pcui-hidden,
+    .pcui-hidden {
+        display: none !important;
+    }
+
+    .pcui-label {
+        margin: 0;
+        color: inherit;
+        font-size: inherit;
+        line-height: inherit;
+        white-space: nowrap;
+    }
+
+    // exporting a project that's already exporting points at its card
+    &.flash {
+        animation: pm-progress-flash 600ms ease-out;
+    }
+
+    .progress-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    // about as tall as the title and subtitle beside it
+    .progress-icon {
+        display: flex;
+        flex: none;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        border-radius: $radius-control;
+        background-color: $cms-hover;
+        color: $text-primary;
+
+        & > svg {
+            width: 26px;
+            height: 26px;
+        }
+    }
+
+    .progress-text {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .progress-title {
+        overflow: hidden;
+        color: $text-primary;
+        text-overflow: ellipsis;
+
+        @extend .font-bold;
+    }
+
+    .progress-sub,
+    .progress-pct {
+        color: $text-meta;
+        font-size: 12px;
+    }
+
+    .progress-sub {
+        margin-top: 2px;
+        line-height: 17px;
+        white-space: normal;
+    }
+
+    .progress-pct {
+        color: $text-primary;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .progress-track {
+        position: relative;
+        height: 4px;
+        border-radius: 2px;
+        overflow: hidden;
+        background-color: $cms-hover;
+    }
+
+    .progress-fill {
+        height: 100%;
+        border-radius: 2px;
+        background-color: $text-active;
+        transition: width 200ms linear;
+    }
+
+    .progress-track.indeterminate > .progress-fill {
+        position: absolute;
+        width: 35%;
+        animation: cms-progress-slide 1.4s ease-in-out infinite;
+    }
+
+    .progress-note {
+        color: $cms-transfer;
+        font-size: 12px;
+        white-space: normal;
+    }
+
+    .progress-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &.flash {
+            animation: none;
+        }
+
+        .progress-fill {
+            transition: none;
+        }
+
+        .progress-track.indeterminate > .progress-fill {
+            width: 100%;
+            opacity: 0.5;
+            animation: none;
+        }
+    }
+}
+
+@keyframes pm-progress-flash {
+    from {
+        border-color: $text-active;
+    }
+}

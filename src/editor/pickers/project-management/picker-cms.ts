@@ -5,7 +5,7 @@ import { backend, UNSUPPORTED_TIP } from '@/common/backend';
 import { supports } from '@/common/supports';
 import { TooltipHandle } from '@/common/tooltips';
 import { bytesToHuman, countToHuman } from '@/common/utils';
-import { EXPORT_JOB_KEY, IMPORT_JOB_KEY, PROJECTS_OPENED_KEY } from '@/core/constants';
+import { PROJECTS_OPENED_KEY } from '@/core/constants';
 import { config } from '@/editor/config';
 
 import { inPlace, readUrl } from '../picker-url';
@@ -16,16 +16,6 @@ import { spinner } from './components/spinner';
 import { openProject as openProjectTab } from './tabs';
 
 const PAGE_SIZE = 24;
-const JOB_POLL_MS = 5000;
-const EXPORT_TTL_MS = 24 * 60 * 60 * 1000;
-const BUSY = 'Wait for the current import or export to finish, then try again.';
-const svg = (path: string) =>
-    `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg>`;
-const PROGRESS_ICONS = {
-    up: svg('M8 11V3M4.5 6.5 8 3l3.5 3.5M3 13h10'),
-    down: svg('M8 3v8M4.5 7.5 8 11l3.5-3.5M3 13h10'),
-    cog: svg('M2.5 5.5 8 2.5l5.5 3v5L8 13.5l-5.5-3zM8 8l5.5-2.5M8 8v5.5M8 8 2.5 5.5')
-};
 // a linked project that doesn't exist, or that you can't see
 const CANT_OPEN = "This project couldn't be opened. It may have been deleted, or you may not have access to it.";
 const TABS = [
@@ -74,8 +64,6 @@ editor.once('load', () => {
     let rows = [];
     let events = [];
     let loading = false;
-    // one import or export at a time, since they share the progress card
-    let busy = false;
     // first load: nothing to show yet, so counts stay blank instead of reading 0
     const waiting = () => loading && !rootProjects().length;
 
@@ -437,28 +425,7 @@ editor.once('load', () => {
         }
     };
 
-    const exportFromMenu = (project) => {
-        if (busy) {
-            editor.call('picker:project:buildAlert', rightPanel, BUSY);
-            return;
-        }
-        busy = true;
-        setCard({ title: `Exporting ${project.name}`, icon: 'down', sub: 'Preparing the download' });
-        editor.call(
-            'projects:export',
-            project.id,
-            undefined,
-            async (job) => {
-                await watchExport({ id: job.id, name: project.name });
-                busy = false;
-            },
-            (err) => {
-                hideCard();
-                busy = false;
-                editor.call('picker:project:buildAlert', rightPanel, `Error: ${err}`);
-            }
-        );
-    };
+    const exportFromMenu = (project) => editor.call('progress:card:export', project);
 
     // loading is shown as skeleton bones
     const toggleProgress = function (toggle: boolean) {
@@ -466,52 +433,6 @@ editor.once('load', () => {
         if (toggle && rootUser) {
             refresh();
         }
-    };
-
-    // the card for a running upload, import or export; a null pct means the length is unknown, and actions
-    // swaps the bar for the finished export's buttons
-    const setCard = ({
-        title,
-        icon,
-        sub = '',
-        pct = null,
-        note = '',
-        actions = false
-    }: {
-        title: string;
-        icon: keyof typeof PROGRESS_ICONS;
-        sub?: string;
-        pct?: number | null;
-        note?: string;
-        actions?: boolean;
-    }) => {
-        progressIcon.dom.innerHTML = PROGRESS_ICONS[icon];
-        progressTrack.hidden = actions;
-        progressActions.hidden = !actions;
-        progressTitle.text = title;
-        progressSub.text = sub;
-        progressPct.text = pct === null ? '' : `${Math.round(pct)}%`;
-        progressTrack.class[pct === null ? 'add' : 'remove']('indeterminate');
-        progressTrack.dom.setAttribute('aria-valuenow', `${pct === null ? '' : Math.round(pct)}`);
-        progressFill.dom.style.width = pct === null ? '' : `${pct}%`;
-        progressNote.text = note;
-        progressNote.hidden = !note;
-        progressCard.hidden = false;
-    };
-    const hideCard = () => {
-        progressCard.hidden = true;
-    };
-    // server jobs report no progress, so the card counts the time since `since`; returns a stop function
-    const startClock = (since = Date.now()) => {
-        const tick = () => {
-            const s = Math.max(0, Math.floor((Date.now() - since) / 1000));
-            const pad = (n: number) => `${n}`.padStart(2, '0');
-            const [h, m] = [Math.floor(s / 3600), Math.floor((s % 3600) / 60)];
-            progressPct.text = `${h ? `${h}:${pad(m)}` : m}:${pad(s % 60)}`;
-        };
-        tick();
-        const clock = setInterval(tick, 1000);
-        return () => clearInterval(clock);
     };
 
     const bone = (cls, parent: Container) => {
@@ -691,30 +612,6 @@ editor.once('load', () => {
     main.append(scroll);
     const rightPanel = box('cms-col'); // also the root for alerts from other pickers
     scroll.dom.appendChild(rightPanel.dom);
-
-    // upload, import and export progress
-    const progressCard = box('progress-card', rightPanel);
-    progressCard.hidden = true;
-    progressCard.dom.setAttribute('aria-live', 'polite');
-    const progressHead = box('progress-head', progressCard);
-    const progressIcon = new Element({ class: 'progress-icon' });
-    progressHead.append(progressIcon);
-    const progressText = box('progress-text', progressHead);
-    const progressTitle = text('', 'progress-title', progressText);
-    const progressSub = text('', 'progress-sub', progressText);
-    const progressPct = text('', 'progress-pct', progressHead);
-    const progressTrack = box('progress-track', progressCard);
-    progressTrack.dom.setAttribute('role', 'progressbar');
-    progressTrack.dom.setAttribute('aria-valuemin', '0');
-    progressTrack.dom.setAttribute('aria-valuemax', '100');
-    const progressFill = new Element({ class: 'progress-fill' });
-    progressTrack.append(progressFill);
-    const progressNote = text('', 'progress-note', progressCard);
-    const progressActions = box('progress-actions', progressCard);
-    const progressDismiss = button({ kind: 'secondary', size: 'sm', text: 'Dismiss' });
-    const progressDownload = button({ kind: 'primary', size: 'sm', text: 'Download' });
-    progressActions.append(progressDismiss);
-    progressActions.append(progressDownload);
 
     // header
     const head = box('cms-head', rightPanel);
@@ -1493,166 +1390,12 @@ editor.once('load', () => {
         );
     };
 
-    // resolves once a job ends; the job update announces it, the poll covers one that was missed or came before we listened
-    const waitForJob = (id: number) =>
-        new Promise<{
-            status: string;
-            modified_at?: string;
-            data?: { import_report?: { count: number }; project_id?: number; url?: string };
-            messages?: string[];
-        }>((resolve) => {
-            let poll = null;
-            let jobEvent = null;
-            const check = async () => {
-                let info = null;
-                try {
-                    info = await editor.call('projects:getJobStatus', id);
-                } catch {
-                    // a failed read is retried on the next tick
-                    return;
-                }
-                if (poll && (info.status === 'complete' || info.status === 'error')) {
-                    clearInterval(poll);
-                    poll = null;
-                    jobEvent.unbind();
-                    resolve(info);
-                }
-            };
-            jobEvent = editor.on('messenger:job.update', (msg) => msg.job.id === id && check());
-            events.push(jobEvent);
-            poll = setInterval(check, JOB_POLL_MS);
-            check();
-        });
-
-    // follows an import job to its end and shows the outcome; the job is saved meanwhile so a reload can pick it up
-    // `since` is when the job started, so a resumed import's clock carries on
-    const watchImport = async (job: { id: number; name: string; org: boolean }, since = Date.now()) => {
-        editor.call('localStorage:set', IMPORT_JOB_KEY, job);
-        setCard({
-            title: `Importing ${job.name}`,
-            icon: 'cog',
-            sub: "Upload complete. The import continues on the server, so closing this tab won't cancel it."
-        });
-        const stopClock = startClock(since);
-        const jobInfo = await waitForJob(job.id);
-        stopClock();
-        editor.call('localStorage:unset', IMPORT_JOB_KEY);
-        hideCard();
-        if (jobInfo.status === 'complete') {
-            const report = jobInfo.data.import_report?.count ? jobInfo.data.import_report : null;
-            if (job.org) {
-                // organization viewers have no access to the new project, so list it instead of opening it
-                loadProjects();
-                if (report) {
-                    editor.call('picker:project:newProjectConfirmation', null, report);
-                }
-            } else {
-                editor.call('picker:project:newProjectConfirmation', jobInfo.data.project_id, report);
-            }
-        } else {
-            console.error(jobInfo.messages?.[0] || 'There was an error while importing');
-            editor.call('picker:project:buildAlert', rightPanel, 'Could not import project');
-        }
-    };
-
-    // follows an export job, then offers the download; opening it from a click keeps the popup blocker out of it
-    const watchExport = async (job: { id: number; name: string }, since = Date.now()) => {
-        editor.call('localStorage:set', EXPORT_JOB_KEY, job);
-        setCard({
-            title: `Exporting ${job.name}`,
-            icon: 'down',
-            sub: "Preparing the download. Closing this tab won't cancel it."
-        });
-        const stopClock = startClock(since);
-        const jobInfo = await waitForJob(job.id);
-        stopClock();
-        if (jobInfo.status !== 'complete') {
-            editor.call('localStorage:unset', EXPORT_JOB_KEY);
-            hideCard();
-            editor.call('picker:project:buildAlert', rightPanel, jobInfo.messages?.[0] || 'Could not export project');
-            return;
-        }
-
-        // the export bucket deletes files after a day, so an older one has nothing left to download
-        if (Date.now() - Date.parse(jobInfo.modified_at) > EXPORT_TTL_MS) {
-            editor.call('localStorage:unset', EXPORT_JOB_KEY);
-            hideCard();
-            return;
-        }
-
-        // the card stays until you download or dismiss it, and a reload shows it again
-        setCard({ title: `${job.name} is ready`, icon: 'down', sub: 'Your export has finished.', actions: true });
-        await new Promise<void>((resolve) => {
-            const done = () => {
-                download.unbind();
-                dismiss.unbind();
-                editor.call('localStorage:unset', EXPORT_JOB_KEY);
-                hideCard();
-                resolve();
-            };
-            const download = progressDownload.on('click', () => {
-                window.open(jobInfo.data.url, '_blank');
-                done();
-            });
-            const dismiss = progressDismiss.on('click', done);
-        });
-    };
-
-    // after a reload an upload is gone, but a job that had started on the server is still running
-    const resume = async (key: string, watch: (job, since: number) => Promise<void>) => {
-        const job = editor.call('localStorage:get', key);
-        if (!job?.id || busy) {
-            return;
-        }
-        busy = true;
-        try {
-            // the job's start keeps the clock right across the reload
-            const info = await editor.call('projects:getJobStatus', job.id);
-            await watch(job, Date.parse(info.created_at) || Date.now());
-        } catch {
-            // a job that can't be read is gone
-            editor.call('localStorage:unset', key);
-        }
-        busy = false;
-    };
-
-    // handles the flow for project importing including error and loading states
-    const importProject = async (files) => {
+    // the upload, import and outcome show on a card of their own, beside any other running jobs
+    const importProject = (files) => {
         if (importDisabled() || files.length === 0) {
             return;
         }
-        if (busy) {
-            editor.call('picker:project:buildAlert', rightPanel, BUSY);
-            return;
-        }
-
-        busy = true;
-        const [file] = files;
-        const size = bytesToHuman(file.size);
-        const upload = (pct: number) =>
-            setCard({
-                title: `Uploading ${file.name}`,
-                icon: 'up',
-                sub: `${bytesToHuman((file.size * pct) / 100)} of ${size}`,
-                pct,
-                note: 'Keep this tab open until the upload finishes.'
-            });
-        upload(0);
-
-        try {
-            // progress returned by Ajax is in range 0-1
-            const result = await editor.invoke('projects:uploadExport', file, (progress) => upload(progress * 100));
-            const importer = editor.call('picker:project:cms:currentUser');
-            const job = await editor.call('projects:importNew', result.s3Key, importer.id);
-            await watchImport({ id: job.id, name: file.name.replace(/\.zip$/i, ''), org: !!importer.organization });
-        } catch (error) {
-            hideCard();
-            if (error) {
-                console.error(error);
-            }
-            editor.call('picker:project:buildAlert', rightPanel, 'Could not import project');
-        }
-        busy = false;
+        editor.call('progress:card:import', files[0], editor.call('picker:project:cms:currentUser'));
     };
 
     // loads your projects and each organization's into the CMS main panel
@@ -1782,7 +1525,6 @@ editor.once('load', () => {
             loadProjects();
             renderUsage();
             overlay.hidden = false;
-            resume(IMPORT_JOB_KEY, watchImport).then(() => resume(EXPORT_JOB_KEY, watchExport));
         });
     });
 

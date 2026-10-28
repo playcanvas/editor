@@ -40,23 +40,6 @@ editor.once('load', () => {
         return 'Export Project';
     };
 
-    // a finished export waits for a click to download, since a popup opened when the job ends gets blocked
-    let ready: { id: number; url: string } | null = null;
-
-    // displays or hides the AJAX loader UI when exporting project
-    const toggleLoader = (toggle) => {
-        if (toggle) {
-            exportProjectButton.text = '';
-            exportProjectButton.dom.setAttribute('data-icon', '');
-            loader.style.display = 'block';
-        } else {
-            loader.style.display = 'none';
-            exportProjectButton.text =
-                ready && ready.id === currentProject?.id ? 'Download Export' : getExportButtonText();
-            exportProjectButton.icon = 'E228';
-        }
-    };
-
     // helper method to determine whether the current user is an admin
     const isAdmin = () => {
         return currentProject ? currentProject.access_level === 'admin' : false;
@@ -357,22 +340,7 @@ editor.once('load', () => {
         TooltipHandle.attach({ target: exportProjectButton.dom, ...UNSUPPORTED_TIP, align: 'bottom' });
     }
 
-    const loader = new Element({
-        class: ['loader', 'xsmall', 'white']
-    });
-    loader.style.display = 'none';
-    exportProjectButtonContainer.append(loader);
-
-    exportProjectButton.on('click', () => {
-        if (ready && ready.id === currentProject.id) {
-            window.open(ready.url, '_blank');
-            ready = null;
-            toggleLoader(false);
-            return;
-        }
-        toggleLoader(true);
-        exportProject();
-    });
+    exportProjectButton.on('click', () => exportProject());
 
     // CONTROLLERS
 
@@ -403,22 +371,13 @@ editor.once('load', () => {
         }
     };
 
-    // handles the flow for project exporting as well as managing error and loading states
+    // the export runs on its own progress card, which offers the download when it's done
     const exportProject = () => {
         const isCurrentProject = currentProject && currentProject.id === config.project.id;
         const hasVersionControl = isCurrentProject && !config.project.settings.useLegacyScripts;
         const branchId = hasVersionControl ? config.self.branch.id : undefined;
-        const id = currentProject.id;
 
-        editor
-            .call('project:management:export', id, branchId)
-            .then(
-                (url) => {
-                    ready = { id, url };
-                },
-                (err) => editor.call('picker:project:buildAlert', panel, err)
-            )
-            .finally(() => toggleLoader(false));
+        editor.call('progress:card:export', { id: currentProject.id, name: currentProject.name }, branchId);
     };
 
     // LOCAL UTILS
@@ -476,11 +435,6 @@ editor.once('load', () => {
     // hook to reload all main elements of the screen
     editor.method('picker:project:main:refreshUI', () => {
         currentProject = editor.call('picker:project:getCurrent');
-
-        // the export button offers a download only for the project that exported
-        if (loader.style.display === 'none') {
-            toggleLoader(false);
-        }
         unlockButton.enabled =
             managed &&
             (currentProject.owner_id === config.self.id ||
