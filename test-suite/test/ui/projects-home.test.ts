@@ -166,8 +166,9 @@ test.describe('projects home', () => {
         const forked: number = (await (await job).json()).data?.forked_id;
         expect(forked).toBeTruthy();
         try {
-            // this tab opens the fork's editor once it's made
-            await blankPage.waitForURL(new RegExp(`/editor/project/${forked}`), { timeout: JOB_TIMEOUT });
+            await expect(blankPage.getByRole('button', { name: 'Not now' })).toBeVisible();
+            await blankPage.getByRole('button', { name: 'Not now' }).click();
+            await expect(cmsRow(blankPage, name)).toBeVisible({ timeout: JOB_TIMEOUT });
         } finally {
             await deleteProject(setup, forked);
         }

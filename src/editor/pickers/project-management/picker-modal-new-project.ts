@@ -324,8 +324,8 @@ editor.once('load', () => {
     footer.append(createBtn);
     const createTooltip = TooltipHandle.make({ root: overlay.dom, ...UNSUPPORTED_TIP, align: 'bottom' });
 
-    // creates the project from the form
-    const create = () => {
+    // attach listener to create button; clicks while it's busy are ignored, so nothing is made twice
+    createBtn.on('click', () => {
         if (!loader.hidden) {
             return;
         }
@@ -336,8 +336,7 @@ editor.once('load', () => {
         newKitData.private = formInputs.private;
         newKitData.fork_from = formInputs.fork_from;
         createNewProject();
-    };
-    createBtn.on('click', () => create());
+    });
 
     // spinner sits inside the create button while it's busy
     const loader = spinner({ hidden: true });
@@ -351,10 +350,10 @@ editor.once('load', () => {
     const createNewProject = () => {
         const data = newKitData;
 
-        // a new project opens once it's made, in this tab since browsers block a tab opened that late; the
-        // loader stays while this tab leaves so nothing starts twice. a fork offers its own tab instead
+        // with `here` a new project opens in this tab once it's made, the loader staying while the tab leaves;
+        // otherwise, as for a fork, the confirmation offers it in its own tab
         const done = (id) => {
-            if (!forking) {
+            if (!forking && editor.call('picker:project:new:here')) {
                 location.assign(editorUrl(id));
                 return;
             }
@@ -538,15 +537,6 @@ editor.once('load', () => {
     });
 
     editor.method('picker:project:new:values', () => ({ ...formInputs }));
-
-    // starts the picked kit as the Create button would
-    editor.method('picker:project:new:create', () => {
-        if (createBtn.enabled) {
-            create();
-        }
-    });
-
-    editor.method('picker:project:new:busy', () => !loader.hidden);
 
     editor.method('picker:project:new:close', () => {
         overlay.hidden = true;

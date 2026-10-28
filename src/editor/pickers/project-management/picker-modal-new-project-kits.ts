@@ -40,7 +40,7 @@ editor.once('load', () => {
     const kitElements = new Map(); // kit key -> kit card
     let open = false; // New project is up; the fork dialog shares its frame, so this can't ask the picker
     let linkedKit: string | null = null; // a kit a link asks for, picked once the kits are listed
-    let linked = false; // opened from a link: picking a kit starts it at once, in this tab
+    let here = false; // `?new&here`: Create opens the new project in this tab, with no confirmation
 
     // the default kit: the first starter kit, as the server orders them, or empty when there are none
     const firstKit = () => [...starterKits.keys()][1] ?? EMPTY_KIT;
@@ -53,16 +53,6 @@ editor.once('load', () => {
     // a kit in the url: the project it forks, or `empty`
     const kitParam = (key: string) => `${starterKits.get(key)?.fork_from ?? 'empty'}`;
 
-    // selects a kit: its card, its url value and the form
-    const pick = (key: string) => {
-        selectedKitElement?.class.remove('selected');
-        selectedKitElement = kitElements.get(key);
-        selectedKey = key;
-        selectedKitElement.class.add('selected');
-        setUrl({ kit: kitParam(key) }, true);
-        selectKit(key);
-    };
-
     // picks the linked kit once the kits are listed; when it isn't one, the default stays and leaves the url
     const pickLinked = () => {
         if (!linkedKit || !renderedKits) {
@@ -71,7 +61,7 @@ editor.once('load', () => {
         const key = [...starterKits.keys()].find((k) => kitParam(k) === linkedKit);
         linkedKit = null;
         if (key) {
-            pick(key);
+            kitElements.get(key)?.dom.click();
         } else {
             setUrl({ kit: null }, true);
         }
@@ -117,15 +107,13 @@ editor.once('load', () => {
             }
         });
 
-        // from a link a pick starts the kit, so further picks wait while it does
         starterKit.dom.addEventListener('click', () => {
-            if (linked && editor.call('picker:project:new:busy')) {
-                return;
-            }
-            pick(key);
-            if (linked) {
-                editor.call('picker:project:new:create');
-            }
+            selectedKitElement?.class.remove('selected');
+            selectedKitElement = starterKit;
+            selectedKey = key;
+            selectedKitElement.class.add('selected');
+            setUrl({ kit: kitParam(key) }, true);
+            selectKit(key);
         });
 
         const thumbnail = new Container({ class: 'thumbnail' });
@@ -207,11 +195,13 @@ editor.once('load', () => {
         });
     };
 
+    editor.method('picker:project:new:here', () => here);
+
     // displays the new project modal, starting from the default kit or a linked one
-    editor.method('picker:project:newProject', (kit: string | null = null, fromLink = false) => {
+    editor.method('picker:project:newProject', (kit: string | null = null, inTab = false) => {
         linkedKit = kit;
-        linked = fromLink;
-        setUrl({ new: true, kit });
+        here = inTab;
+        setUrl({ new: true, kit, here });
         if (renderedKits) {
             // cached grid: back to the default kit, matching the form reset below
             selectedKitElement?.class.remove('selected');
@@ -242,15 +232,15 @@ editor.once('load', () => {
         if (open && name === 'dialog:picker-project-new') {
             open = false;
             linkedKit = null;
-            linked = false;
-            setUrl({ new: null, kit: null });
+            here = false;
+            setUrl({ new: null, kit: null, here: null });
         }
     });
 
     // the url's New project: open it on its kit, or close it
-    editor.on('picker:url', ({ new: create, kit }) => {
+    editor.on('picker:url', ({ new: create, kit, here: inTab }) => {
         if (create && !open) {
-            editor.call('picker:project:newProject', kit, true);
+            editor.call('picker:project:newProject', kit, inTab);
         } else if (!create && open) {
             editor.call('picker:project:new:close');
         }

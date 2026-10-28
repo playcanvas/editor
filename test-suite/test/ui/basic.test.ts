@@ -104,11 +104,21 @@ test.describe('create/delete', () => {
         await blankPage.locator('.picker-project-new .starter-kit:not(.skeleton)', { hasText: 'Empty Project' }).click();
         await blankPage.locator('.modal-new-project-form-content input[type="text"]').first().fill(projectName);
 
-        // Create opens the new project's editor in this tab once the project is made
         const created = blankPage.waitForResponse(res => res.request().method() === 'POST' && res.url().endsWith('/api/projects'));
         await blankPage.locator('.picker-project-new .create-btn-container .pm-button.primary').click();
         expect((await created).status()).toBe(201);
-        await blankPage.waitForURL(/\/editor\/(project|scene)\/\d+/, { timeout: JOB_TIMEOUT });
+
+        // the dialog subscribes to messenger project.create only after a follow-up projects/<id>
+        // GET, so the message can beat it and the confirmation modal then never opens; the cms
+        // refreshes its list off the same message from a listener bound at load, so that is the
+        // signal the create landed
+        await expect(cmsRow(blankPage, projectName)).toBeVisible({ timeout: JOB_TIMEOUT });
+
+        // the refreshed row proves the message was delivered, so the modal has settled by now
+        if (await continueBrowsing(blankPage).isVisible()) {
+            await continueBrowsing(blankPage).click();
+            await expect(continueBrowsing(blankPage)).toBeHidden();
+        }
     });
 
     // FIXME: Forking not supported in Editor UI

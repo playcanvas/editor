@@ -68,11 +68,13 @@ describe('picker url', () => {
         expect(readUrl('https://playcanvas.com/editor?use_local_frontend&new&kit=7')).to.deep.equal({
             new: true,
             kit: '7',
+            here: false,
             project: null,
             section: null,
             build: null,
             open: false
         });
+        expect(readUrl('https://playcanvas.com/editor?new&here')).to.deep.include({ new: true, here: true });
         expect(readUrl('https://playcanvas.com/editor?project=42&tab=vc')).to.deep.include({
             new: false,
             project: 42,
