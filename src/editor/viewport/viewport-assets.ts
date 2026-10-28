@@ -1,5 +1,8 @@
 import type { Observer } from '@playcanvas/observer';
+import type { Asset } from 'playcanvas';
 import { StandardMaterial, Vec2, Vec4 } from 'playcanvas';
+
+import { formatter as f } from '@/common/utils';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');
@@ -10,6 +13,26 @@ editor.once('load', () => {
     const assets = app.assets;
 
     editor.call('assets:registry:bind', assets);
+
+    // a failed load otherwise only reaches the devtools console and the asset silently doesn't show.
+    // log each distinct failure once per asset until it loads again
+    const failures = new Map<number, string>();
+    assets.on('error', (err: unknown, engineAsset: Asset) => {
+        const asset = editor.call('assets:get', engineAsset.id);
+        const reason = `${err instanceof Error ? err.message : err}`;
+        if (!asset || failures.get(engineAsset.id) === reason) {
+            return;
+        }
+        failures.set(engineAsset.id, reason);
+
+        const [uiMsg, verboseMsg] = f.parse(`Failed to load ${f.asset(asset)}: ${reason}`);
+        editor.call('console:error', uiMsg, verboseMsg, () => {
+            editor.call('selector:set', 'asset', [asset]);
+        });
+    });
+    assets.on('load', (engineAsset: Asset) => {
+        failures.delete(engineAsset.id);
+    });
 
     const regexFrameUpdate = /^data\.frames\.(\d+)/;
     const regexFrameRemove = /^data\.frames\.(\d+)$/;
