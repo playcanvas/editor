@@ -324,8 +324,8 @@ editor.once('load', () => {
     footer.append(createBtn);
     const createTooltip = TooltipHandle.make({ root: overlay.dom, ...UNSUPPORTED_TIP, align: 'bottom' });
 
-    // creates the project from the form; navigate opens it in this tab instead of offering a new one
-    const create = (navigate = false) => {
+    // creates the project from the form
+    const create = () => {
         if (!loader.hidden) {
             return;
         }
@@ -335,7 +335,7 @@ editor.once('load', () => {
         newKitData.description = formInputs.description;
         newKitData.private = formInputs.private;
         newKitData.fork_from = formInputs.fork_from;
-        createNewProject(navigate);
+        createNewProject();
     };
     createBtn.on('click', () => create());
 
@@ -348,12 +348,13 @@ editor.once('load', () => {
     const createLabel = () => (forking ? 'Fork project' : 'Create project');
 
     // handles the flow for project creation as well as managing error and loading states
-    const createNewProject = (navigate: boolean) => {
+    const createNewProject = () => {
         const data = newKitData;
 
-        // the loader stays while this tab leaves, so nothing starts twice
+        // a new project opens once it's made, in this tab since browsers block a tab opened that late; the
+        // loader stays while this tab leaves so nothing starts twice. a fork offers its own tab instead
         const done = (id) => {
-            if (navigate) {
+            if (!forking) {
                 location.assign(editorUrl(id));
                 return;
             }
@@ -362,29 +363,39 @@ editor.once('load', () => {
             overlay.hidden = true; // close new project modal
         };
 
+        // an empty project has no job: it's ready once the messenger says it was created, which can
+        // come before the create replies, so listen from the start
         let evt;
+        let created = null;
+        const heard = new Map();
+        const ready = (msg) => {
+            evt.unbind();
+            if (msg.status && msg.status !== 'success') {
+                toggleLoader(false);
+                editor.call('picker:project:buildAlert', mainView, msg.error ?? 'Could not create the project');
+                return;
+            }
+            done(created);
+        };
+        if (!data.fork_from) {
+            evt = editor.on('messenger:project.create', (msg) => {
+                if (created === null) {
+                    heard.set(msg.project_id, msg);
+                } else if (msg.project_id === created) {
+                    ready(msg);
+                }
+            });
+        }
+
         editor.call(
             'projects:create',
             data,
             (result) => {
-                // an empty project has no job: it's ready once the messenger says it was created
                 if (!data.fork_from) {
-                    evt = editor.on('messenger:project.create', (msg) => {
-                        if (msg.project_id !== result.id) {
-                            return;
-                        }
-                        evt.unbind();
-                        if (msg.status && msg.status !== 'success') {
-                            toggleLoader(false);
-                            editor.call(
-                                'picker:project:buildAlert',
-                                mainView,
-                                msg.error ?? 'Could not create the project'
-                            );
-                            return;
-                        }
-                        done(result.id);
-                    });
+                    created = result.id;
+                    if (heard.has(created)) {
+                        ready(heard.get(created));
+                    }
                     return;
                 }
 
@@ -528,10 +539,10 @@ editor.once('load', () => {
 
     editor.method('picker:project:new:values', () => ({ ...formInputs }));
 
-    // starts the picked kit as the Create button would, opening it in this tab
+    // starts the picked kit as the Create button would
     editor.method('picker:project:new:create', () => {
         if (createBtn.enabled) {
-            create(true);
+            create();
         }
     });
 
