@@ -268,7 +268,7 @@ editor.once('load', () => {
     const canStar = (project) => project.access_level !== 'none';
     // optimistic, so the count moves on click; a failed call puts it back
     const starToggle = (project, parent: Container, cls?) => {
-        const btn = new Button({ class: ['cms-star', ...[cls ?? []].flat()], enabled: !!backend().projectManagement });
+        const btn = new Button({ class: ['cms-star', ...[cls ?? []].flat()], enabled: !!backend().projectFollowing });
         // set while a request is in flight, so the star fills before the server replies
         let pending = null;
         const paint = () => {
@@ -793,7 +793,7 @@ editor.once('load', () => {
         menuEntry(rowMenu, 'cms-row-launch').enabled = !!project.primary_app_url;
         menuEntry(rowMenu, 'cms-row-watch').text = project.watch_id ? 'Stop watching' : 'Watch';
         menuEntry(rowMenu, 'cms-row-watch').hidden = !canStar(project);
-        menuEntry(rowMenu, 'cms-row-watch').enabled = !!backend().projectManagement;
+        menuEntry(rowMenu, 'cms-row-watch').enabled = !!backend().projectFollowing;
         menuEntry(rowMenu, 'cms-row-fork').hidden = blocked(project);
 
         // forks finish as jobs
