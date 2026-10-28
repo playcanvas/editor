@@ -407,6 +407,7 @@
         top: 0;
         z-index: 4;
         flex: none;
+        max-width: 640px;
         margin-bottom: 20px;
         padding: 14px 16px;
         border: 1px solid $cms-edge;
@@ -420,11 +421,21 @@
             gap: 12px;
         }
 
-        .progress-text {
+        .progress-icon {
             display: flex;
-            flex: 1;
-            flex-direction: column;
-            min-width: 0;
+            flex: none;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background-color: $cms-hover;
+            color: $text-primary;
+
+            & > svg {
+                width: 16px;
+                height: 16px;
+            }
         }
 
         .progress-title {

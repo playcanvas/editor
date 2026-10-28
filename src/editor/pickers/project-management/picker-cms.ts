@@ -5,7 +5,7 @@ import { backend, UNSUPPORTED_TIP } from '@/common/backend';
 import { supports } from '@/common/supports';
 import { TooltipHandle } from '@/common/tooltips';
 import { bytesToHuman, countToHuman } from '@/common/utils';
-import { PROJECTS_OPENED_KEY } from '@/core/constants';
+import { IMPORT_JOB_KEY, PROJECTS_OPENED_KEY } from '@/core/constants';
 import { config } from '@/editor/config';
 
 import { inPlace, readUrl } from '../picker-url';
@@ -17,6 +17,13 @@ import { openProject as openProjectTab } from './tabs';
 
 const PAGE_SIZE = 24;
 const JOB_POLL_MS = 5000;
+const svg = (path: string) =>
+    `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg>`;
+const PROGRESS_ICONS = {
+    up: svg('M8 11V3M4.5 6.5 8 3l3.5 3.5M3 13h10'),
+    down: svg('M8 3v8M4.5 7.5 8 11l3.5-3.5M3 13h10'),
+    cog: svg('M2.5 5.5 8 2.5l5.5 3v5L8 13.5l-5.5-3zM8 8l5.5-2.5M8 8v5.5M8 8 2.5 5.5')
+};
 // a linked project that doesn't exist, or that you can't see
 const CANT_OPEN = "This project couldn't be opened. It may have been deleted, or you may not have access to it.";
 const TABS = [
@@ -65,6 +72,7 @@ editor.once('load', () => {
     let rows = [];
     let events = [];
     let loading = false;
+    let importing = false;
     // first load: nothing to show yet, so counts stay blank instead of reading 0
     const waiting = () => loading && !rootProjects().length;
 
@@ -427,7 +435,7 @@ editor.once('load', () => {
     };
 
     const exportFromMenu = (project) => {
-        setCard({ title: `Exporting ${project.name}`, sub: 'Preparing the download' });
+        setCard({ title: `Exporting ${project.name}`, icon: 'down', sub: 'Preparing the download' });
         editor
             .call('project:management:export', project.id)
             .then(
@@ -448,15 +456,18 @@ editor.once('load', () => {
     // the card for a running upload, import or export; a null pct means the length is unknown
     const setCard = ({
         title,
+        icon,
         sub = '',
         pct = null,
         note = ''
     }: {
         title: string;
+        icon: keyof typeof PROGRESS_ICONS;
         sub?: string;
         pct?: number | null;
         note?: string;
     }) => {
+        progressIcon.dom.innerHTML = PROGRESS_ICONS[icon];
         progressTitle.text = title;
         progressSub.text = sub;
         progressPct.text = pct === null ? '' : `${Math.round(pct)}%`;
@@ -654,6 +665,8 @@ editor.once('load', () => {
     progressCard.hidden = true;
     progressCard.dom.setAttribute('aria-live', 'polite');
     const progressHead = box('progress-head', progressCard);
+    const progressIcon = new Element({ class: 'progress-icon' });
+    progressHead.append(progressIcon);
     const progressText = box('progress-text', progressHead);
     const progressTitle = text('', 'progress-title', progressText);
     const progressSub = text('', 'progress-sub', progressText);
@@ -1443,17 +1456,93 @@ editor.once('load', () => {
         );
     };
 
+    // follows an import job to its end and shows the outcome; the job is saved meanwhile so a reload can pick it up
+    const watchImport = async (job: { id: number; name: string; org: boolean }) => {
+        editor.call('localStorage:set', IMPORT_JOB_KEY, job);
+        setCard({
+            title: `Importing ${job.name}`,
+            icon: 'cog',
+            sub: "Upload complete. The import continues on the server, so closing this tab won't cancel it."
+        });
+
+        // the job update announces the end, the poll covers one that was missed or came before we listened
+        const jobInfo = await new Promise<{
+            status: string;
+            data?: { import_report?: { count: number }; project_id?: number };
+            messages?: string[];
+        }>((resolve) => {
+            let poll = null;
+            let jobEvent = null;
+            const check = async () => {
+                let info = null;
+                try {
+                    info = await editor.call('projects:getJobStatus', job.id);
+                } catch {
+                    // a failed read is retried on the next tick
+                    return;
+                }
+                if (poll && (info.status === 'complete' || info.status === 'error')) {
+                    clearInterval(poll);
+                    poll = null;
+                    jobEvent.unbind();
+                    resolve(info);
+                }
+            };
+            jobEvent = editor.on('messenger:job.update', (msg) => msg.job.id === job.id && check());
+            events.push(jobEvent);
+            poll = setInterval(check, JOB_POLL_MS);
+            check();
+        });
+
+        editor.call('localStorage:unset', IMPORT_JOB_KEY);
+        hideCard();
+        if (jobInfo.status === 'complete') {
+            const report = jobInfo.data.import_report?.count ? jobInfo.data.import_report : null;
+            if (job.org) {
+                // organization viewers have no access to the new project, so list it instead of opening it
+                loadProjects();
+                if (report) {
+                    editor.call('picker:project:newProjectConfirmation', null, report);
+                }
+            } else {
+                editor.call('picker:project:newProjectConfirmation', jobInfo.data.project_id, report);
+            }
+        } else {
+            console.error(jobInfo.messages[0] || 'There was an error while importing');
+            editor.call('picker:project:buildAlert', rightPanel, 'Could not import project');
+        }
+    };
+
+    // after a reload the upload is gone, but an import that had started on the server is still running
+    const resumeImport = async () => {
+        const job = editor.call('localStorage:get', IMPORT_JOB_KEY);
+        if (!job?.id || importing) {
+            return;
+        }
+        importing = true;
+        try {
+            await editor.call('projects:getJobStatus', job.id);
+            await watchImport(job);
+        } catch {
+            // a job that can't be read is gone
+            editor.call('localStorage:unset', IMPORT_JOB_KEY);
+        }
+        importing = false;
+    };
+
     // handles the flow for project importing including error and loading states
     const importProject = async (files) => {
-        if (importDisabled() || files.length === 0) {
+        if (importDisabled() || files.length === 0 || importing) {
             return;
         }
 
+        importing = true;
         const [file] = files;
         const size = bytesToHuman(file.size);
         const upload = (pct: number) =>
             setCard({
                 title: `Uploading ${file.name}`,
+                icon: 'up',
                 sub: `${bytesToHuman((file.size * pct) / 100)} of ${size}`,
                 pct,
                 note: 'Keep this tab open until the upload finishes.'
@@ -1463,59 +1552,9 @@ editor.once('load', () => {
         try {
             // progress returned by Ajax is in range 0-1
             const result = await editor.invoke('projects:uploadExport', file, (progress) => upload(progress * 100));
-            setCard({
-                title: `Importing ${file.name.replace(/\.zip$/i, '')}`,
-                sub: "Upload complete. The import continues on the server, so closing this tab won't cancel it."
-            });
-
             const importer = editor.call('picker:project:cms:currentUser');
             const job = await editor.call('projects:importNew', result.s3Key, importer.id);
-
-            // the job update announces the end, the poll covers one that was missed or came before we listened
-            const jobInfo = await new Promise<{
-                status: string;
-                data?: { import_report?: { count: number }; project_id?: number };
-                messages?: string[];
-            }>((resolve) => {
-                let poll = null;
-                let jobEvent = null;
-                const check = async () => {
-                    let info = null;
-                    try {
-                        info = await editor.call('projects:getJobStatus', job.id);
-                    } catch {
-                        // a failed read is retried on the next tick
-                        return;
-                    }
-                    if (poll && (info.status === 'complete' || info.status === 'error')) {
-                        clearInterval(poll);
-                        poll = null;
-                        jobEvent.unbind();
-                        resolve(info);
-                    }
-                };
-                jobEvent = editor.on('messenger:job.update', (msg) => msg.job.id === job.id && check());
-                events.push(jobEvent);
-                poll = setInterval(check, JOB_POLL_MS);
-                check();
-            });
-
-            hideCard();
-            if (jobInfo.status === 'complete') {
-                const report = jobInfo.data.import_report?.count ? jobInfo.data.import_report : null;
-                if (importer.organization) {
-                    // organization viewers have no access to the new project, so list it instead of opening it
-                    loadProjects();
-                    if (report) {
-                        editor.call('picker:project:newProjectConfirmation', null, report);
-                    }
-                } else {
-                    editor.call('picker:project:newProjectConfirmation', jobInfo.data.project_id, report);
-                }
-            } else {
-                console.error(jobInfo.messages[0] || 'There was an error while importing');
-                editor.call('picker:project:buildAlert', rightPanel, 'Could not import project');
-            }
+            await watchImport({ id: job.id, name: file.name.replace(/\.zip$/i, ''), org: !!importer.organization });
         } catch (error) {
             hideCard();
             if (error) {
@@ -1523,6 +1562,7 @@ editor.once('load', () => {
             }
             editor.call('picker:project:buildAlert', rightPanel, 'Could not import project');
         }
+        importing = false;
     };
 
     // loads your projects and each organization's into the CMS main panel
@@ -1652,6 +1692,7 @@ editor.once('load', () => {
             loadProjects();
             renderUsage();
             overlay.hidden = false;
+            resumeImport();
         });
     });
 

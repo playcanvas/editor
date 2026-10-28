@@ -128,3 +128,6 @@ export const THEMES = {
 
 // when each project was last opened in this browser, by project id
 export const PROJECTS_OPENED_KEY = 'editor:projects:opened';
+
+// the import job still running on the server, so a reload can show it again
+export const IMPORT_JOB_KEY = 'editor:projects:import';
