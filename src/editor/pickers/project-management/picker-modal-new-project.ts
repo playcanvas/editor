@@ -371,7 +371,7 @@ editor.once('load', () => {
             evt.unbind();
             if (msg.status && msg.status !== 'success') {
                 toggleLoader(false);
-                editor.call('picker:project:buildAlert', mainView, msg.error ?? 'Could not create the project');
+                editor.call('picker:project:buildAlert', sidebar, msg.error ?? 'Could not create the project');
                 return;
             }
             done(created);
@@ -412,11 +412,7 @@ editor.once('load', () => {
                             .on('load', (status, job) => {
                                 if (job.status === 'error') {
                                     toggleLoader(false);
-                                    editor.call(
-                                        'picker:project:buildAlert',
-                                        forking ? sidebar : mainView,
-                                        job.messages[0]
-                                    );
+                                    editor.call('picker:project:buildAlert', sidebar, job.messages[0]);
                                 } else {
                                     done(job.data.forked_id);
                                 }
@@ -433,11 +429,11 @@ editor.once('load', () => {
                 toggleLoader(false);
 
                 if (err === 'Disk allowance exceeded') {
-                    editor.call('picker:project:buildAlert', mainView, err, true, 'UPGRADE', {
+                    editor.call('picker:project:buildAlert', sidebar, err, true, 'UPGRADE', {
                         url: `${config.url.home}/upgrade`
                     });
                 } else {
-                    editor.call('picker:project:buildAlert', mainView, err);
+                    editor.call('picker:project:buildAlert', sidebar, err);
                 }
             }
         );

@@ -557,6 +557,18 @@
         border-radius: 6px;
     }
 
+    // creating's alerts sit at the foot of the form, above its buttons
+    .modal-new-project-sidebar > .alert {
+        position: static;
+        flex: none;
+        margin: 0 20px;
+
+        // the sidebar is narrow, so the message wraps rather than cutting off
+        .alert-text span {
+            white-space: normal;
+        }
+    }
+
     // phones: one scrolling column on one background, kits in two columns, the footer pinned to the sheet
     @media (max-width: $cms-phone) {
         > .pcui-overlay-content > .pm-dialog-panel > .pcui-panel-content {
