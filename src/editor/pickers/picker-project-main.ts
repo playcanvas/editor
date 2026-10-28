@@ -40,6 +40,9 @@ editor.once('load', () => {
         return 'Export Project';
     };
 
+    // a finished export waits for a click to download, since a popup opened when the job ends gets blocked
+    let ready: { id: number; url: string } | null = null;
+
     // displays or hides the AJAX loader UI when exporting project
     const toggleLoader = (toggle) => {
         if (toggle) {
@@ -48,7 +51,8 @@ editor.once('load', () => {
             loader.style.display = 'block';
         } else {
             loader.style.display = 'none';
-            exportProjectButton.text = getExportButtonText();
+            exportProjectButton.text =
+                ready && ready.id === currentProject?.id ? 'Download Export' : getExportButtonText();
             exportProjectButton.icon = 'E228';
         }
     };
@@ -360,6 +364,12 @@ editor.once('load', () => {
     exportProjectButtonContainer.append(loader);
 
     exportProjectButton.on('click', () => {
+        if (ready && ready.id === currentProject.id) {
+            window.open(ready.url, '_blank');
+            ready = null;
+            toggleLoader(false);
+            return;
+        }
         toggleLoader(true);
         exportProject();
     });
@@ -398,11 +408,14 @@ editor.once('load', () => {
         const isCurrentProject = currentProject && currentProject.id === config.project.id;
         const hasVersionControl = isCurrentProject && !config.project.settings.useLegacyScripts;
         const branchId = hasVersionControl ? config.self.branch.id : undefined;
+        const id = currentProject.id;
 
         editor
-            .call('project:management:export', currentProject.id, branchId)
+            .call('project:management:export', id, branchId)
             .then(
-                (url) => window.open(url, '_blank'),
+                (url) => {
+                    ready = { id, url };
+                },
                 (err) => editor.call('picker:project:buildAlert', panel, err)
             )
             .finally(() => toggleLoader(false));
@@ -463,6 +476,11 @@ editor.once('load', () => {
     // hook to reload all main elements of the screen
     editor.method('picker:project:main:refreshUI', () => {
         currentProject = editor.call('picker:project:getCurrent');
+
+        // the export button offers a download only for the project that exported
+        if (loader.style.display === 'none') {
+            toggleLoader(false);
+        }
         unlockButton.enabled =
             managed &&
             (currentProject.owner_id === config.self.id ||

@@ -401,6 +401,22 @@
         box-sizing: border-box;
     }
 
+    // alerts land at the end of the column, below the list, so pin them to the window where they show;
+    // the solid layer under the red tint keeps them readable over the cards
+    .cms-col > .alert {
+        position: fixed;
+        inset: calc(24px + env(safe-area-inset-top, 0px)) auto auto 50%;
+        width: min(480px, calc(100vw - 32px));
+        box-sizing: border-box;
+        background: linear-gradient(rgb(231 76 60 / 10%), rgb(231 76 60 / 10%)), $cms-float;
+        box-shadow: $cms-float-shadow;
+        transform: translateX(-50%);
+
+        @media (max-width: $cms-phone) {
+            top: calc(64px + env(safe-area-inset-top, 0px));
+        }
+    }
+
     // upload, import and export progress; floats bottom-right so scrolling never slides it under the header
     .progress-card {
         position: fixed;

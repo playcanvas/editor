@@ -17,6 +17,7 @@ import { openProject as openProjectTab } from './tabs';
 
 const PAGE_SIZE = 24;
 const JOB_POLL_MS = 5000;
+const EXPORT_TTL_MS = 24 * 60 * 60 * 1000;
 const BUSY = 'Wait for the current import or export to finish, then try again.';
 // a linked project that doesn't exist, or that you can't see
 const CANT_OPEN = "This project couldn't be opened. It may have been deleted, or you may not have access to it.";
@@ -1485,6 +1486,7 @@ editor.once('load', () => {
     const waitForJob = (id: number) =>
         new Promise<{
             status: string;
+            modified_at?: string;
             data?: { import_report?: { count: number }; project_id?: number; url?: string };
             messages?: string[];
         }>((resolve) => {
@@ -1552,6 +1554,13 @@ editor.once('load', () => {
             editor.call('localStorage:unset', EXPORT_JOB_KEY);
             hideCard();
             editor.call('picker:project:buildAlert', rightPanel, jobInfo.messages?.[0] || 'Could not export project');
+            return;
+        }
+
+        // the export bucket deletes files after a day, so an older one has nothing left to download
+        if (Date.now() - Date.parse(jobInfo.modified_at) > EXPORT_TTL_MS) {
+            editor.call('localStorage:unset', EXPORT_JOB_KEY);
+            hideCard();
             return;
         }
 
