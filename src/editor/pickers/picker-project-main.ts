@@ -40,19 +40,6 @@ editor.once('load', () => {
         return 'Export Project';
     };
 
-    // displays or hides the AJAX loader UI when exporting project
-    const toggleLoader = (toggle) => {
-        if (toggle) {
-            exportProjectButton.text = '';
-            exportProjectButton.dom.setAttribute('data-icon', '');
-            loader.style.display = 'block';
-        } else {
-            loader.style.display = 'none';
-            exportProjectButton.text = getExportButtonText();
-            exportProjectButton.icon = 'E228';
-        }
-    };
-
     // helper method to determine whether the current user is an admin
     const isAdmin = () => {
         return currentProject ? currentProject.access_level === 'admin' : false;
@@ -353,16 +340,7 @@ editor.once('load', () => {
         TooltipHandle.attach({ target: exportProjectButton.dom, ...UNSUPPORTED_TIP, align: 'bottom' });
     }
 
-    const loader = new Element({
-        class: ['loader', 'xsmall', 'white']
-    });
-    loader.style.display = 'none';
-    exportProjectButtonContainer.append(loader);
-
-    exportProjectButton.on('click', () => {
-        toggleLoader(true);
-        exportProject();
-    });
+    exportProjectButton.on('click', () => exportProject());
 
     // CONTROLLERS
 
@@ -393,19 +371,13 @@ editor.once('load', () => {
         }
     };
 
-    // handles the flow for project exporting as well as managing error and loading states
+    // the export runs on its own progress card, which offers the download when it's done
     const exportProject = () => {
         const isCurrentProject = currentProject && currentProject.id === config.project.id;
         const hasVersionControl = isCurrentProject && !config.project.settings.useLegacyScripts;
         const branchId = hasVersionControl ? config.self.branch.id : undefined;
 
-        editor
-            .call('project:management:export', currentProject.id, branchId)
-            .then(
-                (url) => window.open(url, '_blank'),
-                (err) => editor.call('picker:project:buildAlert', panel, err)
-            )
-            .finally(() => toggleLoader(false));
+        editor.call('progress:card:export', { id: currentProject.id, name: currentProject.name }, branchId);
     };
 
     // LOCAL UTILS
