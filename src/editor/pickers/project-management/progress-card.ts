@@ -5,7 +5,6 @@ import { EXPORT_JOB_KEY, IMPORT_JOB_KEY } from '@/core/constants';
 
 import { button } from './components/button';
 
-const JOB_POLL_MS = 5000;
 // the export bucket deletes files after a day, so an older export has nothing left to download
 const EXPORT_TTL_MS = 24 * 60 * 60 * 1000;
 const svg = (path: string) =>
@@ -169,28 +168,28 @@ editor.once('load', () => {
         );
     };
 
-    // resolves once a job ends; the job update announces it, the poll covers one that was missed or came before we listened
+    // resolves once a job ends: its job update announces it, a reconnect re-checks for one sent while the
+    // messenger was down, and a first check catches a job that ended before we listened
     const waitForJob = (id: number) =>
         new Promise<JobInfo>((resolve) => {
-            let poll = null;
-            let jobEvent = null;
+            let done = false;
             const check = async () => {
                 let info = null;
                 try {
                     info = await editor.call('projects:getJobStatus', id);
                 } catch {
-                    // a failed read is retried on the next tick
+                    // a failed read is tried again on the next update or reconnect
                     return;
                 }
-                if (poll && (info.status === 'complete' || info.status === 'error')) {
-                    clearInterval(poll);
-                    poll = null;
-                    jobEvent.unbind();
+                if (!done && (info.status === 'complete' || info.status === 'error')) {
+                    done = true;
+                    onUpdate.unbind();
+                    onConnect.unbind();
                     resolve(info);
                 }
             };
-            jobEvent = editor.on('messenger:job.update', (msg) => msg.job.id === id && check());
-            poll = setInterval(check, JOB_POLL_MS);
+            const onUpdate = editor.on('messenger:job.update', (msg) => msg.job.id === id && check());
+            const onConnect = editor.on('messenger:connected', check);
             check();
         });
 
