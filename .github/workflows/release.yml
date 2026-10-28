@@ -48,7 +48,7 @@ jobs:
             - name: Set up Node.js
               uses: actions/setup-node@v7
               with:
-                  node-version: 24.x
+                  node-version: 26.x
                   registry-url: 'https://registry.npmjs.org/'
 
             - name: Configure git
@@ -82,7 +82,7 @@ jobs:
             - name: Set up Node.js
               uses: actions/setup-node@v7
               with:
-                  node-version: 24.x
+                  node-version: 26.x
 
             # generated notes can't see cherry-picked backports, so list a patch's PRs first
             - name: Write patch notes
