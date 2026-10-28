@@ -36,7 +36,7 @@ editor.once('load', () => {
     const buildSidebar = () => {
         // refresh UI if it already exists
         formContent.clear();
-        formInputs.private = formInputs.private && allowPrivate();
+        formInputs.private = privateOnly() || (formInputs.private && allowPrivate());
 
         // forking: the source project first; a blocked fork shows why in place of the form
         const block = forking && forkBlock(forking);
@@ -189,7 +189,7 @@ editor.once('load', () => {
                 const toggleElement = new BooleanInput({
                     type: 'toggle',
                     value: formInputs.private,
-                    enabled: allowPrivate()
+                    enabled: allowPrivate() && !privateOnly()
                 });
                 formGroup.append(toggleElement);
                 return toggleElement;
@@ -426,6 +426,9 @@ editor.once('load', () => {
     const allowPrivate = () => {
         return newProjectOwner.plan_type !== 'free';
     };
+
+    // a plan that allows no public projects makes every project private
+    const privateOnly = () => newProjectOwner.limits?.maxPublicProjects === 0;
 
     // free accounts can't own a fork of a private project
     const canOwn = (owner) => !forking?.private || owner.plan_type !== 'free';
