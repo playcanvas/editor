@@ -500,6 +500,12 @@
             white-space: normal;
         }
 
+        .progress-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
         @media (prefers-reduced-motion: reduce) {
             .progress-fill {
                 transition: none;
