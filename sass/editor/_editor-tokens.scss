@@ -137,6 +137,16 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
     }
 }
 
+@keyframes cms-progress-slide {
+    from {
+        left: -35%;
+    }
+
+    to {
+        left: 100%;
+    }
+}
+
 // pulsing skeleton bone (version control pattern), shared with the new project kit grid
 %cms-bone {
     flex: none;

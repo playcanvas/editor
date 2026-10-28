@@ -401,19 +401,94 @@
         box-sizing: border-box;
     }
 
-    .progress-container {
+    // upload, import and export progress
+    .progress-card {
         position: sticky;
         top: 0;
         z-index: 4;
+        flex: none;
+        margin-bottom: 20px;
+        padding: 14px 16px;
+        border: 1px solid $cms-edge;
+        border-radius: 10px;
+        box-sizing: border-box;
+        background-color: $cms-surface;
 
-        & > .progress {
-            margin: 0 0 12px;
+        .progress-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        &.progress-container-expand > .pcui-label {
-            display: block;
-            margin-bottom: 12px;
-            color: $text-secondary;
+        .progress-text {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .progress-title {
+            overflow: hidden;
+            color: $text-primary;
+            text-overflow: ellipsis;
+
+            @extend .font-bold;
+        }
+
+        .progress-sub,
+        .progress-pct {
+            color: $text-meta;
+            font-size: 12px;
+        }
+
+        .progress-sub {
+            white-space: normal;
+        }
+
+        .progress-pct {
+            color: $text-primary;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .progress-track {
+            position: relative;
+            height: 4px;
+            margin-top: 12px;
+            border-radius: 2px;
+            overflow: hidden;
+            background-color: $cms-hover;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 2px;
+            background-color: $text-active;
+            transition: width 200ms linear;
+        }
+
+        .progress-track.indeterminate > .progress-fill {
+            position: absolute;
+            width: 35%;
+            animation: cms-progress-slide 1.4s ease-in-out infinite;
+        }
+
+        .progress-note {
+            margin-top: 10px;
+            color: $cms-transfer;
+            font-size: 12px;
+            white-space: normal;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .progress-fill {
+                transition: none;
+            }
+
+            .progress-track.indeterminate > .progress-fill {
+                width: 100%;
+                opacity: 0.5;
+                animation: none;
+            }
         }
     }
 

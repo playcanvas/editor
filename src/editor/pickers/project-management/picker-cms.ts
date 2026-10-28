@@ -1,5 +1,5 @@
 import type { MenuItem } from '@playcanvas/pcui';
-import { Button, Container, Element, Label, Menu, Overlay, Progress, TextInput } from '@playcanvas/pcui';
+import { Button, Container, Element, Label, Menu, Overlay, TextInput } from '@playcanvas/pcui';
 
 import { backend, UNSUPPORTED_TIP } from '@/common/backend';
 import { supports } from '@/common/supports';
@@ -16,6 +16,7 @@ import { spinner } from './components/spinner';
 import { openProject as openProjectTab } from './tabs';
 
 const PAGE_SIZE = 24;
+const JOB_POLL_MS = 5000;
 // a linked project that doesn't exist, or that you can't see
 const CANT_OPEN = "This project couldn't be opened. It may have been deleted, or you may not have access to it.";
 const TABS = [
@@ -426,34 +427,48 @@ editor.once('load', () => {
     };
 
     const exportFromMenu = (project) => {
-        toggleProgress(true, 100, `Exporting ${project.name}...`);
+        setCard({ title: `Exporting ${project.name}`, sub: 'Preparing the download' });
         editor
             .call('project:management:export', project.id)
             .then(
                 (url) => window.open(url, '_blank'),
                 (err) => editor.call('picker:project:buildAlert', rightPanel, err)
             )
-            .finally(() => toggleProgress(false));
+            .finally(hideCard);
     };
 
-    // displays or hides the loading bar in the CMS main panel based on parameter
-    // a labelled call is an upload with real progress; a bare call means loading, shown as skeleton bones
-    const toggleProgress = function (toggle: boolean, progress = 100, label = '') {
-        if (label === '') {
-            loading = toggle;
-            progressBar.hidden = true;
-            progressLabel.hidden = true;
-            progressBarContainer.class.remove('progress-container-expand');
-            if (toggle && rootUser) {
-                refresh();
-            }
-            return;
+    // loading is shown as skeleton bones
+    const toggleProgress = function (toggle: boolean) {
+        loading = toggle;
+        if (toggle && rootUser) {
+            refresh();
         }
-        progressBar.value = progress;
-        progressBar.hidden = !toggle;
-        progressLabel.hidden = false;
-        progressLabel.text = label;
-        progressBarContainer.class.add('progress-container-expand');
+    };
+
+    // the card for a running upload, import or export; a null pct means the length is unknown
+    const setCard = ({
+        title,
+        sub = '',
+        pct = null,
+        note = ''
+    }: {
+        title: string;
+        sub?: string;
+        pct?: number | null;
+        note?: string;
+    }) => {
+        progressTitle.text = title;
+        progressSub.text = sub;
+        progressPct.text = pct === null ? '' : `${Math.round(pct)}%`;
+        progressTrack.class[pct === null ? 'add' : 'remove']('indeterminate');
+        progressTrack.dom.setAttribute('aria-valuenow', `${pct === null ? '' : Math.round(pct)}`);
+        progressFill.dom.style.width = pct === null ? '' : `${pct}%`;
+        progressNote.text = note;
+        progressNote.hidden = !note;
+        progressCard.hidden = false;
+    };
+    const hideCard = () => {
+        progressCard.hidden = true;
     };
 
     const bone = (cls, parent: Container) => {
@@ -634,13 +649,22 @@ editor.once('load', () => {
     const rightPanel = box('cms-col'); // also the root for alerts from other pickers
     scroll.dom.appendChild(rightPanel.dom);
 
-    // progress bar and loading label
-    const progressBarContainer = box('progress-container', rightPanel);
-    const progressBar = new Progress({ value: 100, class: 'progress' });
-    progressBar.hidden = true;
-    const progressLabel = new Label({ text: 'Uploading', hidden: true });
-    progressBarContainer.append(progressBar);
-    progressBarContainer.append(progressLabel);
+    // upload, import and export progress
+    const progressCard = box('progress-card', rightPanel);
+    progressCard.hidden = true;
+    progressCard.dom.setAttribute('aria-live', 'polite');
+    const progressHead = box('progress-head', progressCard);
+    const progressText = box('progress-text', progressHead);
+    const progressTitle = text('', 'progress-title', progressText);
+    const progressSub = text('', 'progress-sub', progressText);
+    const progressPct = text('', 'progress-pct', progressHead);
+    const progressTrack = box('progress-track', progressCard);
+    progressTrack.dom.setAttribute('role', 'progressbar');
+    progressTrack.dom.setAttribute('aria-valuemin', '0');
+    progressTrack.dom.setAttribute('aria-valuemax', '100');
+    const progressFill = new Element({ class: 'progress-fill' });
+    progressTrack.append(progressFill);
+    const progressNote = text('', 'progress-note', progressCard);
 
     // header
     const head = box('cms-head', rightPanel);
@@ -1425,49 +1449,75 @@ editor.once('load', () => {
             return;
         }
 
-        toggleProgress(true, 0, 'Uploading... Please stand by');
+        const [file] = files;
+        const size = bytesToHuman(file.size);
+        const upload = (pct: number) =>
+            setCard({
+                title: `Uploading ${file.name}`,
+                sub: `${bytesToHuman((file.size * pct) / 100)} of ${size}`,
+                pct,
+                note: 'Keep this tab open until the upload finishes.'
+            });
+        upload(0);
 
         try {
-            const result = await editor.invoke('projects:uploadExport', files[0], (progress) => {
-                // progress returned by Ajax is in range 0-1
-                progressBar.value = progress * 100;
+            // progress returned by Ajax is in range 0-1
+            const result = await editor.invoke('projects:uploadExport', file, (progress) => upload(progress * 100));
+            setCard({
+                title: `Importing ${file.name.replace(/\.zip$/i, '')}`,
+                sub: "Upload complete. The import continues on the server, so closing this tab won't cancel it."
             });
-            progressLabel.text = "Upload Complete! Importing... (Please don't close this window)";
 
             const importer = editor.call('picker:project:cms:currentUser');
+            const job = await editor.call('projects:importNew', result.s3Key, importer.id);
 
-            // a job update listener reacts to status changes, the import can outlive the request
-            let job = null;
-            const jobStatusEvent = editor.on('messenger:job.update', async (msg) => {
-                if (msg.job.id === job.id) {
-                    jobStatusEvent.unbind();
-                }
-
-                const jobInfo = await editor.call('projects:getJobStatus', msg.job.id);
-                if (jobInfo.status === 'complete') {
-                    toggleProgress(false);
-
-                    const report = jobInfo.data.import_report?.count ? jobInfo.data.import_report : null;
-                    if (importer.organization) {
-                        // organization viewers have no access to the new project, so list it instead of opening it
-                        loadProjects();
-                        if (report) {
-                            editor.call('picker:project:newProjectConfirmation', null, report);
-                        }
-                    } else {
-                        editor.call('picker:project:newProjectConfirmation', jobInfo.data.project_id, report);
+            // the job update announces the end, the poll covers one that was missed or came before we listened
+            const jobInfo = await new Promise<{
+                status: string;
+                data?: { import_report?: { count: number }; project_id?: number };
+                messages?: string[];
+            }>((resolve) => {
+                let poll = null;
+                let jobEvent = null;
+                const check = async () => {
+                    let info = null;
+                    try {
+                        info = await editor.call('projects:getJobStatus', job.id);
+                    } catch {
+                        // a failed read is retried on the next tick
+                        return;
                     }
-                } else if (jobInfo.status === 'error') {
-                    toggleProgress(false);
-                    console.error(jobInfo.messages[0] || 'There was an error while importing');
-                    editor.call('picker:project:buildAlert', rightPanel, 'Could not import project');
-                }
+                    if (poll && (info.status === 'complete' || info.status === 'error')) {
+                        clearInterval(poll);
+                        poll = null;
+                        jobEvent.unbind();
+                        resolve(info);
+                    }
+                };
+                jobEvent = editor.on('messenger:job.update', (msg) => msg.job.id === job.id && check());
+                events.push(jobEvent);
+                poll = setInterval(check, JOB_POLL_MS);
+                check();
             });
-            events.push(jobStatusEvent);
 
-            job = await editor.call('projects:importNew', result.s3Key, importer.id);
+            hideCard();
+            if (jobInfo.status === 'complete') {
+                const report = jobInfo.data.import_report?.count ? jobInfo.data.import_report : null;
+                if (importer.organization) {
+                    // organization viewers have no access to the new project, so list it instead of opening it
+                    loadProjects();
+                    if (report) {
+                        editor.call('picker:project:newProjectConfirmation', null, report);
+                    }
+                } else {
+                    editor.call('picker:project:newProjectConfirmation', jobInfo.data.project_id, report);
+                }
+            } else {
+                console.error(jobInfo.messages[0] || 'There was an error while importing');
+                editor.call('picker:project:buildAlert', rightPanel, 'Could not import project');
+            }
         } catch (error) {
-            toggleProgress(false);
+            hideCard();
             if (error) {
                 console.error(error);
             }
