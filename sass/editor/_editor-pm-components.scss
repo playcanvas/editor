@@ -405,6 +405,13 @@
         left: 0;
         width: auto;
         padding: 16px;
+
+        // full-screen project settings pins two rows of buttons at the bottom (12 + 44 + 8 + 44 + 12),
+        // so the cards sit above them
+        body:has(.pcui-overlay.picker-project:not(.pcui-hidden) .picker-project-main > .action-buttons:not(.pcui-hidden)) & {
+            bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+            max-height: calc(100% - 120px);
+        }
     }
 }
 
