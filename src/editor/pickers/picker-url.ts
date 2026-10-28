@@ -48,14 +48,16 @@ export const withParams = (href: string, params: Record<string, string | number 
 };
 
 /**
- * The picker state an href names: New project and its kit, the project and section of project
- * settings (`open` when any section is named, known or not) and the build whose details show.
+ * The picker state an href names: New project, its kit and whether Create opens the project in this
+ * tab (`here`), the project and section of project settings (`open` when any section is named, known or
+ * not) and the build whose details show.
  */
 export const readUrl = (href: string) => {
     const params = new URL(href).searchParams;
     return {
         new: params.has('new'),
         kit: params.get('kit'),
+        here: params.has('here'),
         project: parseInt(params.get('project'), 10) || null,
         section: sectionName(params.get('tab')),
         build: params.get('build'),

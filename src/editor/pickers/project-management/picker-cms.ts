@@ -8,7 +8,7 @@ import { bytesToHuman, countToHuman } from '@/common/utils';
 import { PROJECTS_OPENED_KEY } from '@/core/constants';
 import { config } from '@/editor/config';
 
-import { inPlace } from '../picker-url';
+import { inPlace, readUrl } from '../picker-url';
 
 import { button } from './components/button';
 import { empty } from './components/empty';
@@ -66,6 +66,9 @@ editor.once('load', () => {
     let loading = false;
     // first load: nothing to show yet, so counts stay blank instead of reading 0
     const waiting = () => loading && !rootProjects().length;
+
+    // a New project open over the page hides its loading placeholders
+    const covered = () => readUrl(location.href).new;
 
     const projects = {};
 
@@ -463,6 +466,9 @@ editor.once('load', () => {
         more.clear();
         listContainer.class[layout === 'grid' ? 'add' : 'remove']('grid');
         listContainer.class[layout === 'list' ? 'add' : 'remove']('rows');
+        if (covered()) {
+            return;
+        }
         for (let i = 0; i < 6; i++) {
             if (layout === 'grid') {
                 const card = box(['cms-card', 'skeleton'], listContainer);
@@ -963,7 +969,7 @@ editor.once('load', () => {
         projectsNav.class[isOrg(filter) ? 'remove' : 'add']('active');
 
         recentsList.clear();
-        if (loading && !rootProjects().length) {
+        if (loading && !rootProjects().length && !covered()) {
             for (let i = 0; i < 5; i++) {
                 const item = box(['cms-side-item', 'skeleton'], recentsList);
                 bone('side-thumb', item);
@@ -1020,7 +1026,7 @@ editor.once('load', () => {
         welcome.clear();
         const list = allProjects();
         if (loading && !list.length) {
-            welcome.hidden = isOrg(filter);
+            welcome.hidden = isOrg(filter) || covered();
             welcome.class.add('skeleton');
             bone('welcome-thumb', welcome);
             const info = box('cms-welcome-info', welcome);

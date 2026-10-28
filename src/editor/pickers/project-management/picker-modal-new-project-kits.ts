@@ -40,6 +40,7 @@ editor.once('load', () => {
     const kitElements = new Map(); // kit key -> kit card
     let open = false; // New project is up; the fork dialog shares its frame, so this can't ask the picker
     let linkedKit: string | null = null; // a kit a link asks for, picked once the kits are listed
+    let here = false; // `?new&here`: Create opens the new project in this tab, with no confirmation
 
     // the default kit: the first starter kit, as the server orders them, or empty when there are none
     const firstKit = () => [...starterKits.keys()][1] ?? EMPTY_KIT;
@@ -194,10 +195,13 @@ editor.once('load', () => {
         });
     };
 
+    editor.method('picker:project:new:here', () => here);
+
     // displays the new project modal, starting from the default kit or a linked one
-    editor.method('picker:project:newProject', (kit: string | null = null) => {
+    editor.method('picker:project:newProject', (kit: string | null = null, inTab = false) => {
         linkedKit = kit;
-        setUrl({ new: true, kit });
+        here = inTab;
+        setUrl({ new: true, kit, here });
         if (renderedKits) {
             // cached grid: back to the default kit, matching the form reset below
             selectedKitElement?.class.remove('selected');
@@ -228,14 +232,15 @@ editor.once('load', () => {
         if (open && name === 'dialog:picker-project-new') {
             open = false;
             linkedKit = null;
-            setUrl({ new: null, kit: null });
+            here = false;
+            setUrl({ new: null, kit: null, here: null });
         }
     });
 
     // the url's New project: open it on its kit, or close it
-    editor.on('picker:url', ({ new: create, kit }) => {
+    editor.on('picker:url', ({ new: create, kit, here: inTab }) => {
         if (create && !open) {
-            editor.call('picker:project:newProject', kit);
+            editor.call('picker:project:newProject', kit, inTab);
         } else if (!create && open) {
             editor.call('picker:project:new:close');
         }
