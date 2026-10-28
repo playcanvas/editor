@@ -19,6 +19,13 @@ const PAGE_SIZE = 24;
 const JOB_POLL_MS = 5000;
 const EXPORT_TTL_MS = 24 * 60 * 60 * 1000;
 const BUSY = 'Wait for the current import or export to finish, then try again.';
+const svg = (path: string) =>
+    `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg>`;
+const PROGRESS_ICONS = {
+    up: svg('M8 11V3M4.5 6.5 8 3l3.5 3.5M3 13h10'),
+    down: svg('M8 3v8M4.5 7.5 8 11l3.5-3.5M3 13h10'),
+    cog: svg('M2.5 5.5 8 2.5l5.5 3v5L8 13.5l-5.5-3zM8 8l5.5-2.5M8 8v5.5M8 8 2.5 5.5')
+};
 // a linked project that doesn't exist, or that you can't see
 const CANT_OPEN = "This project couldn't be opened. It may have been deleted, or you may not have access to it.";
 const TABS = [
@@ -436,7 +443,7 @@ editor.once('load', () => {
             return;
         }
         busy = true;
-        setCard({ title: `Exporting ${project.name}`, sub: 'Preparing the download' });
+        setCard({ title: `Exporting ${project.name}`, icon: 'down', sub: 'Preparing the download' });
         editor.call(
             'projects:export',
             project.id,
@@ -465,17 +472,20 @@ editor.once('load', () => {
     // swaps the bar for the finished export's buttons
     const setCard = ({
         title,
+        icon,
         sub = '',
         pct = null,
         note = '',
         actions = false
     }: {
         title: string;
+        icon: keyof typeof PROGRESS_ICONS;
         sub?: string;
         pct?: number | null;
         note?: string;
         actions?: boolean;
     }) => {
+        progressIcon.dom.innerHTML = PROGRESS_ICONS[icon];
         progressTrack.hidden = actions;
         progressActions.hidden = !actions;
         progressTitle.text = title;
@@ -687,7 +697,8 @@ editor.once('load', () => {
     progressCard.hidden = true;
     progressCard.dom.setAttribute('aria-live', 'polite');
     const progressHead = box('progress-head', progressCard);
-    image(EMPTY_THUMBNAIL_IMAGE, 'progress-icon', progressHead);
+    const progressIcon = new Element({ class: 'progress-icon' });
+    progressHead.append(progressIcon);
     const progressText = box('progress-text', progressHead);
     const progressTitle = text('', 'progress-title', progressText);
     const progressSub = text('', 'progress-sub', progressText);
@@ -1519,6 +1530,7 @@ editor.once('load', () => {
         editor.call('localStorage:set', IMPORT_JOB_KEY, job);
         setCard({
             title: `Importing ${job.name}`,
+            icon: 'cog',
             sub: "Upload complete. The import continues on the server, so closing this tab won't cancel it."
         });
         const stopClock = startClock(since);
@@ -1546,7 +1558,11 @@ editor.once('load', () => {
     // follows an export job, then offers the download; opening it from a click keeps the popup blocker out of it
     const watchExport = async (job: { id: number; name: string }, since = Date.now()) => {
         editor.call('localStorage:set', EXPORT_JOB_KEY, job);
-        setCard({ title: `Exporting ${job.name}`, sub: "Preparing the download. Closing this tab won't cancel it." });
+        setCard({
+            title: `Exporting ${job.name}`,
+            icon: 'down',
+            sub: "Preparing the download. Closing this tab won't cancel it."
+        });
         const stopClock = startClock(since);
         const jobInfo = await waitForJob(job.id);
         stopClock();
@@ -1565,7 +1581,7 @@ editor.once('load', () => {
         }
 
         // the card stays until you download or dismiss it, and a reload shows it again
-        setCard({ title: `${job.name} is ready`, sub: 'Your export has finished.', actions: true });
+        setCard({ title: `${job.name} is ready`, icon: 'down', sub: 'Your export has finished.', actions: true });
         await new Promise<void>((resolve) => {
             const done = () => {
                 download.unbind();
@@ -1616,6 +1632,7 @@ editor.once('load', () => {
         const upload = (pct: number) =>
             setCard({
                 title: `Uploading ${file.name}`,
+                icon: 'up',
                 sub: `${bytesToHuman((file.size * pct) / 100)} of ${size}`,
                 pct,
                 note: 'Keep this tab open until the upload finishes.'
