@@ -3,6 +3,9 @@ import { Defer } from '@/common/defer';
 import { supports, service } from '@/common/supports';
 import { config } from '@/editor/config';
 
+const UPLOAD_PART_SIZE = 20 * 1024 * 1024;
+const UPLOAD_CONCURRENCY = 4;
+
 editor.once('load', () => {
     // Create a project from data
     editor.method(
@@ -201,8 +204,7 @@ editor.once('load', () => {
         }
 
         // start upload
-        const partSize = 20 * 1024 * 1024; // 20Mb per part
-        const partsTotal = Math.ceil(file.size / partSize);
+        const partsTotal = Math.ceil(file.size / UPLOAD_PART_SIZE);
 
         const startResponse = await service.uploadStart({
             filename: file.name
@@ -216,50 +218,39 @@ editor.once('load', () => {
             parts: partsTotal,
             key: key
         });
-
-        let partNumber = 1;
         const urls = urlsData.signedUrls;
 
-        // upload file chunk by chunk
-        const promises = [];
-        let completedParts = 0;
-        for (let start = 0; start < file.size; start += partSize) {
-            const end = Math.min(start + partSize, file.size);
-            const blob = file.slice(start, end); // Create a part-sized blob
-            const signedUrl = urls[partNumber - 1];
-
-            // Upload the file to S3 using the pre-signed URL
-            promises.push(
-                backend()
-                    .transport.fetch(signedUrl, {
-                        method: 'PUT',
-                        body: blob,
-                        headers: {
-                            'Content-Type': 'application/zip'
-                        }
-                    })
-                    .then((response) => {
-                        completedParts++; // Increment the number of completed parts
-                        const progress = completedParts / urls.length; // Calculate progress as a fraction
-                        progressHandler(progress); // Update the progress
-                        return response;
-                    })
-            );
-
-            partNumber++;
-        }
-
-        // Wait for all parts to be uploaded
-        const results = await Promise.all(promises);
+        // upload the file in parts, a few at a time; progress counts the bytes sent, not finished parts
+        const loaded: number[] = new Array(partsTotal).fill(0);
+        const etags: string[] = [];
+        let next = 0;
+        const worker = async () => {
+            while (next < partsTotal) {
+                const i = next++;
+                const blob = file.slice(i * UPLOAD_PART_SIZE, Math.min((i + 1) * UPLOAD_PART_SIZE, file.size));
+                etags[i] = await new Promise<string>((resolve, reject) => {
+                    const xhr = backend().transport.xhr();
+                    xhr.open('PUT', urls[i]);
+                    xhr.setRequestHeader('Content-Type', 'application/zip');
+                    xhr.upload.onprogress = (e) => {
+                        loaded[i] = e.loaded;
+                        progressHandler(loaded.reduce((a, b) => a + b, 0) / file.size);
+                    };
+                    xhr.onload = () =>
+                        xhr.status >= 200 && xhr.status < 300
+                            ? resolve(xhr.getResponseHeader('ETag'))
+                            : reject(new Error(`Upload failed (${xhr.status})`));
+                    xhr.onerror = () => reject(new Error('Upload failed'));
+                    xhr.send(blob);
+                });
+                loaded[i] = blob.size;
+            }
+        };
+        await Promise.all(Array.from({ length: Math.min(UPLOAD_CONCURRENCY, partsTotal) }, worker));
+        progressHandler(1);
 
         // get etags from the results
-        const parts = [];
-        for (let i = 0; i < results.length; i++) {
-            const etag = results[i].headers.get('ETag');
-            const cleanEtag = etag.replace(/^"|"$/g, '');
-
-            parts.push({ PartNumber: i + 1, ETag: cleanEtag });
-        }
+        const parts = etags.map((etag, i) => ({ PartNumber: i + 1, ETag: etag.replace(/^"|"$/g, '') }));
 
         // Complete the upload
         await service.uploadComplete({

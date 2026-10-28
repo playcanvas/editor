@@ -34,11 +34,12 @@ $info-text: #9dd4ff; // the editor's link blue: limits that aren't problems, e.g
 $info-edge: rgb(157 212 255 / 45%);
 $cms-transfer: #ffb27f; // pending transfer status and badge
 
-// stacking: the projects page, its menus, then dialogs above project settings (100000), confirmations above dialogs
+// stacking: the projects page, dialogs and progress cards above project settings (100000), confirmations
+// above dialogs, then menus over everything, since they only open from a click on what's already in front
 $z-page: 10000;
-$z-menu: 10001;
 $z-dialog: 100001;
 $z-confirm: 100002;
+$z-menu: 100003;
 
 // projects page (picker-cms.ts): sidebar + main panel
 $cms-surface: $bcg-primary; // cards, search, buttons: a clear step up from the $bcg-darker page
@@ -134,6 +135,16 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
 @keyframes cms-spin {
     to {
         transform: rotate(360deg);
+    }
+}
+
+@keyframes cms-progress-slide {
+    from {
+        left: -35%;
+    }
+
+    to {
+        left: 100%;
     }
 }
 

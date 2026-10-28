@@ -5,7 +5,6 @@
  * the project management pickers exposed as hooks.
  */
 
-import { service } from '@/common/supports';
 import { config } from '@/editor/config';
 
 import { PROJECTS_TAB, projectTab } from './tabs';
@@ -217,40 +216,6 @@ editor.once('load', () => {
             (project.owner_id === config.self.id ||
                 editor.call('project:management:isOrgAdmin', project.owner_id, config.self))
         );
-    });
-
-    // exports a project, resolving with the download url once the export job finishes
-    editor.method('project:management:export', (projectId, branchId) => {
-        return new Promise((resolve, reject) => {
-            editor.call(
-                'projects:export',
-                projectId,
-                branchId,
-                (job) => {
-                    const evt = editor.on('messenger:job.update', (msg) => {
-                        if (msg.job.id !== job.id) {
-                            return;
-                        }
-                        service('jobs')
-                            .jobGet({ jobId: job.id })
-                            .on('load', (_status, res) => {
-                                if (res.status === 'complete') {
-                                    evt.unbind();
-                                    resolve(res.data.url);
-                                } else if (res.status === 'error') {
-                                    evt.unbind();
-                                    reject(res.messages?.[0] || 'There was an error while exporting');
-                                }
-                            })
-                            .on('error', (_status, err) => {
-                                evt.unbind();
-                                reject(err);
-                            });
-                    });
-                },
-                (err) => reject(`Error: ${err}`)
-            );
-        });
     });
 
     // method to get current state of model variables

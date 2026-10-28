@@ -1,5 +1,5 @@
 import type { MenuItem } from '@playcanvas/pcui';
-import { Button, Container, Element, Label, Menu, Overlay, Progress, TextInput } from '@playcanvas/pcui';
+import { Button, Container, Element, Label, Menu, Overlay, TextInput } from '@playcanvas/pcui';
 
 import { backend, UNSUPPORTED_TIP } from '@/common/backend';
 import { supports } from '@/common/supports';
@@ -425,35 +425,14 @@ editor.once('load', () => {
         }
     };
 
-    const exportFromMenu = (project) => {
-        toggleProgress(true, 100, `Exporting ${project.name}...`);
-        editor
-            .call('project:management:export', project.id)
-            .then(
-                (url) => window.open(url, '_blank'),
-                (err) => editor.call('picker:project:buildAlert', rightPanel, err)
-            )
-            .finally(() => toggleProgress(false));
-    };
+    const exportFromMenu = (project) => editor.call('progress:card:export', project);
 
-    // displays or hides the loading bar in the CMS main panel based on parameter
-    // a labelled call is an upload with real progress; a bare call means loading, shown as skeleton bones
-    const toggleProgress = function (toggle: boolean, progress = 100, label = '') {
-        if (label === '') {
-            loading = toggle;
-            progressBar.hidden = true;
-            progressLabel.hidden = true;
-            progressBarContainer.class.remove('progress-container-expand');
-            if (toggle && rootUser) {
-                refresh();
-            }
-            return;
+    // loading is shown as skeleton bones
+    const toggleProgress = function (toggle: boolean) {
+        loading = toggle;
+        if (toggle && rootUser) {
+            refresh();
         }
-        progressBar.value = progress;
-        progressBar.hidden = !toggle;
-        progressLabel.hidden = false;
-        progressLabel.text = label;
-        progressBarContainer.class.add('progress-container-expand');
     };
 
     const bone = (cls, parent: Container) => {
@@ -633,14 +612,6 @@ editor.once('load', () => {
     main.append(scroll);
     const rightPanel = box('cms-col'); // also the root for alerts from other pickers
     scroll.dom.appendChild(rightPanel.dom);
-
-    // progress bar and loading label
-    const progressBarContainer = box('progress-container', rightPanel);
-    const progressBar = new Progress({ value: 100, class: 'progress' });
-    progressBar.hidden = true;
-    const progressLabel = new Label({ text: 'Uploading', hidden: true });
-    progressBarContainer.append(progressBar);
-    progressBarContainer.append(progressLabel);
 
     // header
     const head = box('cms-head', rightPanel);
@@ -1419,60 +1390,12 @@ editor.once('load', () => {
         );
     };
 
-    // handles the flow for project importing including error and loading states
-    const importProject = async (files) => {
+    // the upload, import and outcome show on a card of their own, beside any other running jobs
+    const importProject = (files) => {
         if (importDisabled() || files.length === 0) {
             return;
         }
-
-        toggleProgress(true, 0, 'Uploading... Please stand by');
-
-        try {
-            const result = await editor.invoke('projects:uploadExport', files[0], (progress) => {
-                // progress returned by Ajax is in range 0-1
-                progressBar.value = progress * 100;
-            });
-            progressLabel.text = "Upload Complete! Importing... (Please don't close this window)";
-
-            const importer = editor.call('picker:project:cms:currentUser');
-
-            // a job update listener reacts to status changes, the import can outlive the request
-            let job = null;
-            const jobStatusEvent = editor.on('messenger:job.update', async (msg) => {
-                if (msg.job.id === job.id) {
-                    jobStatusEvent.unbind();
-                }
-
-                const jobInfo = await editor.call('projects:getJobStatus', msg.job.id);
-                if (jobInfo.status === 'complete') {
-                    toggleProgress(false);
-
-                    const report = jobInfo.data.import_report?.count ? jobInfo.data.import_report : null;
-                    if (importer.organization) {
-                        // organization viewers have no access to the new project, so list it instead of opening it
-                        loadProjects();
-                        if (report) {
-                            editor.call('picker:project:newProjectConfirmation', null, report);
-                        }
-                    } else {
-                        editor.call('picker:project:newProjectConfirmation', jobInfo.data.project_id, report);
-                    }
-                } else if (jobInfo.status === 'error') {
-                    toggleProgress(false);
-                    console.error(jobInfo.messages[0] || 'There was an error while importing');
-                    editor.call('picker:project:buildAlert', rightPanel, 'Could not import project');
-                }
-            });
-            events.push(jobStatusEvent);
-
-            job = await editor.call('projects:importNew', result.s3Key, importer.id);
-        } catch (error) {
-            toggleProgress(false);
-            if (error) {
-                console.error(error);
-            }
-            editor.call('picker:project:buildAlert', rightPanel, 'Could not import project');
-        }
+        editor.call('progress:card:import', files[0], editor.call('picker:project:cms:currentUser'));
     };
 
     // loads your projects and each organization's into the CMS main panel
