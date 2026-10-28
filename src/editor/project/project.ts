@@ -288,7 +288,7 @@ editor.once('load', () => {
 
     // Unlocks locked project
     editor.method('projects:unlockOne', (projectId, success, errorFn) => {
-        const service = backend().projectManagement;
+        const service = backend().projectUnlock;
         if (!service) {
             errorFn?.(UNSUPPORTED);
             return;
@@ -379,7 +379,7 @@ editor.once('load', () => {
     editor.method(
         'projects:watch',
         (projectId: string, success?: (response: unknown) => void, errorFn?: (err: unknown) => void) => {
-            const service = backend().projectManagement;
+            const service = backend().projectFollowing;
             if (!service) {
                 errorFn?.(UNSUPPORTED);
                 return;
@@ -409,7 +409,7 @@ editor.once('load', () => {
     editor.method(
         'projects:unwatch',
         (watchId: string, success?: (response: unknown) => void, errorFn?: (err: unknown) => void) => {
-            const service = backend().projectManagement;
+            const service = backend().projectFollowing;
             if (!service) {
                 errorFn?.(UNSUPPORTED);
                 return;
@@ -439,7 +439,7 @@ editor.once('load', () => {
             success?: (response: unknown) => void,
             errorFn?: (err: unknown) => void
         ) => {
-            const service = backend().projectManagement;
+            const service = backend().projectFollowing;
             if (!service) {
                 errorFn?.(UNSUPPORTED);
                 return;
@@ -466,7 +466,7 @@ editor.once('load', () => {
     editor.method(
         'projects:unstar',
         (starId: string, success?: (response: unknown) => void, errorFn?: (err: unknown) => void) => {
-            const service = backend().projectManagement;
+            const service = backend().projectFollowing;
             if (!service) {
                 errorFn?.(UNSUPPORTED);
                 return;
