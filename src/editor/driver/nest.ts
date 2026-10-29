@@ -14,7 +14,10 @@ export const nestEdits = (has: (path: string) => boolean, edits: Edit[]) => {
     const created = new Map<string, Record<string, unknown>>();
     edits.forEach((edit) => {
         const keys = edit.path.split('.');
-        const i = edit.op === 'set' ? keys.findIndex((_, n) => n < keys.length - 1 && !has(keys.slice(0, n + 1).join('.'))) : -1;
+        const i =
+            edit.op === 'set'
+                ? keys.findIndex((_, n) => n < keys.length - 1 && !has(keys.slice(0, n + 1).join('.')))
+                : -1;
         if (i === -1) {
             out.push(edit);
             return;
