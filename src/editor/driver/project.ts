@@ -1,4 +1,5 @@
 import { driver } from './driver';
+import { nestEdits } from './nest';
 import { api, log, iterateObject, validatePath, writeError } from './shared';
 import { resolveUnset } from './unset';
 
@@ -66,15 +67,16 @@ const modifySettings = (scope: string, edits: any[]) => {
     if (scope === 'project' && prepared.some(isLegacyAmmoEdit)) {
         return { error: LEGACY_AMMO_ERROR };
     }
-    for (let i = 0; i < prepared.length; i++) {
-        const { path, op, value } = prepared[i];
+    const applied = nestEdits((path) => settings.has(path), prepared);
+    for (let i = 0; i < applied.length; i++) {
+        const { path, op, value } = applied[i];
         if (op === 'unset') {
             settings.unset(path);
         } else {
             settings.set(path, value);
         }
     }
-    log(`Modified ${scope} settings: ${prepared.map(({ path }) => path).join(', ')}`);
+    log(`Modified ${scope} settings: ${applied.map(({ path }) => path).join(', ')}`);
     return { data: settings.json() };
 };
 
