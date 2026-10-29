@@ -46,12 +46,10 @@ declare global {
     let relay: RelayServer;
 
     // array extensions
-    // eslint-disable-next-line @typescript-eslint/consistent-type-definitions -- must be an interface to merge with the global Array type
     interface Array {
         equals: (array: any[]) => boolean;
     }
 
-    // eslint-disable-next-line @typescript-eslint/consistent-type-definitions -- must be an interface to merge with the global Window type
     interface Window {
         // global variables
         config: typeof config;
