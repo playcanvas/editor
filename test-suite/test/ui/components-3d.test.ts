@@ -1,10 +1,13 @@
 import { readFileSync } from 'node:fs';
 
+import type { AssetResource } from 'playcanvas';
+
 import { JOB_TEST_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { AssetWorkflows } from '../../lib/pages/asset-workflows';
 import { AssetsPanel } from '../../lib/pages/assets';
-import { EditorShell, type ProjectState } from '../../lib/pages/common';
+import { EditorShell  } from '../../lib/pages/common';
+import type { ProjectState } from '../../lib/pages/common';
 import { HierarchyPanel } from '../../lib/pages/hierarchy';
 import { Inspector } from '../../lib/pages/inspector';
 import { uniqueName } from '../../lib/utils';
@@ -272,14 +275,14 @@ test.describe('components-3d', () => {
 
         const launch = await workflows.launch();
         const state = await launch.evaluate(({ id, asset }) => {
-            const app = (window as any).pc.app;
-            const entity = app.root.findByGuid(id);
-            const resource = app.assets.get(asset).resource;
+            const app = window.pc.app;
+            const entity = app.root.findByGuid(id)!;
+            const resource = app.assets.get(asset)!.resource as AssetResource<'render'>;
             return {
-                collision: entity.collision.renderAsset,
-                render: entity.render.asset,
-                meshes: resource.meshes.length,
-                vertices: entity.render.meshInstances[0].mesh.vertexBuffer.numVertices
+                collision: entity.collision!.renderAsset,
+                render: entity.render!.asset,
+                meshes: resource.meshes!.length,
+                vertices: entity.render!.meshInstances[0].mesh!.vertexBuffer.numVertices
             };
         }, { id, asset: asset.id });
         expect(state).toEqual({ collision: asset.id, render: asset.id, meshes: 1, vertices: 3 });
@@ -442,8 +445,8 @@ test.describe('components-3d', () => {
 
         const launch = await workflows.launch();
         expect(await launch.evaluate(({ id, asset }) => {
-            const app = (window as any).pc.app;
-            return { asset: app.root.findByGuid(id).gsplat.asset, splats: app.assets.get(asset).resource.numSplats };
+            const app = window.pc.app;
+            return { asset: app.root.findByGuid(id)!.gsplat!.asset, splats: (app.assets.get(asset)!.resource as AssetResource<'gsplat'>).numSplats };
         }, { id, asset: asset.id })).toEqual({ asset: asset.id, splats: 9 });
         await launch.close();
     });

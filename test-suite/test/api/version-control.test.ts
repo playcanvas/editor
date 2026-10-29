@@ -130,7 +130,7 @@ test.describe('branch/checkpoint/diff/merge', () => {
             const jobDeferred: PromiseWithResolvers<DiffJob> = Promise.withResolvers();
 
             // wait for diff via messenger job.update event
-            const diffPromise: Promise<DiffResult> = new Promise((resolve, reject) => {
+            const diffPromise = new Promise<DiffResult>((resolve, reject) => {
                 const timer = setTimeout(() => reject(new Error('timed out waiting for diff job.update')), jobTimeout);
                 const evt = window.editor.on('messenger:job.update', async (...args: unknown[]) => {
                     const { job: jobData } = args[0] as { job: { id: number } };

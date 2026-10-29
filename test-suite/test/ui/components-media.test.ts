@@ -6,7 +6,8 @@ import { waitForParser } from '../../lib/common';
 import { JOB_TEST_TIMEOUT, JOB_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { AssetsPanel } from '../../lib/pages/assets';
-import { EditorShell, type ProjectState } from '../../lib/pages/common';
+import { EditorShell  } from '../../lib/pages/common';
+import type { ProjectState } from '../../lib/pages/common';
 import { HierarchyPanel } from '../../lib/pages/hierarchy';
 import { Inspector } from '../../lib/pages/inspector';
 import { uniqueName } from '../../lib/utils';
@@ -39,7 +40,7 @@ const createScript = async (page: Page, filename: string, text: string) => {
     return page.evaluate(([name, body]) => {
         return window.editor.api.globals.assets
         .createScript({ filename: name, text: body })
-        .then((asset: any) => asset.get('id') as number);
+        .then(asset => asset.get('id') as number);
     }, [filename, text] as const);
 };
 

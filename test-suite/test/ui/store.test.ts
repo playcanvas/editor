@@ -3,7 +3,8 @@ import type { Locator, Page } from '@playwright/test';
 import { JOB_TEST_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { AssetsPanel } from '../../lib/pages/assets';
-import { EditorShell, type ProjectState } from '../../lib/pages/common';
+import { EditorShell  } from '../../lib/pages/common';
+import type { ProjectState } from '../../lib/pages/common';
 import { uniqueName } from '../../lib/utils';
 
 // the store list comes from an external service and an import runs a backend job
@@ -67,8 +68,8 @@ const pickImportable = async (page: Page, results: StoreResult[]) => {
     const seen: string[] = [];
     for (const result of results) {
         const types = await page.evaluate(async (id) => {
-            const res: any = await window.editor.api.globals.rest.store.storeAssets(id).promisify();
-            return (res.result ?? []).map((asset: any) => asset.type as string);
+            const res = await window.editor.api.globals.rest.store.storeAssets(id).promisify() as ListResponse<{ type: string }>;
+            return (res.result ?? []).map(asset => asset.type as string);
         }, result.id);
         seen.push(...types);
         if (types.length && !types.includes(BAD_TYPE)) {

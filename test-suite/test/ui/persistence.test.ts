@@ -2,7 +2,8 @@ import type { Page } from '@playwright/test';
 
 import { expect, test } from '../../lib/fixtures';
 import { AssetsPanel } from '../../lib/pages/assets';
-import { EditorShell, type ProjectState } from '../../lib/pages/common';
+import { EditorShell  } from '../../lib/pages/common';
+import type { ProjectState } from '../../lib/pages/common';
 import { HierarchyPanel } from '../../lib/pages/hierarchy';
 import { ScenePicker, deleteScenes, sceneId, sceneList } from '../../lib/pages/scenes';
 import { SettingsDialog } from '../../lib/pages/settings';

@@ -1,11 +1,14 @@
-import { test as base, expect, type BrowserContext, type BrowserContextOptions, type Page } from '@playwright/test';
+import { test as base, expect    } from '@playwright/test';
+import type { BrowserContext, BrowserContextOptions, Page } from '@playwright/test';
 
 import { checkCookieAccept, createProject, deleteProject } from './common';
-import { AUTH_STATES, codeEditorUrl, editorBlankUrl, editorUrl, launchSceneUrl, type SearchParams } from './config';
+import { AUTH_STATES, codeEditorUrl, editorBlankUrl, editorUrl, launchSceneUrl  } from './config';
+import type { SearchParams } from './config';
 import { attachConsoleCapture, ConsoleErrors } from './console';
 import { JOB_TEST_TIMEOUT } from './constants';
 import { middleware } from './middleware';
-import { type Baseline, EditorShell } from './pages/common';
+import {  EditorShell } from './pages/common';
+import type { Baseline } from './pages/common';
 import { waitForCodeEditor, waitForEditor, waitForLaunch } from './ready';
 import { uniqueName } from './utils';
 

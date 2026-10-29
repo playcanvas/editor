@@ -1,5 +1,6 @@
 import { expect, test } from '../../lib/fixtures';
-import { EditorShell, type ProjectState } from '../../lib/pages/common';
+import { EditorShell  } from '../../lib/pages/common';
+import type { ProjectState } from '../../lib/pages/common';
 import { HierarchyPanel } from '../../lib/pages/hierarchy';
 import { Inspector } from '../../lib/pages/inspector';
 import { waitForEditor } from '../../lib/ready';

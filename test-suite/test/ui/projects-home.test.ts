@@ -53,7 +53,7 @@ test.describe('projects home', () => {
     test('loads without the scene editor', async ({ blankPage }) => {
         await expect(blankPage.locator('.picker-project-cms')).toBeVisible();
         expect(await blankPage.evaluate(() => window.name)).toBe('editor:projects');
-        expect(await blankPage.evaluate(() => typeof (window as any).pc)).toBe('undefined');
+        expect(await blankPage.evaluate(() => typeof window.pc)).toBe('undefined');
         await expect(blankPage.locator('#layout-toolbar, #layout-viewport, #layout-hierarchy')).toHaveCount(0);
     });
 
@@ -66,10 +66,10 @@ test.describe('projects home', () => {
             // a second Open editor finds the same tab by name instead of opening or reloading one
             const pages = blankPage.context().pages().length;
             await editorTab.evaluate(() => {
-                (window as any).__stillOpen = true;
+                window.__stillOpen = true;
             });
             await blankPage.locator('.cms-editor-button').click();
-            expect(await blankPage.evaluate(name => (window.open('', name) as any).__stillOpen, `editor:${projectId}`)).toBe(true);
+            expect(await blankPage.evaluate(name => window.open('', name)!.__stillOpen, `editor:${projectId}`)).toBe(true);
             expect(blankPage.context().pages().length).toBe(pages);
         } finally {
             await editorTab.close();
@@ -80,14 +80,14 @@ test.describe('projects home', () => {
         const editorTab = await openFromHome(blankPage, projectName);
         try {
             await blankPage.evaluate(() => {
-                (window as any).__stillOpen = true;
+                window.__stillOpen = true;
             });
 
             // Ctrl+O, All Projects and the breadcrumb all switch to the projects tab rather than covering the editor
             await editorTab.keyboard.press('ControlOrMeta+o');
             // the breadcrumb's first button is Projects; narrow windows show it as an icon only
             await editorTab.locator('.control-strip-crumbs .control-strip-btn').first().click();
-            expect(await editorTab.evaluate(() => (window.open('', 'editor:projects') as any).__stillOpen)).toBe(true);
+            expect(await editorTab.evaluate(() => window.open('', 'editor:projects')!.__stillOpen)).toBe(true);
             await expect(editorTab.locator('.picker-project-cms')).toHaveCount(0);
             expect(new URL(blankPage.url()).pathname).toBe('/editor');
         } finally {

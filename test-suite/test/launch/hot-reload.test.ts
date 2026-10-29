@@ -17,7 +17,7 @@ const addBox = async (page: Page) => {
         const entity = window.editor.api.globals.entities.create({
             name: n,
             components: { render: { type: 'box' } }
-        } as any);
+        } as CreateEntityArguments);
         return entity.get('resource_id') as string;
     }, name);
     created.push(id);
@@ -25,7 +25,7 @@ const addBox = async (page: Page) => {
 };
 
 const state = (page: Page, id: string): Promise<State> => page.evaluate((g) => {
-    const entity = (window as any).pc.app.root.findByGuid(g);
+    const entity = window.pc.app.root.findByGuid(g);
     if (!entity) {
         return null;
     }
@@ -40,7 +40,7 @@ const state = (page: Page, id: string): Promise<State> => page.evaluate((g) => {
 
 // observer events precede engine application; inspect the resulting graph on engine updates
 const armLaunch = (page: Page, id: string, expected: Partial<NonNullable<State>> | null = {}) => arm(page, ({ id, expected }) => {
-    const app = (window as any).pc.app;
+    const app = window.pc.app;
     let check: () => void;
     const done = new Promise<void>((resolve) => {
         check = () => {
@@ -49,7 +49,7 @@ const armLaunch = (page: Page, id: string, expected: Partial<NonNullable<State>>
             if (entity) {
                 const p = entity.getLocalPosition();
                 const current = { name: entity.name, enabled: entity.enabled, pos: [p.x, p.y, p.z], script: entity.script?.enabled ?? null };
-                if (Object.entries(expected).some(([key, value]) => JSON.stringify(current[key as keyof typeof current]) !== JSON.stringify(value))) return;
+                if (Object.entries(expected!).some(([key, value]) => JSON.stringify(current[key as keyof typeof current]) !== JSON.stringify(value))) return;
             }
             app.off('frameend', check);
             resolve();

@@ -1,19 +1,19 @@
-import { type Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
 
 import { arm } from './arm';
 import { JOB_TIMEOUT, STALE_PROJECT_AGE, WORKER_INIT_TIMEOUT } from './constants';
 import { RUN_ID } from './utils';
 
-type Messages = { next: (name: string, id: number) => Promise<any> };
-type Resolve = (data: any) => void;
+type Messages = { next: (name: string, id: number) => Promise<MessageData> };
+type Resolve = (data: MessageData) => void;
 
 /** Buffers completion events before a request can start its job. */
 const withMessages = async <T, A>(page: Page, run: (args: A & { messages: Messages }) => Promise<T>, args: A) => {
     const messages = await page.evaluateHandle((timeout) => {
         const pending = new Map<string, Resolve>();
-        const received = new Map<string, any>();
+        const received = new Map<string, MessageData>();
         const timers = new Set<ReturnType<typeof setTimeout>>();
-        const handle = window.editor.api.globals.messenger.on('message', (name: string, data: any) => {
+        const handle = window.editor.api.globals.messenger.on('message', (name: string, data: MessageData) => {
             if (!['project.create', 'job.update', 'app.update', 'app.delete'].includes(name)) return;
             const key = `${name}:${data.project_id ?? data.job?.id ?? data.app?.id}`;
             const done = pending.get(key);
@@ -24,7 +24,7 @@ const withMessages = async <T, A>(page: Page, run: (args: A & { messages: Messag
             next(name: string, id: number) {
                 const key = `${name}:${id}`;
                 if (received.has(key)) return Promise.resolve(received.get(key));
-                return new Promise<any>((resolve, reject) => {
+                return new Promise<MessageData>((resolve, reject) => {
                     const timer = setTimeout(() => {
                         pending.delete(key);
                         timers.delete(timer);
@@ -51,7 +51,8 @@ const withMessages = async <T, A>(page: Page, run: (args: A & { messages: Messag
         await messages.evaluate(value => value.dispose());
         await messages.dispose();
     };
-    return page.evaluate(run, { ...args, messages } as any).then(
+    // playwright types the page-side argument as `Unboxed<...>`, which a generic `A` can't match
+    return page.evaluate(run as (args: unknown) => Promise<T>, { ...args, messages }).then(
         async (result) => {
             await dispose(); return result;
         },
@@ -110,10 +111,10 @@ export const checkCaptchaFound = async (page: Page) => {
  */
 export const createProject = async (page: Page, projectName: string, masterProjectId?: number) => {
     const projectId: number = await withMessages(page, async ({ name, fork_from, messages }) => {
-        const res: any = await window.editor.api.globals.rest.projects.projectCreate({
+        const res = await window.editor.api.globals.rest.projects.projectCreate({
             name,
             fork_from
-        }).promisify();
+        }).promisify() as { id: number };
 
         // check if not forked (no job created)
         if (!fork_from && res.id) {
@@ -128,8 +129,8 @@ export const createProject = async (page: Page, projectName: string, masterProje
         }
 
         // wait for job to complete
-        const job: any = await messages.next('job.update', res.id).then((data: any) => {
-            return window.editor.api.globals.rest.jobs.jobGet({ jobId: data.job.id }).promisify();
+        const job = await messages.next('job.update', res.id).then((data) => {
+            return window.editor.api.globals.rest.jobs.jobGet({ jobId: data.job!.id }).promisify();
         });
 
         // check for errors
@@ -160,8 +161,8 @@ export const deleteProject = async (page: Page, projectId: number) => {
                 // project.delete currently omits its id; verify the target on each notification
                 event = globals.messenger.on('message', (name: string) => {
                     if (name !== 'project.delete') return;
-                    globals.rest.users.userProjects(window.config.self.id, '').promisify().then((projects: any) => {
-                        if (!(projects.result ?? []).some((project: any) => Number(project.id) === id)) resolve();
+                    globals.rest.users.userProjects(window.config.self.id, '').promisify().then((projects) => {
+                        if (!((projects as ListResponse).result ?? []).some(project => Number(project.id) === id)) resolve();
                     }, reject);
                 });
             }),
@@ -175,8 +176,8 @@ export const deleteProject = async (page: Page, projectId: number) => {
 /** Deletes owned ids that still exist, including after a partially completed test. */
 export const deleteProjects = async (page: Page, ids: number[]) => {
     const live = await page.evaluate(async () => {
-        const res: any = await window.editor.api.globals.rest.users.userProjects(window.config.self.id, '').promisify();
-        return (res.result ?? []).map((project: any) => Number(project.id)) as number[];
+        const res = await window.editor.api.globals.rest.users.userProjects(window.config.self.id, '').promisify() as ListResponse;
+        return (res.result ?? []).map(project => Number(project.id)) as number[];
     });
     for (const id of new Set(ids)) {
         if (live.includes(id)) {
@@ -196,8 +197,8 @@ export const deleteProjects = async (page: Page, ids: number[]) => {
  */
 export const deleteProjectsByPrefix = async (page: Page, prefix: string) => {
     const projects = await page.evaluate(async ({ prefix, runId, maxAge }) => {
-        const res: any = await window.editor.api.globals.rest.users.userProjects(window.config.self.id, '').promisify();
-        return (res.result ?? []).filter((project: any) => {
+        const res = await window.editor.api.globals.rest.users.userProjects(window.config.self.id, '').promisify() as ListResponse<{ id: number; name?: string; created?: string }>;
+        return (res.result ?? []).filter((project) => {
             if (!project.name?.startsWith(prefix) || project.name.includes(runId)) {
                 return false;
             }
@@ -319,19 +320,19 @@ export const importProject = async (page: Page, importPath: string) => {
         });
 
         // import project
-        const job: any = await window.editor.api.globals.rest.projects.projectImport({
+        const job = await window.editor.api.globals.rest.projects.projectImport({
             export_url: startJson.key,
             owner: window.config.self.id
-        }).promisify();
+        }).promisify() as { id: number };
 
         // wait for job to complete
-        return messages.next('job.update', job.id).then((data: any) => {
-            return window.editor.api.globals.rest.jobs.jobGet({ jobId: data.job.id }).promisify();
+        return messages.next('job.update', job.id).then((data) => {
+            return window.editor.api.globals.rest.jobs.jobGet({ jobId: data.job!.id }).promisify();
         });
     }, {});
     const fileChooser = await fileChooserPromise;
     await fileChooser.setFiles(importPath);
-    const job: any = await importProjectPromise;
+    const job = await importProjectPromise;
     if (job.error) {
         throw new Error(`Import error: ${job.error}`);
     }
@@ -346,14 +347,14 @@ export const importProject = async (page: Page, importPath: string) => {
  */
 export const exportProject = async (page: Page, projectId: number) => {
     await withMessages(page, async ({ projectId, messages }) => {
-        const job: any = await window.editor.api.globals.rest.projects.projectExport({ projectId }).promisify();
+        const job = await window.editor.api.globals.rest.projects.projectExport({ projectId }).promisify() as Job;
         if (job.error) {
             throw new Error(`Export error: ${job.error}`);
         }
 
         // wait for job to complete
-        const res: any = await messages.next('job.update', job.id).then((data: any) => {
-            return window.editor.api.globals.rest.jobs.jobGet({ jobId: data.job.id }).promisify();
+        const res = await messages.next('job.update', job.id).then((data) => {
+            return window.editor.api.globals.rest.jobs.jobGet({ jobId: data.job!.id }).promisify();
         });
 
         // check for errors
@@ -379,13 +380,13 @@ export const exportProject = async (page: Page, projectId: number) => {
  * @returns The errors.
  */
 export const downloadApp = async (page: Page, sceneId: number, esmOptions?: EsmBuildOptions): Promise<{ download_url: string }> => {
-    const job: any = await withMessages(page, async ({ sceneId, esmOptions, messages }) => {
+    const job = await withMessages(page, async ({ sceneId, esmOptions, messages }) => {
         // order scenes so that the scene with the given id is first
-        const { result: scenes = [] } = await window.editor.api.globals.rest.projects.projectScenes().promisify() as any;
+        const { result: scenes = [] } = await window.editor.api.globals.rest.projects.projectScenes().promisify() as ListResponse<{ id: number }>;
         if (!scenes.length) {
             throw new Error('Scenes not found');
         }
-        const sceneIds = scenes.reduce((ids: number[], scene: any) => {
+        const sceneIds = scenes.reduce((ids: number[], scene) => {
             if (scene.id !== sceneId) {
                 ids.unshift(scene.id);
             } else  {
@@ -395,7 +396,7 @@ export const downloadApp = async (page: Page, sceneId: number, esmOptions?: EsmB
         }, []);
 
         // start download
-        const data: Record<string, any> = {
+        const data: Record<string, unknown> = {
             name: 'TEST',
             project_id: window.config.project.id,
             branch_id: window.config.self.branch.id,
@@ -403,11 +404,11 @@ export const downloadApp = async (page: Page, sceneId: number, esmOptions?: EsmB
             engine_version: window.config.engineVersions.current.version
         };
         if (esmOptions) Object.assign(data, esmOptions);
-        const job: any = await window.editor.api.globals.rest.apps.appDownload(data).promisify();
+        const job = await window.editor.api.globals.rest.apps.appDownload(data).promisify() as { id: number };
 
         // wait for job to complete
-        return messages.next('job.update', job.id).then((data: any) => {
-            return window.editor.api.globals.rest.jobs.jobGet({ jobId: data.job.id }).promisify();
+        return messages.next('job.update', job.id).then((data) => {
+            return window.editor.api.globals.rest.jobs.jobGet({ jobId: data.job!.id }).promisify();
         });
     }, { sceneId, esmOptions });
     if (job.error) {
@@ -427,13 +428,13 @@ export const downloadApp = async (page: Page, sceneId: number, esmOptions?: EsmB
  * @returns The errors.
  */
 export const publishApp = async (page: Page, sceneId: number, esmOptions?: EsmBuildOptions): Promise<{ id: number; url: string }> => {
-    const app: any = await withMessages(page, async ({ sceneId, esmOptions, messages }) => {
+    const app = await withMessages(page, async ({ sceneId, esmOptions, messages }) => {
         // order scenes so that the scene with the given id is first
-        const { result: scenes = [] } = await window.editor.api.globals.rest.projects.projectScenes().promisify() as any;
+        const { result: scenes = [] } = await window.editor.api.globals.rest.projects.projectScenes().promisify() as ListResponse<{ id: number }>;
         if (!scenes.length) {
             throw new Error('Scenes not found');
         }
-        const sceneIds = scenes.reduce((ids: number[], scene: any) => {
+        const sceneIds = scenes.reduce((ids: number[], scene) => {
             if (scene.id !== sceneId) {
                 ids.unshift(scene.id);
             } else  {
@@ -443,7 +444,7 @@ export const publishApp = async (page: Page, sceneId: number, esmOptions?: EsmBu
         }, []);
 
         // start publish
-        const data: Record<string, any> = {
+        const data: Record<string, unknown> = {
             name: 'TEST',
             project_id: window.config.project.id,
             branch_id: window.config.self.branch.id,
@@ -451,15 +452,15 @@ export const publishApp = async (page: Page, sceneId: number, esmOptions?: EsmBu
             engine_version: window.config.engineVersions.current.version
         };
         if (esmOptions) Object.assign(data, esmOptions);
-        const app: any = await window.editor.api.globals.rest.apps.appCreate(data).promisify();
+        const app = await window.editor.api.globals.rest.apps.appCreate(data).promisify() as { id: number };
 
         // wait for app to complete
-        return messages.next('app.update', app.id).then((data: any) => {
-            return window.editor.api.globals.rest.apps.appGet(data.app.id).promisify();
+        return messages.next('app.update', app.id).then((data) => {
+            return window.editor.api.globals.rest.apps.appGet(data.app!.id).promisify() as Promise<AppRecord>;
         });
     }, { sceneId, esmOptions });
-    if (app.task.error) {
-        throw new Error(`Publish error: ${app.task.error}`);
+    if (app.task!.error) {
+        throw new Error(`Publish error: ${app.task!.error}`);
     }
     return {
         id: app.id,
@@ -475,7 +476,7 @@ export const publishApp = async (page: Page, sceneId: number, esmOptions?: EsmBu
  */
 export const deleteApp = async (page: Page, appId: number) => {
     const job = await withMessages(page, async ({ appId, messages }) => {
-        const app: any = await window.editor.api.globals.rest.apps.appDelete(appId).promisify();
+        const app = await window.editor.api.globals.rest.apps.appDelete(appId).promisify() as AppRecord;
         await messages.next('app.delete', appId);
         return app.task ?? { error: 'Job not found' };
     }, { appId });
@@ -491,7 +492,7 @@ export const deleteApp = async (page: Page, appId: number) => {
  */
 export const waitForParser = async (page: Page) => {
     const ready = await arm(page, () => {
-        if ((window.editor as any).methods.has('scripts:handleParse')) {
+        if (window.editor.methods.has('scripts:handleParse')) {
             return { done: Promise.resolve() };
         }
         return { done: new Promise<void>((resolve) => {
@@ -518,19 +519,19 @@ export const createEsmScript = async (page: Page, filename: string, text?: strin
 
             // reuse a script left by a prior partial attempt — the upload succeeds even
             // when the parse step times out, so the asset (with file) already exists
-            const existing = assets.list().find((a: any) => a.get('type') === 'script' && a.get('name') === filename && a.get('file'));
+            const existing = assets.list().find((a: Asset) => a.get('type') === 'script' && a.get('name') === filename && a.get('file'));
             if (existing) {
                 return { id: existing.get('id') as number };
             }
 
-            return assets.createScript({ filename, text }).then(async (asset: any) => {
+            return assets.createScript({ filename, text }).then(async (asset) => {
                 if (!asset.get('file')) {
                     await new Promise<void>((resolve) => {
                         asset.once('file:set', () => resolve());
                     });
                 }
                 return { id: asset.get('id') as number };
-            }).catch((err: any) => {
+            }).catch((err: Error) => {
                 return { error: err?.message ?? String(err) };
             });
         }, { filename, text });

@@ -4,7 +4,8 @@ import { JOB_TEST_TIMEOUT, JOB_TIMEOUT, READY_TIMEOUT } from '../../lib/constant
 import { expect, test } from '../../lib/fixtures';
 import { AssetWorkflows } from '../../lib/pages/asset-workflows';
 import { AssetsPanel } from '../../lib/pages/assets';
-import { EditorShell, type ProjectState } from '../../lib/pages/common';
+import { EditorShell  } from '../../lib/pages/common';
+import type { ProjectState } from '../../lib/pages/common';
 import { HierarchyPanel } from '../../lib/pages/hierarchy';
 import { Inspector } from '../../lib/pages/inspector';
 import { uniqueName } from '../../lib/utils';
@@ -33,15 +34,15 @@ test.describe('asset workflows', () => {
         await hierarchy.setSelection([id]);
         await inspector.assignAsset(inspector.component('render'), 'Asset', render.name);
         const before = await workflows.launch();
-        expect(await before.evaluate(id => (window as any).pc.app.root.findByGuid(id).render.meshInstances[0].mesh.aabb.halfExtents.x, id)).toBe(1);
+        expect(await before.evaluate(id => window.pc.app.root.findByGuid(id)!.render!.meshInstances[0].mesh!.aabb.halfExtents.x, id)).toBe(1);
         await before.close();
 
         await workflows.reimport({ ...file, buffer: model(2) }, container.id);
         expect(await inspector.read(id, 'components.render.asset')).toBe(render.id);
         const after = await workflows.launch();
         expect(await after.evaluate((id) => {
-            const render = (window as any).pc.app.root.findByGuid(id).render;
-            return { asset: render.asset, width: render.meshInstances[0].mesh.aabb.halfExtents.x * 2 };
+            const render = window.pc.app.root.findByGuid(id)!.render!;
+            return { asset: render.asset, width: render.meshInstances[0].mesh!.aabb.halfExtents.x * 2 };
         }, id)).toEqual({ asset: render.id, width: 4 });
         await after.close();
     });
@@ -57,7 +58,7 @@ test.describe('asset workflows', () => {
         await assets.newAsset('Anim State Graph');
         const graph = await assets.awaitAdd({ type: 'animstategraph' });
         const states = await assets.field(graph.id, 'data.states');
-        const state = Object.values(states).find((state: any) => state.nodeType === 1) as { name: string };
+        const state = Object.values(states as Record<string, { nodeType: number; name: string }>).find(state => state.nodeType === 1) as { name: string };
         expect(state).toBeDefined();
 
         const root = await hierarchy.createEntity({ name: 'FixtureRoot' });
@@ -72,9 +73,9 @@ test.describe('asset workflows', () => {
 
         const launch = await workflows.launch();
         const played = await new EditorShell(launch).arm(({ root, child }: { root: string; child: string }) => {
-            const app = (window as any).pc.app;
-            const entity = app.root.findByGuid(child);
-            const component = app.root.findByGuid(root).anim;
+            const app = window.pc.app;
+            const entity = app.root.findByGuid(child)!;
+            const component = app.root.findByGuid(root)!.anim!;
             const initial = entity.getLocalPosition().y;
             let check: () => void;
             return {
@@ -83,7 +84,7 @@ test.describe('asset workflows', () => {
                         const y = entity.getLocalPosition().y;
                         if (Math.abs(y - initial) > 0.02) {
                             app.off('frameend', check);
-                            resolve({ y, speed: component.speed, time: component.baseLayer.activeStateCurrentTime });
+                            resolve({ y, speed: component.speed, time: component.baseLayer!.activeStateCurrentTime });
                         }
                     };
                     app.on('frameend', check);
@@ -121,7 +122,7 @@ test.describe('asset workflows', () => {
         await characters.fill('ABCé');
         await characters.press('Tab');
         const regenerated = await shell.arm((id: number) => ({ done: new Promise<void>((resolve) => {
-            const event = window.editor.on('fonts:reprocessed', (asset: any) => {
+            const event = window.editor.on('fonts:reprocessed', (asset: Asset) => {
                 if (Number(asset.get('id')) === id) {
                     event.unbind();
                     resolve();
@@ -145,7 +146,7 @@ test.describe('asset workflows', () => {
 
         const launch = await workflows.launch();
         const rendered = await launch.evaluate((id) => {
-            const element = (window as any).pc.app.root.findByGuid(id).element;
+            const element = window.pc.app.root.findByGuid(id)!.element!;
             return {
                 text: element.text,
                 chars: Object.keys(element.font.data.chars),

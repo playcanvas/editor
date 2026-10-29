@@ -13,8 +13,9 @@ export type ArmCap = { what: string; timeout: number };
  * the handle. Works for any emitter the page has: the editor Caller, the editor-api globals,
  * an observer, the engine app.
  */
-export const arm = async <T>(page: Page | Frame, subscribe: (arg: any) => Armed<T>, arg?: any, cap?: ArmCap) => {
-    const handle = await page.evaluateHandle(subscribe, arg);
+export const arm = async <T, A = unknown>(page: Page | Frame, subscribe: (arg: A) => Armed<T>, arg?: A, cap?: ArmCap) => {
+    // playwright types the page-side argument as `Unboxed<A>`, which a generic `A` can't match
+    const handle = await page.evaluateHandle(subscribe as (arg: unknown) => Armed<T>, arg);
     return async () => {
         const value = await page.evaluate(({ armed, cap: c }) => {
             if (!c) {

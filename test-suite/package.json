@@ -6,16 +6,17 @@
   "license": "MIT",
   "type": "module",
   "devDependencies": {
-    "@playcanvas/eslint-config": "2.1.0",
+    "@playcanvas/eslint-config": "3.0.0-beta.9",
     "@playcanvas/observer": "1.7.1",
     "@playwright/test": "1.59.0",
     "@types/node": "22.5.0",
-    "@typescript-eslint/parser": "8.47.0",
+    "@types/sharedb": "3.3.13",
     "bottleneck": "2.19.5",
     "dotenv": "17.2.3",
     "eslint": "9.39.1",
-    "globals": "16.5.0",
+    "monaco-editor": "0.47.0",
     "node-fetch": "3.3.2",
+    "playcanvas": "2.23.3",
     "tsx": "4.22.4"
   },
   "peerDependencies": {
@@ -38,6 +39,6 @@
     "type:check": "npm run build:types && tsc --declaration --emitDeclarationOnly"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": "^22.13.0 || >=24"
   }
 }

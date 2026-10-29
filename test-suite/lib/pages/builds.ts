@@ -1,6 +1,8 @@
-import { expect, type Page } from '@playwright/test';
+import { expect  } from '@playwright/test';
+import type { Page } from '@playwright/test';
 
 import { JOB_TIMEOUT } from '../constants';
+
 import { EditorShell } from './common';
 
 type Kind = 'download' | 'publish';

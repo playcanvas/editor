@@ -24,8 +24,8 @@ import { uniqueName } from '../../lib/utils';
 
 /** ids of every project owned by the current user */
 const projectIds = (page: Page) => page.evaluate(async () => {
-    const res: any = await window.editor.api.globals.rest.users.userProjects(window.config.self.id, '').promisify();
-    return (res.result ?? []).map((project: any) => project.id as number);
+    const res = await window.editor.api.globals.rest.users.userProjects(window.config.self.id, '').promisify() as ListResponse<{ id: number }>;
+    return (res.result ?? []).map(project => project.id as number);
 });
 
 test.describe('create/delete', () => {
@@ -175,7 +175,7 @@ test.describe('navigation', () => {
                     }
 
                     const launch = await openLaunch(sceneId, args);
-                    expect(await launch.evaluate(() => (window as any).pc.app.frame)).toBeGreaterThan(0);
+                    expect(await launch.evaluate(() => window.pc.app.frame)).toBeGreaterThan(0);
                 });
             }
         }
@@ -218,8 +218,8 @@ test.describe('publish/download', () => {
     };
 
     const appIds = (page: Page) => page.evaluate(async () => {
-        const res: any = await window.editor.api.globals.rest.projects.projectApps().promisify();
-        return (res.result ?? []).map((app: any) => app.id as number);
+        const res = await window.editor.api.globals.rest.projects.projectApps().promisify() as ListResponse<{ id: number }>;
+        return (res.result ?? []).map(app => app.id as number);
     });
 
     test('goto editor', async ({ page }) => {

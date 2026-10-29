@@ -33,7 +33,7 @@ export class E2eThrow extends Script {
 `.trim();
 
 const device = (page: Page) => page.evaluate(() => {
-    const gd = (window as any).pc.app.graphicsDevice;
+    const gd = window.pc.app.graphicsDevice;
     return { type: gd.deviceType as string, isWebGPU: !!gd.isWebGPU, isWebGL2: !!gd.isWebGL2 };
 });
 
@@ -42,7 +42,7 @@ test.describe('runtime', () => {
         const launch = await openLaunch(project.sceneId);
 
         const state = await launch.evaluate(() => {
-            const app = (window as any).pc.app;
+            const app = window.pc.app;
             return {
                 frame: app.frame as number,
                 children: app.scene.root.children.length as number,
@@ -86,7 +86,7 @@ test.describe('runtime', () => {
         const assetId = await createEsmScript(editorPage, `${file}.mjs`, scriptText(script));
 
         const guid = await editorPage.evaluate((name) => {
-            return window.editor.api.globals.entities.create({ name } as any).get('resource_id') as string;
+            return window.editor.api.globals.entities.create({ name } as CreateEntityArguments).get('resource_id') as string;
         }, uniqueName('thrower'));
 
         try {

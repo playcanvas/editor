@@ -4,7 +4,8 @@ import { JOB_TEST_TIMEOUT, READY_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { AssetWorkflows } from '../../lib/pages/asset-workflows';
 import { AssetsPanel } from '../../lib/pages/assets';
-import { EditorShell, type ProjectState } from '../../lib/pages/common';
+import { EditorShell  } from '../../lib/pages/common';
+import type { ProjectState } from '../../lib/pages/common';
 import { HierarchyPanel } from '../../lib/pages/hierarchy';
 import { Inspector } from '../../lib/pages/inspector';
 import { waitForEditor } from '../../lib/ready';
@@ -90,14 +91,14 @@ test.describe('runtime components', () => {
 
             const launch = await workflows.launch();
             const state = await launch.evaluate((id) => {
-                const joint = (window as any).pc.app.root.findByGuid(id).joint;
-                return { type: joint.type, a: joint.entityA.getGuid(), b: joint.entityB.getGuid(), constraint: !!joint.constraint };
+                const joint = window.pc.app.root.findByGuid(id)!.joint!;
+                return { type: joint.type, a: joint.entityA!.getGuid(), b: joint.entityB!.getGuid(), constraint: !!joint.constraint };
             }, id);
             expect(state).toEqual({ type: type.toLowerCase(), a, b, constraint: true });
             if (type === 'Slider') {
                 const moved = await new EditorShell(launch).arm((id: string) => {
-                    const app = (window as any).pc.app;
-                    const body = app.root.findByGuid(id);
+                    const app = window.pc.app;
+                    const body = app.root.findByGuid(id)!;
                     return { done: new Promise<number>((resolve) => {
                         const check = () => {
                             const x = body.getPosition().x;
