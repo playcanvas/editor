@@ -1,10 +1,8 @@
 @use 'sass:color';
+@use 'sass:map';
 
-$bright-red: #e74c3c;
-$bright-yellow: #f1c40f;
-$status-info: #b1b8ba;
-$status-error: $bright-red;
-$status-warn: $bright-yellow;
+$console-icons: (info: '\E400', warn: '\E218', error: '\E368');
+$console-colors: (warn: $status-warn, error: $status-error);
 
 // bottom console
 #layout-console {
@@ -52,44 +50,26 @@ $status-warn: $bright-yellow;
                 margin-right: 5px;
             }
 
-            &.info {
-                &::before {
-                    content: '\E400';
-                }
-            }
-
-            &.warn {
-                &::before {
-                    content: '\E218';
-                }
-
-                &.found {
-                    color: $status-warn;
-
-                    &.disabled {
-                        color: color.mix($text-darkest, $status-warn, 50%);
+            @each $type, $icon in $console-icons {
+                &.#{$type} {
+                    &::before {
+                        content: $icon;
                     }
-    
-                    &:hover {
-                        color: #fff;
-                    }
-                }
-            }
 
-            &.error {
-                &::before {
-                    content: '\E368';
-                }
+                    $color: map.get($console-colors, $type);
 
-                &.found {
-                    color: $status-error;
+                    @if $color {
+                        &.found {
+                            color: $color;
 
-                    &.disabled {
-                        color: color.mix($text-darkest, $status-error, 50%);
-                    }
-    
-                    &:hover {
-                        color: #fff;
+                            &.disabled {
+                                color: color.mix($text-darkest, $color, 50%);
+                            }
+
+                            &:hover {
+                                color: #fff;
+                            }
+                        }
                     }
                 }
             }
@@ -207,21 +187,9 @@ $status-warn: $bright-yellow;
                 text-align: center;
             }
 
-            &.clear {
-                &::before {
-                    content: '\E328';
-                }
-            }
-
-            &.copy {
-                &::before {
-                    content: '\E126';
-                }
-            }
-
-            &.history {
-                &::before {
-                    content: '\E209';
+            @each $name, $icon in (clear: '\E328', copy: '\E126', history: '\E209') {
+                &.#{$name}::before {
+                    content: $icon;
                 }
             }
         }
@@ -247,34 +215,24 @@ $status-warn: $bright-yellow;
             border-bottom: 1px solid $bcg-dark;
             justify-content: space-between;
     
-            &.error {
-                .console-item-icon {
-                    color: $status-error;
-    
-                    &::before {
-                        content: '\E368';
+            @each $type in error, warn {
+                $color: map.get($console-colors, $type);
+
+                &.#{$type} {
+                    .console-item-icon {
+                        color: $color;
+
+                        &::before {
+                            content: map.get($console-icons, $type);
+                        }
+                    }
+
+                    .console-item-text {
+                        color: $color;
                     }
                 }
-
-                .console-item-text {
-                    color: $status-error;
-                }
             }
-    
-            &.warn {
-                .console-item-icon {
-                    color: $status-warn;
-    
-                    &::before {
-                        content: '\E218';
-                    }
-                }
 
-                .console-item-text {
-                    color: $status-warn;
-                }
-            }
-    
             .console-item-icon {
                 min-width: fit-content;
 
@@ -299,10 +257,6 @@ $status-warn: $bright-yellow;
                 padding: 2px 5px 0;
                 margin: auto 0;
                 border-radius: 10px;
-
-                &.hidden {
-                    display: none;
-                }
             }
 
             .console-item-text {

@@ -1,5 +1,3 @@
-@use 'sass:color';
-
 // new project, new organization and delete organization pickers: the project picker frame with projects-page controls
 // corners: 8px kit cards, 6px controls (inputs, buttons)
 
@@ -81,7 +79,7 @@
 
             // regular text, not the form's bold labels; only the name is bold
             .pcui-label {
-                @extend .font-regular;
+                @extend %font-regular;
 
                 margin: 0;
             }
@@ -95,7 +93,7 @@
         }
 
         .fork-source-info .fork-source-name {
-            @extend .font-bold;
+            @extend %font-bold;
 
             overflow: hidden;
             color: $text-primary;
@@ -119,14 +117,13 @@
         }
 
         .fork-source-avatar {
-            width: 20px;
-            height: 20px;
+            @include avatar;
+
             margin-right: -4px;
-            border-radius: 50%;
         }
 
         .fork-divider {
-            @extend .font-regular;
+            @extend %font-regular;
 
             display: flex;
             align-items: center;
@@ -203,7 +200,7 @@
         color: $text-primary;
         font-size: 13px;
 
-        @extend .font-bold;
+        @extend %font-bold;
     }
 
     .modal-new-project-kits-container {
@@ -264,11 +261,7 @@
             background-color: $bcg-darkest;
 
             img {
-                display: block;
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                transition: transform $cms-ease;
+                @include thumb-cover;
             }
 
             .overlay {
@@ -329,20 +322,18 @@
             text-overflow: ellipsis;
             white-space: nowrap;
 
-            @extend .font-bold;
+            @extend %font-bold;
         }
 
         .kit-desc {
-            display: -webkit-box;
+            @include line-clamp;
+
             min-height: 32px;
             margin: 4px 12px 12px;
-            overflow: hidden;
             color: $text-dark;
             font-size: 12px;
             line-height: 16px;
             white-space: normal;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 2;
         }
     }
 
@@ -448,13 +439,11 @@
             background-color: $bcg-darker;
 
             > .owner-profile {
-                width: 20px;
-                height: 20px;
-                border-radius: 50%;
+                @include avatar;
             }
 
             > .owner-static-name {
-                @extend .font-regular;
+                @extend %font-regular;
 
                 color: $text-primary;
                 font-size: 13px;
@@ -470,12 +459,11 @@
             }
 
             .owner-profile {
+                @include avatar;
+
                 position: absolute;
                 top: 50%;
                 left: 8px;
-                width: 20px;
-                height: 20px;
-                border-radius: 50%;
                 transform: translateY(-50%);
             }
 
@@ -498,7 +486,7 @@
             // the value and options read as field text, not as the dialog's bold labels
             .pcui-select-input-value,
             .pcui-select-input-list > .pcui-label {
-                @extend .font-regular;
+                @extend %font-regular;
 
                 color: $text-primary;
                 font-size: 13px;
@@ -524,12 +512,10 @@
 
             // the open list, styled like the projects page menus
             .pcui-select-input-list {
+                @include float-panel;
+
                 margin: 4px 0;
                 padding: 4px;
-                border: 1px solid $border-primary;
-                border-radius: $radius-control;
-                background-color: $cms-float;
-                box-shadow: $cms-float-shadow;
                 box-sizing: border-box;
 
                 > * {
@@ -624,7 +610,7 @@
     }
 }
 
-// dialog() content: the shell itself lives in _editor-ui-components.scss
+// dialog() content: the shell itself lives in _editor-pm-components.scss
 
 // form fields in the new organization and type-to-confirm dialogs
 .pcui-overlay.pm-dialog {
@@ -689,7 +675,7 @@
         color: $text-primary;
         font-size: 15px;
 
-        @extend .font-bold;
+        @extend %font-bold;
     }
 
     .preview-text {
@@ -706,7 +692,7 @@
         font-size: 14px;
         text-overflow: ellipsis;
 
-        @extend .font-bold;
+        @extend %font-bold;
     }
 
     .preview-url {
@@ -807,12 +793,10 @@
         min-height: 40px;
         margin-top: -8px;
         padding: 4px 12px;
-        border: 1px solid $border-primary;
-        border-radius: $radius-control;
-        background-color: $cms-float;
-        box-shadow: $cms-float-shadow;
         color: $text-primary;
         font-size: 13px;
+
+        @include float-panel;
 
         // the match is the highlighted row
         &:not(.error)::before {
@@ -839,9 +823,7 @@
     }
 
     .transfer-recipient-avatar {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
+        @include avatar;
     }
 
     .transfer-recipient-name {
@@ -872,7 +854,7 @@
     }
 
     .import-report-count {
-        @extend .font-bold;
+        @extend %font-bold;
 
         display: block;
         margin: 0 0 8px;

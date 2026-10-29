@@ -24,20 +24,24 @@
         flex: none;
         margin-right: 8px;
 
-        > .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #ff8a8a;
-        }
-
         > .count {
             font-size: 11px;
             color: $text-dark;
         }
+    }
+
+    // unresolved/resolved state dot (sidebar rows and the merge editor status bar)
+    .vc-diff-row > .vc-merge-state,
+    .vc-merge-editor-status {
+        > .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: $vc-deleted;
+        }
 
         &.resolved > .dot {
-            background: #6fd088;
+            background: $vc-added;
         }
     }
 
@@ -193,7 +197,7 @@
         }
 
         .title {
-            @extend .font-bold;
+            @extend %font-bold;
 
             color: $text-primary;
             font-size: 13px;
@@ -206,8 +210,8 @@
         }
 
         &.resolved > .dot {
-            border-color: #6fd088;
-            background: #6fd088;
+            border-color: $vc-added;
+            background: $vc-added;
             box-shadow: inset 0 0 0 4px $bcg-darker;
         }
     }
@@ -225,7 +229,7 @@
         }
 
         .title {
-            @extend .font-bold;
+            @extend %font-bold;
 
             color: $text-primary;
             font-size: 13px;
@@ -312,7 +316,7 @@
         }
 
         .name {
-            @extend .font-bold;
+            @extend %font-bold;
 
             overflow: hidden;
             color: $text-primary;
@@ -338,7 +342,7 @@
 
     .vc-merge-editor-secondary,
     .vc-merge-editor-primary {
-        @extend .font-bold;
+        @extend %font-bold;
 
         height: 32px;
         margin: 0;
@@ -405,21 +409,10 @@
         border-top: 1px solid $border-primary;
         background: $bcg-dark;
 
-        > .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #ff8a8a;
-        }
-
         > .status {
             margin: 0;
             color: $text-dark;
             font-size: 11px;
-        }
-
-        &.resolved > .dot {
-            background: #6fd088;
         }
     }
 }

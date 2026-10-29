@@ -1,23 +1,18 @@
 @use 'sass:color';
 
-$bright-red: #e74c3c;
-
-.toolbar-alert {
-    display: flex;
-    background-color: $bright-red;
+// a full-width alert bar, also used by the scene size alert; @content styles its label
+// (the shared close button follows .toolbar-alert)
+@mixin alert-bar {
     grid-column: 1 / -1;
     height: 30px;
     line-height: 30px;
     padding-left: 10px;
-    border-top: 1px solid color.mix($bright-red, $border-primary, 60%);
 
     .pcui-label {
-        width: 100%;
-        color: #fff;
-        font-size: 14px;
+        @content;
+
         height: 30px;
         line-height: 30px;
-        text-align: center;
         margin: 0;
         vertical-align: bottom;
 
@@ -25,7 +20,23 @@ $bright-red: #e74c3c;
             color: yellow;
         }
     }
+}
 
+.toolbar-alert {
+    display: flex;
+    background-color: $bright-red;
+    border-top: 1px solid color.mix($bright-red, $border-primary, 60%);
+
+    @include alert-bar {
+        width: 100%;
+        color: #fff;
+        font-size: 14px;
+        text-align: center;
+    }
+}
+
+.toolbar-alert,
+#scene-size-alert {
     .pcui-button.close {
         float: right;
         padding: 0;
@@ -45,5 +56,14 @@ $bright-red: #e74c3c;
         &:hover {
             opacity: 1;
         }
+    }
+}
+
+#scene-size-alert {
+    background-color: #e95e4f;
+
+    @include alert-bar {
+        color: white;
+        font-size: 12px;
     }
 }

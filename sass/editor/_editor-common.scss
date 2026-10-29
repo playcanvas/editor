@@ -33,14 +33,6 @@ $asset-icons: (
     }
 }
 
-.asset-icon-postfix {
-    @each $name, $glyph in $asset-icons {
-        &.type-#{$name}:after {
-            content: $glyph;
-        }
-    }
-}
-
 $component-icons: (
     'anim': '\E198',
     'animation': '\E198',

@@ -1,0 +1,8 @@
+// pcui styling plus the only editor extension the code editor creates; the editor uses _pcui.scss instead
+@import '../../node_modules/@playcanvas/pcui/dist/pcui-theme-green';
+@import 'pcui-tooltip';
+
+// this should always be last
+.pcui-hidden {
+    display: none;
+}

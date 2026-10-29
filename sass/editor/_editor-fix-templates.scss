@@ -48,15 +48,6 @@
             padding: 5px 20px;
             border-top: 1px solid $border-primary;
         }
-
-        .pcui-button.cancel {
-            background: $text-active;
-            color: $text-primary;
-
-            &:hover {
-                background: color.adjust($text-active, $lightness: -5%);
-            }
-        }
     }
 }
 
@@ -81,14 +72,17 @@
             line-height: 1.5;
             color: $text-primary;
         }
+    }
+}
 
-        .pcui-button.cancel {
-            background: $text-active;
-            color: $text-primary;
+.picker-fix-templates .pcui-overlay-content,
+.picker-fix-templates-fullscreen .pcui-overlay-content {
+    .pcui-button.cancel {
+        background: $text-active;
+        color: $text-primary;
 
-            &:hover {
-                background: color.adjust($text-active, $lightness: -5%);
-            }
+        &:hover {
+            background: color.adjust($text-active, $lightness: -5%);
         }
     }
 }

@@ -1,3 +1,117 @@
+// change-state colours shared by the version control pickers
+$vc-added: #6fd088;
+$vc-modified: #f3c16f;
+$vc-deleted: #ff8a8a;
+
+// header bar + heading shared by the vc overlays and the picker's progress widget
+@mixin vc-status-head($header, $top: null) {
+    #{$header} {
+        display: flex;
+        align-items: center;
+        min-height: 36px;
+        padding: 0 14px;
+        border-bottom: 1px solid $border-primary;
+        background: $bcg-dark;
+        top: $top;
+    }
+
+    .vc-heading {
+        @extend %font-bold;
+
+        margin: 0;
+        color: $text-primary;
+        font-size: 14px;
+        line-height: 1.2;
+    }
+}
+
+// status row with its spinner/check/cross icon; @content adds icon variants
+@mixin vc-status-row($icon, $spin, $top: null) {
+    .status-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 56px;
+        padding: 11px 12px;
+        top: $top;
+    }
+
+    .icon-cell {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 24px;
+        height: 24px;
+        color: $text-active;
+    }
+
+    #{$icon} {
+        position: relative;
+        display: grid;
+        place-items: center;
+        width: 24px;
+        height: 24px;
+        color: $text-active;
+
+        @content;
+
+        &.hidden {
+            display: none;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #773417;
+            border-top-color: $text-active;
+            border-radius: 50%;
+            animation: $spin 850ms linear infinite;
+        }
+
+        .check,
+        .cross {
+            position: relative;
+            display: block;
+            width: 18px;
+            height: 18px;
+        }
+
+        .check::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 12px;
+            height: 7px;
+            border-left: 2px solid #82d993;
+            border-bottom: 2px solid #82d993;
+            transform: translate(-50%, -62%) rotate(-45deg);
+            transform-origin: center;
+        }
+
+        .cross::before,
+        .cross::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 15px;
+            height: 2px;
+            border-radius: 2px;
+            background: $vc-deleted;
+            transform-origin: center;
+        }
+
+        .cross::before {
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+
+        .cross::after {
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+    }
+}
+
 .pcui-overlay.version-control-overlay {
     z-index: 9999; // just below the confirm picker
     &.show-behind-picker {
@@ -23,24 +137,7 @@
             padding: 0;
         }
 
-        .vc-overlay-header {
-            display: flex;
-            align-items: center;
-            min-height: 36px;
-            padding: 0 14px;
-            border-bottom: 1px solid $border-primary;
-            background: $bcg-dark;
-            top: auto;
-        }
-
-        .vc-heading {
-            @extend .font-bold;
-
-            margin: 0;
-            color: $text-primary;
-            font-size: 14px;
-            line-height: 1.2;
-        }
+        @include vc-status-head('.vc-overlay-header', auto);
 
         .vc-overlay-body {
             padding: 12px;
@@ -54,92 +151,12 @@
             overflow: hidden;
         }
 
-        .status-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            min-height: 56px;
-            padding: 11px 12px;
-            top: auto;
-        }
-
-        .icon-cell {
-            flex: none;
-            display: grid;
-            place-items: center;
-            width: 24px;
-            height: 24px;
-            color: $text-active;
-        }
-
-        .vc-overlay-icon {
-            position: relative;
-            display: grid;
-            place-items: center;
-            width: 24px;
-            height: 24px;
-            color: $text-active;
-
+        @include vc-status-row('.vc-overlay-icon', spin-360, auto) {
             &.merge {
                 @extend .font-icon;
 
                 font-size: 21px;
                 line-height: 1;
-            }
-
-            &.hidden {
-                display: none;
-            }
-
-            .spinner {
-                width: 16px;
-                height: 16px;
-                border: 2px solid #773417;
-                border-top-color: $text-active;
-                border-radius: 50%;
-                animation: vc-overlay-spin 850ms linear infinite;
-            }
-
-            .check,
-            .cross {
-                position: relative;
-                display: block;
-                width: 18px;
-                height: 18px;
-            }
-
-            .check::before {
-                content: '';
-                position: absolute;
-                left: 50%;
-                top: 50%;
-                width: 12px;
-                height: 7px;
-                border-left: 2px solid #82d993;
-                border-bottom: 2px solid #82d993;
-                transform: translate(-50%, -62%) rotate(-45deg);
-                transform-origin: center;
-            }
-
-            .cross::before,
-            .cross::after {
-                content: '';
-                position: absolute;
-                left: 50%;
-                top: 50%;
-                width: 15px;
-                height: 2px;
-                border-radius: 2px;
-                background: #ff8a8a;
-                transform-origin: center;
-            }
-
-            .cross::before {
-                transform: translate(-50%, -50%) rotate(45deg);
-            }
-
-            .cross::after {
-                transform: translate(-50%, -50%) rotate(-45deg);
             }
         }
 
@@ -154,7 +171,7 @@
                 line-height: 1.35;
 
                 &.title {
-                    @extend .font-bold;
+                    @extend %font-bold;
 
                     color: $text-primary;
                     font-size: 14px;
@@ -167,7 +184,6 @@
                 }
             }
         }
-
     }
 
     &.merge-overlay {
@@ -237,7 +253,7 @@
                     box-sizing: border-box;
 
                     .pcui-button {
-                        @extend .font-bold;
+                        @extend %font-bold;
 
                         font-size: 13px;
                         width: 140px;
@@ -269,19 +285,11 @@
                         &:active {
                             box-shadow: none;
                         }
-
-                        &.disabled {
-                            opacity: 0.2;
-                        }
                     }
                 }
             }
         }
     }
-}
-
-@keyframes vc-overlay-spin {
-    to { transform: rotate(360deg); }
 }
 
 // mirrors .pcui-menu.picker-builds-menu so both pickers share one menu look

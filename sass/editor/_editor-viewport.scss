@@ -1,8 +1,8 @@
-@use 'sass:color';
-
 $control-strip-inset: 4px;
 $control-strip-height: 32px;
 $control-strip-gap: 2px;
+$control-strip-bg: rgba($bcg-darker, 0.5);
+$control-strip-bg-hover: rgba($bcg-darker, 0.75);
 
 #canvas-3d {
     width: 100%;
@@ -45,7 +45,7 @@ $control-strip-gap: 2px;
             border: none;
             border-radius: 0;
             color: rgba($text-primary, 0.75);
-            background-color: rgba($bcg-darker, 0.5);
+            background-color: $control-strip-bg;
 
             &.active {
                 color: $text-active;
@@ -58,7 +58,7 @@ $control-strip-gap: 2px;
 
             &:hover {
                 color: $text-primary;
-                background-color: rgba($bcg-darker, 0.75);
+                background-color: $control-strip-bg-hover;
             }
         }
     }
@@ -86,12 +86,12 @@ $control-strip-gap: 2px;
         border: none;
         border-radius: 0;
         color: rgba($text-primary, 0.75);
-        background-color: rgba($bcg-darker, 0.5);
+        background-color: $control-strip-bg;
 
         &:hover,
         &.active {
             color: $text-primary;
-            background-color: rgba($bcg-darker, 0.75);
+            background-color: $control-strip-bg-hover;
             box-shadow: none;
         }
 
@@ -118,14 +118,14 @@ $control-strip-gap: 2px;
     .control-strip-crumbs {
         display: flex;
         align-items: center;
-        background-color: rgba($bcg-darker, 0.5);
+        background-color: $control-strip-bg;
 
         > .control-strip-btn {
             background-color: transparent;
 
             &:hover,
             &.active {
-                background-color: rgba($bcg-darker, 0.75);
+                background-color: $control-strip-bg-hover;
             }
         }
 
@@ -183,7 +183,7 @@ $control-strip-gap: 2px;
 
     &:hover > .pcui-button {
         color: $text-primary;
-        background-color: rgba($bcg-darker, 0.75);
+        background-color: $control-strip-bg-hover;
     }
 
     > .render-options,
@@ -196,7 +196,7 @@ $control-strip-gap: 2px;
         min-width: 150px;
         max-height: 300px;
         overflow: hidden auto;
-        background-color: rgba($bcg-darker, .75);
+        background-color: $control-strip-bg-hover;
 
         .pcui-container {
             flex-direction: row;
@@ -230,7 +230,7 @@ $control-strip-gap: 2px;
 
         .divider {
             height: 3px;
-            background-color: rgba($bcg-darker, .75);
+            background-color: $control-strip-bg-hover;
             margin: 5px 0;
         }
     }
@@ -239,7 +239,7 @@ $control-strip-gap: 2px;
 .control-strip > .launch {
     position: relative;
 
-    &:not(.disabled):hover {
+    &:hover {
         > .pcui-button {
             background-color: $text-active;
         }
@@ -258,7 +258,7 @@ $control-strip-gap: 2px;
         margin: 0;
         padding: 5px;
         list-style: none;
-        background-color: rgba($bcg-darker, 0.75);
+        background-color: $control-strip-bg-hover;
 
         .pcui-boolean-input:not(.pcui-boolean-input-ticked) {
             background-color: #20292b;
@@ -343,18 +343,6 @@ $control-strip-gap: 2px;
 
             > .pcui-button {
                 display: none;
-            }
-        }
-    }
-
-    &.notify {
-        > .pcui-panel-header {
-            &::after {
-                color: $text-active;
-            }
-
-            > .title {
-                color: $text-primary;
             }
         }
     }
@@ -526,7 +514,6 @@ $control-strip-gap: 2px;
 
             &.not-empty {
                 padding: 0;
-                content: '';
                 background-color: $bcg-darkest;
 
                 &::after {

@@ -3,38 +3,9 @@ $vc-node-fill: #2a3437; // matches VC_GRAPH_NODE_FILL in vc-utils.ts
 .pcui-overlay.vc-graph-overlay {
     z-index: 301; // above the project picker (300), below the diff picker (302)
 
-    &.vc-graph-background {
-        z-index: 301; // legacy state class; diff picker is above this at 302
-    }
-
-    // small centred box that tweens to fullscreen. resized once the tween completes (see the
-    // toggle handler) since pcui-graph's ResizeObserver doesn't follow a class-driven size change
-    > .pcui-overlay-content {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        width: 1060px;
-        height: 600px;
-        transform: translate(-50%, -50%);
-        overflow: hidden;
-        transition: width 200ms ease, height 200ms ease, transform 200ms ease;
-    }
-
-    // fullscreen: fill the viewport right of the 40px left toolbar
-    &.fullscreen > .pcui-overlay-content {
-        width: calc(100% - 40px);
-        height: 100%;
-        transform: translate(calc(-50% + 20px), -50%);
-    }
-
-    // below the small-box breakpoint: force fullscreen
-    @media (max-width: 1099px) {
-        > .pcui-overlay-content {
-            width: calc(100% - 40px);
-            height: 100%;
-            transform: translate(calc(-50% + 20px), -50%);
-        }
-    }
+    // resized once the tween completes (see the toggle handler) since pcui-graph's
+    // ResizeObserver doesn't follow a class-driven size change
+    @include vc-fullscreen-box(1099px, (overflow: hidden));
 }
 
 .pcui-container.vc-graph-panel {
@@ -144,18 +115,11 @@ $vc-node-fill: #2a3437; // matches VC_GRAPH_NODE_FILL in vc-utils.ts
     }
 
     .vc-graph-node-hash {
-        @extend .fixedFont;
+        @include vc-hash;
 
         position: absolute;
         top: 13px;
         right: 12px;
-        padding: 0 5px;
-        border: 1px solid $border-primary;
-        border-radius: 4px;
-        background-color: rgb(0 0 0 / 20%);
-        color: $text-secondary;
-        font-size: 11px;
-        line-height: 16px;
     }
 
     .vc-graph-node-expandable {
@@ -308,7 +272,7 @@ $vc-node-fill: #2a3437; // matches VC_GRAPH_NODE_FILL in vc-utils.ts
         }
 
         > .pcui-panel-header > .pcui-panel-header-title {
-            @extend .font-bold;
+            @extend %font-bold;
         }
     }
 
@@ -390,7 +354,7 @@ $vc-node-fill: #2a3437; // matches VC_GRAPH_NODE_FILL in vc-utils.ts
             > span {
                 position: absolute;
                 background-color: rgb(255 255 255 / 10%);
-                animation: vc-skeleton-pulse 1.4s ease-in-out infinite;
+                animation: skeleton-pulse 1.4s ease-in-out infinite;
             }
 
             .avatar {
@@ -441,7 +405,6 @@ $vc-node-fill: #2a3437; // matches VC_GRAPH_NODE_FILL in vc-utils.ts
             }
         }
     }
-
 }
 
 .pcui-menu.vc-node-menu {
@@ -499,7 +462,7 @@ $vc-node-fill: #2a3437; // matches VC_GRAPH_NODE_FILL in vc-utils.ts
             margin-right: 8px;
             border-radius: 50%;
             background: $text-secondary;
-            animation: vc-skeleton-pulse 1.4s ease-in-out infinite;
+            animation: skeleton-pulse 1.4s ease-in-out infinite;
         }
     }
 }
