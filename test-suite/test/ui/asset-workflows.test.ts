@@ -34,15 +34,15 @@ test.describe('asset workflows', () => {
         await hierarchy.setSelection([id]);
         await inspector.assignAsset(inspector.component('render'), 'Asset', render.name);
         const before = await workflows.launch();
-        expect(await before.evaluate(id => window.pc.app.root.findByGuid(id)!.render.meshInstances[0].mesh.aabb.halfExtents.x, id)).toBe(1);
+        expect(await before.evaluate(id => window.pc.app.root.findByGuid(id)!.render!.meshInstances[0].mesh!.aabb.halfExtents.x, id)).toBe(1);
         await before.close();
 
         await workflows.reimport({ ...file, buffer: model(2) }, container.id);
         expect(await inspector.read(id, 'components.render.asset')).toBe(render.id);
         const after = await workflows.launch();
         expect(await after.evaluate((id) => {
-            const render = window.pc.app.root.findByGuid(id)!.render;
-            return { asset: render.asset, width: render.meshInstances[0].mesh.aabb.halfExtents.x * 2 };
+            const render = window.pc.app.root.findByGuid(id)!.render!;
+            return { asset: render.asset, width: render.meshInstances[0].mesh!.aabb.halfExtents.x * 2 };
         }, id)).toEqual({ asset: render.id, width: 4 });
         await after.close();
     });
@@ -75,7 +75,7 @@ test.describe('asset workflows', () => {
         const played = await new EditorShell(launch).arm(({ root, child }: { root: string; child: string }) => {
             const app = window.pc.app;
             const entity = app.root.findByGuid(child)!;
-            const component = app.root.findByGuid(root)!.anim;
+            const component = app.root.findByGuid(root)!.anim!;
             const initial = entity.getLocalPosition().y;
             let check: () => void;
             return {
@@ -84,7 +84,7 @@ test.describe('asset workflows', () => {
                         const y = entity.getLocalPosition().y;
                         if (Math.abs(y - initial) > 0.02) {
                             app.off('frameend', check);
-                            resolve({ y, speed: component.speed, time: component.baseLayer.activeStateCurrentTime });
+                            resolve({ y, speed: component.speed, time: component.baseLayer!.activeStateCurrentTime });
                         }
                     };
                     app.on('frameend', check);
@@ -146,7 +146,7 @@ test.describe('asset workflows', () => {
 
         const launch = await workflows.launch();
         const rendered = await launch.evaluate((id) => {
-            const element = window.pc.app.root.findByGuid(id)!.element;
+            const element = window.pc.app.root.findByGuid(id)!.element!;
             return {
                 text: element.text,
                 chars: Object.keys(element.font.data.chars),

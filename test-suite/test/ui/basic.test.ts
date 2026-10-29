@@ -5,6 +5,7 @@ import { promisify } from 'node:util';
 import { tmpdir } from 'os';
 
 import type { BrowserContext, Frame, Locator, Page } from '@playwright/test';
+import type { Entity, StandardMaterial } from 'playcanvas';
 
 import {
     checkCookieAccept,
@@ -54,8 +55,8 @@ const populate = async (page: Page) => {
 const verifyDelivery = async (page: Page | Frame) => {
     await waitForLaunch(page);
     expect(await page.evaluate((box) => {
-        const entity = window.pc.app.root.findByName(box);
-        const material = entity?.render?.meshInstances[0]?.material;
+        const entity = window.pc.app.root.findByName(box) as Entity | null;
+        const material = entity?.render?.meshInstances[0]?.material as StandardMaterial | undefined;
         return {
             parent: entity?.parent?.name,
             type: entity?.render?.type,

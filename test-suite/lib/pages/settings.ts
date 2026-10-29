@@ -1,4 +1,5 @@
 import type { Locator, Page } from '@playwright/test';
+import type { Connection } from 'sharedb/lib/client';
 
 import { EditorShell } from './common';
 
@@ -160,7 +161,7 @@ export class SettingsDialog {
      */
     flushProjectSettings() {
         return this.page.evaluate(() => new Promise<void>((resolve) => {
-            const connection = window.editor.call('realtime:connection') as { get(collection: string, id: unknown): { whenNothingPending(callback: () => void): void } };
+            const connection = window.editor.call('realtime:connection') as Connection;
             const doc = connection.get('settings', window.config.project.settings.id);
             doc.whenNothingPending(resolve);
         }));

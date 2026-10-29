@@ -226,8 +226,10 @@ export class EditorShell {
     /** Waits for every backend job the editor started (script attribute defaults, imports) to report back. */
     async flushJobs() {
         const drained = await this.arm(() => {
-            const jobs = window.editor.api.globals.jobs as unknown as { _jobsInProgress: Record<string, unknown>; on(event: string, callback: () => void): EventHandle };
-            const pending = () => Object.keys(jobs._jobsInProgress).length > 0;
+            const jobs = window.editor.api.globals.jobs;
+
+            // the in-flight map is private on Jobs, which exposes no getter for it
+            const pending = () => Object.keys((jobs as unknown as { _jobsInProgress: Record<string, unknown> })._jobsInProgress).length > 0;
             if (!pending()) {
                 return { done: Promise.resolve() };
             }

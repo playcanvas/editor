@@ -91,8 +91,8 @@ test.describe('runtime components', () => {
 
             const launch = await workflows.launch();
             const state = await launch.evaluate((id) => {
-                const joint = window.pc.app.root.findByGuid(id)!.joint;
-                return { type: joint.type, a: joint.entityA.getGuid(), b: joint.entityB.getGuid(), constraint: !!joint.constraint };
+                const joint = window.pc.app.root.findByGuid(id)!.joint!;
+                return { type: joint.type, a: joint.entityA!.getGuid(), b: joint.entityB!.getGuid(), constraint: !!joint.constraint };
             }, id);
             expect(state).toEqual({ type: type.toLowerCase(), a, b, constraint: true });
             if (type === 'Slider') {

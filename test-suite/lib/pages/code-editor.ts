@@ -1,4 +1,5 @@
 import type { Locator, Page } from '@playwright/test';
+import type * as monaco from 'monaco-editor';
 
 import { waitForParser } from '../common';
 
@@ -89,8 +90,8 @@ export class CodeEditor {
         // monaco binds the document end to ctrl+end on windows/linux only, so place the caret
         // through its api and leave the edit itself to real keystrokes
         await this.page.evaluate(() => {
-            const editor = window.editor.call('editor:monaco') as MonacoEditor;
-            const model = editor.getModel();
+            const editor = window.editor.call('editor:monaco') as monaco.editor.IStandaloneCodeEditor;
+            const model = editor.getModel()!;
             const line = model.getLineCount();
             editor.setPosition({ lineNumber: line, column: model.getLineMaxColumn(line) });
         });
@@ -121,7 +122,7 @@ export class CodeEditor {
     }
 
     content() {
-        return this.page.evaluate(() => (window.editor.call('editor:monaco') as MonacoEditor).getValue() as string);
+        return this.page.evaluate(() => (window.editor.call('editor:monaco') as monaco.editor.IStandaloneCodeEditor).getValue() as string);
     }
 
     tabIds() {

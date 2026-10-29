@@ -1,5 +1,7 @@
 import { readFileSync } from 'node:fs';
 
+import type { AssetResource } from 'playcanvas';
+
 import { JOB_TEST_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { AssetWorkflows } from '../../lib/pages/asset-workflows';
@@ -275,12 +277,12 @@ test.describe('components-3d', () => {
         const state = await launch.evaluate(({ id, asset }) => {
             const app = window.pc.app;
             const entity = app.root.findByGuid(id)!;
-            const resource = app.assets.get(asset).resource;
+            const resource = app.assets.get(asset)!.resource as AssetResource<'render'>;
             return {
-                collision: entity.collision.renderAsset,
-                render: entity.render.asset,
-                meshes: resource.meshes.length,
-                vertices: entity.render.meshInstances[0].mesh.vertexBuffer.numVertices
+                collision: entity.collision!.renderAsset,
+                render: entity.render!.asset,
+                meshes: resource.meshes!.length,
+                vertices: entity.render!.meshInstances[0].mesh!.vertexBuffer.numVertices
             };
         }, { id, asset: asset.id });
         expect(state).toEqual({ collision: asset.id, render: asset.id, meshes: 1, vertices: 3 });
@@ -444,7 +446,7 @@ test.describe('components-3d', () => {
         const launch = await workflows.launch();
         expect(await launch.evaluate(({ id, asset }) => {
             const app = window.pc.app;
-            return { asset: app.root.findByGuid(id)!.gsplat.asset, splats: app.assets.get(asset).resource.numSplats };
+            return { asset: app.root.findByGuid(id)!.gsplat!.asset, splats: (app.assets.get(asset)!.resource as AssetResource<'gsplat'>).numSplats };
         }, { id, asset: asset.id })).toEqual({ asset: asset.id, splats: 9 });
         await launch.close();
     });

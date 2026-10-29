@@ -10,10 +10,13 @@
     "@playcanvas/observer": "1.7.1",
     "@playwright/test": "1.59.0",
     "@types/node": "22.5.0",
+    "@types/sharedb": "3.3.13",
     "bottleneck": "2.19.5",
     "dotenv": "17.2.3",
     "eslint": "9.39.1",
+    "monaco-editor": "0.47.0",
     "node-fetch": "3.3.2",
+    "playcanvas": "2.23.3",
     "tsx": "4.22.4"
   },
   "peerDependencies": {
