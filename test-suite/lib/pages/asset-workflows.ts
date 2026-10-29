@@ -2,6 +2,7 @@ import type { Page } from '@playwright/test';
 
 import { JOB_TIMEOUT } from '../constants';
 import { waitForLaunch } from '../ready';
+
 import { AssetsPanel } from './assets';
 import { EditorShell } from './common';
 
@@ -13,24 +14,24 @@ export class AssetWorkflows {
         const shell = new EditorShell(this.page);
         const added = await shell.arm((wanted: string[]) => {
             const assets = window.editor.api.globals.assets;
-            const before = new Set(assets.list().map((asset: any) => asset.get('id')));
-            const events: any[] = [];
+            const before = new Set(assets.list().map((asset: Asset) => asset.get('id')));
+            const events: EventHandle[] = [];
             return { done: new Promise<{ id: number; name: string; type: string }[]>((resolve, reject) => {
                 const check = () => {
-                    const failed = assets.findOne((asset: any) => !before.has(asset.get('id')) && asset.get('task') === 'failed');
+                    const failed = assets.findOne((asset: Asset) => !before.has(asset.get('id')) && asset.get('task') === 'failed');
                     if (failed) {
                         events.forEach(event => event.unbind());
                         reject(new Error(`Import failed: ${failed.get('name')}: ${failed.get('taskInfo') || 'pipeline task failed'}`));
                         return;
                     }
-                    const found = wanted.map(type => assets.findOne((asset: any) => !before.has(asset.get('id')) && !asset.get('source') && asset.get('type') === type && !asset.get('task') && (type === 'render' || !!asset.get('file.size'))));
+                    const found = wanted.map(type => assets.findOne((asset: Asset) => !before.has(asset.get('id')) && !asset.get('source') && asset.get('type') === type && !asset.get('task') && (type === 'render' || !!asset.get('file.size'))));
                     if (found.some(asset => !asset)) {
                         return;
                     }
                     events.forEach(event => event.unbind());
-                    resolve(found.map((asset: any) => ({ id: Number(asset.get('id')), name: asset.get('name'), type: asset.get('type') })));
+                    resolve(found.map((asset: Asset) => ({ id: Number(asset.get('id')), name: asset.get('name'), type: asset.get('type') })));
                 };
-                events.push(assets.on('add', (asset: any) => {
+                events.push(assets.on('add', (asset: Asset) => {
                     events.push(asset.on('*:set', check), asset.on('*:unset', check));
                     check();
                 }));

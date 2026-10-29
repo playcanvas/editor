@@ -2,7 +2,8 @@ import type { BrowserContext, Page, WebSocketRoute } from '@playwright/test';
 
 import { arm } from '../../lib/arm';
 import { HOST, editorSceneUrl } from '../../lib/config';
-import { expect, test, type Project } from '../../lib/fixtures';
+import { expect, test  } from '../../lib/fixtures';
+import type { Project } from '../../lib/fixtures';
 import { EditorShell } from '../../lib/pages/common';
 import { HierarchyPanel } from '../../lib/pages/hierarchy';
 import { waitForEditor } from '../../lib/ready';
@@ -34,7 +35,7 @@ const identity = async (context: BrowserContext) => {
 // 400 "user: missing value"
 const grant = (page: Page, projectId: number, username: string, level: string) => {
     return page.evaluate(({ projectId, username, level }) => {
-        const collab = { user: username, access_level: level } as any;
+        const collab = { user: username, access_level: level } as unknown as Parameters<typeof window.editor.api.globals.rest.projects.projectCollabCreate>[1];
         return window.editor.api.globals.rest.projects.projectCollabCreate(projectId, collab).promisify();
     }, { projectId, username, level });
 };

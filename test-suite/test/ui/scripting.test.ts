@@ -5,7 +5,8 @@ import { createEsmScript, waitForParser } from '../../lib/common';
 import { JOB_TEST_TIMEOUT, JOB_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { AssetsPanel } from '../../lib/pages/assets';
-import { EditorShell, type ProjectState } from '../../lib/pages/common';
+import { EditorShell  } from '../../lib/pages/common';
+import type { ProjectState } from '../../lib/pages/common';
 import { HierarchyPanel } from '../../lib/pages/hierarchy';
 import { Inspector } from '../../lib/pages/inspector';
 import { waitForEditor } from '../../lib/ready';
@@ -44,14 +45,14 @@ const createScript = async (page: Page, filename: string, text: string) => {
     return page.evaluate(([name, body]) => {
         return window.editor.api.globals.assets
         .createScript({ filename: name, text: body })
-        .then((asset: any) => asset.get('id') as number);
+        .then(asset => asset.get('id') as number);
     }, [filename, text] as const);
 };
 
 /** Replaces the file of a script asset and waits for the new hash to land. */
 const setText = async (page: Page, id: number, text: string) => {
     const hashed = await arm(page, (assetId: number) => {
-        const asset = window.editor.api.globals.assets.get(assetId) as any;
+        const asset = window.editor.api.globals.assets.get(assetId)!;
         const hash = asset.get('file.hash');
         // a re-upload replaces the whole file object, so take every write and re-read the hash
         return { done: new Promise<void>((resolve) => {
@@ -233,7 +234,7 @@ test.describe('scripting', () => {
         await inspector.shell.flushJobs();
         await inspector.shell.flushScene();
         const launch = await openLaunch(project.sceneId);
-        expect(await launch.evaluate(id => (window as any).pc.app.root.findByGuid(id).getLocalPosition().toArray(), entityId)).toEqual([7, 2, 3]);
+        expect(await launch.evaluate(id => window.pc.app.root.findByGuid(id)!.getLocalPosition().toArray(), entityId)).toEqual([7, 2, 3]);
         await launch.close();
 
         const removed = await hierarchy.armField(entityId, 'components.script.order', []);

@@ -3,6 +3,7 @@ import type { Frame, Page } from '@playwright/test';
 import { arm } from '../arm';
 import { JOB_TIMEOUT, READY_TIMEOUT } from '../constants';
 import { waitForEditor } from '../ready';
+
 import { EditorShell } from './common';
 
 // the version control picker was rewritten (#2098/#2099/#2100): a branch
@@ -127,12 +128,12 @@ export const createCheckpoint = async (page: Page, description: string) => {
 /** create a checkpoint over rest and resolve with it once its job completes */
 export const createCheckpointApi = (page: Page, description: string) => page.evaluate(async ({ description, jobTimeout }) => {
     const { rest, messenger, projectId, branchId } = window.editor.api.globals;
-    const jobDeferred: PromiseWithResolvers<any> = Promise.withResolvers();
-    const done = new Promise<any>((resolve, reject) => {
+    const jobDeferred: PromiseWithResolvers<{ id: number }> = Promise.withResolvers();
+    const done = new Promise<{ id: string }>((resolve, reject) => {
         const timer = setTimeout(() => reject(new Error('timed out waiting for checkpoint job.update')), jobTimeout);
-        const handle = messenger.on('message', async (name: string, data: any) => {
+        const handle = messenger.on('message', async (name: string, data: MessageData) => {
             const job = await jobDeferred.promise;
-            if (name !== 'job.update' || data.job.id !== job.id) {
+            if (name !== 'job.update' || data.job!.id !== job.id) {
                 return;
             }
             handle.unbind();
@@ -154,7 +155,7 @@ export const createCheckpointApi = (page: Page, description: string) => page.eva
 /** Subscribes before deletion so branch state can be checked after messenger completion. */
 export const armBranchDeleted = (page: Page, id: string) => arm(page, id => ({
     done: new Promise<void>((resolve, reject) => {
-        const event = window.editor.on('messenger:branch.deleteEnded', (data: any) => {
+        const event = window.editor.on('messenger:branch.deleteEnded', (data: MessageData) => {
             if (data.branch_id === id) {
                 event.unbind();
                 if (data.status === 'success') {
@@ -169,6 +170,6 @@ export const armBranchDeleted = (page: Page, id: string) => arm(page, id => ({
 
 /** Reads the project's branch ids after a completed operation. */
 export const branchIds = (page: Page, closed = false) => page.evaluate(async (closed) => {
-    const res: any = await window.editor.api.globals.rest.projects.projectBranches({ limit: 100, closed }).promisify();
-    return (res.result ?? []).map((branch: any) => branch.id as string);
+    const res = await window.editor.api.globals.rest.projects.projectBranches({ limit: 100, closed }).promisify() as ListResponse<{ id: string }>;
+    return (res.result ?? []).map(branch => branch.id as string);
 }, closed);

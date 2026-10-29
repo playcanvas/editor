@@ -1,4 +1,5 @@
 import type { Locator, Page } from '@playwright/test';
+import type { Connection } from 'sharedb/lib/client';
 
 import { EditorShell } from './common';
 
@@ -100,14 +101,14 @@ export class SettingsDialog {
     /** `config.project.settings` is mirrored live from the project settings observer. */
     projectSetting(path: string) {
         return this.page.evaluate((p) => {
-            return p.split('.').reduce<any>((o, key) => o?.[key], window.config.project.settings);
+            return p.split('.').reduce<unknown>((o, key) => (o as Record<string, unknown> | undefined)?.[key], window.config.project.settings);
         }, path);
     }
 
     /** Arms the settings observer before a control changes it. */
     armSetting(scope: 'project' | 'scene' | 'session', path: string, value: unknown) {
         return this.shell.arm(({ scope: s, path: p, value: expected }) => {
-            const settings = s === 'scene' ? window.editor.api.globals.settings.scene.observer : window.editor.call(`settings:${s}`) as any;
+            const settings = s === 'scene' ? window.editor.api.globals.settings.scene.observer : window.editor.call(`settings:${s}`) as Observer;
             const hit = () => JSON.stringify(settings.get(p)) === JSON.stringify(expected);
             if (hit()) {
                 return { done: Promise.resolve() };
@@ -125,7 +126,7 @@ export class SettingsDialog {
 
     setProjectSetting(path: string, value: unknown) {
         return this.page.evaluate(([p, v]) => {
-            (window.editor.call('settings:project') as any).set(p, v);
+            (window.editor.call('settings:project') as Observer).set(p, v);
         }, [path, value] as [string, unknown]);
     }
 
@@ -141,12 +142,12 @@ export class SettingsDialog {
 
     /** Session settings are in-memory, but the worker's editor page outlives every test. */
     sessionSetting(path: string) {
-        return this.page.evaluate(p => (window.editor.call('settings:session') as any).get(p), path);
+        return this.page.evaluate(p => (window.editor.call('settings:session') as Observer).get(p), path);
     }
 
     setSessionSetting(path: string, value: unknown) {
         return this.page.evaluate(([p, v]) => {
-            (window.editor.call('settings:session') as any).set(p as string, v);
+            (window.editor.call('settings:session') as Observer).set(p as string, v);
         }, [path, value] as [string, unknown]);
     }
 
@@ -160,7 +161,7 @@ export class SettingsDialog {
      */
     flushProjectSettings() {
         return this.page.evaluate(() => new Promise<void>((resolve) => {
-            const connection = window.editor.call('realtime:connection') as any;
+            const connection = window.editor.call('realtime:connection') as Connection;
             const doc = connection.get('settings', window.config.project.settings.id);
             doc.whenNothingPending(resolve);
         }));
@@ -173,7 +174,7 @@ export class SettingsDialog {
     async dismissRestartModal() {
         await this.page.evaluate((selector) => {
             document.querySelectorAll(selector).forEach((el) => {
-                const ui = (el as any).ui;
+                const ui = (el as Element & { ui?: { destroy(): void } }).ui;
                 if (ui) {
                     ui.destroy();
                 } else {
@@ -187,11 +188,11 @@ export class SettingsDialog {
     /** Stamps the page so a later read proves it was never reloaded. */
     mark() {
         return this.page.evaluate(() => {
-            (window as any).__noReload = true;
+            window.__noReload = true;
         });
     }
 
     marked() {
-        return this.page.evaluate(() => (window as any).__noReload === true);
+        return this.page.evaluate(() => window.__noReload === true);
     }
 }

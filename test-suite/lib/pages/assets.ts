@@ -131,7 +131,7 @@ export class AssetsPanel {
     }
 
     viewMode() {
-        return this.page.evaluate(() => (window.editor.call('layout.assets') as any).viewMode as string);
+        return this.page.evaluate(() => (window.editor.call('layout.assets') as AssetsLayout).viewMode as string);
     }
 
     async setViewMode(mode: string) {
@@ -153,7 +153,7 @@ export class AssetsPanel {
 
     currentFolderId() {
         return this.page.evaluate(() => {
-            const folder = (window.editor.call('layout.assets') as any).currentFolder;
+            const folder = (window.editor.call('layout.assets') as AssetsLayout).currentFolder;
             return folder ? parseInt(folder.get('id'), 10) : null;
         });
     }
@@ -161,14 +161,14 @@ export class AssetsPanel {
     /** Names of the assets the panel currently shows, from panel state. */
     visibleNames() {
         return this.page.evaluate(() => {
-            const panel = window.editor.call('layout.assets') as any;
-            return panel.visibleAssets.map((asset: any) => asset.get('name') as string);
+            const panel = window.editor.call('layout.assets') as AssetsLayout;
+            return panel.visibleAssets.map(asset => asset.get('name') as string);
         });
     }
 
     selectedIds() {
         return this.page.evaluate(() => {
-            const items = window.editor.call('selector:items') as any[];
+            const items = window.editor.call('selector:items') as Asset[];
             return window.editor.call('selector:type') === 'asset' ? items.map(item => parseInt(item.get('id'), 10)) : [];
         });
     }
@@ -180,8 +180,8 @@ export class AssetsPanel {
      */
     async armAdd(match: AddMatch = {}) {
         await this.page.evaluate(([key, expected]) => {
-            const store = ((window as any).__e2eAdds ??= new Map<string, Promise<AddedAsset>>());
-            const matches = (asset: any) => {
+            const store = (window.__e2eAdds ??= new Map<string, Promise<AddedAsset>>());
+            const matches = (asset: Asset) => {
                 return (!expected.name || asset.get('name') === expected.name) &&
                     (!expected.type || asset.get('type') === expected.type);
             };
@@ -193,7 +193,7 @@ export class AssetsPanel {
                     resolve({ id: existing.get('id'), name: existing.get('name') });
                     return;
                 }
-                const handle = window.editor.api.globals.assets.on('add', (asset: any) => {
+                const handle = window.editor.api.globals.assets.on('add', (asset: Asset) => {
                     if (!matches(asset)) {
                         return;
                     }
@@ -206,7 +206,7 @@ export class AssetsPanel {
 
     awaitAdd(match: AddMatch = {}) {
         return this.page.evaluate((key) => {
-            const store = (window as any).__e2eAdds as Map<string, Promise<AddedAsset>>;
+            const store = window.__e2eAdds;
             const pending = store?.get(key);
             if (!pending) {
                 throw new Error(`no armed add listener for "${key}"`);
@@ -240,7 +240,7 @@ export class AssetsPanel {
     /** Waits for a realtime move to land on the asset observer. */
     async waitForParent(id: number, parentId: number | null) {
         const moved = await this.shell.arm(([assetId, expected]: [number, number | null]) => {
-            const asset = window.editor.api.globals.assets.get(assetId) as any;
+            const asset = window.editor.api.globals.assets.get(assetId);
             if (!asset) {
                 throw new Error(`asset ${assetId} not found`);
             }
@@ -267,7 +267,7 @@ export class AssetsPanel {
     /** Waits for an asset's pipeline task to finish and its file to land. */
     async waitForTask(id: number, timeout: number) {
         const done = await this.shell.arm((assetId: number) => {
-            const asset = window.editor.api.globals.assets.get(assetId) as any;
+            const asset = window.editor.api.globals.assets.get(assetId);
             if (!asset) {
                 throw new Error(`asset ${assetId} not found`);
             }
@@ -286,7 +286,7 @@ export class AssetsPanel {
                     if (!hit()) {
                         return;
                     }
-                    evts.forEach((e: any) => e.unbind());
+                    evts.forEach(e => e.unbind());
                     resolve();
                 }));
             }) };
@@ -343,7 +343,7 @@ export class AssetsPanel {
 
     idByName(name: string) {
         return this.page.evaluate((assetName) => {
-            const asset = window.editor.api.globals.assets.findOne((a: any) => a.get('name') === assetName);
+            const asset = window.editor.api.globals.assets.findOne((a: Asset) => a.get('name') === assetName);
             return asset ? (asset.get('id') as number) : null;
         }, name);
     }
@@ -352,17 +352,17 @@ export class AssetsPanel {
     childrenOf(folderId: number | null) {
         return this.page.evaluate((parentId) => {
             return window.editor.api.globals.assets
-            .filter((a: any) => {
+            .filter((a: Asset) => {
                 const path = a.get('path');
                 return (path.length ? path[path.length - 1] : null) === parentId;
             })
-            .map((a: any) => ({ id: a.get('id') as number, name: a.get('name') as string, type: a.get('type') as string }));
+            .map((a: Asset) => ({ id: a.get('id') as number, name: a.get('name') as string, type: a.get('type') as string }));
         }, folderId);
     }
 
     clipboardAssetIds() {
         return this.page.evaluate(() => {
-            const clipboard = window.editor.call('clipboard:get') as any;
+            const clipboard = window.editor.call('clipboard:get') as { type: string; assets: number[] } | null;
             return clipboard && clipboard.type === 'asset' ? (clipboard.assets as number[]) : null;
         });
     }
@@ -370,7 +370,7 @@ export class AssetsPanel {
     /** How many runtime assets of a type sit directly in a folder, root by default. */
     countOfType(type: string, folderId: number | null = null) {
         return this.page.evaluate(([assetType, parentId]) => {
-            return window.editor.api.globals.assets.filter((a: any) => {
+            return window.editor.api.globals.assets.filter((a: Asset) => {
                 if (a.get('type') !== assetType || a.get('source')) {
                     return false;
                 }
@@ -383,12 +383,12 @@ export class AssetsPanel {
     /** Creates an asset through the editor-api and resolves once it is registered. */
     create(method: string, options: Record<string, unknown> = {}, folderId?: number) {
         return this.page.evaluate(async ([fn, opts, parentId]) => {
-            const assets = window.editor.api.globals.assets as any;
+            const assets = window.editor.api.globals.assets;
             const args: Record<string, unknown> = { ...(opts as Record<string, unknown>) };
             if (parentId !== undefined && parentId !== null) {
                 args.folder = assets.get(parentId as number);
             }
-            const asset = await assets[fn as string](args);
+            const asset = await (assets as unknown as Record<string, (args: Record<string, unknown>) => Promise<Asset>>)[fn as string](args);
             return { id: asset.get('id') as number, name: asset.get('name') as string };
         }, [method, options, folderId ?? null] as const) as Promise<AddedAsset>;
     }
@@ -463,7 +463,7 @@ export class AssetsPanel {
 
         // the pcui drop manager arms itself off the native dragstart and emits nothing, so its
         // own flag is the only signal that the gesture took
-        await this.page.waitForFunction(() => (window.editor.call('layout.assets') as any).dropManager.active);
+        await this.page.waitForFunction(() => (window.editor.call('layout.assets') as AssetsLayout).dropManager.active);
         await this.page.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 8 });
 
         // the panel only moves assets onto the folder it considers hovered, so

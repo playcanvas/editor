@@ -1,4 +1,4 @@
-import { type BrowserContext } from '@playwright/test';
+import type { BrowserContext } from '@playwright/test';
 
 import { HEADER_NAME, HEADER_VALUE } from './config';
 

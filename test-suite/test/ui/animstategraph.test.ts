@@ -2,7 +2,8 @@ import type { Locator, Page } from '@playwright/test';
 
 import { expect, test } from '../../lib/fixtures';
 import { AssetsPanel } from '../../lib/pages/assets';
-import { EditorShell, type ProjectState } from '../../lib/pages/common';
+import { EditorShell  } from '../../lib/pages/common';
+import type { ProjectState } from '../../lib/pages/common';
 import { Inspector } from '../../lib/pages/inspector';
 import { waitForEditor } from '../../lib/ready';
 import { uniqueName } from '../../lib/utils';
