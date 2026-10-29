@@ -36,6 +36,6 @@
     "type:check": "npm run build:types && tsc --declaration --emitDeclarationOnly"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": "^22.13.0 || >=24"
   }
 }
