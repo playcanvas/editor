@@ -12,8 +12,8 @@ const PANEL = '.picker-scene-panel';
 /** The scene list the picker itself fetches, for state assertions and cleanup. */
 export const sceneList = async (page: Page) => {
     const scenes = await page.evaluate(async () => {
-        const res = await window.editor.api.globals.rest.projects.projectScenes().promisify() as any;
-        return ((res.result ?? []) as any[]).map(s => ({
+        const res = await window.editor.api.globals.rest.projects.projectScenes().promisify() as ListResponse<{ id: number; name: string; uniqueId: string }>;
+        return (res.result ?? []).map(s => ({
             id: Number(s.id),
             name: String(s.name),
             uniqueId: String(s.uniqueId)
@@ -25,7 +25,7 @@ export const sceneList = async (page: Page) => {
 export const createScene = async (page: Page, name: string) => {
     const scene = await page.evaluate(async (name) => {
         const { rest, projectId, branchId } = window.editor.api.globals;
-        const res = await rest.scenes.sceneCreate({ projectId, branchId, name }).promisify() as any;
+        const res = await rest.scenes.sceneCreate({ projectId, branchId, name }).promisify() as { id: number; uniqueId: string };
         return { id: Number(res.id), name, uniqueId: String(res.uniqueId) };
     }, name);
     return scene as SceneInfo;

@@ -63,10 +63,10 @@ test.describe('texture-convert', () => {
         // creation promise — wait for the new asset to appear AND have meta.format set
         const createPromise = page.evaluate(() => {
             return new Promise<number>((resolve) => {
-                const handle = window.editor.api.globals.messenger.on('message', (name: string, data: any) => {
+                const handle = window.editor.api.globals.messenger.on('message', (name: string, data: MessageData) => {
                     if (name === 'asset.new') {
                         handle.unbind();
-                        const newId = parseInt(data.asset.id, 10);
+                        const newId = parseInt(data.asset!.id, 10);
 
                         // wait for the new asset to have meta.format set, which indicates it's
                         // ready for use by the convert handler

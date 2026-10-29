@@ -10,6 +10,10 @@ type NumericWindow = typeof window & {
     numericRedo: () => void;
 };
 
+type AttributesInspector = {
+    createFieldForAttribute(attribute: object): { dom: HTMLElement; link(observers: Observer[], path: string): void };
+};
+
 test.beforeEach(async ({ editorPage }) => {
     // inspectors are built on first selection, so select the root to get one
     await editorPage.evaluate(() => {
@@ -20,9 +24,9 @@ test.beforeEach(async ({ editorPage }) => {
 
     await editorPage.evaluate((inspector) => {
         // the built editor exports nothing, so take the classes from live instances
-        const AttributesInspector = (document.querySelector(inspector) as any).ui.constructor;
-        const History = (window.editor.api.globals.history as any).constructor;
-        const Observer = (window.editor.api.globals.entities.root.observer as any).constructor;
+        const AttributesInspector = (document.querySelector(inspector) as Element & { ui: object }).ui.constructor as new (args: { history: unknown }) => AttributesInspector;
+        const History = window.editor.api.globals.history.constructor as new () => typeof window.editor.api.globals.history;
+        const Observer = (window.editor.api.globals.entities.root.observer as Observer).constructor as new (data: object) => Observer;
 
         const root = document.createElement('div');
         root.id = 'numeric-test';

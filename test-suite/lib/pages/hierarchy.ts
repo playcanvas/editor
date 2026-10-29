@@ -133,7 +133,7 @@ export class HierarchyPanel {
     createEntity(opts: EntityOpts = {}) {
         return this.page.evaluate((o) => {
             const entities = window.editor.api.globals.entities;
-            const data: any = { parent: o.parent ?? entities.root.get('resource_id') };
+            const data = { parent: o.parent ?? entities.root.get('resource_id') } as CreateEntityArguments;
             if (o.name) {
                 data.name = o.name;
             }
@@ -171,7 +171,7 @@ export class HierarchyPanel {
 
     ids() {
         return this.page.evaluate(() => {
-            return window.editor.api.globals.entities.list().map((e: any) => e.get('resource_id')) as string[];
+            return window.editor.api.globals.entities.list().map((e: Entity) => e.get('resource_id')) as string[];
         });
     }
 
@@ -211,7 +211,7 @@ export class HierarchyPanel {
                         resolve();
                     }
                 };
-                const bind = (entity: any) => {
+                const bind = (entity: Entity) => {
                     if (entity.get('resource_id') === i) {
                         ['*:set', '*:unset', '*:insert', '*:remove', '*:move'].forEach(event => evts.push(entity.on(event, check)));
                     }
@@ -260,7 +260,7 @@ export class HierarchyPanel {
     armSelected(name: string) {
         return this.shell.arm((n: string) => {
             const selection = window.editor.api.globals.selection;
-            const hit = () => selection.items.some((i: any) => i.get('name') === n);
+            const hit = () => selection.items.some(i => i.get('name') === n);
             if (hit()) {
                 return { done: Promise.resolve() };
             }

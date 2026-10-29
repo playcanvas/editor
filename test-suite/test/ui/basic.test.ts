@@ -54,7 +54,7 @@ const populate = async (page: Page) => {
 const verifyDelivery = async (page: Page | Frame) => {
     await waitForLaunch(page);
     expect(await page.evaluate((box) => {
-        const entity = (window as any).pc.app.root.findByName(box);
+        const entity = window.pc.app.root.findByName(box);
         const material = entity?.render?.meshInstances[0]?.material;
         return {
             parent: entity?.parent?.name,
@@ -160,8 +160,8 @@ test.describe('export/import', () => {
 
         // the ui can delete either copy; resolve this run's exact name to the surviving ids
         const ids = await setup.evaluate(async (name) => {
-            const res: any = await window.editor.api.globals.rest.users.userProjects(window.config.self.id, '').promisify();
-            return (res.result ?? []).filter((project: any) => project.name === name).map((project: any) => Number(project.id)) as number[];
+            const res = await window.editor.api.globals.rest.users.userProjects(window.config.self.id, '').promisify() as ListResponse;
+            return (res.result ?? []).filter(project => project.name === name).map(project => Number(project.id)) as number[];
         }, projectName);
         await deleteProjects(setup, ids);
         await context.close();
@@ -201,8 +201,8 @@ test.describe('export/import', () => {
         await expect(cmsRow(blankPage, projectName)).toHaveCount(2, { timeout: JOB_TEST_TIMEOUT });
 
         const imported = await blankPage.evaluate(async ({ name, source }) => {
-            const res: any = await window.editor.api.globals.rest.users.userProjects(window.config.self.id, '').promisify();
-            return Number(res.result.find((project: any) => project.name === name && Number(project.id) !== source)?.id);
+            const res = await window.editor.api.globals.rest.users.userProjects(window.config.self.id, '').promisify() as ListResponse;
+            return Number(res.result!.find(project => project.name === name && Number(project.id) !== source)?.id);
         }, { name: projectName, source: projectId });
         expect(imported).toBeGreaterThan(0);
         await blankPage.goto(editorUrl(imported, { disableBubbles: true }));
@@ -254,7 +254,7 @@ test.describe('navigation', () => {
         sceneId = parseInt(await setup.evaluate(() => window.config.scene.id), 10);
         engineVersions = await setup.evaluate(() => window.config.engineVersions);
         webgpuLabel = await setup.evaluate(() => {
-            return `Enable WebGPU${(window.config.project.settings as any)?.engineV2 ? '' : ' (beta)'}`;
+            return `Enable WebGPU${(window.config.project.settings as { engineV2?: boolean })?.engineV2 ? '' : ' (beta)'}`;
         });
     });
 
@@ -356,7 +356,7 @@ test.describe('navigation', () => {
         expect(url.searchParams.get('debug')).toBe(type === 'debug' ? 'true' : null);
         expect(url.searchParams.get('profile')).toBe(type === 'profiler' ? 'true' : null);
         expect(url.searchParams.get('version')).toBe(version === 'current' ? null : engine.version);
-        expect(await launchPage.evaluate(() => (window as any).pc.app.graphicsDevice.deviceType)).toBe(device);
+        expect(await launchPage.evaluate(() => window.pc.app.graphicsDevice.deviceType)).toBe(device);
         await launchPage.close();
     });
 });

@@ -32,7 +32,7 @@ const identity = async (context: BrowserContext) => {
 // 400 "user: missing value"
 const grant = (page: Page, projectId: number, username: string, level: string) => {
     return page.evaluate(({ projectId, username, level }) => {
-        const collab = { user: username, access_level: level } as any;
+        const collab = { user: username, access_level: level } as unknown as Parameters<typeof window.editor.api.globals.rest.projects.projectCollabCreate>[1];
         return window.editor.api.globals.rest.projects.projectCollabCreate(projectId, collab).promisify();
     }, { projectId, username, level });
 };
@@ -78,7 +78,7 @@ const permissionIds = (page: Page, access: 'read' | 'write' | 'admin') => {
 // never send `permission: null`: permissions.ts reloads the page for a private project
 const setSelfPermission = (page: Page, permission: 'read' | 'write') => {
     return page.evaluate((p) => {
-        (window.editor as any).emit('messenger:project.permissions', {
+        window.editor.emit('messenger:project.permissions', {
             user: { id: window.config.self.id, permission: p }
         });
     }, permission);
@@ -125,7 +125,7 @@ test.describe('permissions', () => {
 
         // a reload would drop this, which is the only thing "without a reload" can mean from outside
         await guest.page.evaluate(() => {
-            (window as any).probe = 'kept';
+            window.probe = 'kept';
         });
 
         await update(editorPage, project.id, guest.id, 'write');
@@ -134,7 +134,7 @@ test.describe('permissions', () => {
         await expect(guest.page.locator(ATTRIBUTES)).not.toHaveClass(DISABLED);
         expect(await canWrite(guest.page)).toBe(true);
         expect(await permissionIds(guest.page, 'write')).toContain(String(guest.id));
-        expect(await guest.page.evaluate(() => (window as any).probe)).toBe('kept');
+        expect(await guest.page.evaluate(() => window.probe)).toBe('kept');
 
         const hierarchy = new HierarchyPanel(guest.page);
         await hierarchy.add('Entity');

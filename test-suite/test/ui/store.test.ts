@@ -68,8 +68,8 @@ const pickImportable = async (page: Page, results: StoreResult[]) => {
     const seen: string[] = [];
     for (const result of results) {
         const types = await page.evaluate(async (id) => {
-            const res: any = await window.editor.api.globals.rest.store.storeAssets(id).promisify();
-            return (res.result ?? []).map((asset: any) => asset.type as string);
+            const res = await window.editor.api.globals.rest.store.storeAssets(id).promisify() as ListResponse<{ type: string }>;
+            return (res.result ?? []).map(asset => asset.type as string);
         }, result.id);
         seen.push(...types);
         if (types.length && !types.includes(BAD_TYPE)) {

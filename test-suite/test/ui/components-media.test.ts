@@ -40,7 +40,7 @@ const createScript = async (page: Page, filename: string, text: string) => {
     return page.evaluate(([name, body]) => {
         return window.editor.api.globals.assets
         .createScript({ filename: name, text: body })
-        .then((asset: any) => asset.get('id') as number);
+        .then(asset => asset.get('id') as number);
     }, [filename, text] as const);
 };
 

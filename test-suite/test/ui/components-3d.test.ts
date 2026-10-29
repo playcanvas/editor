@@ -273,8 +273,8 @@ test.describe('components-3d', () => {
 
         const launch = await workflows.launch();
         const state = await launch.evaluate(({ id, asset }) => {
-            const app = (window as any).pc.app;
-            const entity = app.root.findByGuid(id);
+            const app = window.pc.app;
+            const entity = app.root.findByGuid(id)!;
             const resource = app.assets.get(asset).resource;
             return {
                 collision: entity.collision.renderAsset,
@@ -443,8 +443,8 @@ test.describe('components-3d', () => {
 
         const launch = await workflows.launch();
         expect(await launch.evaluate(({ id, asset }) => {
-            const app = (window as any).pc.app;
-            return { asset: app.root.findByGuid(id).gsplat.asset, splats: app.assets.get(asset).resource.numSplats };
+            const app = window.pc.app;
+            return { asset: app.root.findByGuid(id)!.gsplat.asset, splats: app.assets.get(asset).resource.numSplats };
         }, { id, asset: asset.id })).toEqual({ asset: asset.id, splats: 9 });
         await launch.close();
     });

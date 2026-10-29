@@ -55,7 +55,7 @@ export class EditorShell {
     }
 
     /** `arm` bound to this page. */
-    arm<T>(subscribe: (arg: any) => Armed<T>, arg?: any, cap?: ArmCap) {
+    arm<T, A = unknown>(subscribe: (arg: A) => Armed<T>, arg?: A, cap?: ArmCap) {
         return arm(this.page, subscribe, arg, cap);
     }
 
@@ -91,7 +91,7 @@ export class EditorShell {
         return {
             url: this.page.url(),
             viewport: this.page.viewportSize(),
-            viewMode: await this.page.evaluate(() => (window.editor.call('layout.assets') as any).viewMode as string),
+            viewMode: await this.page.evaluate(() => (window.editor.call('layout.assets') as AssetsLayout).viewMode as string),
             gizmo: await this.page.evaluate(() => ({
                 type: window.editor.call('gizmo:type') as string,
                 coordSystem: window.editor.call('gizmo:coordSystem') as string
@@ -130,7 +130,7 @@ export class EditorShell {
 
             // a tooltip whose target was removed while it was up never sees the mouseleave that
             // hides it, and it then swallows every click on the panel it covers
-            (window.editor.call('layout.tooltip') as any).hidden = true;
+            (window.editor.call('layout.tooltip') as { hidden: boolean }).hidden = true;
 
             // selector:clear, not selection.clear(), because it also drops the settings
             // inspector, which is a selector type of its own
@@ -146,7 +146,7 @@ export class EditorShell {
             window.editor.call('gizmo:snap', false);
 
             // the assets panel keeps its folder, search and view mode now that the page does
-            const panel = window.editor.call('layout.assets') as any;
+            const panel = window.editor.call('layout.assets') as AssetsLayout;
             panel.currentFolder = null;
             panel.viewMode = viewMode;
             panel.searchInput.value = '';
@@ -160,8 +160,8 @@ export class EditorShell {
         return this.page.evaluate(() => {
             const globals = window.editor.api.globals;
             return {
-                entities: globals.entities.list().map((e: any) => e.get('resource_id') as string),
-                assets: globals.assets.list().map((a: any) => Number(a.get('id')))
+                entities: globals.entities.list().map((e: Entity) => e.get('resource_id') as string),
+                assets: globals.assets.list().map((a: Asset) => Number(a.get('id')))
             };
         }) as Promise<ProjectState>;
     }
@@ -180,7 +180,7 @@ export class EditorShell {
         // jobs, and the editor fetches the thumbnail as soon as it lands; deleting the texture
         // before that fetch answers fails it with a 401/403 once the asset is gone
         await this.page.waitForFunction((before: number[]) => {
-            return window.editor.api.globals.assets.list().every((a: any) => {
+            return window.editor.api.globals.assets.list().every((a: Asset) => {
                 const pending = String(a.get('type')).startsWith('texture') && a.get('file') && !a.get('has_thumbnail');
                 return before.includes(Number(a.get('id'))) || !pending;
             });
@@ -191,7 +191,7 @@ export class EditorShell {
 
         const removed = await this.arm((before: number[]) => {
             const assets = window.editor.api.globals.assets;
-            const extra = () => assets.list().some((a: any) => !before.includes(Number(a.get('id'))));
+            const extra = () => assets.list().some((a: Asset) => !before.includes(Number(a.get('id'))));
             if (!extra()) {
                 return { done: Promise.resolve() };
             }
@@ -209,12 +209,12 @@ export class EditorShell {
         await this.page.evaluate(async (before) => {
             const globals = window.editor.api.globals;
             const entities = globals.entities.list()
-            .filter((e: any) => e !== globals.entities.root && !before.entities.includes(e.get('resource_id')));
+            .filter((e: Entity) => e !== globals.entities.root && !before.entities.includes(e.get('resource_id')));
             if (entities.length) {
                 await globals.entities.delete(entities, { history: false });
             }
 
-            const assets = globals.assets.list().filter((a: any) => !before.assets.includes(Number(a.get('id'))));
+            const assets = globals.assets.list().filter((a: Asset) => !before.assets.includes(Number(a.get('id'))));
             if (assets.length) {
                 window.editor.call('assets:fs:delete', assets);
             }
@@ -226,7 +226,7 @@ export class EditorShell {
     /** Waits for every backend job the editor started (script attribute defaults, imports) to report back. */
     async flushJobs() {
         const drained = await this.arm(() => {
-            const jobs = window.editor.api.globals.jobs as any;
+            const jobs = window.editor.api.globals.jobs as unknown as { _jobsInProgress: Record<string, unknown>; on(event: string, callback: () => void): EventHandle };
             const pending = () => Object.keys(jobs._jobsInProgress).length > 0;
             if (!pending()) {
                 return { done: Promise.resolve() };

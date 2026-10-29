@@ -17,6 +17,6 @@ test.describe('smoke', () => {
 
     test('load launcher', async ({ openLaunch, project }) => {
         const launch = await openLaunch(project.sceneId);
-        expect(await launch.evaluate(() => (window as any).pc.app.frame)).toBeGreaterThan(0);
+        expect(await launch.evaluate(() => window.pc.app.frame)).toBeGreaterThan(0);
     });
 });

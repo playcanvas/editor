@@ -89,7 +89,7 @@ export class CodeEditor {
         // monaco binds the document end to ctrl+end on windows/linux only, so place the caret
         // through its api and leave the edit itself to real keystrokes
         await this.page.evaluate(() => {
-            const editor = window.editor.call('editor:monaco') as any;
+            const editor = window.editor.call('editor:monaco') as MonacoEditor;
             const model = editor.getModel();
             const line = model.getLineCount();
             editor.setPosition({ lineNumber: line, column: model.getLineMaxColumn(line) });
@@ -121,7 +121,7 @@ export class CodeEditor {
     }
 
     content() {
-        return this.page.evaluate(() => (window.editor.call('editor:monaco') as any).getValue() as string);
+        return this.page.evaluate(() => (window.editor.call('editor:monaco') as MonacoEditor).getValue() as string);
     }
 
     tabIds() {
@@ -154,7 +154,7 @@ export class CodeEditor {
     /** The tree renames optimistically; await the asset observer's confirmed value. */
     armAssetField(id: number, path: string, value: unknown) {
         return this.shell.arm(({ id: i, path: p, value: expected }) => {
-            const asset = window.editor.call('assets:get', String(i)) as any;
+            const asset = window.editor.call('assets:get', String(i)) as Asset;
             const hit = () => JSON.stringify(asset.get(p)) === JSON.stringify(expected);
             if (hit()) {
                 return { done: Promise.resolve() };

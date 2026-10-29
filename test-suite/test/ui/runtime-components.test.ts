@@ -91,14 +91,14 @@ test.describe('runtime components', () => {
 
             const launch = await workflows.launch();
             const state = await launch.evaluate((id) => {
-                const joint = (window as any).pc.app.root.findByGuid(id).joint;
+                const joint = window.pc.app.root.findByGuid(id)!.joint;
                 return { type: joint.type, a: joint.entityA.getGuid(), b: joint.entityB.getGuid(), constraint: !!joint.constraint };
             }, id);
             expect(state).toEqual({ type: type.toLowerCase(), a, b, constraint: true });
             if (type === 'Slider') {
                 const moved = await new EditorShell(launch).arm((id: string) => {
-                    const app = (window as any).pc.app;
-                    const body = app.root.findByGuid(id);
+                    const app = window.pc.app;
+                    const body = app.root.findByGuid(id)!;
                     return { done: new Promise<number>((resolve) => {
                         const check = () => {
                             const x = body.getPosition().x;

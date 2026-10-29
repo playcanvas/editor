@@ -52,7 +52,7 @@ export class Toolbar {
 
     camera() {
         return this.page.evaluate(() => {
-            const camera = window.editor.call('camera:current') as any;
+            const camera = window.editor.call('camera:current') as PcEntity & { __editorName: string };
             const pos = camera.getPosition();
             return { name: camera.__editorName as string, position: [pos.x, pos.y, pos.z] as number[] };
         });
@@ -65,7 +65,7 @@ export class Toolbar {
         await this.canvasBox();
         await this.page.evaluate(([position, euler]) => {
             window.editor.call('camera:set', window.editor.call('camera:get', 'perspective'));
-            const camera = window.editor.call('camera:current') as any;
+            const camera = window.editor.call('camera:current') as PcEntity;
             camera.setPosition(position[0], position[1], position[2]);
             camera.setEulerAngles(euler[0], euler[1], euler[2]);
         }, [CAMERA_POSITION, CAMERA_EULER]);
@@ -99,7 +99,7 @@ export class Toolbar {
             pos.x += off[0];
             pos.y += off[1];
             pos.z += off[2];
-            const camera = window.editor.call('camera:current') as any;
+            const camera = window.editor.call('camera:current') as PcEntity;
             const out = camera.camera.camera.worldToScreen(pos, w, h);
             return { x: out.x as number, y: out.y as number };
         }, { id: entityId, off: offset, w: box.width, h: box.height });
@@ -118,13 +118,13 @@ export class Toolbar {
     async gizmoHandlePoint(axis: 'x' | 'y' | 'z'): Promise<Point> {
         const box = await this.canvasBox();
         const point = await this.page.evaluate(({ a, w, h }) => {
-            const app = window.editor.call('viewport:app') as any;
+            const app = window.editor.call('viewport:app') as PcApp | undefined;
             const root = app?.root.findByName(`gizmo:${window.editor.call('gizmo:type')}`);
             const head = root?.findByName(`head:${a}`);
             if (!head) {
                 return null;
             }
-            const camera = window.editor.call('camera:current') as any;
+            const camera = window.editor.call('camera:current') as PcEntity;
             const out = camera.camera.camera.worldToScreen(head.getPosition(), w, h);
             return { x: out.x as number, y: out.y as number };
         }, { a: axis, w: box.width, h: box.height });
@@ -137,7 +137,7 @@ export class Toolbar {
     /** Waits for the gizmo of the current type to be attached to the selection. */
     async waitForGizmo() {
         const attached = await arm(this.page, () => {
-            const app = window.editor.call('viewport:app') as any;
+            const app = window.editor.call('viewport:app') as PcApp | undefined;
             const ready = () => !!app?.root.findByName(`gizmo:${window.editor.call('gizmo:type')}`)?.enabled;
             if (ready()) {
                 return { done: Promise.resolve() };
