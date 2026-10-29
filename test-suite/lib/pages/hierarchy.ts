@@ -1,6 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
 
 import { JOB_TIMEOUT } from '../constants';
+
 import { EditorShell } from './common';
 
 export type EntityOpts = { parent?: string; name?: string; components?: Record<string, unknown> };

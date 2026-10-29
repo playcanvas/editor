@@ -1,6 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
 
 import { waitForParser } from '../common';
+
 import { EditorShell } from './common';
 
 const ROW = '.pcui-treeview-item';

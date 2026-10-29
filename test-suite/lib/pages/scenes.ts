@@ -2,6 +2,7 @@ import type { Locator, Page } from '@playwright/test';
 
 import { arm } from '../arm';
 import { READY_TIMEOUT } from '../constants';
+
 import { EditorShell } from './common';
 
 export type SceneInfo = { id: number; name: string; uniqueId: string };

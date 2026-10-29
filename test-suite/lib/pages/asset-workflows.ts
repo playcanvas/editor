@@ -2,6 +2,7 @@ import type { Page } from '@playwright/test';
 
 import { JOB_TIMEOUT } from '../constants';
 import { waitForLaunch } from '../ready';
+
 import { AssetsPanel } from './assets';
 import { EditorShell } from './common';
 

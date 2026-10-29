@@ -2,7 +2,8 @@ import type { BrowserContext, Page } from '@playwright/test';
 
 import { arm } from '../../lib/arm';
 import { HOST, editorSceneUrl } from '../../lib/config';
-import { expect, test, type Project } from '../../lib/fixtures';
+import { expect, test  } from '../../lib/fixtures';
+import type { Project } from '../../lib/fixtures';
 import { EditorShell } from '../../lib/pages/common';
 import { HierarchyPanel } from '../../lib/pages/hierarchy';
 import { waitForEditor } from '../../lib/ready';

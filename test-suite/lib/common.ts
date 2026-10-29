@@ -1,4 +1,4 @@
-import { type Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
 
 import { arm } from './arm';
 import { JOB_TIMEOUT, STALE_PROJECT_AGE, WORKER_INIT_TIMEOUT } from './constants';

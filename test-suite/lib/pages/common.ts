@@ -1,6 +1,7 @@
 import type { Locator, Page, Request, ViewportSize } from '@playwright/test';
 
-import { arm, type Armed, type ArmCap } from '../arm';
+import { arm   } from '../arm';
+import type { Armed, ArmCap } from '../arm';
 import { JOB_TIMEOUT, THUMBNAIL_TIMEOUT } from '../constants';
 import { waitForEditor } from '../ready';
 

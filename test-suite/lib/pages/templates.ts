@@ -1,6 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
 
 import { JOB_TIMEOUT } from '../constants';
+
 import { AssetsPanel } from './assets';
 import { EditorShell } from './common';
 import { HierarchyPanel } from './hierarchy';

@@ -3,6 +3,7 @@ import type { Frame, Page } from '@playwright/test';
 import { arm } from '../arm';
 import { JOB_TIMEOUT, READY_TIMEOUT } from '../constants';
 import { waitForEditor } from '../ready';
+
 import { EditorShell } from './common';
 
 // the version control picker was rewritten (#2098/#2099/#2100): a branch

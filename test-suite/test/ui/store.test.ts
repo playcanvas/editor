@@ -3,7 +3,8 @@ import type { Locator, Page } from '@playwright/test';
 import { JOB_TEST_TIMEOUT } from '../../lib/constants';
 import { expect, test } from '../../lib/fixtures';
 import { AssetsPanel } from '../../lib/pages/assets';
-import { EditorShell, type ProjectState } from '../../lib/pages/common';
+import { EditorShell  } from '../../lib/pages/common';
+import type { ProjectState } from '../../lib/pages/common';
 import { uniqueName } from '../../lib/utils';
 
 // the store list comes from an external service and an import runs a backend job
