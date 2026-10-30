@@ -6,7 +6,7 @@ html {
 }
 
 body {
-    @extend .font-regular;
+    @extend %font-regular;
 
     min-height: 100%;
     height: 100%;
@@ -17,7 +17,7 @@ body {
 }
 
 strong {
-    @extend .font-bold;
+    @extend %font-bold;
 }
 
 %modern-picker-card {
@@ -61,7 +61,7 @@ strong {
 }
 
 %modern-picker-select {
-    @extend .font-bold;
+    @extend %font-bold;
 
     margin: 0;
     border: 1px solid $bcg-darkest;
@@ -152,13 +152,13 @@ strong {
             border: 2px solid $text-dark;
             border-top-color: $text-active;
             border-radius: 50%;
-            animation: build-status-spin 800ms linear infinite;
+            animation: spin-360 800ms linear infinite;
         }
     }
 }
 
 %modern-picker-badge {
-    @extend .font-regular;
+    @extend %font-regular;
 
     flex: 0 0 auto;
     height: 18px;
@@ -196,7 +196,7 @@ strong {
     line-height: 20px;
 
     > .name {
-        @extend .font-bold;
+        @extend %font-bold;
 
         min-width: 0;
         max-width: 100%;
@@ -209,111 +209,33 @@ strong {
     }
 }
 
-.noSelect {
-    user-select: none;
-}
-
-.allowSelect {
-    user-select: initial;
-}
-
-#ui-root {
-    position: absolute;
-    inset: 0;
-    width: auto;
-    height: auto;
-    max-height: 100%;
-
-    > .content {
-        max-height: 100%;
-        overflow: hidden;
-    }
-}
-
 .asset-icon-prefix {
-    &.type-animation::before {
-        content: '\E213';
-    }
+    &.type-animation::before { content: '\E213'; }
+    &.type-animstategraph::before { content: '\E412'; }
+    &.type-audio::before { content: '\E210'; }
+    &.type-cubemap::before { content: '\E220'; }
+    &.type-folder::before { content: '\E139'; }
+    &.type-bundle::before { content: '\E410'; }
+    &.type-json::before { content: '\E207'; }
+    &.type-material::before { content: '\E195'; }
 
-    &.type-animstategraph::before {
-        content: '\E412';
-    }
+    &.type-model::before,
+    &.type-scene::before { content: '\E188'; }
 
-    &.type-audio::before {
-        content: '\E210';
-    }
+    &.type-script::before { content: '\E392'; }
+    &.type-sprite::before { content: '\E413'; }
 
-    &.type-cubemap::before {
-        content: '\E220';
-    }
+    &.type-texture::before,
+    &.type-textureatlas::before { content: '\E201'; }
 
-    &.type-folder::before {
-        content: '\E139';
-    }
+    &.type-text::before { content: '\E209'; }
+    &.type-html::before { content: '\E205'; }
+    &.type-css::before { content: '\E206'; }
+    &.type-shader::before { content: '\E202'; }
 
-    &.type-bundle::before {
-        content: '\E410';
-    }
-
-    &.type-json::before {
-        content: '\E207';
-    }
-
-    &.type-material::before {
-        content: '\E195';
-    }
-
-    &.type-model::before {
-        content: '\E188';
-    }
-
-    &.type-scene::before {
-        content: '\E188';
-    }
-
-    &.type-script::before {
-        content: '\E392';
-    }
-
-    &.type-sprite::before {
-        content: '\E413';
-    }
-
-    &.type-texture::before {
-        content: '\E201';
-    }
-
-    &.type-textureatlas::before {
-        content: '\E201';
-    }
-
-    &.type-text::before {
-        content: '\E209';
-    }
-
-    &.type-html::before {
-        content: '\E205';
-    }
-
-    &.type-css::before {
-        content: '\E206';
-    }
-
-    &.type-shader::before {
-        content: '\E202';
-    }
-
-    &.type-binary::before {
-        content: '\E208';
-    }
-
-    &.type-font::before {
-        content: '\E208';
-    }
-
-    &.type-gsplat::before {
-        content: '\E208';
-    }
+    &.type-binary::before,
+    &.type-font::before,
+    &.type-gsplat::before { content: '\E208'; }
 }
 
 .assets-drop-area {
@@ -333,7 +255,7 @@ strong {
             white-space: normal;
 
             > h1 {
-                @extend .font-regular;
+                @extend %font-regular;
 
                 margin: 0;
                 line-height: normal;
@@ -342,7 +264,7 @@ strong {
             }
 
             > h2 {
-                @extend .font-regular;
+                @extend %font-regular;
 
                 margin: 8px 0 0;
                 line-height: normal;
@@ -351,19 +273,8 @@ strong {
                 color: $text-dark;
             }
 
-            > .tag {
-                position: absolute;
-                top: 16px;
-                right: 16px;
-                line-height: 22px;
-                padding: 0 8px;
-                font-size: 14px;
-                color: $text-secondary;
-                background-color: $bcg-dark;
-            }
-
             > p {
-                @extend .font-regular;
+                @extend %font-regular;
 
                 margin: 16px 0 0;
                 font-size: 12px;
@@ -374,12 +285,6 @@ strong {
                 &:first-child {
                     margin-top: 0;
                 }
-            }
-
-            > .ui-code {
-                line-height: normal;
-                margin: 16px -16px -16px;
-                min-width: 240px;
             }
 
             > .reference {
@@ -430,97 +335,19 @@ strong {
         }
     }
 
-    &.light-mapper {
-        > .inner {
-            > .header {
-                display: block;
-            }
+    &.light-mapper > .inner > .uv1 {
+        color: $text-secondary;
+        max-width: 200px;
+        white-space: normal;
+        line-height: normal;
+        padding: 2px 0 8px;
 
-            > .auto-toggle {
-                > .ui-checkbox {
-                    margin: 0 8px 0 0;
-                }
-
-                > .ui-label {
-                    margin: 0;
-                    vertical-align: middle;
-                }
-            }
-
-            > .uv1 {
-                color: $text-secondary;
-                max-width: 200px;
-                white-space: normal;
-                line-height: normal;
-                padding: 2px 0 8px;
-
-                &.hidden {
-                    display: none;
-                }
-
-                > .ui-button {
-                    margin: 0;
-                    padding: 0;
-                    line-height: normal;
-                    border: none;
-                    color: $text-active;
-                    background-color: transparent;
-
-                    &:hover {
-                        text-decoration: underline;
-                        color: $text-primary;
-                    }
-                }
-            }
-        }
-    }
-
-    &.launch-tooltip {
-        > .inner {
-            max-width: 300px;
-            line-height: 1.8;
-            white-space: normal;
-            padding: 5px 15px;
-            font-size: 12px;
-        }
-
-        &.invisible {
+        &.hidden {
             display: none;
         }
     }
 
-    &.assets-search-field {
-        > .inner {
-            line-height: normal;
-            padding: 1px 16px;
-            white-space: normal;
-            max-width: 512px;
-
-            > h1 {
-                @extend .font-regular;
-
-                margin: 16px 0 0;
-                line-height: normal;
-                font-size: 14px;
-                font-weight: bold;
-            }
-
-            > p {
-                > strong {
-                    color: $text-active;
-                }
-
-                > code {
-                    color: $text-active;
-                    background-color: #000;
-                    font-size: 11px;
-                    padding: 1px 2px;
-                }
-            }
-        }
-    }
-
-    &.version-control-checkbox-tooltip {
+    &.launch-tooltip {
         > .inner {
             max-width: 300px;
             line-height: 1.8;
@@ -535,17 +362,6 @@ strong {
     width: 14px;
     height: 14px;
     overflow: hidden;
-
-    &.null {
-        &::after {
-            color: color.mix($bcg-primary, $text-darkest, 50%);
-            left: 0;
-        }
-
-        &:hover::after {
-            color: $text-primary;
-        }
-    }
 
     &::after {
         @extend .font-icon;
@@ -568,18 +384,18 @@ strong {
 
     &.null {
         &::after {
-            @extend .font-regular;
+            @extend %font-regular;
 
             content: '?';
             color: $text-dark;
             font-weight: bold;
             background-color: transparent;
+            left: 0;
         }
 
-        &:hover {
-            &::after {
-                background-color: transparent;
-            }
+        &:hover::after {
+            color: $text-primary;
+            background-color: transparent;
         }
     }
 
@@ -603,16 +419,6 @@ strong {
     }
 }
 
-@keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
-}
-
 .ui-overlay.script-priorities {
     > .content {
         width: 400px;
@@ -631,7 +437,7 @@ strong {
         }
 
         .ui-label.title {
-            @extend .font-bold;
+            @extend %font-bold;
         }
 
         .ui-label.description {
@@ -684,12 +490,8 @@ strong {
         content: '\E161';
     }
 
-    .move-down {
-        line-height: 32px;
-
-        &::after {
-            content: '\E163';
-        }
+    .move-down::after {
+        content: '\E163';
     }
 
     .remove::after {
@@ -701,7 +503,6 @@ strong {
         visibility: hidden;
     }
 }
-
 
 .pcui-overlay.help-controls {
     > .pcui-overlay-content {
@@ -855,11 +656,11 @@ strong {
                 white-space: normal;
                 padding: 0 28px;
 
-                @extend .font-bold;
+                @extend %font-bold;
             }
 
             > .close {
-                @extend .font-bold;
+                @extend %font-bold;
 
                 font-size: 12px;
                 background-color: #4a5a5d;
@@ -1022,7 +823,7 @@ strong {
             > .pcui-panel-header {
                 display: block;
 
-                @extend .font-bold;
+                @extend %font-bold;
 
                 background-color: transparent;
                 font-size: 18px;
@@ -1049,7 +850,8 @@ strong {
                     line-height: 22px;
                     white-space: normal;
 
-                    > .font-icon {
+                    // attribute form keeps every `@extend .font-icon` from weaving into this rule
+                    > [class~='font-icon'] {
                         color: $text-darkest;
                         font-size: 20px;
                     }
@@ -1070,7 +872,7 @@ strong {
             border-radius: 0;
             box-shadow: none;
 
-            @extend .font-bold;
+            @extend %font-bold;
 
             text-transform: uppercase;
             color: $text-primary;
@@ -1117,183 +919,38 @@ strong {
     }
 }
 
-.picker-color {
-    &.c-1 > .content {
-        > .pick-opacity {
-            display: block;
-        }
-
-        > .fields > .field-r {
-            display: block;
-        }
+// label + compact select shared by the curve and gradient picker toolbars
+@mixin picker-label-select {
+    > .ui-label {
+        flex: none;
+        line-height: 22px;
+        vertical-align: bottom;
     }
 
-    &.c-2 > .content {
-        > .fields > .field-hex {
-            display: block;
-        }
-    }
+    > .ui-select-field.pcui-select-input {
+        flex: none;
+        height: 24px;
+        min-height: 0;
+        padding: 0;
+        border-radius: 0;
+        vertical-align: bottom;
 
-    &.c-3 > .content {
-        width: 298px;
-
-        > .pick-rect {
-            display: block;
-        }
-
-        > .pick-hue {
-            display: block;
+        > .pcui-select-input-container-value {
+            height: 100%;
+            background-color: transparent;
         }
 
-        > .pick-opacity {
-            display: none;
+        .pcui-select-input-value {
+            height: 22px;
+            line-height: 22px;
+            padding: 0 22px 0 8px;
         }
 
-        > .fields {
-            > .field-g,
-            > .field-b {
-                display: block;
-            }
-        }
-    }
-
-    &.c-4 > .content {
-        width: 320px;
-
-        > .pick-opacity {
-            display: block;
-        }
-
-        > .fields > .field-a {
-            display: block;
-        }
-    }
-
-    > .content {
-        border: 1px solid #000;
-        width: 320px;
-        height: 162px;
-        white-space: nowrap;
-        transition: none;
-
-        > .pick-rect {
-            @extend .noSelect;
-
-            position: relative;
-            display: none;
-            float: left;
-            width: 146px;
-            height: 146px;
-            border: 1px solid #000;
-            box-sizing: border-box;
-            margin: 8px 0 8px 8px;
-            background-color: #f00;
-            cursor: crosshair;
-
-            > .white {
-                position: absolute;
-                width: 144px;
-                height: 144px;
-                top: 0;
-                left: 0;
-                background: linear-gradient(to right, rgb(255 255 255 / 100%) 0%, rgb(255 255 255 / 1%) 100%);
-            }
-
-            > .black {
-                position: absolute;
-                width: 144px;
-                height: 144px;
-                top: 0;
-                left: 0;
-                background: linear-gradient(to bottom, rgb(0 0 0 / 1%) 0%, rgb(0 0 0 / 100%) 100%);
-            }
-
-            > .handle {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 12px;
-                height: 12px;
-                margin: -7px 0 0 -7px;
-                border: 1px solid #000;
-                outline: 1px solid #fff;
-            }
-        }
-
-        > .pick-hue {
-            @extend .noSelect;
-
-            position: relative;
-            display: none;
-            float: left;
-            width: 14px;
-            height: 146px;
-            margin: 8px 0 8px 8px;
-            border: 1px solid #000;
-            box-sizing: border-box;
-            cursor: crosshair;
-            background: #000;
-            background:
-                linear-gradient(
-                    to bottom,
-                    rgb(255 0 0 / 100%) 0%,
-                    rgb(255 255 0 / 100%) 16.67%,
-                    rgb(0 255 0 / 100%) 33.33%,
-                    rgb(0 255 255 / 100%) 50%,
-                    rgb(0 0 255 / 100%) 66.67%,
-                    rgb(255 0 255 / 100%) 83.33%,
-                    rgb(255 0 0 / 100%) 100%
-                );
-
-            > .handle {
-                position: absolute;
-                top: 0;
-                left: -3px;
-                width: 16px;
-                height: 4px;
-                margin: -3px 0 0;
-                border: 1px solid #000;
-                outline: 1px solid #fff;
-            }
-        }
-
-        > .pick-opacity {
-            @extend .noSelect;
-
-            position: relative;
-            display: none;
-            float: left;
-            width: 12px;
-            height: 144px;
-            margin: 8px 0 8px 8px;
-            border: 1px solid #000;
-            cursor: crosshair;
-            background: #000;
-            background: linear-gradient(to bottom, #fff 0%, #000 100%);
-
-            > .handle {
-                position: absolute;
-                top: 0;
-                left: -3px;
-                width: 16px;
-                height: 4px;
-                margin: -3px 0 0;
-                border: 1px solid #000;
-                outline: 1px solid #fff;
-            }
-        }
-
-        > .fields {
-            float: left;
-            width: 106px;
-            height: 154px;
-            margin: 0 0 0 8px;
-            padding: 4px;
-
-            > .field {
-                display: none;
-                width: calc(106px - 6px);
-            }
+        .pcui-select-input-icon {
+            right: 0;
+            width: 22px;
+            height: 22px;
+            line-height: 22px;
         }
     }
 }
@@ -1315,42 +972,8 @@ strong {
                 &.pcui-container {
                     align-items: center;
                     background-color: $bcg-primary;
-                }
 
-                > .content,
-                &.pcui-container {
-                    > .ui-label {
-                        flex: none;
-                        line-height: 22px;
-                        vertical-align: bottom;
-                    }
-
-                    > .ui-select-field.pcui-select-input {
-                        flex: none;
-                        height: 24px;
-                        min-height: 0;
-                        padding: 0;
-                        border-radius: 0;
-                        vertical-align: bottom;
-
-                        > .pcui-select-input-container-value {
-                            height: 100%;
-                            background-color: transparent;
-                        }
-
-                        .pcui-select-input-value {
-                            height: 22px;
-                            line-height: 22px;
-                            padding: 0 22px 0 8px;
-                        }
-
-                        .pcui-select-input-icon {
-                            right: 0;
-                            width: 22px;
-                            height: 22px;
-                            line-height: 22px;
-                        }
-                    }
+                    @include picker-label-select;
 
                     > .ui-button.picker-curve-toggle,
                     > .pcui-button.picker-curve-toggle {
@@ -1399,10 +1022,7 @@ strong {
                     padding-top: 0;
                     padding-bottom: 0;
                     background-color: $bcg-primary;
-                }
 
-                > .content,
-                &.pcui-container {
                     > .ui-number-field,
                     > .pcui-numeric-input {
                         flex: none;
@@ -1442,160 +1062,99 @@ strong {
         width: 364px;
 
         > .picker-gradient-panel {
-            height: 100%;
-            font-size: 11px;
-
             > .picker-gradient-gradient {
                 width: 344px;
-                height: 28px;
-                display: block;
                 padding: 10px 10px 0;
             }
 
             > .picker-gradient-anchors {
                 width: 344px;
-                height: 28px;
-                display: block;
                 padding: 0 10px;
             }
 
-            > .picker-gradient-footer {
-                padding: 5px;
+            > .picker-gradient-footer.pcui-container {
+                align-items: center;
+                background-color: $bcg-primary;
 
-                &.pcui-container {
-                    align-items: center;
-                    background-color: $bcg-primary;
+                @include picker-label-select;
+
+                > .ui-number-field,
+                > .pcui-numeric-input {
+                    flex: none;
+                    border-radius: 0;
+                    vertical-align: bottom;
                 }
 
-                > .content,
-                &.pcui-container {
-                    > .ui-label {
-                        flex: none;
-                        line-height: 22px;
-                        vertical-align: bottom;
-                    }
+                > .ui-slider {
+                    vertical-align: bottom;
+                }
 
-                    > .ui-select-field.pcui-select-input {
-                        flex: none;
-                        height: 24px;
-                        min-height: 0;
-                        padding: 0;
-                        border-radius: 0;
-                        vertical-align: bottom;
+                > .ui-button,
+                > .pcui-button {
+                    @extend .font-icon;
 
-                        > .pcui-select-input-container-value {
-                            height: 100%;
-                            background-color: transparent;
-                        }
-
-                        .pcui-select-input-value {
-                            height: 22px;
-                            line-height: 22px;
-                            padding: 0 22px 0 8px;
-                        }
-
-                        .pcui-select-input-icon {
-                            right: 0;
-                            width: 22px;
-                            height: 22px;
-                            line-height: 22px;
-                        }
-                    }
-
-                    > .ui-number-field,
-                    > .pcui-numeric-input {
-                        flex: none;
-                        border-radius: 0;
-                        vertical-align: bottom;
-                    }
-
-                    > .ui-slider {
-                        vertical-align: bottom;
-                    }
-
-                    > .ui-button,
-                    > .pcui-button {
-                        @extend .font-icon;
-
-                        flex: none;
-                        border-radius: 0;
-                        vertical-align: bottom;
-                    }
+                    flex: none;
+                    border-radius: 0;
+                    vertical-align: bottom;
                 }
             }
 
-            > .color-panel {
-                height: 156px;
+            > .color-panel.pcui-container {
+                background-color: $bcg-primary;
 
-                &.pcui-container {
-                    background-color: $bcg-primary;
+                > .color-rect {
+                    margin: 5px 10px 10px;
+                    width: 140px;
+                    height: 140px;
+                    cursor: crosshair;
+                    position: relative;
+                    float: left;
                 }
 
-                > .content,
-                &.pcui-container {
-                    > .color-rect {
-                        margin: 5px 10px 10px;
-                        width: 140px;
-                        height: 140px;
-                        cursor: crosshair;
-                        position: relative;
-                        float: left;
-                    }
+                > .color-handle {
+                    position: absolute;
+                    width: 14px;
+                    height: 14px;
+                    border: 1px solid #000;
+                    outline: 1px solid #fff;
+                    pointer-events: none;
+                }
 
-                    > .color-handle {
-                        position: absolute;
-                        width: 14px;
-                        height: 14px;
-                        border: 1px solid #000;
-                        outline: 1px solid #fff;
-                        pointer-events: none;
-                    }
+                > .hue-rect,
+                > .alpha-rect {
+                    margin: 5px 10px 10px 0;
+                    width: 20px;
+                    height: 140px;
+                    cursor: crosshair;
+                }
 
-                    > .hue-rect,
-                    > .alpha-rect {
-                        margin: 5px 10px 10px 0;
-                        width: 20px;
-                        height: 140px;
-                        cursor: crosshair;
-                    }
+                > .hue-handle,
+                > .alpha-handle {
+                    position: absolute;
+                    width: 20px;
+                    height: 4px;
+                    border: 1px solid rgb(92 82 79);
+                    outline: 1px solid #fff;
+                    pointer-events: none;
+                }
 
-                    > .hue-handle,
-                    > .alpha-handle {
-                        position: absolute;
-                        width: 20px;
-                        height: 4px;
-                        border: 1px solid rgb(92 82 79);
-                        outline: 1px solid #fff;
-                        pointer-events: none;
-                    }
+                > .fields {
+                    display: inline-block;
+                    margin: 3px 0 0;
+                    width: 112px;
+                    height: 145px;
+                    vertical-align: top;
 
-                    > .fields {
-                        display: inline-block;
-                        margin: 3px 0 0;
-                        width: 112px;
-                        height: 145px;
-                        vertical-align: top;
+                    > .ui-number-field,
+                    > .pcui-numeric-input,
+                    > .ui-text-field,
+                    > .pcui-text-input {
+                        margin: 2px 0;
+                        width: 162px;
+                        border-radius: 0;
 
-                        > .ui-number-field,
-                        > .pcui-numeric-input {
-                            margin: 2px 0;
-                            width: 162px;
-                            border-radius: 0;
-
-                            > input.field {
-                                line-height: 22px;
-                            }
-                        }
-
-                        > .ui-text-field,
-                        > .pcui-text-input {
-                            margin: 2px 0;
-                            width: 162px;
-                            border-radius: 0;
-
-                            > input.field {
-                                line-height: 22px;
-                            }
+                        > input.field {
+                            line-height: 22px;
                         }
                     }
                 }
@@ -1611,7 +1170,7 @@ strong {
     &.vc-suspended { display: none; }
 
     > .pcui-overlay-content {
-        @extend .font-regular;
+        @extend %font-regular;
 
         // absolutely centred (rather than flex-centred) so width/height/position
         // can be tweened when toggling fullscreen; the small-picker box is
@@ -1630,8 +1189,6 @@ strong {
             display: flex;
 
             .pcui-container.left {
-                $c: &;
-
                 background-color: $bcg-dark;
                 box-sizing: border-box;
                 margin: 0;
@@ -1671,12 +1228,6 @@ strong {
                         background-color: $bcg-darkest;
                     }
 
-                    &:hover {
-                        #{$c} .project-stats {
-                            background: none !important;
-                        }
-                    }
-
                     &.hover:hover {
                         cursor: pointer;
                     }
@@ -1692,7 +1243,7 @@ strong {
                     font-size: 11px;
 
                     span {
-                        @extend .font-regular;
+                        @extend %font-regular;
 
                         display: inline-flex;
                         align-items: center;
@@ -1722,7 +1273,7 @@ strong {
                     min-width: 0;
 
                     > .project-name {
-                        @extend .font-bold;
+                        @extend %font-bold;
 
                         display: block;
                         margin: 0;
@@ -1786,7 +1337,7 @@ strong {
                 }
 
                 .project-cms-button {
-                    @extend .font-bold;
+                    @extend %font-bold;
 
                     position: absolute;
                     bottom: 10px;
@@ -1822,18 +1373,6 @@ strong {
                     margin-top: 10px;
                 }
 
-                @keyframes slide-down {
-                    0% {
-                        top: -50px;
-                        opacity: 0;
-                    }
-
-                    100% {
-                        top: 0;
-                        opacity: 1;
-                    }
-                }
-
                 ul {
                     padding: 1em 0 0;
                     margin: 0;
@@ -1855,7 +1394,7 @@ strong {
                         line-height: 1.2;
                         white-space: nowrap;
 
-                        @extend .font-bold;
+                        @extend %font-bold;
 
                         // its display would otherwise beat pcui's hidden state
                         &.hidden,
@@ -1936,7 +1475,6 @@ strong {
                         }
                     }
                 }
-
             }
 
             .pcui-panel.right {
@@ -1957,7 +1495,7 @@ strong {
                     }
 
                     .close {
-                        @extend .font-bold;
+                        @extend %font-bold;
 
                         font-size: 14px;
                         position: absolute;
@@ -1987,38 +1525,7 @@ strong {
                         border-color: transparent;
                         transform: translateY(-50%);
 
-                        // windows-style maximise square; morphs into the restore
-                        // glyph (two squares) when fullscreen is on
-                        &::before {
-                            content: '';
-                            position: absolute;
-                            top: 50%;
-                            left: 50%;
-                            box-sizing: border-box;
-                            width: 11px;
-                            height: 10px;
-                            border: 1.5px solid currentcolor;
-                            border-radius: 1px;
-                            transform: translate(-50%, -50%);
-                            transition: width 200ms ease, height 200ms ease, transform 200ms ease;
-                        }
-
-                        // back square of the restore glyph — fades/scales in when active
-                        &::after {
-                            content: '';
-                            position: absolute;
-                            top: 50%;
-                            left: 50%;
-                            box-sizing: border-box;
-                            width: 9px;
-                            height: 9px;
-                            border-top: 1.5px solid currentcolor;
-                            border-right: 1.5px solid currentcolor;
-                            border-radius: 1px;
-                            opacity: 0;
-                            transform: translate(-38%, -62%) scale(0.6);
-                            transition: opacity 200ms ease, transform 200ms ease;
-                        }
+                        @include fullscreen-glyph;
 
                         &:hover,
                         &:focus {
@@ -2030,18 +1537,7 @@ strong {
                         &.active {
                             color: $text-active;
 
-                            // front square nudged down-left
-                            &::before {
-                                width: 9px;
-                                height: 9px;
-                                transform: translate(-62%, -38%);
-                            }
-
-                            // back square peeking up-right (top + right edges only)
-                            &::after {
-                                opacity: 1;
-                                transform: translate(-38%, -62%) scale(1);
-                            }
+                            @include fullscreen-glyph-on;
                         }
                     }
                 }
@@ -2303,7 +1799,6 @@ strong {
     }
 }
 
-
 // Individual Alert Popup
 .alert {
     position: absolute;
@@ -2328,7 +1823,7 @@ strong {
 
     // Text and icon for the alert dialog
     &-text {
-        @extend .font-regular;
+        @extend %font-regular;
 
         display: flex;
         align-items: center;
@@ -2357,7 +1852,7 @@ strong {
 
     // Upgrade Button
     .btn {
-        @extend .font-bold;
+        @extend %font-bold;
 
         flex: 0 0 auto;
         height: 30px;
@@ -2420,12 +1915,6 @@ strong {
     padding: 5px;
     z-index: 10000000;
 
-    & > #checkbox-menu-item {
-        & > .pcui-boolean-input:not(.pcui-boolean-input-ticked) { background-color: $bcg-darker; }
-
-        border-bottom: 2px solid $bcg-primary;
-    }
-
     & > .sorting-menu-item {
         padding: 5px;
         display: flex;
@@ -2437,22 +1926,18 @@ strong {
     }
 }
 
-.ui-panel.right {
-    header {
+.pcui-container.picker-scene-panel {
+    @extend %font-regular;
+
+    box-sizing: border-box;
+    padding: 16px 20px !important;
+    font-size: 12px;
+
+    &:not(.pcui-hidden) {
         display: flex;
-        justify-content: center;
-
-        span {
-            @extend .font-regular;
-
-            font-size: 14px;
-            font-weight: 800;
-        }
+        flex-direction: column;
     }
 
-}
-
-.pcui-container.picker-scene-panel {
     .ui-list.scene-list {
         margin: 0;
         padding: 0;
@@ -2463,7 +1948,7 @@ strong {
         overflow: hidden;
 
         > li {
-            @extend .font-regular;
+            @extend %font-regular;
 
             height: 58px;
             line-height: 58px;
@@ -2477,17 +1962,13 @@ strong {
                 border-bottom: none;
             }
 
-            &.selected {
-                background-color: transparent;
-            }
-
             &.current:hover {
                 background-color: transparent;
                 cursor: default;
             }
 
             > .pcui-label.name {
-                @extend .font-bold;
+                @extend %font-bold;
 
                 font-size: 14px;
                 display: inline-block;
@@ -2507,34 +1988,6 @@ strong {
                 }
             }
 
-            > .primary {
-                @extend .font-icon;
-
-                top: 15px;
-                left: 0;
-                line-height: 1;
-                height: 20px;
-                color: $text-darkest;
-                background: transparent;
-                border: none;
-                font-size: 16px;
-                position: absolute;
-
-                &:not(.disabled):hover {
-                    cursor: pointer;
-                    color: $text-dark;
-                }
-            }
-
-            &.primary > .primary {
-                color: $text-active;
-
-                &:hover {
-                    color: $text-active;
-                    cursor: default;
-                }
-            }
-
             &:not(.current, .disabled, .new-scene):hover {
                 background-color: #354144;
                 cursor: pointer;
@@ -2547,7 +2000,7 @@ strong {
                 }
 
                 > .current-badge {
-                    @extend .font-bold;
+                    @extend %font-bold;
 
                     display: inline-block;
                     vertical-align: middle;
@@ -2664,23 +2117,6 @@ strong {
             }
         }
     }
-}
-
-.pcui-container.picker-scene-panel {
-    box-sizing: border-box;
-    padding: 16px 20px !important;
-    font-size: 12px;
-
-    &:not(.pcui-hidden) {
-        display: flex;
-        flex-direction: column;
-    }
-
-    @extend .font-regular;
-
-    > span {
-        padding-left: 10px;
-    }
 
     // shimmer placeholder shown while the first scene list loads; mirrors the
     // scene-list box so it connects to the toolbar
@@ -2729,7 +2165,7 @@ strong {
     // empty-state shown when the search filter matches no scenes; mirrors the
     // builds & publish "no builds match" message
     > .no-filtered-scenes {
-        @extend .font-regular;
+        @extend %font-regular;
 
         width: 100%;
         margin: 0;
@@ -2799,7 +2235,7 @@ strong {
         }
 
         > .pcui-button.new {
-            @extend .font-bold;
+            @extend %font-bold;
 
             display: inline-flex;
             align-items: center;
@@ -2840,20 +2276,14 @@ strong {
             }
         }
     }
-
 }
 
-.pcui-menu.picker-scene-menu {
+.pcui-menu.picker-scene-menu,
+.pcui-menu.picker-builds-menu,
+.pcui-menu.picker-builds-filter-menu {
     .pcui-menu-item:not(.pcui-menu-item-has-children):hover > .pcui-menu-item-children {
         opacity: 0;
         visibility: hidden;
-    }
-
-    // round + border the menu to match the builds & publish row menu
-    .pcui-menu-items {
-        border: 1px solid $border-primary;
-        border-radius: 6px;
-        overflow: hidden;
     }
 
     .pcui-menu-item-content {
@@ -2868,83 +2298,176 @@ strong {
             margin: 0 0 0 10px;
         }
     }
+}
 
-    .pcui-menu-item.delete > .pcui-menu-item-content > .pcui-label {
-        color: $error-secondary;
+// round + border the menus to match the build list box
+@each $menu in scene, builds, builds-filter {
+    .pcui-menu.picker-#{$menu}-menu .pcui-menu-items {
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        overflow: hidden;
     }
 }
 
+.pcui-menu.picker-scene-menu,
 .pcui-menu.picker-builds-menu {
-    z-index: 100001;
-
-    .pcui-menu-item:not(.pcui-menu-item-has-children):hover > .pcui-menu-item-children {
-        opacity: 0;
-        visibility: hidden;
-    }
-
-    // round + border the menu to match the build list box
-    .pcui-menu-items {
-        border: 1px solid $border-primary;
-        border-radius: 6px;
-        overflow: hidden;
-    }
-
-    .pcui-menu-item-content {
-        font-size: 13px;
-
-        &:hover {
-            background-color: $bcg-dark;
-        }
-
-        > .pcui-label {
-            line-height: 30px;
-            margin: 0 0 0 10px;
-        }
-    }
-
-    .pcui-menu-item.primary:not(.pcui-disabled) > .pcui-menu-item-content > .pcui-label {
-        color: $text-primary;
-    }
-
     .pcui-menu-item.delete > .pcui-menu-item-content > .pcui-label {
         color: $error-secondary;
     }
+}
+
+.pcui-menu.picker-builds-menu,
+.pcui-menu.picker-builds-filter-menu {
+    z-index: 100001;
+}
+
+.pcui-menu.picker-builds-menu .pcui-menu-item.primary:not(.pcui-disabled) > .pcui-menu-item-content > .pcui-label {
+    color: $text-primary;
 }
 
 .pcui-menu.picker-builds-filter-menu {
-    z-index: 100001;
-
-    .pcui-menu-item:not(.pcui-menu-item-has-children):hover > .pcui-menu-item-children {
-        opacity: 0;
-        visibility: hidden;
-    }
-
     .pcui-menu-items {
         min-width: 150px;
         max-height: 280px;
-        border: 1px solid $border-primary;
-        border-radius: 6px;
         overflow: auto;
     }
 
-    .pcui-menu-item-content {
-        font-size: 13px;
-
-        &:hover {
-            background-color: $bcg-dark;
-        }
-
-        > .pcui-label {
-            line-height: 30px;
-            margin: 0 10px;
-        }
+    .pcui-menu-item-content > .pcui-label {
+        margin: 0 10px;
     }
 
     .pcui-menu-item.selected > .pcui-menu-item-content > .pcui-label {
-        @extend .font-bold;
+        @extend %font-bold;
 
         color: $text-primary;
     }
+}
+
+// icon glyphs shared by the picker panels below
+$picker-icon-eye: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 3.3c3.2 0 5.7 2.1 7 4.7-1.3 2.6-3.8 4.7-7 4.7S2.3 10.6 1 8c1.3-2.6 3.8-4.7 7-4.7Zm0 1.5C5.7 4.8 3.8 6 2.7 8c1.1 2 3 3.2 5.3 3.2s4.2-1.2 5.3-3.2C12.2 6 10.3 4.8 8 4.8Zm0 1.2a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z'/%3E%3C/svg%3E");
+$picker-icon-open: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M10.6 1H15v4.4h-1.5V3.6l-5 5-1.1-1.1 5-5h-1.8V1ZM3.8 3h3.5v1.5H3.8a.3.3 0 0 0-.3.3v7.4c0 .2.1.3.3.3h7.4c.2 0 .3-.1.3-.3V8.7H13v3.5c0 1-.8 1.8-1.8 1.8H3.8c-1 0-1.8-.8-1.8-1.8V4.8C2 3.8 2.8 3 3.8 3Z'/%3E%3C/svg%3E");
+$picker-icon-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 1 1 1.06-1.06l2.72 2.72 6.72-6.72a.75.75 0 0 1 1.06 0Z'/%3E%3C/svg%3E");
+
+// currentcolor glyph drawn by a pseudo-element; no $icon leaves mask-image to the caller
+@mixin picker-mask-icon($size, $icon: null) {
+    content: '';
+    width: $size;
+    height: $size;
+    background-color: currentcolor;
+    mask: $icon center / contain no-repeat;
+}
+
+// outlined ghost button states: hovered/focused, pressed, and open (menu showing)
+%picker-ghost-hover {
+    color: $text-primary;
+    background-color: $bcg-dark;
+    border-color: $bcg-darkest;
+    box-shadow: $element-shadow-hover;
+}
+
+%picker-ghost-active {
+    background-color: $bcg-darkest;
+    border-color: $border-primary;
+    box-shadow: none;
+}
+
+// text field chrome: lighter on hover, darkest while typing
+@mixin picker-field-states {
+    &:hover {
+        background-color: $bcg-darker;
+        box-shadow: $element-shadow-hover;
+    }
+
+    &:focus-within {
+        background-color: $bcg-darkest;
+        box-shadow: $element-shadow-active;
+    }
+}
+
+// 34px action button body; callers add shadow, cursor, transition and states
+@mixin picker-button($border, $color, $bg) {
+    @extend %font-bold;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 34px;
+    margin: 0;
+    padding: 0 18px;
+    border: 1px solid $border;
+    border-radius: 6px;
+    color: $color;
+    background-color: $bg;
+    font-size: 13px;
+}
+
+// dropdown caret after a menu button's label; callers flip it with .active::after
+@mixin picker-caret {
+    &::after {
+        content: '';
+        width: 8px;
+        height: 8px;
+        margin-left: 6px;
+        background-color: currentcolor;
+        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 6h8l-4 4-4-4Z'/%3E%3C/svg%3E") center / contain no-repeat;
+        transition: transform 100ms;
+    }
+}
+
+// 28px square ghost icon button with a 16px glyph
+@mixin picker-icon-button($icon: null) {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: transparent;
+    color: $text-dark;
+    box-shadow: none;
+    cursor: pointer;
+    transition: color 100ms, background-color 100ms, border-color 100ms, box-shadow 100ms;
+
+    &::before {
+        @include picker-mask-icon(16px, $icon);
+    }
+}
+
+// back link heading the publish form and the build detail page
+@mixin picker-back-link {
+    @extend %font-bold;
+
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    align-self: flex-start;
+    margin: 0 0 14px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: $text-dark;
+    font-size: 12px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 100ms;
+
+    &::before {
+        @include picker-mask-icon(14px, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M7.3 3.3 2.6 8l4.7 4.7 1.1-1.1L6.2 8.8H14V7.2H6.2l2.4-2.6-1.1-1.1Z'/%3E%3C/svg%3E"));
+    }
+
+    &:hover,
+    &:focus {
+        color: $text-primary;
+    }
+}
+
+.pcui-container.picker-publish-new > .back,
+.picker-build-detail > .back {
+    @include picker-back-link;
 }
 
 .pcui-container.picker-publish-new {
@@ -2954,38 +2477,6 @@ strong {
     &.disabled {
         opacity: 0.5;
         pointer-events: none;
-    }
-
-    > .back {
-        @extend .font-bold;
-
-        appearance: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        align-self: flex-start;
-        margin: 0 0 14px;
-        padding: 0;
-        border: none;
-        background: transparent;
-        color: $text-dark;
-        font-size: 12px;
-        text-transform: uppercase;
-        cursor: pointer;
-        transition: color 100ms;
-
-        &::before {
-            content: '';
-            width: 14px;
-            height: 14px;
-            background-color: currentcolor;
-            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M7.3 3.3 2.6 8l4.7 4.7 1.1-1.1L6.2 8.8H14V7.2H6.2l2.4-2.6-1.1-1.1Z'/%3E%3C/svg%3E") center / contain no-repeat;
-        }
-
-        &:hover,
-        &:focus {
-            color: $text-primary;
-        }
     }
 
     // card sections matching the build detail page
@@ -3002,7 +2493,7 @@ strong {
         }
 
         > h3 {
-            @extend .font-bold;
+            @extend %font-bold;
 
             margin: 0;
             color: $text-primary;
@@ -3019,7 +2510,7 @@ strong {
     }
 
     .pcui-label.field-label {
-        @extend .font-bold;
+        @extend %font-bold;
 
         display: block;
         margin: 0 0 6px;
@@ -3033,7 +2524,7 @@ strong {
         top: 0;
         right: 0;
         margin: 0;
-        color: #ff8a8a;
+        color: $danger-text;
         font-size: 12px;
         line-height: 16px;
     }
@@ -3103,7 +2594,7 @@ strong {
         line-height: 32px;
 
         > input {
-            @extend .font-regular;
+            @extend %font-regular;
 
             font-size: 14px;
             color: $text-primary;
@@ -3125,7 +2616,7 @@ strong {
         transition: background-color 100ms, box-shadow 100ms;
 
         > textarea {
-            @extend .font-regular;
+            @extend %font-regular;
 
             display: block;
             width: calc(100% - 20px);
@@ -3140,15 +2631,7 @@ strong {
             box-shadow: none;
         }
 
-        &:hover {
-            background-color: $bcg-darker;
-            box-shadow: $element-shadow-hover;
-        }
-
-        &:focus-within {
-            background-color: $bcg-darkest;
-            box-shadow: $element-shadow-active;
-        }
+        @include picker-field-states;
     }
 
     .pcui-select-input.engine-version-dropdown,
@@ -3215,19 +2698,8 @@ strong {
         }
 
         > .pcui-button {
-            @extend .font-bold;
+            @include picker-button(transparent, $text-primary, $text-active);
 
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            height: 34px;
-            margin: 0;
-            padding: 0 18px;
-            border: 1px solid transparent;
-            border-radius: 6px;
-            color: $text-primary;
-            background-color: $text-active;
-            font-size: 13px;
             line-height: 32px;
             box-shadow: none;
             cursor: pointer;
@@ -3327,7 +2799,7 @@ strong {
             overflow: hidden;
 
             > .ui-list-item {
-                @extend .font-regular;
+                @extend %font-regular;
 
                 display: flex;
                 align-items: center;
@@ -3340,10 +2812,6 @@ strong {
 
                 &:last-child {
                     border-bottom: none;
-                }
-
-                &.selected {
-                    background-color: transparent;
                 }
 
                 // empty legacy list-item text holder
@@ -3406,7 +2874,7 @@ strong {
                 }
 
                 &.current::after {
-                    @extend .font-bold;
+                    @extend %font-bold;
 
                     content: 'Current';
                     flex: 0 0 auto;
@@ -3457,7 +2925,7 @@ strong {
         }
 
         > .pcui-label.error {
-            color: #ff8a8a;
+            color: $danger-text;
         }
 
         > .pcui-progress {
@@ -3483,29 +2951,10 @@ strong {
 }
 
 .picker-builds-publish {
-    > .content {
-        padding: 5px 20px !important;
-    }
-
     padding: 5px 20px !important;
 
     > span {
         margin: 0;
-
-        &.build {
-            font-size: 12px;
-            width: 100%;
-            padding-top: 10px;
-            padding-bottom: 10px;
-        }
-
-        &.builds-list-heading {
-            @extend .font-regular;
-
-            color: $text-primary;
-            padding-bottom: 10px;
-            padding-top: 10px;
-        }
 
         &.no-builds-label {
             width: 100%;
@@ -3519,10 +2968,6 @@ strong {
         }
     }
 
-    > .pcui-progress {
-        width: 100%;
-    }
-
     > .primary-build-header {
         display: flex;
         flex-flow: row wrap;
@@ -3532,7 +2977,7 @@ strong {
         margin: 20px 0 10px;
 
         > .primary-build-heading {
-            @extend .font-regular;
+            @extend %font-regular;
 
             color: $text-primary;
             flex: 0 0 auto;
@@ -3551,19 +2996,8 @@ strong {
         }
 
         > .builds-toolbar > .pcui-button {
-            @extend .font-bold;
+            @include picker-button($bcg-darkest, $text-secondary, $bcg-dark);
 
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            height: 34px;
-            margin: 0;
-            padding: 0 18px;
-            border: 1px solid $bcg-darkest;
-            border-radius: 6px;
-            color: $text-secondary;
-            background-color: $bcg-dark;
-            font-size: 13px;
             box-shadow: none;
             cursor: pointer;
             transition: color 100ms, background-color 100ms, opacity 100ms, box-shadow 100ms;
@@ -3613,7 +3047,7 @@ strong {
         background-color: rgb(0 0 0 / 8%);
 
         > .builds-list-heading {
-            @extend .font-bold;
+            @extend %font-bold;
 
             flex: 0 0 auto;
             margin: 0;
@@ -3648,22 +3082,11 @@ strong {
             cursor: pointer;
             transition: color 100ms, background-color 100ms, border-color 100ms, box-shadow 100ms;
 
-            &::after {
-                content: '';
-                width: 8px;
-                height: 8px;
-                margin-left: 6px;
-                background-color: currentcolor;
-                mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 6h8l-4 4-4-4Z'/%3E%3C/svg%3E") center / contain no-repeat;
-                transition: transform 100ms;
-            }
+            @include picker-caret;
 
             &:hover,
             &:focus {
-                color: $text-primary;
-                background-color: $bcg-dark;
-                border-color: $bcg-darkest;
-                box-shadow: $element-shadow-hover;
+                @extend %picker-ghost-hover;
             }
 
             &.selected {
@@ -3673,10 +3096,7 @@ strong {
             }
 
             &.active {
-                color: $text-primary;
-                background-color: $bcg-darkest;
-                border-color: $border-primary;
-                box-shadow: $element-shadow-active;
+                @extend %picker-ghost-open;
             }
 
             &.active::after {
@@ -3690,16 +3110,6 @@ strong {
             font-size: inherit;
             line-height: 26px;
         }
-    }
-
-    // shared build-status indicator (list rows + detail header)
-    .status {
-        @extend %modern-picker-status;
-    }
-
-    // shared badge pills (list rows + detail header)
-    .badge {
-        @extend %modern-picker-badge;
     }
 
     // shared name + badges row (list rows + detail header)
@@ -3761,7 +3171,7 @@ strong {
                         display: inline-block;
                         min-width: 0;
                         max-width: 100%;
-                        color: #9dd4ff;
+                        color: $info-text;
                         font-size: 13px;
                         text-decoration: none;
                         overflow: hidden;
@@ -3791,25 +3201,16 @@ strong {
                 transition: color 100ms, background-color 100ms, border-color 100ms, box-shadow 100ms;
 
                 &::before {
-                    content: '';
-                    width: 16px;
-                    height: 16px;
-                    background-color: currentcolor;
-                    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.06-1.06l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z'/%3E%3C/svg%3E") center / contain no-repeat;
+                    @include picker-mask-icon(16px, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.06-1.06l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z'/%3E%3C/svg%3E"));
                 }
 
                 &:hover,
                 &:focus {
-                    color: $text-primary;
-                    background-color: $bcg-dark;
-                    border-color: $bcg-darkest;
-                    box-shadow: $element-shadow-hover;
+                    @extend %picker-ghost-hover;
                 }
 
                 &:active {
-                    background-color: $bcg-darkest;
-                    border-color: $border-primary;
-                    box-shadow: none;
+                    @extend %picker-ghost-active;
                 }
             }
         }
@@ -3898,7 +3299,7 @@ strong {
         }
 
         > .no-filtered-builds-label {
-            @extend .font-regular;
+            @extend %font-regular;
 
             grid-column: 1 / -1;
             width: 100%;
@@ -3928,7 +3329,7 @@ strong {
                 padding: 0;
                 border: none;
                 background: transparent;
-                color: #9dd4ff;
+                color: $info-text;
                 font-size: 13px;
                 line-height: 18px;
                 cursor: pointer;
@@ -3941,7 +3342,7 @@ strong {
         }
 
         > .build-item {
-            @extend .font-regular;
+            @extend %font-regular;
 
             grid-column: 1 / -1;
             display: grid;
@@ -4024,7 +3425,7 @@ strong {
                         width: 14px;
                         height: 14px;
                         background-color: currentcolor;
-                        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 3.3c3.2 0 5.7 2.1 7 4.7-1.3 2.6-3.8 4.7-7 4.7S2.3 10.6 1 8c1.3-2.6 3.8-4.7 7-4.7Zm0 1.5C5.7 4.8 3.8 6 2.7 8c1.1 2 3 3.2 5.3 3.2s4.2-1.2 5.3-3.2C12.2 6 10.3 4.8 8 4.8Zm0 1.2a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z'/%3E%3C/svg%3E") center / contain no-repeat;
+                        mask: $picker-icon-eye center / contain no-repeat;
                     }
 
                     &.placeholder {
@@ -4033,32 +3434,12 @@ strong {
                 }
 
                 > .row-artifact {
-                    appearance: none;
                     place-self: center;
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: 28px;
-                    height: 28px;
-                    padding: 0;
-                    border: 1px solid transparent;
-                    border-radius: 4px;
-                    background: transparent;
-                    color: $text-dark;
-                    box-shadow: none;
-                    cursor: pointer;
-                    transition: color 100ms, background-color 100ms, border-color 100ms, box-shadow 100ms;
 
-                    &::before {
-                        content: '';
-                        width: 16px;
-                        height: 16px;
-                        background-color: currentcolor;
-                        mask: center / contain no-repeat;
-                    }
+                    @include picker-icon-button;
 
                     &.open::before {
-                        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M10.6 1H15v4.4h-1.5V3.6l-5 5-1.1-1.1 5-5h-1.8V1ZM3.8 3h3.5v1.5H3.8a.3.3 0 0 0-.3.3v7.4c0 .2.1.3.3.3h7.4c.2 0 .3-.1.3-.3V8.7H13v3.5c0 1-.8 1.8-1.8 1.8H3.8c-1 0-1.8-.8-1.8-1.8V4.8C2 3.8 2.8 3 3.8 3Z'/%3E%3C/svg%3E");
+                        mask-image: $picker-icon-open;
                     }
 
                     &.download::before {
@@ -4072,16 +3453,11 @@ strong {
 
                     &:not(.placeholder):hover,
                     &:not(.placeholder):focus {
-                        color: $text-primary;
-                        background-color: $bcg-dark;
-                        border-color: $bcg-darkest;
-                        box-shadow: $element-shadow-hover;
+                        @extend %picker-ghost-hover;
                     }
 
                     &:not(.placeholder):active {
-                        background-color: $bcg-darkest;
-                        border-color: $border-primary;
-                        box-shadow: none;
+                        @extend %picker-ghost-active;
                     }
                 }
 
@@ -4126,54 +3502,47 @@ strong {
 
                 > .kebab {
                     margin-right: 14px;
-                    appearance: none;
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: 28px;
-                    height: 28px;
-                    padding: 0;
-                    border: 1px solid transparent;
-                    border-radius: 4px;
-                    background: transparent;
-                    color: $text-dark;
-                    box-shadow: none;
-                    cursor: pointer;
-                    transition: color 100ms, background-color 100ms, border-color 100ms, box-shadow 100ms;
 
-                    &::before {
-                        content: '';
-                        width: 16px;
-                        height: 16px;
-                        background-color: currentcolor;
-                        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='3' cy='8' r='1.4'/%3E%3Ccircle cx='8' cy='8' r='1.4'/%3E%3Ccircle cx='13' cy='8' r='1.4'/%3E%3C/svg%3E") center / contain no-repeat;
-                    }
+                    @include picker-icon-button(url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='3' cy='8' r='1.4'/%3E%3Ccircle cx='8' cy='8' r='1.4'/%3E%3Ccircle cx='13' cy='8' r='1.4'/%3E%3C/svg%3E"));
 
                     &:hover,
                     &:focus {
-                        color: $text-primary;
-                        background-color: $bcg-dark;
-                        border-color: $bcg-darkest;
-                        box-shadow: $element-shadow-hover;
+                        @extend %picker-ghost-hover;
                     }
 
                     &:active {
-                        background-color: $bcg-darkest;
-                        border-color: $border-primary;
-                        box-shadow: none;
+                        @extend %picker-ghost-active;
                     }
 
                     &.active {
-                        color: $text-primary;
-                        background-color: $bcg-darkest;
-                        border-color: $border-primary;
-                        box-shadow: $element-shadow-active;
+                        @extend %picker-ghost-open;
                     }
                 }
             }
         }
     }
 
+}
+
+// open (menu showing) ghost button; defined after the builds block because extends emit here, and a filter
+// button's .active must still follow its .selected
+%picker-ghost-open {
+    color: $text-primary;
+    background-color: $bcg-darkest;
+    border-color: $border-primary;
+    box-shadow: $element-shadow-active;
+}
+
+// build-status indicator and badge pills shared by the list rows and the detail header
+.picker-builds-publish,
+.picker-build-detail {
+    .status {
+        @extend %modern-picker-status;
+    }
+
+    .badge {
+        @extend %modern-picker-badge;
+    }
 }
 
 // GitHub-style copy-to-clipboard icon button (builds panel, build detail, version control)
@@ -4200,11 +3569,7 @@ strong {
         transition: color 100ms, background-color 100ms, border-color 100ms, opacity 100ms;
 
         &::before {
-            content: '';
-            width: 13px;
-            height: 13px;
-            background-color: currentcolor;
-            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z'/%3E%3Cpath d='M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z'/%3E%3C/svg%3E") center / contain no-repeat;
+            @include picker-mask-icon(13px, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z'/%3E%3Cpath d='M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z'/%3E%3C/svg%3E"));
         }
 
         &:hover,
@@ -4218,7 +3583,7 @@ strong {
             color: #6fd088;
 
             &::before {
-                mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 1 1 1.06-1.06l2.72 2.72 6.72-6.72a.75.75 0 0 1 1.06 0Z'/%3E%3C/svg%3E");
+                mask-image: $picker-icon-check;
             }
         }
     }
@@ -4236,46 +3601,6 @@ strong {
         user-select: none;
     }
 
-    > .back {
-        @extend .font-bold;
-
-        appearance: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        align-self: flex-start;
-        margin: 0 0 14px;
-        padding: 0;
-        border: none;
-        background: transparent;
-        color: $text-dark;
-        font-size: 12px;
-        text-transform: uppercase;
-        cursor: pointer;
-        transition: color 100ms;
-
-        &::before {
-            content: '';
-            width: 14px;
-            height: 14px;
-            background-color: currentcolor;
-            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M7.3 3.3 2.6 8l4.7 4.7 1.1-1.1L6.2 8.8H14V7.2H6.2l2.4-2.6-1.1-1.1Z'/%3E%3C/svg%3E") center / contain no-repeat;
-        }
-
-        &:hover,
-        &:focus {
-            color: $text-primary;
-        }
-    }
-
-    .status {
-        @extend %modern-picker-status;
-    }
-
-    .badge {
-        @extend %modern-picker-badge;
-    }
-
     .name-row {
         display: flex;
         align-items: center;
@@ -4284,7 +3609,7 @@ strong {
         line-height: 20px;
 
         > .name {
-            @extend .font-bold;
+            @extend %font-bold;
 
             min-width: 0;
             max-width: 100%;
@@ -4336,15 +3661,11 @@ strong {
                 white-space: nowrap;
 
                 &::before {
-                    content: '';
-                    width: 16px;
-                    height: 16px;
-                    background-color: currentcolor;
-                    mask: center / contain no-repeat;
+                    @include picker-mask-icon(16px);
                 }
 
                 &.views::before {
-                    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 3.3c3.2 0 5.7 2.1 7 4.7-1.3 2.6-3.8 4.7-7 4.7S2.3 10.6 1 8c1.3-2.6 3.8-4.7 7-4.7Zm0 1.5C5.7 4.8 3.8 6 2.7 8c1.1 2 3 3.2 5.3 3.2s4.2-1.2 5.3-3.2C12.2 6 10.3 4.8 8 4.8Zm0 1.2a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z'/%3E%3C/svg%3E");
+                    mask-image: $picker-icon-eye;
                 }
             }
 
@@ -4365,7 +3686,7 @@ strong {
 
             > .pcui-button,
             > .detail-button {
-                @extend .font-bold;
+                @extend %font-bold;
 
                 box-sizing: border-box;
                 display: inline-flex;
@@ -4397,21 +3718,16 @@ strong {
             > .pcui-button:not(.pcui-disabled, .pcui-readonly):focus,
             > .detail-button:hover,
             > .detail-button:focus {
-                color: $text-primary;
-                background-color: $bcg-dark;
-                border-color: $bcg-darkest;
-                box-shadow: $element-shadow-hover;
+                @extend %picker-ghost-hover;
             }
 
             > .pcui-button:not(.pcui-disabled, .pcui-readonly):active,
             > .detail-button:active {
-                background-color: $bcg-darkest;
-                border-color: $border-primary;
-                box-shadow: none;
+                @extend %picker-ghost-active;
             }
 
             > .pcui-button.delete {
-                color: #ff8a8a;
+                color: $danger-text;
                 background-color: transparent;
                 border-color: rgb(168 61 61 / 65%);
             }
@@ -4453,16 +3769,11 @@ strong {
 
                 &:hover,
                 &:focus {
-                    color: $text-primary;
-                    background-color: $bcg-dark;
-                    border-color: $bcg-darkest;
-                    box-shadow: $element-shadow-hover;
+                    @extend %picker-ghost-hover;
                 }
 
                 &:active {
-                    background-color: $bcg-darkest;
-                    border-color: $border-primary;
-                    box-shadow: none;
+                    @extend %picker-ghost-active;
                 }
 
                 &.copied {
@@ -4477,7 +3788,7 @@ strong {
         padding: 10px 12px;
         border: 1px solid rgb(168 61 61 / 65%);
         border-radius: 6px;
-        color: #ff8a8a;
+        color: $danger-text;
         background-color: rgb(231 76 60 / 10%);
         font-size: 12px;
         white-space: normal;
@@ -4497,7 +3808,7 @@ strong {
         background-color: rgb(0 0 0 / 8%);
 
         > h3 {
-            @extend .font-bold;
+            @extend %font-bold;
 
             margin: 0 0 10px;
             color: $text-primary;
@@ -4539,7 +3850,7 @@ strong {
             }
 
             > .step-head > .step-label {
-                @extend .font-bold;
+                @extend %font-bold;
 
                 color: $text-primary;
                 font-size: 13px;
@@ -4574,7 +3885,7 @@ strong {
             }
 
             &.failed > .step-head > .dot {
-                color: #ff8a8a;
+                color: $danger-text;
                 border-color: #a83d3d;
                 background-color: rgb(231 76 60 / 12%);
 
@@ -4604,7 +3915,7 @@ strong {
                     border: 2px solid $text-dark;
                     border-top-color: $text-active;
                     border-radius: 50%;
-                    animation: build-status-spin 800ms linear infinite;
+                    animation: spin-360 800ms linear infinite;
                 }
             }
 
@@ -4656,16 +3967,12 @@ strong {
             background-color: rgb(0 0 0 / 16%);
 
             &::before {
-                content: '';
-                width: 18px;
-                height: 18px;
-                background-color: currentcolor;
-                mask: center / contain no-repeat;
+                @include picker-mask-icon(18px);
             }
         }
 
         &.app > .artifact-icon::before {
-            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M10.6 1H15v4.4h-1.5V3.6l-5 5-1.1-1.1 5-5h-1.8V1ZM3.8 3h3.5v1.5H3.8a.3.3 0 0 0-.3.3v7.4c0 .2.1.3.3.3h7.4c.2 0 .3-.1.3-.3V8.7H13v3.5c0 1-.8 1.8-1.8 1.8H3.8c-1 0-1.8-.8-1.8-1.8V4.8C2 3.8 2.8 3 3.8 3Z'/%3E%3C/svg%3E");
+            mask-image: $picker-icon-open;
         }
 
         &.zip > .artifact-icon::before {
@@ -4677,7 +3984,7 @@ strong {
         }
 
         .artifact-title {
-            @extend .font-bold;
+            @extend %font-bold;
 
             color: $text-primary;
             font-size: 14px;
@@ -4692,7 +3999,7 @@ strong {
         }
 
         > .artifact-action {
-            @extend .font-bold;
+            @extend %font-bold;
 
             display: inline-flex;
             align-items: center;
@@ -4711,16 +4018,11 @@ strong {
 
             &:hover,
             &:focus {
-                color: $text-primary;
-                background-color: $bcg-dark;
-                border-color: $bcg-darkest;
-                box-shadow: $element-shadow-hover;
+                @extend %picker-ghost-hover;
             }
 
             &:active {
-                background-color: $bcg-darkest;
-                border-color: $border-primary;
-                box-shadow: none;
+                @extend %picker-ghost-active;
             }
         }
     }
@@ -4768,13 +4070,13 @@ strong {
             white-space: nowrap;
 
             &.publish {
-                color: #9dd4ff;
+                color: $info-text;
                 border-color: rgb(110 170 220 / 45%);
             }
 
             &.download {
-                color: #f3c16f;
-                border-color: rgb(225 166 62 / 45%);
+                color: $warn-text;
+                border-color: $warn-edge;
             }
         }
 
@@ -4852,7 +4154,7 @@ strong {
                     width: 14px;
                     height: 14px;
                     background-color: #6fd088;
-                    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 1 1 1.06-1.06l2.72 2.72 6.72-6.72a.75.75 0 0 1 1.06 0Z'/%3E%3C/svg%3E") center / contain no-repeat;
+                    mask: $picker-icon-check center / contain no-repeat;
                 }
 
                 &.off {
@@ -4867,7 +4169,7 @@ strong {
         }
 
         a {
-            color: #9dd4ff;
+            color: $info-text;
             text-decoration: none;
 
             &:hover {
@@ -4909,12 +4211,6 @@ strong {
                 justify-self: flex-start;
             }
         }
-    }
-}
-
-@keyframes build-status-spin {
-    to {
-        transform: rotate(360deg);
     }
 }
 
@@ -4973,7 +4269,7 @@ strong {
         }
 
         span {
-            @extend .font-regular;
+            @extend %font-regular;
 
             color: $text-secondary;
             margin-bottom: 0;
@@ -4987,7 +4283,7 @@ strong {
             }
 
             > .pcui-label {
-                @extend .font-bold;
+                @extend %font-bold;
 
                 margin: 0;
                 color: $text-secondary;
@@ -5005,15 +4301,7 @@ strong {
                 box-sizing: border-box;
                 transition: background-color 100ms, box-shadow 100ms;
 
-                &:hover {
-                    background-color: $bcg-darker;
-                    box-shadow: $element-shadow-hover;
-                }
-
-                &:focus-within {
-                    background-color: $bcg-darkest;
-                    box-shadow: $element-shadow-active;
-                }
+                @include picker-field-states;
             }
 
             > .pcui-text-input {
@@ -5021,7 +4309,7 @@ strong {
                 line-height: 32px;
 
                 > input {
-                    @extend .font-regular;
+                    @extend %font-regular;
 
                     color: $text-primary;
                     font-size: 14px;
@@ -5032,7 +4320,7 @@ strong {
             }
 
             > .pcui-text-area-input > textarea {
-                @extend .font-regular;
+                @extend %font-regular;
 
                 display: block;
                 width: calc(100% - 20px);
@@ -5068,34 +4356,14 @@ strong {
             }
 
             > .pcui-button {
-                @extend .font-bold;
+                @include picker-button($bcg-darkest, $text-secondary, $bcg-dark);
 
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                height: 34px;
-                margin: 0;
-                padding: 0 18px;
-                border: 1px solid $bcg-darkest;
-                border-radius: 6px;
-                color: $text-secondary;
-                background-color: $bcg-dark;
-                font-size: 13px;
                 box-shadow: none;
                 transition: color 100ms, background-color 100ms, box-shadow 100ms;
 
                 &[data-icon]::before {
                     font-size: 14px;
                     line-height: 1;
-                }
-
-                &.copy-url-button::before {
-                    content: '';
-                    width: 13px;
-                    height: 13px;
-                    margin-right: 8px;
-                    background-color: currentcolor;
-                    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z'/%3E%3Cpath d='M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z'/%3E%3C/svg%3E") center / contain no-repeat;
                 }
 
                 &:not(.disabled, .pcui-disabled, .pcui-readonly):hover,
@@ -5108,14 +4376,6 @@ strong {
                 &:not(.disabled, .pcui-disabled, .pcui-readonly):active {
                     background-color: $bcg-darkest;
                     box-shadow: none;
-                }
-
-                &.copy-url-button.copied {
-                    color: #6fd088;
-
-                    &::before {
-                        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 1 1 1.06-1.06l2.72 2.72 6.72-6.72a.75.75 0 0 1 1.06 0Z'/%3E%3C/svg%3E");
-                    }
                 }
 
                 > .pcui-label {
@@ -5154,7 +4414,7 @@ strong {
             line-height: 18px;
 
             a {
-                color: #9dd4ff;
+                color: $info-text;
                 text-decoration: none;
 
                 &:hover,
@@ -5190,11 +4450,7 @@ strong {
         // copy link: button({ kind: 'icon' }) with a chain-link glyph, a tick once copied
         .copy-link-button {
             &::before {
-                content: '';
-                width: 14px;
-                height: 14px;
-                background-color: currentcolor;
-                mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M7.775 3.275a.75.75 0 0 0 1.06 1.06l1.25-1.25a2 2 0 1 1 2.83 2.83l-2.5 2.5a2 2 0 0 1-2.83 0 .75.75 0 0 0-1.06 1.06 3.5 3.5 0 0 0 4.95 0l2.5-2.5a3.5 3.5 0 0 0-4.95-4.95l-1.25 1.25Zm-4.69 9.64a2 2 0 0 1 0-2.83l2.5-2.5a2 2 0 0 1 2.83 0 .75.75 0 0 0 1.06-1.06 3.5 3.5 0 0 0-4.95 0l-2.5 2.5a3.5 3.5 0 0 0 4.95 4.95l1.25-1.25a.75.75 0 0 0-1.06-1.06l-1.25 1.25a2 2 0 0 1-2.83 0Z'/%3E%3C/svg%3E") center / contain no-repeat;
+                @include picker-mask-icon(14px, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M7.775 3.275a.75.75 0 0 0 1.06 1.06l1.25-1.25a2 2 0 1 1 2.83 2.83l-2.5 2.5a2 2 0 0 1-2.83 0 .75.75 0 0 0-1.06 1.06 3.5 3.5 0 0 0 4.95 0l2.5-2.5a3.5 3.5 0 0 0-4.95-4.95l-1.25 1.25Zm-4.69 9.64a2 2 0 0 1 0-2.83l2.5-2.5a2 2 0 0 1 2.83 0 .75.75 0 0 0 1.06-1.06 3.5 3.5 0 0 0-4.95 0l-2.5 2.5a3.5 3.5 0 0 0 4.95 4.95l1.25-1.25a.75.75 0 0 0-1.06-1.06l-1.25 1.25a2 2 0 0 1-2.83 0Z'/%3E%3C/svg%3E"));
             }
 
             &.copied,
@@ -5203,7 +4459,7 @@ strong {
                 color: #6fd088;
 
                 &::before {
-                    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 1 1 1.06-1.06l2.72 2.72 6.72-6.72a.75.75 0 0 1 1.06 0Z'/%3E%3C/svg%3E");
+                    mask-image: $picker-icon-check;
                 }
             }
         }
@@ -5219,52 +4475,6 @@ strong {
         & > #delete-project-button {
             order: 1;
             margin-left: auto;
-        }
-    }
-}
-
-.ui-panel.attributes-array {
-    > .content {
-        padding: 0;
-        flex-grow: 1;
-        flex-direction: column;
-
-        .ui-panel.attributes-array-elements {
-            > .content {
-                flex-direction: column;
-
-                .ui-button.delete {
-                    height: 22px;
-                    width: 22px;
-
-                    @extend .font-icon;
-
-                    background: transparent;
-                    border: 0;
-                    margin: 0;
-                    margin-left: 3px;
-                    color: $text-darkest;
-
-                    &:hover {
-                        color: #fb222f;
-                    }
-                }
-
-                > .ui-panel {
-                    > .content {
-                        align-items: center;
-                        justify-content: space-between;
-                    }
-
-                    &.field-asset > .content > .top {
-                        // flex-grow doesn't work here for some reason
-                        // unless width has a pixel value so set width to 0
-                        // and let flex-grow take over
-                        width: 0;
-                        flex-grow: 1;
-                    }
-                }
-            }
         }
     }
 }
@@ -5328,7 +4538,7 @@ strong {
                 overflow: hidden;
 
                 > input {
-                    @extend .font-regular;
+                    @extend %font-regular;
 
                     height: 32px;
                     color: $text-primary;
@@ -5340,31 +4550,12 @@ strong {
                     line-height: 32px;
                 }
 
-                &:hover {
-                    background-color: $bcg-darker;
-                    box-shadow: $element-shadow-hover;
-                }
-
-                &:focus-within {
-                    background-color: $bcg-darkest;
-                    box-shadow: $element-shadow-active;
-                }
+                @include picker-field-states;
             }
 
             > .invite-submit {
-                @extend .font-bold;
+                @include picker-button(transparent, $text-primary, $text-active);
 
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                height: 34px;
-                margin: 0;
-                padding: 0 18px;
-                border: 1px solid transparent;
-                border-radius: 6px;
-                color: $text-primary;
-                background-color: $text-active;
-                font-size: 13px;
                 box-shadow: none;
                 transition: background-color 100ms, box-shadow 100ms, opacity 100ms;
 
@@ -5405,7 +4596,7 @@ strong {
         }
 
         > .members-count {
-            @extend .font-bold;
+            @extend %font-bold;
 
             flex: 0 0 auto;
             margin: 7px 0 0;
@@ -5443,7 +4634,7 @@ strong {
             border-bottom: 1px solid $border-primary;
 
             > .pcui-label {
-                @extend .font-bold;
+                @extend %font-bold;
 
                 margin: 0;
                 color: $text-dark;
@@ -5495,7 +4686,7 @@ strong {
                 }
 
                 .collaborator-name {
-                    @extend .font-bold;
+                    @extend %font-bold;
 
                     display: block;
                     margin: 0;
@@ -5523,7 +4714,7 @@ strong {
                 }
 
                 .role-select {
-                    @extend .font-bold;
+                    @extend %font-bold;
 
                     display: inline-flex;
                     align-items: center;
@@ -5543,29 +4734,15 @@ strong {
                     cursor: pointer;
                     transition: color 100ms, background-color 100ms, border-color 100ms, box-shadow 100ms;
 
-                    &::after {
-                        content: '';
-                        width: 8px;
-                        height: 8px;
-                        margin-left: 6px;
-                        background-color: currentcolor;
-                        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 6h8l-4 4-4-4Z'/%3E%3C/svg%3E") center / contain no-repeat;
-                        transition: transform 100ms;
-                    }
+                    @include picker-caret;
 
                     &:hover,
                     &:focus {
-                        color: $text-primary;
-                        background-color: $bcg-dark;
-                        border-color: $bcg-darkest;
-                        box-shadow: $element-shadow-hover;
+                        @extend %picker-ghost-hover;
                     }
 
                     &.active {
-                        color: $text-primary;
-                        background-color: $bcg-darkest;
-                        border-color: $border-primary;
-                        box-shadow: $element-shadow-active;
+                        @extend %picker-ghost-open;
                     }
 
                     &.active::after {
@@ -5574,7 +4751,7 @@ strong {
                 }
 
                 .team-pill {
-                    @extend .font-bold;
+                    @extend %font-bold;
 
                     display: inline-flex;
                     align-items: center;
@@ -5645,7 +4822,7 @@ strong {
     }
 
     > .add-me-as-admin {
-        @extend .font-bold;
+        @extend %font-bold;
 
         align-self: flex-start;
         height: 34px;
@@ -5693,208 +4870,5 @@ strong {
 
     > .content {
         flex-direction: column;
-
-        > .ui-panel.buttons {
-            background: $bcg-dark;
-            padding: 3px;
-
-            > .content {
-                flex-wrap: wrap;
-
-                .ui-label {
-                    display: block;
-                    font-size: 12px;
-                    width: 100%;
-                    flex-basis: 100%;
-                    color: $text-darkest;
-                    margin: -1px 3px 0 6px;
-                }
-
-                .ui-button {
-                    background: $bcg-primary;
-                    font-size: 12px;
-                    text-align: center;
-                    margin: auto;
-
-                    &::before {
-                        @extend .font-icon;
-
-                        margin-right: 5px;
-                    }
-
-                    &.add-assets {
-                        margin-right: 3px;
-                        flex-grow: 1;
-
-                        &::before {
-                            content: '\E120';
-                        }
-                    }
-
-                    &.done::before {
-                        content: '\E133';
-                    }
-                }
-            }
-        }
-
-        > .ui-button.selection-mode {
-            flex-grow: 1;
-            font-size: 12px;
-            color: $text-darkest;
-            height: 22px;
-            line-height: 22px;
-            margin: 0;
-
-            &:hover {
-                color: $text-primary;
-            }
-
-            &::after {
-                content: '\E120';
-
-                @extend .font-icon;
-
-                position: absolute;
-                top: 1px;
-                right: 5px;
-            }
-
-            &.selecting {
-                color: $text-primary;
-                border: 1px solid $text-active;
-
-                &::after {
-                    content: '\E133';
-                }
-            }
-        }
-
-        .ui-text-field {
-            width: 100%;
-            margin: 10px 0 -6px;
-            position: relative;
-            color: $text-darkest;
-
-            > input {
-                padding-left: 28px;
-
-                &::placeholder {
-                    color: $text-darkest;
-                }
-            }
-
-            &::before {
-                @extend .font-icon;
-
-                content: '\E129';
-                position: absolute;
-                top: 1px;
-                left: 5px;
-            }
-        }
-
-        .ui-list {
-            margin: 0;
-            margin-top: 5px;
-            background: transparent;
-
-            &.empty {
-                display: none;
-            }
-
-            .ui-list-item {
-                position: relative;
-                padding: 0 2px 0 8px;
-
-                &::before {
-                    content: '\E209';
-
-                    @extend .font-icon;
-
-                    padding-right: 8px;
-                    vertical-align: top;
-                }
-
-                > span {
-                    display: inline-block;
-                    max-width: calc(100% - 26px);
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                }
-
-                @extend .asset-icon-prefix;
-
-                .ui-button {
-                    visibility: hidden;
-                    position: absolute;
-                    top: 0;
-                    right: 0;
-                    display: block;
-                    width: 22px;
-                    height: 22px;
-                    line-height: 22px;
-                    margin: 0;
-                    padding: 0;
-                    border: none;
-
-                    @extend .font-icon;
-
-                    font-size: 12px;
-                    text-align: center;
-                    background: transparent;
-
-                    &:hover {
-                        background: transparent;
-                    }
-
-                    &.remove {
-                        &:hover {
-                            color: #d34141;
-                        }
-
-                        &::after {
-                            content: '\E132';
-                        }
-                    }
-
-                    &.play {
-                        right: 15px;
-
-                        &::after {
-                            content: '\E131';
-                        }
-                    }
-                }
-
-                &:hover {
-                    .ui-button {
-                        visibility: visible;
-                    }
-
-                    > span {
-                        max-width: calc(100% - 40px);
-                    }
-                }
-            }
-        }
     }
 }
-
-.ui-menu.textmerge-dropdown {
-    .ui-menu-item {
-        max-width: 300px;
-        background: $bcg-dark;
-
-        > .title {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 12px;
-            color: $text-primary;
-        }
-    }
-}
-
-@import '../common/shared-overlays';
-@import '../common/version-control';
-@import 'playcanvas-theme';

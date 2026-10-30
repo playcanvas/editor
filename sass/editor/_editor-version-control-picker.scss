@@ -17,24 +17,111 @@
     text-transform: uppercase;
 
     &.added {
-        color: #6fd088;
+        color: $vc-added;
         border-color: rgb(111 208 136 / 45%);
     }
 
     &.modified {
-        color: #f3c16f;
+        color: $vc-modified;
         border-color: rgb(225 166 62 / 45%);
     }
 
     &.deleted {
-        color: #ff8a8a;
+        color: $vc-deleted;
         border-color: rgb(255 138 138 / 45%);
     }
 }
 
-// rounded checkbox shared by the history compare list and the vc dialogs
-%vc-checkbox {
-    @extend %modern-picker-checkbox;
+@mixin vc-avatar($size) {
+    flex: none;
+    width: $size;
+    height: $size;
+    border: 1px solid $border-primary;
+    border-radius: 50%;
+    background-color: $bcg-darkest;
+    box-sizing: border-box;
+}
+
+// verbatim checkpoint hash chip (also the graph node hash)
+@mixin vc-hash {
+    @extend .fixedFont;
+
+    padding: 0 5px;
+    border: 1px solid $border-primary;
+    border-radius: 4px;
+    background-color: rgb(0 0 0 / 20%);
+    color: $text-secondary;
+    font-size: 11px;
+    line-height: 16px;
+}
+
+// hover/selected highlight for clickable list rows
+@mixin vc-row-states {
+    cursor: pointer;
+    transition: background-color 100ms ease;
+
+    &:hover {
+        background-color: #354144;
+    }
+
+    &.selected {
+        background-color: #354144;
+        box-shadow: inset 2px 0 0 $text-active;
+    }
+}
+
+// rounded, slightly darker frame around a list or field diff in the detail panel
+@mixin vc-inset-frame {
+    border: 1px solid $border-primary;
+    border-radius: 6px;
+    background-color: rgb(0 0 0 / 10%);
+    overflow: hidden;
+}
+
+// list that fills the remaining column height and scrolls vertically
+@mixin vc-scroll-fill {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden auto;
+}
+
+@mixin vc-list-status {
+    padding: 12px;
+    color: $text-dark;
+    font-size: 12px;
+    text-align: center;
+}
+
+// outlined action button (top bar, compare bar)
+@mixin vc-action-button {
+    @extend %font-bold;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    margin: 0;
+    padding: 0 14px;
+    border: 1px solid $bcg-darkest;
+    color: $text-secondary;
+    background-color: $bcg-dark;
+    font-size: 12px;
+    box-shadow: none;
+    cursor: pointer;
+    transition: color 100ms, background-color 100ms, opacity 100ms, box-shadow 100ms;
+
+    @content;
+
+    &:not(.pcui-disabled):hover,
+    &:not(.pcui-disabled):focus {
+        color: $text-primary;
+        box-shadow: $element-shadow-hover;
+    }
+
+    &:not(.pcui-disabled):active {
+        background-color: $bcg-darkest;
+        box-shadow: none;
+    }
 }
 
 .pcui-container.picker-vc {
@@ -98,7 +185,7 @@
                 }
 
                 > .name {
-                    @extend .font-bold;
+                    @extend %font-bold;
 
                     display: block;
                     max-width: 260px;
@@ -128,42 +215,17 @@
             padding: 0 16px;
 
             > .pcui-button {
-                @extend .font-bold;
+                @include vc-action-button {
+                    border-radius: 6px;
 
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                height: 32px;
-                margin: 0;
-                padding: 0 14px;
-                border: 1px solid $bcg-darkest;
-                border-radius: 6px;
-                color: $text-secondary;
-                background-color: $bcg-dark;
-                font-size: 12px;
-                box-shadow: none;
-                cursor: pointer;
-                transition: color 100ms, background-color 100ms, opacity 100ms, box-shadow 100ms;
-
-                &[data-icon]::before {
-                    font-size: 14px;
-                    line-height: 1;
-                    margin-right: 6px;
-                }
-
-                &:not(.pcui-disabled):hover,
-                &:not(.pcui-disabled):focus {
-                    color: $text-primary;
-                    box-shadow: $element-shadow-hover;
-                }
-
-                &:not(.pcui-disabled):active {
-                    background-color: $bcg-darkest;
-                    box-shadow: none;
+                    &[data-icon]::before {
+                        font-size: 14px;
+                        line-height: 1;
+                        margin-right: 6px;
+                    }
                 }
 
                 &.pcui-disabled {
-                    opacity: $element-opacity-disabled;
                     cursor: default;
                 }
 
@@ -221,7 +283,7 @@
                 }
 
                 > .name {
-                    @extend .font-bold;
+                    @extend %font-bold;
 
                     min-width: 0;
                     overflow: hidden;
@@ -254,7 +316,7 @@
                 background-color: rgb(0 0 0 / 8%);
 
                 > .vc-tab {
-                    @extend .font-bold;
+                    @extend %font-bold;
 
                     appearance: none;
                     flex: 1 1 0;
@@ -305,23 +367,7 @@
                 background: $bcg-primary;
                 overflow: hidden;
 
-                > .vc-progress-header {
-                    display: flex;
-                    align-items: center;
-                    min-height: 36px;
-                    padding: 0 14px;
-                    border-bottom: 1px solid $border-primary;
-                    background: $bcg-dark;
-                }
-
-                .vc-heading {
-                    @extend .font-bold;
-
-                    margin: 0;
-                    color: $text-primary;
-                    font-size: 14px;
-                    line-height: 1.2;
-                }
+                @include vc-status-head('> .vc-progress-header');
 
                 .status-card {
                     border: 0;
@@ -330,86 +376,7 @@
                     overflow: hidden;
                 }
 
-                .status-row {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    min-height: 56px;
-                    padding: 11px 12px;
-                }
-
-                .icon-cell {
-                    flex: none;
-                    display: grid;
-                    place-items: center;
-                    width: 24px;
-                    height: 24px;
-                    color: $text-active;
-                }
-
-                .vc-progress-icon {
-                    position: relative;
-                    display: grid;
-                    place-items: center;
-                    width: 24px;
-                    height: 24px;
-                    color: $text-active;
-
-                    &.hidden {
-                        display: none;
-                    }
-
-                    .spinner {
-                        width: 16px;
-                        height: 16px;
-                        border: 2px solid #773417;
-                        border-top-color: $text-active;
-                        border-radius: 50%;
-                        animation: vc-skeleton-spin 850ms linear infinite;
-                    }
-
-                    .check,
-                    .cross {
-                        position: relative;
-                        display: block;
-                        width: 18px;
-                        height: 18px;
-                    }
-
-                    .check::before {
-                        content: '';
-                        position: absolute;
-                        left: 50%;
-                        top: 50%;
-                        width: 12px;
-                        height: 7px;
-                        border-left: 2px solid #82d993;
-                        border-bottom: 2px solid #82d993;
-                        transform: translate(-50%, -62%) rotate(-45deg);
-                        transform-origin: center;
-                    }
-
-                    .cross::before,
-                    .cross::after {
-                        content: '';
-                        position: absolute;
-                        left: 50%;
-                        top: 50%;
-                        width: 15px;
-                        height: 2px;
-                        border-radius: 2px;
-                        background: #ff8a8a;
-                        transform-origin: center;
-                    }
-
-                    .cross::before {
-                        transform: translate(-50%, -50%) rotate(45deg);
-                    }
-
-                    .cross::after {
-                        transform: translate(-50%, -50%) rotate(-45deg);
-                    }
-                }
+                @include vc-status-row('.vc-progress-icon', spin-360);
 
                 .copy {
                     min-width: 0;
@@ -421,7 +388,7 @@
                 }
 
                 .title {
-                    @extend .font-bold;
+                    @extend %font-bold;
 
                     color: $text-primary;
                     font-size: 14px;
@@ -434,7 +401,6 @@
                     font-size: 12px;
                     line-height: 1.35;
                 }
-
             }
         }
     }
@@ -448,7 +414,7 @@
         background-color: rgb(0 0 0 / 8%);
 
         > h3 {
-            @extend .font-bold;
+            @extend %font-bold;
 
             margin: 0 0 6px;
             color: $text-primary;
@@ -473,7 +439,7 @@
         margin: 0 0 10px;
 
         > h3 {
-            @extend .font-bold;
+            @extend %font-bold;
 
             min-width: 0;
             margin: 0;
@@ -511,30 +477,17 @@
 
     // verbatim checkpoint hash
     .vc-hash {
-        @extend .fixedFont;
+        @include vc-hash;
 
         display: inline-block;
-        padding: 0 5px;
-        border: 1px solid $border-primary;
-        border-radius: 4px;
-        background-color: rgb(0 0 0 / 20%);
-        color: $text-secondary;
-        font-size: 11px;
-        line-height: 16px;
     }
 
     // secondary action button (cards, lists)
     .vc-button {
-        @extend .font-bold;
+        @extend %font-bold;
 
         appearance: none;
         display: inline-flex;
-
-        // the display above must not defeat the hidden attribute
-        &[hidden] {
-            display: none;
-        }
-
         align-items: center;
         justify-content: center;
         height: 28px;
@@ -548,6 +501,11 @@
         box-shadow: none;
         cursor: pointer;
         transition: color 100ms, background-color 100ms, opacity 100ms, box-shadow 100ms;
+
+        // the display above must not defeat the hidden attribute
+        &[hidden] {
+            display: none;
+        }
 
         &:hover,
         &:focus {
@@ -567,29 +525,24 @@
         }
 
         &.danger {
-            color: #ff8a8a;
+            color: $vc-deleted;
             border-color: rgb(211 65 65 / 40%);
         }
     }
 
-    // on-demand compute action sits below the "not computed yet" note (#2098)
-    .vc-compute {
-        margin-top: 10px;
-    }
-
+    // on-demand compute action sits below the "not computed yet" note (#2098);
     // "still working" note shown after a while when an inline diff is slow (#2099)
+    .vc-compute,
     .vc-slow-hint {
         margin-top: 10px;
     }
 
     // ---- history list ----
     .vc-history {
-        flex: 1 1 auto;
-        min-height: 0;
-        overflow: hidden auto;
+        @include vc-scroll-fill;
 
         > .vc-day {
-            @extend .font-bold;
+            @extend %font-bold;
 
             position: sticky;
             top: 0;
@@ -613,30 +566,15 @@
             gap: 10px;
             padding: 11px 12px;
             border-bottom: 1px solid $border-primary;
-            cursor: pointer;
-            transition: background-color 100ms ease;
 
-            &:hover {
-                background-color: #354144;
-            }
-
-            &.selected {
-                background-color: #354144;
-                box-shadow: inset 2px 0 0 $text-active;
-            }
+            @include vc-row-states;
 
             > .avatar {
-                flex: none;
-                width: 22px;
-                height: 22px;
-                border: 1px solid $border-primary;
-                border-radius: 50%;
-                background-color: $bcg-darkest;
-                box-sizing: border-box;
+                @include vc-avatar(22px);
             }
 
             > .check {
-                @extend %vc-checkbox;
+                @extend %modern-picker-checkbox;
 
                 margin-top: 3px;
             }
@@ -645,7 +583,7 @@
                 min-width: 0;
 
                 > .desc {
-                    @extend .font-bold;
+                    @extend %font-bold;
 
                     overflow: hidden;
                     text-overflow: ellipsis;
@@ -677,18 +615,32 @@
         }
 
         > .vc-list-status {
-            padding: 12px;
-            color: $text-dark;
-            font-size: 12px;
-            text-align: center;
+            @include vc-list-status;
         }
     }
 
     // ---- changes tab ----
+    .vc-changes {
+        flex: 1 1 auto;
+        flex-direction: column;
+        min-height: 0;
+
+        // pcui-hidden must win over the layout display
+        &:not(.pcui-hidden) {
+            display: flex;
+        }
+
+        // github desktop layout: change list on top, composer pinned at the bottom
+        > .vc-changes-list {
+            @include vc-scroll-fill;
+        }
+    }
+
     // grouped change rows shared by the changes tab and the detail diff card
-    @mixin vc-change-rows {
+    .vc-changes > .vc-changes-list,
+    .vc-diff-list {
         > .vc-group {
-            @extend .font-bold;
+            @extend %font-bold;
 
             padding: 5px 12px;
             border-bottom: 1px solid $border-primary;
@@ -724,42 +676,13 @@
     }
 
     .vc-changes {
-        flex: 1 1 auto;
-        flex-direction: column;
-        min-height: 0;
-
-        // pcui-hidden must win over the layout display
-        &:not(.pcui-hidden) {
-            display: flex;
-        }
-
-        // github desktop layout: change list on top, composer pinned at the bottom
         > .vc-changes-list {
-            flex: 1 1 auto;
-            min-height: 0;
-            overflow: hidden auto;
-
-            @include vc-change-rows;
-
             > .vc-item {
-                cursor: pointer;
-                transition: background-color 100ms ease;
-
-                &:hover {
-                    background-color: #354144;
-                }
-
-                &.selected {
-                    background-color: #354144;
-                    box-shadow: inset 2px 0 0 $text-active;
-                }
+                @include vc-row-states;
             }
 
             > .vc-list-status {
-                padding: 12px;
-                color: $text-dark;
-                font-size: 12px;
-                text-align: center;
+                @include vc-list-status;
             }
         }
 
@@ -782,7 +705,7 @@
                 transition: box-shadow 100ms;
 
                 > textarea {
-                    @extend .font-regular;
+                    @extend %font-regular;
 
                     display: block;
                     box-sizing: border-box;
@@ -812,7 +735,7 @@
             }
 
             > .vc-create-checkpoint {
-                @extend .font-bold;
+                @extend %font-bold;
 
                 appearance: none;
                 display: block;
@@ -869,7 +792,7 @@
             > .bone {
                 border-radius: 4px;
                 background-color: rgb(255 255 255 / 8%);
-                animation: vc-skeleton-pulse 1.4s ease-in-out infinite;
+                animation: skeleton-pulse 1.4s ease-in-out infinite;
 
                 &.dot {
                     flex: none;
@@ -896,13 +819,7 @@
         align-items: flex-start;
 
         > .avatar {
-            flex: none;
-            width: 40px;
-            height: 40px;
-            border: 1px solid $border-primary;
-            border-radius: 50%;
-            background-color: $bcg-darkest;
-            box-sizing: border-box;
+            @include vc-avatar(40px);
         }
 
         > .body {
@@ -910,7 +827,7 @@
             flex: 1 1 auto;
 
             > .title {
-                @extend .font-bold;
+                @extend %font-bold;
 
                 margin: 0 0 4px;
                 color: $text-primary;
@@ -941,7 +858,7 @@
         margin: 0 0 10px;
 
         > .name {
-            @extend .font-bold;
+            @extend %font-bold;
 
             min-width: 0;
             overflow: hidden;
@@ -958,10 +875,7 @@
 
     // field-level diff rows (changes tab right pane)
     .vc-field-diff {
-        border: 1px solid $border-primary;
-        border-radius: 6px;
-        background-color: rgb(0 0 0 / 10%);
-        overflow: hidden;
+        @include vc-inset-frame;
 
         > .vc-field-row {
             display: flex;
@@ -974,10 +888,6 @@
                 border-bottom: none;
             }
 
-            &.tree {
-                align-items: flex-start;
-            }
-
             > .path {
                 @extend .fixedFont;
 
@@ -988,46 +898,6 @@
                 white-space: nowrap;
                 color: $text-secondary;
                 font-size: 12px;
-
-                &.tree {
-                    overflow: visible;
-                    text-overflow: clip;
-                    white-space: normal;
-                }
-            }
-
-            .vc-path-tree {
-                display: block;
-                min-width: 0;
-
-                > .seg {
-                    display: block;
-                    max-width: 100%;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-
-                    &::after {
-                        content: ':';
-                        color: $text-darkest;
-                    }
-                }
-
-                > .change {
-                    display: block;
-                    max-width: 100%;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-
-                    &.old {
-                        color: #ff8a8a;
-                    }
-
-                    &.new {
-                        color: #6fd088;
-                    }
-                }
             }
 
             > .vals {
@@ -1042,7 +912,7 @@
                 font-size: 11px;
 
                 .old {
-                    color: #ff8a8a;
+                    color: $vc-deleted;
                     text-decoration: line-through;
 
                     &.count {
@@ -1051,7 +921,7 @@
                 }
 
                 .new {
-                    color: #6fd088;
+                    color: $vc-added;
                 }
             }
         }
@@ -1098,12 +968,7 @@
     // grouped change list inside the detail diff card; no inner scroll —
     // the surrounding .vc-main is the single scroll context
     .vc-diff-list {
-        border: 1px solid $border-primary;
-        border-radius: 6px;
-        background-color: rgb(0 0 0 / 10%);
-        overflow: hidden;
-
-        @include vc-change-rows;
+        @include vc-inset-frame;
 
         > .vc-item:last-child {
             border-bottom: none;
@@ -1157,34 +1022,10 @@
         }
 
         > .pcui-button {
-            @extend .font-bold;
-
-            display: inline-flex;
-            flex: none;
-            align-items: center;
-            justify-content: center;
-            min-width: 104px;
-            height: 32px;
-            margin: 0;
-            padding: 0 14px;
-            border: 1px solid $bcg-darkest;
-            border-radius: 4px;
-            color: $text-secondary;
-            background-color: $bcg-dark;
-            font-size: 12px;
-            box-shadow: none;
-            cursor: pointer;
-            transition: color 100ms, background-color 100ms, opacity 100ms, box-shadow 100ms;
-
-            &:not(.pcui-disabled):hover,
-            &:not(.pcui-disabled):focus {
-                color: $text-primary;
-                box-shadow: $element-shadow-hover;
-            }
-
-            &:not(.pcui-disabled):active {
-                background-color: $bcg-darkest;
-                box-shadow: none;
+            @include vc-action-button {
+                flex: none;
+                min-width: 104px;
+                border-radius: 4px;
             }
 
             &.vc-primary:not(.pcui-disabled) {
@@ -1203,7 +1044,6 @@
             }
 
             &.pcui-disabled {
-                opacity: $element-opacity-disabled;
                 cursor: default;
             }
         }
@@ -1242,7 +1082,7 @@
         background-color: rgb(0 0 0 / 8%);
 
         > .pcui-text-input {
-            @extend .font-regular;
+            @extend %font-regular;
 
             flex: 1 1 auto;
             margin: 0;
@@ -1264,12 +1104,9 @@
         }
     }
 
+    // hidden x: an auto x would show the editor's 8px black scrollbar track
     > .vc-branch-list {
-        flex: 1 1 auto;
-        min-height: 0;
-
-        // x would otherwise show the editor's 8px black scrollbar track
-        overflow: hidden auto;
+        @include vc-scroll-fill;
 
         // the new-branch button below brings its own divider; outscore the
         // row/group border rules rather than rely on source order
@@ -1280,7 +1117,7 @@
         }
 
         > .vc-group {
-            @extend .font-bold;
+            @extend %font-bold;
 
             padding: 6px 12px;
             border-bottom: 1px solid $border-primary;
@@ -1316,12 +1153,12 @@
                 font-size: 10px;
                 text-align: center;
 
-                &.current { color: #6fd088; }
-                &.favorite { color: #f3c16f; }
+                &.current { color: $vc-added; }
+                &.favorite { color: $vc-modified; }
             }
 
             > .name {
-                @extend .font-bold;
+                @extend %font-bold;
 
                 min-width: 0;
                 overflow: hidden;
@@ -1353,7 +1190,7 @@
             &.menu-open > .sub { display: none; }
 
             > .row-actions > .switch {
-                @extend .font-bold;
+                @extend %font-bold;
 
                 appearance: none;
                 padding: 3px 10px;
@@ -1409,15 +1246,12 @@
         }
 
         > .vc-list-status {
-            padding: 12px;
-            color: $text-dark;
-            font-size: 12px;
-            text-align: center;
+            @include vc-list-status;
         }
     }
 
     > .vc-new-branch {
-        @extend .font-bold;
+        @extend %font-bold;
 
         appearance: none;
         flex: none;
@@ -1454,7 +1288,7 @@
         overflow: hidden;
 
         > .hd {
-            @extend .font-bold;
+            @extend %font-bold;
 
             padding: 12px 16px;
             border-bottom: 1px solid $border-primary;
@@ -1462,7 +1296,7 @@
             color: $text-primary;
             font-size: 14px;
 
-            &.danger { color: #ff8a8a; }
+            &.danger { color: $vc-deleted; }
         }
 
         > .bd {
@@ -1493,7 +1327,7 @@
                 cursor: pointer;
 
                 > .check {
-                    @extend %vc-checkbox;
+                    @extend %modern-picker-checkbox;
                 }
 
                 > .label {
@@ -1505,7 +1339,7 @@
             > .vc-dialog-error,
             > .vc-dialog-warning {
                 margin-top: 8px;
-                color: #ff8a8a;
+                color: $vc-deleted;
                 font-size: 12px;
             }
         }
@@ -1518,7 +1352,7 @@
             border-top: 1px solid $border-primary;
 
             > .pcui-button {
-                @extend .font-bold;
+                @extend %font-bold;
 
                 height: 30px;
                 margin: 0;
@@ -1540,8 +1374,6 @@
                     box-shadow: none;
                 }
 
-                &.pcui-disabled { opacity: $element-opacity-disabled; }
-
                 &.confirm {
                     color: $text-primary;
                     border-color: transparent;
@@ -1562,13 +1394,4 @@
             }
         }
     }
-}
-
-@keyframes vc-skeleton-spin {
-    to { transform: rotate(360deg); }
-}
-
-@keyframes vc-skeleton-pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.45; }
 }

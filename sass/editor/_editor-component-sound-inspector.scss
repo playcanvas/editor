@@ -1,11 +1,16 @@
-.sound-component-inspector-slot {
+// collapsible slot panel stacked inside a component inspector (sound slots, sprite clips)
+@mixin component-inspector-slot {
     margin: $element-margin;
 
     > .pcui-panel-content {
         padding-top: $element-margin;
     }
+
+    & + & {
+        margin-top: - calc($element-margin / 2);
+    }
 }
 
-.sound-component-inspector-slot + .sound-component-inspector-slot {
-    margin-top: - calc($element-margin / 2);
+.sound-component-inspector-slot {
+    @include component-inspector-slot;
 }

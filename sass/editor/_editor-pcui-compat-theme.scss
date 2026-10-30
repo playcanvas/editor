@@ -45,7 +45,7 @@ a:visited {
     color: $text-active;
 }
 
-.ui-flash {
+%ui-flash {
     outline: 1px solid $text-active;
     animation: ui-flash-animation 200ms ease-in-out forwards;
 }
@@ -59,178 +59,20 @@ a:visited {
         }
     }
 
-    &.scrollable {
-        > .content {
-            top: 32px;
-        }
-    }
-
     > header {
-        @extend .font-bold;
+        @extend %font-bold;
 
         background-color: $bcg-darker;
         color: $text-primary;
         font-size: 12px;
     }
 
-    &.foldable {
-        &.folded {
-            > header {
-                color: $text-dark;
-
-                &::after {
-                    color: $text-dark;
-                    content: '\E180';
-                }
-            }
-
-            &.horizontal {
-                background-color: $bcg-darker;
-
-                > header {
-                    top: -32px;
-                }
-            }
-
-            &.resizable-top {
-                > header::after {
-                    content: '\E181';
-                }
-            }
-        }
-
-        > header {
-            padding-left: 32px;
-
-            &:hover {
-                color: $text-primary;
-
-                &::after {
-                    color: $text-primary;
-                }
-            }
-
-            // fold icon
-            &::after {
-                right: auto;
-                left: 0;
-                content: '\E179';
-
-                @extend .font-icon;
-
-                font-size: 14px;
-                text-align: center;
-                margin: 0;
-                padding: 0;
-                width: 32px;
-                height: 32px;
-                line-height: 32px;
-                color: $text-active;
-                background-color: transparent;
-            }
-        }
-
-        &.horizontal {
-            > header::after {
-                content: '\E183';
-            }
-
-            &.resizable-right {
-                &.folded {
-                    > header::after {
-                        content: '\E181';
-                    }
-                }
-            }
-
-            &.resizable-left {
-                > header::after {
-                    content: '\E183';
-                }
-
-                &.folded > header::after {
-                    content: '\E183';
-                }
-            }
-        }
-    }
-
-    &.resizable {
-        $handle-size: 1px;
-
-        &.resizing > .handle {
-            background-color: transparent;
-        }
-
-        &.resizable-left {
-            padding-left: 0;
-
-            &.scrollable > .content {
-                left: 0;
-            }
-
-            > .handle {
-                width: $handle-size;
-                border-left: 3px solid $bcg-darkest;
-            }
-        }
-
-        &.resizable-right {
-            padding-right: 0;
-
-            > .handle {
-                width: $handle-size;
-                border-right: 3px solid $bcg-darkest;
-            }
-        }
-
-        &.resizable-top {
-            padding-top: 0;
-
-            &.scrollable > .content {
-                top: 32px;
-            }
-
-            > .handle {
-                height: $handle-size;
-                border-top: 3px solid $bcg-darkest;
-            }
-        }
-
-        &.resizable-bottom {
-            padding-bottom: 0;
-
-            > .handle {
-                height: $handle-size;
-                border-bottom: 3px solid $bcg-darkest;
-            }
-        }
-
-        &.resizing > .handle {
-            opacity: 1;
-        }
-
-        > .handle {
-            opacity: 0;
-            background-color: transparent;
-
-            &:hover {
-                opacity: 1;
-                background-color: transparent;
-            }
-        }
-    }
-
     &.flash {
-        @extend .ui-flash;
+        @extend %ui-flash;
     }
 }
 
 .ui-overlay {
-    > .overlay {
-        background-color: rgba($bcg-darkest, 0.7);
-    }
-
     > .content {
         background-color: $bcg-primary;
     }
@@ -331,85 +173,13 @@ a:visited {
     }
 }
 
-.ui-menu-item {
-    background-color: $bcg-darkest;
-
-    &.disabled > .title:hover {
-        color: $text-dark;
-
-        > .icon {
-            color: $text-dark;
-        }
-    }
-
-    &.container {
-        > .title::after {
-            content: '\E160';
-
-            @extend .font-icon;
-
-            font-size: 14px;
-            text-align: center;
-            background-color: transparent;
-            color: $text-dark;
-            line-height: 14px;
-        }
-
-        &.hover > .title {
-            color: $text-primary;
-            background-color: $text-darkest;
-
-            &::after {
-                color: $text-primary;
-            }
-
-            > .icon {
-                color: $text-primary;
-            }
-        }
-    }
-
-    &:last-child {
-        > .title {
-            border-bottom: none;
-        }
-    }
-
-    > .title {
-        color: $text-dark;
-        border-bottom: 1px solid color.mix($bcg-darkest, $bcg-dark, 50%);
-
-        &:hover {
-            color: $text-primary;
-            background-color: $text-darkest;
-
-            > .icon {
-                color: $text-primary;
-            }
-        }
-
-        > .icon {
-            @extend .font-icon;
-
-            font-size: 14px;
-            text-align: center;
-            background-color: transparent;
-            color: $text-dark;
-        }
-    }
-
-    > .content {
-        box-shadow: 0 0 8px rgb(0 0 0 / 30%);
-    }
-}
-
 .ui-list {
     background-color: $bcg-dark;
     border-color: $bcg-darker;
     margin: $field-padding;
 
     &.flash {
-        @extend .ui-flash;
+        @extend %ui-flash;
     }
 
     &.selectable {
@@ -435,20 +205,12 @@ a:visited {
     }
 }
 
-.ui-panel.folders {
-    background-color: $bcg-darker;
-}
-
-.ui-panel.files {
-    border-left: 1px solid $bcg-darkest;
-}
-
 .ui-label {
     color: $text-secondary;
     margin: $field-padding;
 
     &.flash {
-        @extend .ui-flash;
+        @extend %ui-flash;
     }
 }
 
@@ -462,70 +224,8 @@ a:visited {
 .ui-slider {
     margin: $field-padding;
 
-    &:hover,
-    &.active {
-        > .bar {
-            border-color: $bcg-darkest;
-            background-color: $bcg-darkest;
-
-            > .handle {
-                border-color: $bcg-darkest;
-                background-color: $text-primary;
-                transition: none;
-            }
-        }
-    }
-
-    &.flash {
-        > .bar {
-            @extend .ui-flash;
-        }
-    }
-
     &.disabled {
         cursor: default;
-
-        &:hover,
-        &.active {
-            > .bar {
-                border-color: $bcg-darker;
-                background-color: $bcg-dark;
-
-                > .handle {
-                    cursor: default;
-                    border-color: $bcg-darker;
-                    background-color: $text-darkest;
-                }
-            }
-        }
-    }
-
-    > .bar {
-        background-color: $bcg-dark;
-        border-color: $bcg-darker;
-        width: calc(100% - 10px);
-        margin: 9px 4px;
-
-        > .handle {
-            border-color: $bcg-darker;
-            background-color: $text-darkest;
-            width: 8px;
-            margin-left: -5px;
-            transition: left 100ms ease;
-
-            &:focus {
-                border-color: $bcg-darkest;
-                background-color: $text-primary;
-            }
-        }
-    }
-
-    &.null {
-        > .bar {
-            > .handle {
-                display: none;
-            }
-        }
     }
 }
 
@@ -555,7 +255,7 @@ a:visited {
     }
 
     &.flash {
-        @extend .ui-flash;
+        @extend %ui-flash;
     }
 }
 
@@ -592,7 +292,7 @@ a:visited {
     }
 
     &.flash {
-        @extend .ui-flash;
+        @extend %ui-flash;
     }
 }
 
@@ -630,18 +330,7 @@ a:visited {
     }
 
     &.flash {
-        @extend .ui-flash;
-    }
-
-    &.null {
-        > .color {
-            background-color: #465659 !important;
-            background-image:
-                linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
-                linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%);
-            background-size: 20px 20px;
-            background-position: 0 0, 10px 10px;
-        }
+        @extend %ui-flash;
     }
 }
 
@@ -668,7 +357,7 @@ a:visited {
     }
 
     &.flash {
-        @extend .ui-flash;
+        @extend %ui-flash;
     }
 }
 
@@ -698,7 +387,7 @@ a:visited {
     }
 
     &.flash {
-        @extend .ui-flash;
+        @extend %ui-flash;
     }
 }
 
@@ -723,18 +412,13 @@ a:visited {
 
     &.active,
     &:hover,
-    &:focus,
-    &.active {
+    &:focus {
         border-color: $text-primary;
         outline: 1px solid $text-primary;
-
-        > .ui-canvas {
-            background-color: $bcg-darkest;
-        }
     }
 
     &.flash {
-        @extend .ui-flash;
+        @extend %ui-flash;
     }
 }
 
@@ -818,63 +502,10 @@ a:visited {
     &:focus {
         border-color: $bcg-darkest;
         background-color: $bcg-darkest;
-
-        > .value {
-            color: $text-primary;
-
-            &::after {
-                content: '\E159';
-                color: $text-active;
-            }
-        }
-    }
-
-    > .value {
-        color: $text-secondary;
-
-        &::after {
-            content: '\E159';
-            width: 22px;
-            height: 22px;
-            line-height: 26px;
-            padding: 0;
-            margin: 0;
-
-            @extend .font-icon;
-
-            font-size: 14px;
-            text-align: center;
-            color: $text-darkest;
-            background-color: transparent;
-        }
-
-        &[placeholder]:empty::before {
-            color: $text-darkest;
-            background-color: transparent;
-        }
-    }
-
-    > ul {
-        color: $text-secondary;
-        background-color: $bcg-darkest;
-
-        > li {
-            &:hover,
-            &.hover {
-                color: $text-primary;
-                background-color: $bcg-dark;
-            }
-
-            &.selected {
-                color: $text-primary;
-                background-color: $bcg-darker;
-                cursor: default;
-            }
-        }
     }
 
     &.flash {
-        @extend .ui-flash;
+        @extend %ui-flash;
     }
 }
 
@@ -897,33 +528,8 @@ a:visited {
     background-color: $bcg-darkest;
 }
 
-.ui-autocomplete {
-    background-color: $bcg-dark;
-
-    > ul {
-        > li {
-            border-color: $bcg-darker;
-
-            &.selected {
-                background-color: $bcg-darkest;
-            }
-        }
-    }
-}
-
 .ui-progress {
     background-color: $bcg-darkest;
-
-    > .inner {
-        $first: rgba($text-active, 1);
-        $second: rgba(color.adjust($text-active, $lightness: -17%), 1);
-
-        background: $text-active;
-        background: linear-gradient(135deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
-        background-position: 0 0;
-        background-size: 24px 24px;
-        background-repeat: repeat;
-    }
 }
 
 // ui-text-field changed animation
@@ -959,20 +565,15 @@ a:visited {
         border: 1px solid $bcg-darkest;
         background-color: $bcg-dark;
 
-        > .picker-gradient-panel {
-            > .color-panel {
-                > .content,
-                &.pcui-container {
-                    > .color-rect,
-                    > .hue-rect,
-                    > .alpha-rect {
-                        border: 1px solid $bcg-darker;
-                    }
+        > .picker-gradient-panel > .color-panel.pcui-container {
+            > .color-rect,
+            > .hue-rect,
+            > .alpha-rect {
+                border: 1px solid $bcg-darker;
+            }
 
-                    > .fields {
-                        background-color: $bcg-primary;
-                    }
-                }
+            > .fields {
+                background-color: $bcg-primary;
             }
         }
     }

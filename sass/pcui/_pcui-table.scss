@@ -1,3 +1,13 @@
+@mixin table-head-cell {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: $bcg-darker;
+    border-top: 1px solid $bcg-darkest;
+    border-bottom: 1px solid $bcg-darkest;
+    border-right: 1px solid $bcg-darkest;
+}
+
 .pcui-table {
     background-color: $bcg-primary;
 }
@@ -17,28 +27,18 @@
             // below the visible width of the table and this fake column covers
             // the rest of the space.
             &::after {
+                @include table-head-cell;
+
                 content: ' ';
                 display: table-cell;
                 width: auto;
-                background-color: $bcg-darker;
-                position: sticky;
-                top: 0;
-                z-index: 1;
-                border-top: 1px solid $bcg-darkest;
-                border-bottom: 1px solid $bcg-darkest;
-                border-right: 1px solid $bcg-darkest;
             }
 
             > th {
-                position: sticky;
-                top: 0;
-                z-index: 1;
+                @include table-head-cell;
+
                 line-height: 26px;
                 font-size: 13px;
-                background-color: $bcg-darker;
-                border-top: 1px solid $bcg-darkest;
-                border-bottom: 1px solid $bcg-darkest;
-                border-right: 1px solid $bcg-darkest;
 
                 &:first-child {
                     border-left: 1px solid $bcg-darkest;

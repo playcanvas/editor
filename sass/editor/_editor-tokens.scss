@@ -1,8 +1,16 @@
 @use 'sass:color';
 
-// shared tokens, mixins and placeholders for the projects page, its dialogs and project settings
+// shared editor tokens, mixins and placeholders; most serve the projects page, its dialogs and project settings
 
-$cms-primary-hover: hsl(24deg 100% 43%); // orange buttons on hover
+// console, script and alert status colours
+$bright-red: #e74c3c;
+$bright-yellow: #f1c40f;
+$status-info: #b1b8ba;
+$status-error: $bright-red;
+$status-warn: $bright-yellow;
+
+// orange buttons on hover
+$cms-primary-hover: hsl(24deg 100% 43%);
 
 // phones: below this width the pickers switch to their bottom sheet layout
 $cms-phone: 640px;
@@ -91,6 +99,38 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
     }
 }
 
+// menus, popovers and dropdown lists lifted off the page
+@mixin float-panel($radius: $radius-control) {
+    border: 1px solid $border-primary;
+    border-radius: $radius;
+    background-color: $cms-float;
+    box-shadow: $cms-float-shadow;
+}
+
+// round user avatars
+@mixin avatar($size: 20px) {
+    width: $size;
+    height: $size;
+    border-radius: 50%;
+}
+
+// a thumbnail filling its frame, ready for %cms-hover-zoom
+@mixin thumb-cover {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform $cms-ease;
+}
+
+// text cut off with an ellipsis after $lines lines
+@mixin line-clamp($lines: 2) {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: $lines;
+}
+
 %cms-mask-icon {
     content: '';
     flex: none;
@@ -121,7 +161,8 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M5 7V5a3 3 0 0 1 6 0v2h.5A1.5 1.5 0 0 1 13 8.5v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 3 13.5v-5A1.5 1.5 0 0 1 4.5 7H5zm1.5 0h3V5a1.5 1.5 0 0 0-3 0v2z'/%3E%3C/svg%3E");
 }
 
-@keyframes cms-bone-pulse {
+// skeleton loading rows (projects page and version control)
+@keyframes skeleton-pulse {
     0%,
     100% {
         opacity: 1;
@@ -129,12 +170,6 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
 
     50% {
         opacity: 0.45;
-    }
-}
-
-@keyframes cms-spin {
-    to {
-        transform: rotate(360deg);
     }
 }
 
@@ -153,7 +188,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
     flex: none;
     border-radius: 4px;
     background-color: rgb(255 255 255 / 8%);
-    animation: cms-bone-pulse 1.4s ease-in-out infinite;
+    animation: skeleton-pulse 1.4s ease-in-out infinite;
 
     @media (prefers-reduced-motion: reduce) {
         animation: none;
@@ -259,7 +294,7 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
     color: $text-secondary;
     font-size: 12px;
 
-    @extend .font-bold;
+    @extend %font-bold;
 }
 
 %dialog-input {
@@ -286,4 +321,94 @@ $cms-fill-on-surface: $cms-hover; // controls on cards, rows, menus, popovers an
     &.pcui-focus {
         border-color: $text-active;
     }
+}
+
+// canvas/image filling an asset preview container (sprite editor, asset and texture inspectors)
+@mixin asset-preview-canvas {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 8px solid $bcg-darker;
+    border-top: 0;
+    box-sizing: border-box;
+    margin: auto;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+// stacked list rows sharing one border between neighbours
+@mixin list-row-border {
+    border-left: 1px solid $bcg-darker;
+    border-top: 1px solid $bcg-darker;
+    border-right: 1px solid $bcg-darker;
+
+    &:last-child {
+        border-bottom: 1px solid $bcg-darker;
+    }
+}
+
+// windows-style maximise square on a fullscreen toggle; becomes the restore glyph with fullscreen-glyph-on
+@mixin fullscreen-glyph {
+    &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        box-sizing: border-box;
+        width: 11px;
+        height: 10px;
+        border: 1.5px solid currentcolor;
+        border-radius: 1px;
+        transform: translate(-50%, -50%);
+        transition: width 200ms ease, height 200ms ease, transform 200ms ease;
+    }
+
+    // back square of the restore glyph, hidden until on
+    &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        box-sizing: border-box;
+        width: 9px;
+        height: 9px;
+        border-top: 1.5px solid currentcolor;
+        border-right: 1.5px solid currentcolor;
+        border-radius: 1px;
+        opacity: 0;
+        transform: translate(-38%, -62%) scale(0.6);
+        transition: opacity 200ms ease, transform 200ms ease;
+    }
+}
+
+// restore glyph: front square nudged down-left, back square peeking up-right
+@mixin fullscreen-glyph-on {
+    &::before {
+        width: 9px;
+        height: 9px;
+        transform: translate(-62%, -38%);
+    }
+
+    &::after {
+        opacity: 1;
+        transform: translate(-38%, -62%) scale(1);
+    }
+}
+
+// diagonal line drawn over a "hidden" toggle (toolbar and hierarchy)
+@mixin strike-through($left, $top, $right: null, $width: null) {
+    content: '';
+    position: absolute;
+    left: $left;
+    right: $right;
+    width: $width;
+    top: $top;
+    height: 2px;
+    background: currentcolor;
+    transform: rotate(-45deg);
+    pointer-events: none;
 }

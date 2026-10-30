@@ -1,5 +1,16 @@
 @use 'sass:color';
 
+// floating menu box; also used by the template entity inspector
+@mixin template-dropdown($right) {
+    position: absolute;
+    right: $right;
+    background: $bcg-primary;
+    z-index: 1;
+    max-width: 250px;
+    min-width: 150px;
+    box-shadow: 0 0 2px 1px $bcg-darkest;
+}
+
 .template-overrides {
     background: $bcg-darkest;
     position: absolute;
@@ -107,16 +118,12 @@
     }
 }
 
-.template-overrides-component-new::after {
-    content: 'NEW';
-    float: right;
-    color: $text-primary;
-}
-
-.template-overrides-component-removed::after {
-    content: 'REMOVED';
-    float: right;
-    color: $text-primary;
+@each $state, $text in (new: 'NEW', removed: 'REMOVED') {
+    .template-overrides-component-#{$state}::after {
+        content: $text;
+        float: right;
+        color: $text-primary;
+    }
 }
 
 .template-overrides-override-single-label {
@@ -126,14 +133,12 @@
 }
 
 .template-overrides-dropdown {
-    position: absolute;
-    right: 0;
-    background: $bcg-primary;
-    z-index: 1;
-    max-width: 250px;
-    min-width: 150px;
-    box-shadow: 0 0 2px 1px $bcg-darkest;
+    @include template-dropdown(0);
+}
 
+// labels of both dropdown menus
+.template-overrides-dropdown,
+.template-entity-inspector-entity-list-dropdown {
     > .pcui-label {
         flex-shrink: 0;
         margin: 0;

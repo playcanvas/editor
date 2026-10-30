@@ -1,3 +1,10 @@
+// grid cell that may shrink below its content
+@mixin layout-cell($area) {
+    grid-area: $area;
+    min-width: 0;
+    min-height: 0;
+}
+
 // root
 #layout-root {
     width: 100%;
@@ -10,23 +17,17 @@
 
 // left toolbar
 #layout-toolbar {
-    grid-area: toolbar;
-    min-width: 0;
-    min-height: 0;
+    @include layout-cell(toolbar);
 }
 
 // hierarchy panel
 #layout-hierarchy {
-    grid-area: hierarchy;
-    min-width: 0;
-    min-height: 0;
+    @include layout-cell(hierarchy);
 }
 
 // secondary attributes panel
 #layout-attributes-secondary {
-    grid-area: attributes;
-    min-width: 0;
-    min-height: 0;
+    @include layout-cell(attributes);
 
     > .pcui-panel-content {
         overflow: hidden auto;
@@ -35,24 +36,19 @@
 
 // 3d viewport
 #layout-viewport {
-    grid-area: viewport;
-    min-width: 0;
-    min-height: 0;
+    @include layout-cell(viewport);
+
     background-color: black;
 }
 
 // assets panel
 #layout-assets {
-    grid-area: assets;
-    min-width: 0;
-    min-height: 0;
+    @include layout-cell(assets);
 }
 
 // attributes inspector
 #layout-attributes {
-    grid-area: attributes;
-    min-width: 0;
-    min-height: 0;
+    @include layout-cell(attributes);
 }
 
 #layout-attributes.layout-attributes-left {
@@ -61,8 +57,7 @@
 
 // console
 #layout-console {
-    grid-area: console;
+    @include layout-cell(console);
+
     z-index: 1; // bring status bar in front of possible overlays
-    min-width: 0;
-    min-height: 0;
 }

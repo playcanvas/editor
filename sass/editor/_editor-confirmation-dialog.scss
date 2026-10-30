@@ -32,22 +32,6 @@
             justify-content: center;
             color: $text-secondary;
             text-decoration: none;
-
-            .ui-icon {
-                padding-left: 10px;
-                padding-right: 10px;
-                margin-top: -5px;
-                font-size: 20px;
-                visibility: hidden;
-            }
-
-            &.focused {
-                color: $text-primary;
-
-                .ui-icon {
-                    visibility: visible;
-                }
-            }
         }
     }
 
@@ -59,13 +43,7 @@
         align-items: center;
         font-size: 14px;
         color: rgb(255 255 255 / 60%);
-
-        .ui-icon {
-            font-size: 36px;
-            width: 55px;
-            flex-shrink: 0            
-        }
-    }    
+    }
 }
 
 /* Small devices (tablets, desktops, 768px and up) */

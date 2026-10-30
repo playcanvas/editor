@@ -85,13 +85,9 @@ $delete-hover-color: #d34141;
         }
 
         // Cursor states
-        &.grab { cursor: grab; }
-        &.grabbing { cursor: grabbing; }
-        &.ew-resize { cursor: ew-resize; }
-        &.ns-resize { cursor: ns-resize; }
-        &.nwse-resize { cursor: nwse-resize; }
-        &.nesw-resize { cursor: nesw-resize; }
-        &.move { cursor: move; }
+        @each $cursor in grab, grabbing, ew-resize, ns-resize, nwse-resize, nesw-resize, move {
+            &.#{$cursor} { cursor: $cursor; }
+        }
     }
 
     // Right panel
@@ -315,7 +311,7 @@ $delete-hover-color: #d34141;
         text-transform: uppercase;
         width: 100%;
 
-        @extend .font-bold;
+        @extend %font-bold;
 
         &::before {
             font-size: 14px;

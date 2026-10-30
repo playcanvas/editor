@@ -1,4 +1,40 @@
-@import '../node_modules/@playcanvas/pcui/dist/pcui-theme-green';
+// pcui green theme values; the full theme is not imported as none of its other rules can match this page
+$bcg-darkest: #20292b;
+$bcg-darker: #293538;
+$bcg-dark: #2c393c;
+$text-darkest: #5b7073;
+$text-secondary: #b1b8ba;
+$text-primary: #fff;
+$text-active: #f60;
+
+// pcui global scrollbar styles
+* {
+    &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: $bcg-darkest;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: $text-darkest;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: $text-active;
+    }
+
+    &::-webkit-scrollbar-corner {
+        background: $bcg-dark;
+    }
+
+    @supports not selector(::-webkit-scrollbar) {
+        scrollbar-width: thin;
+        scrollbar-color: $text-darkest $bcg-darkest;
+    }
+}
 
 body {
     font-family: 'courier new', monospace;

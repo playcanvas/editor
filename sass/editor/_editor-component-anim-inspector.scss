@@ -35,10 +35,6 @@
     display: none;
 }
 
-.anim-component-boolean-input-item.root-item > .pcui-treeview-item-contents::before {
-    display: none;
-}
-
 .anim-component-mask-inspector-close-button {
     position: fixed;
     right: 0;
@@ -51,19 +47,10 @@
     margin: 0;
 }
 
-.anim-component-mask-inspector-add-all-button {
-    width: calc(50% - 9px);
-    margin-right: 0;
-}
-
+.anim-component-mask-inspector-add-all-button,
 .anim-component-mask-inspector-remove-all-button {
     width: calc(50% - 9px);
     margin-right: 0;
-}
-
-.anim-component-mask-inspector-toggle-selected-button {
-    width: calc(100% - 12px);
-    margin-top: 0;
 }
 
 .anim-component-mask-inspector-close-button[data-icon]::before {

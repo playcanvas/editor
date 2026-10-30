@@ -36,7 +36,7 @@
         }
 
         > .pcui-button {
-            @extend .font-bold;
+            @extend %font-bold;
 
             line-height: 26px;
             height: 26px;
@@ -81,6 +81,13 @@
 
     to {
         opacity: 1;
+    }
+}
+
+// spinners (version control overlays, builds, projects page)
+@keyframes spin-360 {
+    to {
+        transform: rotate(360deg);
     }
 }
 

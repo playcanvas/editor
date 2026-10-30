@@ -121,7 +121,7 @@
         }
 
         & > .cms-brand-name {
-            @extend .font-bold;
+            @extend %font-bold;
         }
     }
 
@@ -188,7 +188,7 @@
     }
 
     .cms-section > .pcui-label {
-        @extend .font-bold;
+        @extend %font-bold;
     }
 
     .cms-section {
@@ -203,7 +203,7 @@
         font-size: 11px;
         text-transform: uppercase;
 
-        @extend .font-bold;
+        @extend %font-bold;
     }
 
 
@@ -306,7 +306,7 @@
     .cms-storage-title {
         color: $text-primary;
 
-        @extend .font-bold;
+        @extend %font-bold;
     }
 
     .cms-storage-upgrade {
@@ -322,9 +322,8 @@
     }
 
     .cms-me-avatar {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
+        @include avatar(28px);
+
         cursor: pointer;
 
         @include cms-interactive;
@@ -344,7 +343,7 @@
     .cms-me-name {
         color: $text-primary;
 
-        @extend .font-bold;
+        @extend %font-bold;
     }
 
     .cms-me-plan {
@@ -438,7 +437,7 @@
         line-height: 36px;
         letter-spacing: -0.01em;
 
-        @extend .font-bold;
+        @extend %font-bold;
     }
 
     .cms-subtitle {
@@ -527,11 +526,7 @@
         background-color: $bcg-darkest;
 
         > img {
-            display: block;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform $cms-ease;
+            @include thumb-cover;
         }
     }
 
@@ -555,7 +550,7 @@
         font-size: 11px;
         text-transform: uppercase;
 
-        @extend .font-bold;
+        @extend %font-bold;
     }
 
     .cms-welcome-name {
@@ -568,7 +563,7 @@
         line-height: 26px;
 
         & > .pcui-label:not(.cms-badge) {
-            @extend .font-bold;
+            @extend %font-bold;
         }
     }
 
@@ -626,7 +621,7 @@
         color: $text-primary;
         font-size: 14px;
 
-        @extend .font-bold;
+        @extend %font-bold;
     }
 
     // search, filter hints, tabs, sort and layout
@@ -689,7 +684,7 @@
             font-family: inherit;
             font-size: 14px;
 
-            @extend .font-regular;
+            @extend %font-regular;
 
             &::placeholder {
                 color: $text-dark;
@@ -920,13 +915,8 @@
         background-color: $bcg-darkest;
 
         & > img {
-            display: block;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform $cms-ease;
+            @include thumb-cover;
         }
-
     }
 
     .cms-card-tags {
@@ -981,7 +971,7 @@
     .cms-cover-title {
         color: $text-primary;
 
-        @extend .font-bold;
+        @extend %font-bold;
     }
 
     .cms-card-body {
@@ -1013,23 +1003,17 @@
         line-height: 20px;
         text-overflow: ellipsis;
 
-        @extend .font-bold;
+        @extend %font-bold;
     }
 
     .cms-card-desc {
-        display: -webkit-box;
+        @include line-clamp;
+
         min-height: 36px;
-        overflow: hidden;
         color: $text-meta;
         font-size: 12px;
         line-height: 18px;
         white-space: normal;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
-
-        &.empty {
-            color: $text-meta;
-        }
     }
 
     .cms-card-meta {
@@ -1044,10 +1028,9 @@
 
     // avatars come in three sizes: 20 in lists and cards, 28 for your account, 32 on dev log posts
     .cms-avatar {
+        @include avatar;
+
         flex: none;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
     }
 
     // owner over edit time, beside the avatars
@@ -1368,7 +1351,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
 
-            @extend .font-bold;
+            @extend %font-bold;
         }
     }
 
@@ -1388,12 +1371,6 @@
 
         &.muted {
             opacity: 0.6;
-        }
-
-        // no value: a dash, or a zero count, in a quieter grey
-        &.dash,
-        &.cms-forks.zero {
-            color: $text-dark;
         }
     }
 
@@ -1513,19 +1490,11 @@
         }
     }
 
-    .cms-list > .skeleton:nth-child(2) .cms-bone,
-    .cms-side-list > .skeleton:nth-child(2) .cms-bone {
-        animation-delay: 120ms;
-    }
-
-    .cms-list > .skeleton:nth-child(3) .cms-bone,
-    .cms-side-list > .skeleton:nth-child(3) .cms-bone {
-        animation-delay: 240ms;
-    }
-
-    .cms-list > .skeleton:nth-child(n + 4) .cms-bone,
-    .cms-side-list > .skeleton:nth-child(n + 4) .cms-bone {
-        animation-delay: 360ms;
+    @each $nth, $delay in (2: 120ms, 3: 240ms, 'n + 4': 360ms) {
+        .cms-list > .skeleton:nth-child(#{$nth}) .cms-bone,
+        .cms-side-list > .skeleton:nth-child(#{$nth}) .cms-bone {
+            animation-delay: $delay;
+        }
     }
 
     // phones only: the bar that opens the sidebar as a drawer
@@ -1568,7 +1537,7 @@
             text-overflow: ellipsis;
             overflow: hidden;
 
-            @extend .font-bold;
+            @extend %font-bold;
         }
 
         > .pcui-button.cms-topbar-new {
@@ -1673,10 +1642,7 @@
         }
 
         .cms-welcome-desc {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+            @include line-clamp;
         }
 
         // three facts a row, with the actions menu as the last cell so the buttons below split evenly
@@ -1841,15 +1807,12 @@
 .pcui-menu.cms-menu {
     z-index: $z-menu;
 
-    .pcui-menu-items {
-        border-color: $border-primary;
-        background-color: $cms-float;
-        box-shadow: $cms-float-shadow;
-    }
-
     // inset rows: 4px in from the edge, rounded like badges
     .pcui-menu-items {
         padding: 4px;
+        border-color: $border-primary;
+        background-color: $cms-float;
+        box-shadow: $cms-float-shadow;
     }
 
     .pcui-menu-item {
@@ -1926,10 +1889,6 @@
     }
 }
 
-.pcui-container.cms-storage-popover.pcui-hidden {
-    display: none;
-}
-
 // a tooltip for the popover's controls, above it
 .pcui-tooltip.cms-popover-tooltip {
     z-index: $z-menu + 1;
@@ -1943,13 +1902,16 @@
     gap: 10px;
     width: 280px;
     padding: 14px;
-    border: 1px solid $border-primary;
-    border-radius: 8px;
     box-sizing: border-box;
-    background-color: $cms-float;
-    box-shadow: $cms-float-shadow;
     color: $text-secondary;
     font-size: 12px;
+
+    @include float-panel($radius-surface);
+
+    // the display above would otherwise beat pcui's hidden state
+    &.pcui-hidden {
+        display: none;
+    }
 
     .pcui-label {
         margin: 0;
@@ -1977,7 +1939,7 @@
     .cms-pop-used {
         color: $text-primary;
 
-        @extend .font-bold;
+        @extend %font-bold;
     }
 
     .cms-pop-title {
@@ -2006,7 +1968,7 @@
         font-size: 11px;
         text-transform: uppercase;
 
-        @extend .font-bold;
+        @extend %font-bold;
     }
 
     .cms-pop-row > .pcui-label:first-child {
@@ -2034,101 +1996,6 @@
         height: 100%;
         border-radius: 4px;
         background-color: $text-active;
-    }
-}
-
-// mcp connect popover from the projects page account row (mcp/popover.ts), built from the same rows as the account menu
-.pcui-panel.mcp-popover.mcp-popover-account {
-    overflow: hidden;
-    border: 1px solid $border-primary;
-    border-radius: 6px;
-    background-color: $cms-float;
-    box-shadow: $cms-float-shadow;
-    font-size: 13px;
-
-    & > .pcui-panel-header {
-        height: 30px;
-        padding: 6px 12px 0;
-        border: none;
-        background: transparent;
-
-        & > .pcui-panel-header-title {
-            margin: 0;
-            padding: 0;
-            color: $text-primary;
-            font-size: 13px;
-            line-height: 30px;
-            text-transform: none;
-        }
-    }
-
-    & > .pcui-panel-content {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        padding: 0 12px 12px;
-        background: transparent;
-    }
-
-    .mcp-row,
-    .mcp-row:first-child {
-        gap: 8px;
-        height: 30px;
-        padding: 0;
-    }
-
-    .mcp-row-label {
-        width: 40px;
-        color: $text-meta;
-        font-size: 13px;
-    }
-
-    .mcp-status-value {
-        color: $text-secondary;
-        font-size: 13px;
-    }
-
-    // the small dialog field: 26px, 6px corners, orange focus border
-    .mcp-field {
-        @extend %dialog-input;
-
-        height: 26px;
-
-        & > input {
-            height: 24px;
-            padding: 0 8px;
-        }
-
-        @include phone-field;
-
-        &.pcui-disabled {
-            opacity: 1;
-
-            & > input {
-                color: $text-dark;
-            }
-        }
-
-        // invalid port; wins over the focus border
-        &.pcui-error {
-            border-color: $error;
-        }
-    }
-
-    .mcp-hint {
-        padding: 4px 0;
-        font-size: 12px;
-
-        &.pcui-error {
-            color: $error-secondary;
-        }
-    }
-
-    // button(): primary to connect, secondary to cancel or disconnect
-    .mcp-toggle {
-        display: flex;
-        width: 100%;
-        margin: 8px 0 0;
     }
 }
 
@@ -2250,10 +2117,9 @@
     }
 
     .dev-log-avatar {
-        width: 32px;
-        height: 32px;
+        @include avatar(32px);
+
         flex: none;
-        border-radius: 50%;
     }
 
     .dev-log-post-info {
@@ -2271,7 +2137,7 @@
         color: $text-primary;
         font-size: 14px;
 
-        @extend .font-bold;
+        @extend %font-bold;
     }
 
     .dev-log-post-meta {
@@ -2318,7 +2184,6 @@
     .dev-log-post-actions {
         margin-left: auto;
         align-self: flex-start;
-        gap: 2px;
     }
 
     .dev-log-post-actions,
@@ -2349,7 +2214,7 @@
 
     .dev-log-title-input > input,
     .dev-log-text-input > textarea {
-        @extend .font-regular;
+        @extend %font-regular;
 
         color: $text-primary;
         font-size: 13px;

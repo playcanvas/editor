@@ -3,6 +3,27 @@
     column-gap: 4px;
 }
 
+// padded card with a subtitle label; @content adds further label variants
+@mixin tooltip-card($subtitle-margin) {
+    padding: 16px;
+    background: $bcg-darkest;
+    position: relative;
+    max-width: 300px;
+
+    > .pcui-label {
+        white-space: normal;
+
+        &.subtitle {
+            display: block;
+            color: $text-secondary;
+            font-size: 11px;
+            margin: $subtitle-margin;
+        }
+
+        @content;
+    }
+}
+
 .tooltip-simple {
     padding: 6px;
     background: $bcg-darkest;
@@ -22,32 +43,28 @@
     }
 }
 
+// title and button shared by both cards
+.tooltip-reference,
+.tooltip-override {
+    > .pcui-label.title {
+        display: block;
+        color: $text-primary;
+        font-size: 14px;
+        margin: 0;
+
+        @extend %font-bold;
+    }
+
+    > .pcui-button {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+
 .tooltip-reference {
-    padding: 16px;
-    background: $bcg-darkest;
-    position: relative;
-    max-width: 300px;
     height: fit-content;
 
-    > .pcui-label {
-        white-space: normal;
-
-        &.title {
-            display: block;
-            color: $text-primary;
-            font-size: 14px;
-            margin: 0;
-        
-            @extend .font-bold;
-        }
-    
-        &.subtitle {
-            display: block;
-            color: $text-secondary;
-            font-size: 11px;
-            margin: 0;
-        }
-    
+    @include tooltip-card(0) {
         &.desc {
             display: block;
             color: $text-primary;
@@ -93,46 +110,13 @@
             white-space: pre !important;
         }
     }
-
-    > .pcui-button {
-        margin-left: 0;
-        margin-right: 0;
-    }
 }
 
 .tooltip-override {
-    padding: 16px;
-    background: $bcg-darkest;
-    position: relative;
-    max-width: 300px;
+    @include tooltip-card(0 0 5px);
 
-    > .pcui-label {
-        white-space: normal;
-
-        &.title {
-            display: block;
-            color: $text-primary;
-            font-size: 14px;
-            margin: 0;
-        
-            @extend .font-bold;
-        }
-    
-        &.subtitle {
-            display: block;
-            color: $text-secondary;
-            font-size: 11px;
-            margin: 0 0 5px;
-        }
-    }
-
-    > .pcui-button {
-        margin-left: 0;
-        margin-right: 0;
-
-        &.apply {
-            margin-bottom: 0;
-            min-width: 150px;
-        }
+    > .pcui-button.apply {
+        margin-bottom: 0;
+        min-width: 150px;
     }
 }

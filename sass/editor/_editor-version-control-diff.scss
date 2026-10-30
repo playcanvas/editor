@@ -5,39 +5,63 @@ $vc-del-edge: #f85149;
 $vc-add-tint: rgb(63 185 80 / 15%);
 $vc-add-edge: #3fb950;
 
-.vc-diff-overlay {
-    z-index: 302; // above the vc graph (301) and project picker (300)
+// inspector-style panel frame (diff panels, inset sub-panels, their skeleton)
+@mixin vc-diff-frame {
+    border: 1px solid rgba($border-primary, 0.6);
+    border-radius: 3px;
+    overflow: hidden;
+}
 
-    // absolutely centred small box (1060x600) that tweens to fullscreen; mirrors
-    // .pcui-overlay.picker-project
+// detail header bar (also its loading skeleton)
+@mixin vc-diff-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background-color: $bcg-dark;
+    border-bottom: 1px solid $border-primary;
+}
+
+// absolutely centred small box (1060x600) that tweens to fullscreen; mirrors
+// .pcui-overlay.picker-project. fullscreen fills the viewport to the right of the
+// 40px left toolbar (#layout-root grid column) instead of underlapping it, and is
+// forced below $bp. $box adds declarations to the box; @content goes in the @media
+@mixin vc-fullscreen-box($bp, $box: ()) {
     > .pcui-overlay-content {
         position: absolute;
         left: 50%;
         top: 50%;
         width: 1060px;
         height: 600px;
-        display: flex;
         transform: translate(-50%, -50%);
         transition: width 200ms ease, height 200ms ease, transform 200ms ease;
+
+        @each $prop, $value in $box {
+            #{$prop}: $value;
+        }
     }
 
-    // fullscreen: fill the viewport to the right of the 40px left toolbar
-    // (#layout-root grid column) instead of underlapping it; net span is
-    // [40px, right edge] x [top, bottom]
     &.fullscreen > .pcui-overlay-content {
         width: calc(100% - 40px);
         height: 100%;
         transform: translate(calc(-50% + 20px), -50%);
     }
 
-    // below the small-picker breakpoint: force fullscreen and hide the toggle
-    @media (max-width: 1059px) {
+    @media (max-width: $bp) {
         > .pcui-overlay-content {
             width: calc(100% - 40px);
             height: 100%;
             transform: translate(calc(-50% + 20px), -50%);
         }
 
+        @content;
+    }
+}
+
+.vc-diff-overlay {
+    z-index: 302; // above the vc graph (301) and project picker (300)
+
+    @include vc-fullscreen-box(1059px, (display: flex)) {
         .vc-diff-fullscreen-toggle {
             display: none;
         }
@@ -70,7 +94,7 @@ $vc-add-edge: #3fb950;
     border-bottom: 1px solid $border-primary;
 
     > .vc-diff-title {
-        @extend .font-bold;
+        @extend %font-bold;
 
         color: $text-primary;
         font-size: 14px;
@@ -102,51 +126,12 @@ $vc-add-edge: #3fb950;
             color: $text-primary;
         }
 
-        // maximise square; morphs into the restore glyph (two squares) when active
-        &::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            box-sizing: border-box;
-            width: 11px;
-            height: 10px;
-            border: 1.5px solid currentcolor;
-            border-radius: 1px;
-            transform: translate(-50%, -50%);
-            transition: width 200ms ease, height 200ms ease, transform 200ms ease;
-        }
-
-        // back square of the restore glyph — fades/scales in when active
-        &::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            box-sizing: border-box;
-            width: 9px;
-            height: 9px;
-            border-top: 1.5px solid currentcolor;
-            border-right: 1.5px solid currentcolor;
-            border-radius: 1px;
-            opacity: 0;
-            transform: translate(-38%, -62%) scale(0.6);
-            transition: opacity 200ms ease, transform 200ms ease;
-        }
+        @include fullscreen-glyph;
 
         &.active {
             color: $text-active;
 
-            &::before {
-                width: 9px;
-                height: 9px;
-                transform: translate(-62%, -38%);
-            }
-
-            &::after {
-                opacity: 1;
-                transform: translate(-38%, -62%) scale(1);
-            }
+            @include fullscreen-glyph-on;
         }
     }
 
@@ -189,7 +174,7 @@ $vc-add-edge: #3fb950;
     border-right: 1px solid $border-primary;
 
     > .vc-diff-sidebar-head {
-        @extend .font-bold;
+        @extend %font-bold;
 
         flex: none;
         padding: 10px 12px;
@@ -214,7 +199,7 @@ $vc-add-edge: #3fb950;
         background-color: $bcg-dark;
 
         > .pcui-text-input {
-            @extend .font-regular;
+            @extend %font-regular;
 
             flex: 1 1 auto;
             margin: 0;
@@ -255,7 +240,7 @@ $vc-add-edge: #3fb950;
     // the history day headers do. the $bcg-dark bar reads as a darker band against the
     // $bcg-primary rows; opaque so rows never bleed through when stuck
     > .vc-diff-list > .vc-diff-group {
-        @extend .font-bold;
+        @extend %font-bold;
 
         position: sticky;
         top: 0;
@@ -275,7 +260,7 @@ $vc-add-edge: #3fb950;
     }
 
     > .vc-diff-list > .vc-diff-row {
-        @extend .font-regular;
+        @extend %font-regular;
 
         appearance: none;
         display: flex;
@@ -335,11 +320,11 @@ $vc-add-edge: #3fb950;
 
 .vc-diff-stats {
     > .new {
-        color: #6fd088;
+        color: $vc-added;
     }
 
     > .old {
-        color: #ff8a8a;
+        color: $vc-deleted;
     }
 }
 
@@ -361,16 +346,12 @@ $vc-add-edge: #3fb950;
 }
 
 .vc-diff-detail-head {
-    display: flex;
+    @include vc-diff-head;
+
     flex: none;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 16px;
-    background-color: $bcg-dark;
-    border-bottom: 1px solid $border-primary;
 
     > .name {
-        @extend .font-bold;
+        @extend %font-bold;
 
         min-width: 0;
         overflow: hidden;
@@ -427,7 +408,7 @@ $vc-add-edge: #3fb950;
     .bone {
         border-radius: 4px;
         background-color: rgb(255 255 255 / 8%);
-        animation: vc-skeleton-pulse 1.4s ease-in-out infinite;
+        animation: skeleton-pulse 1.4s ease-in-out infinite;
 
         &.line {
             flex: 1 1 auto;
@@ -481,12 +462,7 @@ $vc-add-edge: #3fb950;
     &.main {
         // header bar matches .vc-diff-detail-head; the body is padded like .vc-diff-detail
         > .skeleton-head {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 16px;
-            background-color: $bcg-dark;
-            border-bottom: 1px solid $border-primary;
+            @include vc-diff-head;
         }
 
         > .skeleton-body {
@@ -494,10 +470,9 @@ $vc-add-edge: #3fb950;
 
             // panel: header bar over field rows, like .vc-diff-detail .vc-diff-panel
             > .skeleton-panel {
+                @include vc-diff-frame;
+
                 margin-bottom: 10px;
-                border: 1px solid rgba($border-primary, 0.6);
-                border-radius: 3px;
-                overflow: hidden;
 
                 > .skeleton-phead {
                     padding: 10px 12px;
@@ -564,9 +539,7 @@ $vc-add-edge: #3fb950;
 }
 
 .vc-diff-panel {
-    border: 1px solid rgba($border-primary, 0.6);
-    border-radius: 3px;
-    overflow: hidden;
+    @include vc-diff-frame;
 
     > .pcui-panel-header > .pcui-panel-header-title {
         text-transform: uppercase;
@@ -575,10 +548,9 @@ $vc-add-edge: #3fb950;
     // settings group sub-panels sit flush inside SETTINGS (like the real settings panel);
     // script/slot/clip sub-panels are inset like the inspector's per-script panels
     .vc-diff-subpanel.inset {
+        @include vc-diff-frame;
+
         margin: 6px;
-        border: 1px solid rgba($border-primary, 0.6);
-        border-radius: 3px;
-        overflow: hidden;
     }
 }
 
@@ -604,16 +576,6 @@ $vc-add-edge: #3fb950;
     font-family: inconsolatamedium, Monaco, Menlo, monospace;
     white-space: pre;
     user-select: text;
-
-    &.del {
-        background-color: $vc-del-tint;
-        box-shadow: inset 2px 0 0 $vc-del-edge;
-    }
-
-    &.add {
-        background-color: $vc-add-tint;
-        box-shadow: inset 2px 0 0 $vc-add-edge;
-    }
 }
 
 // ---- unified diff rows ----
@@ -683,22 +645,29 @@ $vc-add-edge: #3fb950;
         }
     }
 
+}
+
+// removed/added tint shared by diff rows and whole-file content
+.vc-diff-file,
+.vc-diff-field-row {
     &.del {
         background-color: $vc-del-tint;
         box-shadow: inset 2px 0 0 $vc-del-edge;
-
-        > .gutter {
-            color: #ff8a8a;
-        }
     }
 
     &.add {
         background-color: $vc-add-tint;
         box-shadow: inset 2px 0 0 $vc-add-edge;
+    }
+}
 
-        > .gutter {
-            color: #6fd088;
-        }
+.vc-diff-field-row {
+    &.del > .gutter {
+        color: $vc-deleted;
+    }
+
+    &.add > .gutter {
+        color: $vc-added;
     }
 }
 
@@ -784,7 +753,7 @@ $vc-add-edge: #3fb950;
 
         > .sign,
         > .name {
-            color: #6fd088;
+            color: $vc-added;
         }
     }
 
@@ -794,7 +763,7 @@ $vc-add-edge: #3fb950;
 
         > .sign,
         > .name {
-            color: #ff8a8a;
+            color: $vc-deleted;
         }
     }
 }

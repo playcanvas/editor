@@ -7,10 +7,6 @@ $highlight-color: #07f;
                 > .pcui-menu-item-postfix {
                     flex-grow: 1;
                     text-align: right;
-
-                    &.disabled {
-                        display: none;
-                    }
                 }
             }
         }
@@ -92,10 +88,6 @@ $highlight-color: #07f;
 
         &.pcui-clipboard-button-copy {
             right: 16px;
-        }
-
-        &.pcui-hidden {
-            display: none;
         }
 
         &.pcui-disabled {

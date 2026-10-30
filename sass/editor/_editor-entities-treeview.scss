@@ -85,15 +85,7 @@
         color: $text-secondary;
 
         &::after {
-            content: '';
-            position: absolute;
-            left: 4px;
-            right: 4px;
-            top: calc(50% - 2px);
-            height: 2px;
-            background: currentcolor;
-            transform: rotate(-45deg);
-            pointer-events: none;
+            @include strike-through(4px, calc(50% - 2px), $right: 4px);
         }
 
         &:hover {
@@ -107,15 +99,7 @@
         position: relative;
 
         &::after {
-            content: '';
-            position: absolute;
-            left: -2px;
-            width: calc(1em + 4px);
-            top: calc(50% - 2px);
-            height: 2px;
-            background: currentcolor;
-            transform: rotate(-45deg);
-            pointer-events: none;
+            @include strike-through(-2px, calc(50% - 2px), $width: calc(1em + 4px));
         }
     }
 }

@@ -44,7 +44,7 @@
             line-height: normal;
             box-shadow: none;
 
-            @extend .font-regular;
+            @extend %font-regular;
 
             &::placeholder {
                 color: $text-primary;
@@ -106,7 +106,8 @@
             opacity: 1;
         }
 
-        > .font-icon {
+        // attribute form keeps every `@extend .font-icon` from weaving into this rule
+        > [class~='font-icon'] {
             display: block;
             position: absolute;
             top: -1px;
@@ -161,14 +162,15 @@
                 h2 {
                     color: $text-active;
 
-                    @extend .font-bold;
+                    @extend %font-bold;
 
                     font-size: 16px;
                     margin-top: 0;
                     margin-bottom: 10px;
                 }
 
-                .font-icon {
+                // attribute form keeps every `@extend .font-icon` from weaving into this rule
+                [class~='font-icon'] {
                     font-size: 16px;
                 }
 
@@ -183,7 +185,7 @@
                     position: absolute;
                     bottom: 20px;
 
-                    @extend .font-bold;
+                    @extend %font-bold;
 
                     background-color: $bcg-darkest;
                     border: none;

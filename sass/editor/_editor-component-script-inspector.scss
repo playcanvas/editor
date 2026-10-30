@@ -64,17 +64,6 @@
     > .pcui-label:first-child {
         width: auto !important;
 
-        @extend .font-bold;
-    }
-}
-
-.script-component-inspector-script-remove {
-    flex-shrink: 0;
-    margin: 1px;
-    background-color: transparent;
-    border: 0;
-
-    &::before {
-        line-height: 30px;
+        @extend %font-bold;
     }
 }

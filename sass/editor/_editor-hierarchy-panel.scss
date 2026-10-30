@@ -1,7 +1,10 @@
 #layout-hierarchy,
 #layout-attributes-secondary {
     border-left: 1px solid $bcg-darker;
+}
 
+// search, controls and the loading overlay only exist in the hierarchy
+#layout-hierarchy {
     &.pcui-collapsed {
         .hierarchy-controls {
             display: none;
@@ -60,7 +63,7 @@
                     letter-spacing: 0.2px;
                     text-transform: capitalize;
 
-                    @extend .font-bold;
+                    @extend %font-bold;
                 }
             }
 
@@ -101,7 +104,7 @@
                     letter-spacing: 0.2px;
                     text-transform: capitalize;
 
-                    @extend .font-bold;
+                    @extend %font-bold;
                 }
 
                 >.advanced-search-select-all-button {
@@ -114,10 +117,8 @@
                     flex-direction: column;
                     cursor: pointer;
 
-                    &.active,
                     &:hover,
-                    &:focus,
-                    &.focus {
+                    &:focus {
                         color: $text-primary;
                     }
                 }
@@ -152,7 +153,7 @@
                     line-height: 14px;
                     padding: 0;
 
-                    @extend .font-regular;
+                    @extend %font-regular;
                 }
 
                 &::after {
@@ -167,10 +168,6 @@
                 }
 
                 &.not-empty {
-                    > input.field {
-                        color: $text-active;
-                    }
-
                     > .clear {
                         display: block;
                     }
@@ -209,10 +206,8 @@
                 cursor: pointer;
                 color: $text-secondary;
 
-                &.active,
                 &:hover,
                 &:focus,
-                &.focus,
                 &.showing {
                     color: $text-primary;
                 }

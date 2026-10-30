@@ -1,9 +1,11 @@
 @import 'pcui/pcui';
 @import 'common/fonts';
-@import 'common/monaco-merge';
 @import 'editor/editor-pcui-compat';
 @import 'editor/editor-tokens';
 @import 'editor/editor-main';
+@import 'common/shared-overlays';
+@import 'common/version-control';
+@import 'editor/playcanvas-theme';
 @import 'editor/editor-project-cms';
 @import 'editor/editor-project-new';
 @import 'editor/editor-pm-components';
@@ -20,7 +22,6 @@
 @import 'editor/editor-assets-panel';
 @import 'editor/editor-attributes-panel';
 @import 'editor/editor-toolbar-alert';
-@import 'editor/editor-scene-size-alert';
 @import 'editor/editor-entities-treeview';
 @import 'editor/editor-entity-inspector';
 @import 'editor/editor-template-overrides-view';
@@ -53,7 +54,6 @@
 @import 'editor/editor-settings-layers-panel';
 @import 'editor/editor-settings-batchgroups-panel';
 @import 'editor/editor-settings-asset-import';
-@import 'editor/editor-settings-ai';
 @import 'editor/editor-settings-scripts-panel';
 @import 'editor/editor-sprite-editor';
 @import 'editor/editor-tooltip';

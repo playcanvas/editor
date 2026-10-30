@@ -13,10 +13,6 @@
         height: 40px;
         flex-shrink: 0;
 
-        &.hidden {
-            display: none;
-        }
-
         &.toolbar-user-hidden {
             display: none !important;
         }
@@ -78,17 +74,6 @@
                 }
             }
 
-            &.disabled {
-                opacity: 1;
-                color: color.mix($text-dark, $bcg-primary, 30%);
-
-                &:hover,
-                &:focus {
-                    color: color.mix($text-dark, $bcg-primary, 30%);
-                    background-color: $bcg-primary;
-                }
-            }
-
             &:hover,
             &:focus {
                 color: $text-primary;
@@ -143,7 +128,7 @@
     }
 
     &.toolbar-editing {
-        > .pcui-button[data-toolbar-id]:not(.hidden) {
+        > .pcui-button[data-toolbar-id] {
             display: block !important;
             position: relative;
             overflow: visible;
@@ -184,15 +169,7 @@
             color: $text-secondary;
 
             &::after {
-                content: '';
-                position: absolute;
-                left: 3px;
-                right: 3px;
-                top: calc(50% - 1px);
-                height: 2px;
-                background: currentcolor;
-                transform: rotate(-45deg);
-                pointer-events: none;
+                @include strike-through(3px, calc(50% - 1px), $right: 3px);
             }
 
             &:hover,

@@ -6,9 +6,6 @@
     @extend .fixedFont;
 
     background-color: $bcg-dark;
-    border-left: 1px solid $bcg-darker;
-    border-top: 1px solid $bcg-darker;
-    border-right: 1px solid $bcg-darker;
     margin: 0 $element-margin;
     flex-grow: 1;
     cursor: pointer;
@@ -16,10 +13,8 @@
     padding-left: 25px;
     position: relative;
     font-size: 11px;
-}
 
-.pcui-related-assets-related-asset:last-child {
-    border-bottom: 1px solid $bcg-darker;
+    @include list-row-border;
 }
 
 .pcui-related-assets-related-asset:hover {

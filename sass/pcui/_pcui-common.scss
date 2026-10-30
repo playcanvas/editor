@@ -52,12 +52,41 @@ $icons: (
     background-position: 0 0, $size $size;
 }
 
-@keyframes animation-spin {
-    from {
-        transform: rotate(0deg);
+// canvas-backed inputs (curve, gradient)
+@mixin canvas-input($root) {
+    #{$root} {
+        display: inline-block;
+        flex: 1;
+        height: 24px;
+        box-sizing: border-box;
+        margin: $element-margin;
+        transition: opacity 100ms, box-shadow 100ms;
+        border: 1px solid $bcg-darker;
+        background-color: $bcg-dark;
+
+        > canvas {
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+        }
     }
 
-    to {
-        transform: rotate(360deg);
+    // disabled
+    #{$root}.pcui-disabled,
+    #{$root}.pcui-multiple-values {
+        opacity: $element-opacity-disabled;
+    }
+
+    // hover / focus states
+    #{$root}:not(.pcui-disabled, .pcui-readonly, .pcui-multiple-values) {
+        &:hover,
+        &:focus {
+            cursor: pointer;
+            box-shadow: $element-shadow-hover;
+        }
+
+        &:active {
+            box-shadow: $element-shadow-active;
+        }
     }
 }

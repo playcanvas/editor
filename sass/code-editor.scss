@@ -1,5 +1,5 @@
 @use 'sass:color';
-@import 'pcui/pcui';
+@import 'pcui/pcui-core';
 @import 'common/fonts';
 @import 'common/monaco-merge';
 
@@ -15,6 +15,8 @@ $muted-yellow: #f4a62a;
 $status-error: $bright-red;
 $status-warning: $bright-yellow;
 $status-log: #ccc;
+$bar-bg: color.mix($bcg-darkest, black, 75%);
+$dirty-color: color.adjust($muted-yellow, $alpha: -0.15);
 
 html {
     height: 100%;
@@ -22,7 +24,7 @@ html {
 }
 
 body {
-    @extend .font-regular;
+    @extend %font-regular;
 
     min-height: 100%;
     height: 100%;
@@ -32,27 +34,7 @@ body {
 }
 
 strong {
-    @extend .font-bold;
-}
-
-.noSelect {
-    user-select: none;
-}
-
-@media (max-width: 480px) {
-    .hidden-xs {
-        display: none;
-    }
-}
-
-@keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
+    @extend %font-bold;
 }
 
 #ui-root {
@@ -81,7 +63,7 @@ strong {
 }
 
 #ui-top {
-    background-color: color.mix($bcg-darkest, black, 75%);
+    background-color: $bar-bg;
 
     > .pcui-button {
         background-color: transparent;
@@ -97,11 +79,6 @@ strong {
             color: $text-primary;
             background-color: color.mix($text-darkest, $bcg-darker, 30%);
             box-shadow: none;
-        }
-
-        &.open {
-            color: $text-primary;
-            background-color: $bcg-darkest;
         }
     }
 }
@@ -126,10 +103,11 @@ strong {
     box-sizing: border-box;
 
     $tab-bottom-margin: 2px;
+    $tab-height: 32px - $tab-bottom-margin;
     $tab-bg-color: color.mix($bcg-darker, $bcg-darkest, 25%);
 
-    height: 32px - $tab-bottom-margin;
-    line-height: 32px - $tab-bottom-margin;
+    height: $tab-height;
+    line-height: $tab-height;
     margin-bottom: $tab-bottom-margin;
 
     .pcui-container.tab {
@@ -142,8 +120,8 @@ strong {
         color: $text-secondary;
         transition: color 200ms ease;
         padding: 0 5px;
-        height: 32px - $tab-bottom-margin;
-        line-height: 32px - $tab-bottom-margin;
+        height: $tab-height;
+        line-height: $tab-height;
         margin-right: 3px;
         font-size: 13px;
         white-space: nowrap;
@@ -180,7 +158,7 @@ strong {
         }
 
         &.dirty:not(.error) {
-            color: color.adjust($muted-yellow, $alpha: -0.15);
+            color: $dirty-color;
 
             &:hover,
             &.focused {
@@ -306,7 +284,7 @@ strong {
 }
 
 #ui-bottom {
-    background-color: color.mix($bcg-darkest, black, 75%);
+    background-color: $bar-bg;
 
     .pcui-label {
         margin: 0 0 0 5px;
@@ -360,7 +338,7 @@ strong {
 
     .pcui-treeview-item.dirty {
         .pcui-treeview-item-contents:not(.pcui-treeview-item-selected) {
-            color: color.adjust($muted-yellow, $alpha: -0.15);
+            color: $dirty-color;
         }
 
         .pcui-treeview-item-contents.pcui-treeview-item-selected {
@@ -473,14 +451,6 @@ strong {
             top: 0;
             right: 5px;
         }
-
-        &.replace {
-            transition: flex-grow 200ms ease;
-
-            &:not(.focused) {
-                flex-grow: 0.3;
-            }
-        }
     }
 
     > .pcui-input-element[placeholder]::after {
@@ -498,11 +468,9 @@ strong {
         width: 28px;
         height: 28px;
         padding: 0;
-        font-size: 14px;
-        margin: 2px;
         box-sizing: border-box;
 
-        @extend .font-bold;
+        @extend %font-bold;
 
         &.toggled {
             background-color: $text-active;
@@ -545,7 +513,6 @@ strong {
         }
 
         &:hover,
-        &.active,
         &:focus,
         &.pcui-focus {
             background-color: $bcg-primary;
@@ -650,10 +617,6 @@ strong {
 .pcui-tooltip {
     padding: 8px;
     background: black;
-}
-
-.pcui-tooltip-desc {
-    margin: 0;
 }
 
 .vscode-ext-banner {
