@@ -1,11 +1,3 @@
-@use 'sass:color';
-
-$bright-red: #e74c3c;
-$bright-yellow: #f1c40f;
-$status-info: #b1b8ba;
-$status-error: $bright-red;
-$status-warn: $bright-yellow;
-
 .script-asset-inspector-container,
 .script-asset-inspector-error-container {
     display: flex;
@@ -46,24 +38,8 @@ $status-warn: $bright-yellow;
     }
 }
 
-.script-asset-inspector-attribute-error-title, .script-asset-inspector-attribute-warning-title {
-    font-family: inconsolatamedium, Monaco, Menlo, "Ubuntu Mono", Consolas, source-code-pro, monospace;
-    font-weight: normal;
-    font-size: 12px;
-    cursor: pointer;
-}
-
-.script-asset-inspector-attribute-error-title:hover, .script-asset-inspector-attribute-warning-title:hover {
-    text-decoration: underline;
-}
-
 .script-asset-inspector-error-container > .pcui-label {
     white-space: normal;
-}
-
-.script-asset-inspector-container.pcui-hidden,
-.script-asset-inspector-error-container.pcui-hidden {
-    display: none;
 }
 
 .script-asset-inspector-script {
@@ -108,14 +84,6 @@ $status-warn: $bright-yellow;
     }
 }
 
-.script-asset-inspector-attribute-warning.clickable-warning {
-    cursor: pointer;
-    
-    &:hover {
-        text-decoration: underline;
-    }
-}
-
 .script-asset-inspector-attribute-error {
     &::before {
         @extend .font-icon;
@@ -125,17 +93,8 @@ $status-warn: $bright-yellow;
     }
 }
 
-// Tooltip warnings styling
-.warnings-title.script-asset-inspector-warning {
-    // Normal text color for the header
-}
-
+// tooltip warnings
 .warning-item.script-asset-inspector-warning {
     color: var(--pcui-warning-color);
     font-size: 11px;
-}
-
-.open-console {
-    text-decoration: underline;
-    cursor: pointer;
 }

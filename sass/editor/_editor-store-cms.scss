@@ -1,3 +1,14 @@
+// a pc-icon glyph before the element's text, shared with the store item panel
+@mixin store-icon($glyph) {
+    &::before {
+        @extend .font-icon;
+
+        display: inline-block;
+        margin-right: 5px;
+        content: $glyph;
+    }
+}
+
 .pcui-overlay.picker-store-cms {
     .pcui-overlay-content {
         position: absolute;
@@ -25,11 +36,11 @@
         align-items: center;
         padding: 16px 8px;
         overflow: hidden;
-    }
 
-    .grid-item:hover {
-        background-color: $bcg-dark;
-        cursor: pointer;
+        &:hover {
+            background-color: $bcg-dark;
+            cursor: pointer;
+        }
     }
 
     .text-container {
@@ -54,114 +65,27 @@
         width: 100%;
     }
 
-    .text-item-downloads {
-        display: inline-block;
-        text-align: center;
-        font-size: 12px;
-        font-weight: 400;
-        color: white;
-
-        &::before {
-            @extend .font-icon;
-
+    // a glyph before each stat; size has none and sits on the right
+    @each $stat, $glyph in (downloads: '\E216', likes: '\E244', modified: '\E326', views: '\E308', size: null) {
+        .text-item-#{$stat} {
             display: inline-block;
-            margin-right: 5px;
-            content: '\E216';
+            text-align: center;
+            font-size: 12px;
+            font-weight: 400;
+            color: white;
+
+            @if $glyph {
+                @include store-icon($glyph);
+            } @else {
+                margin-left: auto;
+            }
         }
     }
 
-    .text-item-likes {
-        display: inline-block;
-        text-align: center;
-        font-size: 12px;
-        font-weight: 400;
-        color: white;
-
-        &::before {
-            @extend .font-icon;
-
-            display: inline-block;
-            margin-right: 5px;
-            content: '\E244';
-        }
-    }
-
-    .text-item-modified {
-        display: inline-block;
-        text-align: center;
-        font-size: 12px;
-        font-weight: 400;
-        color: white;
-
-        &::before {
-            @extend .font-icon;
-
-            display: inline-block;
-            margin-right: 5px;
-            content: '\E326';
-        }
-    }    
-
-    .text-item-views {
-        display: inline-block;
-        text-align: center;
-        font-size: 12px;
-        font-weight: 400;
-        color: white;
-
-        &::before {
-            @extend .font-icon;
-
-            display: inline-block;
-            margin-right: 5px;
-            content: '\E308';
-        }
-    }
-
-    .text-item-size {
-        margin-left: auto; /* Add this to align the last text item to the right */
-        display: inline-block;
-        text-align: center;
-        font-size: 12px;
-        font-weight: 400;
-        color: white;
-    }
-
-    .pcui-gridview-item-text {
-        padding-top: 8px;
-        font-size: 14px;
-        color: white;
-        min-width: 180px;
-        text-align: center;
-    }
-
-    /* Media query for smaller screens */
     @media (max-width: 600px) {
         .grid-container {
             grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
         }
-    }
-
-    .storeitem-stats-container {
-        width: max-content;
-
-        & > .stat {
-            @extend .font-regular;
-
-            font-size: 12px;
-            transition: all 0.2s ease-in-out;
-
-            &::before {
-                @extend .font-icon;
-
-                display: inline-block;
-                margin-right: 5px;
-            }
-        }
-
-        & > #downloads-stat::before { content: '\E216'; }
-        & > #views-stat::before { content: '\E308'; }
-        & > #size-stat::before { content: '\E180'; }
     }
 
     .cms-root-panel {
@@ -246,7 +170,6 @@
         align-items: center;
         width: calc(100% - 4px);
         padding: 15px 30px;
-        padding-left: 30px;
         margin: 1px;
         border: 1px;
         border-color: black;
@@ -307,7 +230,7 @@
         }
 
         &::after {
-            @extend .font-regular;
+            @extend %font-regular;
 
             font-size: 14px;
             right: auto;
@@ -330,17 +253,12 @@
         }
     }
 
-    .sort-btn,
-    .layout-btn {
-        flex: 0.5;
+    .sort-btn {
+        flex: 0.7;
         margin-top: 0;
         margin-bottom: 0;
         border: none;
         height: 100%;
-    }
-
-    .sort-btn {
-        flex: 0.7;
 
         &::after {
             @extend .font-icon;
@@ -350,10 +268,6 @@
 
         &.closed::after { content: '\E159'; }
         &.open::after { content: '\E157'; }
-    }
-
-    .layout-btn {
-        margin-right: 0;
     }
 
     .load-more-button {

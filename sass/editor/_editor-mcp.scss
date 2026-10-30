@@ -2,12 +2,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-}
 
-#layout-toolbar > .pcui-button.mcp .mcp-icon {
-    display: block;
-    width: 22px;
-    height: 22px;
+    .mcp-icon {
+        display: block;
+        width: 22px;
+        height: 22px;
+    }
 }
 
 .mcp-popover.mcp-popover-account {
@@ -28,14 +28,14 @@
         align-items: center;
         padding: 4px 10px;
         margin: 0; // override pcui default element margin (6px)
-    }
 
-    .mcp-row > * {
-        margin: 0; // override pcui default element margin on labels/fields
-    }
+        > * {
+            margin: 0; // override pcui default element margin on labels/fields
+        }
 
-    .mcp-row:first-child {
-        padding-top: 9px; // a little breathing room below the header
+        &:first-child {
+            padding-top: 9px; // a little breathing room below the header
+        }
     }
 
     .mcp-row-label {
@@ -100,5 +100,98 @@
         display: block;
         width: calc(100% - 20px);
         margin: 3px 10px 11px;
+    }
+}
+
+// mcp connect popover from the projects page account row (mcp/popover.ts), built from the same rows as the account menu
+.pcui-panel.mcp-popover.mcp-popover-account {
+    overflow: hidden;
+    font-size: 13px;
+
+    @include float-panel;
+
+    & > .pcui-panel-header {
+        height: 30px;
+        padding: 6px 12px 0;
+        border: none;
+        background: transparent;
+
+        & > .pcui-panel-header-title {
+            margin: 0;
+            padding: 0;
+            color: $text-primary;
+            font-size: 13px;
+            line-height: 30px;
+            text-transform: none;
+        }
+    }
+
+    & > .pcui-panel-content {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        padding: 0 12px 12px;
+        background: transparent;
+    }
+
+    .mcp-row,
+    .mcp-row:first-child {
+        gap: 8px;
+        height: 30px;
+        padding: 0;
+    }
+
+    .mcp-row-label {
+        width: 40px;
+        color: $text-meta;
+        font-size: 13px;
+    }
+
+    .mcp-status-value {
+        color: $text-secondary;
+        font-size: 13px;
+    }
+
+    // the small dialog field: 26px, 6px corners, orange focus border
+    .mcp-field {
+        @extend %dialog-input;
+
+        height: 26px;
+
+        & > input {
+            height: 24px;
+            padding: 0 8px;
+        }
+
+        @include phone-field;
+
+        &.pcui-disabled {
+            opacity: 1;
+
+            & > input {
+                color: $text-dark;
+            }
+        }
+
+        // invalid port; wins over the focus border
+        &.pcui-error {
+            border-color: $error;
+        }
+    }
+
+    .mcp-hint {
+        padding: 4px 0;
+        font-size: 12px;
+
+        &.pcui-error {
+            color: $error-secondary;
+        }
+    }
+
+    // button(): primary to connect, secondary to cancel or disconnect
+    .mcp-toggle {
+        display: flex;
+        width: 100%;
+        margin: 8px 0 0;
     }
 }

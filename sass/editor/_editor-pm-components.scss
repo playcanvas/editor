@@ -1,5 +1,3 @@
-@use 'sass:color';
-
 // projects page components (src/editor/pickers/project-management/components), shared by the page,
 // its dialogs, project settings and the MCP popover
 
@@ -23,7 +21,7 @@
 }
 
 .pcui-button.pm-button {
-    @extend .font-regular;
+    @extend %font-regular;
 
     display: inline-flex;
     flex: none;
@@ -80,10 +78,6 @@
         @include pm-button-kind(transparent, $danger-edge, $danger-text, $danger-fill, $danger-edge, $danger-text);
     }
 
-    &.ghost.tone-danger {
-        @include pm-button-kind(transparent, transparent, $danger-text, $danger-fill, transparent, $danger-text);
-    }
-
     &.icon {
         width: 28px;
         height: 28px;
@@ -104,15 +98,18 @@
             }
         }
 
-        &.tone-danger {
-            @include pm-button-kind(transparent, transparent, $danger-text, $danger-fill, transparent, $danger-text);
-        }
 
         // a confirm step: the icon grows to spell out what the next click does
         &.armed {
             width: auto;
             padding: 0 8px;
         }
+    }
+
+    // `kind` is a single value, so a button is never both ghost and icon
+    &.ghost.tone-danger,
+    &.icon.tone-danger {
+        @include pm-button-kind(transparent, transparent, $danger-text, $danger-fill, transparent, $danger-text);
     }
 
     // phones: every button at one of the two control heights
@@ -306,7 +303,7 @@
     border-top-color: $text-active;
     border-radius: 50%;
     box-sizing: border-box;
-    animation: cms-spin 700ms linear infinite;
+    animation: spin-360 700ms linear infinite;
 
     &.md {
         width: 16px;
@@ -354,7 +351,7 @@
     }
 
     > .pm-empty-title {
-        @extend .font-bold;
+        @extend %font-bold;
 
         color: $text-primary;
         font-size: 14px;
@@ -485,7 +482,7 @@
         color: $text-primary;
         text-overflow: ellipsis;
 
-        @extend .font-bold;
+        @extend %font-bold;
     }
 
     .progress-sub,

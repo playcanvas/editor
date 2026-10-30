@@ -1,20 +1,10 @@
 .monaco-editor {
     .dst-branch {
         background: rgba(#0b3b76, 0.5);
-
-        > .ui-button {
-            background: #2460aa;
-            border: 1px solid #20292b;
-        }
     }
 
     .src-branch {
         background: rgba(#15515e, 0.5);
-
-        > .ui-button {
-            background: #1d6d7f;
-            border: 1px solid #20292b;
-        }
     }
 
     .diff-overlay-hunk {

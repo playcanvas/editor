@@ -21,12 +21,9 @@
             padding-top: 3px;
         }
 
-        &.type-template::before {
-            padding-top: 4px; // fix misaligned font icon
-        }
-
+        &.type-template::before,
         &.type-font-source::before {
-            padding-top: 4px; // fix misaligned font icon
+            padding-top: 4px;
         }
     }
 

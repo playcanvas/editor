@@ -1,5 +1,9 @@
 @use 'sass:color';
 
+$devtools-dark: #202020;
+$devtools-bg: #303030;
+$devtools-font: 'Courier New', monospace;
+
 @font-face {
     font-family: inconsolatamedium;
     src: url('../static/fonts/Inconsolata-webfont.woff2') format('woff2');
@@ -122,12 +126,12 @@ canvas:focus {
         align-items: center;
         font-family: inconsolatamedium;
         line-height: 20px;
-    
+
         img {
             margin-left: 14px;
             cursor: pointer;
         }
-    
+
         &.hidden {
             display: none;
         }
@@ -140,11 +144,11 @@ canvas:focus {
     top: 5px;
 }
 
-.noSelect {
+%no-select {
     user-select: none;
 }
 
-.font-icon {
+%font-icon {
     font-family: pc-icon;
 }
 
@@ -156,10 +160,10 @@ body > #dev-tools {
     right: 0;
     width: auto;
     height: 300px;
-    background-color: #303030;
+    background-color: $devtools-bg;
     overflow: hidden;
     cursor: default;
-    border-top: 1px solid #202020;
+    border-top: 1px solid $devtools-dark;
 
     &.dragging {
         cursor: grabbing;
@@ -170,9 +174,9 @@ body > #dev-tools {
         left: 300px;
         top: 0;
         display: block;
-        background-color: #202020;
+        background-color: $devtools-dark;
 
-        @extend .noSelect;
+        @extend %no-select;
     }
 
     > .timeline {
@@ -180,9 +184,9 @@ body > #dev-tools {
         left: 300px;
         top: 24px;
         display: block;
-        background-color: #303030;
+        background-color: $devtools-bg;
 
-        @extend .noSelect;
+        @extend %no-select;
     }
 
     > .frame {
@@ -191,11 +195,11 @@ body > #dev-tools {
         left: 0;
         width: 299px;
         height: 300px;
-        border-right: 1px solid #202020;
+        border-right: 1px solid $devtools-dark;
         overflow: auto;
         color: #fff;
         font-size: 12px;
-        font-family: 'Courier New', monospace;
+        font-family: $devtools-font;
 
         &::-webkit-scrollbar {
             width: 4px;
@@ -203,11 +207,11 @@ body > #dev-tools {
         }
 
         &::-webkit-scrollbar-track {
-            background: #303030;
+            background: $devtools-bg;
         }
 
         &::-webkit-scrollbar-thumb {
-            background: #202020;
+            background: $devtools-dark;
         }
 
         &::-webkit-scrollbar-thumb:hover {
@@ -215,7 +219,7 @@ body > #dev-tools {
         }
 
         &::-webkit-scrollbar-corner {
-            background: #303030;
+            background: $devtools-bg;
         }
 
         > .panel {
@@ -227,7 +231,7 @@ body > #dev-tools {
                 line-height: 24px;
                 padding: 0 8px;
                 font-size: 14px;
-                background-color: #202020;
+                background-color: $devtools-dark;
                 cursor: pointer;
             }
 
@@ -249,10 +253,10 @@ body > #dev-tools {
                     margin: 0;
                     border: none;
                     width: calc(100% - 150px);
-                    background-color: #202020;
+                    background-color: $devtools-dark;
                     color: #fff;
                     font-size: 12px;
-                    font-family: 'Courier New', monospace;
+                    font-family: $devtools-font;
                 }
 
                 > input[type='text'] {
@@ -260,11 +264,11 @@ body > #dev-tools {
                     padding: 4px 8px;
                     margin: 0;
                     border: none;
-                    background-color: #202020;
+                    background-color: $devtools-dark;
                     color: #fff;
                     font-size: 12px;
                     line-height: 16px;
-                    font-family: 'Courier New', monospace;
+                    font-family: $devtools-font;
 
                     &.framesSkip {
                         width: calc(100% - 140px - 16px);
@@ -279,7 +283,7 @@ body > #dev-tools {
                     line-height: 24px;
                     text-align: center;
                     margin-right: 4px;
-                    background-color: #202020;
+                    background-color: $devtools-dark;
                     color: #fff;
                     cursor: pointer;
 
@@ -297,7 +301,7 @@ body > #dev-tools {
                 height: 24px;
 
                 > .header {
-                    color: color.mix(#202020, #fff, 50%);
+                    color: color.mix($devtools-dark, #fff, 50%);
                 }
             }
         }
@@ -309,7 +313,7 @@ body > #dev-tools {
         right: 0;
         bottom: 0;
         width: 32px;
-        background-color: #202020;
+        background-color: $devtools-dark;
 
         > .button {
             width: 32px;
@@ -320,7 +324,7 @@ body > #dev-tools {
             font-size: 16px;
             cursor: pointer;
 
-            @extend .font-icon;
+            @extend %font-icon;
 
             &:hover {
                 background-color: #000;
@@ -342,7 +346,6 @@ body > #dev-tools {
 
         > .toolbar {
             position: static;
-            width: 32px;
             height: 32px;
         }
     }

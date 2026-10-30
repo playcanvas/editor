@@ -1,5 +1,23 @@
-@use 'sass:color';
 @use 'sass:map';
+
+// 's' marker over the legacy scripts folder
+@mixin legacy-script-badge($left, $top, $size) {
+    content: 's';
+    position: absolute;
+    left: $left;
+    top: $top;
+    font-size: $size;
+    color: $bcg-darker;
+}
+
+@mixin unreferenced-icon {
+    @extend .font-icon;
+
+    content: '\E186';
+    font-size: 10px;
+    vertical-align: middle;
+    color: $text-darkest;
+}
 
 #layout-assets {
     overflow: visible;
@@ -485,40 +503,18 @@
 }
 
 .pcui-asset-panel-legacy-scripts {
-    &.pcui-gridview-item {
-        &::after {
-            content: 's';
-            position: absolute;
-            left: 46px;
-            top: 29px;
-            font-size: 31px;
-            color: $bcg-darker;
-        }
+    &.pcui-gridview-item::after {
+        @include legacy-script-badge(46px, 29px, 31px);
     }
 
-    &.pcui-treeview-item {
-        &::after {
-            content: 's';
-            position: absolute;
-            left: 34px;
-            top: 5px;
-            font-size: 11px;
-            color: $bcg-darker;
-            z-index: 1;
-        }
+    &.pcui-treeview-item::after {
+        @include legacy-script-badge(34px, 5px, 11px);
+
+        z-index: 1;
     }
 
-    &.pcui-table-row {
-        .pcui-asset-thumb {
-            &::after {
-                content: 's';
-                position: absolute;
-                left: 6px;
-                top: 3px;
-                font-size: 11px;
-                color: $bcg-darker;
-            }
-        }
+    &.pcui-table-row .pcui-asset-thumb::after {
+        @include legacy-script-badge(6px, 3px, 11px);
     }
 }
 
@@ -581,22 +577,14 @@
 
 .pcui-asset-panel-unreferenced-asset {
     .pcui-gridview-item-text::before {
-        @extend .font-icon;
+        @include unreferenced-icon;
 
-        content: '\E186';
-        font-size: 10px;
         margin-right: 2px;
-        vertical-align: middle;
-        color: $text-darkest;
     }
 
     .pcui-asset-panel-details-name .pcui-label::after {
-        @extend .font-icon;
+        @include unreferenced-icon;
 
-        content: '\E186';
-        font-size: 10px;
-        vertical-align: middle;
-        color: $text-darkest;
         margin-left: 2px;
     }
 }

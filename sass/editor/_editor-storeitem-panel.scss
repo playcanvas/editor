@@ -1,5 +1,3 @@
-@use 'sass:color';
-
 .storeitem-root-panel {
     height: 80%;
     width: 80%;
@@ -41,7 +39,6 @@
     
     .item-author-label {
         padding-top: 10px;
-        font-weight: 800px;
         font-size: 14px;
     }      
     
@@ -51,50 +48,6 @@
         word-wrap: break-word;
     }   
 
-    .pcui-panel-header {
-        position: relative;
-        justify-content: center;
-        width: 100%;
-        padding: 0;
-    }
-
-    .pcui-panel-header-title {
-        width: fit-content;
-        flex: none;
-        margin: 0;
-    }
-
-    .header-utils {
-        position: absolute;
-        display: flex;
-        align-items: center;
-        right: 7px;
-        margin: 7px;
-    }
-
-    .span {
-        font-size: 12px;
-        width: min-content;
-        margin: 0;
-        flex: unset;
-    }
-
-    .close {
-        height: 24px;
-        right: 0;
-        box-shadow: none;
-        border: none;
-        background: none;
-        margin-right: -8px;
-    }
-
-    .pcui-panel-content {
-        height: 100%;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-    }
-
     .storeitem-top-panel {
         position: relative;
         max-height: 80px;
@@ -102,24 +55,8 @@
         padding-bottom: 32px;
     }
 
-    .progress-container {
-        position: relative;
-        width: 100%;
-        height: 5px;
-        transition: all 0.2s ease-in-out;
-    }
-
-    .progress-container-expand {
-        margin-bottom: 20px;
-    }
-
-    .progress {
-        width: 100%;
-    }
-
     .return-button {
         position: absolute;
-        float: left;
         padding-right: 5px;
         font-size: 20px;
         left: 17px;
@@ -131,7 +68,6 @@
 
     .storeitem-name {
         position: absolute;
-        float: left;
         padding-right: 5px;
         font-size: 20px;
         left: 56px;
@@ -139,17 +75,21 @@
         color: white;
     }
 
-    .import-button {
+    .import-button,
+    .viewer-button {
         position: absolute;
-        right: 32px;
-        top: 34px;
         height: 26px;
         width: 206px;
-        background-color: $text-active;
         border: none;
         color: #fff;
         font-weight: 800;
         margin-left: 0;
+    }
+
+    .import-button {
+        right: 32px;
+        top: 34px;
+        background-color: $text-active;
 
         &:hover {
             color: $text-active;
@@ -158,15 +98,8 @@
     }
 
     .viewer-button {
-        position: absolute;
         right: 254px;
         top: 34px;
-        height: 26px;
-        width: 206px;
-        border: none;
-        color: #fff;
-        font-weight: 800;
-        margin-left: 0;
     }
 
     .storeitem-content {
@@ -182,23 +115,19 @@
         margin-right: 15px;
         margin-bottom: 15px;
         background-color: #29363b;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
     }
 
     .code-preview {
         height: 100%;
         overflow: auto;
         background-color: $bcg-darkest;
-    }
-
-    .pcui-code-inner {
-        font-size: 14px;
-    }
-
-    .storeitem-preview img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        display: block;
     }
 
     .storeitem-data {
@@ -227,12 +156,6 @@
         padding-left: 0;
         min-width: 90%;
         padding-bottom: 30px;
-        
-        > .pcui-label-group {
-            > .pcui-label:first-child {
-                width: 188px;
-            } 
-        }
     }
 
     .storeitem-assets {
@@ -241,18 +164,14 @@
         position: absolute;
         top: 16px;
         min-width: 95%;
-
-        > .pcui-label-group {
-            > .pcui-label:first-child {
-                width: 188px;
-            } 
-        }
     }
 
-    .assets-row {
-        width: 189px;
-        display: flex;
-        flex-direction: row;
+    // stat and asset names in one column, values on the right
+    .storeitem-stats,
+    .storeitem-assets {
+        > .pcui-label-group > .pcui-label:first-child {
+            width: 188px;
+        }
     }
 
     .data-label {
@@ -265,75 +184,12 @@
         height: 7px;
     }
 
-    .assets-name-texture {
-        width: 100%;
+    // an asset type glyph before each asset's name
+    @each $cls, $glyph in (assets-name-texture: '\E413', assets-name-3d: '\E187', assets-name-script: '\E392', assets-name-font: '\E227', assets-name-template: '\E190', assets-name: '\E209') {
+        .#{$cls} {
+            width: 100%;
 
-        &::before {
-            @extend .font-icon;
-
-            display: inline-block;
-            margin-right: 5px;
-            content: '\E413';
-        }
-    }
-
-    .assets-name-3d {
-        width: 100%;
-
-        &::before {
-            @extend .font-icon;
-
-            display: inline-block;
-            margin-right: 5px;
-            content: '\E187';
-        }
-    }
-
-    .assets-name-script {
-        width: 100%;
-
-        &::before {
-            @extend .font-icon;
-
-            display: inline-block;
-            margin-right: 5px;
-            content: '\E392';
-        }
-    }
-
-    .assets-name-font {
-        width: 100%;
-
-        &::before {
-            @extend .font-icon;
-
-            display: inline-block;
-            margin-right: 5px;
-            content: '\E227';
-        }
-    }
-
-    .assets-name-template {
-        width: 100%;
-
-        &::before {
-            @extend .font-icon;
-
-            display: inline-block;
-            margin-right: 5px;
-            content: '\E190';
-        }
-    }    
-
-    .assets-name {
-        width: 100%;
-
-        &::before {
-            @extend .font-icon;
-
-            display: inline-block;
-            margin-right: 5px;
-            content: '\E209';
+            @include store-icon($glyph);
         }
     }
 
@@ -347,26 +203,10 @@
             cursor: pointer;
 
             &::before {
-                @extend .font-icon;
-                
-                display: inline-block;
-                margin-right: 5px;
-                content: '\E208';
                 color: $text-active;
             }
         }
 
-        &::before {
-            @extend .font-icon;
-
-            display: inline-block;
-            margin-right: 5px;
-            content: '\E208';
-        }
-    }
-
-    .assets-size {
-        text-align: right;
-        width: 90px;
+        @include store-icon('\E208');
     }
 }

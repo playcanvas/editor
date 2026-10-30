@@ -26,7 +26,7 @@
     > .pcui-label:first-child {
         width: auto !important;
 
-        @extend .font-bold;
+        @extend %font-bold;
     }
 }
 
