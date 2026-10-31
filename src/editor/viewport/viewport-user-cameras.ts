@@ -30,6 +30,7 @@ editor.once('load', () => {
 
     const cameras = {};
     const userdata = {};
+    const userdataLoads = {};
 
     // material default
     const materialDefault = createColorMaterial();
@@ -62,7 +63,8 @@ editor.once('load', () => {
 
     // Subscribes to user data of specified user
     const addUser = function (userId: string): void {
-        editor.once(`userdata:${userId}:raw`, (data) => {
+        userdataLoads[userId] = editor.once(`userdata:${userId}:raw`, (data) => {
+            delete userdataLoads[userId];
             loadUserData(userId, data);
         });
 
@@ -73,6 +75,12 @@ editor.once('load', () => {
     const removeUser = function (userId: string) {
         if (userId === config.self.id) {
             return;
+        }
+
+        // drop a load still waiting on the server so a later add does not create a second camera
+        if (userdataLoads[userId]) {
+            userdataLoads[userId].unbind();
+            delete userdataLoads[userId];
         }
 
         // unsubscribe from realtime userdata
@@ -324,6 +332,17 @@ editor.once('load', () => {
         removeUser(userId);
         editor.unbind(`permissions:set:${userId}`);
     });
+
+    // loaded cameras unload themselves, but user data that never loaded would stay subscribed and
+    // sharedb would resubscribe it on reconnect before the scene loads, which the server rejects.
+    // rejoining the scene's room adds the users back
+    const removeUsers = () => {
+        for (const userId in userdata) {
+            removeUser(userId);
+        }
+    };
+    editor.on('realtime:disconnected', removeUsers);
+    editor.on('scene:unload', removeUsers);
 
     const vecA = new Vec3();
     const vecB = new Vec3();

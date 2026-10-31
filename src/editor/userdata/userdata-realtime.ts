@@ -41,8 +41,14 @@ editor.once('load', () => {
             editor.emit(`userdata:${userId}:raw`, data.data);
         });
 
-        // subscribe for realtime events
-        data.subscribe();
+        // subscribe for realtime events. the server rejects user data for a scene it has not loaded,
+        // and the relay can report who is online before our own scene doc loads, so wait for that
+        if (editor.call('realtime:scene')?.loaded) {
+            data.subscribe();
+        } else {
+            const evt = editor.once('scene:raw', () => data.subscribe());
+            data.once('destroy', () => evt.unbind());
+        }
 
         if (data.data) {
             editor.emit(`userdata:${userId}:raw`, data.data);
