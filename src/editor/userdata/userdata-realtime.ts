@@ -57,6 +57,18 @@ editor.once('load', () => {
         return data;
     });
 
+    // destroy user data when the connection drops. sharedb keeps a subscribe or op that was still in
+    // flight, resends it on reconnect before the scene has loaded, and only finishes the destroy after
+    // that, so take a doc with anything pending off the connection now
+    const destroyDisconnected = (data) => {
+        data.destroy();
+        if (data.hasPending()) {
+            data.connection._destroyDoc(data);
+        }
+    };
+
+    editor.method('realtime:userdata:destroy:disconnected', destroyDisconnected);
+
     // write userdata operations
     editor.method('realtime:userdata:op', (op: unknown) => {
         if (!editor.call('permissions:read') || !userData || !userData.type) {
@@ -80,7 +92,7 @@ editor.once('load', () => {
 
     editor.on('realtime:disconnected', () => {
         if (userData) {
-            userData.destroy();
+            destroyDisconnected(userData);
             userData = null;
         }
     });
