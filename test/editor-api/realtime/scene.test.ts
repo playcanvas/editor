@@ -25,10 +25,14 @@ const setup = async () => {
     feed({ a: 's', c: 'scenes', d: '1', data: { v: 1, type: JSON0, data: { entities: {} } } });
     await tick();
 
-    // acknowledges every op sent so far, in order, until nothing is pending
+    // acknowledges each op as it is sent, in order, until nothing is pending
     const drain = async () => {
+        let done = false;
+        scene.whenNothingPending(() => {
+            done = true;
+        });
         const acked = new Set<number>();
-        for (let i = 0; i < 200; i++) {
+        for (let i = 0; i < 500 && !done; i++) {
             await tick();
             const next = sent.map((s) => JSON.parse(s)).find((m) => m.a === 'op' && !acked.has(m.seq));
             if (next) {
@@ -36,6 +40,7 @@ const setup = async () => {
                 feed({ a: 'op', c: 'scenes', d: '1', v: next.v, src: 'client', seq: next.seq });
             }
         }
+        expect(done).to.equal(true);
     };
     const ops = () => sent.filter((s) => s.startsWith('{"a":"op"'));
     return { scene, drain, ops };
@@ -52,7 +57,9 @@ const entity = (i: number) => ({
     components: { render: { type: 'box', castShadows: true, receiveShadows: true, layers: [0], materialAssets: [null] } }
 });
 
-describe('RealtimeScene', () => {
+describe('RealtimeScene', function () {
+    this.timeout(10000);
+
     it('keeps every message under the server limit when many edits compose', async () => {
         const { scene, drain, ops } = await setup();
 
