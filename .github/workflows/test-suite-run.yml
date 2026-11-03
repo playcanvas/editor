@@ -19,7 +19,7 @@ jobs:
     test:
         name: Test Suite
         # playwright can't install chromium on ubuntu 26.04 yet, which ubuntu-latest now resolves to
-        runs-on: ubuntu-24.04
+        runs-on: ubuntu-26.04
         environment:
             name: ${{ inputs.env || 'dev' }}
         if: "${{ github.repository == 'playcanvas/editor' && ((github.event.label.name == 'run: test-suite' && github.actor == 'kpal81xd') || github.event_name == 'workflow_dispatch') }}"
