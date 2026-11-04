@@ -1,4 +1,5 @@
 import { backend } from '@/common/backend';
+import { runSandboxedWorker } from '@/common/sandbox-worker';
 import { buildQueryUrl } from '@/common/utils';
 import { SOURCE_MAP_URL } from '@/core/constants';
 import { WorkerClient } from '@/core/worker/worker-client';
@@ -207,71 +208,10 @@ editor.once('load', () => {
                     fetchText(postUrl(asset), backend().transport.fetch)
                 ]);
 
-                // allow scripts but omit allow-same-origin, so the sandbox runs on an opaque origin
-                const iframe = document.createElement('iframe');
-                iframe.setAttribute('sandbox', 'allow-scripts');
-                iframe.style.display = 'none';
-
-                // connect-src 'none' blocks exfil; script-src carries no host, so code can only
-                // load the blob: urls we build, never a remote collector
-                const nonce = genGUID();
-                const csp = `default-src 'none'; script-src 'nonce-${nonce}' 'unsafe-eval' blob:; worker-src blob:; connect-src 'none'`;
-
-                // spawn the parser worker from source text (never a url) and relay its result out; never
-                // revoke the worker url (webkit then blocks the worker's own blob importScripts), removing
-                // the iframe frees it
-                iframe.srcdoc = /* html */ `<!DOCTYPE html><html><head>
-<meta http-equiv="Content-Security-Policy" content="${csp}">
-</head><body><script nonce="${nonce}">
-onmessage = (e) => {
-    const { workerSource, engine, script, port } = e.data;
-    const url = URL.createObjectURL(new Blob([workerSource], { type: 'text/javascript' }));
-    // not revoked: on the opaque origin the worker loads the blob after new Worker() returns, and
-    // removing the iframe frees it
-    const worker = new Worker(url);
-    worker.onmessage = (ev) => { port.postMessage({ result: ev.data }); worker.terminate(); };
-    worker.onerror = (ev) => { port.postMessage({ error: ev.message || 'parse error' }); worker.terminate(); };
-    worker.postMessage({ engine, script });
-};
-</script></body></html>`;
-
-                const channel = new MessageChannel();
-                let settled = false;
-                const cleanup = () => {
-                    settled = true;
-                    channel.port1.close();
-                    iframe.remove();
-                };
-
-                const timer = setTimeout(() => {
-                    if (settled) {
-                        return;
-                    }
-                    cleanup();
-                    fail(new Error('Timed out while parsing a script'));
-                }, CLASSIC_PARSE_TIMEOUT);
-
-                channel.port1.onmessage = (evt) => {
-                    if (settled) {
-                        return;
-                    }
-                    clearTimeout(timer);
-                    cleanup();
-                    const { result, error } = evt.data;
-                    if (error) {
-                        fail(new Error(error));
-                        return;
-                    }
-                    handleParseResult(genGUID(), result, asset, callback, inEditor);
-                };
-
-                iframe.onload = () => {
-                    iframe.contentWindow?.postMessage({ workerSource, engine, script, port: channel.port2 }, '*', [
-                        channel.port2
-                    ]);
-                };
-
-                document.body.appendChild(iframe);
+                void runSandboxedWorker(workerSource, { engine, script }, CLASSIC_PARSE_TIMEOUT).then(
+                    (result) => handleParseResult(genGUID(), result, asset, callback, inEditor),
+                    fail
+                );
             } catch (err) {
                 fail(err);
             }
