@@ -34,105 +34,25 @@ self.pc = {
     }
 };
 
-function onReadyStateChange(
-    method: string,
-    url: string,
-    xhr: XMLHttpRequest,
-    success: () => void,
-    error: (methodOrErr: string | Error, url?: string, xhr?: XMLHttpRequest) => void
-) {
-    if (xhr.readyState === 4) {
-        switch (xhr.status) {
-            case 0: {
-                // Request didn't complete, possibly an exception or attempt to do cross-domain request
-                break;
-            }
-            case 200:
-            case 201:
-            case 206:
-            case 304: {
-                onSuccess(method, url, xhr, success, error);
-                break;
-            }
-            default: {
-                // options.error(xhr.status, xhr, null);
-                error(method, url, xhr);
-                break;
-            }
-        }
+// runs the script text it is posted and replies with the attributes it declared; it runs inside the
+// opaque-origin sandbox, so it never fetches anything itself
+onmessage = (event: MessageEvent) => {
+    const { script } = event.data ?? {};
+    if (typeof script !== 'string') {
+        return;
     }
-}
 
-function onSuccess(
-    method: string,
-    url: string,
-    xhr: XMLHttpRequest,
-    success: () => void,
-    error: (methodOrErr: string | Error, url?: string, xhr?: XMLHttpRequest) => void
-) {
-    const type = xhr.getResponseHeader('Content-Type');
-    if (type && (type.indexOf('application/javascript') >= 0 || type.indexOf('application/x-javascript') >= 0)) {
-        try {
-            const fn = new Function(xhr.responseText);
-            fn();
-            success();
-        } catch (e) {
-            error(e);
-        }
-    } else {
-        error(`Invalid type ${type}`);
+    try {
+        new Function(script)();
+        postMessage({
+            name: pc.script.name,
+            values: pc.script.attributes
+        });
+    } catch (e) {
+        postMessage({
+            error: `${e}`
+        });
     }
-}
 
-function request(
-    method: string,
-    url: string,
-    success: () => void,
-    error: (methodOrErr: string | Error, url?: string, xhr?: XMLHttpRequest) => void
-) {
-    const xhr = new XMLHttpRequest();
-
-    xhr.open(method, url, false);
-
-    xhr.onreadystatechange = function () {
-        onReadyStateChange(method, url, xhr, success, error);
-    };
-
-    xhr.onerror = function () {
-        error(method, url, xhr);
-    };
-
-    xhr.send();
-}
-
-onmessage = function (event: MessageEvent) {
-    const data = event.data;
-
-    if (data.url) {
-        const url =
-            data.url.indexOf('?') !== -1
-                ? `${data.url}&ts=${new Date().getTime()}`
-                : `${data.url}?ts=${new Date().getTime()}`;
-        request(
-            'GET',
-            url,
-            () => {
-                // success
-                postMessage({
-                    name: pc.script.name,
-                    values: pc.script.attributes
-                });
-
-                close();
-            },
-            (error) => {
-                // error
-                postMessage({
-                    error: error.toString()
-                });
-
-                close();
-            }
-        );
-    }
+    close();
 };

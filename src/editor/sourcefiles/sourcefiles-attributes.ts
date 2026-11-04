@@ -1,6 +1,12 @@
+import { runSandboxedWorker } from '@/common/sandbox-worker';
 import { createLog } from '@/common/sentry';
+import { SOURCE_MAP_URL } from '@/core/constants';
+
+import { isScanUrlAllowed } from './sourcefiles-scan-url';
 
 const log = createLog('<PATH>');
+
+const SCAN_TIMEOUT = 60000;
 
 type ScriptAttribute = {
     name: string;
@@ -558,36 +564,58 @@ editor.once('load', () => {
         return validated;
     };
 
-    // only allow scrpts from playcanvas, code.playcanvas.com and localhost:51000 to be parsed
-    const REGEX_ALLOWED = new RegExp(`^((http(s)?://)((code.playcanvas.com)|(localhost:51000)))|(${config.url.api})`);
+    let workerSource: Promise<string> | undefined;
 
     /**
-     * Starts a web worker which scans the specified URL
-     * for script attributes, then validates the result and passes it to
-     * the success callback
+     * Fetches a script from code.playcanvas.com, localhost:51000 or the api, runs it in the
+     * sandboxed scan worker to collect its script attributes, then validates the result and
+     * passes it to the success callback
      */
-    editor.method('sourcefiles:scan', (url, success) => {
-        if (!REGEX_ALLOWED.test(url)) {
+    editor.method('sourcefiles:scan', async (url, success) => {
+        if (!isScanUrlAllowed(url, new URL(config.url.api, location.href))) {
             success({});
             return;
         }
 
-        const worker = new Worker('/editor/scene/js/sourcefiles-scan.worker.js');
-        worker.postMessage({
-            url: url
-        });
-
-        worker.onmessage = function (e: MessageEvent) {
-            if (e.data) {
-                if (typeof e.data.error !== 'undefined') {
-                    editor.call('status:error', pc.string.format('Could not parse {0} - {1}', url, e.data.error));
-                } else {
-                    const result = validateScriptAttributes(url, e.data);
-                    if (result) {
-                        success(result);
-                    }
-                }
-            }
+        const fail = (err: unknown) => {
+            editor.call('status:error', pc.string.format('Could not parse {0} - {1}', url, err));
         };
+
+        try {
+            // the network-less sandbox can't load a source map, so drop the comment
+            workerSource ??= fetch(`${config.url.frontend}js/sourcefiles-scan.worker.js`)
+                .then((res) => res.text())
+                .then((t) => t.replace(SOURCE_MAP_URL, ''));
+
+            const res = await fetch(`${url}${url.includes('?') ? '&' : '?'}ts=${Date.now()}`);
+            const type = res.headers.get('Content-Type') ?? '';
+            if (!res.ok) {
+                fail(res.status);
+                return;
+            }
+            if (!type.includes('application/javascript') && !type.includes('application/x-javascript')) {
+                fail(`Invalid type ${type}`);
+                return;
+            }
+
+            const data = (await runSandboxedWorker(
+                await workerSource,
+                { script: await res.text() },
+                SCAN_TIMEOUT
+            )) as ScriptAttributesData & {
+                error?: string;
+            };
+            if (typeof data.error !== 'undefined') {
+                fail(data.error);
+                return;
+            }
+
+            const result = validateScriptAttributes(url, data);
+            if (result) {
+                success(result);
+            }
+        } catch (err) {
+            fail(err);
+        }
     });
 });
