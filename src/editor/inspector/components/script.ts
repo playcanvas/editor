@@ -16,7 +16,7 @@ import type { PanelArgs } from '@playcanvas/pcui';
 import { CLASS_ERROR, DEFAULTS } from '@/common/pcui/constants';
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import { tooltip, tooltipSimpleItem, TooltipHandle } from '@/common/tooltips';
-import { deepCopy } from '@/common/utils';
+import { deepCopy, escapeHtml } from '@/common/utils';
 import type { AssetObserver, EntityObserver, History, LocalStorage } from '@/editor-api';
 
 import { evaluate } from '../../scripting/expr-eval/evaluate';
@@ -861,7 +861,8 @@ class ScriptInspector extends Panel {
             tooltip: {
                 title: attributeName,
                 subTitle: this._getAttributeSubtitle(attributeData),
-                description: attributeData.description || ''
+                // the reference tooltip renders html, and this text comes from the script
+                description: escapeHtml(attributeData.description || '')
             },
             args: fieldArgs
         };

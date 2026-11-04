@@ -26,8 +26,7 @@ editor.once('load', () => {
     let hiddenTime = 0;
     const tooltip = new Label({
         class: 'cursor-tooltip',
-        hidden: true,
-        unsafe: true
+        hidden: true
     });
     editor.call('layout.root').append(tooltip);
 

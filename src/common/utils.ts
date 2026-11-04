@@ -298,6 +298,24 @@ export const fileNameDate = (): string => {
 };
 
 /**
+ * Escapes a string so it shows as text when put in HTML, including inside quoted attributes.
+ * @param str - The value to escape
+ * @returns The escaped string
+ */
+export const escapeHtml = (str: unknown) => {
+    return `${str ?? ''}`.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+};
+
+/**
+ * Tells whether a url is an absolute http(s) link, so it is safe to use as a link's href.
+ * @param url - The url to check
+ * @returns Whether it is an http(s) url
+ */
+export const isHttpUrl = (url: unknown) => {
+    return typeof url === 'string' && /^https?:\/\//i.test(url);
+};
+
+/**
  * Converts camel case to title case.
  * @param str - The string to convert
  * @returns The converted string

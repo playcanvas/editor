@@ -1,7 +1,7 @@
 import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
 import { Container, Button, Menu, BindingObserversToElement, Label } from '@playcanvas/pcui';
 
-import { bytesToHuman, convertDatetime } from '@/common/utils';
+import { bytesToHuman, convertDatetime, escapeHtml, isHttpUrl } from '@/common/utils';
 import { LOAD_SCRIPT_AS_ASSET, LOAD_SCRIPT_BEFORE_ENGINE, LOAD_SCRIPT_AFTER_ENGINE } from '@/core/constants';
 
 import { AnimationAssetInspector } from './assets/animation';
@@ -578,11 +578,19 @@ class AssetInspector extends Container {
         if (!licenseData) {
             return '<Error>';
         }
-        return `<a href="${licenseData.url}" target="_blank" rel="noopener noreferrer">${licenseData.name}</a>`;
+        return this._buildLinkHtml(licenseData.name, licenseData.url);
     }
 
     _buildAuthorHtml(author: string, authorUrl: string) {
-        return `<a href="${authorUrl}" target="_blank" rel="noopener noreferrer">${author}</a>`;
+        return this._buildLinkHtml(author, authorUrl);
+    }
+
+    // text and url come from the asset, so only http(s) urls become links
+    _buildLinkHtml(text: string, url: string) {
+        if (!isHttpUrl(url)) {
+            return escapeHtml(text);
+        }
+        return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(text)}</a>`;
     }
 
     async _updateLicense(path?: string) {
