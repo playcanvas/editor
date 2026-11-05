@@ -70,11 +70,11 @@ editor.once('load', () => {
     // a link may name the section; the view's default opens when it doesn't show that one
     const show = (name: keyof typeof VIEWS, option: string) => (project, section?: string) => {
         canOpen = name === 'reduced';
-        // its owner can change the thumbnail straight away
-        const owns = name === 'reduced' && project.access_level === 'admin' && project.owner_id === config.self.id;
+        // an admin can change the thumbnail straight away
+        const admin = name === 'reduced' && project.access_level === 'admin';
         editor.call('picker:project:open', project.id, config.self.id, section ?? option, {
             ...VIEWS[name],
-            thumbnails: owns ? 'shown' : undefined
+            thumbnails: admin ? 'shown' : undefined
         });
     };
     editor.method('picker:project:reduced', show('reduced', 'project-main'));

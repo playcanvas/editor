@@ -296,12 +296,7 @@ editor.once('load', () => {
     let currentSelection = null;
 
     projectImg.addEventListener('click', () => {
-        if (
-            !canWrite() ||
-            !leftPanel.enabled ||
-            currentProject.access_level !== 'admin' ||
-            currentProject.owner_id !== config.self.id
-        ) {
+        if (!canWrite() || !leftPanel.enabled || currentProject.access_level !== 'admin') {
             return;
         }
 
