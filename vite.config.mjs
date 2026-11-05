@@ -323,8 +323,8 @@ const PAGE_TARGETS = [
     },
     {
         ...shared,
-        entryPoints: ['src/editor/blank.ts'],
-        outfile: 'dist/js/editor-empty.js',
+        entryPoints: ['src/projects/index.ts'],
+        outfile: 'dist/js/projects.js',
         format: 'iife',
         plugins: pagePlugins,
         define: {
