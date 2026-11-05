@@ -3,11 +3,11 @@ import { Caller } from '@/common/caller';
 import type { EditorMethods } from '@/common/editor';
 import { Messenger as MessengerClient } from '@/common/messenger';
 import { setSentrySource, setSentryUser } from '@/common/sentry';
+import { config } from '@/editor/config';
 import { globals } from '@/editor-api/globals';
 import { Messenger } from '@/editor-api/messenger';
 import { Rest } from '@/editor-api/rest';
 
-import { config } from '../config';
 
 /**
  * The editor instance on the projects home page (/editor). It carries only the rest and messenger

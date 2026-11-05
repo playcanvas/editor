@@ -74,6 +74,7 @@ editor/
 │   ├── common/            # Shared utilities
 │   ├── core/              # Core editor systems
 │   ├── launch/            # Launch page functionality
+│   ├── projects/          # Projects page functionality
 │   └── plugins/           # Editor plugins
 ├── sass/                  # SCSS stylesheets
 │   ├── editor/            # Editor-specific styles
