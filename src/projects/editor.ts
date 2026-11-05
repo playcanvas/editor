@@ -8,7 +8,6 @@ import { globals } from '@/editor-api/globals';
 import { Messenger } from '@/editor-api/messenger';
 import { Rest } from '@/editor-api/rest';
 
-
 /**
  * The editor instance on the projects home page (/editor). It carries only the rest and messenger
  * apis the page uses, so none of the scene editor (realtime, assets, entities, the engine) loads here.
