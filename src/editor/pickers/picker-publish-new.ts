@@ -23,9 +23,9 @@ const log = createLog('<PATH>');
 const DOWNLOAD_FORMAT_STATIC = 'static';
 const DOWNLOAD_FORMAT_WEB_LENS = 'web_lens';
 const DOWNLOAD_FORMAT_NPM = 'npm';
+const DEFAULT_FORMAT = DOWNLOAD_FORMAT_NPM;
 
 editor.once('load', () => {
-    const DEFAULT_FORMAT = backend().staticDownloads ? DOWNLOAD_FORMAT_STATIC : DOWNLOAD_FORMAT_NPM;
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
     // holds tooltip targets for cleanup
@@ -400,9 +400,9 @@ editor.once('load', () => {
     containerDownloadOptions.append(labelDownloadOptions);
 
     const downloadFormatOptions = [
-        ...(backend().staticDownloads ? [{ t: 'Static Website', v: DOWNLOAD_FORMAT_STATIC }] : []),
-        ...(config.self.flags.superUser ? [{ t: 'Snapchat Web Lens', v: DOWNLOAD_FORMAT_WEB_LENS }] : []),
-        { t: 'NPM + Vite Project (WIP)', v: DOWNLOAD_FORMAT_NPM }
+        { t: 'NPM + Vite Project', v: DOWNLOAD_FORMAT_NPM },
+        ...(backend().staticDownloads ? [{ t: 'Static Website (Deprecated)', v: DOWNLOAD_FORMAT_STATIC }] : []),
+        ...(config.self.flags.superUser ? [{ t: 'Snapchat Web Lens', v: DOWNLOAD_FORMAT_WEB_LENS }] : [])
     ];
 
     fieldDownloadFormat = new SelectInput({
