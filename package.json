@@ -1,6 +1,6 @@
 {
     "name": "@playcanvas/editor",
-    "version": "2.35.17",
+    "version": "2.35.18",
     "description": "The PlayCanvas Editor Frontend",
     "keywords": [
         "editor",
