@@ -55,6 +55,10 @@ editor.once('load', () => {
     // mesh instances to the front and others to the back layer depending
     // on the __useFrontLayer property
     const addModelToLayers = function (this: Model) {
+        if (!this.meshInstances) {
+            return;
+        }
+
         const frontMeshInstances = this.meshInstances.filter((mi: MeshInstance) => {
             return mi.__useFrontLayer;
         });
