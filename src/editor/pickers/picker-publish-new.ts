@@ -401,7 +401,9 @@ editor.once('load', () => {
 
     const downloadFormatOptions = [
         ...(backend().staticDownloads ? [{ t: 'Static Website', v: DOWNLOAD_FORMAT_STATIC }] : []),
-        ...(config.self.flags.hasSnapchatWebLensDownload ? [{ t: 'Snapchat Web Lens', v: DOWNLOAD_FORMAT_WEB_LENS }] : []),
+        ...(config.self.flags.hasSnapchatWebLensDownload
+            ? [{ t: 'Snapchat Web Lens', v: DOWNLOAD_FORMAT_WEB_LENS }]
+            : []),
         { t: 'NPM + Vite Project (WIP)', v: DOWNLOAD_FORMAT_NPM }
     ];
 
