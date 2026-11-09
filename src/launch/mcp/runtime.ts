@@ -1,5 +1,7 @@
 import { mcp, PROTOCOL_VERSION } from '@/editor/mcp/connection';
 
+import { captureSize, captureToCss } from './capture';
+
 /**
  * MCP "runtime" peer for the launch page (ported from the former Chrome extension's
  * launch content script). Captures console output while an MCP session owns the page,
@@ -141,16 +143,8 @@ mcp.method(
                 app.off('frameend', onEnd);
                 try {
                     const canvas = device.canvas;
-                    const width = canvas.width;
-                    const height = canvas.height;
-
-                    const maxWidth = 800;
-                    let dstWidth = width;
-                    let dstHeight = height;
-                    if (width > maxWidth) {
-                        dstWidth = maxWidth;
-                        dstHeight = Math.round(height * (maxWidth / width));
-                    }
+                    const { width: dstWidth, height: dstHeight } = captureSize(canvas.width, canvas.height);
+                    const rect = canvas.getBoundingClientRect();
 
                     const dstCanvas = document.createElement('canvas');
                     dstCanvas.width = dstWidth;
@@ -165,6 +159,12 @@ mcp.method(
                             mimeType: 'image/webp',
                             width: dstWidth,
                             height: dstHeight,
+                            // input is dispatched in CSS pixels, which differ from the image's
+                            // whenever the device pixel ratio isn't 1 or the image was downscaled
+                            cssWidth: rect.width,
+                            cssHeight: rect.height,
+                            scaleX: dstWidth ? rect.width / dstWidth : 1,
+                            scaleY: dstHeight ? rect.height / dstHeight : 1,
                             deviceType: device.deviceType
                         }
                     });
@@ -464,6 +464,16 @@ mcp.method('runtime:input', async (payload: any = {}) => {
     }
     const betweenMs = Number.isFinite(payload.betweenMs) ? payload.betweenMs : 0;
 
+    // mouse/touch coordinates are CSS pixels from the canvas top-left, unless the caller
+    // read them off a capture_runtime image
+    const toCss = (ev: any) => {
+        if (payload.space !== 'capture') {
+            return { x: ev.x, y: ev.y };
+        }
+        const rect = canvas.getBoundingClientRect();
+        return captureToCss(ev.x || 0, ev.y || 0, captureSize(canvas.width, canvas.height), rect);
+    };
+
     let dispatched = 0;
     for (const ev of events) {
         if (ev.type === 'key') {
@@ -485,19 +495,21 @@ mcp.method('runtime:input', async (payload: any = {}) => {
                 dispatched++;
             }
         } else if (ev.type === 'mouse') {
+            const { x, y } = toCss(ev);
             if (ev.action === 'click') {
-                dispatchMouse('mousedown', canvas, ev.x, ev.y, ev.button);
-                dispatchMouse('mouseup', canvas, ev.x, ev.y, ev.button);
+                dispatchMouse('mousedown', canvas, x, y, ev.button);
+                dispatchMouse('mouseup', canvas, x, y, ev.button);
             } else {
-                dispatchMouse(`mouse${ev.action}`, canvas, ev.x, ev.y, ev.button);
+                dispatchMouse(`mouse${ev.action}`, canvas, x, y, ev.button);
             }
             dispatched++;
         } else if (ev.type === 'touch') {
+            const { x, y } = toCss(ev);
             if (ev.action === 'tap') {
-                dispatchTouch('touchstart', canvas, ev.x, ev.y, ev.id);
-                dispatchTouch('touchend', canvas, ev.x, ev.y, ev.id);
+                dispatchTouch('touchstart', canvas, x, y, ev.id);
+                dispatchTouch('touchend', canvas, x, y, ev.id);
             } else {
-                dispatchTouch(`touch${ev.action}`, canvas, ev.x, ev.y, ev.id);
+                dispatchTouch(`touch${ev.action}`, canvas, x, y, ev.id);
             }
             dispatched++;
         }
