@@ -7,6 +7,7 @@ import { TooltipHandle } from '@/common/tooltips';
 import { bytesToHuman, countToHuman } from '@/common/utils';
 import { PROJECTS_OPENED_KEY } from '@/core/constants';
 import { config } from '@/editor/config';
+import type { EditorBlankConfig } from '@/editor-api';
 
 import { inPlace, readUrl } from '../picker-url';
 
@@ -76,11 +77,22 @@ editor.once('load', () => {
 
     const orgs = () => rootUser?.organizations ?? [];
     const isOrg = (id) => orgs().some((org) => org.id === id);
+    // another user's projects, opened read-only from the page config; your sidebar, storage and recents stay yours
+    let profileOwner = null;
+    const isProfile = (id) => !!profileOwner && id === profileOwner.id;
+    // the main area shows one owner's projects: an organization's, or a profile's
+    const isOwnerView = (id) => isOrg(id) || isProfile(id);
+    // a signed-out visitor can only browse a profile: no account, recents, organizations or storage
+    const signedIn = !!config.self;
+    const selfId = config.self?.id;
     const userName = (user) => user.full_name || user.username;
     const avatarUrl = (id, size = 32) => `${config.url.api}/users/${id}/thumbnail?size=${size}`;
     const ownerName = (project) => {
-        if (project.owner_id === rootUser.id) {
+        if (project.owner_id === rootUser?.id) {
             return userName(rootUser);
+        }
+        if (isProfile(project.owner_id)) {
+            return userName(profileOwner);
         }
         const org = orgs().find((o) => o.id === project.owner_id);
 
@@ -91,7 +103,7 @@ editor.once('load', () => {
     const joined = (...parts) => parts.filter(Boolean).join(' · ');
     const isPending = (project) => project.new_owner_id != null || !!project.new_owner;
     // you, or an organization you're in, are being offered the project
-    const isRecipient = (project) => project.new_owner_id === config.self.id || isOrg(project.new_owner_id);
+    const isRecipient = (project) => project.new_owner_id === selfId || isOrg(project.new_owner_id);
     const blocked = (project) =>
         project.locked || project.access_level === 'none' || project.disabled || isPending(project);
     const rootProjects = () => projects[rootUser?.id] ?? [];
@@ -101,13 +113,13 @@ editor.once('load', () => {
             [rootUser?.id, ...orgs().map((o) => o.id)].flatMap((id) => projects[id] ?? []).map((p) => [p.id, p])
         ).values()
     ];
-    const listFor = (id) => (isOrg(id) ? projects[id] : rootProjects()) ?? [];
+    const listFor = (id) => (isOwnerView(id) ? projects[id] : rootProjects()) ?? [];
     const matchTab = (project, tab) => {
         switch (tab) {
             case 'mine':
-                return project.owner_id === config.self.id;
+                return project.owner_id === selfId;
             case 'shared':
-                return project.owner_id !== config.self.id;
+                return project.owner_id !== selfId;
             case 'private':
                 return project.private;
             case 'starred':
@@ -170,7 +182,8 @@ editor.once('load', () => {
         return list
             .filter(
                 (p) =>
-                    (isOrg(filter) || matchTab(p, filter)) && terms.every((t, i) => matchTerm(p, t) || fuzzy[i]?.has(p))
+                    (isOwnerView(filter) || matchTab(p, filter)) &&
+                    terms.every((t, i) => matchTerm(p, t) || fuzzy[i]?.has(p))
             )
             .sort(
                 (a, b) =>
@@ -268,7 +281,10 @@ editor.once('load', () => {
     const canStar = (project) => project.access_level !== 'none';
     // optimistic, so the count moves on click; a failed call puts it back
     const starToggle = (project, parent: Container, cls?) => {
-        const btn = new Button({ class: ['cms-star', ...[cls ?? []].flat()], enabled: !!backend().projectFollowing });
+        const btn = new Button({
+            class: ['cms-star', ...[cls ?? []].flat()],
+            enabled: signedIn && !!backend().projectFollowing
+        });
         // set while a request is in flight, so the star fills before the server replies
         let pending = null;
         const paint = () => {
@@ -397,19 +413,22 @@ editor.once('load', () => {
     };
     const canDelete = (project) => {
         return (
-            project.owner_id === config.self.id ||
-            editor.call('project:management:isOrgAdmin', project.owner_id, config.self)
+            signedIn &&
+            (project.owner_id === selfId || editor.call('project:management:isOrgAdmin', project.owner_id, config.self))
         );
     };
 
     // ACTIONS
 
-    // opens the existing project picker for a project, the same way the old grid did, on a linked section if any
+    // opens the existing project picker for a project, the same way the old grid did, on a linked section if any;
+    // signed out, the project's public page instead, since the picker needs an account
     const openProject = (project, section?: string) => {
         if (project.disabled) {
             return;
         }
-        if (project.locked) {
+        if (!signedIn) {
+            openPage((site) => site.project(project.id));
+        } else if (project.locked) {
             editor.call('picker:project:lockedView', project, section);
         } else if (project.access_level === 'none') {
             editor.call('picker:project:noAdmin', project, section);
@@ -572,7 +591,7 @@ editor.once('load', () => {
     pressable(storageCard.dom, 'Storage details', () => toggleStoragePopover());
 
     const meRow = box('cms-me', side);
-    const meAvatar = image(avatarUrl(config.self.id, 56), 'cms-me-avatar', meRow);
+    const meAvatar = image(signedIn ? avatarUrl(selfId, 56) : EMPTY_THUMBNAIL_IMAGE, 'cms-me-avatar', meRow);
     const meText = box('cms-me-text', meRow);
     const meName = text('', 'cms-me-name', meText);
     const mePlan = text('', 'cms-me-plan', meText);
@@ -600,6 +619,32 @@ editor.once('load', () => {
     topbarNew.dom.setAttribute('aria-label', 'New project');
     topbar.append(topbarNew);
     topbarNew.on('click', () => editor.call('picker:project:newProject'));
+
+    // signed out: an invitation where your storage and account would be, since starting a project, recents and
+    // organizations all need an account
+    if (!signedIn) {
+        [newProjectSideButton, importSideButton, projectsNav, sideScroll, storageCard, meRow, topbarNew].forEach(
+            (el) => (el.hidden = true)
+        );
+        const { login, signup } = (config as unknown as EditorBlankConfig).url;
+        const guest = box(['cms-storage', 'cms-guest'], side);
+        text('New to PlayCanvas?', 'cms-storage-title', guest);
+        text(
+            'Build 3D games and apps in your browser, edit together in real time and publish with one click.',
+            'cms-guest-text',
+            guest
+        );
+        const actions = box('cms-guest-actions', guest);
+        const signUp = button({ kind: 'primary', size: 'sm', text: 'Sign up' });
+        const logIn = button({ kind: 'secondary', size: 'sm', text: 'Log in' });
+        actions.append(signUp);
+        actions.append(logIn);
+        // the backend sends where its sign-up and log-in pages are; without one, its button stays hidden
+        signUp.hidden = !signup;
+        logIn.hidden = !login;
+        signUp.on('click', () => window.location.assign(signup));
+        logIn.on('click', () => window.location.assign(login));
+    }
 
     // tapping the scrim or anything in the drawer closes it
     panel.dom.addEventListener('click', (e) => {
@@ -792,9 +837,9 @@ editor.once('load', () => {
         menuEntry(rowMenu, 'cms-row-editor').enabled = !blocked(project);
         menuEntry(rowMenu, 'cms-row-launch').enabled = !!project.primary_app_url;
         menuEntry(rowMenu, 'cms-row-watch').text = project.watch_id ? 'Stop watching' : 'Watch';
-        menuEntry(rowMenu, 'cms-row-watch').hidden = !canStar(project);
+        menuEntry(rowMenu, 'cms-row-watch').hidden = !signedIn || !canStar(project);
         menuEntry(rowMenu, 'cms-row-watch').enabled = !!backend().projectFollowing;
-        menuEntry(rowMenu, 'cms-row-fork').hidden = blocked(project);
+        menuEntry(rowMenu, 'cms-row-fork').hidden = !signedIn || blocked(project);
 
         // forks finish as jobs
         menuEntry(rowMenu, 'cms-row-fork').enabled = !!(backend().projectCreation && backend().jobs);
@@ -911,6 +956,10 @@ editor.once('load', () => {
     // RENDER
 
     const renderUsage = () => {
+        // signed out there's no storage to show
+        if (!currentUser) {
+            return;
+        }
         toggleSpinner(storageCard, true);
         editor.call('users:getUsage', currentUser.id, (res) => {
             accountUsage = res;
@@ -937,7 +986,7 @@ editor.once('load', () => {
     };
 
     const renderSidebar = () => {
-        projectsNav.class[isOrg(filter) ? 'remove' : 'add']('active');
+        projectsNav.class[isOwnerView(filter) ? 'remove' : 'add']('active');
 
         recentsList.clear();
         if (loading && !rootProjects().length && !covered()) {
@@ -979,11 +1028,14 @@ editor.once('load', () => {
     const renderHead = () => {
         const org = orgs().find((o) => o.id === filter);
         orgMenuButton.hidden = !org;
-        sectionTitle.hidden = !!org;
+        sectionTitle.hidden = isOwnerView(filter);
 
         if (org) {
             title.text = userName(org);
             subtitle.text = `Organization · ${(projects[org.id] ?? []).length} projects`;
+        } else if (isProfile(filter)) {
+            title.text = userName(profileOwner);
+            subtitle.text = joined(profileOwner.username, `${(projects[profileOwner.id] ?? []).length} projects`);
         } else {
             // counts live on the tabs and storage on the sidebar card, so home gets a prompt. with no
             // accounts there's no one signed in to greet by name
@@ -997,7 +1049,7 @@ editor.once('load', () => {
         welcome.clear();
         const list = allProjects();
         if (loading && !list.length) {
-            welcome.hidden = isOrg(filter) || covered();
+            welcome.hidden = isOwnerView(filter) || covered();
             welcome.class.add('skeleton');
             bone('welcome-thumb', welcome);
             const info = box('cms-welcome-info', welcome);
@@ -1010,7 +1062,7 @@ editor.once('load', () => {
         }
         welcome.class.remove('skeleton');
         const lead = list.filter((p) => !blocked(p)).sort(byRecent())[0];
-        welcome.hidden = !lead || isOrg(filter);
+        welcome.hidden = !lead || isOwnerView(filter);
         if (!lead) {
             return;
         }
@@ -1075,7 +1127,7 @@ editor.once('load', () => {
     };
 
     const renderTools = () => {
-        const org = isOrg(filter);
+        const org = isOwnerView(filter);
         tabs.hidden = org;
         tabButtons.forEach(([id, tab, count]) => {
             count.textContent = waiting() ? '' : `${rootProjects().filter((p) => matchTab(p, id)).length}`;
@@ -1098,8 +1150,8 @@ editor.once('load', () => {
         if (project.private) {
             text('Private', 'cms-badge', tags);
         }
-        // editing a shared project is the norm, so only flag the exception
-        if (project.owner_id !== config.self.id && project.access_level === 'read') {
+        // editing a shared project is the norm, so only flag the exception; on a profile, read only is the norm
+        if (project.owner_id !== selfId && project.access_level === 'read' && !isProfile(filter)) {
             text('Read only', ['cms-badge', 'info'], tags);
         }
         const pending = isPending(project);
@@ -1317,14 +1369,15 @@ editor.once('load', () => {
     observer.observe(more.dom);
 
     const refresh = () => {
-        if (!rootUser) {
+        // nothing to show until you, or signed out a profile, has loaded
+        if (!rootUser && !profileOwner) {
             return;
         }
         renderSidebar();
 
         // nothing to browse yet: the greeting and actions take the centre, like claude code's start screen;
         // otherwise the sidebar's new project and import cover it
-        const start = !loading && !isOrg(filter) && !rootProjects().length;
+        const start = !loading && !isOwnerView(filter) && !rootProjects().length;
         rightPanel.class[start ? 'add' : 'remove']('start');
         headerUtils.hidden = !start;
         renderHead();
@@ -1385,8 +1438,8 @@ editor.once('load', () => {
     const importDisabled = () => {
         return !(
             importable &&
-            (currentUser.id === config.self.id ||
-                editor.call('project:management:isOrgAdmin', currentUser.id, config.self))
+            signedIn &&
+            (currentUser.id === selfId || editor.call('project:management:isOrgAdmin', currentUser.id, config.self))
         );
     };
 
@@ -1398,20 +1451,19 @@ editor.once('load', () => {
         editor.call('progress:card:import', files[0], editor.call('picker:project:cms:currentUser'));
     };
 
-    // loads your projects and each organization's into the CMS main panel
+    // loads your projects, each organization's and an open profile's into the CMS main panel
     const loadProjects = () => {
         // only the first load shows skeletons; a reload swaps the list in place, keeping how far you'd scrolled
-        const reload = rootUser.id in projects;
+        const reload = (rootUser ?? profileOwner).id in projects;
         if (!reload) {
             toggleProgress(true);
         }
-        const owners = [rootUser, ...orgs()];
+        // signed out there's no you or organizations to load, only the profile
+        const owners = [...(rootUser ? [rootUser, ...orgs()] : []), ...(profileOwner ? [profileOwner] : [])];
         const promises = owners.map((owner) => {
-            return editor.call(
-                'projects:list',
-                owner.id,
-                editor.call('project:management:showOwnerView', owner) ? 'profile' : null
-            );
+            // a profile lists what the projects api lets you see of someone else's projects
+            const ownView = owner !== profileOwner && editor.call('project:management:showOwnerView', owner);
+            return editor.call('projects:list', owner.id, ownView ? 'profile' : null);
         });
 
         Promise.all(promises).then((values) => {
@@ -1517,14 +1569,42 @@ editor.once('load', () => {
             renderSkeleton();
             overlay.hidden = false;
         }
-        editor.call('users:loadOne', config.self.id, (user) => {
-            rootUser = user;
-            currentUser = rootUser;
-            filter = 'all';
+        const show = () => {
             refresh();
             loadProjects();
             renderUsage();
             overlay.hidden = false;
+        };
+        const visit = (config as unknown as EditorBlankConfig).profileOwner;
+        const openProfile = () => {
+            editor.call('users:loadOne', visit.id, (owner) => {
+                profileOwner = owner;
+                filter = owner.id;
+                show();
+            });
+        };
+
+        // signed out, a profile is the only thing to show
+        if (!signedIn) {
+            if (visit) {
+                openProfile();
+            }
+            return;
+        }
+        editor.call('users:loadOne', selfId, (user) => {
+            rootUser = user;
+            currentUser = rootUser;
+            filter = 'all';
+
+            // a profile opens on that owner's projects; your own, or one of your organizations', opens as usual
+            if (!visit || visit.id === user.id) {
+                show();
+            } else if (isOrg(visit.id)) {
+                show();
+                setFilter(visit.id);
+            } else {
+                openProfile();
+            }
         });
     });
 
