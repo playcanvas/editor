@@ -45,6 +45,25 @@ const PROMPTS = [
 const PROMPT = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
 // access you have to someone else's project; admin needs no badge, it's the default on yours and your orgs'
 const QUALIFIERS = ['name:', 'owner:', 'desc:', 'is:private', 'is:public', 'is:starred', 'is:locked'];
+// a profile's links, in order, with the old profile page's icons
+const SOCIAL_LINKS = {
+    website: {
+        label: 'Website',
+        icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12h18M12 3c2.2 2.2 3.5 5.29 3.5 9S14.2 18.8 12 21c-2.2-2.2-3.5-5.29-3.5-9S9.8 5.2 12 3Zm0 0a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    },
+    x: {
+        label: 'X',
+        icon: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>'
+    },
+    linkedin: {
+        label: 'LinkedIn',
+        icon: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>'
+    },
+    youtube: {
+        label: 'YouTube',
+        icon: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.499 6.203a3 3 0 0 0-2.11-2.12C19.523 3.5 12 3.5 12 3.5s-7.523 0-9.389.583a3 3 0 0 0-2.11 2.12A31.123 31.123 0 0 0 0 12a31.123 31.123 0 0 0 .501 5.797 3 3 0 0 0 2.11 2.12C4.477 20.5 12 20.5 12 20.5s7.523 0 9.389-.583a3 3 0 0 0 2.11-2.12A31.123 31.123 0 0 0 24 12a31.123 31.123 0 0 0-.501-5.797ZM9.75 15.568V8.432L16.023 12 9.75 15.568Z"/></svg>'
+    }
+};
 const EMPTY_THUMBNAIL_IMAGE = `${config.url.frontend}static/img/blank-project.webp`;
 const SIDE_KEY = 'editor:cms:sidebar:width';
 const SIDE_DEFAULT_W = 248;
@@ -421,13 +440,13 @@ editor.once('load', () => {
     // ACTIONS
 
     // opens the existing project picker for a project, the same way the old grid did, on a linked section if any;
-    // signed out, the project's public page instead, since the picker needs an account
+    // signed out, only its read-only settings
     const openProject = (project, section?: string) => {
         if (project.disabled) {
             return;
         }
         if (!signedIn) {
-            openPage((site) => site.project(project.id));
+            editor.call('picker:project:guest', project, section);
         } else if (project.locked) {
             editor.call('picker:project:lockedView', project, section);
         } else if (project.access_level === 'none') {
@@ -660,9 +679,18 @@ editor.once('load', () => {
 
     // header
     const head = box('cms-head', rightPanel);
+
+    // an owner's page leads with their avatar, or the organization's logo
+    const headAvatar = image(EMPTY_THUMBNAIL_IMAGE, 'cms-head-avatar', head);
+    headAvatar.hidden = true;
     const headText = box('cms-head-text', head);
-    const title = text('', 'cms-title', headText);
+    const headName = box('cms-head-name', headText);
+    const title = text('', 'cms-title', headName);
+    const headPlan = text('', ['cms-badge', 'plan'], headName);
+    headPlan.hidden = true;
     const subtitle = text('', 'cms-subtitle', headText);
+    const headLinks = box('cms-head-links', head);
+    headLinks.hidden = true;
 
     // the bar names the page, but not the greeting
     title.on('change', (t: string) => {
@@ -700,7 +728,7 @@ editor.once('load', () => {
     });
 
     const welcome = box('cms-welcome', rightPanel);
-    const sectionTitle = text('Projects', 'cms-heading', rightPanel);
+    text('Projects', 'cms-heading', rightPanel);
 
     // search, filter hints, tabs, sort and layout stay pinned while the list scrolls
     const toolbar = box('cms-toolbar', rightPanel);
@@ -1028,14 +1056,52 @@ editor.once('load', () => {
     const renderHead = () => {
         const org = orgs().find((o) => o.id === filter);
         orgMenuButton.hidden = !org;
-        sectionTitle.hidden = isOwnerView(filter);
+        headAvatar.hidden = !isOwnerView(filter);
+        head.class[isOwnerView(filter) ? 'add' : 'remove']('owner');
+
+        // free is the default, so only paid plans get a badge
+        const plan = org ? 'organization' : isProfile(filter) ? profileOwner.plan_type : null;
+        headPlan.hidden = !plan || plan === 'free';
+        headPlan.text = plan ?? '';
+
+        // only web links: the urls are the owner's own input
+        headLinks.clear();
+        const links = (isProfile(filter) ? (profileOwner.social_profiles ?? []) : []).filter(
+            (link) => SOCIAL_LINKS[link?.provider] && /^https?:\/\//.test(link?.url ?? '')
+        );
+        for (const link of links) {
+            const { label, icon } = SOCIAL_LINKS[link.provider];
+            const a = new Element({ dom: 'a', class: 'cms-head-link' });
+            const dom = a.dom as HTMLAnchorElement;
+            dom.href = link.url;
+            dom.target = '_blank';
+            dom.rel = 'noopener noreferrer nofollow ugc';
+            dom.title = label;
+            dom.setAttribute('aria-label', label);
+            dom.innerHTML = icon;
+            headLinks.append(a);
+        }
+        headLinks.hidden = !links.length;
+        if (isOwnerView(filter)) {
+            (headAvatar.dom as HTMLImageElement).src = avatarUrl(filter, 128);
+        }
 
         if (org) {
             title.text = userName(org);
-            subtitle.text = `Organization · ${(projects[org.id] ?? []).length} projects`;
+            subtitle.text = joined(org.username, `${(projects[org.id] ?? []).length} projects`);
         } else if (isProfile(filter)) {
             title.text = userName(profileOwner);
-            subtitle.text = joined(profileOwner.username, `${(projects[profileOwner.id] ?? []).length} projects`);
+            const since = profileOwner.created_at
+                ? `Joined ${new Date(profileOwner.created_at).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}`
+                : '';
+            // skills are stored as lowercase keys
+            const skills = (profileOwner.skills ?? []).map((k) => k.charAt(0).toUpperCase() + k.slice(1)).join(' / ');
+            subtitle.text = joined(
+                profileOwner.username,
+                since,
+                `${(projects[profileOwner.id] ?? []).length} projects`,
+                skills
+            );
         } else {
             // counts live on the tabs and storage on the sidebar card, so home gets a prompt. with no
             // accounts there's no one signed in to greet by name
@@ -1461,8 +1527,11 @@ editor.once('load', () => {
         // signed out there's no you or organizations to load, only the profile
         const owners = [...(rootUser ? [rootUser, ...orgs()] : []), ...(profileOwner ? [profileOwner] : [])];
         const promises = owners.map((owner) => {
-            // a profile lists what the projects api lets you see of someone else's projects
-            const ownView = owner !== profileOwner && editor.call('project:management:showOwnerView', owner);
+            // a profile lists only the owner's public projects, even to members who could see more
+            if (owner === profileOwner) {
+                return editor.call('projects:list', owner.id, 'public');
+            }
+            const ownView = editor.call('project:management:showOwnerView', owner);
             return editor.call('projects:list', owner.id, ownView ? 'profile' : null);
         });
 
