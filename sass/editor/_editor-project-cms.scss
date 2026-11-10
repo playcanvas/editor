@@ -313,6 +313,29 @@
         color: $text-active;
     }
 
+    // signed out: the storage card's look, holding an invitation instead
+    // pinned to the bottom, where the storage card and account row are when you're signed in
+    .cms-storage.cms-guest {
+        gap: 8px;
+        margin-top: auto;
+        cursor: default;
+    }
+
+    .cms-guest-text {
+        line-height: 1.45;
+        white-space: normal;
+    }
+
+    .cms-guest-actions {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+
+        > .pm-button {
+            flex: 1;
+        }
+    }
+
     .cms-me {
         display: flex;
         flex-direction: row;

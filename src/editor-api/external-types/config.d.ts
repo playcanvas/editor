@@ -145,7 +145,8 @@ type WasmModule = {
 
 export type EditorBlankConfig = {
     version: string;
-    self: {
+    /** The signed-in user; absent for a signed-out visitor browsing a profile. */
+    self?: {
         id: number;
         username: string;
         flags: Record<string, any>;
@@ -164,6 +165,10 @@ export type EditorBlankConfig = {
         howdoi: string;
         static: string;
         images: string;
+        /** The site's log-in page, for a signed-out visitor. */
+        login?: string;
+        /** The site's sign-up page, for a signed-out visitor. */
+        signup?: string;
     };
     schema: ModelSchema;
     engineVersions: EngineVersions;
@@ -173,6 +178,13 @@ export type EditorBlankConfig = {
     /** Backend services the page's backend does not provide; absent means it provides them all. */
     unsupported?: string[];
     wasmModules: WasmModule[];
+    /**
+     * Another user whose projects the page opens on, read-only. Absent shows your own projects.
+     */
+    profileOwner?: {
+        id: number;
+        username: string;
+    };
 };
 
 export type EditorConfig = {
