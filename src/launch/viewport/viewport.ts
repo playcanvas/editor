@@ -380,15 +380,25 @@ editor.once('load', () => {
         if (major === 2 && minor < 24) {
             app.systems.camera?.on('add', (entity: Entity, camera: CameraComponent) => {
                 if (camera.toneMapping > 6) {
-                    console.warn(`${entity.name}: AgX tonemapping needs Engine 2.24 or later (running ${pc.version}), using Neutral`);
+                    console.warn(
+                        `${entity.name}: AgX tonemapping needs Engine 2.24 or later (running ${pc.version}), using Neutral`
+                    );
                     camera.toneMapping = 5;
                 }
             });
         }
 
-        if (queryParams.inspector) {
+        // the profiler is the inspector's Performance tab, recording from the first frame;
+        // `profiler` from engine 2.25, which has no profiler build for `profile` to load
+        const profile = queryParams.profile === 'true' || queryParams.profiler === 'true';
+        if (queryParams.inspector || profile) {
             if (major > 2 || (major === 2 && minor >= 23)) {
-                new Inspector(app);
+                const inspector = new Inspector(app, { record: profile });
+
+                // the inspector has no option to open a tab yet
+                if (profile) {
+                    (inspector as any)._setTab?.('perf');
+                }
             } else {
                 console.warn(`The Inspector requires Engine 2.23 or later (running ${pc.version})`);
             }
