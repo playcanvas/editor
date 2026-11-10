@@ -248,7 +248,7 @@ editor.once('load', () => {
     const optionProfiler = createOption('profiler', 'Profiler');
     const tooltipProfiler = TooltipHandle.attach({
         target: optionProfiler.parent.dom,
-        text: 'Enable the visual performance profiler in the launch page.',
+        text: 'Open the Inspector on its Performance tab, recording from the start of the application. Requires Engine 2.23 or later.',
         align: 'right',
         root: root
     });

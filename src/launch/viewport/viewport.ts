@@ -373,10 +373,17 @@ editor.once('load', () => {
             const miniStats = new (pc.MiniStats ? pc.MiniStats : pcx.MiniStats)(app);
         }
 
-        if (queryParams.inspector) {
+        // the profiler is the inspector's Performance tab, recording from the first frame
+        const profile = queryParams.profile === 'true';
+        if (queryParams.inspector || profile) {
             const [major, minor] = pc.version.split('.').map(Number);
             if (major > 2 || (major === 2 && minor >= 23)) {
-                new Inspector(app);
+                const inspector = new Inspector(app, { record: profile });
+
+                // the inspector has no option to open a tab yet
+                if (profile) {
+                    (inspector as any)._setTab?.('perf');
+                }
             } else {
                 console.warn(`The Inspector requires Engine 2.23 or later (running ${pc.version})`);
             }
