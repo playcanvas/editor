@@ -132,7 +132,13 @@ editor.once('load', () => {
             [rootUser?.id, ...orgs().map((o) => o.id)].flatMap((id) => projects[id] ?? []).map((p) => [p.id, p])
         ).values()
     ];
-    const listFor = (id) => (isOwnerView(id) ? projects[id] : rootProjects()) ?? [];
+    // your own profile is what you own; what's shared with you stays on Projects
+    const listFor = (id) =>
+        (id === selfId && isProfile(id)
+            ? rootProjects().filter((p) => p.owner_id === selfId)
+            : isOwnerView(id)
+              ? projects[id]
+              : rootProjects()) ?? [];
     const matchTab = (project, tab) => {
         switch (tab) {
             case 'mine':
@@ -617,10 +623,16 @@ editor.once('load', () => {
     const accountButton = button({ kind: 'icon', label: 'Account menu', class: 'cms-kebab' });
     meRow.append(accountButton);
     const openAccount = () => openPage((site) => site.account());
-    // the avatar only opens account settings where the backend has the page
-    if (pages) {
-        meAvatar.on('click', openAccount);
-        pressable(meAvatar.dom, 'Account settings', openAccount);
+
+    // your profile is the same page others see, so it's a page load like theirs
+    const openOwnProfile = () => {
+        if (rootUser) {
+            window.location.assign(`${config.url.home}/user/${encodeURIComponent(rootUser.username)}`);
+        }
+    };
+    if (signedIn) {
+        meAvatar.on('click', openOwnProfile);
+        pressable(meAvatar.dom, 'Your profile', openOwnProfile);
     }
 
     // MAIN PANEL
@@ -691,6 +703,11 @@ editor.once('load', () => {
     const subtitle = text('', 'cms-subtitle', headText);
     const headLinks = box('cms-head-links', head);
     headLinks.hidden = true;
+
+    // your own profile is edited in account settings
+    const editProfile = button({ kind: 'secondary', icon: 'E130', text: 'Edit profile', hidden: true });
+    head.append(editProfile);
+    editProfile.on('click', openAccount);
 
     // the bar names the page, but not the greeting
     title.on('change', (t: string) => {
@@ -903,6 +920,7 @@ editor.once('load', () => {
     });
 
     const accountMenu = addMenu('picker-builds-menu', [
+        menuItem('cms-account-profile', 'Your profile', openOwnProfile),
         { ...menuItem('cms-account-settings', 'Account settings', openAccount), onIsEnabled: () => pages },
         {
             ...menuItem('cms-account-upgrade', 'Upgrade plan', () =>
@@ -1082,6 +1100,7 @@ editor.once('load', () => {
             headLinks.append(a);
         }
         headLinks.hidden = !links.length;
+        editProfile.hidden = !pages || !isProfile(filter) || profileOwner.id !== selfId;
         if (isOwnerView(filter)) {
             (headAvatar.dom as HTMLImageElement).src = avatarUrl(filter, 128);
         }
@@ -1096,12 +1115,7 @@ editor.once('load', () => {
                 : '';
             // skills are stored as lowercase keys
             const skills = (profileOwner.skills ?? []).map((k) => k.charAt(0).toUpperCase() + k.slice(1)).join(' / ');
-            subtitle.text = joined(
-                profileOwner.username,
-                since,
-                `${(projects[profileOwner.id] ?? []).length} projects`,
-                skills
-            );
+            subtitle.text = joined(profileOwner.username, since, `${listFor(profileOwner.id).length} projects`, skills);
         } else {
             // counts live on the tabs and storage on the sidebar card, so home gets a prompt. with no
             // accounts there's no one signed in to greet by name
@@ -1525,7 +1539,8 @@ editor.once('load', () => {
             toggleProgress(true);
         }
         // signed out there's no you or organizations to load, only the profile
-        const owners = [...(rootUser ? [rootUser, ...orgs()] : []), ...(profileOwner ? [profileOwner] : [])];
+        const visitor = profileOwner && profileOwner !== rootUser;
+        const owners = [...(rootUser ? [rootUser, ...orgs()] : []), ...(visitor ? [profileOwner] : [])];
         const promises = owners.map((owner) => {
             // a profile lists only the owner's public projects, even to members who could see more
             if (owner === profileOwner) {
@@ -1665,8 +1680,12 @@ editor.once('load', () => {
             currentUser = rootUser;
             filter = 'all';
 
-            // a profile opens on that owner's projects; your own, or one of your organizations', opens as usual
-            if (!visit || visit.id === user.id) {
+            // a profile opens on that owner's projects, your own included; an organization's opens as usual
+            if (!visit) {
+                show();
+            } else if (visit.id === user.id) {
+                profileOwner = user;
+                filter = user.id;
                 show();
             } else if (isOrg(visit.id)) {
                 show();
