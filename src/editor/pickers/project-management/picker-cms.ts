@@ -739,8 +739,8 @@ editor.once('load', () => {
     });
     const profileOrgs = box('cms-profile-orgs', profileName);
     const profileUser = text('', 'cms-subtitle', about);
-    const skillChips = box('cms-chips', about);
     const profileMetas = box('cms-profile-metas', about);
+    const skillChips = box('cms-chips', about);
     const totals = box('cms-profile-totals', profileInfo);
     let orgTips = [];
     profile.hidden = profileNote.hidden = true;
