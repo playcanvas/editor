@@ -72,7 +72,8 @@ describe('picker url', () => {
             project: null,
             section: null,
             build: null,
-            open: false
+            open: false,
+            user: null
         });
         expect(readUrl('https://playcanvas.com/editor?new&here')).to.deep.include({ new: true, here: true });
         expect(readUrl('https://playcanvas.com/editor?project=42&tab=vc')).to.deep.include({
@@ -85,6 +86,10 @@ describe('picker url', () => {
             section: 'build-detail',
             build: 'job-9'
         });
+    });
+
+    it('reads the user whose page opens', () => {
+        expect(readUrl('https://playcanvas.com/editor?user=some-one')).to.deep.include({ user: 'some-one' });
     });
 
     it('reads bad project ids and unknown sections as none, still open for a named section', () => {
