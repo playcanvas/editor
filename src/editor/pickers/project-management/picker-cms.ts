@@ -637,8 +637,10 @@ editor.once('load', () => {
     pressable(storageCard.dom, 'Storage details', () => toggleStoragePopover());
 
     const meRow = box('cms-me', side);
-    const meAvatar = image(signedIn ? avatarUrl(selfId, 56) : EMPTY_THUMBNAIL_IMAGE, 'cms-me-avatar', meRow);
-    const meText = box('cms-me-text', meRow);
+    // avatar, name and username: one button to your profile, filled like the sidebar's nav while it's open
+    const meId = box('cms-me-id', meRow);
+    image(signedIn ? avatarUrl(selfId, 56) : EMPTY_THUMBNAIL_IMAGE, 'cms-me-avatar', meId);
+    const meText = box('cms-me-text', meId);
     const meName = text('', 'cms-me-name', meText);
     const mePlan = text('', 'cms-me-plan', meText);
     const accountButton = button({ kind: 'icon', label: 'Account menu', class: 'cms-kebab' });
@@ -652,8 +654,8 @@ editor.once('load', () => {
         }
     };
     if (signedIn) {
-        meAvatar.on('click', openOwnProfile);
-        pressable(meAvatar.dom, 'Your profile', openOwnProfile);
+        meId.on('click', openOwnProfile);
+        pressable(meId.dom, 'Your profile', openOwnProfile);
     }
 
     // MAIN PANEL
@@ -1078,7 +1080,7 @@ editor.once('load', () => {
 
     const renderSidebar = () => {
         projectsNav.class[isOwnerView(filter) ? 'remove' : 'add']('active');
-        meAvatar.class[isProfile(filter) && profileOwner.id === selfId ? 'add' : 'remove']('active');
+        meId.class[isProfile(filter) && profileOwner.id === selfId ? 'add' : 'remove']('active');
 
         recentsList.clear();
         if (loading && !rootProjects().length && !covered()) {
