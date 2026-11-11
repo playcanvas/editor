@@ -725,7 +725,12 @@ editor.once('load', () => {
     const profileTitle = text('', 'cms-title', profileName);
     const planIcon = new Element({ dom: 'span', class: 'cms-profile-plan' });
     profileName.append(planIcon);
-    const planTip = TooltipHandle.attach({ root: overlay.dom, target: planIcon.dom, align: 'bottom', class: 'cms-tip' });
+    const planTip = TooltipHandle.attach({
+        root: overlay.dom,
+        target: planIcon.dom,
+        align: 'bottom',
+        class: 'cms-tip'
+    });
     const profileOrgs = box('cms-profile-orgs', profileName);
     const profileUser = text('', 'cms-subtitle', about);
     const skillChips = box('cms-chips', about);
@@ -1114,7 +1119,9 @@ editor.once('load', () => {
     const renderProfile = () => {
         const owner = profileOwner;
         editProfile.hidden = !pages || owner.id !== selfId;
-        (bannerArt.dom as HTMLImageElement).src = (profileAvatar.dom as HTMLImageElement).src = avatarUrl(owner.id, 256);
+        const art = avatarUrl(owner.id, 256);
+        (bannerArt.dom as HTMLImageElement).src = art;
+        (profileAvatar.dom as HTMLImageElement).src = art;
         profileTitle.text = userName(owner);
         profileUser.text = owner.username;
 
@@ -1163,7 +1170,9 @@ editor.once('load', () => {
 
             // a handle reads better than its url on x
             const shown =
-                link.provider === 'x' && path ? `@${path.split('/').pop()}` : `${url.hostname.replace(/^www\./, '')}${path}`;
+                link.provider === 'x' && path
+                    ? `@${path.split('/').pop()}`
+                    : `${url.hostname.replace(/^www\./, '')}${path}`;
             const a = new Container({ dom: 'a', class: 'cms-profile-link' });
             const dom = a.dom as HTMLAnchorElement;
             dom.href = link.url;
