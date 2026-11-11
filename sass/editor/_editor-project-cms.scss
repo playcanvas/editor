@@ -537,6 +537,220 @@
         font-size: 14px;
     }
 
+    // a profile: a banner from the avatar, then who they are beside their public totals, like a social profile
+    .cms-profile-note {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+        color: $text-meta;
+        font-size: 13px;
+        white-space: normal;
+
+        &::before {
+            content: '\E117';
+            font-family: pc-icon;
+        }
+    }
+
+    .cms-profile {
+        margin-bottom: 28px;
+        overflow: hidden;
+        border: 1px solid $cms-edge;
+        border-radius: 8px;
+        background-color: $cms-surface;
+    }
+
+    // the avatar, blurred, so every profile gets a banner of its own colours
+    .cms-profile-banner {
+        position: relative;
+        height: 150px;
+        overflow: hidden;
+        background-color: $bcg-darkest;
+
+        > img {
+            position: absolute;
+            inset: -40px;
+            width: calc(100% + 80px);
+            height: calc(100% + 80px);
+            object-fit: cover;
+            filter: blur(36px) saturate(0.9);
+            opacity: 0.35;
+        }
+    }
+
+    .cms-profile-bar {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 0 24px;
+
+        > .pcui-button {
+            margin: 16px 0 0;
+        }
+    }
+
+    // overlaps the banner, ringed in the panel's colour
+    .cms-profile-avatar {
+        position: relative;
+        z-index: 1;
+        width: 120px;
+        height: 120px;
+        margin-top: -64px;
+        border: 4px solid $cms-surface;
+        border-radius: 12px;
+        box-sizing: content-box;
+        background-color: $bcg-darkest;
+        object-fit: cover;
+    }
+
+    .cms-profile-info {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 16px 40px;
+        padding: 14px 24px 22px;
+    }
+
+    .cms-profile-about {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        min-width: 0;
+
+        > .cms-subtitle {
+            margin-top: -12px;
+        }
+    }
+
+    .cms-profile-name {
+        display: flex;
+        flex-flow: row wrap;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .cms-profile-plan,
+    .cms-profile-org {
+        display: inline-flex;
+        flex: none;
+        width: 22px;
+        height: 22px;
+        margin-top: 2px;
+
+        > svg,
+        > img {
+            width: 22px;
+            height: 22px;
+        }
+
+        > img {
+            border-radius: 5px;
+            object-fit: cover;
+        }
+    }
+
+    .cms-profile-orgs {
+        display: inline-flex;
+        flex-direction: row;
+        gap: 6px;
+    }
+
+    .cms-chips {
+        display: flex;
+        flex-flow: row wrap;
+        gap: 6px;
+    }
+
+    .cms-chip {
+        display: inline-flex;
+        align-items: center;
+        height: 24px;
+        padding: 0 10px;
+        border: 1px solid $cms-edge;
+        border-radius: 12px;
+        background-color: $bcg-darker;
+        color: $text-secondary;
+        font-size: 12px;
+    }
+
+    .cms-profile-metas {
+        display: flex;
+        flex-flow: row wrap;
+        align-items: center;
+        gap: 8px 20px;
+        color: $text-meta;
+        font-size: 14px;
+
+        &:empty {
+            display: none;
+        }
+
+        > * {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 0;
+            color: inherit;
+            text-decoration: none;
+        }
+
+        svg {
+            flex: none;
+            width: 15px;
+            height: 15px;
+        }
+    }
+
+    .cms-profile-link > .pcui-label {
+        overflow: hidden;
+        color: $text-active;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .cms-profile-link:hover > .pcui-label {
+        text-decoration: underline;
+    }
+
+    .cms-profile-totals {
+        display: flex;
+        flex-direction: row;
+        align-self: end;
+        gap: 36px;
+    }
+
+    .cms-profile-total {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 2px;
+        color: $text-meta;
+        font-size: 12px;
+    }
+
+    .cms-profile-count {
+        min-height: 26px;
+        color: $text-primary;
+        font-size: 22px;
+        line-height: 26px;
+        font-variant-numeric: tabular-nums;
+
+        @extend %font-bold;
+    }
+
+    // the plan's and organizations' names, in the accent
+    .cms-tip b {
+        color: $text-active;
+        font-weight: normal;
+    }
+
+    // a profile's cards end on their counts
+    .cms-card-body.public {
+        padding-bottom: 12px;
+    }
+
     // start screen: no projects yet, so the greeting and actions sit centred
     .cms-col.start {
         min-height: 100%;
@@ -1693,6 +1907,65 @@
 
         .cms-head {
             margin-bottom: 16px;
+        }
+
+        // stacked, like a social profile on a phone
+        .cms-profile {
+            margin-bottom: 20px;
+        }
+
+        .cms-profile-banner {
+            height: 104px;
+        }
+
+        .cms-profile-bar {
+            padding: 0 16px;
+
+            > .pcui-button {
+                margin-top: 12px;
+            }
+        }
+
+        .cms-profile-avatar {
+            width: 76px;
+            height: 76px;
+            margin-top: -40px;
+            border-width: 3px;
+            border-radius: 10px;
+        }
+
+        .cms-profile-info {
+            grid-template-columns: minmax(0, 1fr);
+            padding: 10px 16px 18px;
+        }
+
+        .cms-profile-about {
+            gap: 12px;
+
+            > .cms-subtitle {
+                margin-top: -10px;
+            }
+        }
+
+        .cms-profile-metas {
+            gap: 6px 14px;
+            font-size: 13px;
+        }
+
+        .cms-profile-totals {
+            justify-content: space-around;
+            padding-top: 14px;
+            border-top: 1px solid $cms-edge;
+        }
+
+        .cms-profile-total {
+            align-items: center;
+        }
+
+        .cms-profile-count {
+            min-height: 22px;
+            font-size: 18px;
+            line-height: 22px;
         }
 
         .cms-title {
