@@ -71,12 +71,6 @@
             color: $info-text;
             border-color: $info-edge;
         }
-
-        // a paid plan, in the brand orange
-        &.plan {
-            color: $text-active;
-            border-color: color.change($text-active, $alpha: 0.45);
-        }
     }
 
 
@@ -357,7 +351,9 @@
 
         @include cms-interactive;
 
-        &:hover {
+        // ringed while your profile is open, like the sidebar's active items
+        &:hover,
+        &.active {
             box-shadow: 0 0 0 2px $text-active;
         }
     }
@@ -451,15 +447,6 @@
         align-items: center;
         gap: 10px;
         margin-bottom: 24px;
-
-        // an owner's page sits in the welcome card's panel, spaced like it
-        &.owner {
-            margin-bottom: 28px;
-            padding: 16px 24px 16px 16px;
-            border: 1px solid $cms-edge;
-            border-radius: 8px;
-            background-color: $cms-surface;
-        }
     }
 
     .cms-head-text {
@@ -475,51 +462,6 @@
         align-items: center;
         gap: 10px;
         min-width: 0;
-
-        // the title's capitals sit above its line's middle, so the plan badge centres on them
-        > .cms-badge {
-            margin-bottom: 3px;
-        }
-    }
-
-    .cms-head-links {
-        display: flex;
-        flex: none;
-        flex-direction: row;
-        gap: 4px;
-    }
-
-    // icon buttons, like the header's actions menu
-    .cms-head-link {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        border-radius: 6px;
-        color: $text-secondary;
-
-        > svg {
-            width: 16px;
-            height: 16px;
-        }
-
-        &:hover {
-            background-color: $bcg-darkest;
-            color: $text-primary;
-        }
-    }
-
-    .cms-head-avatar {
-        flex: none;
-        width: 64px;
-        height: 64px;
-        margin-right: 6px;
-
-        // the welcome card's thumbnail corners, inside the panel's 8px
-        border-radius: 6px;
-        background-color: $bcg-darkest;
-        object-fit: cover;
     }
 
     .cms-title {
