@@ -631,13 +631,14 @@
         min-width: 0;
     }
 
+    // centred on the name's capitals, which sit above its line's middle
     .cms-profile-plan,
     .cms-profile-org {
         display: inline-flex;
         flex: none;
         width: 22px;
         height: 22px;
-        margin-top: 2px;
+        margin-bottom: 4px;
 
         > svg,
         > img {
@@ -1945,6 +1946,11 @@
             > .cms-subtitle {
                 margin-top: -10px;
             }
+        }
+
+        .cms-profile-plan,
+        .cms-profile-org {
+            margin-bottom: 3px;
         }
 
         .cms-profile-metas {
