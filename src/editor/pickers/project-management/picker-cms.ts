@@ -67,16 +67,20 @@ const SOCIAL_LINKS = {
         icon: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.499 6.203a3 3 0 0 0-2.11-2.12C19.523 3.5 12 3.5 12 3.5s-7.523 0-9.389.583a3 3 0 0 0-2.11 2.12A31.123 31.123 0 0 0 0 12a31.123 31.123 0 0 0 .501 5.797 3 3 0 0 0 2.11 2.12C4.477 20.5 12 20.5 12 20.5s7.523 0 9.389-.583a3 3 0 0 0 2.11-2.12A31.123 31.123 0 0 0 24 12a31.123 31.123 0 0 0-.501-5.797ZM9.75 15.568V8.432L16.023 12 9.75 15.568Z"/></svg>'
     }
 };
-// paid plans show as an orange tile beside a profile's name, the size of an organization's avatar
+// plans show as an orange tile beside a profile's name, the size of an organization's avatar
+const PLAN_SHIELD =
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="5.5" fill="#f60"/><path d="M12 5.2l5.5 2v4.3c0 3.4-2.3 6.2-5.5 7.3-3.2-1.1-5.5-3.9-5.5-7.3V7.2z" fill="none" stroke="#1d292c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const PLAN_BUILDING =
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="5.5" fill="#f60"/><path d="M8 17.5V7.5h5v10M13 10.5h3v7M6.5 17.5h11M10 10h1M10 12.5h1M10 15h1" fill="none" stroke="#1d292c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const PLAN_STAR =
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="5.5" fill="#f60"/><path d="M12 5.5l1.9 3.9 4.3.6-3.1 3 .7 4.3L12 15.3l-3.8 2 .7-4.3-3.1-3 4.3-.6z" fill="none" stroke="#1d292c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+// by the backend's plan types; free is the default and guests have no plan, so neither gets an icon
 const PLANS = {
-    personal: {
-        label: 'Personal',
-        icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="5.5" fill="#f60"/><path d="M12 5.2l5.5 2v4.3c0 3.4-2.3 6.2-5.5 7.3-3.2-1.1-5.5-3.9-5.5-7.3V7.2z" fill="none" stroke="#1d292c" stroke-width="1.6" stroke-linejoin="round"/></svg>'
-    },
-    org: {
-        label: 'Organization',
-        icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="5.5" fill="#f60"/><path d="M8 17.5V7.5h5v10M13 10.5h3v7M6.5 17.5h11M10 10h1M10 12.5h1M10 15h1" fill="none" stroke="#1d292c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-    }
+    personal: { label: 'Personal', icon: PLAN_SHIELD },
+    pro: { label: 'Pro', icon: PLAN_SHIELD },
+    org: { label: 'Organization', icon: PLAN_BUILDING },
+    organization: { label: 'Organization', icon: PLAN_BUILDING },
+    'super-user': { label: 'Super-user', icon: PLAN_STAR }
 };
 const CALENDAR_ICON =
     '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" stroke="currentColor" stroke-width="1.75"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>';
