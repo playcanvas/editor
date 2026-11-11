@@ -9,7 +9,7 @@ import { PROJECTS_OPENED_KEY } from '@/core/constants';
 import { config } from '@/editor/config';
 import type { EditorBlankConfig } from '@/editor-api';
 
-import { inPlace, readUrl } from '../picker-url';
+import { inPlace, readUrl, setUrl, withParams } from '../picker-url';
 
 import { button } from './components/button';
 import { empty } from './components/empty';
@@ -19,6 +19,8 @@ import { openProject as openProjectTab } from './tabs';
 const PAGE_SIZE = 24;
 // a linked project that doesn't exist, or that you can't see
 const CANT_OPEN = "This project couldn't be opened. It may have been deleted, or you may not have access to it.";
+// a user named in the url that doesn't exist
+const NO_USER = "This user couldn't be found. They may have changed their username or deleted their account.";
 const TABS = [
     ['all', 'All'],
     ['mine', 'Mine'],
@@ -639,13 +641,13 @@ editor.once('load', () => {
     meRow.append(accountButton);
     const openAccount = () => openPage((site) => site.account());
 
-    // your profile is the same page others see, so it's a page load like theirs
+    // your profile is the same page others see, opened in place
     const openOwnProfile = () => {
-        if (rootUser && pages) {
-            window.location.assign(`${config.url.home}${backend().pages.user(encodeURIComponent(rootUser.username))}`);
+        if (rootUser) {
+            openUser(rootUser);
         }
     };
-    if (signedIn && pages) {
+    if (signedIn) {
         meAvatar.on('click', openOwnProfile);
         pressable(meAvatar.dom, 'Your profile', openOwnProfile);
     }
@@ -965,7 +967,7 @@ editor.once('load', () => {
     });
 
     const accountMenu = addMenu('picker-builds-menu', [
-        { ...menuItem('cms-account-profile', 'Your profile', openOwnProfile), onIsEnabled: () => pages },
+        menuItem('cms-account-profile', 'Your profile', openOwnProfile),
         { ...menuItem('cms-account-settings', 'Account settings', openAccount), onIsEnabled: () => pages },
         {
             ...menuItem('cms-account-upgrade', 'Upgrade plan', () =>
@@ -1138,10 +1140,14 @@ editor.once('load', () => {
         orgTips = (owner.organizations ?? []).map((org) => {
             const a = new Container({ dom: 'a', class: 'cms-profile-org' });
             const dom = a.dom as HTMLAnchorElement;
-            if (pages) {
-                dom.href = `${config.url.home}${backend().pages.user(encodeURIComponent(org.username))}`;
-            }
+            dom.href = withParams(location.href, { user: org.username });
             dom.setAttribute('aria-label', userName(org));
+            dom.addEventListener('click', (e) => {
+                if (!e.metaKey && !e.ctrlKey && !e.shiftKey) {
+                    e.preventDefault();
+                    openUser(org);
+                }
+            });
             image(avatarUrl(org.id, 44), null, a);
             profileOrgs.append(a);
             return TooltipHandle.attach({
@@ -1189,7 +1195,7 @@ editor.once('load', () => {
             joinedAt.dom.insertAdjacentHTML('afterbegin', CALENDAR_ICON);
         }
 
-        // public totals; blank until the projects load, instead of reading 0
+        // public totals; blank while the projects load, instead of reading 0
         totals.clear();
         const list = listFor(owner.id);
         const sum = (key) => list.reduce((n, p) => n + (p[key] ?? 0), 0);
@@ -1200,7 +1206,7 @@ editor.once('load', () => {
         ].forEach(([key, word]) => {
             const n = sum(key);
             const item = box('cms-profile-total', totals);
-            text(waiting() ? '' : countToHuman(n), 'cms-profile-count', item);
+            text(loading ? '' : countToHuman(n), 'cms-profile-count', item);
             text(n === 1 ? word : `${word}s`, null, item);
         });
     };
@@ -1216,7 +1222,7 @@ editor.once('load', () => {
         head.class[org ? 'add' : 'remove']('owner');
         headPlan.hidden = !org;
         headingText.text = onProfile ? 'Public projects' : 'Projects';
-        headingCount.text = onProfile && !waiting() ? `${listFor(filter).length}` : '';
+        headingCount.text = onProfile && !loading ? `${listFor(filter).length}` : '';
 
         if (onProfile) {
             renderProfile();
@@ -1591,6 +1597,9 @@ editor.once('load', () => {
         }
         filter = id;
         const org = orgs().find((o) => o.id === id);
+
+        // the url names the user whose page is open, so it reloads, links and goes back to it
+        setUrl({ user: isProfile(id) ? profileOwner.username : (org?.username ?? null) });
         scroll.dom.scrollTop = 0;
         if (org) {
             editor.call('users:loadOne', org.id, (res) => {
@@ -1686,6 +1695,30 @@ editor.once('load', () => {
         });
     };
 
+    // opens a user's page in place: an organization you're in opens as usual, anyone else as a profile
+    const openUser = (user) => {
+        if (isOrg(user.id)) {
+            setFilter(user.id);
+            return;
+        }
+        profileOwner = user.id === selfId ? rootUser : user;
+
+        // skeletons until their projects arrive, instead of an empty list
+        if (!(user.id in projects)) {
+            loading = true;
+            loadProjects();
+        }
+        setFilter(user.id);
+    };
+
+    // a user by username, or null when there's no such user
+    const findUser = (name, done) => {
+        editor.api.globals.rest.users
+            .userGet(encodeURIComponent(name))
+            .on('load', (status, user) => done(user))
+            .on('error', () => done(null));
+    };
+
     const refreshUI = () => {
         loadProjects();
         renderUsage();
@@ -1779,21 +1812,21 @@ editor.once('load', () => {
             renderUsage();
             overlay.hidden = false;
         };
+        // a profile the page was served for, or one named in the url
         const visit = (config as unknown as EditorBlankConfig).profileOwner;
-        const openProfile = () => {
-            editor.call('users:loadOne', visit.id, (owner) => {
-                profileOwner = owner;
-                filter = owner.id;
-                sortPolicy = 'views';
-                show();
-            });
+        const name = readUrl(location.href).user;
+        const find = (done) =>
+            visit ? editor.call('users:loadOne', visit.id, done) : name ? findUser(name, done) : done(null);
+        const showProfile = (owner) => {
+            profileOwner = owner;
+            filter = owner.id;
+            sortPolicy = 'views';
+            show();
         };
 
         // signed out, a profile is the only thing to show
         if (!signedIn) {
-            if (visit) {
-                openProfile();
-            }
+            find((owner) => owner && showProfile(owner));
             return;
         }
         editor.call('users:loadOne', selfId, (user) => {
@@ -1802,19 +1835,22 @@ editor.once('load', () => {
             filter = 'all';
 
             // a profile opens on that owner's projects, your own included; an organization's opens as usual
-            if (!visit) {
-                show();
-            } else if (visit.id === user.id) {
-                profileOwner = user;
-                filter = user.id;
-                sortPolicy = 'views';
-                show();
-            } else if (isOrg(visit.id)) {
-                show();
-                setFilter(visit.id);
-            } else {
-                openProfile();
-            }
+            find((owner) => {
+                if (!owner) {
+                    show();
+                    if (name) {
+                        setUrl({ user: null }, true);
+                        editor.call('picker:project:buildAlert', rightPanel, NO_USER);
+                    }
+                } else if (owner.id === user.id) {
+                    showProfile(user);
+                } else if (isOrg(owner.id)) {
+                    show();
+                    setFilter(owner.id);
+                } else {
+                    showProfile(owner);
+                }
+            });
         });
     });
 
@@ -1854,6 +1890,26 @@ editor.once('load', () => {
                 (project) => (project.disabled ? fail() : inPlace(() => openProject(project, section))),
                 fail
             );
+        }
+    });
+
+    // back and forward between users' pages; a page served for a profile has no user in its url
+    editor.on('picker:url', ({ user }) => {
+        const open = isProfile(filter) ? profileOwner.username : orgs().find((o) => o.id === filter)?.username;
+        if (
+            !rootUser ||
+            overlay.hidden ||
+            user === (open ?? null) ||
+            (!user && (config as unknown as EditorBlankConfig).profileOwner)
+        ) {
+            return;
+        }
+        if (!user) {
+            setFilter('all');
+        } else if (user === rootUser.username) {
+            openUser(rootUser);
+        } else {
+            findUser(user, (found) => (found ? openUser(found) : setFilter('all')));
         }
     });
 
