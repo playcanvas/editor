@@ -721,10 +721,12 @@ editor.once('load', () => {
     const profileBar = box('cms-profile-bar', profile);
     const profileAvatar = image(EMPTY_THUMBNAIL_IMAGE, 'cms-profile-avatar', profileBar);
 
-    // your own profile is edited in account settings
+    // your own profile is edited in account settings; an organization you're in has its actions menu
     const editProfile = button({ kind: 'secondary', icon: 'E130', text: 'Edit profile', hidden: true });
     profileBar.append(editProfile);
     editProfile.on('click', openAccount);
+    const orgMenuButton = button({ kind: 'icon', label: 'Organization actions', class: 'cms-kebab', hidden: true });
+    profileBar.append(orgMenuButton);
     const profileInfo = box('cms-profile-info', profile);
     const about = box('cms-profile-about', profileInfo);
     const profileName = box('cms-profile-name', about);
@@ -747,23 +749,15 @@ editor.once('load', () => {
 
     // header
     const head = box('cms-head', rightPanel);
-
-    // an owner's page leads with their avatar, or the organization's logo
-    const headAvatar = image(EMPTY_THUMBNAIL_IMAGE, 'cms-head-avatar', head);
-    headAvatar.hidden = true;
     const headText = box('cms-head-text', head);
     const headName = box('cms-head-name', headText);
     const title = text('', 'cms-title', headName);
-    const headPlan = text('', ['cms-badge', 'plan'], headName);
-    headPlan.hidden = true;
     const subtitle = text('', 'cms-subtitle', headText);
 
     // the bar names the page, but not the greeting
     title.on('change', (t: string) => {
         topbarTitle.text = t && !t.startsWith('Good ') ? t : 'Projects';
     });
-    const orgMenuButton = button({ kind: 'icon', label: 'Organization actions', class: 'cms-kebab', hidden: true });
-    head.append(orgMenuButton);
     const headerUtils = box('cms-head-actions', head);
     headerUtils.hidden = true; // only shown on the start screen; see refresh()
 
@@ -1084,6 +1078,7 @@ editor.once('load', () => {
 
     const renderSidebar = () => {
         projectsNav.class[isOwnerView(filter) ? 'remove' : 'add']('active');
+        meAvatar.class[isProfile(filter) && profileOwner.id === selfId ? 'add' : 'remove']('active');
 
         recentsList.clear();
         if (loading && !rootProjects().length && !covered()) {
@@ -1122,9 +1117,9 @@ editor.once('load', () => {
         }
     };
 
-    const renderProfile = () => {
-        const owner = profileOwner;
+    const renderProfile = (owner) => {
         editProfile.hidden = !pages || owner.id !== selfId;
+        orgMenuButton.hidden = !isOrg(owner.id);
         const art = avatarUrl(owner.id, 256);
         (bannerArt.dom as HTMLImageElement).src = art;
         (profileAvatar.dom as HTMLImageElement).src = art;
@@ -1199,9 +1194,9 @@ editor.once('load', () => {
             joinedAt.dom.insertAdjacentHTML('afterbegin', CALENDAR_ICON);
         }
 
-        // public totals; blank while the projects load, instead of reading 0
+        // public totals, even where members list private projects too; blank while the projects load, instead of reading 0
         totals.clear();
-        const list = listFor(owner.id);
+        const list = listFor(owner.id).filter((p) => !p.private);
         const sum = (key) => list.reduce((n, p) => n + (p[key] ?? 0), 0);
         [
             ['views', 'view'],
@@ -1218,26 +1213,20 @@ editor.once('load', () => {
     const renderHead = () => {
         const org = orgs().find((o) => o.id === filter);
         const onProfile = isProfile(filter);
-        profile.hidden = !onProfile;
-        profileNote.hidden = !onProfile || profileOwner.id !== selfId;
-        head.hidden = onProfile;
-        orgMenuButton.hidden = !org;
-        headAvatar.hidden = !org;
-        head.class[org ? 'add' : 'remove']('owner');
-        headPlan.hidden = !org;
-        headingText.text = onProfile ? 'Public projects' : 'Projects';
-        headingCount.text = onProfile && !loading ? `${listFor(filter).length}` : '';
 
-        if (onProfile) {
-            renderProfile();
+        // an organization you're in gets the profile's layout over its members' list, once its details load
+        const owner = onProfile ? profileOwner : org && (currentUser?.id === org.id ? currentUser : org);
+        profile.hidden = !owner;
+        profileNote.hidden = !onProfile || profileOwner.id !== selfId;
+        head.hidden = !!owner;
+        headingText.text = onProfile ? 'Public projects' : 'Projects';
+        headingCount.text = owner && !loading ? `${listFor(filter).length}` : '';
+
+        if (owner) {
+            renderProfile(owner);
 
             // the phone bar names the page
-            title.text = userName(profileOwner);
-        } else if (org) {
-            (headAvatar.dom as HTMLImageElement).src = avatarUrl(org.id, 128);
-            headPlan.text = 'organization';
-            title.text = userName(org);
-            subtitle.text = joined(org.username, `${(projects[org.id] ?? []).length} projects`);
+            title.text = userName(owner);
         } else {
             // counts live on the tabs and storage on the sidebar card, so home gets a prompt. with no
             // accounts there's no one signed in to greet by name
