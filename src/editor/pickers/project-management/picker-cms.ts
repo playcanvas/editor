@@ -637,14 +637,13 @@ editor.once('load', () => {
     pressable(storageCard.dom, 'Storage details', () => toggleStoragePopover());
 
     const meRow = box('cms-me', side);
-    // avatar, name and username: one button to your profile, filled like the sidebar's nav while it's open
+    // avatar, name, username and the ··· glyph: one button that opens the account menu
     const meId = box('cms-me-id', meRow);
     image(signedIn ? avatarUrl(selfId, 56) : EMPTY_THUMBNAIL_IMAGE, 'cms-me-avatar', meId);
     const meText = box('cms-me-text', meId);
     const meName = text('', 'cms-me-name', meText);
     const mePlan = text('', 'cms-me-plan', meText);
-    const accountButton = button({ kind: 'icon', label: 'Account menu', class: 'cms-kebab' });
-    meRow.append(accountButton);
+    box(['cms-me-more', 'cms-kebab'], meId);
     const openAccount = () => openPage((site) => site.account());
 
     // your profile is the same page others see, opened in place
@@ -653,10 +652,6 @@ editor.once('load', () => {
             openUser(rootUser);
         }
     };
-    if (signedIn) {
-        meId.on('click', openOwnProfile);
-        pressable(meId.dom, 'Your profile', openOwnProfile);
-    }
 
     // MAIN PANEL
 
@@ -786,7 +781,7 @@ editor.once('load', () => {
 
     // lets the blank page add its MCP button next to the account menu
     editor.method('picker:project:cms:addAccountButton', (button: Element) => {
-        meRow.appendBefore(button, accountButton);
+        meRow.append(button);
     });
 
     const welcome = box('cms-welcome', rightPanel);
@@ -967,7 +962,7 @@ editor.once('load', () => {
     });
 
     const accountMenu = addMenu('picker-builds-menu', [
-        menuItem('cms-account-profile', 'Your profile', openOwnProfile),
+        menuItem('cms-account-profile', 'View public profile', openOwnProfile),
         { ...menuItem('cms-account-settings', 'Account settings', openAccount), onIsEnabled: () => pages },
         {
             ...menuItem('cms-account-upgrade', 'Upgrade plan', () =>
@@ -980,14 +975,17 @@ editor.once('load', () => {
         ),
         menuItem('cms-account-github', 'GitHub', () => window.open('https://github.com/playcanvas/editor', '_blank'))
     ]);
-    accountButton.on('click', () => {
+    const openAccountMenu = () => {
         accountMenu.hidden = false;
 
         // opens above the account row and spans it, like the mcp popover beside it
         const rect = meRow.dom.getBoundingClientRect();
         accountMenu.innerElement.style.width = `${rect.width}px`;
         accountMenu.position(rect.left, rect.top - accountMenu.innerElement.clientHeight - 4);
-    });
+    };
+    meId.on('click', openAccountMenu);
+    pressable(meId.dom, 'Account menu', openAccountMenu);
+    meId.dom.setAttribute('aria-haspopup', 'menu');
 
     // one tooltip, moved to each rebuilt upgrade button. beside the popover and above it, which would
     // otherwise cover its arrow and the gap the pointer crosses to reach its links
@@ -1080,7 +1078,6 @@ editor.once('load', () => {
 
     const renderSidebar = () => {
         projectsNav.class[isOwnerView(filter) ? 'remove' : 'add']('active');
-        meId.class[isProfile(filter) && profileOwner.id === selfId ? 'add' : 'remove']('active');
 
         recentsList.clear();
         if (loading && !rootProjects().length && !covered()) {

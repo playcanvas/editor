@@ -344,7 +344,7 @@
         padding: 0 4px 0 0;
     }
 
-    // a button to your profile once signed in, with the nav items' hover and selected fills
+    // the account menu's button, with the nav items' hover fill
     .cms-me-id {
         display: flex;
         flex: 1;
@@ -359,10 +359,6 @@
             cursor: pointer;
 
             @include cms-ghost-hover;
-        }
-
-        &.active {
-            background-color: $cms-fill-on-page;
         }
     }
 
@@ -388,6 +384,13 @@
     .cms-me-plan {
         color: $text-dark;
         font-size: 11px;
+    }
+
+    // the menu's glyph, part of the row's button rather than a button of its own
+    .cms-me-more {
+        display: flex;
+        flex: none;
+        color: $text-dark;
     }
 
     .cms-me > .pcui-button.mcp-account {
