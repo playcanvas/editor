@@ -9,7 +9,7 @@ import { PROJECTS_OPENED_KEY } from '@/core/constants';
 import { config } from '@/editor/config';
 import type { EditorBlankConfig } from '@/editor-api';
 
-import { inPlace, readUrl, setUrl, withParams } from '../picker-url';
+import { inPlace, readUrl, setPath } from '../picker-url';
 
 import { button } from './components/button';
 import { empty } from './components/empty';
@@ -20,7 +20,6 @@ const PAGE_SIZE = 24;
 // a linked project that doesn't exist, or that you can't see
 const CANT_OPEN = "This project couldn't be opened. It may have been deleted, or you may not have access to it.";
 // a user named in the url that doesn't exist
-const NO_USER = "This user couldn't be found. They may have changed their username or deleted their account.";
 const TABS = [
     ['all', 'All'],
     ['mine', 'Mine'],
@@ -962,7 +961,7 @@ editor.once('load', () => {
     });
 
     const accountMenu = addMenu('picker-builds-menu', [
-        menuItem('cms-account-profile', 'View public profile', openOwnProfile),
+        { ...menuItem('cms-account-profile', 'View public profile', openOwnProfile), onIsEnabled: () => pages },
         { ...menuItem('cms-account-settings', 'Account settings', openAccount), onIsEnabled: () => pages },
         {
             ...menuItem('cms-account-upgrade', 'Upgrade plan', () =>
@@ -1138,7 +1137,9 @@ editor.once('load', () => {
         orgTips = (owner.organizations ?? []).map((org) => {
             const a = new Container({ dom: 'a', class: 'cms-profile-org' });
             const dom = a.dom as HTMLAnchorElement;
-            dom.href = withParams(location.href, { user: org.username });
+            if (pages) {
+                dom.href = `${backend().pages.user(org.username)}${location.search}`;
+            }
             dom.setAttribute('aria-label', userName(org));
             dom.addEventListener('click', (e) => {
                 if (!e.metaKey && !e.ctrlKey && !e.shiftKey) {
@@ -1582,6 +1583,15 @@ editor.once('load', () => {
 
     // CONTROLLERS
 
+    // the address of what's open: the site's page for an account, your projects otherwise, where the backend has
+    // pages; it serves them on reload and links, and back and forward come back through `picker:url`
+    const go = (account, replace?: boolean) => {
+        if (pages) {
+            const { user, projects } = backend().pages;
+            setPath(account ? user(account.username) : projects(), account?.id ?? null, replace);
+        }
+    };
+
     const setFilter = (id) => {
         if (isProfile(id) !== isProfile(filter)) {
             sortPolicy = isProfile(id) ? 'views' : 'modified';
@@ -1590,8 +1600,7 @@ editor.once('load', () => {
         filter = id;
         const org = orgs().find((o) => o.id === id);
 
-        // the url names the user whose page is open, so it reloads, links and goes back to it
-        setUrl({ user: isProfile(id) ? profileOwner.username : (org?.username ?? null) });
+        go(isProfile(id) ? profileOwner : org);
         scroll.dom.scrollTop = 0;
         if (org) {
             editor.call('users:loadOne', org.id, (res) => {
@@ -1703,14 +1712,6 @@ editor.once('load', () => {
         setFilter(user.id);
     };
 
-    // a user by username, or null when there's no such user
-    const findUser = (name, done) => {
-        editor.api.globals.rest.users
-            .userGet(encodeURIComponent(name))
-            .on('load', (status, user) => done(user))
-            .on('error', () => done(null));
-    };
-
     const refreshUI = () => {
         loadProjects();
         renderUsage();
@@ -1804,16 +1805,17 @@ editor.once('load', () => {
             renderUsage();
             overlay.hidden = false;
         };
-        // a profile the page was served for, or one named in the url
+        // a profile the page was served for
         const visit = (config as unknown as EditorBlankConfig).profileOwner;
-        const name = readUrl(location.href).user;
-        const find = (done) =>
-            visit ? editor.call('users:loadOne', visit.id, done) : name ? findUser(name, done) : done(null);
+        const find = (done) => (visit ? editor.call('users:loadOne', visit.id, done) : done(null));
         const showProfile = (owner) => {
             profileOwner = owner;
             filter = owner.id;
             sortPolicy = 'views';
             show();
+
+            // the served page's entry names its account too, so back from another page returns to it
+            go(owner, true);
         };
 
         // signed out, a profile is the only thing to show
@@ -1830,15 +1832,11 @@ editor.once('load', () => {
             find((owner) => {
                 if (!owner) {
                     show();
-                    if (name) {
-                        setUrl({ user: null }, true);
-                        editor.call('picker:project:buildAlert', rightPanel, NO_USER);
-                    }
                 } else if (owner.id === user.id) {
                     showProfile(user);
                 } else if (isOrg(owner.id)) {
                     show();
-                    setFilter(owner.id);
+                    inPlace(() => setFilter(owner.id));
                 } else {
                     showProfile(owner);
                 }
@@ -1885,23 +1883,21 @@ editor.once('load', () => {
         }
     });
 
-    // back and forward between users' pages; a page served for a profile has no user in its url
-    editor.on('picker:url', ({ user }) => {
-        const open = isProfile(filter) ? profileOwner.username : orgs().find((o) => o.id === filter)?.username;
-        if (
-            !rootUser ||
-            overlay.hidden ||
-            user === (open ?? null) ||
-            (!user && (config as unknown as EditorBlankConfig).profileOwner)
-        ) {
+    // back and forward between accounts' pages, by the account id each history entry was written with
+    editor.on('picker:url', () => {
+        const id = history.state ?? null;
+        const open = isProfile(filter) || isOrg(filter) ? filter : null;
+        if (overlay.hidden || id === open || (id === null && !rootUser)) {
             return;
         }
-        if (!user) {
+        if (id === null) {
             setFilter('all');
-        } else if (user === rootUser.username) {
+        } else if (id === selfId && rootUser) {
             openUser(rootUser);
+        } else if (isOrg(id)) {
+            setFilter(id);
         } else {
-            findUser(user, (found) => (found ? openUser(found) : setFilter('all')));
+            editor.call('users:loadOne', id, (user) => inPlace(() => (user ? openUser(user) : setFilter('all'))));
         }
     });
 
