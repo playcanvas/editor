@@ -436,6 +436,7 @@ editor.once('load', () => {
         currentProject = editor.call('picker:project:getCurrent');
         unlockButton.enabled =
             unlockable &&
+            !!config.self &&
             (currentProject.owner_id === config.self.id ||
                 editor.call('project:management:isOrgAdmin', currentProject.owner_id, config.self));
 
@@ -488,7 +489,9 @@ editor.once('load', () => {
         exportProjectButton.enabled = !exportDisabled();
         exportProjectButton.text = getExportButtonText();
 
-        forkProjectButton.hidden = !!currentProject.locked;
+        // forking and exporting need an account
+        forkProjectButton.hidden = !!currentProject.locked || !config.self;
+        exportProjectButtonContainer.hidden = !config.self;
         copyLinkButton.hidden = !!currentProject.locked;
 
         privateAssetsSettings.hidden = !currentProject.private_source_assets;

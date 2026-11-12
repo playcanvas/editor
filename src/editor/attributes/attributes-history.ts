@@ -1,6 +1,7 @@
 import { Button, Container } from '@playcanvas/pcui';
 
 import { TooltipHandle } from '@/common/tooltips';
+import { escapeHtml } from '@/common/utils';
 
 editor.once('load', () => {
     let list = [];
@@ -87,7 +88,7 @@ editor.once('load', () => {
     editor.method('selector:previous', getLast);
 
     const setTooltipText = (str) => {
-        tooltip.html = `<span>Previous Selection</span><br>${str}`;
+        tooltip.html = `<span>Previous Selection</span><br>${escapeHtml(str)}`;
     };
 
     const updateTooltipContent = () => {

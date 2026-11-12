@@ -4,11 +4,12 @@ import { Button, Container, Element, Label, Menu, Overlay, TextInput } from '@pl
 import { backend, UNSUPPORTED_TIP } from '@/common/backend';
 import { supports } from '@/common/supports';
 import { TooltipHandle } from '@/common/tooltips';
-import { bytesToHuman, countToHuman } from '@/common/utils';
+import { bytesToHuman, countToHuman, escapeHtml } from '@/common/utils';
 import { PROJECTS_OPENED_KEY } from '@/core/constants';
 import { config } from '@/editor/config';
+import type { EditorBlankConfig } from '@/editor-api';
 
-import { inPlace, readUrl } from '../picker-url';
+import { inPlace, readUrl, setUrl, withParams } from '../picker-url';
 
 import { button } from './components/button';
 import { empty } from './components/empty';
@@ -18,6 +19,8 @@ import { openProject as openProjectTab } from './tabs';
 const PAGE_SIZE = 24;
 // a linked project that doesn't exist, or that you can't see
 const CANT_OPEN = "This project couldn't be opened. It may have been deleted, or you may not have access to it.";
+// a user named in the url that doesn't exist
+const NO_USER = "This user couldn't be found. They may have changed their username or deleted their account.";
 const TABS = [
     ['all', 'All'],
     ['mine', 'Mine'],
@@ -30,6 +33,7 @@ const SORTS = [
     ['opened', 'Last opened'],
     ['created', 'Created'],
     ['name', 'Name'],
+    ['views', 'Most viewed'],
     ['plays', 'Most played'],
     ['size', 'Size']
 ];
@@ -44,6 +48,42 @@ const PROMPTS = [
 const PROMPT = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
 // access you have to someone else's project; admin needs no badge, it's the default on yours and your orgs'
 const QUALIFIERS = ['name:', 'owner:', 'desc:', 'is:private', 'is:public', 'is:starred', 'is:locked'];
+// a profile's links, in order, with the old profile page's icons
+const SOCIAL_LINKS = {
+    website: {
+        label: 'Website',
+        icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12h18M12 3c2.2 2.2 3.5 5.29 3.5 9S14.2 18.8 12 21c-2.2-2.2-3.5-5.29-3.5-9S9.8 5.2 12 3Zm0 0a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    },
+    x: {
+        label: 'X',
+        icon: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>'
+    },
+    linkedin: {
+        label: 'LinkedIn',
+        icon: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>'
+    },
+    youtube: {
+        label: 'YouTube',
+        icon: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.499 6.203a3 3 0 0 0-2.11-2.12C19.523 3.5 12 3.5 12 3.5s-7.523 0-9.389.583a3 3 0 0 0-2.11 2.12A31.123 31.123 0 0 0 0 12a31.123 31.123 0 0 0 .501 5.797 3 3 0 0 0 2.11 2.12C4.477 20.5 12 20.5 12 20.5s7.523 0 9.389-.583a3 3 0 0 0 2.11-2.12A31.123 31.123 0 0 0 24 12a31.123 31.123 0 0 0-.501-5.797ZM9.75 15.568V8.432L16.023 12 9.75 15.568Z"/></svg>'
+    }
+};
+// plans show as an orange tile beside a profile's name, the size of an organization's avatar
+const PLAN_DIAMOND =
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="5.5" fill="#f60"/><path d="M8.5 6.5h7l3 3.8L12 18 5.5 10.3zM5.5 10.3h13M10.5 6.5l-1.2 3.8L12 18l2.7-7.7-1.2-3.8" fill="none" stroke="#1d292c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const PLAN_BUILDING =
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="5.5" fill="#f60"/><path d="M8 17.5V7.5h5v10M13 10.5h3v7M6.5 17.5h11M10 10h1M10 12.5h1M10 15h1" fill="none" stroke="#1d292c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const PLAN_SHIELD =
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="5.5" fill="#f60"/><path d="M12 5.2l5.5 2v4.3c0 3.4-2.3 6.2-5.5 7.3-3.2-1.1-5.5-3.9-5.5-7.3V7.2zM9.4 12l1.8 1.8 3.4-3.6" fill="none" stroke="#1d292c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+// by the backend's plan types; free is the default and guests have no plan, so neither gets an icon
+const PLANS = {
+    personal: { label: 'Personal', icon: PLAN_DIAMOND },
+    pro: { label: 'Pro', icon: PLAN_DIAMOND },
+    org: { label: 'Organization', icon: PLAN_BUILDING },
+    organization: { label: 'Organization', icon: PLAN_BUILDING },
+    'super-user': { label: 'Super-user', icon: PLAN_SHIELD }
+};
+const CALENDAR_ICON =
+    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" stroke="currentColor" stroke-width="1.75"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>';
 const EMPTY_THUMBNAIL_IMAGE = `${config.url.frontend}static/img/blank-project.webp`;
 const SIDE_KEY = 'editor:cms:sidebar:width';
 const SIDE_DEFAULT_W = 248;
@@ -76,11 +116,22 @@ editor.once('load', () => {
 
     const orgs = () => rootUser?.organizations ?? [];
     const isOrg = (id) => orgs().some((org) => org.id === id);
+    // another user's projects, opened read-only from the page config; your sidebar, storage and recents stay yours
+    let profileOwner = null;
+    const isProfile = (id) => !!profileOwner && id === profileOwner.id;
+    // the main area shows one owner's projects: an organization's, or a profile's
+    const isOwnerView = (id) => isOrg(id) || isProfile(id);
+    // a signed-out visitor can only browse a profile: no account, recents, organizations or storage
+    const signedIn = !!config.self;
+    const selfId = config.self?.id;
     const userName = (user) => user.full_name || user.username;
     const avatarUrl = (id, size = 32) => `${config.url.api}/users/${id}/thumbnail?size=${size}`;
     const ownerName = (project) => {
-        if (project.owner_id === rootUser.id) {
+        if (project.owner_id === rootUser?.id) {
             return userName(rootUser);
+        }
+        if (isProfile(project.owner_id)) {
+            return userName(profileOwner);
         }
         const org = orgs().find((o) => o.id === project.owner_id);
 
@@ -91,7 +142,7 @@ editor.once('load', () => {
     const joined = (...parts) => parts.filter(Boolean).join(' · ');
     const isPending = (project) => project.new_owner_id != null || !!project.new_owner;
     // you, or an organization you're in, are being offered the project
-    const isRecipient = (project) => project.new_owner_id === config.self.id || isOrg(project.new_owner_id);
+    const isRecipient = (project) => project.new_owner_id === selfId || isOrg(project.new_owner_id);
     const blocked = (project) =>
         project.locked || project.access_level === 'none' || project.disabled || isPending(project);
     const rootProjects = () => projects[rootUser?.id] ?? [];
@@ -101,13 +152,19 @@ editor.once('load', () => {
             [rootUser?.id, ...orgs().map((o) => o.id)].flatMap((id) => projects[id] ?? []).map((p) => [p.id, p])
         ).values()
     ];
-    const listFor = (id) => (isOrg(id) ? projects[id] : rootProjects()) ?? [];
+    // your own profile is what others see of it: the public projects you own
+    const listFor = (id) =>
+        (id === selfId && isProfile(id)
+            ? rootProjects().filter((p) => p.owner_id === selfId && !p.private)
+            : isOwnerView(id)
+              ? projects[id]
+              : rootProjects()) ?? [];
     const matchTab = (project, tab) => {
         switch (tab) {
             case 'mine':
-                return project.owner_id === config.self.id;
+                return project.owner_id === selfId;
             case 'shared':
-                return project.owner_id !== config.self.id;
+                return project.owner_id !== selfId;
             case 'private':
                 return project.private;
             case 'starred':
@@ -154,6 +211,7 @@ editor.once('load', () => {
         modified: (p) => Date.parse(p.modified),
         created: (p) => Date.parse(p.created),
         name: (p) => p.name.toLowerCase(),
+        views: (p) => p.views ?? 0,
         plays: (p) => p.plays ?? 0,
         size: (p) => p.size?.total ?? 0
     };
@@ -170,7 +228,8 @@ editor.once('load', () => {
         return list
             .filter(
                 (p) =>
-                    (isOrg(filter) || matchTab(p, filter)) && terms.every((t, i) => matchTerm(p, t) || fuzzy[i]?.has(p))
+                    (isOwnerView(filter) || matchTab(p, filter)) &&
+                    terms.every((t, i) => matchTerm(p, t) || fuzzy[i]?.has(p))
             )
             .sort(
                 (a, b) =>
@@ -268,7 +327,10 @@ editor.once('load', () => {
     const canStar = (project) => project.access_level !== 'none';
     // optimistic, so the count moves on click; a failed call puts it back
     const starToggle = (project, parent: Container, cls?) => {
-        const btn = new Button({ class: ['cms-star', ...[cls ?? []].flat()], enabled: !!backend().projectFollowing });
+        const btn = new Button({
+            class: ['cms-star', ...[cls ?? []].flat()],
+            enabled: signedIn && !!backend().projectFollowing
+        });
         // set while a request is in flight, so the star fills before the server replies
         let pending = null;
         const paint = () => {
@@ -397,19 +459,22 @@ editor.once('load', () => {
     };
     const canDelete = (project) => {
         return (
-            project.owner_id === config.self.id ||
-            editor.call('project:management:isOrgAdmin', project.owner_id, config.self)
+            signedIn &&
+            (project.owner_id === selfId || editor.call('project:management:isOrgAdmin', project.owner_id, config.self))
         );
     };
 
     // ACTIONS
 
-    // opens the existing project picker for a project, the same way the old grid did, on a linked section if any
+    // opens the existing project picker for a project, the same way the old grid did, on a linked section if any;
+    // signed out, only its read-only settings
     const openProject = (project, section?: string) => {
         if (project.disabled) {
             return;
         }
-        if (project.locked) {
+        if (!signedIn) {
+            editor.call('picker:project:guest', project, section);
+        } else if (project.locked) {
             editor.call('picker:project:lockedView', project, section);
         } else if (project.access_level === 'none') {
             editor.call('picker:project:noAdmin', project, section);
@@ -572,18 +637,21 @@ editor.once('load', () => {
     pressable(storageCard.dom, 'Storage details', () => toggleStoragePopover());
 
     const meRow = box('cms-me', side);
-    const meAvatar = image(avatarUrl(config.self.id, 56), 'cms-me-avatar', meRow);
-    const meText = box('cms-me-text', meRow);
+    // avatar, name, username and the ··· glyph: one button that opens the account menu
+    const meId = box('cms-me-id', meRow);
+    image(signedIn ? avatarUrl(selfId, 56) : EMPTY_THUMBNAIL_IMAGE, 'cms-me-avatar', meId);
+    const meText = box('cms-me-text', meId);
     const meName = text('', 'cms-me-name', meText);
     const mePlan = text('', 'cms-me-plan', meText);
-    const accountButton = button({ kind: 'icon', label: 'Account menu', class: 'cms-kebab' });
-    meRow.append(accountButton);
+    box(['cms-me-more', 'cms-kebab'], meId);
     const openAccount = () => openPage((site) => site.account());
-    // the avatar only opens account settings where the backend has the page
-    if (pages) {
-        meAvatar.on('click', openAccount);
-        pressable(meAvatar.dom, 'Account settings', openAccount);
-    }
+
+    // your profile is the same page others see, opened in place
+    const openOwnProfile = () => {
+        if (rootUser) {
+            openUser(rootUser);
+        }
+    };
 
     // MAIN PANEL
 
@@ -601,6 +669,32 @@ editor.once('load', () => {
     topbar.append(topbarNew);
     topbarNew.on('click', () => editor.call('picker:project:newProject'));
 
+    // signed out: an invitation where your storage and account would be, since starting a project, recents and
+    // organizations all need an account
+    if (!signedIn) {
+        [newProjectSideButton, importSideButton, projectsNav, sideScroll, storageCard, meRow, topbarNew].forEach(
+            (el) => (el.hidden = true)
+        );
+        const { login, signup } = (config as unknown as EditorBlankConfig).url;
+        const guest = box(['cms-storage', 'cms-guest'], side);
+        text('New to PlayCanvas?', 'cms-storage-title', guest);
+        text(
+            'Build 3D games and apps in your browser, edit together in real time and publish with one click.',
+            'cms-guest-text',
+            guest
+        );
+        const actions = box('cms-guest-actions', guest);
+        const signUp = button({ kind: 'primary', size: 'sm', text: 'Sign up' });
+        const logIn = button({ kind: 'secondary', size: 'sm', text: 'Log in' });
+        actions.append(signUp);
+        actions.append(logIn);
+        // the backend sends where its sign-up and log-in pages are; without one, its button stays hidden
+        signUp.hidden = !signup;
+        logIn.hidden = !login;
+        signUp.on('click', () => window.location.assign(signup));
+        logIn.on('click', () => window.location.assign(login));
+    }
+
     // tapping the scrim or anything in the drawer closes it
     panel.dom.addEventListener('click', (e) => {
         const el = e.target as HTMLElement;
@@ -613,18 +707,54 @@ editor.once('load', () => {
     const rightPanel = box('cms-col'); // also the root for alerts from other pickers
     scroll.dom.appendChild(rightPanel.dom);
 
+    // a profile is a public page: a banner from the avatar, who they are, then their public totals
+    const profileNote = text(
+        'This is how others see your profile. Only public projects are shown.',
+        'cms-profile-note',
+        rightPanel
+    );
+    const profile = box('cms-profile', rightPanel);
+    const bannerArt = image(EMPTY_THUMBNAIL_IMAGE, null, box('cms-profile-banner', profile));
+    const profileBar = box('cms-profile-bar', profile);
+    const profileAvatar = image(EMPTY_THUMBNAIL_IMAGE, 'cms-profile-avatar', profileBar);
+
+    // your own profile is edited in account settings; an organization you're in has its actions menu
+    const editProfile = button({ kind: 'secondary', icon: 'E130', text: 'Edit profile', hidden: true });
+    profileBar.append(editProfile);
+    editProfile.on('click', openAccount);
+    const orgMenuButton = button({ kind: 'icon', label: 'Organization actions', class: 'cms-kebab', hidden: true });
+    profileBar.append(orgMenuButton);
+    const profileInfo = box('cms-profile-info', profile);
+    const about = box('cms-profile-about', profileInfo);
+    const profileName = box('cms-profile-name', about);
+    const profileTitle = text('', 'cms-title', profileName);
+    const planIcon = new Element({ dom: 'span', class: 'cms-profile-plan' });
+    profileName.append(planIcon);
+    const planTip = TooltipHandle.attach({
+        root: overlay.dom,
+        target: planIcon.dom,
+        align: 'bottom',
+        class: 'cms-tip'
+    });
+    const profileOrgs = box('cms-profile-orgs', profileName);
+    const profileUser = text('', 'cms-subtitle', about);
+    const profileMetas = box('cms-profile-metas', about);
+    const skillChips = box('cms-chips', about);
+    const totals = box('cms-profile-totals', profileInfo);
+    let orgTips = [];
+    profile.hidden = profileNote.hidden = true;
+
     // header
     const head = box('cms-head', rightPanel);
     const headText = box('cms-head-text', head);
-    const title = text('', 'cms-title', headText);
+    const headName = box('cms-head-name', headText);
+    const title = text('', 'cms-title', headName);
     const subtitle = text('', 'cms-subtitle', headText);
 
     // the bar names the page, but not the greeting
     title.on('change', (t: string) => {
         topbarTitle.text = t && !t.startsWith('Good ') ? t : 'Projects';
     });
-    const orgMenuButton = button({ kind: 'icon', label: 'Organization actions', class: 'cms-kebab', hidden: true });
-    head.append(orgMenuButton);
     const headerUtils = box('cms-head-actions', head);
     headerUtils.hidden = true; // only shown on the start screen; see refresh()
 
@@ -651,11 +781,13 @@ editor.once('load', () => {
 
     // lets the blank page add its MCP button next to the account menu
     editor.method('picker:project:cms:addAccountButton', (button: Element) => {
-        meRow.appendBefore(button, accountButton);
+        meRow.append(button);
     });
 
     const welcome = box('cms-welcome', rightPanel);
-    const sectionTitle = text('Projects', 'cms-heading', rightPanel);
+    const heading = box('cms-heading', rightPanel);
+    const headingText = text('Projects', null, heading);
+    const headingCount = text('', 'cms-count', heading);
 
     // search, filter hints, tabs, sort and layout stay pinned while the list scrolls
     const toolbar = box('cms-toolbar', rightPanel);
@@ -792,9 +924,9 @@ editor.once('load', () => {
         menuEntry(rowMenu, 'cms-row-editor').enabled = !blocked(project);
         menuEntry(rowMenu, 'cms-row-launch').enabled = !!project.primary_app_url;
         menuEntry(rowMenu, 'cms-row-watch').text = project.watch_id ? 'Stop watching' : 'Watch';
-        menuEntry(rowMenu, 'cms-row-watch').hidden = !canStar(project);
+        menuEntry(rowMenu, 'cms-row-watch').hidden = !signedIn || !canStar(project);
         menuEntry(rowMenu, 'cms-row-watch').enabled = !!backend().projectFollowing;
-        menuEntry(rowMenu, 'cms-row-fork').hidden = blocked(project);
+        menuEntry(rowMenu, 'cms-row-fork').hidden = !signedIn || blocked(project);
 
         // forks finish as jobs
         menuEntry(rowMenu, 'cms-row-fork').enabled = !!(backend().projectCreation && backend().jobs);
@@ -830,6 +962,7 @@ editor.once('load', () => {
     });
 
     const accountMenu = addMenu('picker-builds-menu', [
+        menuItem('cms-account-profile', 'View public profile', openOwnProfile),
         { ...menuItem('cms-account-settings', 'Account settings', openAccount), onIsEnabled: () => pages },
         {
             ...menuItem('cms-account-upgrade', 'Upgrade plan', () =>
@@ -842,14 +975,17 @@ editor.once('load', () => {
         ),
         menuItem('cms-account-github', 'GitHub', () => window.open('https://github.com/playcanvas/editor', '_blank'))
     ]);
-    accountButton.on('click', () => {
+    const openAccountMenu = () => {
         accountMenu.hidden = false;
 
         // opens above the account row and spans it, like the mcp popover beside it
         const rect = meRow.dom.getBoundingClientRect();
         accountMenu.innerElement.style.width = `${rect.width}px`;
         accountMenu.position(rect.left, rect.top - accountMenu.innerElement.clientHeight - 4);
-    });
+    };
+    meId.on('click', openAccountMenu);
+    pressable(meId.dom, 'Account menu', openAccountMenu);
+    meId.dom.setAttribute('aria-haspopup', 'menu');
 
     // one tooltip, moved to each rebuilt upgrade button. beside the popover and above it, which would
     // otherwise cover its arrow and the gap the pointer crosses to reach its links
@@ -911,6 +1047,10 @@ editor.once('load', () => {
     // RENDER
 
     const renderUsage = () => {
+        // signed out there's no storage to show
+        if (!currentUser) {
+            return;
+        }
         toggleSpinner(storageCard, true);
         editor.call('users:getUsage', currentUser.id, (res) => {
             accountUsage = res;
@@ -937,7 +1077,7 @@ editor.once('load', () => {
     };
 
     const renderSidebar = () => {
-        projectsNav.class[isOrg(filter) ? 'remove' : 'add']('active');
+        projectsNav.class[isOwnerView(filter) ? 'remove' : 'add']('active');
 
         recentsList.clear();
         if (loading && !rootProjects().length && !covered()) {
@@ -976,14 +1116,116 @@ editor.once('load', () => {
         }
     };
 
+    const renderProfile = (owner) => {
+        editProfile.hidden = !pages || owner.id !== selfId;
+        orgMenuButton.hidden = !isOrg(owner.id);
+        const art = avatarUrl(owner.id, 256);
+        (bannerArt.dom as HTMLImageElement).src = art;
+        (profileAvatar.dom as HTMLImageElement).src = art;
+        profileTitle.text = userName(owner);
+        profileUser.text = owner.username;
+
+        // free is the default, so only paid plans get an icon, named in its tooltip
+        const plan = PLANS[owner.plan_type];
+        planIcon.hidden = !plan;
+        planIcon.dom.innerHTML = plan?.icon ?? '';
+        planIcon.dom.setAttribute('aria-label', plan ? `${plan.label} plan` : '');
+        planTip.html = plan ? `<b>${plan.label}</b> plan` : '';
+
+        // the organizations they're in, like the old profile page; only your own user carries them
+        orgTips.forEach((tip) => tip.destroy());
+        profileOrgs.clear();
+        orgTips = (owner.organizations ?? []).map((org) => {
+            const a = new Container({ dom: 'a', class: 'cms-profile-org' });
+            const dom = a.dom as HTMLAnchorElement;
+            dom.href = withParams(location.href, { user: org.username });
+            dom.setAttribute('aria-label', userName(org));
+            dom.addEventListener('click', (e) => {
+                if (!e.metaKey && !e.ctrlKey && !e.shiftKey) {
+                    e.preventDefault();
+                    openUser(org);
+                }
+            });
+            image(avatarUrl(org.id, 44), null, a);
+            profileOrgs.append(a);
+            return TooltipHandle.attach({
+                root: overlay.dom,
+                target: dom,
+                align: 'bottom',
+                class: 'cms-tip',
+                html: `Member of <b>${escapeHtml(userName(org))}</b>`
+            });
+        });
+
+        // skills are stored as lowercase keys
+        skillChips.clear();
+        (owner.skills ?? []).forEach((k) => text(k.charAt(0).toUpperCase() + k.slice(1), 'cms-chip', skillChips));
+        skillChips.hidden = !skillChips.dom.children.length;
+
+        // only web links: the urls are the owner's own input
+        profileMetas.clear();
+        for (const link of owner.social_profiles ?? []) {
+            if (!SOCIAL_LINKS[link?.provider] || !/^https?:\/\//.test(link?.url ?? '')) {
+                continue;
+            }
+            const { label, icon } = SOCIAL_LINKS[link.provider];
+            const url = new URL(link.url);
+            const path = url.pathname.replace(/\/+$/, '');
+
+            // a handle reads better than its url on x
+            const shown =
+                link.provider === 'x' && path
+                    ? `@${path.split('/').pop()}`
+                    : `${url.hostname.replace(/^www\./, '')}${path}`;
+            const a = new Container({ dom: 'a', class: 'cms-profile-link' });
+            const dom = a.dom as HTMLAnchorElement;
+            dom.href = link.url;
+            dom.target = '_blank';
+            dom.rel = 'noopener noreferrer nofollow ugc';
+            dom.title = label;
+            dom.innerHTML = icon;
+            text(shown, null, a);
+            profileMetas.append(a);
+        }
+        if (owner.created_at) {
+            const since = new Date(owner.created_at).toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+            const joinedAt = text(`Joined ${since}`, 'cms-profile-joined', profileMetas);
+            joinedAt.dom.insertAdjacentHTML('afterbegin', CALENDAR_ICON);
+        }
+
+        // public totals, even where members list private projects too; blank while the projects load, instead of reading 0
+        totals.clear();
+        const list = listFor(owner.id).filter((p) => !p.private);
+        const sum = (key) => list.reduce((n, p) => n + (p[key] ?? 0), 0);
+        [
+            ['views', 'view'],
+            ['plays', 'play'],
+            ['starred', 'star']
+        ].forEach(([key, word]) => {
+            const n = sum(key);
+            const item = box('cms-profile-total', totals);
+            text(loading ? '' : countToHuman(n), 'cms-profile-count', item);
+            text(n === 1 ? word : `${word}s`, null, item);
+        });
+    };
+
     const renderHead = () => {
         const org = orgs().find((o) => o.id === filter);
-        orgMenuButton.hidden = !org;
-        sectionTitle.hidden = !!org;
+        const onProfile = isProfile(filter);
 
-        if (org) {
-            title.text = userName(org);
-            subtitle.text = `Organization · ${(projects[org.id] ?? []).length} projects`;
+        // an organization you're in gets the profile's layout over its members' list, once its details load
+        const owner = onProfile ? profileOwner : org && (currentUser?.id === org.id ? currentUser : org);
+        profile.hidden = !owner;
+        profileNote.hidden = !onProfile || profileOwner.id !== selfId;
+        head.hidden = !!owner;
+        headingText.text = onProfile ? 'Public projects' : 'Projects';
+        headingCount.text = owner && !loading ? `${listFor(filter).length}` : '';
+
+        if (owner) {
+            renderProfile(owner);
+
+            // the phone bar names the page
+            title.text = userName(owner);
         } else {
             // counts live on the tabs and storage on the sidebar card, so home gets a prompt. with no
             // accounts there's no one signed in to greet by name
@@ -997,7 +1239,7 @@ editor.once('load', () => {
         welcome.clear();
         const list = allProjects();
         if (loading && !list.length) {
-            welcome.hidden = isOrg(filter) || covered();
+            welcome.hidden = isOwnerView(filter) || covered();
             welcome.class.add('skeleton');
             bone('welcome-thumb', welcome);
             const info = box('cms-welcome-info', welcome);
@@ -1010,7 +1252,7 @@ editor.once('load', () => {
         }
         welcome.class.remove('skeleton');
         const lead = list.filter((p) => !blocked(p)).sort(byRecent())[0];
-        welcome.hidden = !lead || isOrg(filter);
+        welcome.hidden = !lead || isOwnerView(filter);
         if (!lead) {
             return;
         }
@@ -1075,7 +1317,7 @@ editor.once('load', () => {
     };
 
     const renderTools = () => {
-        const org = isOrg(filter);
+        const org = isOwnerView(filter);
         tabs.hidden = org;
         tabButtons.forEach(([id, tab, count]) => {
             count.textContent = waiting() ? '' : `${rootProjects().filter((p) => matchTab(p, id)).length}`;
@@ -1098,8 +1340,8 @@ editor.once('load', () => {
         if (project.private) {
             text('Private', 'cms-badge', tags);
         }
-        // editing a shared project is the norm, so only flag the exception
-        if (project.owner_id !== config.self.id && project.access_level === 'read') {
+        // editing a shared project is the norm, so only flag the exception; on a profile, read only is the norm
+        if (project.owner_id !== selfId && project.access_level === 'read' && !isProfile(filter)) {
             text('Read only', ['cms-badge', 'info'], tags);
         }
         const pending = isPending(project);
@@ -1122,10 +1364,12 @@ editor.once('load', () => {
             text(cover[0], 'cms-cover-title', c);
             text(cover[1], null, c);
         }
-        const body = box('cms-card-body', card);
+        // a profile's cards are its owner's public work, so they skip the owner, size and actions
+        const onProfile = isProfile(filter);
+        const body = box(onProfile ? ['cms-card-body', 'public'] : 'cms-card-body', card);
         const titleRow = box('cms-card-title', body);
         text(project.name, 'cms-card-name', titleRow);
-        if (!pending) {
+        if (!pending && !onProfile) {
             kebabFor(project, titleRow);
         }
         text(
@@ -1134,17 +1378,19 @@ editor.once('load', () => {
             body
         );
         // avatars, then the owner over the edit time, so the name gets the full width
-        const meta = box('cms-card-meta', body);
-        avatarGroup(project, meta);
-        const byline = box('cms-card-byline', meta);
-        text(ownerName(project), 'cms-card-owner', byline).dom.title = ownerName(project);
-        const when = sortPolicy === 'created' ? `created ${timeAgo(project.created)}` : timeAgo(project.modified);
-        if (pending) {
-            const status = isRecipient(project) ? `Offered ${when}` : `Sent to ${project.new_owner} ${when}`;
-            text(status, ['cms-card-when', 'transfer'], byline);
-        } else {
-            // the size sits with the date, so the footer only holds counts and fits a 200px card
-            text(joined(when, bytesToHuman(project.size?.total ?? 0)), 'cms-card-when', byline);
+        if (!onProfile) {
+            const meta = box('cms-card-meta', body);
+            avatarGroup(project, meta);
+            const byline = box('cms-card-byline', meta);
+            text(ownerName(project), 'cms-card-owner', byline).dom.title = ownerName(project);
+            const when = sortPolicy === 'created' ? `created ${timeAgo(project.created)}` : timeAgo(project.modified);
+            if (pending) {
+                const status = isRecipient(project) ? `Offered ${when}` : `Sent to ${project.new_owner} ${when}`;
+                text(status, ['cms-card-when', 'transfer'], byline);
+            } else {
+                // the size sits with the date, so the footer only holds counts and fits a 200px card
+                text(joined(when, bytesToHuman(project.size?.total ?? 0)), 'cms-card-when', byline);
+            }
         }
 
         // counts get their own strip so the owner line keeps the full width
@@ -1317,14 +1563,15 @@ editor.once('load', () => {
     observer.observe(more.dom);
 
     const refresh = () => {
-        if (!rootUser) {
+        // nothing to show until you, or signed out a profile, has loaded
+        if (!rootUser && !profileOwner) {
             return;
         }
         renderSidebar();
 
         // nothing to browse yet: the greeting and actions take the centre, like claude code's start screen;
         // otherwise the sidebar's new project and import cover it
-        const start = !loading && !isOrg(filter) && !rootProjects().length;
+        const start = !loading && !isOwnerView(filter) && !rootProjects().length;
         rightPanel.class[start ? 'add' : 'remove']('start');
         headerUtils.hidden = !start;
         renderHead();
@@ -1336,8 +1583,15 @@ editor.once('load', () => {
     // CONTROLLERS
 
     const setFilter = (id) => {
+        if (isProfile(id) !== isProfile(filter)) {
+            sortPolicy = isProfile(id) ? 'views' : 'modified';
+            sortDescending = true;
+        }
         filter = id;
         const org = orgs().find((o) => o.id === id);
+
+        // the url names the user whose page is open, so it reloads, links and goes back to it
+        setUrl({ user: isProfile(id) ? profileOwner.username : (org?.username ?? null) });
         scroll.dom.scrollTop = 0;
         if (org) {
             editor.call('users:loadOne', org.id, (res) => {
@@ -1385,8 +1639,8 @@ editor.once('load', () => {
     const importDisabled = () => {
         return !(
             importable &&
-            (currentUser.id === config.self.id ||
-                editor.call('project:management:isOrgAdmin', currentUser.id, config.self))
+            signedIn &&
+            (currentUser.id === selfId || editor.call('project:management:isOrgAdmin', currentUser.id, config.self))
         );
     };
 
@@ -1398,20 +1652,23 @@ editor.once('load', () => {
         editor.call('progress:card:import', files[0], editor.call('picker:project:cms:currentUser'));
     };
 
-    // loads your projects and each organization's into the CMS main panel
+    // loads your projects, each organization's and an open profile's into the CMS main panel
     const loadProjects = () => {
         // only the first load shows skeletons; a reload swaps the list in place, keeping how far you'd scrolled
-        const reload = rootUser.id in projects;
+        const reload = (rootUser ?? profileOwner).id in projects;
         if (!reload) {
             toggleProgress(true);
         }
-        const owners = [rootUser, ...orgs()];
+        // signed out there's no you or organizations to load, only the profile
+        const visitor = profileOwner && profileOwner !== rootUser;
+        const owners = [...(rootUser ? [rootUser, ...orgs()] : []), ...(visitor ? [profileOwner] : [])];
         const promises = owners.map((owner) => {
-            return editor.call(
-                'projects:list',
-                owner.id,
-                editor.call('project:management:showOwnerView', owner) ? 'profile' : null
-            );
+            // a profile lists only the owner's public projects, even to members who could see more
+            if (owner === profileOwner) {
+                return editor.call('projects:list', owner.id, 'public');
+            }
+            const ownView = editor.call('project:management:showOwnerView', owner);
+            return editor.call('projects:list', owner.id, ownView ? 'profile' : null);
         });
 
         Promise.all(promises).then((values) => {
@@ -1428,6 +1685,30 @@ editor.once('load', () => {
                 scroll.dom.scrollTop = top;
             }
         });
+    };
+
+    // opens a user's page in place: an organization you're in opens as usual, anyone else as a profile
+    const openUser = (user) => {
+        if (isOrg(user.id)) {
+            setFilter(user.id);
+            return;
+        }
+        profileOwner = user.id === selfId ? rootUser : user;
+
+        // skeletons until their projects arrive, instead of an empty list
+        if (!(user.id in projects)) {
+            loading = true;
+            loadProjects();
+        }
+        setFilter(user.id);
+    };
+
+    // a user by username, or null when there's no such user
+    const findUser = (name, done) => {
+        editor.api.globals.rest.users
+            .userGet(encodeURIComponent(name))
+            .on('load', (status, user) => done(user))
+            .on('error', () => done(null));
     };
 
     const refreshUI = () => {
@@ -1517,14 +1798,51 @@ editor.once('load', () => {
             renderSkeleton();
             overlay.hidden = false;
         }
-        editor.call('users:loadOne', config.self.id, (user) => {
-            rootUser = user;
-            currentUser = rootUser;
-            filter = 'all';
+        const show = () => {
             refresh();
             loadProjects();
             renderUsage();
             overlay.hidden = false;
+        };
+        // a profile the page was served for, or one named in the url
+        const visit = (config as unknown as EditorBlankConfig).profileOwner;
+        const name = readUrl(location.href).user;
+        const find = (done) =>
+            visit ? editor.call('users:loadOne', visit.id, done) : name ? findUser(name, done) : done(null);
+        const showProfile = (owner) => {
+            profileOwner = owner;
+            filter = owner.id;
+            sortPolicy = 'views';
+            show();
+        };
+
+        // signed out, a profile is the only thing to show
+        if (!signedIn) {
+            find((owner) => owner && showProfile(owner));
+            return;
+        }
+        editor.call('users:loadOne', selfId, (user) => {
+            rootUser = user;
+            currentUser = rootUser;
+            filter = 'all';
+
+            // a profile opens on that owner's projects, your own included; an organization's opens as usual
+            find((owner) => {
+                if (!owner) {
+                    show();
+                    if (name) {
+                        setUrl({ user: null }, true);
+                        editor.call('picker:project:buildAlert', rightPanel, NO_USER);
+                    }
+                } else if (owner.id === user.id) {
+                    showProfile(user);
+                } else if (isOrg(owner.id)) {
+                    show();
+                    setFilter(owner.id);
+                } else {
+                    showProfile(owner);
+                }
+            });
         });
     });
 
@@ -1564,6 +1882,26 @@ editor.once('load', () => {
                 (project) => (project.disabled ? fail() : inPlace(() => openProject(project, section))),
                 fail
             );
+        }
+    });
+
+    // back and forward between users' pages; a page served for a profile has no user in its url
+    editor.on('picker:url', ({ user }) => {
+        const open = isProfile(filter) ? profileOwner.username : orgs().find((o) => o.id === filter)?.username;
+        if (
+            !rootUser ||
+            overlay.hidden ||
+            user === (open ?? null) ||
+            (!user && (config as unknown as EditorBlankConfig).profileOwner)
+        ) {
+            return;
+        }
+        if (!user) {
+            setFilter('all');
+        } else if (user === rootUser.username) {
+            openUser(rootUser);
+        } else {
+            findUser(user, (found) => (found ? openUser(found) : setFilter('all')));
         }
     });
 

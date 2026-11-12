@@ -296,12 +296,7 @@ editor.once('load', () => {
     let currentSelection = null;
 
     projectImg.addEventListener('click', () => {
-        if (
-            !canWrite() ||
-            !leftPanel.enabled ||
-            currentProject.access_level !== 'admin' ||
-            currentProject.owner_id !== config.self.id
-        ) {
+        if (!canWrite() || !leftPanel.enabled || currentProject.access_level !== 'admin') {
             return;
         }
 
@@ -580,6 +575,12 @@ editor.once('load', () => {
             currentProject = res;
             refreshUI();
 
+            // signed out there's no one to load
+            if (!ownerId) {
+                currentUser = null;
+                overlay.hidden = false;
+                return;
+            }
             editor.call('users:loadOne', ownerId, (user) => {
                 currentUser = user;
                 overlay.hidden = false;

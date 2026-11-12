@@ -16,6 +16,12 @@
             "rangeStrategy": "pin"
         },
         {
+            "matchFileNames": [".github/workflows/test-suite-run.yml"],
+            "matchDatasources": ["github-runners"],
+            "matchPackageNames": ["ubuntu"],
+            "allowedVersions": "<26"
+        },
+        {
             "matchManagers": ["npm"],
             "groupName": "all npm dependencies",
             "schedule": ["on monday at 10:00am"]

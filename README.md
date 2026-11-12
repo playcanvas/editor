@@ -18,6 +18,10 @@ You can see more projects built using the Editor on the [PlayCanvas website](htt
 > [!TIP]
 > **AI-assisted development:** The Editor includes a built-in [Model Context Protocol (MCP) integration](https://github.com/playcanvas/editor-mcp-server), allowing AI assistants to inspect and modify projects directly through an open Editor session.
 
+## Developing with AI
+
+Coding agents: start from the [Editor guides index](https://developer.playcanvas.com/user-manual/editor/llms.txt) and the [Editor API index](https://api.playcanvas.com/editor/llms.txt), which link a Markdown version of every page.
+
 ## Local Development
 
 To initialize a local development environment for the Editor Frontend, ensure you have [Node.js](https://nodejs.org/) 18 or later installed. Follow these steps:

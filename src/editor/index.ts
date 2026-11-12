@@ -350,7 +350,7 @@ import './pickers/auditor/picker-auditor';
 
 import './pickers/picker-message';
 
-// project settings dialogs; the projects page and its other dialogs live in blank.ts
+// project settings dialogs; the projects page and its other dialogs live in src/projects
 import './pickers/project-management/picker-modal-new-project';
 import './pickers/project-management/picker-modal-new-project-confirmation';
 import './pickers/project-management/picker-modal-delete-self-confirmation';
