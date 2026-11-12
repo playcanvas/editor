@@ -50,7 +50,7 @@ export const withParams = (href: string, params: Record<string, string | number 
 /**
  * The picker state an href names: New project, its kit and whether Create opens the project in this
  * tab (`here`), the project and section of project settings (`open` when any section is named, known or
- * not), the build whose details show and the user whose page the projects page opens on.
+ * not) and the build whose details show.
  */
 export const readUrl = (href: string) => {
     const params = new URL(href).searchParams;
@@ -61,8 +61,7 @@ export const readUrl = (href: string) => {
         project: parseInt(params.get('project'), 10) || null,
         section: sectionName(params.get('tab')),
         build: params.get('build'),
-        open: params.has('tab'),
-        user: params.get('user')
+        open: params.has('tab')
     };
 };
 
@@ -74,6 +73,17 @@ export const setUrl = (params: Parameters<typeof withParams>[1], replace = repla
     const href = withParams(location.href, params);
     if (href !== location.href) {
         history[replace ? 'replaceState' : 'pushState'](history.state, '', href);
+    }
+};
+
+/**
+ * Moves the page to another path on this site with the given history state, keeping its params, adding a
+ * history entry unless replace is set or a restore is running; nothing is written when neither would change.
+ */
+export const setPath = (path: string, state: unknown, replace = replacing) => {
+    const href = new URL(`${path}${location.search}`, location.href).href;
+    if (href !== location.href || history.state !== state) {
+        history[replace ? 'replaceState' : 'pushState'](state, '', href);
     }
 };
 
