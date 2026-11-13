@@ -16,9 +16,8 @@ const MAX_BREADCRUMBS = 100;
 
 const EXTENSION_URL = /^(?:chrome|moz|safari-web)-extension:\/\//;
 
-// standard hosts the editor loads its engine and frontend from; anything else is a user override
-// (a custom build) whose errors we can't fix. matches the console's "local engine/frontend" checks
-const DEFAULT_ENGINE_URL_PREFIX = 'https://code.playcanvas.com/playcanvas-';
+// standard path the editor loads its frontend from; anything else is a user override
+// (a custom build) whose errors we can't fix. matches the console's "local frontend" check
 const DEFAULT_FRONTEND_URL_PREFIX = '/editor/scene';
 
 type SentryConfig =
@@ -111,7 +110,7 @@ const setSentrySource = (engineUrl?: string, frontendUrl?: string) => {
     if (!scope) {
         return;
     }
-    const customEngine = Boolean(engineUrl && !engineUrl.startsWith(DEFAULT_ENGINE_URL_PREFIX));
+    const customEngine = Boolean(engineUrl && new URLSearchParams(location.search).has('use_local_engine'));
     const customFrontend = Boolean(frontendUrl && !frontendUrl.startsWith(DEFAULT_FRONTEND_URL_PREFIX));
     scope.setTag('custom_engine', String(customEngine));
     scope.setTag('custom_frontend', String(customFrontend));

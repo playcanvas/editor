@@ -203,7 +203,7 @@ editor.on('load', () => {
     }
 
     // log engine usage
-    if (!config.url.engine.startsWith('https://code.playcanvas.com/playcanvas-')) {
+    if (new URLSearchParams(location.search).has('use_local_engine')) {
         editor.call('console:log', 'Using local engine');
     }
 });
