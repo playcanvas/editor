@@ -158,7 +158,8 @@ editor.once('load', () => {
                 !this._link.entity._enabledInHierarchy ||
                 this._link.entity.__noIcon ||
                 scale === 0 ||
-                selectedIds[this._link.entity.guid]
+                selectedIds[this._link.entity.guid] ||
+                editor.call('gizmo:icon:has', this._link.entity)
             ) {
                 if (this.entity) {
                     this.entityDelete();
