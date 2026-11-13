@@ -30,6 +30,7 @@ editor.once('load', () => {
 
     const cameras = {};
     const userdata = {};
+    const userdataLoads = {};
 
     // material default
     const materialDefault = createColorMaterial();
@@ -62,7 +63,8 @@ editor.once('load', () => {
 
     // Subscribes to user data of specified user
     const addUser = function (userId: string): void {
-        editor.once(`userdata:${userId}:raw`, (data) => {
+        userdataLoads[userId] = editor.once(`userdata:${userId}:raw`, (data) => {
+            delete userdataLoads[userId];
             loadUserData(userId, data);
         });
 
@@ -70,14 +72,24 @@ editor.once('load', () => {
     };
 
     // Removes user camera and unsubscribes from userdata
-    const removeUser = function (userId: string) {
+    const removeUser = function (userId: string, disconnected = false) {
         if (userId === config.self.id) {
             return;
         }
 
+        // drop a load still waiting on the server so a later add does not create a second camera
+        if (userdataLoads[userId]) {
+            userdataLoads[userId].unbind();
+            delete userdataLoads[userId];
+        }
+
         // unsubscribe from realtime userdata
         if (userdata[userId]) {
-            userdata[userId].destroy();
+            if (disconnected) {
+                editor.call('realtime:userdata:destroy:disconnected', userdata[userId]);
+            } else {
+                userdata[userId].destroy();
+            }
             delete userdata[userId];
             editor.unbind(`realtime:userdata:${userId}:op:cameras`);
         }
@@ -239,7 +251,7 @@ editor.once('load', () => {
         editor.call('viewport:render');
 
         // server > client
-        let evt = editor.on(`realtime:userdata:${userId}:op:cameras`, (op) => {
+        editor.on(`realtime:userdata:${userId}:op:cameras`, (op) => {
             if (op.p.length !== 3 || !op.oi || op.p[1] !== 'perspective') {
                 return;
             }
@@ -252,18 +264,6 @@ editor.once('load', () => {
                 editor.call('viewport:render');
             }
         });
-
-        const unload = function () {
-            if (evt) {
-                evt.unbind();
-                evt = null;
-            }
-
-            removeUser(userId);
-        };
-
-        editor.once('scene:unload', unload);
-        editor.once('realtime:disconnected', unload);
 
         editor.call('users:loadOne', userId, (user) => {
             const userColor = editor.call('users:color', user.id, 'data');
@@ -323,6 +323,20 @@ editor.once('load', () => {
 
         removeUser(userId);
         editor.unbind(`permissions:set:${userId}`);
+    });
+
+    // drop every user, including ones whose user data never loaded, which would otherwise stay
+    // subscribed and be resent on reconnect before the scene loads. rejoining the scene's room adds
+    // the users back
+    editor.on('realtime:disconnected', () => {
+        for (const userId in userdata) {
+            removeUser(userId, true);
+        }
+    });
+    editor.on('scene:unload', () => {
+        for (const userId in userdata) {
+            removeUser(userId);
+        }
     });
 
     const vecA = new Vec3();
