@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 
-import { escapeHtml, isHttpUrl } from '../../src/common/utils';
+import { decodeHtmlEntities, escapeHtml, isHttpUrl } from '../../src/common/utils';
 
 describe('escapeHtml', () => {
     it('leaves plain text unchanged', () => {
@@ -17,6 +17,31 @@ describe('escapeHtml', () => {
     it('treats missing values as empty', () => {
         expect(escapeHtml(undefined)).to.equal('');
         expect(escapeHtml(null)).to.equal('');
+    });
+});
+
+describe('decodeHtmlEntities', () => {
+    it('decodes named and numeric entities', () => {
+        expect(decodeHtmlEntities('Paste &amp; Go')).to.equal('Paste & Go');
+        expect(decodeHtmlEntities('&lt;b&gt; &quot;x&quot; &#39;y&#x27;')).to.equal('<b> "x" \'y\'');
+    });
+
+    it('decodes one level only', () => {
+        expect(decodeHtmlEntities('Paste &amp;amp;')).to.equal('Paste &amp;');
+    });
+
+    it('round-trips escaped text', () => {
+        expect(decodeHtmlEntities(escapeHtml("a & <b>'s"))).to.equal("a & <b>'s");
+    });
+
+    it('leaves plain text, lone ampersands and unknown entities unchanged', () => {
+        expect(decodeHtmlEntities('Rock & Roll')).to.equal('Rock & Roll');
+        expect(decodeHtmlEntities('&bogus; &#0;')).to.equal('&bogus; &#0;');
+    });
+
+    it('treats missing values as empty', () => {
+        expect(decodeHtmlEntities(undefined)).to.equal('');
+        expect(decodeHtmlEntities(null)).to.equal('');
     });
 });
 
