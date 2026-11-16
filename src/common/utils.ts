@@ -333,6 +333,31 @@ export const decodeHtmlEntities = (str: unknown) => {
 };
 
 /**
+ * Decodes a project's name and description in place, which the api returns html-escaped, so
+ * they show and save as typed.
+ * @param project - The project from the api or page config
+ * @returns The same project
+ */
+export const decodeProject = <T>(project: T) => {
+    const p = project as Record<string, unknown> | null | undefined;
+    for (const key of ['name', 'description']) {
+        if (typeof p?.[key] === 'string') {
+            p[key] = decodeHtmlEntities(p[key]);
+        }
+    }
+    return project;
+};
+
+/**
+ * Escapes a project name the way the api stores it, for requests that find a project by name.
+ * @param name - The decoded project name
+ * @returns The name as stored
+ */
+export const storedProjectName = (name: string) => {
+    return name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+};
+
+/**
  * Tells whether a url is an absolute http(s) link, so it is safe to use as a link's href.
  * @param url - The url to check
  * @returns Whether it is an http(s) url

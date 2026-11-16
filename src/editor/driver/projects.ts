@@ -1,3 +1,4 @@
+import { decodeHtmlEntities } from '@/common/utils';
 import { config } from '@/editor/config';
 import { mcp } from '@/editor/mcp/connection';
 import { message } from '@/editor/mcp/request';
@@ -16,8 +17,8 @@ const currentId = () => config.project?.id ?? null;
 
 const summary = (p: any) => ({
     id: p.id,
-    name: p.name,
-    description: p.description ?? '',
+    name: decodeHtmlEntities(p.name),
+    description: decodeHtmlEntities(p.description),
     private: !!p.private,
     owner: p.owner,
     ownerId: p.owner_id,
