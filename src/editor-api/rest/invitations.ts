@@ -69,7 +69,7 @@ export const invitationList = (options: InvitationListOptions) => {
     const params = [];
     if (options.project) {
         params.push(`project_owner=${options.project.owner}`);
-        params.push(`project_name=${options.project.name}`);
+        params.push(`project_name=${encodeURIComponent(options.project.name)}`);
     }
 
     if (options.username) {

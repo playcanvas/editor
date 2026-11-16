@@ -2,7 +2,6 @@ import { Element, Container, Label, TextInput, TextAreaInput, BooleanInput } fro
 
 import { backend, UNSUPPORTED_TIP } from '@/common/backend';
 import { TooltipHandle } from '@/common/tooltips';
-import { decodeHtmlEntities } from '@/common/utils';
 import { config } from '@/editor/config';
 
 import { button } from './project-management/components/button';
@@ -25,8 +24,8 @@ editor.once('load', () => {
         : config.project;
     let projectSettings = {
         id: IS_EMPTY_STATE ? -1 : currentProject.id,
-        name: IS_EMPTY_STATE ? '' : decodeHtmlEntities(currentProject.name),
-        description: IS_EMPTY_STATE ? '' : decodeHtmlEntities(currentProject.description),
+        name: IS_EMPTY_STATE ? '' : currentProject.name,
+        description: IS_EMPTY_STATE ? '' : currentProject.description,
         private: IS_EMPTY_STATE ? false : currentProject.private
     };
 
@@ -453,11 +452,10 @@ editor.once('load', () => {
             (currentProject.owner_id === config.self.id ||
                 editor.call('project:management:isOrgAdmin', currentProject.owner_id, config.self));
 
-        // the api returns names and descriptions html-escaped, so show (and save) them as typed
         projectSettings = {
             id: currentProject.id,
-            name: decodeHtmlEntities(currentProject.name),
-            description: decodeHtmlEntities(currentProject.description),
+            name: currentProject.name,
+            description: currentProject.description,
             private: currentProject.private
         };
         editor.call('picker:project:updateProjectSettingsMenuItem', projectSettings.name);
