@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 
-import { decodeHtmlEntities, escapeHtml, isHttpUrl } from '../../src/common/utils';
+import { decodeHtmlEntities, decodeProject, escapeHtml, isHttpUrl, storedProjectName } from '../../src/common/utils';
 
 describe('escapeHtml', () => {
     it('leaves plain text unchanged', () => {
@@ -42,6 +42,30 @@ describe('decodeHtmlEntities', () => {
     it('treats missing values as empty', () => {
         expect(decodeHtmlEntities(undefined)).to.equal('');
         expect(decodeHtmlEntities(null)).to.equal('');
+    });
+});
+
+describe('decodeProject', () => {
+    it('decodes name and description in place', () => {
+        const project = { id: 1, name: 'Paste &amp; Go', description: 'a &lt;b&gt;' };
+        expect(decodeProject(project)).to.equal(project);
+        expect(project).to.deep.equal({ id: 1, name: 'Paste & Go', description: 'a <b>' });
+    });
+
+    it('skips missing projects and fields', () => {
+        expect(decodeProject(undefined)).to.equal(undefined);
+        expect(decodeProject({ id: 1 })).to.deep.equal({ id: 1 });
+    });
+});
+
+describe('storedProjectName', () => {
+    it('escapes a name the way the api stores it', () => {
+        expect(storedProjectName('a & <b>"q\'')).to.equal('a &amp; &lt;b&gt;"q\'');
+    });
+
+    it('round-trips a stored name', () => {
+        const stored = 'Paste &amp; &amp;amp; &lt;i&gt;';
+        expect(storedProjectName(decodeHtmlEntities(stored))).to.equal(stored);
     });
 });
 
