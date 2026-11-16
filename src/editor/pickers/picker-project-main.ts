@@ -2,6 +2,7 @@ import { Element, Container, Label, TextInput, TextAreaInput, BooleanInput } fro
 
 import { backend, UNSUPPORTED_TIP } from '@/common/backend';
 import { TooltipHandle } from '@/common/tooltips';
+import { decodeHtmlEntities } from '@/common/utils';
 import { config } from '@/editor/config';
 
 import { button } from './project-management/components/button';
@@ -24,8 +25,8 @@ editor.once('load', () => {
         : config.project;
     let projectSettings = {
         id: IS_EMPTY_STATE ? -1 : currentProject.id,
-        name: IS_EMPTY_STATE ? '' : currentProject.name,
-        description: IS_EMPTY_STATE ? '' : currentProject.description,
+        name: IS_EMPTY_STATE ? '' : decodeHtmlEntities(currentProject.name),
+        description: IS_EMPTY_STATE ? '' : decodeHtmlEntities(currentProject.description),
         private: IS_EMPTY_STATE ? false : currentProject.private
     };
 
@@ -141,6 +142,10 @@ editor.once('load', () => {
     });
 
     projectNameInput.on('blur', () => {
+        // leaving the field without editing it isn't a change
+        if (projectNameInput.value === projectSettings.name) {
+            return;
+        }
         projectSettingsChanged = true;
         const nameBefore = projectSettings.name;
         projectSettings.name = projectNameInput.value;
@@ -171,6 +176,9 @@ editor.once('load', () => {
     projectDescInput.on('change', () => {
         // filling the form for a project isn't a change
         if (initialLoad) {
+            return;
+        }
+        if (projectDescInput.value === projectSettings.description) {
             return;
         }
         projectSettingsChanged = true;
@@ -359,11 +367,16 @@ editor.once('load', () => {
         }
     };
 
-    // saves any changes made to the project to the database through API call
-    const saveProject = (originalField, initialLoad) => {
+    // saves the changed field to the database through API call; originalField holds its value
+    // before the change, so only that field is sent (resending the others would save them again)
+    const saveProject = (originalField: Partial<typeof projectSettings>, initialLoad: boolean) => {
         // only allow settings to be saved if user has admin rights to project
         if (currentProject.access_level === 'admin' && !initialLoad) {
-            editor.call('projects:save', currentProject, projectSettings, null, (err) => {
+            const changes: Partial<typeof projectSettings> = {};
+            for (const key of Object.keys(originalField) as (keyof typeof projectSettings)[]) {
+                (changes as Record<string, unknown>)[key] = projectSettings[key];
+            }
+            editor.call('projects:save', currentProject, changes, null, (err) => {
                 editor.call('picker:project:buildAlert', panel, `SAVE ERROR: ${err}`);
                 resetProjectSettings(originalField);
             });
@@ -440,13 +453,14 @@ editor.once('load', () => {
             (currentProject.owner_id === config.self.id ||
                 editor.call('project:management:isOrgAdmin', currentProject.owner_id, config.self));
 
+        // the api returns names and descriptions html-escaped, so show (and save) them as typed
         projectSettings = {
             id: currentProject.id,
-            name: currentProject.name,
-            description: currentProject.description,
+            name: decodeHtmlEntities(currentProject.name),
+            description: decodeHtmlEntities(currentProject.description),
             private: currentProject.private
         };
-        editor.call('picker:project:updateProjectSettingsMenuItem', currentProject.name);
+        editor.call('picker:project:updateProjectSettingsMenuItem', projectSettings.name);
 
         // only show locked view if locked project
         if (currentProject.locked) {
@@ -482,8 +496,8 @@ editor.once('load', () => {
 
         initialLoad = true;
 
-        projectNameInput.value = currentProject.name;
-        projectDescInput.value = currentProject.description;
+        projectNameInput.value = projectSettings.name;
+        projectDescInput.value = projectSettings.description;
         privateToggle.value = currentProject.private;
 
         exportProjectButton.enabled = !exportDisabled();

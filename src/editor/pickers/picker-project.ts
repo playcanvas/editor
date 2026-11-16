@@ -1,6 +1,6 @@
 import { Button, Container, Element, Label, Overlay, Panel } from '@playcanvas/pcui';
 
-import { bytesToHuman } from '@/common/utils';
+import { bytesToHuman, decodeHtmlEntities } from '@/common/utils';
 import { config } from '@/editor/config';
 
 import { inPlace, PANELS, readUrl, sectionSlug, setUrl } from './picker-url';
@@ -190,7 +190,7 @@ editor.once('load', () => {
     projectSummaryText.append(projectTitle);
 
     const buildProjectStatsUI = () => {
-        projectTitle.text = currentProject.name;
+        projectTitle.text = decodeHtmlEntities(currentProject.name);
 
         statsContainer = new Container({
             id: 'project-stats',
