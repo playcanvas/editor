@@ -969,6 +969,14 @@ editor.once('load', () => {
             ),
             onIsEnabled: () => accounts
         },
+        ...(config.self?.flags.superUser
+            ? [
+                  {
+                      ...menuItem('cms-account-admin', 'Admin dashboard', () => openPage((site) => site.admin())),
+                      onIsEnabled: () => pages
+                  }
+              ]
+            : []),
         menuItem('cms-account-feedback', 'Feedback', () =>
             window.open('https://forum.playcanvas.com/t/playcanvas-editor-feedback/616', '_blank')
         ),
