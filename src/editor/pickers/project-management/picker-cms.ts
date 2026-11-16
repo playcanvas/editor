@@ -123,6 +123,11 @@ editor.once('load', () => {
     // a signed-out visitor can only browse a profile: no account, recents, organizations or storage
     const signedIn = !!config.self;
     const selfId = config.self?.id;
+    const authenticationUrl = (path = '/') => {
+        const url = new URL(path, config.url.home);
+        url.hostname = `login.${url.hostname}`;
+        return url.href;
+    };
     const userName = (user) => user.full_name || user.username;
     const avatarUrl = (id, size = 32) => `${config.url.api}/users/${id}/thumbnail?size=${size}`;
     const ownerName = (project) => {
@@ -972,7 +977,24 @@ editor.once('load', () => {
         menuItem('cms-account-feedback', 'Feedback', () =>
             window.open('https://forum.playcanvas.com/t/playcanvas-editor-feedback/616', '_blank')
         ),
-        menuItem('cms-account-github', 'GitHub', () => window.open('https://github.com/playcanvas/editor', '_blank'))
+        menuItem('cms-account-github', 'GitHub', () => window.open('https://github.com/playcanvas/editor', '_blank')),
+        menuItem('cms-account-sign-out', 'Sign Out', async () => {
+            try {
+                // Logout only accepts POST and has no CORS headers; wait for the opaque response before leaving
+                await fetch(authenticationUrl('/logout'), {
+                    method: 'POST',
+                    credentials: 'include',
+                    mode: 'no-cors'
+                });
+                if (isProfile(filter)) {
+                    window.location.reload();
+                } else {
+                    window.location.assign(config.url.home);
+                }
+            } catch {
+                editor.call('picker:project:buildAlert', rightPanel, 'Could not sign out. Please try again.');
+            }
+        })
     ]);
     const openAccountMenu = () => {
         accountMenu.hidden = false;
