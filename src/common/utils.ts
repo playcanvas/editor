@@ -306,6 +306,32 @@ export const escapeHtml = (str: unknown) => {
     return `${str ?? ''}`.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 };
 
+const NAMED_ENTITIES: Record<string, string> = {
+    amp: '&',
+    lt: '<',
+    gt: '>',
+    quot: '"',
+    apos: "'",
+    nbsp: ' '
+};
+
+/**
+ * Turns HTML entities back into the characters they stand for, one level deep, so text the
+ * server returns escaped (e.g. `&amp;`) shows and saves as typed. Unknown entities are left as-is.
+ * @param str - The value to decode
+ * @returns The decoded string
+ */
+export const decodeHtmlEntities = (str: unknown) => {
+    return `${str ?? ''}`.replace(/&(#x[0-9a-f]+|#[0-9]+|[a-z]+);/gi, (match, entity: string) => {
+        if (entity[0] === '#') {
+            const hex = entity[1] === 'x' || entity[1] === 'X';
+            const code = parseInt(entity.slice(hex ? 2 : 1), hex ? 16 : 10);
+            return code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : match;
+        }
+        return NAMED_ENTITIES[entity.toLowerCase()] ?? match;
+    });
+};
+
 /**
  * Tells whether a url is an absolute http(s) link, so it is safe to use as a link's href.
  * @param url - The url to check
