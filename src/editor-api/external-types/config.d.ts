@@ -169,6 +169,8 @@ export type EditorBlankConfig = {
         login?: string;
         /** The site's sign-up page, for a signed-out visitor. */
         signup?: string;
+        /** The site's log-out endpoint (POST), for a signed-in user. */
+        logout?: string;
     };
     schema: ModelSchema;
     engineVersions: EngineVersions;
