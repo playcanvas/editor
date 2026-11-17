@@ -369,7 +369,7 @@ editor.once('load', () => {
     });
 
     // generate references for old fonts or refresh them for referenced fonts
-    const reprocess = async (font: any, chars: string, invert: boolean) => {
+    const reprocess = async (font: any, chars: string, invert: boolean, pxrange?: number) => {
         const sourceId = font.get('source_asset_id');
         const source = editor.call('assets:get', sourceId);
         const url = source?.get('file.url');
@@ -383,7 +383,7 @@ editor.once('load', () => {
         const buffer = await res.arrayBuffer();
         const base = font.get('name').replace(/\.[^.]+$/, '');
 
-        const { data: v3, textures } = await generate(buffer, { chars, fontName: base, invert });
+        const { data: v3, textures } = await generate(buffer, { chars, fontName: base, invert, pxrange });
         const missing = Array.from(chars).filter((c) => !v3.chars[c]);
         const path = font.get('path') || [];
         const parent = path.length ? editor.call('assets:get', path[path.length - 1]) : null;
@@ -415,7 +415,7 @@ editor.once('load', () => {
                 }
                 // last: the server nulls `meta` on any asset file update (it is normally repopulated by
                 // the conversion we skip), so writing it before the upload above would be discarded
-                font.set('meta', { ...(font.get('meta') || {}), chars, invert });
+                font.set('meta', { ...(font.get('meta') || {}), chars, invert, pxrange });
             })
             .then(
                 () => updating.delete(id),
@@ -428,8 +428,8 @@ editor.once('load', () => {
         editor.emit('fonts:reprocessed', font, missing);
     };
 
-    editor.method('fonts:reprocess', (font: any, chars: string, invert: boolean) => {
-        return reprocess(font, chars, invert).catch((err) => {
+    editor.method('fonts:reprocess', (font: any, chars: string, invert: boolean, pxrange?: number) => {
+        return reprocess(font, chars, invert, pxrange).catch((err) => {
             editor.call('status:error', `Font reprocess failed: ${err?.message ?? err}`);
         });
     });
