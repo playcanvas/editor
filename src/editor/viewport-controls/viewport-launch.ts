@@ -2,6 +2,7 @@ import { Container, Button, BooleanInput, Label, Divider } from '@playcanvas/pcu
 
 import { TooltipHandle } from '@/common/tooltips';
 import { config } from '@/editor/config';
+import { profilerParam } from '@/editor/mcp/engine-version';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');
@@ -76,10 +77,6 @@ editor.once('load', () => {
             query.push('device=webgl1');
         }
 
-        if (launchOptions.profiler) {
-            query.push('profile=true');
-        }
-
         if (launchOptions.debug) {
             query.push('debug=true');
         }
@@ -104,15 +101,22 @@ editor.once('load', () => {
         const withMcp = editor.call('mcp:status') === 'connected';
 
         const params = new URLSearchParams(location.search);
+        let version = config.engineVersions.current?.version ?? '';
         if (params.has('use_local_engine')) {
             query.push(`use_local_engine=${params.get('use_local_engine')}`);
         } else if (releaseCandidate && launchOptions.releaseCandidate) {
-            query.push(`version=${releaseCandidate}`);
+            version = releaseCandidate;
+            query.push(`version=${version}`);
         } else {
             const engineVersion = editor.call('settings:session').get('engineVersion');
             if (engineVersion && engineVersion !== 'current') {
-                query.push(`version=${config.engineVersions[engineVersion].version}`);
+                version = config.engineVersions[engineVersion].version;
+                query.push(`version=${version}`);
             }
+        }
+
+        if (launchOptions.profiler) {
+            query.push(`${profilerParam(version)}=true`);
         }
 
         if (params.has('use_local_frontend')) {
