@@ -250,12 +250,16 @@ editor.once('load', () => {
 
             const onLoaded = (cubemap: Texture) => {
                 (generateLegacyCubemap ? generateCubemap : generateEnvAtlas)(cubemapAsset, cubemap).then((result) => {
-                    // upload blob as dds
+                    // name only the file: a name renames the cubemap asset, which would gain another
+                    // extension on every prefilter. Strip the extensions earlier prefilters added
+                    const baseName = cubemapAsset.get('name').replace(/(\.(png|dds))+$/i, '');
+
+                    // upload the prefiltered data as the cubemap's file
                     editor.call(
                         'assets:uploadFile',
                         {
                             file: result.blob,
-                            name: cubemapAsset.get('name') + result.extension,
+                            filename: baseName + result.extension,
                             asset: cubemapAsset,
                             type: 'cubemap'
                         },
