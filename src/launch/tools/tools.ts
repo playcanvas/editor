@@ -52,7 +52,9 @@ editor.once('load', () => {
     let enabled = false;
     let minimized = false;
 
-    if (location.search && location.search.indexOf('profile=true') !== -1) {
+    // `profiler` from engine 2.25, which has no profiler build for `profile` to load
+    const search = new URLSearchParams(location.search);
+    if (search.get('profile') === 'true' || search.get('profiler') === 'true') {
         enabled = true;
     }
 
