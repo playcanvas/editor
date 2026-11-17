@@ -343,7 +343,7 @@ editor.once('load', () => {
 
     // release-candidate
     if (releaseCandidate) {
-        const optionReleaseCandidate = createOption('releaseCandidate', 'Use Release Candidate');
+        const optionReleaseCandidate = createOption('releaseCandidate', 'Use Latest Engine');
         optionReleaseCandidate.value = settings.get('editor.launchReleaseCandidate');
         settings.on('editor.launchReleaseCandidate:set', (value: boolean) => {
             if (value !== optionReleaseCandidate.value) {
@@ -355,7 +355,7 @@ editor.once('load', () => {
         });
         TooltipHandle.attach({
             target: optionReleaseCandidate.parent.dom,
-            text: `Launch the scene using the engine release candidate (version ${releaseCandidate}).`,
+            text: `Launch the scene using the latest engine release (version ${releaseCandidate}).`,
             align: 'right',
             root: root
         }).class.add('launch-tooltip');
