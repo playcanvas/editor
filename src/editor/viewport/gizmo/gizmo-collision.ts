@@ -340,6 +340,11 @@ editor.once('load', () => {
             // override addModelToLayers to selectively put some mesh instances
             // to the front and others to the back layer depending on __useFrontLayer
             const customAddMeshInstancesToLayers = function (this: Model) {
+                // the engine calls this on layer changes, including before the model is set
+                if (!this.meshInstances) {
+                    return;
+                }
+
                 const frontMeshInstances = this.meshInstances.filter((mi: MeshInstance) => mi.__useFrontLayer);
                 const backMeshInstances = this.meshInstances.filter((mi: MeshInstance) => !mi.__useFrontLayer);
 
