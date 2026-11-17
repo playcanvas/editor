@@ -231,7 +231,9 @@ editor.once('load', () => {
     };
 
     const createResultItem = (asset: Observer) => {
+        // empty text: the name and path are appended to the label below, and MenuItem defaults to 'Untitled'
         const item = new MenuItem({
+            text: '',
             onSelect: () => {
                 pick(asset.get('id'));
                 editor.call('picker:fuzzy:close');
