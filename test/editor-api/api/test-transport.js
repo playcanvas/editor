@@ -87,4 +87,39 @@ describe('api.globals.transport tests', function () {
 
         realtime.connection.disconnect();
     });
+
+    it('rejects an op too large for the server instead of sending it', function () {
+        const realtime = new api.Realtime();
+        realtime.connection.connect('wss://realtime');
+        const socket = sockets[0];
+        socket.open();
+        socket.dispatchEvent(new MessageEvent('message', { data: 'auth{}' }));
+
+        const sharedb = realtime.connection.sharedb;
+        const handled = sinon.stub(sharedb, 'handleMessage');
+        const op = (size) => JSON.stringify({
+            a: 'op',
+            c: 'scenes',
+            d: '1',
+            v: 3,
+            src: 'client',
+            seq: 7,
+            op: [{ p: ['name'], oi: 'x'.repeat(size) }]
+        });
+        const sent = socket.sent.length;
+
+        socket.send(op(10));
+        socket.send(`selection:${'x'.repeat(2000000)}`);
+        socket.send(op(1100000));
+        clock.tick(0);
+
+        // the small op and the non-op message go out; the oversized op does not
+        expect(socket.sent.length).to.equal(sent + 2);
+        expect(handled.calledOnce).to.equal(true);
+        const reply = handled.firstCall.args[0];
+        expect(reply).to.include({ a: 'op', c: 'scenes', d: '1', v: 3, src: 'client', seq: 7 });
+        expect(reply.error.code).to.equal('ERR_OP_TOO_LARGE');
+
+        realtime.connection.disconnect();
+    });
 });

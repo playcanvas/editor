@@ -174,10 +174,16 @@ test.describe('export/import', () => {
         // open project dialog
         await cmsRow(blankPage, projectName).click();
 
+        // the export runs on a progress card that offers the download once the job ends
+        await blankPage.getByRole('button', { name: /Export Project/ }).click();
+        const card = blankPage.locator('.pm-progress-card', { hasText: projectName });
+        await expect(card.getByRole('button', { name: 'Dismiss' })).toBeVisible({ timeout: JOB_TIMEOUT });
+        await expect(card.locator('.progress-title')).toHaveText(`${projectName} is ready`);
+
         // save export project
         const downloadPagePromise = blankPage.waitForEvent('popup');
         const downloadPromise = blankPage.waitForEvent('download');
-        await blankPage.getByRole('button', { name: /Export Project/ }).click();
+        await card.getByRole('button', { name: 'Download' }).click();
         await downloadPagePromise;
         const download = await downloadPromise;
         await download.saveAs(exportPath);

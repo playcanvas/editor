@@ -10,10 +10,29 @@ import type { Realtime } from '../realtime';
 const RECONNECT_INTERVAL = 3;
 const MAX_ATTEMPTS = 3;
 
+// the realtime server closes the socket on any message larger than this (uncompressed)
+const MAX_MESSAGE_BYTES = 1048576;
+
 type ShareDb = share.Connection & {
     bindToSocket: (socket: WebSocket) => void;
     startBulk: () => void;
     endBulk: () => void;
+    handleMessage: (message: object) => void;
+};
+
+/**
+ * Gets the UTF-8 size of a message, or 0 when it fits under the limit without measuring.
+ *
+ * @param data - The message
+ * @returns The size in bytes
+ */
+const oversizedBytes = (data: string) => {
+    // a UTF-16 code unit is 1 to 3 UTF-8 bytes, so only the middle range needs encoding
+    if (data.length * 3 <= MAX_MESSAGE_BYTES) {
+        return 0;
+    }
+    const bytes = data.length > MAX_MESSAGE_BYTES ? data.length : new TextEncoder().encode(data).length;
+    return bytes > MAX_MESSAGE_BYTES ? bytes : 0;
 };
 
 /**
@@ -127,6 +146,10 @@ class RealtimeConnection extends Events {
         // intercept send to queue and forward messages
         const send = socket.send;
         socket.send = (data: string) => {
+            if (this._rejectOversized(data)) {
+                return;
+            }
+
             // if not open use latest send
             if (socket.readyState !== WebSocket.OPEN) {
                 this.send(data);
@@ -141,6 +164,47 @@ class RealtimeConnection extends Events {
         // mark as authenticated
         this._authenticated = true;
         this._realtime.emit('authenticated');
+    }
+
+    /**
+     * Rejects an op too large for the server locally. Sent, it would close the socket, and sharedb
+     * would resend it after every reconnect, so the session would never sync again.
+     *
+     * @param data - The outgoing message
+     * @returns Whether the message was rejected instead of sent
+     */
+    private _rejectOversized(data: string) {
+        const bytes = oversizedBytes(data);
+        if (!bytes) {
+            return false;
+        }
+
+        let message: { a?: string; c?: string; d?: string; v?: number; src?: string; seq?: number };
+        try {
+            message = JSON.parse(data);
+        } catch {
+            return false;
+        }
+        if (message?.a !== 'op') {
+            return false;
+        }
+
+        // reply as the server would, so sharedb rolls the op back and reports it; async because
+        // sharedb is still sending it
+        const reply = {
+            a: 'op',
+            c: message.c,
+            d: message.d,
+            v: message.v,
+            src: message.src,
+            seq: message.seq,
+            error: {
+                code: 'ERR_OP_TOO_LARGE',
+                message: `Change too large to save (${bytes} bytes, limit ${MAX_MESSAGE_BYTES})`
+            }
+        };
+        setTimeout(() => this._sharedb?.handleMessage(reply));
+        return true;
     }
 
     /**

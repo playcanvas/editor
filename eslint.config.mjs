@@ -20,6 +20,7 @@ export default [
             'src/editor/**/*.ts',
             'src/code-editor/**/*.ts',
             'src/launch/**/*.ts',
+            'src/projects/**/*.ts',
             'src/plugins/**/*.ts'
         ],
         rules: {

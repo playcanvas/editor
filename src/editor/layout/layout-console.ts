@@ -157,8 +157,7 @@ const createAssetAuditor = (consolePanel) => {
 const createStatus = () => {
     const status = new Label({
         allowTextSelection: true,
-        class: 'status',
-        unsafe: true
+        class: 'status'
     });
 
     // status text

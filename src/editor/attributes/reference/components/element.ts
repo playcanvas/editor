@@ -256,6 +256,14 @@ export const fields: AttributeReference[] = [
         url: 'https://api.playcanvas.com/engine/classes/ElementComponent.html#spacing'
     },
     {
+        name: 'element:letterSpacing',
+        title: 'letterSpacing',
+        subTitle: '{Number}',
+        description:
+            'Extra space between the letters of the text, as a fraction of the font size, like the CSS letter-spacing property. Negative values tighten the text. Added on top of spacing.',
+        url: 'https://api.playcanvas.com/engine/classes/ElementComponent.html#letterspacing'
+    },
+    {
         name: 'element:color',
         title: 'color',
         subTitle: '{pc.Color}',

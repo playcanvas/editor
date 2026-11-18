@@ -77,6 +77,17 @@ export const setUrl = (params: Parameters<typeof withParams>[1], replace = repla
 };
 
 /**
+ * Moves the page to another path on this site with the given history state, keeping its params, adding a
+ * history entry unless replace is set or a restore is running; nothing is written when neither would change.
+ */
+export const setPath = (path: string, state: unknown, replace = replacing) => {
+    const href = new URL(`${path}${location.search}`, location.href).href;
+    if (href !== location.href || history.state !== state) {
+        history[replace ? 'replaceState' : 'pushState'](state, '', href);
+    }
+};
+
+/**
  * Runs fn with url changes replacing the current history entry instead of adding one.
  */
 export const inPlace = (fn: () => void) => {

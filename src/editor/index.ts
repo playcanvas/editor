@@ -125,9 +125,9 @@ import './entities/entities-icons';
 import './viewport/gizmo/gizmo';
 import './viewport/gizmo/gizmo-layers';
 import './viewport/gizmo/gizmo-point';
+// before gizmo-transform, so the helper gizmos are created first and win overlapping presses
+import './viewport/gizmo/gizmo-helpers';
 import './viewport/gizmo/gizmo-transform';
-import './viewport/gizmo/gizmo-camera';
-import './viewport/gizmo/gizmo-light';
 import './viewport/gizmo/gizmo-collision';
 import './viewport/gizmo/gizmo-particles';
 import './viewport/gizmo/gizmo-skeleton';
@@ -350,7 +350,7 @@ import './pickers/auditor/picker-auditor';
 
 import './pickers/picker-message';
 
-// project settings dialogs; the projects page and its other dialogs live in blank.ts
+// project settings dialogs; the projects page and its other dialogs live in src/projects
 import './pickers/project-management/picker-modal-new-project';
 import './pickers/project-management/picker-modal-new-project-confirmation';
 import './pickers/project-management/picker-modal-delete-self-confirmation';

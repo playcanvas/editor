@@ -276,6 +276,16 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
         type: 'number'
     },
     {
+        label: 'Letter Spacing',
+        path: 'components.element.letterSpacing',
+        reference: 'element:letterSpacing',
+        type: 'number',
+        args: {
+            precision: 3,
+            step: 0.01
+        }
+    },
+    {
         label: 'Color',
         path: 'components.element.color',
         reference: 'element:color',
@@ -853,6 +863,7 @@ class ElementComponentInspector extends ComponentInspector {
             'lineHeight',
             'wrapLines',
             'spacing',
+            'letterSpacing',
             'outlineColor',
             'outlineThickness',
             'shadowColor',

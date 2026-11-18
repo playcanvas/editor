@@ -1,7 +1,7 @@
 import { config } from '@/editor/config';
 
 import { mcp } from './connection';
-import { defaultEngineVersion, engineChannels, resolveEngineVersion } from './engine-version';
+import { defaultEngineVersion, engineChannels, profilerParam, resolveEngineVersion } from './engine-version';
 import { relay } from './relay';
 
 const log = (msg: string) => console.log(`[MCP] ${msg}`);
@@ -96,7 +96,7 @@ mcp.method('launch:start', async (options: any = {}) => {
         params.set('version', engine.version);
     }
     if (options.profiler) {
-        params.set('profile', 'true');
+        params.set(profilerParam(engine.version), 'true');
     }
     if (options.concatenate) {
         params.set('concatenateScripts', 'true');

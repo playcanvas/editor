@@ -1306,6 +1306,129 @@ export const fields: AttributeReference[] = [
         url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#sheenglossinvert'
     },
     {
+        name: 'asset:material:diffuseTransmission',
+        title: 'diffuseTransmission',
+        subTitle: '{Number}',
+        description:
+            'The fraction of light entering the surface that passes diffusely through it, from 0 to 1. A thin surface such as a leaf, paper or a lampshade glows when lit from behind. 0 disables it. If a diffuse transmission map is set, it is multiplied by this value. Needs Engine 2.24 or later.',
+        url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusetransmission'
+    },
+    {
+        name: 'asset:material:diffuseTransmissionMap',
+        title: 'diffuseTransmissionMap',
+        subTitle: '{pc.Texture}',
+        description: 'The map of the per-pixel diffuse transmission fraction.',
+        url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusetransmissionmap'
+    },
+    {
+        name: 'asset:material:diffuseTransmissionMapChannel',
+        title: 'diffuseTransmissionMapChannel',
+        subTitle: '{String}',
+        description: 'A color channel to extract the diffuse transmission from its map. Can be: r, g, b, a.',
+        url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusetransmissionmapchannel'
+    },
+    {
+        name: 'asset:material:diffuseTransmissionMapOffset',
+        title: 'diffuseTransmissionMapOffset',
+        subTitle: '{pc.Vec2}',
+        description: 'Controls the 2D offset of the diffuse transmission map. Each component is between 0 and 1.',
+        url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusetransmissionmapoffset'
+    },
+    {
+        name: 'asset:material:diffuseTransmissionMapTiling',
+        title: 'diffuseTransmissionMapTiling',
+        subTitle: '{pc.Vec2}',
+        description: 'Controls the 2D tiling of the diffuse transmission map.',
+        url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusetransmissionmaptiling'
+    },
+    {
+        name: 'asset:material:diffuseTransmissionMapRotation',
+        title: 'diffuseTransmissionMapRotation',
+        subTitle: '{Number}',
+        description: 'Rotate the UV coordinates of the diffuse transmission map around the center.',
+        url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusetransmissionmaprotation'
+    },
+    {
+        name: 'asset:material:diffuseTransmissionMapUv',
+        title: 'diffuseTransmissionMapUv',
+        subTitle: '{Number}',
+        description: 'Diffuse transmission map UV channel.',
+        url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusetransmissionmapuv'
+    },
+    {
+        name: 'asset:material:diffuseTransmissionVertexColor',
+        title: 'diffuseTransmissionVertexColor',
+        subTitle: '{Boolean}',
+        description:
+            'Use mesh vertex colors for the diffuse transmission. If a map is set, it is multiplied by the vertex colors.',
+        url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusetransmissionvertexcolor'
+    },
+    {
+        name: 'asset:material:diffuseTransmissionVertexColorChannel',
+        title: 'diffuseTransmissionVertexColorChannel',
+        subTitle: '{String}',
+        description: 'Vertex color channel to use for the diffuse transmission. Can be: r, g, b, a.',
+        url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusetransmissionvertexcolorchannel'
+    },
+    {
+        name: 'asset:material:diffuseTransmissionColor',
+        title: 'diffuseTransmissionColor',
+        subTitle: '{pc.Color}',
+        description:
+            'The color that tints the diffusely transmitted light. If a diffuse transmission color map is set, it is multiplied by this value. Needs Engine 2.24 or later.',
+        url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusetransmissioncolor'
+    },
+    {
+        name: 'asset:material:diffuseTransmissionColorMap',
+        title: 'diffuseTransmissionColorMap',
+        subTitle: '{pc.Texture}',
+        description: 'The map of the per-pixel diffuse transmission color.',
+        url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusetransmissioncolormap'
+    },
+    {
+        name: 'asset:material:diffuseTransmissionColorMapChannel',
+        title: 'diffuseTransmissionColorMapChannel',
+        subTitle: '{String}',
+        description: 'A color channel to extract the diffuse transmission color from its map. Can be: r, g, b, a, rgb.',
+        url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusetransmissioncolormapchannel'
+    },
+    {
+        name: 'asset:material:diffuseTransmissionColorMapOffset',
+        title: 'diffuseTransmissionColorMapOffset',
+        subTitle: '{pc.Vec2}',
+        description: 'Controls the 2D offset of the diffuse transmission color map. Each component is between 0 and 1.',
+        url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusetransmissioncolormapoffset'
+    },
+    {
+        name: 'asset:material:diffuseTransmissionColorMapTiling',
+        title: 'diffuseTransmissionColorMapTiling',
+        subTitle: '{pc.Vec2}',
+        description: 'Controls the 2D tiling of the diffuse transmission color map.',
+        url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusetransmissioncolormaptiling'
+    },
+    {
+        name: 'asset:material:diffuseTransmissionColorMapRotation',
+        title: 'diffuseTransmissionColorMapRotation',
+        subTitle: '{Number}',
+        description: 'Rotate the UV coordinates of the diffuse transmission color map around the center.',
+        url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusetransmissioncolormaprotation'
+    },
+    {
+        name: 'asset:material:diffuseTransmissionColorMapUv',
+        title: 'diffuseTransmissionColorMapUv',
+        subTitle: '{Number}',
+        description: 'Diffuse transmission color map UV channel.',
+        url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusetransmissioncolormapuv'
+    },
+    {
+        name: 'asset:material:diffuseTransmissionColorVertexColor',
+        title: 'diffuseTransmissionColorVertexColor',
+        subTitle: '{Boolean}',
+        description:
+            'Use mesh vertex colors for the diffuse transmission color. If a map is set, it is multiplied by the vertex colors.',
+        url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusetransmissioncolorvertexcolor'
+    },
+    {
         name: 'asset:material:useDynamicRefraction',
         title: 'useDynamicRefraction',
         subTitle: '{Boolean}',

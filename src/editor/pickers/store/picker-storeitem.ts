@@ -140,8 +140,27 @@ editor.once('load', () => {
         return `License: <a href="${removeScript(licenseData.url)}" target="_blank" rel="noopener noreferrer">${escapeString(licenseData.name)}</a>`;
     };
 
-    const buildAuthorHtml = (license) => {
-        return `Author: <a href="${removeScript(license.authorUrl)}" target="_blank" rel="noopener noreferrer">${license.author}</a>`;
+    // the author comes from the store's api, so its name is set as text and only http(s) urls are linked
+    const buildAuthorElement = (license) => {
+        const link = document.createElement('a');
+        link.textContent = `${license.author}`;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+
+        try {
+            const url = license.authorUrl && new URL(license.authorUrl, location.href);
+            if (url && (url.protocol === 'https:' || url.protocol === 'http:')) {
+                link.href = url.href;
+            }
+        } catch {
+            // not a url, so the name is shown without a link
+        }
+
+        const element = new Element({
+            class: 'item-author-label'
+        });
+        element.dom.append('Author: ', link);
+        return element;
     };
 
     const displayLicense = (containerTabContent) => {
@@ -154,12 +173,7 @@ editor.once('load', () => {
             containerTabContent.append(elementLicense);
 
             if (storeItem.license.author) {
-                const elementAuthor = new Element({
-                    class: 'item-author-label'
-                });
-                const authorHtml = buildAuthorHtml(storeItem.license);
-                elementAuthor.dom.innerHTML = authorHtml;
-                containerTabContent.append(elementAuthor);
+                containerTabContent.append(buildAuthorElement(storeItem.license));
             }
         }
     };

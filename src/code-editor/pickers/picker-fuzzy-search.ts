@@ -231,7 +231,9 @@ editor.once('load', () => {
     };
 
     const createResultItem = (asset: Observer) => {
+        // empty text: the name and path are appended to the label below, and MenuItem defaults to 'Untitled'
         const item = new MenuItem({
+            text: '',
             onSelect: () => {
                 pick(asset.get('id'));
                 editor.call('picker:fuzzy:close');
@@ -250,9 +252,17 @@ editor.once('load', () => {
             path = '/';
         }
 
-        // HACK: when we set the menu item's text, we want to set innerHTML
-        item._labelText._unsafe = true;
-        item.text = `<div class="name">${asset.get('name')}<span class="path">${path}</span></div>`;
+        // asset and folder names are user text, so set them as text
+        const elementName = document.createElement('div');
+        elementName.classList.add('name');
+        elementName.textContent = asset.get('name');
+
+        const elementPath = document.createElement('span');
+        elementPath.classList.add('path');
+        elementPath.textContent = path;
+
+        elementName.append(elementPath);
+        item._labelText.dom.append(elementName);
         item._assetId = asset.get('id');
         return item;
     };

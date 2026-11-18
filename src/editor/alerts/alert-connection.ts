@@ -163,6 +163,12 @@ editor.once('load', () => {
     // a schema-validation rejection reverts the op but leaves the connection healthy, so the
     // connection-loss handler would suppress it during its grace period — surface it instead
     const onRealtimeError = (err: unknown) => {
+        // rejected locally by the realtime connection, so the change was reverted and the editor still syncs
+        if ((err as { code?: string })?.code === 'ERR_OP_TOO_LARGE') {
+            console.error('realtime change too large to save and reverted:', err);
+            editor.call('status:error', 'Change too large to save. Try editing fewer entities at once.');
+            return;
+        }
         if (isSchemaRejection(err)) {
             console.error('realtime change rejected and reverted:', err);
             editor.call('status:error', schemaRejectionMessage(err));

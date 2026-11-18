@@ -3,8 +3,13 @@ import { buildQueryUrl } from '@/common/utils';
 import { SOURCE_MAP_URL } from '@/core/constants';
 import { WorkerClient } from '@/core/worker/worker-client';
 
+import { createScriptSources } from './esm-script-sources';
+import { createReplyTimer } from './reply-timer';
+
 const CLASSIC_PARSE_TIMEOUT = 60000;
 const SCRIPT_ATTRIBUTES_TIMEOUT = 60000;
+
+const waitForReply = createReplyTimer(SCRIPT_ATTRIBUTES_TIMEOUT);
 
 editor.once('load', () => {
     const genGUID = () => {
@@ -89,19 +94,20 @@ editor.once('load', () => {
             }
 
             // a connection lost while the tab was idle drops the request or its reply, so stop waiting
-            // rather than leave the parse pending with no error
-            const timer = setTimeout(() => {
+            // rather than leave the parse pending with no error; the backend answers queued parses one
+            // at a time, so only a stretch with no reply at all counts as lost
+            const replied = waitForReply(() => {
                 editor.unbind(`messenger:scriptAttrsFinished:${guid}`);
                 const message = `Timed out while parsing script asset '${asset.get('name')}'. Please refresh the editor.`;
                 if (inEditor) {
                     editor.call('status:error', message);
                 }
                 callback?.(new Error(message));
-            }, SCRIPT_ATTRIBUTES_TIMEOUT);
+            });
 
             // Wait for the backend to finish setting the script attributes
             editor.on(`messenger:scriptAttrsFinished:${guid}`, () => {
-                clearTimeout(timer);
+                replied();
                 if (inEditor) {
                     editor.call('status:clear');
                 }
@@ -163,61 +169,18 @@ editor.once('load', () => {
             handleParseResult(guid, res, asset, callback, inEditor);
         });
 
-        const fileCache = new Map();
-        const getScripts = async (pathFilter = []) => {
-            const assets = editor.call('assets:list') ?? [];
-
-            // Get all the files that no longer exist. ie files in the cache, but not in esmScripts
-            const deletedFiles = [];
-            const esmPaths = new Set(
-                assets
-                    .filter((asset) => editor.call('assets:isModule', asset))
-                    .map((asset) => editor.call('assets:virtualPath', asset))
-            );
-
-            // loop over the file cache, remove any files that do no exist in the script assets
-            for (const path of fileCache.keys()) {
-                if (!esmPaths.has(path)) {
-                    deletedFiles.push(path);
-                    fileCache.delete(path);
-                }
-            }
-
-            const scripts = await Promise.all(
-                assets.map(async (asset) => {
-                    if (!editor.call('assets:isModule', asset)) {
-                        return;
-                    }
-
-                    const path = editor.call('assets:virtualPath', asset);
-                    if (pathFilter.includes(path)) {
-                        return;
-                    }
-
-                    const hash = asset.get('file.hash');
-                    if (fileCache.get(path) === hash) {
-                        return;
-                    }
-
-                    // Attempt to fetch the script
-                    try {
-                        const url = editor.call('assets:realPath', asset);
-                        const res = await backend().transport.fetch(url);
-                        const content = await res.text();
-                        fileCache.set(path, hash);
-                        return [path, content];
-                    } catch (e) {
-                        console.error(`Failed to fetch ESM script ${path}`, e);
-                    }
-                })
-            );
-
-            return [scripts.filter((script) => !!script), deletedFiles];
-        };
+        const getScripts = createScriptSources({
+            list: () => editor.call('assets:list') ?? [],
+            isModule: (asset) => editor.call('assets:isModule', asset),
+            virtualPath: (asset) => editor.call('assets:virtualPath', asset),
+            realPath: (asset) => editor.call('assets:realPath', asset),
+            fetchText: async (url) => (await backend().transport.fetch(url)).text()
+        });
 
         // the worker source and engine are frontend and cdn files; asset files go through the backend
         const fetchText = async (url: string, get = fetch) => (await get(url)).text();
 
+        let esmSupported: Promise<boolean> | null = null;
         let workerSourcePromise: Promise<string> | undefined;
         let enginePromise: Promise<string> | undefined;
 
@@ -317,7 +280,12 @@ onmessage = (e) => {
         parse = async (asset, inEditor, callback) => {
             if (editor.call('assets:isModule', asset)) {
                 // FIXME: just check engine version directly
-                if (!(await isEsmSupportedInEngine(config.url.engine))) {
+                // checked once, as every parse would otherwise refetch and evaluate the engine; a failed check retries
+                esmSupported ??= isEsmSupportedInEngine(config.url.engine).then((ok) => {
+                    esmSupported = ok ? esmSupported : null;
+                    return ok;
+                });
+                if (!(await esmSupported)) {
                     const msg =
                         'ESM scripts are not supported in this version of the engine. Please update to the latest version.';
                     editor.call('status:error', msg);

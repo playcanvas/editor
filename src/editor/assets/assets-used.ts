@@ -46,6 +46,8 @@ editor.once('load', () => {
             'data.clearCoatNormalMap': true,
             'data.sheenMap': true,
             'data.sheenGlossMap': true,
+            'data.diffuseTransmissionMap': true,
+            'data.diffuseTransmissionColorMap': true,
             'data.refractionMap': true,
             'data.thicknessMap': true,
             'data.iridescenceMap': true,

@@ -4,6 +4,9 @@ editor.once('load', () => {
     const panel = editor.call('chat:panel');
     let number = 0;
 
+    // the server renders the title from the escaped name, so it shows entities like &amp;
+    editor.call('notify:title', `${config.project.name} | Editor`);
+
     editor.on('visibility', (state: boolean) => {
         if (state) {
             number = 0;

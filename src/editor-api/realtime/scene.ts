@@ -8,6 +8,10 @@ import { ensureParentOps } from './ensure-parent-ops';
 import type { Op } from './ensure-parent-ops';
 import { batchRejections } from './rejections';
 
+// sharedb composes consecutive edits into one pending op; capping its JSON keeps the message under the
+// realtime server's 1 MiB limit even if every character takes 3 UTF-8 bytes
+const MAX_COMPOSE_CHARS = 300000;
+
 /**
  * Represents a scene in sharedb
  *
@@ -27,6 +31,8 @@ class RealtimeScene extends Events {
     private _evtConnection: any;
 
     private _onRejected = batchRejections((err, ops) => this._realtime.emit('error:scene', err, this._uniqueId, ops));
+
+    private _composing: { op: unknown; chars: number } | null = null;
 
     /**
      * Constructor
@@ -120,12 +126,30 @@ class RealtimeScene extends Events {
         try {
             const ops = ensureParentOps(this._document.data, op as Op);
 
-            // a callback keeps the rejected op, which the doc 'error' event drops
-            this._document.submitOp(ops, (err: unknown) => {
-                if (err) {
-                    this._onRejected(err, ops);
-                }
-            });
+            // start a new pending op once composing this one into the last would make it too large
+            // to send, e.g. while pasting thousands of entities or editing through a disconnect
+            const doc = this._document;
+            const chars = JSON.stringify(ops).length;
+            const last = doc.pendingOps[doc.pendingOps.length - 1];
+            const open = !!last && !last.sentAt && this._composing?.op === last;
+            const fits = open && this._composing.chars + chars <= MAX_COMPOSE_CHARS;
+            const preventCompose = doc.preventCompose;
+            doc.preventCompose = preventCompose || !fits;
+
+            try {
+                // a callback keeps the rejected op, which the doc 'error' event drops
+                doc.submitOp(ops, (err: unknown) => {
+                    if (err) {
+                        this._onRejected(err, ops);
+                    }
+                });
+            } finally {
+                doc.preventCompose = preventCompose;
+            }
+            this._composing = {
+                op: doc.pendingOps[doc.pendingOps.length - 1],
+                chars: (fits ? this._composing.chars : 0) + chars
+            };
         } catch (err) {
             console.error(err);
             this._realtime.emit('error:scene', err, this._uniqueId);

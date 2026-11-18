@@ -1,8 +1,7 @@
 import { driver } from '@/editor/driver/driver';
 import '@/editor/driver/projects';
-
-import { mcp } from './connection';
-import { createMcpButton } from './popover';
+import { mcp } from '@/editor/mcp/connection';
+import { createMcpButton } from '@/editor/mcp/popover';
 
 mcp.method('ping', () => ({ data: 'pong' }));
 
