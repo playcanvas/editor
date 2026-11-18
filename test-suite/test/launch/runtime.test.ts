@@ -124,16 +124,11 @@ test.describe('runtime', () => {
         }
     });
 
-    test('toggle dev tools', async ({ project, openLaunch }) => {
+    test('open profiler', async ({ project, openLaunch }) => {
         const launch = await openLaunch(project.sceneId, { profile: true });
 
-        const tools = launch.locator('#dev-tools');
-        await expect(tools).toBeVisible();
-
-        await launch.keyboard.press('Alt+T');
-        await expect(tools).toBeHidden();
-
-        await launch.keyboard.press('Alt+T');
-        await expect(tools).toBeVisible();
+        // the inspector on its Performance tab, already recording
+        await expect(launch.locator('.pci-tab.pci-active')).toHaveText('Performance');
+        await expect(launch.locator('.pci-record')).toHaveAttribute('aria-label', 'Stop');
     });
 });

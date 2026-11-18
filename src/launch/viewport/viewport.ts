@@ -388,9 +388,17 @@ editor.once('load', () => {
             });
         }
 
-        if (queryParams.inspector) {
+        // the profiler is the inspector's Performance tab, recording from the first frame;
+        // `profiler` from engine 2.25, which has no profiler build for `profile` to load
+        const profile = queryParams.profile === 'true' || queryParams.profiler === 'true';
+        if (queryParams.inspector || profile) {
             if (major > 2 || (major === 2 && minor >= 23)) {
-                new Inspector(app);
+                const inspector = new Inspector(app, { record: profile });
+
+                // the inspector has no option to open a tab yet
+                if (profile) {
+                    (inspector as any)._setTab?.('perf');
+                }
             } else {
                 console.warn(`The Inspector requires Engine 2.23 or later (running ${pc.version})`);
             }
