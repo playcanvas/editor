@@ -452,12 +452,8 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
         type: 'select',
         args: {
             type: 'number',
-            options: TONEMAPPING.map((v, i) => {
-                return {
-                    v: i,
-                    t: v
-                };
-            })
+            // engine v1 has no agx
+            options: TONEMAPPING.filter(({ v }) => v < 7)
         }
     },
     {

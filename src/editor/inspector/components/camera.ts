@@ -145,12 +145,7 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
         type: 'select',
         args: {
             type: 'number',
-            options: TONEMAPPING.map((v, i) => {
-                return {
-                    v: i,
-                    t: v
-                };
-            })
+            options: TONEMAPPING
         }
     },
     {
