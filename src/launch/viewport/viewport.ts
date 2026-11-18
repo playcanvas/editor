@@ -1,5 +1,6 @@
 import { Inspector } from '@playcanvas/inspector';
 import type { Observer } from '@playcanvas/observer';
+import type { CameraComponent, Entity } from 'playcanvas';
 import { LAYERID_DEPTH } from 'playcanvas';
 
 import { useGlslTranspilation } from '@/common/project-settings';
@@ -373,8 +374,19 @@ editor.once('load', () => {
             const miniStats = new (pc.MiniStats ? pc.MiniStats : pcx.MiniStats)(app);
         }
 
+        const [major, minor] = pc.version.split('.').map(Number);
+
+        // agx (7, 8) arrived in engine 2.24; older engines fail to compile its shaders
+        if (major === 2 && minor < 24) {
+            app.systems.camera?.on('add', (entity: Entity, camera: CameraComponent) => {
+                if (camera.toneMapping > 6) {
+                    console.warn(`${entity.name}: AgX tonemapping needs Engine 2.24 or later (running ${pc.version}), using Neutral`);
+                    camera.toneMapping = 5;
+                }
+            });
+        }
+
         if (queryParams.inspector) {
-            const [major, minor] = pc.version.split('.').map(Number);
             if (major > 2 || (major === 2 && minor >= 23)) {
                 new Inspector(app);
             } else {
