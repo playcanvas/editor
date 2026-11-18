@@ -17,14 +17,16 @@ const VIEWS = {
     // an organization's project you're not a member of: only the team, to add yourself
     noAdmin: { menus: ['team'], stats: false },
     // a locked project: only why, and how to unlock it
-    locked: { menus: ['project-main'] }
+    locked: { menus: ['project-main'] },
+    // signed out: the project's settings, read only, and play
+    guest: { menus: ['project-main'] }
 };
 
 const NOT_A_MEMBER =
     'You are not currently an admin for this project. Assign yourself as an admin to edit and manage this project';
 
 editor.once('load', () => {
-    let canOpen = false;
+    let mode: keyof typeof VIEWS = 'reduced';
     const current = () => editor.call('picker:project:getCurrent');
 
     // above the projects page
@@ -60,19 +62,21 @@ editor.once('load', () => {
     }
     deleteBtn.on('click', () => editor.call('picker:project:modal:deleteProjectConfirmation', current()));
 
+    // only an admin can delete, so others don't see the button; signed out there's no editor to open
     editor.on('picker:project:refresh', (project) => {
-        editorBtn.hidden = !canOpen;
-        playBtn.hidden = !canOpen;
+        editorBtn.hidden = mode !== 'reduced';
+        playBtn.hidden = mode !== 'reduced' && mode !== 'guest';
         playBtn.enabled = !!project.primary_app_url;
-        deleteBtn.enabled = project.access_level === 'admin' && managed;
+        deleteBtn.hidden = project.access_level !== 'admin';
+        deleteBtn.enabled = managed;
     });
 
     // a link may name the section; the view's default opens when it doesn't show that one
     const show = (name: keyof typeof VIEWS, option: string) => (project, section?: string) => {
-        canOpen = name === 'reduced';
+        mode = name;
         // an admin can change the thumbnail straight away
         const admin = name === 'reduced' && project.access_level === 'admin';
-        editor.call('picker:project:open', project.id, config.self.id, section ?? option, {
+        editor.call('picker:project:open', project.id, config.self?.id, section ?? option, {
             ...VIEWS[name],
             thumbnails: admin ? 'shown' : undefined
         });
@@ -80,6 +84,7 @@ editor.once('load', () => {
     editor.method('picker:project:reduced', show('reduced', 'project-main'));
     editor.method('picker:project:noAdmin', show('noAdmin', 'team'));
     editor.method('picker:project:lockedView', show('locked', 'project-main'));
+    editor.method('picker:project:guest', show('guest', 'project-main'));
 
     // joining or leaving a project changes what you can do with it, so reopen its settings, in the history
     // entry that closing them took

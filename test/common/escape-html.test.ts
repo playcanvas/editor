@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 
-import { escapeHtml, isHttpUrl } from '../../src/common/utils';
+import { decodeHtmlEntities, decodeProject, escapeHtml, isHttpUrl, storedProjectName } from '../../src/common/utils';
 
 describe('escapeHtml', () => {
     it('leaves plain text unchanged', () => {
@@ -17,6 +17,55 @@ describe('escapeHtml', () => {
     it('treats missing values as empty', () => {
         expect(escapeHtml(undefined)).to.equal('');
         expect(escapeHtml(null)).to.equal('');
+    });
+});
+
+describe('decodeHtmlEntities', () => {
+    it('decodes named and numeric entities', () => {
+        expect(decodeHtmlEntities('Paste &amp; Go')).to.equal('Paste & Go');
+        expect(decodeHtmlEntities('&lt;b&gt; &quot;x&quot; &#39;y&#x27;')).to.equal('<b> "x" \'y\'');
+    });
+
+    it('decodes one level only', () => {
+        expect(decodeHtmlEntities('Paste &amp;amp;')).to.equal('Paste &amp;');
+    });
+
+    it('round-trips escaped text', () => {
+        expect(decodeHtmlEntities(escapeHtml("a & <b>'s"))).to.equal("a & <b>'s");
+    });
+
+    it('leaves plain text, lone ampersands and unknown entities unchanged', () => {
+        expect(decodeHtmlEntities('Rock & Roll')).to.equal('Rock & Roll');
+        expect(decodeHtmlEntities('&bogus; &#0;')).to.equal('&bogus; &#0;');
+    });
+
+    it('treats missing values as empty', () => {
+        expect(decodeHtmlEntities(undefined)).to.equal('');
+        expect(decodeHtmlEntities(null)).to.equal('');
+    });
+});
+
+describe('decodeProject', () => {
+    it('decodes name and description in place', () => {
+        const project = { id: 1, name: 'Paste &amp; Go', description: 'a &lt;b&gt;' };
+        expect(decodeProject(project)).to.equal(project);
+        expect(project).to.deep.equal({ id: 1, name: 'Paste & Go', description: 'a <b>' });
+    });
+
+    it('skips missing projects and fields', () => {
+        expect(decodeProject(undefined)).to.equal(undefined);
+        expect(decodeProject({ id: 1 })).to.deep.equal({ id: 1 });
+    });
+});
+
+describe('storedProjectName', () => {
+    it('escapes a name the way the api stores it', () => {
+        expect(storedProjectName('a & <b>"q\'')).to.equal('a &amp; &lt;b&gt;"q\'');
+    });
+
+    it('round-trips a stored name', () => {
+        const stored = 'Paste &amp; &amp;amp; &lt;i&gt;';
+        expect(storedProjectName(decodeHtmlEntities(stored))).to.equal(stored);
     });
 });
 

@@ -68,6 +68,8 @@ editor.once('load', () => {
 <li><b>ACES</b>: ACES curve for a filmic look with desaturated highlights.</li>
 <li><b>ACES2</b>: Updated ACES with improved color/contrast.</li>
 <li><b>Neutral</b>: No contrast or hue shift for minimal tonal shaping.</li>
+<li><b>AgX</b>: Smooth highlight roll-off that desaturates very bright colors, as in Blender.</li>
+<li><b>AgX Punchy</b>: AgX with more contrast and saturation.</li>
 </ul>`
         },
         {

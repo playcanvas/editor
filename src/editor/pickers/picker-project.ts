@@ -575,6 +575,12 @@ editor.once('load', () => {
             currentProject = res;
             refreshUI();
 
+            // signed out there's no one to load
+            if (!ownerId) {
+                currentUser = null;
+                overlay.hidden = false;
+                return;
+            }
             editor.call('users:loadOne', ownerId, (user) => {
                 currentUser = user;
                 overlay.hidden = false;

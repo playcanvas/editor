@@ -146,7 +146,12 @@ editor.once('load', () => {
 
             const select = selected[this._link.get('resource_id')];
             const { collision } = this._link.entity;
-            this.entity.enabled = this._link.entity.enabled && collision?.enabled && (select || visible);
+            // the engine shape gizmo draws the collision it edits
+            this.entity.enabled =
+                this._link.entity.enabled &&
+                collision?.enabled &&
+                (select || visible) &&
+                editor.call('gizmo:shape:entity') !== this._link.entity;
             if (!this.entity.enabled) {
                 this._link.entity.__noIcon = false;
                 return;
@@ -340,6 +345,11 @@ editor.once('load', () => {
             // override addModelToLayers to selectively put some mesh instances
             // to the front and others to the back layer depending on __useFrontLayer
             const customAddMeshInstancesToLayers = function (this: Model) {
+                // the engine calls this on layer changes, including before the model is set
+                if (!this.meshInstances) {
+                    return;
+                }
+
                 const frontMeshInstances = this.meshInstances.filter((mi: MeshInstance) => mi.__useFrontLayer);
                 const backMeshInstances = this.meshInstances.filter((mi: MeshInstance) => !mi.__useFrontLayer);
 

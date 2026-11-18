@@ -1,3 +1,4 @@
+import { PXRANGE } from '@playcanvas/font-tools';
 import { Observer } from '@playcanvas/observer';
 import type { EventHandle } from '@playcanvas/observer';
 import { Panel, Button, Container, Label, TextInput, Menu, BindingTwoWay } from '@playcanvas/pcui';
@@ -44,6 +45,18 @@ const FONT_ATTRIBUTES: Attribute[] = [
         label: 'Invert',
         path: 'meta.invert',
         type: 'boolean'
+    },
+    {
+        label: 'Pixel Range',
+        path: 'meta.pxrange',
+        type: 'number',
+        args: {
+            allowNull: true,
+            placeholder: `${PXRANGE}`,
+            min: 1,
+            precision: 0,
+            step: 1
+        }
     }
 ];
 
@@ -524,7 +537,11 @@ class FontAssetInspector extends Container {
         const chars = [...new Set(Array.from(this._fontAttributes.getField('characters').value))].join('');
         this._processing = true;
         this._toggleProcessFontButton(asset);
-        editor.call('fonts:reprocess', asset, chars, this._fontAttributes.getField('meta.invert').value).then(() => {
+        const invert = this._fontAttributes.getField('meta.invert').value;
+
+        // empty means the font-tools default
+        const pxrange = this._fontAttributes.getField('meta.pxrange').value ?? undefined;
+        editor.call('fonts:reprocess', asset, chars, invert, pxrange).then(() => {
             this._processing = false;
             // the flag is inspector-wide and this instance is reused across selections, so refresh
             // whatever is linked now — otherwise a font selected mid-regenerate keeps a disabled

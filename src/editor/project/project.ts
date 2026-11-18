@@ -1,6 +1,7 @@
 import { backend, UNSUPPORTED } from '@/common/backend';
 import { Defer } from '@/common/defer';
 import { supports, service } from '@/common/supports';
+import { decodeProject, storedProjectName } from '@/common/utils';
 import { config } from '@/editor/config';
 
 const UPLOAD_PART_SIZE = 20 * 1024 * 1024;
@@ -28,7 +29,7 @@ editor.once('load', () => {
                 .projectCreate(apiData)
                 .on('load', (_status: number, response: unknown) => {
                     if (success) {
-                        success(response);
+                        success(decodeProject(response));
                     }
                 })
                 .on('error', (_status: number, err: unknown) => {
@@ -47,7 +48,7 @@ editor.once('load', () => {
                 .projectGet({ projectId })
                 .on('load', (_status: number, data: unknown) => {
                     if (success) {
-                        success(data);
+                        success(decodeProject(data));
                     }
                 })
                 .on('error', (_status: number, err: unknown) => {
@@ -66,7 +67,7 @@ editor.once('load', () => {
             .projectGet({ projectId: config.project.id })
             .on('load', (_status: number, data: unknown) => {
                 if (success) {
-                    success(data);
+                    success(decodeProject(data));
                 }
             });
     });
@@ -82,7 +83,8 @@ editor.once('load', () => {
 
             service
                 .userProjects(id, view)
-                .on('load', (_status: number, response: unknown) => {
+                .on('load', (_status: number, response: { result?: unknown[] }) => {
+                    response?.result?.forEach(decodeProject);
                     resolve(response);
                 })
                 .on('error', (_status: number, error: unknown) => {
@@ -121,7 +123,7 @@ editor.once('load', () => {
                 })
                 .on('load', (_status: number, response: unknown) => {
                     if (success) {
-                        success(response);
+                        success(decodeProject(response));
                     }
                 })
                 .on('error', (_status: number, error: unknown) => {
@@ -561,7 +563,7 @@ editor.once('load', () => {
                 })
                 .on('load', (_status: number, response: unknown) => {
                     if (success) {
-                        success(response);
+                        success(decodeProject(response));
                     }
                 })
                 .on('error', (_status: number, err: unknown) => {
@@ -611,8 +613,12 @@ editor.once('load', () => {
                 return;
             }
 
+            // invitations find the project by its name as stored
+            const project = options.project as { name: string } | undefined;
             service
-                .invitationList(options)
+                .invitationList(
+                    project ? { ...options, project: { ...project, name: storedProjectName(project.name) } } : options
+                )
                 .on('load', (_status: number, data: unknown) => {
                     if (success) {
                         success(data.result);
@@ -645,7 +651,7 @@ editor.once('load', () => {
             service
                 .invitationCreate({
                     project_owner: project.owner,
-                    project_name: project.name,
+                    project_name: storedProjectName(project.name),
                     email: email,
                     permission: permission
                 })

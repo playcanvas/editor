@@ -306,6 +306,57 @@ export const escapeHtml = (str: unknown) => {
     return `${str ?? ''}`.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 };
 
+const NAMED_ENTITIES: Record<string, string> = {
+    amp: '&',
+    lt: '<',
+    gt: '>',
+    quot: '"',
+    apos: "'",
+    nbsp: ' '
+};
+
+/**
+ * Turns HTML entities back into the characters they stand for, one level deep, so text the
+ * server returns escaped (e.g. `&amp;`) shows and saves as typed. Unknown entities are left as-is.
+ * @param str - The value to decode
+ * @returns The decoded string
+ */
+export const decodeHtmlEntities = (str: unknown) => {
+    return `${str ?? ''}`.replace(/&(#x[0-9a-f]+|#[0-9]+|[a-z]+);/gi, (match, entity: string) => {
+        if (entity[0] === '#') {
+            const hex = entity[1] === 'x' || entity[1] === 'X';
+            const code = parseInt(entity.slice(hex ? 2 : 1), hex ? 16 : 10);
+            return code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : match;
+        }
+        return NAMED_ENTITIES[entity.toLowerCase()] ?? match;
+    });
+};
+
+/**
+ * Decodes a project's name and description in place, which the api returns html-escaped, so
+ * they show and save as typed.
+ * @param project - The project from the api or page config
+ * @returns The same project
+ */
+export const decodeProject = <T>(project: T) => {
+    const p = project as Record<string, unknown> | null | undefined;
+    for (const key of ['name', 'description']) {
+        if (typeof p?.[key] === 'string') {
+            p[key] = decodeHtmlEntities(p[key]);
+        }
+    }
+    return project;
+};
+
+/**
+ * Escapes a project name the way the api stores it, for requests that find a project by name.
+ * @param name - The decoded project name
+ * @returns The name as stored
+ */
+export const storedProjectName = (name: string) => {
+    return name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+};
+
 /**
  * Tells whether a url is an absolute http(s) link, so it is safe to use as a link's href.
  * @param url - The url to check

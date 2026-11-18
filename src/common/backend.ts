@@ -91,7 +91,9 @@ export type BackendServices = {
     pages?: {
         project: (projectId: number) => string;
         user: (username: string) => string;
+        projects: () => string;
         account: () => string;
+        admin: () => string;
         explore: () => string;
     };
 };
@@ -203,7 +205,9 @@ export const services = (rest: Rest): Required<BackendServices> => ({
     pages: {
         project: (projectId) => `/project/${projectId}`,
         user: (username) => `/user/${username}`,
+        projects: () => '/editor',
         account: () => '/account',
+        admin: () => '/admin',
         explore: () => '/explore/featured'
     }
 });
