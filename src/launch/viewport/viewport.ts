@@ -380,7 +380,9 @@ editor.once('load', () => {
         if (major === 2 && minor < 24) {
             app.systems.camera?.on('add', (entity: Entity, camera: CameraComponent) => {
                 if (camera.toneMapping > 6) {
-                    console.warn(`${entity.name}: AgX tonemapping needs Engine 2.24 or later (running ${pc.version}), using Neutral`);
+                    console.warn(
+                        `${entity.name}: AgX tonemapping needs Engine 2.24 or later (running ${pc.version}), using Neutral`
+                    );
                     camera.toneMapping = 5;
                 }
             });
