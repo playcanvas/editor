@@ -235,26 +235,23 @@ editor.once('load', () => {
             return;
         }
 
-        if (pickedData.node) {
-            editor.emit('viewport:pick:node', pickedData.node, pickedData.picked);
-        } else {
-            editor.call('viewport:pick', tap.x, tap.y, (node: Entity | null, picked: { node: GraphNode } | null) => {
-                if (gizmoHover && !node?.tags.has(FORCE_PICK_TAG)) {
-                    node = null;
-                    picked = null;
-                }
-                if (pickedData.node !== node || pickedData.picked !== picked) {
-                    pickedData.node = node;
-                    pickedData.picked = picked;
-                }
+        // pick at the click itself; the hover pick runs a frame behind the pointer
+        editor.call('viewport:pick', tap.x, tap.y, (node: Entity | null, picked: { node: GraphNode } | null) => {
+            if (gizmoHover && !node?.tags.has(FORCE_PICK_TAG)) {
+                node = null;
+                picked = null;
+            }
+            if (pickedData.node !== node || pickedData.picked !== picked) {
+                pickedData.node = node;
+                pickedData.picked = picked;
+            }
 
-                if (pickedData.node) {
-                    editor.emit('viewport:pick:node', pickedData.node, pickedData.picked);
-                } else {
-                    editor.emit('viewport:pick:clear');
-                }
-            });
-        }
+            if (pickedData.node) {
+                editor.emit('viewport:pick:node', pickedData.node, pickedData.picked);
+            } else {
+                editor.emit('viewport:pick:clear');
+            }
+        });
     });
 
     editor.on('scene:unload', () => {
