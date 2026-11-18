@@ -1,5 +1,6 @@
 import { Inspector } from '@playcanvas/inspector';
 import type { Observer } from '@playcanvas/observer';
+import type { CameraComponent, Entity } from 'playcanvas';
 import { LAYERID_DEPTH } from 'playcanvas';
 
 import { useGlslTranspilation } from '@/common/project-settings';
@@ -373,10 +374,31 @@ editor.once('load', () => {
             const miniStats = new (pc.MiniStats ? pc.MiniStats : pcx.MiniStats)(app);
         }
 
-        if (queryParams.inspector) {
-            const [major, minor] = pc.version.split('.').map(Number);
+        const [major, minor] = pc.version.split('.').map(Number);
+
+        // agx (7, 8) arrived in engine 2.24; older engines fail to compile its shaders
+        if (major === 2 && minor < 24) {
+            app.systems.camera?.on('add', (entity: Entity, camera: CameraComponent) => {
+                if (camera.toneMapping > 6) {
+                    console.warn(
+                        `${entity.name}: AgX tonemapping needs Engine 2.24 or later (running ${pc.version}), using Neutral`
+                    );
+                    camera.toneMapping = 5;
+                }
+            });
+        }
+
+        // the profiler is the inspector's Performance tab, recording from the first frame;
+        // `profiler` from engine 2.25, which has no profiler build for `profile` to load
+        const profile = queryParams.profile === 'true' || queryParams.profiler === 'true';
+        if (queryParams.inspector || profile) {
             if (major > 2 || (major === 2 && minor >= 23)) {
-                new Inspector(app);
+                const inspector = new Inspector(app, { record: profile });
+
+                // the inspector has no option to open a tab yet
+                if (profile) {
+                    (inspector as any)._setTab?.('perf');
+                }
             } else {
                 console.warn(`The Inspector requires Engine 2.23 or later (running ${pc.version})`);
             }

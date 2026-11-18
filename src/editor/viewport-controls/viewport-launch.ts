@@ -2,6 +2,7 @@ import { Container, Button, BooleanInput, Label, Divider } from '@playcanvas/pcu
 
 import { TooltipHandle } from '@/common/tooltips';
 import { config } from '@/editor/config';
+import { profilerParam } from '@/editor/mcp/engine-version';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');
@@ -76,10 +77,6 @@ editor.once('load', () => {
             query.push('device=webgl1');
         }
 
-        if (launchOptions.profiler) {
-            query.push('profile=true');
-        }
-
         if (launchOptions.debug) {
             query.push('debug=true');
         }
@@ -104,15 +101,22 @@ editor.once('load', () => {
         const withMcp = editor.call('mcp:status') === 'connected';
 
         const params = new URLSearchParams(location.search);
+        let version = config.engineVersions.current?.version ?? '';
         if (params.has('use_local_engine')) {
             query.push(`use_local_engine=${params.get('use_local_engine')}`);
         } else if (releaseCandidate && launchOptions.releaseCandidate) {
-            query.push(`version=${releaseCandidate}`);
+            version = releaseCandidate;
+            query.push(`version=${version}`);
         } else {
             const engineVersion = editor.call('settings:session').get('engineVersion');
             if (engineVersion && engineVersion !== 'current') {
-                query.push(`version=${config.engineVersions[engineVersion].version}`);
+                version = config.engineVersions[engineVersion].version;
+                query.push(`version=${version}`);
             }
+        }
+
+        if (launchOptions.profiler) {
+            query.push(`${profilerParam(version)}=true`);
         }
 
         if (params.has('use_local_frontend')) {
@@ -248,7 +252,7 @@ editor.once('load', () => {
     const optionProfiler = createOption('profiler', 'Profiler');
     const tooltipProfiler = TooltipHandle.attach({
         target: optionProfiler.parent.dom,
-        text: 'Enable the visual performance profiler in the launch page.',
+        text: 'Open the Inspector on its Performance tab, recording from the start of the application. Requires Engine 2.23 or later.',
         align: 'right',
         root: root
     });
@@ -339,7 +343,7 @@ editor.once('load', () => {
 
     // release-candidate
     if (releaseCandidate) {
-        const optionReleaseCandidate = createOption('releaseCandidate', 'Use Release Candidate');
+        const optionReleaseCandidate = createOption('releaseCandidate', 'Use Latest Engine');
         optionReleaseCandidate.value = settings.get('editor.launchReleaseCandidate');
         settings.on('editor.launchReleaseCandidate:set', (value: boolean) => {
             if (value !== optionReleaseCandidate.value) {
@@ -351,7 +355,7 @@ editor.once('load', () => {
         });
         TooltipHandle.attach({
             target: optionReleaseCandidate.parent.dom,
-            text: `Launch the scene using the engine release candidate (version ${releaseCandidate}).`,
+            text: `Launch the scene using the latest engine release (version ${releaseCandidate}).`,
             align: 'right',
             root: root
         }).class.add('launch-tooltip');

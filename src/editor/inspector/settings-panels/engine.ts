@@ -7,8 +7,6 @@ import type { Attribute } from '../attribute.type.d';
 import { BaseSettingsPanel } from './base';
 import type { BaseSettingsPanelArgs } from './base';
 
-const DEFAULT_ENGINE_URL_PREFIX = 'https://code.playcanvas.com/playcanvas-';
-
 const ATTRIBUTES: Attribute[] = [
     {
         observer: 'sessionSettings',
@@ -51,7 +49,7 @@ class EngineSettingsPanel extends BaseSettingsPanel {
 
         // when use_local_engine overrides the engine, the version select is forced by the URL,
         // so show the actual engine version (read-only) instead of the selectable options
-        if (versionField && !config.url.engine.startsWith(DEFAULT_ENGINE_URL_PREFIX)) {
+        if (versionField && new URLSearchParams(location.search).has('use_local_engine')) {
             const match = config.url.engine.match(/playcanvas-(\d+\.\d+\.\d+(?:-[a-z]+\.\d+)?)/);
             const label = match ? `${match[1]} (local engine)` : 'Local';
             // keep the currently bound value so disabling does not write back to settings

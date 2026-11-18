@@ -555,12 +555,28 @@ const OPACITY_ATTRIBUTES: (Attribute | Divider)[] = [
                     t: 'None'
                 },
                 {
+                    v: 'bayer2',
+                    t: 'Bayer 2'
+                },
+                {
+                    v: 'bayer4',
+                    t: 'Bayer 4'
+                },
+                {
                     v: 'bayer8',
                     t: 'Bayer 8'
                 },
                 {
+                    v: 'bayer16',
+                    t: 'Bayer 16'
+                },
+                {
                     v: 'bluenoise',
                     t: 'Blue Noise'
+                },
+                {
+                    v: 'ignnoise',
+                    t: 'Interleaved Gradient Noise'
                 }
             ]
         },
@@ -578,12 +594,28 @@ const OPACITY_ATTRIBUTES: (Attribute | Divider)[] = [
                     t: 'None'
                 },
                 {
+                    v: 'bayer2',
+                    t: 'Bayer 2'
+                },
+                {
+                    v: 'bayer4',
+                    t: 'Bayer 4'
+                },
+                {
                     v: 'bayer8',
                     t: 'Bayer 8'
                 },
                 {
+                    v: 'bayer16',
+                    t: 'Bayer 16'
+                },
+                {
                     v: 'bluenoise',
                     t: 'Blue Noise'
+                },
+                {
+                    v: 'ignnoise',
+                    t: 'Interleaved Gradient Noise'
                 }
             ]
         },
@@ -887,6 +919,62 @@ const SHEEN_ATTRIBUTES: (Attribute | Divider)[] = [
         path: 'data.sheenGlossInvert',
         type: 'boolean',
         reference: 'asset:material:sheenGlossInvert'
+    }
+];
+
+const DIFFUSE_TRANSMISSION_ATTRIBUTES: (Attribute | Divider)[] = [
+    ...createTextureAttribute('Diffuse Transmission', 'diffuseTransmission', TextureTypes.Scalar),
+    {
+        label: 'Vertex Color',
+        path: 'data.diffuseTransmissionVertexColor',
+        type: 'boolean',
+        reference: 'asset:material:diffuseTransmissionVertexColor'
+    },
+    {
+        label: 'Vertex Color Channel',
+        path: 'data.diffuseTransmissionVertexColorChannel',
+        type: 'select',
+        reference: 'asset:material:diffuseTransmissionVertexColorChannel',
+        args: {
+            type: 'string',
+            options: [
+                {
+                    v: 'r',
+                    t: 'R'
+                },
+                {
+                    v: 'g',
+                    t: 'G'
+                },
+                {
+                    v: 'b',
+                    t: 'B'
+                },
+                {
+                    v: 'a',
+                    t: 'A'
+                }
+            ]
+        }
+    },
+    {
+        label: 'Diffuse Transmission',
+        path: 'data.diffuseTransmission',
+        type: 'slider',
+        reference: 'asset:material:diffuseTransmission'
+    },
+    ...createTextureAttribute('Transmission Color', 'diffuseTransmissionColor', TextureTypes.Color),
+    {
+        label: 'Vertex Color',
+        path: 'data.diffuseTransmissionColorVertexColor',
+        type: 'boolean',
+        reference: 'asset:material:diffuseTransmissionColorVertexColor'
+    },
+    {
+        label: 'Color',
+        path: 'data.diffuseTransmissionColor',
+        type: 'rgb',
+        reference: 'asset:material:diffuseTransmissionColor'
     }
 ];
 
@@ -1505,6 +1593,24 @@ const DOM = (parent) => [
     },
     {
         root: {
+            diffuseTransmissionPanel: new Panel({
+                headerText: 'DIFFUSE TRANSMISSION',
+                collapsible: true,
+                collapsed: true
+            })
+        },
+        children: [
+            {
+                diffuseTransmissionInspector: new AttributesInspector({
+                    assets: parent._args.assets,
+                    history: parent._args.history,
+                    attributes: withSchemaBounds(DIFFUSE_TRANSMISSION_ATTRIBUTES)
+                })
+            }
+        ]
+    },
+    {
+        root: {
             refractionPanel: new Panel({
                 headerText: 'REFRACTION',
                 collapsible: true,
@@ -1612,6 +1718,8 @@ const MAPS = {
     clearCoatNormal: ['clearCoatNormalInspector'],
     sheen: ['sheenInspector'],
     sheenGloss: ['sheenInspector'],
+    diffuseTransmission: ['diffuseTransmissionInspector'],
+    diffuseTransmissionColor: ['diffuseTransmissionInspector'],
     refraction: ['refractionInspector'],
     thickness: ['refractionInspector'],
     iridescence: ['iridescenceInspector'],
@@ -1625,6 +1733,7 @@ const COLLAPSED_PANEL_DEPENDENCIES = {
     _specularPanel: ['specularMap', 'metalnessMap', 'glossMap', 'specularityFactorMap'],
     _clearCoatPanel: ['clearCoatMap', 'clearCoatGlossMap', 'clearCoatNormalMap'],
     _sheenPanel: ['sheenMap', 'sheenGlossMap'],
+    _diffuseTransmissionPanel: ['diffuseTransmissionMap', 'diffuseTransmissionColorMap'],
     _emissivePanel: ['emissiveMap'],
     _opacityPanel: ['opacityMap'],
     _normalsPanel: ['normalMap'],
@@ -1640,6 +1749,8 @@ const BULK_SLOTS = {
     specularityFactor: ['sf', 'specularityfactor'],
     sheen: ['sh', 'sheen'],
     sheenGloss: ['shg', 'sheenGloss'],
+    diffuseTransmission: ['dt', 'diffusetransmission'],
+    diffuseTransmissionColor: ['dtc', 'diffusetransmissioncolor'],
     refraction: ['rf', 'refraction'],
     thickness: ['th', 'thickness'],
     iridescence: ['ir', 'iridescence'],
@@ -1756,6 +1867,10 @@ class MaterialAssetInspector extends Container {
     _sheenPanel: Panel;
 
     _sheenInspector: AttributesInspector;
+
+    _diffuseTransmissionPanel: Panel;
+
+    _diffuseTransmissionInspector: AttributesInspector;
 
     _refractionPanel: Panel;
 
@@ -2714,6 +2829,7 @@ class MaterialAssetInspector extends Container {
         this._clearCoatGlossInspector.link(assets);
         this._clearCoatNormalInspector.link(assets);
         this._sheenInspector.link(assets);
+        this._diffuseTransmissionInspector.link(assets);
         this._refractionInspector.link(assets);
         this._iridescenceInspector.link(assets);
         this._emissiveInspector.link(assets);
@@ -2850,6 +2966,7 @@ class MaterialAssetInspector extends Container {
         this._clearCoatGlossInspector.unlink();
         this._clearCoatNormalInspector.unlink();
         this._sheenInspector.unlink();
+        this._diffuseTransmissionInspector.unlink();
         this._refractionInspector.unlink();
         this._iridescenceInspector.unlink();
         this._emissiveInspector.unlink();

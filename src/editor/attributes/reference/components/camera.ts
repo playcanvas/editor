@@ -136,6 +136,8 @@ export const fields: AttributeReference[] = [
 <li><b>ACES</b> (<code>pc.TONEMAP_ACES</code>): Industry standard filmic curve.</li>
 <li><b>ACES2</b> (<code>pc.TONEMAP_ACES2</code>): Updated ACES curve with improved color handling.</li>
 <li><b>Neutral</b> (<code>pc.TONEMAP_NEUTRAL</code>): Attempt to preserve original color while compressing brightness.</li>
+<li><b>AgX</b> (<code>pc.TONEMAP_AGX</code>): Smooth highlight roll-off that desaturates very bright colors, as in Blender. Engine 2.24 or later.</li>
+<li><b>AgX Punchy</b> (<code>pc.TONEMAP_AGX_PUNCHY</code>): AgX with more contrast and saturation. Engine 2.24 or later.</li>
 </ul>`,
         url: 'https://api.playcanvas.com/engine/classes/CameraComponent.html#tonemapping'
     },

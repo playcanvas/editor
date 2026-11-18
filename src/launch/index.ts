@@ -29,13 +29,6 @@ import './viewport/viewport';
 import './viewport/viewport-error-console';
 import './viewport/viewport-tooltip';
 
-// tools
-import './tools/tools';
-import './tools/tools-overview';
-import './tools/tools-timeline';
-import './tools/tools-frame';
-import './tools/tools-toolbar';
-
 // entities
 import './entities/entities';
 import './entities/entities-sync';

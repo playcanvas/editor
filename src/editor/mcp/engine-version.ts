@@ -69,4 +69,17 @@ const resolveEngineVersion = (
     return { channel, version: versions[channel]!.version, source: 'explicit' };
 };
 
-export { engineChannels, defaultEngineVersion, resolveEngineVersion };
+/**
+ * The launch query parameter that turns on the Launch page Profiler. `profile` also makes the
+ * launch page load the engine's profiler build, which engine 2.25 removed; from 2.25 the release
+ * build has everything the Profiler uses, so it takes `profiler`, which keeps the release build.
+ *
+ * @param version - The engine version the launch uses.
+ * @returns The query parameter name.
+ */
+const profilerParam = (version: string) => {
+    const [major, minor] = version.split('.').map(Number);
+    return major > 2 || (major === 2 && minor >= 25) ? 'profiler' : 'profile';
+};
+
+export { engineChannels, defaultEngineVersion, resolveEngineVersion, profilerParam };

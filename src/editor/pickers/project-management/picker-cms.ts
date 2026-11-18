@@ -960,6 +960,7 @@ editor.once('load', () => {
         showMenu(orgDropdownMenu, orgMenuButton, true);
     });
 
+    const { logout } = (config as unknown as EditorBlankConfig).url;
     const accountMenu = addMenu('picker-builds-menu', [
         { ...menuItem('cms-account-profile', 'View public profile', openOwnProfile), onIsEnabled: () => pages },
         { ...menuItem('cms-account-settings', 'Account settings', openAccount), onIsEnabled: () => pages },
@@ -969,10 +970,35 @@ editor.once('load', () => {
             ),
             onIsEnabled: () => accounts
         },
+        ...(config.self?.flags.superUser
+            ? [
+                  {
+                      ...menuItem('cms-account-admin', 'Admin dashboard', () => openPage((site) => site.admin())),
+                      onIsEnabled: () => pages
+                  }
+              ]
+            : []),
         menuItem('cms-account-feedback', 'Feedback', () =>
             window.open('https://forum.playcanvas.com/t/playcanvas-editor-feedback/616', '_blank')
         ),
-        menuItem('cms-account-github', 'GitHub', () => window.open('https://github.com/playcanvas/editor', '_blank'))
+        menuItem('cms-account-github', 'GitHub', () => window.open('https://github.com/playcanvas/editor', '_blank')),
+        ...(logout
+            ? [
+                  menuItem(
+                      'cms-account-logout',
+                      'Log out',
+                      () => {
+                          // the login server only accepts a POST, then redirects to its log-in page
+                          const form = document.createElement('form');
+                          form.method = 'POST';
+                          form.action = logout;
+                          document.body.append(form);
+                          form.submit();
+                      },
+                      ['cms-menu-group']
+                  )
+              ]
+            : [])
     ]);
     const openAccountMenu = () => {
         accountMenu.hidden = false;
