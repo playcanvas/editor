@@ -76,4 +76,23 @@ editor.once('load', () => {
         snapShift = state;
         checkSnap();
     });
+
+    // classic keeps the 2.23 transform gizmo look and the line grid; default uses the engine ones
+    let preset: 'classic' | 'default' = 'classic';
+
+    editor.method('gizmo:preset', () => preset);
+
+    const userSettings = editor.call('settings:user');
+    const setPreset = (value: string) => {
+        const next = value === 'default' ? 'default' : 'classic';
+        if (next === preset) {
+            return;
+        }
+        preset = next;
+        editor.emit('gizmo:preset', preset);
+        editor.call('viewport:render');
+    };
+    userSettings.on('editor.gizmoPreset:set', setPreset);
+    setPreset(userSettings.get('editor.gizmoPreset'));
+    editor.once('settings:user:load', () => setPreset(userSettings.get('editor.gizmoPreset')));
 });
