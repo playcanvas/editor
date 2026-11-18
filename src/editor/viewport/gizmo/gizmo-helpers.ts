@@ -18,8 +18,8 @@ import type { EntityObserver } from '@/editor-api';
 
 import { initEngineGizmo, releaseEngineGizmo } from './gizmo-engine';
 
-// engine helper gizmos: camera and light handles, collision shape handles and screen-sized icons
-// in both presets, and bounds handles in the default preset
+// engine helper gizmos: camera, light and collision shape gizmos and screen-sized icons in both
+// presets, and bounds handles in the default preset; classic styles them like the legacy gizmos
 
 type Edit = {
     observer: EntityObserver;
@@ -43,6 +43,17 @@ const ICON_PIXELS_MAX = 96;
 const COLLISION_ALPHA_FILL = 0.15;
 const COLLISION_ALPHA_BEHIND = 0.2;
 
+// classic pins the helpers to how the legacy gizmos drew: thin white lines without a volume fill,
+// their legacy opacity behind the scene, the legacy collision fill, and no handles or readout
+const CLASSIC = {
+    lineThickness: 1,
+    cameraOccluded: 0.15,
+    lightOccluded: 0.5,
+    iconOccluded: 0.25,
+    collisionFill: 0.6,
+    collisionBehind: 0.2
+};
+
 // the capsule, cone and cylinder gizmos run along y; collision axis 0 and 2 turn them onto x and z
 const AXIS_ROTATIONS = [new Quat().setFromEulerAngles(0, 0, -90), new Quat(), new Quat().setFromEulerAngles(90, 0, 0)];
 
@@ -59,6 +70,7 @@ let shapes: Record<string, ShapeGizmo> | null = null;
 let all: (HandleGizmo | IconGizmo)[] = [];
 
 let write = false;
+let classic = true;
 let iconSize = 0.2;
 let shapeDragging = false;
 
@@ -268,22 +280,58 @@ const createGizmos = (camera: Entity, layer: Layer, iconLayer: Layer) => {
 
     all = [camerasGizmo, lightsGizmo, boundsGizmo, ...Object.values(shapes), iconsGizmo];
 
-    for (const gizmo of [camerasGizmo, lightsGizmo, boundsGizmo, ...Object.values(shapes)]) {
-        gizmo.handles = write;
-    }
+    defaults = {
+        lineThickness: camerasGizmo.lineThickness,
+        occluded: camerasGizmo.theme.occluded.clone(),
+        fill: camerasGizmo.theme.fill.clone(),
+        icon: iconsGizmo.theme.occluded.clone()
+    };
     setSize(editor.call('settings:user').get('editor.gizmoSize'));
     setIconSize(iconSize);
-    setLightColor();
+    applyPreset();
 };
 
-// default draws lights and their icons in their own color, classic keeps them white
-const setLightColor = () => {
-    const color = editor.call('gizmo:preset') === 'default';
-    if (lightsGizmo) {
-        lightsGizmo.useLightColor = color;
+// the engine look, kept to restore it when switching back from classic
+let defaults: { lineThickness: number; occluded: Color; fill: Color; icon: Color } | null = null;
+
+// handles edit the scene, so they need write access; classic has none, like the legacy gizmos
+const setHandles = () => {
+    for (const gizmo of [camerasGizmo, lightsGizmo, ...Object.values(shapes ?? {})]) {
+        if (gizmo) {
+            gizmo.handles = write && !classic;
+        }
     }
-    if (iconsGizmo) {
-        iconsGizmo.useLightColor = color;
+};
+
+const applyPreset = () => {
+    classic = editor.call('gizmo:preset') !== 'default';
+    if (!defaults) {
+        return;
+    }
+    const white = (alpha: number) => new Color(1, 1, 1, alpha);
+    camerasGizmo.setTheme(
+        classic
+            ? { occluded: white(CLASSIC.cameraOccluded), fill: white(0) }
+            : { occluded: defaults.occluded.clone(), fill: defaults.fill.clone() }
+    );
+    lightsGizmo.setTheme(
+        classic
+            ? { occluded: white(CLASSIC.lightOccluded), fill: white(0) }
+            : { occluded: defaults.occluded.clone(), fill: defaults.fill.clone() }
+    );
+    iconsGizmo.setTheme({ occluded: classic ? white(CLASSIC.iconOccluded) : defaults.icon.clone() });
+
+    // default draws lights and their icons in their own color, classic keeps them white
+    lightsGizmo.useLightColor = !classic;
+    iconsGizmo.useLightColor = !classic;
+
+    for (const gizmo of [camerasGizmo, lightsGizmo, boundsGizmo, ...Object.values(shapes)]) {
+        gizmo.lineThickness = classic ? CLASSIC.lineThickness : defaults.lineThickness;
+        gizmo.readout = !classic;
+    }
+    setHandles();
+    if (shapeEntity) {
+        colorShape(shapes[shapeEntity.collision.type], shapeEntity);
     }
     editor.call('viewport:render');
 };
@@ -297,8 +345,8 @@ const colorShape = (gizmo: ShapeGizmo, entity: Entity) => {
     const [r, g, b] = editor.call('color:hsl2rgb', (hash % 128) / 128, 0.5, 0.5);
     gizmo.setTheme({
         base: new Color(r, g, b, 1),
-        occluded: new Color(r, g, b, COLLISION_ALPHA_BEHIND),
-        fill: new Color(r, g, b, COLLISION_ALPHA_FILL)
+        occluded: new Color(r, g, b, classic ? CLASSIC.collisionBehind : COLLISION_ALPHA_BEHIND),
+        fill: new Color(r, g, b, classic ? CLASSIC.collisionFill : COLLISION_ALPHA_FILL)
     });
 };
 
@@ -358,11 +406,14 @@ const hasIcon = (entity: Entity) => {
 };
 editor.method('gizmo:icon:has', hasIcon);
 
-const iconEntities = () => {
+// selected entities' icons hide under the transform gizmo, as the legacy icons did; without
+// write access there is no transform gizmo, so they stay to mark the selection
+const iconEntities = (selected: Entity[]) => {
+    const hidden = new Set(write ? selected : []);
     const result: Entity[] = [];
     for (const observer of editor.call('entities:list') as EntityObserver[]) {
         const entity = observer.entity;
-        if (entity && !entity.__noIcon && hasIcon(entity)) {
+        if (entity && !entity.__noIcon && !hidden.has(entity) && hasIcon(entity)) {
             result.push(entity);
         }
     }
@@ -403,7 +454,7 @@ editor.on('viewport:gizmoUpdate', () => {
     const bounds = editor.call('gizmo:boundingbox:visible') && editor.call('gizmo:preset') === 'default';
     const roots = nodes.filter((entity) => !nodes.some((other) => other !== entity && entity.isDescendantOf(other)));
     attach(boundsGizmo, bounds ? roots : []);
-    attach(iconsGizmo, iconEntities());
+    attach(iconsGizmo, iconEntities(nodes));
     updateShapes(nodes.length === 1 ? nodes[0] : null);
 
     // the collision handles sit on the bounds handles, and are the specific edit
@@ -412,18 +463,14 @@ editor.on('viewport:gizmoUpdate', () => {
 
 editor.method('gizmo:shape:entity', () => shapeEntity);
 editor.method('gizmo:icon:node', (meshInstance: MeshInstance) => iconsGizmo?.getIconNode(meshInstance) ?? null);
-editor.on('gizmo:preset', setLightColor);
+editor.on('gizmo:preset', applyPreset);
 
 editor.on('selector:change', () => editor.call('viewport:render'));
 editor.on('gizmo:boundingbox:visible', () => editor.call('viewport:render'));
 
 editor.on('permissions:writeState', (state: boolean) => {
     write = state;
-    for (const gizmo of all) {
-        if (gizmo instanceof HandleGizmo) {
-            gizmo.handles = state;
-        }
-    }
+    setHandles();
     editor.call('viewport:render');
 });
 
