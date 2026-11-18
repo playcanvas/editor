@@ -40,9 +40,13 @@ editor.once('load', () => {
         }
     });
 
-    editor.method('gizmo:boundingbox:visible', (state: boolean) => {
+    editor.method('gizmo:boundingbox:visible', (state?: boolean) => {
+        if (state === undefined) {
+            return visible;
+        }
         if (state !== visible) {
             visible = state;
+            editor.emit('gizmo:boundingbox:visible', visible);
             editor.call('viewport:render');
         }
     });
@@ -288,8 +292,9 @@ editor.once('load', () => {
     editor.once('viewport:load', (application: AppBase) => {
         app = application;
 
+        // the default preset draws the bounds with the engine bounding box gizmo (gizmo-helpers)
         editor.on('viewport:postUpdate', () => {
-            if (!entities.length) {
+            if (!entities.length || editor.call('gizmo:preset') !== 'classic') {
                 return;
             }
 

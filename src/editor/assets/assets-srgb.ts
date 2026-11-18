@@ -23,6 +23,8 @@ const SRGB_PATH_MAP = {
         'data.clearCoatNormalMap': false,
         'data.sheenMap': true,
         'data.sheenGlossMap': false,
+        'data.diffuseTransmissionMap': false,
+        'data.diffuseTransmissionColorMap': true,
         'data.refractionMap': false,
         'data.thicknessMap': false,
         'data.iridescenceMap': false,

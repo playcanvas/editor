@@ -8,7 +8,16 @@ export const FORCE_PICK_TAG = 'force-pick';
 export const SOURCE_MAP_URL = /\/\/# sourceMappingURL=(\S+)\s*$/;
 
 // Tonemapping modes
-export const TONEMAPPING = ['Linear', 'Filmic', 'Hejl', 'ACES', 'ACES2', 'Neutral'];
+export const TONEMAPPING = [
+    { v: 0, t: 'Linear' },
+    { v: 1, t: 'Filmic' },
+    { v: 2, t: 'Hejl' },
+    { v: 3, t: 'ACES' },
+    { v: 4, t: 'ACES2' },
+    { v: 5, t: 'Neutral' },
+    { v: 7, t: 'AgX' },
+    { v: 8, t: 'AgX Punchy' }
+];
 
 // Script Loading Type
 export const LOAD_SCRIPT_AS_ASSET = 0;
