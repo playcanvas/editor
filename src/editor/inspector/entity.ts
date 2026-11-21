@@ -330,10 +330,15 @@ class EntityInspector extends Container {
         // add component menu
         this._menuAddComponent = this._createAddComponentMenu();
 
-        // focus name input on F2
+        // focus name input on N or F2, as for assets
+        const onRename = this._onHotkeyRename.bind(this);
+        editor.call('hotkey:register', 'entities:rename', {
+            key: 'n',
+            callback: onRename
+        });
         editor.call('hotkey:register', 'entities:rename:f2', {
             key: 'F2',
-            callback: this._onHotkeyF2.bind(this)
+            callback: onRename
         });
     }
 
@@ -354,7 +359,7 @@ class EntityInspector extends Container {
         return data;
     }
 
-    _onHotkeyF2() {
+    _onHotkeyRename() {
         if (editor.call('picker:isOpen')) {
             return;
         }
@@ -822,6 +827,7 @@ class EntityInspector extends Container {
 
         this._menuAddComponent.destroy();
         this._menuContext.destroy();
+        editor.call('hotkey:unregister', 'entities:rename');
         editor.call('hotkey:unregister', 'entities:rename:f2');
 
         super.destroy();
