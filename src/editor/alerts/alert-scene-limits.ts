@@ -28,7 +28,7 @@ editor.once('load', () => {
         const size = JSON.stringify(data).length;
         if (size > SCENE_SIZE_LIMIT) {
             const msg =
-                '<a href="https://developer.playcanvas.com/user-manual/scenes/#size-limit" target="_blank">here</a> about scene limits.';
+                '<a href="https://developer.playcanvas.com/user-manual/editor/scenes/#size-limit" target="_blank">here</a> about scene limits.';
             label.text = `You are close to your scene size limit. Check ${msg}`;
             container.hidden = false;
         } else {
