@@ -88,8 +88,13 @@ editor.once('load', () => {
             icons: ['&#57638;']
         },
         {
-            buttons: ['N', '$/', 'F2'],
+            buttons: ['F2'],
             title: 'Rename Entity / Asset',
+            icons: ['&#57895;']
+        },
+        {
+            buttons: ['N'],
+            title: 'Rename Asset',
             icons: ['&#57895;']
         },
         {
@@ -128,6 +133,11 @@ editor.once('load', () => {
             icons: ['&#57618;', '&#57619;', '&#57617;']
         },
         {
+            buttons: ['4'],
+            title: 'Resize Element Gizmo',
+            icons: ['&#57666;']
+        },
+        {
             buttons: ['L'],
             title: 'Toggle space: World / Local ',
             icons: ['&#57879;']
@@ -161,11 +171,6 @@ editor.once('load', () => {
             buttons: ['Shift', '$+', '?'],
             title: 'Controls',
             icons: ['&#57654;']
-        },
-        {
-            buttons: ['Alt', '$+', 'A'],
-            title: 'Focus on Assets Search Field',
-            icons: ['&#57641;']
         },
         {
             buttons: ['Ctrl', '$+', 'Space'],
