@@ -88,13 +88,8 @@ editor.once('load', () => {
             icons: ['&#57638;']
         },
         {
-            buttons: ['F2'],
+            buttons: ['N', '$/', 'F2'],
             title: 'Rename Entity / Asset',
-            icons: ['&#57895;']
-        },
-        {
-            buttons: ['N'],
-            title: 'Rename Asset',
             icons: ['&#57895;']
         },
         {
