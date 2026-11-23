@@ -115,7 +115,7 @@ editor.once('load', () => {
     editor.on('realtime:cannotConnect', () => {
         overlay.hidden = false;
         clearTimeout(timeout);
-        content.innerHTML = 'Cannot connect to the server. Please try again later.';
+        content.innerHTML = 'Cannot connect to the server. Please refresh the editor.';
     });
 
     const ERROR_GRACE_MS = 3000;
