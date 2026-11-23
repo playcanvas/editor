@@ -88,12 +88,33 @@ describe('api.globals.transport tests', function () {
         realtime.connection.disconnect();
     });
 
+    it('stops reconnecting when the server keeps rejecting the access token', function () {
+        // the editor provides the sentry log global
+        window.log = { error: sinon.stub() };
+        const realtime = new api.Realtime();
+        let cannotConnect = 0;
+        realtime.on('cannotConnect', () => cannotConnect++);
+
+        realtime.connection.connect('wss://realtime');
+        for (let i = 0; i < 4; i++) {
+            const socket = sockets[i];
+            socket.open();
+            socket.dispatchEvent(new MessageEvent('message', { data: 'auth{"id":null}' }));
+            expect(socket.readyState).to.equal(3);
+            clock.tick(3000);
+        }
+
+        expect(sockets.length).to.equal(4);
+        expect(cannotConnect).to.equal(1);
+        delete window.log;
+    });
+
     it('rejects an op too large for the server instead of sending it', function () {
         const realtime = new api.Realtime();
         realtime.connection.connect('wss://realtime');
         const socket = sockets[0];
         socket.open();
-        socket.dispatchEvent(new MessageEvent('message', { data: 'auth{}' }));
+        socket.dispatchEvent(new MessageEvent('message', { data: 'auth{"id":1}' }));
 
         const sharedb = realtime.connection.sharedb;
         const handled = sinon.stub(sharedb, 'handleMessage');
