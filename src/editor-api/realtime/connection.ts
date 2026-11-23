@@ -241,7 +241,6 @@ class RealtimeConnection extends Events {
 
         socket.addEventListener('open', () => {
             this._state = 'connected';
-            this._reconnectAttempts = 0;
 
             socket.send(`auth${JSON.stringify({ accessToken: api.accessToken })}`);
 
@@ -249,9 +248,19 @@ class RealtimeConnection extends Events {
         });
 
         const onmessage = (msg: Parameters<WebSocket['onmessage']>[0]) => {
-            if (msg.data.toString().startsWith('auth')) {
+            const data = msg.data.toString();
+            if (data.startsWith('auth')) {
                 // clear this handler
                 socket.removeEventListener('message', onmessage);
+
+                // a rejected token gets a null id, and the server drops the socket on the next request
+                if (!JSON.parse(data.slice(4)).id) {
+                    socket.close();
+                    return;
+                }
+
+                // reset only once authenticated, so a server that keeps refusing the token runs out of attempts
+                this._reconnectAttempts = 0;
 
                 this._onauth(socket);
             }
