@@ -93,7 +93,7 @@ const CLASSIC_THEME: GizmoTheme = {
     guideOcclusion: 0.9,
     disabled: new Color(0, 0, 0, 0)
 };
-// classic keeps the engine default translucent outlined planes it drew before the port, with no fade or readout
+// classic keeps the translucent outlined planes it drew before the port, outlined as thin as the axis lines, with no fade or readout
 const CLASSIC_PRESET: GizmoPreset = {
     readout: false,
     guideThickness: 1,
@@ -108,7 +108,7 @@ const CLASSIC_PRESET: GizmoPreset = {
         axisPlaneGap: 0,
         axisPlaneSize: 0.21,
         axisPlaneOpacity: 0.35,
-        axisPlaneOutlineThickness: 0.01,
+        axisPlaneOutlineThickness: 0.005,
         axisFadeAngle: 0,
         disableShapes: ['xyz'] // TODO: hide center sphere for now
     },
