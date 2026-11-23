@@ -43,6 +43,10 @@ const ICON_PIXELS_MAX = 96;
 const COLLISION_ALPHA_FILL = 0.15;
 const COLLISION_ALPHA_BEHIND = 0.2;
 
+// draws collision fills in front of a render surface they match, which they otherwise fight, as
+// their meshes are tessellated differently
+const COLLISION_DEPTH_BIAS = -8;
+
 // classic pins the helpers to how the legacy gizmos drew: thin white lines without a volume fill,
 // their legacy opacity behind the scene, the legacy collision fill, and no handles or readout
 const CLASSIC = {
@@ -51,6 +55,9 @@ const CLASSIC = {
     lightOccluded: 0.5,
     iconOccluded: 0.25,
     collisionFill: 0.6,
+    // the legacy collision shaded its fill at up to twice its color facing the camera; this is
+    // that brightness at a typical angle, as the engine fill is flat
+    collisionLight: 1.6,
     collisionBehind: 0.2
 };
 
@@ -234,6 +241,9 @@ const createGizmos = (camera: Entity, layer: Layer, iconLayer: Layer) => {
         cone: new ConeGizmo(camera.camera, layer),
         cylinder: new CylinderGizmo(camera.camera, layer)
     };
+    for (const gizmo of Object.values(shapes)) {
+        gizmo.fillDepthBias = COLLISION_DEPTH_BIAS;
+    }
     for (const [type, gizmo] of Object.entries(shapes)) {
         initEngineGizmo(gizmo);
         gizmo.enabled = false;
@@ -343,10 +353,11 @@ const colorShape = (gizmo: ShapeGizmo, entity: Entity) => {
         hash += char.charCodeAt(0);
     }
     const [r, g, b] = editor.call('color:hsl2rgb', (hash % 128) / 128, 0.5, 0.5);
+    const lit = (c: number) => Math.min(c * (classic ? CLASSIC.collisionLight : 1), 1);
     gizmo.setTheme({
         base: new Color(r, g, b, 1),
         occluded: new Color(r, g, b, classic ? CLASSIC.collisionBehind : COLLISION_ALPHA_BEHIND),
-        fill: new Color(r, g, b, classic ? CLASSIC.collisionFill : COLLISION_ALPHA_FILL)
+        fill: new Color(lit(r), lit(g), lit(b), classic ? CLASSIC.collisionFill : COLLISION_ALPHA_FILL)
     });
 };
 

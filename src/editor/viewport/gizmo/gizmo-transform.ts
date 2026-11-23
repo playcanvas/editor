@@ -93,7 +93,7 @@ const CLASSIC_THEME: GizmoTheme = {
     guideOcclusion: 0.9,
     disabled: new Color(0, 0, 0, 0)
 };
-// classic pins the 2.24 knobs to how 2.23 drew: opaque planes, no outline, no fade, no readout
+// classic keeps the engine default translucent outlined planes it drew before the port, with no fade or readout
 const CLASSIC_PRESET: GizmoPreset = {
     readout: false,
     guideThickness: 1,
@@ -107,8 +107,8 @@ const CLASSIC_PRESET: GizmoPreset = {
         axisLineThickness: 0.005,
         axisPlaneGap: 0,
         axisPlaneSize: 0.21,
-        axisPlaneOpacity: 1,
-        axisPlaneOutlineThickness: 0,
+        axisPlaneOpacity: 0.35,
+        axisPlaneOutlineThickness: 0.01,
         axisFadeAngle: 0,
         disableShapes: ['xyz'] // TODO: hide center sphere for now
     },
