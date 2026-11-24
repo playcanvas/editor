@@ -1,4 +1,4 @@
-// generated, do not edit (c8c90f07159fbc9e945f56427f5a2aed1b38ca56)
+// generated, do not edit (a6d57862977491f7aeca05a6fb6cbc6a862bbce1)
 /**
  * The editor's load-time migrations as pure functions over plain documents, so a backend can
  * upgrade a document before any editor opens it. Each one is idempotent. Fields the editor only
@@ -331,7 +331,7 @@ const texture = (a: Doc) => {
         return;
     }
     if (a.meta) {
-        if (!has(a.meta, 'compress')) {
+        if (!a.meta.compress || typeof a.meta.compress !== 'object') {
             const alpha = a.meta.alpha || `${a.meta.type ?? ''}`.toLowerCase() === 'truecoloralpha';
             a.meta.compress = { alpha, dxt: false, ...TEXTURE_COMPRESS };
         } else {
@@ -347,7 +347,7 @@ const texture = (a: Doc) => {
  * Upgrades an asset document.
  *
  * @param doc - The asset.
- * @returns The upgraded copy, and what changed that a user should hear about.
+ * @returns The upgraded copy, whether it differs, and what changed that a user should hear about.
  */
 export const migrateAsset = (doc: Doc) => {
     const a = structuredClone(doc);
@@ -382,14 +382,14 @@ export const migrateAsset = (doc: Doc) => {
             break;
         }
     }
-    return { doc: a, notes };
+    return { doc: a, changed: !same(a, doc), notes };
 };
 
 /**
  * Upgrades a scene document: its entities and its settings.
  *
  * @param doc - The scene.
- * @returns The upgraded copy, and what changed that a user should hear about.
+ * @returns The upgraded copy, whether it differs, and what changed that a user should hear about.
  */
 export const migrateScene = (doc: Doc) => {
     const s = structuredClone(doc);
@@ -402,14 +402,14 @@ export const migrateScene = (doc: Doc) => {
         notes.push(`scene render.gamma_correction set from ${render.gamma_correction} to ${GAMMA_SRGB}`);
         render.gamma_correction = GAMMA_SRGB;
     }
-    return { doc: s, notes };
+    return { doc: s, changed: !same(s, doc), notes };
 };
 
 /**
  * Upgrades a project settings document.
  *
  * @param doc - The project settings.
- * @returns The upgraded copy, and what changed that a user should hear about.
+ * @returns The upgraded copy, whether it differs, and what changed that a user should hear about.
  */
 export const migrateProjectSettings = (doc: Doc) => {
     const s = structuredClone(doc);
@@ -444,12 +444,14 @@ export const migrateProjectSettings = (doc: Doc) => {
         s.layers = structuredClone(DEFAULT_LAYERS);
         s.layerOrder = DEFAULT_LAYER_ORDER.map(([layer, transparent]) => ({ layer, transparent, enabled: true }));
     }
+
+    // the editor reads a missing field as null, so these fill omitted fields too
     for (const key of ['useKeyboard', 'useMouse', 'useTouch']) {
-        if (s[key] === null) {
+        if (s[key] == null) {
             s[key] = true;
         }
     }
-    if (s.useGamepads === null) {
+    if (s.useGamepads == null) {
         s.useGamepads = !!s.vr;
     }
     for (const key of ['i18nAssets', 'externalScripts']) {
@@ -457,14 +459,14 @@ export const migrateProjectSettings = (doc: Doc) => {
             s[key] = [];
         }
     }
-    if (s.powerPreference === null) {
+    if (s.powerPreference == null) {
         s.powerPreference = 'high-performance';
     }
-    if (s.maxAssetRetries === null) {
+    if (s.maxAssetRetries == null) {
         s.maxAssetRetries = 0;
     }
     if (!s.enableSharedArrayBuffer) {
         s.enableSharedArrayBuffer = false;
     }
-    return { doc: s, notes };
+    return { doc: s, changed: !same(s, doc), notes };
 };
