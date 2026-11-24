@@ -10,6 +10,7 @@ import {
     script
 } from 'playcanvas';
 
+import { trackMigration } from '@/common/migration-metrics';
 import { unsetLocal } from '@/common/observer-unset';
 import { deepCopy, formatter as f, insert, remove, set, unset } from '@/common/utils';
 import { config } from '@/editor/config';
@@ -53,6 +54,7 @@ editor.once('load', () => {
 
         settings.history.enabled = false;
         settings.sync.enabled = editor.call('permissions:write');
+        const tracked = trackMigration('settings.project', settings);
 
         if (!Object.prototype.hasOwnProperty.call(config.project.settings, 'engineV2')) {
             settings.set('engineV2', false, undefined, undefined, true);
@@ -223,6 +225,7 @@ editor.once('load', () => {
             }
         }
 
+        tracked();
         settings.history.enabled = history;
         settings.sync.enabled = sync;
     });
