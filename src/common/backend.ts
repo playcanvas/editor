@@ -62,7 +62,7 @@ export type BackendServices = {
     builds?: Picked<'apps', 'appGet'> & Picked<'projects', 'projectApps' | 'projectBuilds'>;
     publishing?: Picked<'apps', 'appCreate' | 'appDelete'>;
     downloads?: Picked<'apps', 'appDownload'>;
-    /** Serves the Static Website download format; without it the dialog offers NPM only. */
+    /** Serves the deprecated Static Website download format; without it the dialog omits it. */
     staticDownloads?: true;
     /** Deletes download and publish builds by job id, apart from `publishing`'s app deletes. */
     buildDeletion?: Picked<'projects', 'projectBuildDelete'>;

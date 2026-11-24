@@ -2642,6 +2642,18 @@ $picker-icon-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000
         max-width: 340px;
     }
 
+    .pcui-label.download-format-deprecated {
+        margin: 6px 0 0;
+        color: $warn-text;
+        font-size: 12px;
+        line-height: 16px;
+        white-space: normal;
+
+        &:not(.pcui-hidden) {
+            display: block;
+        }
+    }
+
     .pcui-container.options > .pcui-container.field {
         margin: 0 0 8px;
         padding: 0;
