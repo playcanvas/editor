@@ -321,7 +321,7 @@ import './viewport-controls/viewport-whois';
 import './alerts/alert-connection';
 import './alerts/alert-usage';
 import './alerts/alert-scene-limits';
-import './alerts/alert-maintenance';
+import './alerts/alert-notice';
 
 // pickers
 import './pickers/picker';

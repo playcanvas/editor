@@ -191,6 +191,13 @@ export type EditorBlankConfig = {
 
 export type EditorConfig = {
     version: string;
+    /**
+     * A notice the server shows above the Editor, such as planned maintenance. Absent when there is none.
+     */
+    notice?: {
+        message: string;
+        url?: string;
+    };
     self: {
         id: number;
         username: string;
