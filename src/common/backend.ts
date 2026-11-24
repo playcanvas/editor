@@ -84,9 +84,6 @@ export type BackendServices = {
     /** Records onboarding progress; losing an update only replays a tip. */
     onboarding?: Picked<'home', 'homeSceneOpened' | 'homeSceneEvent'>;
 
-    /** Polls the public GitHub issues for a maintenance notice; a third-party call, not REST. */
-    maintenanceNotices?: true;
-
     /** Urls of the site's pages outside the editor. */
     pages?: {
         project: (projectId: number) => string;
@@ -200,7 +197,6 @@ export const services = (rest: Rest): Required<BackendServices> => ({
     merges: { ...rest.merge, ...rest.conflicts },
 
     onboarding: pick(rest.home, 'homeSceneOpened', 'homeSceneEvent'),
-    maintenanceNotices: true,
 
     pages: {
         project: (projectId) => `/project/${projectId}`,
