@@ -1,5 +1,6 @@
 import type { Observer } from '@playcanvas/observer';
 
+import { trackMigration } from '@/common/migration-metrics';
 import { unsetLocal } from '@/common/observer-unset';
 import { deepEqual, formatter as f } from '@/common/utils';
 import { LOAD_SCRIPT_AS_ASSET } from '@/core/constants';
@@ -433,6 +434,7 @@ editor.once('load', () => {
         asset.history.enabled = false;
 
         const type = asset.get('type');
+        const tracked = trackMigration(`asset.${type}`, asset);
 
         if (!asset.has('i18n')) {
             asset.set('i18n', {});
@@ -454,6 +456,7 @@ editor.once('load', () => {
             migrateScript(asset);
         }
 
+        tracked();
         asset.history.enabled = true;
     };
 

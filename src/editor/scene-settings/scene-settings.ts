@@ -1,6 +1,7 @@
 import type { Observer } from '@playcanvas/observer';
 import { GAMMA_NONE, GAMMA_SRGB } from 'playcanvas';
 
+import { trackMigration } from '@/common/migration-metrics';
 import { ObserverSync } from '@/common/observer-sync';
 import { formatter as f } from '@/common/utils';
 
@@ -161,6 +162,7 @@ editor.once('load', () => {
         settings.sync.enabled = editor.call('permissions:write');
 
         // gamma correction migration
+        const tracked = trackMigration('settings.scene', settings);
         const oldGammaCorrection = settings.get('render.gamma_correction');
         if (oldGammaCorrection !== GAMMA_NONE && oldGammaCorrection !== GAMMA_SRGB) {
             const gammaCorrection = GAMMA_SRGB;
@@ -173,6 +175,7 @@ editor.once('load', () => {
             editor.call('console:log:settings', settings, msg);
         }
 
+        tracked();
         settings.history.enabled = history;
         settings.sync.enabled = sync;
     });

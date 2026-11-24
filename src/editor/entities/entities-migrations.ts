@@ -10,6 +10,7 @@ import {
     SHADOWUPDATE_REALTIME
 } from 'playcanvas';
 
+import { trackMigration } from '@/common/migration-metrics';
 import { unsetLocal } from '@/common/observer-unset';
 import { formatter as f } from '@/common/utils';
 
@@ -32,6 +33,7 @@ editor.once('load', () => {
         // Defer migration to ensure document is ready
         setTimeout(() => {
             entity.history.enabled = false;
+            const tracked = trackMigration('entity', entity);
 
             // tags
             if (!entity.has('tags')) {
@@ -477,6 +479,7 @@ editor.once('load', () => {
                 }
             }
 
+            tracked();
             entity.history.enabled = true;
             done();
         });
