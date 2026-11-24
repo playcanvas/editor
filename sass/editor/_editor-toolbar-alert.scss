@@ -1,44 +1,33 @@
 @use 'sass:color';
 
-// a full-width alert bar, also used by the scene size alert; @content styles its label
-// (the shared close button follows .toolbar-alert)
-@mixin alert-bar {
+// full-width stack of alert bars (alert-bar.ts)
+#layout-alerts {
     grid-column: 1 / -1;
+}
+
+.toolbar-alert {
+    display: flex;
     height: 30px;
     line-height: 30px;
     padding-left: 10px;
 
     .pcui-label {
-        @content;
-
+        width: 100%;
         height: 30px;
         line-height: 30px;
         margin: 0;
         vertical-align: bottom;
+        color: #fff;
+        font-size: 14px;
+        text-align: center;
 
         a {
             color: yellow;
         }
     }
-}
 
-.toolbar-alert {
-    display: flex;
-    background-color: $bright-red;
-    border-top: 1px solid color.mix($bright-red, $border-primary, 60%);
-
-    @include alert-bar {
-        width: 100%;
-        color: #fff;
-        font-size: 14px;
-        text-align: center;
-    }
-}
-
-.toolbar-alert,
-#scene-size-alert {
     .pcui-button.close {
-        float: right;
+        flex-shrink: 0;
         padding: 0;
         margin: 0;
         background-color: transparent;
@@ -59,11 +48,25 @@
     }
 }
 
-#scene-size-alert {
-    background-color: #e95e4f;
+.toolbar-alert-error {
+    background-color: $bright-red;
+    border-top: 1px solid color.mix($bright-red, $border-primary, 60%);
+}
 
-    @include alert-bar {
-        color: white;
-        font-size: 12px;
+.toolbar-alert-warn {
+    background-color: #e95e4f;
+}
+
+.toolbar-alert-info {
+    background-color: $bcg-primary;
+    border-top: 1px solid $info-edge;
+
+    .pcui-label a {
+        color: $info-text;
     }
+}
+
+#scene-size-alert .pcui-label {
+    font-size: 12px;
+    text-align: left;
 }
