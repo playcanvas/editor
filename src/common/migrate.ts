@@ -1,8 +1,9 @@
-// generated, do not edit (a6d57862977491f7aeca05a6fb6cbc6a862bbce1)
+// generated, do not edit (09b862f90366a8e57b4725f120147bfb313d277d)
 /**
  * The editor's load-time migrations as pure functions over plain documents, so a backend can
- * upgrade a document before any editor opens it. Each one is idempotent. Fields the editor only
- * drops locally (`unsetLocal`) are kept, as the hosted documents keep them.
+ * upgrade a document before any editor opens it. A document records the version it was upgraded
+ * to in `schema_version`; one without it is legacy (version 0). Fields the editor only drops
+ * locally (`unsetLocal`) are kept, as the hosted documents keep them.
  */
 
 // stored documents are arbitrary json; every read here is guarded at runtime
@@ -344,14 +345,12 @@ const texture = (a: Doc) => {
 };
 
 /**
- * Upgrades an asset document.
+ * Upgrades a legacy asset in place.
  *
- * @param doc - The asset.
- * @returns The upgraded copy, whether it differs, and what changed that a user should hear about.
+ * @param a - The asset.
+ * @param notes - Collects what changed that a user should hear about.
  */
-export const migrateAsset = (doc: Doc) => {
-    const a = structuredClone(doc);
-    const notes: string[] = [];
+const legacyAsset = (a: Doc, notes: string[]) => {
     if (!has(a, 'i18n')) {
         a.i18n = {};
     }
@@ -382,18 +381,15 @@ export const migrateAsset = (doc: Doc) => {
             break;
         }
     }
-    return { doc: a, changed: !same(a, doc), notes };
 };
 
 /**
- * Upgrades a scene document: its entities and its settings.
+ * Upgrades a legacy scene in place: its entities and its settings.
  *
- * @param doc - The scene.
- * @returns The upgraded copy, whether it differs, and what changed that a user should hear about.
+ * @param s - The scene.
+ * @param notes - Collects what changed that a user should hear about.
  */
-export const migrateScene = (doc: Doc) => {
-    const s = structuredClone(doc);
-    const notes: string[] = [];
+const legacyScene = (s: Doc, notes: string[]) => {
     for (const e of Object.values<Doc>(s.entities ?? {})) {
         entity(e, notes);
     }
@@ -402,19 +398,15 @@ export const migrateScene = (doc: Doc) => {
         notes.push(`scene render.gamma_correction set from ${render.gamma_correction} to ${GAMMA_SRGB}`);
         render.gamma_correction = GAMMA_SRGB;
     }
-    return { doc: s, changed: !same(s, doc), notes };
 };
 
 /**
- * Upgrades a project settings document.
+ * Upgrades legacy project settings in place.
  *
- * @param doc - The project settings.
- * @returns The upgraded copy, whether it differs, and what changed that a user should hear about.
+ * @param s - The project settings.
+ * @param notes - Collects what changed that a user should hear about.
  */
-export const migrateProjectSettings = (doc: Doc) => {
-    const s = structuredClone(doc);
-    const notes: string[] = [];
-
+const legacyProjectSettings = (s: Doc, notes: string[]) => {
     if (!has(s, 'engineV2')) {
         s.engineV2 = false;
     }
@@ -468,5 +460,64 @@ export const migrateProjectSettings = (doc: Doc) => {
     if (!s.enableSharedArrayBuffer) {
         s.enableSharedArrayBuffer = false;
     }
-    return { doc: s, changed: !same(s, doc), notes };
 };
+
+type Step = (doc: Doc, notes: string[]) => void;
+
+// STEPS[v] upgrades each kind of document from version v to v + 1; add a step to change the schema
+const STEPS: { asset: Step; scene: Step; projectSettings: Step }[] = [
+    { asset: legacyAsset, scene: legacyScene, projectSettings: legacyProjectSettings }
+];
+
+/**
+ * The version every document is upgraded to.
+ */
+export const SCHEMA_VERSION = STEPS.length;
+
+/**
+ * Runs the steps from a document's version up to {@link SCHEMA_VERSION} and stamps it. A
+ * document from a newer version is left alone.
+ *
+ * @param doc - The document.
+ * @param kind - Which steps to run.
+ * @returns The upgraded copy, whether its content differs (the stamp aside), and what changed
+ * that a user should hear about.
+ */
+const migrate = (doc: Doc, kind: keyof (typeof STEPS)[number]) => {
+    const d = structuredClone(doc);
+    const notes: string[] = [];
+    const from = Number.isInteger(d.schema_version) && d.schema_version > 0 ? d.schema_version : 0;
+    for (let v = from; v < SCHEMA_VERSION; v++) {
+        STEPS[v][kind](d, notes);
+    }
+    d.schema_version = Math.max(from, SCHEMA_VERSION);
+    const changed = !same({ ...d, schema_version: undefined }, { ...doc, schema_version: undefined });
+    return { doc: d, changed, notes };
+};
+
+/**
+ * Upgrades an asset document.
+ *
+ * @param doc - The asset.
+ * @returns The upgraded copy, whether its content differs, and what changed that a user should
+ * hear about.
+ */
+export const migrateAsset = (doc: Doc) => migrate(doc, 'asset');
+
+/**
+ * Upgrades a scene document: its entities and its settings.
+ *
+ * @param doc - The scene.
+ * @returns The upgraded copy, whether its content differs, and what changed that a user should
+ * hear about.
+ */
+export const migrateScene = (doc: Doc) => migrate(doc, 'scene');
+
+/**
+ * Upgrades a project settings document.
+ *
+ * @param doc - The project settings.
+ * @returns The upgraded copy, whether its content differs, and what changed that a user should
+ * hear about.
+ */
+export const migrateProjectSettings = (doc: Doc) => migrate(doc, 'projectSettings');
