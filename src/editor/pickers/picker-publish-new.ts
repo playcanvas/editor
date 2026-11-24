@@ -23,9 +23,9 @@ const log = createLog('<PATH>');
 const DOWNLOAD_FORMAT_STATIC = 'static';
 const DOWNLOAD_FORMAT_WEB_LENS = 'web_lens';
 const DOWNLOAD_FORMAT_NPM = 'npm';
+const DEFAULT_FORMAT = DOWNLOAD_FORMAT_NPM;
 
 editor.once('load', () => {
-    const DEFAULT_FORMAT = backend().staticDownloads ? DOWNLOAD_FORMAT_STATIC : DOWNLOAD_FORMAT_NPM;
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
     // holds tooltip targets for cleanup
@@ -400,11 +400,11 @@ editor.once('load', () => {
     containerDownloadOptions.append(labelDownloadOptions);
 
     const downloadFormatOptions = [
-        ...(backend().staticDownloads ? [{ t: 'Static Website', v: DOWNLOAD_FORMAT_STATIC }] : []),
+        { t: 'NPM + Vite Project', v: DOWNLOAD_FORMAT_NPM },
         ...(config.self.flags.hasSnapchatWebLensDownload
             ? [{ t: 'Snapchat Web Lens', v: DOWNLOAD_FORMAT_WEB_LENS }]
             : []),
-        { t: 'NPM + Vite Project (WIP)', v: DOWNLOAD_FORMAT_NPM }
+        ...(backend().staticDownloads ? [{ t: 'Static Website (Deprecated)', v: DOWNLOAD_FORMAT_STATIC }] : [])
     ];
 
     fieldDownloadFormat = new SelectInput({
@@ -413,6 +413,13 @@ editor.once('load', () => {
         options: downloadFormatOptions
     });
     containerDownloadOptions.append(fieldDownloadFormat);
+
+    const labelStaticDeprecated = new Label({
+        text: 'Static Website downloads are deprecated. Use NPM + Vite Project instead.',
+        class: 'download-format-deprecated',
+        hidden: true
+    });
+    containerDownloadOptions.append(labelStaticDeprecated);
 
     fieldDownloadFormat.on('change', () => {
         refreshDownloadFormatOptions();
@@ -425,7 +432,10 @@ editor.once('load', () => {
 
         refreshingDownloadFormatOptions = true;
 
-        const npmProject = fieldDownloadFormat?.value === DOWNLOAD_FORMAT_NPM;
+        labelStaticDeprecated.hidden = fieldDownloadFormat?.value !== DOWNLOAD_FORMAT_STATIC;
+
+        // the download format only applies to downloads, so publishing keeps its build options
+        const npmProject = mode === 'download' && fieldDownloadFormat?.value === DOWNLOAD_FORMAT_NPM;
         if (fieldOptionsConcat && fieldOptionsMinify && fieldOptionsSourcemaps && fieldOptionsOptimizeSceneFormat) {
             if (npmProject) {
                 if (!optionsBeforeNpmProject) {
