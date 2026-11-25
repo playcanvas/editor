@@ -52,4 +52,47 @@ describe('trackMigration', () => {
         tracked();
         expect(names).to.deep.equal([]);
     });
+
+    describe('parity', () => {
+        const parity = () => names.filter((n) => n.startsWith('editor.migrate.parity.'));
+
+        it('counts a match when the shared migration writes the same', () => {
+            const doc = new Observer({ type: 'script', data: {}, i18n: {} });
+            const tracked = trackMigration('asset.script', doc);
+            doc.set('data.loadingType', 0);
+            tracked();
+            expect(parity()).to.deep.equal(['editor.migrate.parity.match.asset.script']);
+        });
+
+        it('counts a mismatch with the first path that differs', () => {
+            const doc = new Observer({ type: 'font', data: {}, i18n: {} });
+            const tracked = trackMigration('asset.font', doc);
+            doc.set('data.intensity', 1);
+            tracked();
+            expect(parity()).to.deep.equal(['editor.migrate.parity.mismatch.asset.font.data.intensity']);
+        });
+
+        it('counts a mismatch when only the shared migration writes', () => {
+            const doc = new Observer({ type: 'cubemap', data: {} });
+            const tracked = trackMigration('asset.cubemap', doc);
+            tracked();
+            expect(parity()).to.deep.equal(['editor.migrate.parity.mismatch.asset.cubemap.i18n']);
+        });
+
+        it('ignores fields the editor only drops locally', () => {
+            const doc = new Observer({ type: 'json', data: {}, legacy: true });
+            const tracked = trackMigration('asset.json', doc);
+            doc.set('i18n', {});
+            doc.unset('legacy');
+            tracked();
+            expect(parity()).to.deep.equal(['editor.migrate.parity.match.asset.json']);
+        });
+
+        it('skips documents neither migration touches', () => {
+            const doc = new Observer({ type: 'script', data: { loadingType: 0 }, i18n: {} });
+            const tracked = trackMigration('asset.script', doc);
+            tracked();
+            expect(parity()).to.deep.equal([]);
+        });
+    });
 });
