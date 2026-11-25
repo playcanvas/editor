@@ -98,9 +98,10 @@ const runShared = (kind: string, doc: Doc) => {
  *
  * @param kind - What is migrated, used in the metric name.
  * @param observer - The document being migrated.
+ * @param stored - The document as stored, when the observer also holds defaults the backend never sees.
  * @returns Call once the migration has run.
  */
-export const trackMigration = (kind: string, observer: Observer) => {
+export const trackMigration = (kind: string, observer: Observer, stored?: Doc) => {
     const name = kind.replace(/[^\w.]/g, '_');
     const { metrics } = globalThis as { metrics?: { increment: (m: { metricsName: string }) => void } };
     const count = checked.get(name) ?? 0;
@@ -121,7 +122,10 @@ export const trackMigration = (kind: string, observer: Observer) => {
         }
         let shared: Doc | null | undefined;
         try {
-            shared = runShared(kind, before);
+            const migrated = runShared(kind, stored ? structuredClone(stored) : before);
+
+            // the backend migrates the stored document, so defaults are layered on after, as the editor does
+            shared = stored && migrated ? { ...before, ...migrated } : migrated;
         } catch {
             shared = undefined;
         }

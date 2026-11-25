@@ -54,7 +54,7 @@ editor.once('load', () => {
 
         settings.history.enabled = false;
         settings.sync.enabled = editor.call('permissions:write');
-        const tracked = trackMigration('settings.project', settings);
+        const tracked = trackMigration('settings.project', settings, deepCopy(config.project.settings));
 
         if (!Object.prototype.hasOwnProperty.call(config.project.settings, 'engineV2')) {
             settings.set('engineV2', false, undefined, undefined, true);
