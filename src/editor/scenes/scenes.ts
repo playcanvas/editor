@@ -1,4 +1,5 @@
 import { backend, UNSUPPORTED } from '@/common/backend';
+import { config } from '@/editor/config';
 
 editor.once('load', () => {
     // Fetch list of scenes from the server and
@@ -76,6 +77,70 @@ editor.once('load', () => {
                 })
                 .on('load', (_status: number, data: unknown) => callback?.(data))
                 .on('error', (_status: number, error: unknown) => errorCallback?.(error));
+        }
+    );
+
+    // Rename a scene. There is no REST call for it: the name lives on the scene's realtime doc,
+    // which the backend copies to the scene list. The loaded scene is renamed through its open
+    // doc, as the settings panel does, so every view of it follows `scene:name`; any other scene
+    // through a one-off fetch of its doc, dropped again once the op is acknowledged.
+    editor.method(
+        'scenes:rename',
+        (uniqueId: number | string, name: string, callback?: () => void, errorCallback?: (error: unknown) => void) => {
+            if (!editor.call('permissions:write')) {
+                errorCallback?.('No write permission');
+                return;
+            }
+
+            if (String(uniqueId) === String(config.scene.uniqueId)) {
+                const current = editor.call('realtime:scene');
+                if (!current?.data) {
+                    errorCallback?.('Scene is not loaded');
+                    return;
+                }
+
+                editor.call('realtime:scene:op', {
+                    p: ['name'],
+                    od: current.data.name || '',
+                    oi: name
+                });
+                editor.emit('scene:name', name);
+                callback?.();
+                return;
+            }
+
+            const connection = editor.call('realtime:connection');
+            if (connection?.state !== 'connected') {
+                errorCallback?.('Not connected');
+                return;
+            }
+
+            // reuse a doc something else already holds, and leave it to its owner
+            const existing = connection.getExisting('scenes', String(uniqueId));
+            const doc = existing ?? connection.get('scenes', String(uniqueId));
+            const done = (err?: unknown) => {
+                if (!existing) {
+                    doc.destroy();
+                }
+                if (err) {
+                    errorCallback?.(err);
+                } else {
+                    callback?.();
+                }
+            };
+
+            doc.fetch((err: unknown) => {
+                if (err) {
+                    done(err);
+                    return;
+                }
+                if (!doc.type) {
+                    done('Scene not found');
+                    return;
+                }
+
+                doc.submitOp([{ p: ['name'], od: doc.data.name || '', oi: name }], (err: unknown) => done(err));
+            });
         }
     );
 

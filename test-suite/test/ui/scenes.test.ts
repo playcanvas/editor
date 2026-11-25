@@ -95,6 +95,39 @@ test.describe('scenes', () => {
         expect(await sceneList(editorPage)).toContainEqual(listed);
     });
 
+    test('rename scene from the picker', async ({ editorPage }) => {
+        const picker = new ScenePicker(editorPage);
+        const created = await createScene(editorPage, uniqueName('scene'));
+        extra.push(created.id);
+
+        // a scene other than the loaded one, so the rename goes through its own realtime doc
+        const renamed = uniqueName('scene');
+        await picker.rename(created.id, renamed);
+
+        await expect(picker.row(created.id).locator('.name')).toHaveText(renamed);
+        const listed = expect.objectContaining({ id: created.id, name: renamed });
+        expect(await sceneList(editorPage)).toContainEqual(listed);
+    });
+
+    test('rename current scene from the picker', async ({ editorPage }) => {
+        const picker = new ScenePicker(editorPage);
+        const created = await createScene(editorPage, uniqueName('scene'));
+        extra.push(created.id);
+
+        // rename the scene we made, never the one the project fixture handed us
+        expect(await picker.openRow(created.id)).toBe(created.id);
+        const renamed = uniqueName('scene');
+        const named = await picker.armName();
+        await picker.rename(created.id, renamed);
+
+        expect(await named()).toBe(renamed);
+        expect(await picker.stripName()).toBe(renamed);
+        await expect(picker.row(created.id).locator('.name')).toHaveText(renamed);
+        await new EditorShell(editorPage).flushScene();
+        const listed = expect.objectContaining({ id: created.id, name: renamed });
+        expect(await sceneList(editorPage)).toContainEqual(listed);
+    });
+
     test('delete scene', async ({ editorPage }) => {
         const picker = new ScenePicker(editorPage);
         const shell = new EditorShell(editorPage);
