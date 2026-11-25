@@ -126,7 +126,9 @@ export const trackMigration = (kind: string, observer: Observer, stored?: Doc) =
         }
         let shared: Doc | null | undefined;
         try {
-            const doc = storedKeys ? Object.fromEntries(storedKeys.filter((k) => Object.hasOwn(before, k)).map((k) => [k, before[k]])) : before;
+            const doc = storedKeys
+                ? Object.fromEntries(storedKeys.filter((k) => Object.hasOwn(before, k)).map((k) => [k, before[k]]))
+                : before;
             const migrated = runShared(kind, doc);
 
             // the backend migrates the stored document, so defaults are layered on after, as the editor does
