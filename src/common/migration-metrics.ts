@@ -98,7 +98,8 @@ const runShared = (kind: string, doc: Doc) => {
  *
  * @param kind - What is migrated, used in the metric name.
  * @param observer - The document being migrated.
- * @param stored - The document as stored, when the observer also holds defaults the backend never sees.
+ * @param stored - The document as stored, when the observer also holds defaults the backend never
+ * sees. Only its keys are read, before the migration runs, so it is not copied.
  * @returns Call once the migration has run.
  */
 export const trackMigration = (kind: string, observer: Observer, stored?: Doc) => {
@@ -110,6 +111,9 @@ export const trackMigration = (kind: string, observer: Observer, stored?: Doc) =
     }
     checked.set(name, count + 1);
     const before = observer.json() as Doc;
+
+    // the stored values are those in `before`, so only which keys are stored needs keeping
+    const storedKeys = stored && count < PARITY_MAX ? Object.keys(stored) : null;
     return () => {
         const after = observer.json();
         if (!reported.has(name) && wrote(before, after)) {
@@ -122,10 +126,11 @@ export const trackMigration = (kind: string, observer: Observer, stored?: Doc) =
         }
         let shared: Doc | null | undefined;
         try {
-            const migrated = runShared(kind, stored ? structuredClone(stored) : before);
+            const doc = storedKeys ? Object.fromEntries(storedKeys.filter((k) => Object.hasOwn(before, k)).map((k) => [k, before[k]])) : before;
+            const migrated = runShared(kind, doc);
 
             // the backend migrates the stored document, so defaults are layered on after, as the editor does
-            shared = stored && migrated ? { ...before, ...migrated } : migrated;
+            shared = storedKeys && migrated ? { ...before, ...migrated } : migrated;
         } catch {
             shared = undefined;
         }

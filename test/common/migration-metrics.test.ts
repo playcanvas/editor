@@ -2,6 +2,7 @@ import { Observer } from '@playcanvas/observer';
 import { expect } from 'chai';
 import { afterEach, beforeEach, describe, it } from 'mocha';
 
+import { migrateProjectSettings } from '../../src/common/migrate';
 import { trackMigration } from '../../src/common/migration-metrics';
 
 describe('trackMigration', () => {
@@ -86,6 +87,36 @@ describe('trackMigration', () => {
             doc.unset('legacy');
             tracked();
             expect(parity()).to.deep.equal(['editor.migrate.parity.match.asset.json']);
+        });
+
+        describe('with the stored document', () => {
+            // project settings the shared migration leaves alone, with an editor default for engineV2
+            const settings = () => {
+                const { schema_version: _, ...doc } = migrateProjectSettings({ engineV2: true }).doc;
+                const { engineV2: __, ...stored } = doc;
+                return { doc, stored };
+            };
+
+            it('migrates the stored fields, not the editor defaults', () => {
+                const { doc, stored } = settings();
+                const observer = new Observer(doc);
+                const tracked = trackMigration('settings.project', observer, stored);
+
+                // the editor syncs what its migration writes back into the stored settings
+                observer.set('engineV2', false);
+                stored.engineV2 = false;
+                tracked();
+                expect(parity()).to.deep.equal(['editor.migrate.parity.match.settings.project']);
+            });
+
+            it('counts the editor defaults as stored without it', () => {
+                const { doc } = settings();
+                const observer = new Observer(doc);
+                const tracked = trackMigration('settings.project', observer);
+                observer.set('engineV2', false);
+                tracked();
+                expect(parity()).to.deep.equal(['editor.migrate.parity.mismatch.settings.project.engineV2']);
+            });
         });
 
         it('skips documents neither migration touches', () => {
