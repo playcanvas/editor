@@ -135,7 +135,12 @@ export const trackMigration = (kind: string, observer: Observer) => {
         } else {
             const path = drift(before, after, shared);
             outcome = path
-                ? `mismatch.${name}.${path.slice(0, PATH_DEPTH).join('.').replace(/[^\w.]/g, '_') || 'root'}`
+                ? `mismatch.${name}.${
+                      path
+                          .slice(0, PATH_DEPTH)
+                          .join('.')
+                          .replace(/[^\w.]/g, '_') || 'root'
+                  }`
                 : `match.${name}`;
         }
         if (!compared.has(outcome)) {
