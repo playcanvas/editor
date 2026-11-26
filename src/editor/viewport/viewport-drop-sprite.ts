@@ -82,12 +82,7 @@ editor.once('load', () => {
             }
 
             // parent
-            let parent = null;
-            if (editor.api.globals.selection.items[0] instanceof Entity) {
-                parent = editor.api.globals.selection.items[0];
-            } else {
-                parent = editor.api.globals.entities.root;
-            }
+            let parent = editor.api.globals.entities.root;
 
             const entities = [];
             data = [];
