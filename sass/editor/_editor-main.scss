@@ -1988,7 +1988,7 @@ strong {
                 }
             }
 
-            &:not(.current, .disabled, .new-scene):hover {
+            &:not(.current, .disabled, .new-scene, .renaming):hover {
                 background-color: #354144;
                 cursor: pointer;
             }
@@ -2086,11 +2086,17 @@ strong {
                 }
             }
 
-            &.new-scene {
+            &.new-scene,
+            &.renaming {
                 height: auto;
                 line-height: 1;
                 padding: 12px 15px;
                 cursor: default;
+            }
+
+            // a row being renamed shows only the new scene row's label and input
+            &.renaming > :not(.new-scene-label, .pcui-text-input) {
+                display: none;
             }
 
             > .pcui-label.new-scene-label {

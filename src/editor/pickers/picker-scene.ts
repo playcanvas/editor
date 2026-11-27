@@ -113,6 +113,9 @@ editor.once('load', () => {
     let dropdownScene: Scene | null = null;
     let dropdownMenu: Menu | null = null;
 
+    // starts the inline rename of a rendered row, by scene id
+    const renameHandlers = new Map<string, () => void>();
+
     const toggleLoading = (toggle: boolean) => {
         skeleton.hidden = !toggle;
         if (toggle) {
@@ -266,9 +269,93 @@ editor.once('load', () => {
             dropdownMenu.position(rect.right - menuItems.clientWidth, rect.bottom);
         });
 
+        // turns the row into an input like the new scene row: Enter renames, Escape or leaving
+        // the field puts the row back
+        renameHandlers.set(String(scene.id), () => {
+            if (row.class.contains('renaming') || !editor.call('permissions:write')) {
+                return;
+            }
+            row.class.add('renaming');
+
+            const label = new Label({
+                text: 'Enter new Scene name and press Enter:',
+                class: 'new-scene-label'
+            });
+            row.append(label);
+
+            const input = new TextInput({
+                value: scene.name,
+                placeholder: 'Enter new Scene name and press Enter',
+                blurOnEnter: false
+            });
+            row.append(input);
+            input.focus(true);
+
+            let pending = false;
+
+            input.on('blur', () => {
+                if (pending) {
+                    return;
+                }
+                label.destroy();
+                input.destroy();
+                row.class.remove('renaming');
+            });
+
+            // Escape needs no handling: the input blurs on it
+            input.on('keydown', (e: KeyboardEvent) => {
+                if (e.key !== 'Enter' || pending || input.destroyed) {
+                    return;
+                }
+
+                const value = input.value.trim();
+                if (!value || value === scene.name) {
+                    input.blur();
+                    return;
+                }
+
+                pending = true;
+                input.enabled = false;
+                editor.call(
+                    'scenes:rename',
+                    scene.uniqueId,
+                    value,
+                    () => {
+                        scene.name = value;
+                        if (!container.hidden) {
+                            refreshScenes();
+                        }
+                    },
+                    (err: unknown) => {
+                        pending = false;
+                        if (input.destroyed) {
+                            return;
+                        }
+                        input.enabled = true;
+                        input.focus();
+                        editor.call('status:error', `Couldn't rename scene: ${err}`);
+                    }
+                );
+            });
+        });
+
+        // pressing the row while renaming only ends the rename (the input blurs on press),
+        // so the click that follows must not load the scene
+        let pressedWhileRenaming = false;
+        row.dom.addEventListener(
+            'pointerdown',
+            () => {
+                pressedWhileRenaming = row.class.contains('renaming');
+            },
+            true
+        );
+
         if (!isCurrentScene) {
             events.push(
                 row.on('click', (e) => {
+                    if (pressedWhileRenaming) {
+                        return;
+                    }
                     if (e.target === row.dom || e.target === name.dom || e.target === date.dom) {
                         if (parseInt(String(config.scene.id), 10) === parseInt(String(scene.id), 10)) {
                             return;
@@ -301,6 +388,7 @@ editor.once('load', () => {
             dropdownMenu.hidden = true;
         }
         destroyEvents();
+        renameHandlers.clear();
         sceneList.clear();
         const filterScenes = scenes.filter((scene) => {
             return scene.name.toLowerCase().indexOf(filter.value.toLowerCase()) !== -1;
@@ -323,6 +411,14 @@ editor.once('load', () => {
     dropdownMenu = new Menu({
         class: 'picker-scene-menu',
         items: [
+            {
+                // a realtime write, so unlike the rest calls below it needs no backend service
+                text: 'Rename Scene',
+                onIsEnabled: () => editor.call('permissions:write'),
+                onSelect: () => {
+                    renameHandlers.get(String(dropdownScene.id))?.();
+                }
+            },
             {
                 text: 'Duplicate Scene',
                 onIsEnabled: canManage,

@@ -148,6 +148,19 @@ export class ScenePicker {
         return loaded();
     }
 
+    /** Renames a scene through its row's inline "Rename Scene" input. */
+    async rename(id: number, name: string) {
+        await this.open();
+        await this.rowMenu(id, 'Rename Scene');
+        const input = this.row(id).locator('.pcui-text-input input');
+        await input.waitFor();
+
+        // the input opens focused on the current name, so clear it with real keys
+        await input.press('ControlOrMeta+A');
+        await input.pressSequentially(name);
+        await input.press('Enter');
+    }
+
     /** Creates a scene through the inline "New Scene" row; resolves with the new scene id. */
     async newScene(name: string) {
         const from = await sceneId(this.page);
