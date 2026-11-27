@@ -2,6 +2,7 @@ import { Observer } from '@playcanvas/observer';
 import { expect } from 'chai';
 import { afterEach, beforeEach, describe, it } from 'mocha';
 
+import { migrateProjectSettings } from '../../src/common/migrate';
 import { trackMigration } from '../../src/common/migration-metrics';
 
 describe('trackMigration', () => {
@@ -51,5 +52,78 @@ describe('trackMigration', () => {
         doc.set('a', 1);
         tracked();
         expect(names).to.deep.equal([]);
+    });
+
+    describe('parity', () => {
+        const parity = () => names.filter((n) => n.startsWith('editor.migrate.parity.'));
+
+        it('counts a match when the shared migration writes the same', () => {
+            const doc = new Observer({ type: 'script', data: {}, i18n: {} });
+            const tracked = trackMigration('asset.script', doc);
+            doc.set('data.loadingType', 0);
+            tracked();
+            expect(parity()).to.deep.equal(['editor.migrate.parity.match.asset.script']);
+        });
+
+        it('counts a mismatch with the first path that differs', () => {
+            const doc = new Observer({ type: 'font', data: {}, i18n: {} });
+            const tracked = trackMigration('asset.font', doc);
+            doc.set('data.intensity', 1);
+            tracked();
+            expect(parity()).to.deep.equal(['editor.migrate.parity.mismatch.asset.font.data.intensity']);
+        });
+
+        it('counts a mismatch when only the shared migration writes', () => {
+            const doc = new Observer({ type: 'cubemap', data: {} });
+            const tracked = trackMigration('asset.cubemap', doc);
+            tracked();
+            expect(parity()).to.deep.equal(['editor.migrate.parity.mismatch.asset.cubemap.i18n']);
+        });
+
+        it('ignores fields the editor only drops locally', () => {
+            const doc = new Observer({ type: 'json', data: {}, legacy: true });
+            const tracked = trackMigration('asset.json', doc);
+            doc.set('i18n', {});
+            doc.unset('legacy');
+            tracked();
+            expect(parity()).to.deep.equal(['editor.migrate.parity.match.asset.json']);
+        });
+
+        describe('with the stored document', () => {
+            // project settings the shared migration leaves alone, with an editor default for engineV2
+            const settings = () => {
+                const { schema_version: _, ...doc } = migrateProjectSettings({ engineV2: true }).doc;
+                const { engineV2: __, ...stored } = doc;
+                return { doc, stored };
+            };
+
+            it('migrates the stored fields, not the editor defaults', () => {
+                const { doc, stored } = settings();
+                const observer = new Observer(doc);
+                const tracked = trackMigration('settings.project', observer, stored);
+
+                // the editor syncs what its migration writes back into the stored settings
+                observer.set('engineV2', false);
+                stored.engineV2 = false;
+                tracked();
+                expect(parity()).to.deep.equal(['editor.migrate.parity.match.settings.project']);
+            });
+
+            it('counts the editor defaults as stored without it', () => {
+                const { doc } = settings();
+                const observer = new Observer(doc);
+                const tracked = trackMigration('settings.project', observer);
+                observer.set('engineV2', false);
+                tracked();
+                expect(parity()).to.deep.equal(['editor.migrate.parity.mismatch.settings.project.engineV2']);
+            });
+        });
+
+        it('skips documents neither migration touches', () => {
+            const doc = new Observer({ type: 'script', data: { loadingType: 0 }, i18n: {} });
+            const tracked = trackMigration('asset.script', doc);
+            tracked();
+            expect(parity()).to.deep.equal([]);
+        });
     });
 });
